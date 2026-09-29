@@ -1,5 +1,5 @@
 {
-  "_about": "Every sprite in the game. `request` is sent as-is to Retro Diffusion (POST /v2/inferences); `kind`, `frame` and `directions` tell the game how to use it. Generate with `make art`; results land in art/sprites/<id>.png. Anything not generated yet shows as placeholder pixel art. Gameplay data (stats, maps, quests) lives in content/.",
+  "_about": "Every sprite in the game. `request` is sent as-is to Retro Diffusion (POST /v2/inferences); `kind`, `frame` and `directions` tell the game how to use it. `derive` makes a FREE palette-swapped copy of another sprite (villagers from the hero, monster variants, tree/tile variants) — the game builds it at load time. A derived sprite with a `request` can be upgraded to its own art with `python3 tools/rd.py generate <id>`; `make art` skips derived ones. Anything not generated or derived yet shows as placeholder pixel art. Gameplay data (stats, maps, quests) lives in content/. See docs/ART_PLAN.md for the budget.",
   "defaults": {
     "num_images": 1
   },
@@ -20,6 +20,46 @@
         "width": 48,
         "height": 48,
         "return_spritesheet": true
+      }
+    },
+    {
+      "id": "elf_walk",
+      "kind": "walk_sheet",
+      "frame": 48,
+      "directions": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "request": {
+        "prompt": "cute chibi elf adventurer with long pointy ears, long golden blonde hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      }
+    },
+    {
+      "id": "dwarf_walk",
+      "kind": "walk_sheet",
+      "frame": 48,
+      "directions": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "request": {
+        "prompt": "cute chibi dwarf adventurer, short and stocky, big bushy ginger beard, ginger hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "player_walk",
+        "recolor": []
       }
     },
     {
@@ -88,6 +128,21 @@
         "prompt_style": "rd_tile__single_tile",
         "width": 32,
         "height": 32
+      },
+      "derive": {
+        "from": "tile_path",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              80
+            ],
+            "minSaturation": 0.1,
+            "to": 44,
+            "saturation": 1.25,
+            "value": 1.15
+          }
+        ]
       }
     },
     {
@@ -98,6 +153,20 @@
         "prompt_style": "rd_tile__single_tile",
         "width": 32,
         "height": 32
+      },
+      "derive": {
+        "from": "tile_flowers",
+        "recolor": [
+          {
+            "hue": [
+              40,
+              140
+            ],
+            "to": 44,
+            "saturation": 0.45,
+            "value": 1.2
+          }
+        ]
       }
     },
     {
@@ -108,6 +177,20 @@
         "prompt_style": "rd_tile__single_tile",
         "width": 32,
         "height": 32
+      },
+      "derive": {
+        "from": "tile_grass",
+        "recolor": [
+          {
+            "hue": [
+              40,
+              140
+            ],
+            "to": 168,
+            "saturation": 0.65,
+            "value": 0.52
+          }
+        ]
       }
     },
     {
@@ -118,6 +201,20 @@
         "prompt_style": "rd_tile__single_tile",
         "width": 32,
         "height": 32
+      },
+      "derive": {
+        "from": "tile_flowers",
+        "recolor": [
+          {
+            "hue": [
+              40,
+              140
+            ],
+            "to": 168,
+            "saturation": 0.65,
+            "value": 0.52
+          }
+        ]
       }
     },
     {
@@ -173,6 +270,29 @@
         "width": 64,
         "height": 64,
         "remove_bg": true
+      },
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 272,
+            "saturation": 0.6,
+            "value": 0.72
+          },
+          {
+            "hue": [
+              0,
+              54
+            ],
+            "minSaturation": 0.3,
+            "value": 0.7
+          }
+        ]
       }
     },
     {
@@ -184,6 +304,20 @@
         "width": 32,
         "height": 32,
         "remove_bg": true
+      },
+      "derive": {
+        "from": "mushroom",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              30
+            ],
+            "minSaturation": 0.4,
+            "to": 185,
+            "value": 1.15
+          }
+        ]
       }
     },
     {
@@ -205,6 +339,21 @@
         "width": 64,
         "height": 64,
         "remove_bg": true
+      },
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 335,
+            "saturation": 0.55,
+            "value": 1.15
+          }
+        ]
       }
     },
     {
@@ -304,6 +453,19 @@
         "width": 96,
         "height": 96,
         "remove_bg": true
+      },
+      "derive": {
+        "from": "house",
+        "recolor": [
+          {
+            "hue": [
+              340,
+              18
+            ],
+            "minSaturation": 0.45,
+            "to": 215
+          }
+        ]
       }
     },
     {
@@ -319,68 +481,224 @@
     },
     {
       "id": "npc_healer",
-      "kind": "npc",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "elf_walk",
+        "recolor": [
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "minSaturation": 0.3,
+            "to": 335,
+            "saturation": 0.75,
+            "value": 1.15
+          },
+          {
+            "hue": [
+              12,
+              58
+            ],
+            "minSaturation": 0.55,
+            "minValue": 0.55,
+            "to": 48,
+            "saturation": 0.45,
+            "value": 1.15
+          }
+        ]
+      },
       "request": {
-        "prompt": "kind village nurse in a pink dress and white apron, chibi, front view",
-        "prompt_style": "rd_plus__low_res",
+        "prompt": "kind village nurse in a pink dress and white apron, chibi",
+        "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
-        "remove_bg": true
+        "return_spritesheet": true
       }
     },
     {
       "id": "npc_trader",
-      "kind": "npc",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "dwarf_walk",
+        "recolor": [
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "minSaturation": 0.3,
+            "to": 28,
+            "saturation": 0.85,
+            "value": 0.85
+          },
+          {
+            "hue": [
+              12,
+              58
+            ],
+            "minSaturation": 0.55,
+            "minValue": 0.55,
+            "to": 25,
+            "saturation": 0.7,
+            "value": 0.55
+          }
+        ]
+      },
       "request": {
-        "prompt": "cheerful merchant with a big backpack and cap, chibi, front view",
-        "prompt_style": "rd_plus__low_res",
+        "prompt": "cheerful merchant with a big backpack and cap, chibi",
+        "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
-        "remove_bg": true
+        "return_spritesheet": true
       }
     },
     {
       "id": "npc_elder",
-      "kind": "npc",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "player_walk",
+        "recolor": [
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "minSaturation": 0.3,
+            "to": 265,
+            "saturation": 0.35,
+            "value": 0.95
+          },
+          {
+            "hue": [
+              12,
+              58
+            ],
+            "minSaturation": 0.55,
+            "minValue": 0.55,
+            "to": 40,
+            "saturation": 0.06,
+            "value": 1.3
+          }
+        ]
+      },
       "request": {
-        "prompt": "old village elder with a long white beard and wooden staff, chibi, front view",
-        "prompt_style": "rd_plus__low_res",
+        "prompt": "old village elder with a long white beard and wooden staff, chibi",
+        "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
-        "remove_bg": true
+        "return_spritesheet": true
       }
     },
     {
       "id": "npc_warrior",
-      "kind": "npc",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "dwarf_walk",
+        "recolor": [
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "minSaturation": 0.3,
+            "to": 212,
+            "saturation": 0.35,
+            "value": 1.0
+          },
+          {
+            "hue": [
+              12,
+              58
+            ],
+            "minSaturation": 0.55,
+            "minValue": 0.55,
+            "to": 0,
+            "saturation": 0.3,
+            "value": 0.4
+          }
+        ]
+      },
       "request": {
-        "prompt": "sturdy guild captain in shiny armor holding a sword, chibi, front view",
-        "prompt_style": "rd_plus__low_res",
+        "prompt": "sturdy guild captain in shiny armor, chibi",
+        "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
-        "remove_bg": true
+        "return_spritesheet": true
       }
     },
     {
       "id": "npc_diviner",
-      "kind": "npc",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "elf_walk",
+        "recolor": [
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "minSaturation": 0.3,
+            "to": 278,
+            "saturation": 0.85,
+            "value": 0.95
+          },
+          {
+            "hue": [
+              12,
+              58
+            ],
+            "minSaturation": 0.55,
+            "minValue": 0.55,
+            "to": 265,
+            "saturation": 0.25,
+            "value": 1.2
+          }
+        ]
+      },
       "request": {
-        "prompt": "young sage in a starry purple robe with a glowing wand, chibi, front view",
-        "prompt_style": "rd_plus__low_res",
+        "prompt": "young sage in a starry purple robe, chibi",
+        "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
-        "remove_bg": true
+        "return_spritesheet": true
       }
     },
     {
       "id": "npc_journeyman",
-      "kind": "npc",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "player_walk",
+        "recolor": [
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "minSaturation": 0.3,
+            "to": 165,
+            "saturation": 0.8,
+            "value": 0.85
+          },
+          {
+            "hue": [
+              12,
+              58
+            ],
+            "minSaturation": 0.55,
+            "minValue": 0.55,
+            "to": 5,
+            "saturation": 0.95,
+            "value": 0.95
+          }
+        ]
+      },
       "request": {
-        "prompt": "friendly ranger in a leaf cloak with a small bird, chibi, front view",
-        "prompt_style": "rd_plus__low_res",
+        "prompt": "friendly ranger in a leaf cloak, chibi",
+        "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
-        "remove_bg": true
+        "return_spritesheet": true
       }
     },
     {
@@ -414,6 +732,145 @@
         "width": 40,
         "height": 40,
         "remove_bg": true
+      }
+    },
+    {
+      "id": "autumn_tree",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 30,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "pet_walk_sakura",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "pet_walk",
+        "recolor": [
+          {
+            "hue": [
+              180,
+              265
+            ],
+            "minSaturation": 0.04,
+            "to": 335,
+            "saturation": 2.2
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_jelly_frost",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_jelly",
+        "recolor": [
+          {
+            "hue": [
+              280,
+              20
+            ],
+            "to": 200,
+            "saturation": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_jelly_ember",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_jelly",
+        "recolor": [
+          {
+            "hue": [
+              280,
+              20
+            ],
+            "to": 22
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_jelly_shade",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_jelly",
+        "recolor": [
+          {
+            "hue": [
+              280,
+              20
+            ],
+            "to": 268,
+            "saturation": 0.8,
+            "value": 0.7
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_pineapple_dragon",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_pineapple",
+        "recolor": [
+          {
+            "hue": [
+              10,
+              58
+            ],
+            "minSaturation": 0.4,
+            "to": 325
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_bun_cotton",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_bun",
+        "recolor": [
+          {
+            "hue": [
+              160,
+              230
+            ],
+            "to": 330,
+            "saturation": 0.6,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_bun_night",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_bun",
+        "recolor": [
+          {
+            "hue": [
+              160,
+              230
+            ],
+            "to": 255,
+            "value": 0.65
+          }
+        ]
       }
     }
   ]

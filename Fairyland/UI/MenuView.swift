@@ -24,7 +24,7 @@ struct MenuView: View {
                         Button {
                             tab = item
                         } label: {
-                            Label(item.rawValue, systemImage: item.icon)
+                            Label(item.rawValue, icon: item.icon)
                                 .labelStyle(TabLabelStyle(selected: item == tab))
                         }
                     }
@@ -91,15 +91,96 @@ private struct SectionTitle: View {
 private struct CharacterTab: View {
     let session: GameSession
     @State private var changingSlot: ItemType?
+    @State private var editing = false
+    @State private var renaming = false
+    @FocusState private var nameFocused: Bool
+    @State private var draftName = ""
+    @State private var draftLook = Look.standard
 
     var body: some View {
         let hero = session.data.hero
         let stats = session.heroStats
+        if editing {
+            VStack(alignment: .leading, spacing: 12) {
+                SectionTitle(text: "Customize your hero")
+                LookEditor(name: $draftName, look: $draftLook, raceID: session.data.hero.raceID, isUnlocked: session.isUnlocked)
+                HStack {
+                    Button("Cancel") { editing = false }
+                        .buttonStyle(PixelButtonStyle(compact: true))
+                    Spacer()
+                    Button {
+                        session.customizeHero(name: draftName, look: draftLook)
+                        editing = false
+                    } label: {
+                        Label("Save look", icon: .check)
+                    }
+                    .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+                }
+            }
+        } else {
+            overview(hero: hero, stats: stats)
+        }
+    }
+
+    private func saveName() {
+        session.customizeHero(name: draftName, look: session.data.hero.look ?? .standard)
+        renaming = false
+    }
+
+    @ViewBuilder
+    private func overview(hero: Hero, stats: Stats) -> some View {
         AdaptiveStack(spacing: 18) {
             VStack(spacing: 6) {
-                SpriteImage(art: "player_walk", size: 112)
+                SpriteImage(art: GameSession.heroArt, size: 156)
                     .background(Circle().fill(.white.opacity(0.06)))
-                Text(hero.name).font(HUDStyle.font(18))
+                if renaming {
+                    HStack(spacing: 6) {
+                        TextField("Name", text: $draftName)
+                            .textInputAutocapitalization(.words)
+                            .autocorrectionDisabled()
+                            .font(HUDStyle.font(16))
+                            .multilineTextAlignment(.center)
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 10)
+                            .frame(width: 140)
+                            .background(RoundedRectangle(cornerRadius: 8).fill(.white.opacity(0.12)))
+                            .focused($nameFocused)
+                            .submitLabel(.done)
+                            .onSubmit(saveName)
+                            .onChange(of: draftName) { _, value in
+                                if value.count > 12 { draftName = String(value.prefix(12)) }
+                            }
+                        Button(action: saveName) {
+                            IconImage(.check, size: 16)
+                                .foregroundStyle(HUDStyle.ink)
+                                .frame(width: 32, height: 32)
+                                .background(Circle().fill(HUDStyle.gold))
+                        }
+                        .buttonStyle(PressScaleStyle())
+                        .accessibilityLabel("Save name")
+                    }
+                } else {
+                    Button {
+                        draftName = hero.name
+                        renaming = true
+                        nameFocused = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(hero.name).font(HUDStyle.font(18))
+                            IconImage(.edit, size: 15).foregroundStyle(HUDStyle.gold)
+                        }
+                    }
+                    .buttonStyle(PressScaleStyle())
+                    .accessibilityLabel("Rename \(hero.name)")
+                }
+                Button {
+                    draftName = hero.name
+                    draftLook = hero.look ?? .standard
+                    editing = true
+                } label: {
+                    Label("Customize", icon: .palette)
+                }
+                .buttonStyle(PixelButtonStyle(compact: true))
                 Text("\(session.heroRace.name) · \(session.heroClass.name)")
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.gold)
@@ -114,7 +195,8 @@ private struct CharacterTab: View {
                         .frame(width: 170)
                 }
             }
-            .frame(minWidth: 180)
+            .frame(minWidth: 190)
+            .frame(maxWidth: .infinity)
 
             VStack(alignment: .leading, spacing: 10) {
                 SectionTitle(text: "Stats")
@@ -143,12 +225,10 @@ private struct CharacterTab: View {
                             .foregroundStyle(HUDStyle.gold)
                     }
                 }
-                if session.heroSkills.isEmpty {
-                    Text("No skills yet. You'll learn Bash at level 2.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                if session.heroSkills.isEmpty && session.learnableSkills.isEmpty {
+                    EmptyNote(session.skillHint, size: 11)
                 }
-                ForEach(session.heroSkills) { skill in
-                    SkillRow(session: session, skill: skill)
-                }
+                SkillChoices(session: session)
                 let upcoming = session.heroClass.skills.filter { $0.level > hero.level }
                 ForEach(upcoming, id: \.skill) { unlock in
                     if let skill = session.content.skill(unlock.skill) {
@@ -194,6 +274,9 @@ private struct EquipmentRow: View {
                 Text(slot.displayName)
                     .foregroundStyle(HUDStyle.dim)
                     .frame(width: 80, alignment: .leading)
+                if let equipped {
+                    ItemIcon(item: equipped, size: 30)
+                }
                 VStack(alignment: .leading, spacing: 1) {
                     Text(equipped?.name ?? "—")
                     if let bonus = equipped?.stats?.bonusSummary, !bonus.isEmpty {
@@ -210,7 +293,8 @@ private struct EquipmentRow: View {
 
             if isChanging {
                 ForEach(options) { item in
-                    HStack {
+                    HStack(spacing: 8) {
+                        ItemIcon(item: item, size: 28)
                         VStack(alignment: .leading, spacing: 1) {
                             Text(item.name)
                             Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
@@ -238,51 +322,6 @@ private struct EquipmentRow: View {
     }
 }
 
-private struct SkillRow: View {
-    let session: GameSession
-    let skill: SkillDef
-
-    var body: some View {
-        let level = session.skillLevel(skill.id)
-        HStack(alignment: .center, spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
-                    Text(skill.name)
-                    if let element = skill.element {
-                        ElementBadge(element: element)
-                    }
-                }
-                HStack(spacing: 2) {
-                    ForEach(1...GameSession.maxSkillLevel, id: \.self) { step in
-                        Image(systemName: step <= level ? "star.fill" : "star")
-                            .font(.system(size: 9))
-                            .foregroundStyle(step <= level ? HUDStyle.gold : HUDStyle.dim)
-                    }
-                    if let description = skill.description {
-                        Text(description).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim).padding(.leading, 4)
-                    }
-                }
-            }
-            Spacer()
-            Text("\(GameSession.mpCost(of: skill, level: level)) MP").foregroundStyle(HUDStyle.mp)
-            if session.unspentSkillPoints > 0, level < GameSession.maxSkillLevel {
-                Button {
-                    session.upgradeSkill(skill.id)
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 12, weight: .black))
-                        .foregroundStyle(HUDStyle.ink)
-                        .frame(width: 28, height: 28)
-                        .background(Circle().fill(HUDStyle.gold).overlay(Circle().strokeBorder(.white.opacity(0.8), lineWidth: 1.5)))
-                }
-                .buttonStyle(PressScaleStyle())
-                .accessibilityLabel("Raise \(skill.name) to level \(level + 1)")
-            }
-        }
-        .font(HUDStyle.font(12))
-    }
-}
-
 struct ElementBadge: View {
     let element: Element
 
@@ -307,27 +346,87 @@ private struct CompanionsTab: View {
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
             if session.data.pets.isEmpty {
-                Text("No companions yet.").font(HUDStyle.font(13))
+                EmptyNote("No companions yet.\nFinish the Hope of Meadowbrook quest for an egg.")
             }
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: 10)], spacing: 10) {
                 ForEach(session.data.pets) { pet in
                     CompanionCard(session: session, pet: pet)
                 }
             }
+
+            SectionTitle(text: "Party & friends")
+            Text("Befriend adventurers you meet (walk up to one). Up to \(GameSession.maxAllies) friends can travel and fight with you.")
+                .font(HUDStyle.font(11))
+                .foregroundStyle(HUDStyle.dim)
+            if session.friends.isEmpty {
+                EmptyNote("No friends yet.\nSay hi to the adventurers you meet!")
+            }
+            ForEach(session.friends) { friend in
+                FriendRow(session: session, friend: friend)
+            }
         }
+    }
+}
+
+private struct FriendRow: View {
+    let session: GameSession
+    let friend: Adventurer
+
+    var body: some View {
+        let inParty = session.isInParty(friend)
+        HStack(spacing: 10) {
+            SpriteImage(art: session.artID(for: friend), size: 44)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(friend.name)
+                    if inParty {
+                        Text("IN PARTY")
+                            .font(HUDStyle.font(9))
+                            .foregroundStyle(HUDStyle.ink)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(HUDStyle.green))
+                    }
+                }
+                Text("Lv \(friend.level) \(session.content.race(friend.raceID).name) \(session.content.classDef(friend.classID).name)")
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.dim)
+            }
+            Spacer()
+            if inParty {
+                Button("Leave") { session.leaveParty(friend.id) }
+                    .buttonStyle(PixelButtonStyle(compact: true))
+            } else if session.partyMembers.count < GameSession.maxAllies {
+                Button("Invite") { session.invite(friend.id) }
+                    .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+            }
+        }
+        .font(HUDStyle.font(12))
+        .padding(8)
+        .background(RoundedRectangle(cornerRadius: 8).fill(.white.opacity(0.05)))
     }
 }
 
 private struct CompanionCard: View {
     let session: GameSession
     let pet: Pet
+    @State private var editing = false
 
     var body: some View {
         let species = session.species(of: pet)
         let stats = session.stats(of: pet)
         let isActive = session.data.activePetID == pet.id
+        if editing {
+            CompanionEditor(session: session, pet: pet) { editing = false }
+        } else {
+            card(species: species, stats: stats, isActive: isActive)
+        }
+    }
+
+    @ViewBuilder
+    private func card(species: MonsterDef?, stats: Stats, isActive: Bool) -> some View {
         HStack(alignment: .top, spacing: 10) {
-            SpriteImage(art: species?.art ?? "", size: 72)
+            SpriteImage(art: session.artID(for: pet), size: 72)
                 .background(Circle().fill(.white.opacity(0.06)))
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
@@ -342,13 +441,21 @@ private struct CompanionCard: View {
                 Text("ATK \(stats.attack) · DEF \(stats.defense) · MAG \(stats.magic) · SPD \(stats.speed)")
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
-                if isActive {
-                    Label("Following you", systemImage: "checkmark.circle.fill")
-                        .font(HUDStyle.font(11))
-                        .foregroundStyle(HUDStyle.green)
-                } else {
-                    Button("Bring along") { session.setActivePet(pet.id) }
-                        .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+                HStack(spacing: 8) {
+                    if isActive {
+                        Label("Following you", icon: .checkCircle)
+                            .font(HUDStyle.font(11))
+                            .foregroundStyle(HUDStyle.green)
+                    } else {
+                        Button("Bring along") { session.setActivePet(pet.id) }
+                            .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+                    }
+                    Button {
+                        editing = true
+                    } label: {
+                        Label("Rename", icon: .edit)
+                    }
+                    .buttonStyle(PixelButtonStyle(compact: true))
                 }
             }
         }
@@ -373,7 +480,7 @@ private struct BagTab: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Label("\(session.data.gold) gold", systemImage: "circle.fill")
+                Label("\(session.data.gold) gold", icon: .coins)
                     .foregroundStyle(HUDStyle.gold)
                 Spacer()
                 if let note { Text(note).foregroundStyle(HUDStyle.green) }
@@ -385,7 +492,8 @@ private struct BagTab: View {
                 Text("No potions. Trader Bo in Meadowbrook sells them.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             }
             ForEach(session.consumables) { item in
-                HStack {
+                HStack(spacing: 10) {
+                    ItemIcon(item: item, size: 36)
                     VStack(alignment: .leading, spacing: 1) {
                         Text("\(item.name) ×\(session.count(of: item.id))")
                         Text(item.description ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
@@ -397,7 +505,7 @@ private struct BagTab: View {
                             hatched = session.hatch(item.id)
                             session.save()
                         } label: {
-                            Label("Hatch", systemImage: "sparkles")
+                            Label("Hatch", icon: .egg)
                         }
                         .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                     } else {
@@ -421,7 +529,8 @@ private struct BagTab: View {
                 Text("Nothing spare. Equipped gear is on the Character tab.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             }
             ForEach(session.bagEquipment) { item in
-                HStack {
+                HStack(spacing: 10) {
+                    ItemIcon(item: item, size: 36)
                     VStack(alignment: .leading, spacing: 1) {
                         Text("\(item.name)  ·  \(item.type.displayName)")
                         Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
@@ -455,10 +564,9 @@ private struct HatchView: View {
                         .rotationEffect(.degrees(stage == 1 ? 12 : -12))
                         .animation(.easeInOut(duration: 0.12).repeatCount(8, autoreverses: true), value: stage)
                 } else {
-                    SpriteImage(art: session.species(of: pet)?.art ?? "", size: 110)
+                    SpriteImage(art: session.artID(for: pet), size: 110)
                         .transition(.scale(scale: 0.2).combined(with: .opacity))
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 40))
+                    IconImage(.sparkles, size: 40)
                         .foregroundStyle(HUDStyle.gold)
                         .offset(x: 44, y: -40)
                 }
@@ -500,7 +608,7 @@ private struct QuestsTab: View {
             if !session.completedQuests.isEmpty {
                 SectionTitle(text: "Completed")
                 ForEach(session.completedQuests) { quest in
-                    Label(quest.title, systemImage: "checkmark.seal.fill")
+                    Label(quest.title, icon: .badgeCheck)
                         .font(HUDStyle.font(12))
                         .foregroundStyle(HUDStyle.dim)
                 }

@@ -1,0 +1,50 @@
+import SwiftUI
+
+/// The game's UI icons: Iconaut's solid set (MIT, iconaut.design), vendored into
+/// Assets.xcassets/Icons by tools/icons.py. Keep the cases in sync with the script's list.
+enum GameIcon: String, CaseIterable {
+    case sword, sparkles, backpack, shield, wind, heart, heartPlus = "heart-plus", more, close
+    case check, checkCircle = "check-circle", badgeCheck = "badge-check", plus
+    case user, paw, book, talk, sun, moon, music, musicOff = "music-off"
+    case chevronUp = "chevron-up", chevronDown = "chevron-down"
+    case arrowUp = "arrow-up", arrowDown = "arrow-down", arrowLeft = "arrow-left", arrowRight = "arrow-right"
+    case play, dice, map, tap, palette, star, starOutline = "star-outline", gift, coins, egg, edit, lock
+    // Items (content/items.json `icon`)
+    case potion, flask, axe, wand, diamond, gem, ring, clover
+    case shieldCheck = "shield-check", shieldPlus = "shield-plus", shieldStar = "shield-star", shieldHeart = "shield-heart"
+    // Skills (content/skills.json `icon`)
+    case hammer, firstAid = "first-aid", tornado, flame, mountain, leaf, droplet, pineTree = "pine-tree", tooth, bounce
+
+    /// Iconaut draws a simplified version for 16px and below, so small icons stay readable.
+    func assetName(for size: CGFloat) -> String {
+        size <= 17 ? "icon-\(rawValue)-16" : "icon-\(rawValue)"
+    }
+}
+
+/// An Iconaut icon at a fixed point size, tinted by the foreground style like text.
+struct IconImage: View {
+    let icon: GameIcon
+    var size: CGFloat = 16
+
+    init(_ icon: GameIcon, size: CGFloat = 16) {
+        self.icon = icon
+        self.size = size
+    }
+
+    var body: some View {
+        Image(icon.assetName(for: size))
+            .renderingMode(.template)
+            .resizable()
+            .interpolation(.high)
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .accessibilityHidden(true)
+    }
+}
+
+extension Label where Title == Text, Icon == IconImage {
+    /// `Label("Saved", icon: .checkCircle)`: like `systemImage:`, with an Iconaut icon.
+    init(_ title: String, icon: GameIcon, size: CGFloat = 15) {
+        self.init { Text(title) } icon: { IconImage(icon, size: size) }
+    }
+}

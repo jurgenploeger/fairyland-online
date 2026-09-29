@@ -18,14 +18,20 @@ struct WorldHUD: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .allowsHitTesting(false)
 
-            MinimapWindow(
-                image: coordinator.world.minimap,
-                name: session.mapName,
-                cell: session.mapCell,
-                columns: coordinator.world.def.width,
-                rows: coordinator.world.def.height,
-                onOpen: { coordinator.open(.worldMap) }
-            )
+            VStack(alignment: .trailing, spacing: 6) {
+                MinimapWindow(
+                    image: coordinator.world.minimap,
+                    name: session.mapName,
+                    cell: session.mapCell,
+                    columns: coordinator.world.def.width,
+                    rows: coordinator.world.def.height,
+                    onOpen: { coordinator.open(.worldMap) }
+                )
+                FLIconButton(icon: .talk, label: "Chat", size: 40, badge: session.unreadChat > 0) {
+                    coordinator.open(.chat)
+                }
+                SavedBadge(lastSaved: session.lastSaved)
+            }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
 
             JoystickView(input: coordinator.input)
@@ -38,10 +44,13 @@ struct WorldHUD: View {
                     Button {
                         coordinator.talkToNearby()
                     } label: {
-                        Label("Talk to \(npc.name)", systemImage: "bubble.left.fill")
+                        Label("Talk to \(npc.name)", icon: .talk)
                     }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
                     .transition(.scale(scale: 0.7, anchor: .bottomTrailing).combined(with: .opacity))
+                } else if let adventurer = session.nearbyAdventurer {
+                    AdventurerCard(coordinator: coordinator, adventurer: adventurer)
+                        .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
                 }
                 HStack(spacing: 7) {
                     ForEach(MenuTab.allCases) { tab in
@@ -54,6 +63,7 @@ struct WorldHUD: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             .padding(.bottom, 14)
             .animation(.spring(response: 0.3, dampingFraction: 0.75), value: session.nearbyNPC)
+            .animation(.spring(response: 0.3, dampingFraction: 0.75), value: session.nearbyAdventurer?.id)
         }
         .padding(.horizontal, 8)
         .padding(.top, 4)
@@ -153,13 +163,13 @@ private struct CalendarPlate: View {
             let hero = session.data.hero
             VStack(spacing: 3) {
                 HStack(spacing: 5) {
-                    Image(systemName: moment.isDaytime ? "sun.max.fill" : "moon.stars.fill")
+                    IconImage(moment.isDaytime ? .sun : .moon, size: 14)
                         .foregroundStyle(moment.isDaytime ? HUDStyle.orange : Color(red: 0.35, green: 0.35, blue: 0.75))
                     Text(moment.text)
                         .font(HUDStyle.mono(10))
                         .foregroundStyle(HUDStyle.plateDark)
                     Spacer(minLength: 0)
-                    Image(systemName: "circle.fill").font(.system(size: 7)).foregroundStyle(HUDStyle.gold)
+                    IconImage(.coins, size: 12).foregroundStyle(HUDStyle.gold)
                     Text("\(session.data.gold)")
                         .font(HUDStyle.mono(10))
                         .foregroundStyle(HUDStyle.plateDark)
@@ -232,7 +242,7 @@ private struct MinimapWindow: View {
                 Button {
                     MusicPlayer.shared.toggleMute()
                 } label: {
-                    Image(systemName: MusicPlayer.shared.isMuted ? "speaker.slash.fill" : "music.note")
+                    IconImage(MusicPlayer.shared.isMuted ? .musicOff : .music, size: 16)
                         .font(.system(size: 10, weight: .bold))
                         .frame(width: 22, height: 20)
                 }
@@ -240,7 +250,7 @@ private struct MinimapWindow: View {
                 Button {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { collapsed.toggle() }
                 } label: {
-                    Image(systemName: collapsed ? "chevron.down" : "xmark")
+                    IconImage(collapsed ? .chevronDown : .close, size: 14)
                         .font(.system(size: 9, weight: .black))
                         .foregroundStyle(.white)
                         .frame(width: 18, height: 18)
@@ -299,6 +309,31 @@ private struct MinimapWindow: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(HUDStyle.bevel, lineWidth: 2.5))
         .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 2)
+    }
+}
+
+/// Flashes briefly whenever the game autosaves.
+private struct SavedBadge: View {
+    let lastSaved: Date?
+    @State private var visible = false
+
+    var body: some View {
+        Label("Saved", icon: .checkCircle, size: 13)
+            .font(HUDStyle.font(10))
+            .foregroundStyle(HUDStyle.green)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Capsule().fill(HUDStyle.ink.opacity(0.8)))
+            .opacity(visible ? 1 : 0)
+            .allowsHitTesting(false)
+            .onChange(of: lastSaved) {
+                withAnimation(.easeOut(duration: 0.2)) { visible = true }
+                Task {
+                    try? await Task.sleep(for: .seconds(1.6))
+                    withAnimation(.easeIn(duration: 0.4)) { visible = false }
+                }
+            }
+            .accessibilityHidden(true)
     }
 }
 

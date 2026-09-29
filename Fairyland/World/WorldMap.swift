@@ -144,6 +144,26 @@ final class WorldMap {
         }
     }
 
+    /// How many cells `cell` is from the edge of `exit` (0 = standing on the way out).
+    func distance(from cell: GridPoint, to edge: Edge) -> Int {
+        switch edge {
+        case .north: rows - 1 - cell.row
+        case .south: cell.row
+        case .east: columns - 1 - cell.col
+        case .west: cell.col
+        }
+    }
+
+    /// Road cells one step in from `edge`, where a barricade closes a road.
+    func roadCells(near edge: Edge) -> [GridPoint] {
+        switch edge {
+        case .north: (0..<columns).filter { ground[rows - 2][$0] == .path }.map { GridPoint(col: $0, row: rows - 2) }
+        case .south: (0..<columns).filter { ground[1][$0] == .path }.map { GridPoint(col: $0, row: 1) }
+        case .east: (0..<rows).filter { ground[$0][columns - 2] == .path }.map { GridPoint(col: columns - 2, row: $0) }
+        case .west: (0..<rows).filter { ground[$0][1] == .path }.map { GridPoint(col: 1, row: $0) }
+        }
+    }
+
     /// Where you arrive when entering through `edge`: on the road, a couple of tiles in.
     func entryCell(from edge: Edge) -> GridPoint {
         let cell = switch edge {
@@ -208,6 +228,20 @@ final class WorldMap {
         return nil
     }
 
+    /// A walkable cell within `radius` of `cell` for background characters to stroll to:
+    /// never on the map's edge (where the exits are), and inside the fence in towns.
+    func strollTarget(near cell: GridPoint, radius: Int, using rng: inout some RandomNumberGenerator) -> GridPoint? {
+        for _ in 0..<24 {
+            let candidate = GridPoint(col: cell.col + Int.random(in: -radius...radius, using: &rng),
+                                      row: cell.row + Int.random(in: -radius...radius, using: &rng))
+            guard candidate.col > 0, candidate.row > 0, candidate.col < columns - 1, candidate.row < rows - 1,
+                  isWalkable(candidate) else { continue }
+            if def.fence == true, ground[candidate.row][candidate.col] == .border { continue }
+            return candidate
+        }
+        return nil
+    }
+
     // MARK: Pathfinding
 
     /// Waypoints from `start` to `end` around blocked cells. Empty if unreachable.
@@ -259,28 +293,85 @@ final class WorldMap {
         }
     }
 
-    /// A two-tile-wide road from the centre to the middle of an exit edge, wandering a little.
+    /// A road from the centre out through an exit, winding along a smooth curve and swelling
+    /// and narrowing a little (towns keep theirs tidier). The last stretch runs straight at
+    /// the edge so exits and arrivals line up.
     private func carveRoad(to edge: Edge, _ rng: inout SeededRandom) {
-        let horizontal = edge == .east || edge == .west
-        let step = (edge == .east || edge == .north) ? 1 : -1
-        let length = horizontal ? columns : rows
-        let across = horizontal ? rows : columns
-        var offset = horizontal ? center.row : center.col
-        var i = horizontal ? center.col : center.row
         let fenced = def.fence == true
-        while i >= 0 && i < length {
-            let fromCenter = abs(i - (horizontal ? center.col : center.row))
-            let nearEdge = min(i, length - 1 - i) < 4
-            if !fenced, fromCenter > 3, !nearEdge, i % 3 == 0 {
-                offset = min(max(offset + Int.random(in: -1...1, using: &rng), 3), across - 5)
+        let start = CGPoint(x: CGFloat(center.col) + 0.5, y: CGFloat(center.row) + 0.5)
+        let (end, inward): (CGPoint, CGVector) = switch edge {
+        case .east: (CGPoint(x: CGFloat(columns), y: start.y), CGVector(dx: -1, dy: 0))
+        case .west: (CGPoint(x: 0, y: start.y), CGVector(dx: 1, dy: 0))
+        case .north: (CGPoint(x: start.x, y: CGFloat(rows)), CGVector(dx: 0, dy: -1))
+        case .south: (CGPoint(x: start.x, y: 0), CGVector(dx: 0, dy: 1))
+        }
+        let side = CGVector(dx: -inward.dy, dy: inward.dx)
+        let approach = end + inward * 5
+        let length = start.distance(to: approach)
+
+        // Waypoints along the way, pushed sideways by a smooth random drift.
+        var points = [start]
+        let count = max(2, Int(length / 8))
+        var drift: CGFloat = 0
+        let sway: CGFloat = fenced ? 1 : 6
+        for k in 1..<count {
+            drift = min(max(drift + CGFloat.random(in: -3...3, using: &rng), -sway), sway)
+            let t = CGFloat(k) / CGFloat(count)
+            var point = CGPoint(x: start.x + (approach.x - start.x) * t, y: start.y + (approach.y - start.y) * t) + side * drift
+            point.x = min(max(point.x, 4), CGFloat(columns - 4))
+            point.y = min(max(point.y, 4), CGFloat(rows - 4))
+            points.append(point)
+        }
+        points += [approach, end]
+
+        // Paint along a Catmull-Rom curve through the waypoints.
+        var travelled: CGFloat = 0
+        for index in 0..<(points.count - 1) {
+            let p0 = points[max(0, index - 1)], p1 = points[index], p2 = points[index + 1], p3 = points[min(points.count - 1, index + 2)]
+            let steps = max(4, Int(p1.distance(to: p2) * 4))
+            for step in 0...steps {
+                let t = CGFloat(step) / CGFloat(steps)
+                let point = Self.catmullRom(p0, p1, p2, p3, t)
+                travelled += p1.distance(to: p2) / CGFloat(steps)
+                let halfWidth = fenced ? 1.05 : 1.05 + 0.35 * sin(travelled / 6)
+                paintRoad(around: point, radius: halfWidth)
             }
-            for width in 0...1 {
-                let cell = horizontal ? GridPoint(col: i, row: offset + width) : GridPoint(col: offset + width, row: i)
+        }
+    }
+
+    private func paintRoad(around point: CGPoint, radius: CGFloat) {
+        let reach = Int(radius.rounded(.up)) + 1
+        let middle = GridPoint(col: Int(point.x), row: Int(point.y))
+        for dr in -reach...reach {
+            for dc in -reach...reach {
+                let cell = GridPoint(col: middle.col + dc, row: middle.row + dr)
+                guard contains(cell) else { continue }
+                let cellCenter = CGPoint(x: CGFloat(cell.col) + 0.5, y: CGFloat(cell.row) + 0.5)
+                guard cellCenter.distance(to: point) <= radius else { continue }
                 ground[cell.row][cell.col] = .path
                 fenceCells.removeAll { $0 == cell }   // gate
             }
-            i += step
         }
+    }
+
+    private static func catmullRom(_ p0: CGPoint, _ p1: CGPoint, _ p2: CGPoint, _ p3: CGPoint, _ t: CGFloat) -> CGPoint {
+        let t2 = t * t, t3 = t2 * t
+        func blend(_ a: CGFloat, _ b: CGFloat, _ c: CGFloat, _ d: CGFloat) -> CGFloat {
+            0.5 * ((2 * b) + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3)
+        }
+        return CGPoint(x: blend(p0.x, p1.x, p2.x, p3.x), y: blend(p0.y, p1.y, p2.y, p3.y))
+    }
+
+    /// Which sides of a road cell touch something that isn't road (for soft road edges):
+    /// bit 1 north, 2 east, 4 south, 8 west.
+    func roadEdgeMask(_ cell: GridPoint) -> Int {
+        func open(_ dc: Int, _ dr: Int) -> Bool {
+            let next = GridPoint(col: cell.col + dc, row: cell.row + dr)
+            // Off the map the road carries on (exits), so that side stays road.
+            guard contains(next) else { return false }
+            return ground[next.row][next.col] != .path
+        }
+        return (open(0, 1) ? 1 : 0) | (open(1, 0) ? 2 : 0) | (open(0, -1) ? 4 : 0) | (open(-1, 0) ? 8 : 0)
     }
 
     private func scatterAccents(_ rng: inout SeededRandom) {

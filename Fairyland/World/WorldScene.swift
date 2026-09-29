@@ -6,7 +6,7 @@ final class InputState {
     var move: CGVector = .zero
 }
 
-/// One map: ground, scenery, NPCs, the hero and their companion.
+/// One map: ground, scenery, NPCs, passers-by, the hero and their companion.
 ///
 /// Like Fairyland, monsters aren't shown on the map — walking through the wild can start
 /// a random battle. Walk off the edge where a road leaves the map to travel to the next map.
@@ -15,6 +15,8 @@ final class WorldScene: SKScene {
     var onTalk: (@MainActor (NPCDef) -> Void)?
     var onTravel: (@MainActor (MapDef.Exit) -> Void)?
     var onFirstFrame: (@MainActor () -> Void)?
+    /// A duel with another adventurer is starting (you challenged them, or they picked a fight).
+    var onDuel: (@MainActor (Adventurer, SKTexture?) -> Void)?
     /// Set while menus, dialogs or transitions are up.
     var isInputLocked = false
 
@@ -28,7 +30,6 @@ final class WorldScene: SKScene {
     private let cam = SKCameraNode()
     private let player: Walker
     private var follower: Walker?
-    private var followerPetID: UUID?
     private var npcs: [(def: NPCDef, node: Walker, marker: SKLabelNode)] = []
     private var talkTarget: String?
     private var lastCell: GridPoint
@@ -37,6 +38,14 @@ final class WorldScene: SKScene {
     private var noticeTimer: TimeInterval = 0
     private var hasLeft = false
     private var ambience: Ambience?
+    private var crowd: Crowd?
+    /// Friends in your party walk behind you in a little line.
+    private var allies: [(id: UUID, node: Walker)] = []
+    /// Roads that stay closed until a quest is done: the barricade nodes and the cells they block.
+    private var barricades: [(exit: MapDef.Exit, nodes: [SKNode], cells: Set<GridPoint>)] = []
+    private var lastBlockedNotice = Date.distantPast
+    /// Darkens the screen as you walk toward the edge of the map, so leaving is obvious.
+    private let edgeFade = SKSpriteNode(color: .black, size: .zero)
 
     private let walkSpeed: CGFloat = 88
     private let talkRange: CGFloat = 50
@@ -44,7 +53,7 @@ final class WorldScene: SKScene {
     /// `entry` is the edge the player walked in through, or nil to use the saved position.
     init(map def: MapDef, session: GameSession, input: InputState, entry: Edge?) {
         let map = WorldMap(def: def)
-        let player = Walker(cycle: ArtLibrary.shared.walkCycle("player_walk"), label: session.data.hero.name)
+        let player = Walker(cycle: ArtLibrary.shared.walkCycle(GameSession.heroArt), label: session.data.hero.name)
         self.def = def
         self.session = session
         self.input = input
@@ -78,6 +87,10 @@ final class WorldScene: SKScene {
     override func didMove(to view: SKView) {
         if session.mapName != def.name {
             session.post("You arrive at \(def.name).")
+            if def.danger == true {
+                session.post("⚔ Danger zone! Adventurers here may pick a fight.", .battle)
+            }
+            session.startChat(on: def.name)
         }
         session.mapName = def.name
         session.mapCell = lastCell
@@ -99,18 +112,32 @@ final class WorldScene: SKScene {
         placeBuildings()
         placeDecor()
         placeNPCs()
+        crowd = Crowd(def: def, map: map, world: world)
+        crowd?.onChat = { [weak session] speaker, text, kind in session?.postChat(text, from: speaker, kind: kind) }
+        crowd?.onChallenge = { [weak self] rival in
+            guard let self, !self.isInputLocked else { return }
+            self.startDuel(with: rival)
+        }
         placeFairyRings()
         placeProps()
         placeSignposts()
+        placeBarricades()
 
         world.addChild(player)
+        refreshHero()
         refreshFollower()
+        refreshAllies()
         cam.position = player.position
+        edgeFade.alpha = 0
+        edgeFade.size = CGSize(width: size.width * 1.2, height: size.height * 1.2)
+        edgeFade.zPosition = 40_000
+        cam.addChild(edgeFade)
         ambience = Ambience(def.ambience, world: world, camera: cam, bounds: map.bounds, seed: def.id)
         ambience?.resize(to: size)
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
+        edgeFade.size = CGSize(width: size.width * 1.2, height: size.height * 1.2)
         ambience?.resize(to: size)
     }
 
@@ -128,8 +155,13 @@ final class WorldScene: SKScene {
             .border: group(theme.border ?? theme.ground),
             .water: water,
         ]
+        // Road tiles blend into the ground at their edges (one variant per edge mask).
+        var roadEdges: [Int: SKTileGroup] = [0: groups[.path]!]
+        for mask in 1..<16 {
+            roadEdges[mask] = SKTileGroup(tileDefinition: SKTileDefinition(texture: art.roadTile(theme.path, on: theme.ground, mask: mask), size: tileSize))
+        }
         let tileMap = SKTileMapNode(
-            tileSet: SKTileSet(tileGroups: Array(groups.values)),
+            tileSet: SKTileSet(tileGroups: Array(groups.values) + roadEdges.filter { $0.key != 0 }.map(\.value)),
             columns: map.columns,
             rows: map.rows,
             tileSize: tileSize
@@ -137,7 +169,9 @@ final class WorldScene: SKScene {
         tileMap.anchorPoint = .zero
         for row in 0..<map.rows {
             for col in 0..<map.columns {
-                tileMap.setTileGroup(groups[map.ground[row][col]], forColumn: col, row: row)
+                let kind = map.ground[row][col]
+                let group = kind == .path ? roadEdges[map.roadEdgeMask(GridPoint(col: col, row: row))] : groups[kind]
+                tileMap.setTileGroup(group, forColumn: col, row: row)
             }
         }
         let ground = projected(tileMap)
@@ -237,6 +271,7 @@ final class WorldScene: SKScene {
             let cell = map.offset(npc.x, npc.y)
             map.occupy(cell, blocking: true)
             let node = Walker(cycle: art.walkCycle(npc.art), label: npc.name)
+            node.idles = npc.role != .chest
             node.position = map.center(of: cell)
             node.zPosition = -node.position.y
             let marker = SKLabelNode()
@@ -359,6 +394,45 @@ final class WorldScene: SKScene {
         }
     }
 
+    /// A fence across each road that a quest hasn't opened yet, with a little lock sign.
+    private func placeBarricades() {
+        for exit in def.exits where !session.canTravel(exit) {
+            let cells = map.roadCells(near: exit.edge)
+            guard !cells.isEmpty else { continue }
+            var nodes: [SKNode] = []
+            let fence = art.sprite("fence")
+            for cell in cells {
+                let node = SKSpriteNode(texture: fence.texture, size: fence.size)
+                node.anchorPoint = CGPoint(x: 0.5, y: 0.05)
+                node.position = map.base(of: cell)
+                node.zPosition = -node.position.y
+                world.addChild(node)
+                nodes.append(node)
+            }
+            let middle = cells[cells.count / 2]
+            let sign = SKLabelNode()
+            sign.attributedText = Nodes.outlined("Closed", size: 12, color: UIColor(red: 1, green: 0.6, blue: 0.3, alpha: 1))
+            sign.position = map.center(of: middle) + CGVector(dx: 0, dy: 44)
+            sign.zPosition = 4_500
+            sign.run(.repeatForever(.sequence([.moveBy(x: 0, y: 3, duration: 0.6), .moveBy(x: 0, y: -3, duration: 0.6)])))
+            world.addChild(sign)
+            nodes.append(sign)
+            barricades.append((exit, nodes, Set(cells)))
+        }
+    }
+
+    /// A finished quest opened a road while you were here: the barricade poofs away.
+    private func openBarricades() {
+        barricades.removeAll { barricade in
+            guard session.canTravel(barricade.exit) else { return false }
+            for node in barricade.nodes {
+                SkillEffects.smoke(at: node.position, in: world)
+                node.run(.sequence([.fadeOut(withDuration: 0.4), .removeFromParent()]))
+            }
+            return true
+        }
+    }
+
     private func addScenery(_ sprite: SpriteArt, at cell: GridPoint, sway: Bool = false, jitter: Bool = false) {
         let node = SKSpriteNode(texture: sprite.texture, size: sprite.size)
         node.anchorPoint = CGPoint(x: 0.5, y: 0.05)
@@ -396,40 +470,39 @@ final class WorldScene: SKScene {
 
     // MARK: - Companion
 
+    private var followerKey: String?
+    private var heroKey: String?
+
+    /// Keeps the companion in sync: switched, renamed or recoloured.
     private func refreshFollower() {
         let pet = session.activePet
-        guard pet?.id != followerPetID || (pet == nil) != (follower == nil) else { return }
+        let key = pet.map { "\($0.id)|\($0.name)" }
+        guard key != followerKey else { return }
+        followerKey = key
+        let previous = follower?.position
         follower?.removeFromParent()
         follower = nil
-        followerPetID = pet?.id
-        guard let pet, let species = session.species(of: pet) else { return }
-        let node = Walker(cycle: art.walkCycle(species.art), label: pet.name)
-        node.position = player.position + CGVector(dx: -30, dy: 0)
+        guard let pet else { return }
+        let node = Walker(cycle: art.walkCycle(session.artID(for: pet)), label: pet.name)
+        node.motion = IdleMotion.of(art: session.artID(for: pet))
+        node.position = previous ?? player.position + CGVector(dx: -30, dy: 0)
         node.walkSpeed = 110
         world.addChild(node)
         follower = node
     }
 
-    private func updateFollower(_ dt: TimeInterval) {
-        guard let follower else { return }
-        let behind = player.facing.vector * -1
-        let goal = player.facing.isHorizontal
-            ? player.position + behind * 34 + CGVector(dx: 0, dy: 6)
-            : player.position + behind * 14 + CGVector(dx: -30, dy: 0)
-        let offset = goal - follower.position
-        let distance = offset.length
-        if distance > 300 {
-            follower.position = goal
-        } else if distance > 6 {
-            let step = min(distance, max(follower.walkSpeed, distance * 2) * CGFloat(dt))
-            follower.position = follower.position + offset * (step / distance)
-            follower.face(Direction(offset, current: follower.facing))
-            follower.setWalking(true)
-        } else {
-            follower.setWalking(false)
-            follower.face(player.facing)
+    /// Picks up a new look or name from the Character screen.
+    private func refreshHero() {
+        let key = "\(session.data.hero.name)|\(session.heroLookKey)"
+        guard key != heroKey else { return }
+        if heroKey != nil {
+            player.setCycle(art.walkCycle(GameSession.heroArt))
+            player.setLabel(session.data.hero.name)
         }
+        player.setGear(weapon: session.equipped(.weapon), accessory: session.equipped(.accessory))
+        heroKey = key
     }
+
 
     // MARK: - Input
 
@@ -441,10 +514,65 @@ final class WorldScene: SKScene {
             return
         }
         talkTarget = nil
+        crowd?.greet(at: point, from: player.position)
         player.path = map.path(from: player.position, to: point)
         if let destination = player.path.last {
             Effects.tapMarker(at: destination, in: world)
         }
+    }
+
+    /// Keeps the walking party in sync with who's in it.
+    private func refreshAllies() {
+        let members = session.partyMembers
+        guard members.map(\.id) != allies.map(\.id) else { return }
+        for ally in allies where !members.contains(where: { $0.id == ally.id }) {
+            SkillEffects.smoke(at: ally.node.position, in: world)
+            ally.node.removeFromParent()
+        }
+        allies = members.map { friend in
+            if let existing = allies.first(where: { $0.id == friend.id }) { return existing }
+            let node = Walker(cycle: art.walkCycle(session.artID(for: friend)), label: friend.name, labelColor: HUDStyle.partyGreen)
+            node.walkSpeed = 105
+            // Recruited on this map: they start where they stood.
+            node.position = crowd?.position(of: friend.id) ?? player.position + CGVector(dx: -40, dy: -10)
+            crowd?.remove(friend.id, poof: false)
+            world.addChild(node)
+            return (friend.id, node)
+        }
+    }
+
+    /// A duel: the same white flash as a monster encounter.
+    func startDuel(with rival: Adventurer) {
+        guard !isInputLocked else { return }
+        isInputLocked = true
+        player.path = []
+        player.setWalking(false)
+        let flash = SKSpriteNode(color: UIColor(red: 1, green: 0.4, blue: 0.35, alpha: 1), size: size)
+        flash.alpha = 0
+        flash.zPosition = 50_000
+        cam.addChild(flash)
+        Task {
+            await flash.run(.sequence([.fadeAlpha(to: 0.7, duration: 0.1), .fadeAlpha(to: 0, duration: 0.1), .fadeAlpha(to: 0.7, duration: 0.1), .fadeAlpha(to: 0, duration: 0.1)]))
+            flash.removeFromParent()
+            onDuel?(rival, snapshot())
+        }
+    }
+
+    /// After a duel you won, the rival skulks off.
+    func dismissAdventurer(_ id: UUID) {
+        crowd?.remove(id, poof: true)
+        if session.nearbyAdventurer?.id == id { session.nearbyAdventurer = nil }
+    }
+
+    func adventurerSays(_ line: String, _ id: UUID) {
+        crowd?.say(line, from: id)
+    }
+
+    /// You said something in the Chat window: a bubble over your head, and maybe an answer.
+    func heroSay(_ text: String) {
+        player.say(text)
+        session.postChat(text, from: session.data.hero.name, kind: .you)
+        crowd?.reply(near: player.position)
     }
 
     /// Called by the HUD's Talk button.
@@ -470,17 +598,29 @@ final class WorldScene: SKScene {
             checkTalkTarget()
             checkCell()
         }
-        updateFollower(dt)
+        follower?.follow(player, dt: dt)
+        var leader: Walker = follower ?? player
+        for ally in allies {
+            ally.node.follow(leader, dt: dt)
+            ally.node.zPosition = -ally.node.position.y
+            leader = ally.node
+        }
+        crowd?.update(dt: dt, player: player.position)
         noticeTimer -= dt
         if noticeTimer <= 0 {
             noticeTimer = 0.4
             updateNotices()
             refreshFollower()
+            refreshHero()
+            refreshAllies()
+            let nearby = crowd?.adventurer(near: player.position, within: 80)
+            if session.nearbyAdventurer?.id != nearby?.id { session.nearbyAdventurer = nearby }
         }
 
         player.zPosition = -player.position.y
         if let follower { follower.zPosition = -follower.position.y }
         updateCamera(dt)
+        updateEdgeFade(dt)
     }
 
     private func movePlayer(_ dt: TimeInterval) {
@@ -504,7 +644,8 @@ final class WorldScene: SKScene {
     }
 
     private func canStand(at point: CGPoint) -> Bool {
-        map.isWalkable(map.rawCell(at: point))
+        let cell = map.rawCell(at: point)
+        return map.isWalkable(cell) && !barricades.contains { $0.cells.contains(cell) }
     }
 
     private func checkTalkTarget() {
@@ -527,6 +668,19 @@ final class WorldScene: SKScene {
     private func checkCell() {
         let cell = map.cell(at: player.position)
         guard cell != lastCell else { return }
+        if let barricade = barricades.first(where: { $0.cells.contains(cell) || map.exit(at: cell)?.to == $0.exit.to }) {
+            // Closed road: back you go, with a hint about which quest opens it.
+            player.position = map.center(of: lastCell)
+            player.path = []
+            if Date().timeIntervalSince(lastBlockedNotice) > 3 {
+                lastBlockedNotice = Date()
+                let place = Content.shared.map(barricade.exit.to)?.name ?? "there"
+                let quest = barricade.exit.requires.flatMap { session.content.quest($0)?.title } ?? "a quest"
+                session.post("The road to \(place) is closed. Finish “\(quest)” first.", .quest)
+                player.say("It's closed…")
+            }
+            return
+        }
         lastCell = cell
         session.playerPosition = player.position
         session.mapCell = cell
@@ -567,14 +721,20 @@ final class WorldScene: SKScene {
     /// What's on screen right now, for the battle backdrop (Fairyland fights where you stand).
     private func snapshot() -> SKTexture? {
         let visible = CGRect(x: cam.position.x - size.width / 2, y: cam.position.y - size.height / 2, width: size.width, height: size.height)
+        // The party is drawn by the battle itself, so leave them (and tap markers) out of the backdrop.
+        let hidden: [SKNode] = [player, follower].compactMap { $0 } + world.children.filter { $0.name == Effects.tapMarkerName }
+        hidden.forEach { $0.isHidden = true }
+        defer { hidden.forEach { $0.isHidden = false } }
         return view?.texture(from: world, crop: visible)
     }
 
     /// Back from a battle (or a dialog): unlock input and pick up party changes.
     func resume() {
+        openBarricades()
         isInputLocked = false
         lastUpdate = 0
         input.move = .zero
+        refreshHero()
         refreshFollower()
         updateNotices()
     }
@@ -596,8 +756,31 @@ final class WorldScene: SKScene {
             if distance <= talkRange + 12, distance < (nearest?.distance ?? .infinity) {
                 nearest = (npc.def.id, distance)
             }
+            // Townsfolk at their posts turn to watch you pass, and glance around otherwise.
+            if npc.def.role != .chest {
+                if distance < 130 {
+                    npc.node.face(Direction(player.position - npc.node.position, current: npc.node.facing))
+                } else if Int.random(in: 0..<12) == 0 {
+                    npc.node.face(Direction.allCases.randomElement() ?? .down)
+                }
+            }
         }
         if session.nearbyNPC != nearest?.id { session.nearbyNPC = nearest?.id }
+    }
+
+    /// The last few steps toward an open road out fade to black.
+    private func updateEdgeFade(_ dt: TimeInterval) {
+        let cell = map.cell(at: player.position)
+        let fadeCells = 4
+        var target: CGFloat = 0
+        for exit in def.exits where session.canTravel(exit) {
+            let distance = map.distance(from: cell, to: exit.edge)
+            guard distance < fadeCells else { continue }
+            target = max(target, CGFloat(fadeCells - distance) / CGFloat(fadeCells) * 0.75)
+        }
+        if hasLeft { target = 0.85 }
+        let t = dt == 0 ? 1 : min(1, CGFloat(dt) * 6)
+        edgeFade.alpha += (target - edgeFade.alpha) * t
     }
 
     private func updateCamera(_ dt: TimeInterval) {

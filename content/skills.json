@@ -1,8 +1,9 @@
 {
-  "_about": "Skills and spells. kind: physical | magic | heal. target: enemy | allEnemies | ally | allAllies. animation picks the battle effect (slash, whirlwind, fire, stone, leaves, water, heal, holy, wild, needles, bounce, bite); it grows with the skill's level (1-5, raised with skill points). Elements: metal, wood, water, fire, earth, light, dark.",
+  "_about": "Skills and spells. `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift). kind: physical | magic | heal. target: enemy | allEnemies | ally | allAllies. animation picks the battle effect (slash, whirlwind, fire, stone, leaves, water, heal, holy, wild, needles, bounce, bite); it grows with the skill's level (1-5, raised with skill points). Elements: metal, wood, water, fire, earth, light, dark. `splash`: from skill level 3 the spell also hits the target's neighbours for a share of the damage (this share at level 5).",
   "skills": [
     {
       "id": "bash",
+      "icon": "hammer",
       "name": "Bash",
       "mp": 3,
       "kind": "physical",
@@ -13,6 +14,7 @@
     },
     {
       "id": "first_aid",
+      "icon": "first-aid",
       "name": "First Aid",
       "mp": 4,
       "kind": "heal",
@@ -23,6 +25,7 @@
     },
     {
       "id": "power_strike",
+      "icon": "sword",
       "name": "Power Strike",
       "mp": 6,
       "kind": "physical",
@@ -33,6 +36,7 @@
     },
     {
       "id": "whirlwind",
+      "icon": "tornado",
       "name": "Whirlwind",
       "mp": 9,
       "kind": "physical",
@@ -43,6 +47,8 @@
     },
     {
       "id": "fire_bolt",
+      "splash": 0.5,
+      "icon": "flame",
       "name": "Fire Bolt",
       "mp": 5,
       "kind": "magic",
@@ -54,6 +60,8 @@
     },
     {
       "id": "stone_spike",
+      "splash": 0.5,
+      "icon": "mountain",
       "name": "Stone Spike",
       "mp": 6,
       "kind": "magic",
@@ -65,6 +73,7 @@
     },
     {
       "id": "leaf_storm",
+      "icon": "leaf",
       "name": "Leaf Storm",
       "mp": 10,
       "kind": "magic",
@@ -76,6 +85,7 @@
     },
     {
       "id": "blessing",
+      "icon": "sun",
       "name": "Blessing",
       "mp": 12,
       "kind": "heal",
@@ -86,6 +96,7 @@
     },
     {
       "id": "wild_call",
+      "icon": "paw",
       "name": "Wild Call",
       "mp": 7,
       "kind": "physical",
@@ -96,6 +107,7 @@
     },
     {
       "id": "mend_beast",
+      "icon": "heart-plus",
       "name": "Mend Beast",
       "mp": 5,
       "kind": "heal",
@@ -106,6 +118,7 @@
     },
     {
       "id": "nibble",
+      "icon": "tooth",
       "name": "Nibble",
       "mp": 0,
       "kind": "physical",
@@ -115,6 +128,7 @@
     },
     {
       "id": "jelly_splash",
+      "icon": "droplet",
       "name": "Jelly Splash",
       "mp": 0,
       "kind": "magic",
@@ -125,6 +139,7 @@
     },
     {
       "id": "pine_needles",
+      "icon": "pine-tree",
       "name": "Pine Needles",
       "mp": 0,
       "kind": "physical",
@@ -134,6 +149,7 @@
     },
     {
       "id": "bounce",
+      "icon": "bounce",
       "name": "Bounce",
       "mp": 0,
       "kind": "physical",

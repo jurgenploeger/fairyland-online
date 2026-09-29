@@ -5,6 +5,7 @@ import Foundation
 ///
 ///   newgame        skip the title screen with a fresh hero
 ///   level=5        start at a level
+///   hp=0.2         start with this fraction of HP left
 ///   map=<id>       start on a map from content/maps.json
 ///   battle         start in a random battle on the current map
 ///   menu=<tab>     open character | companions | bag | quests
@@ -35,6 +36,9 @@ enum DebugLaunch {
         if let level = flags["level"].flatMap(Int.init), level > 1 {
             session.data.hero.level = level
             session.restoreHero()
+        }
+        if let fraction = flags["hp"].flatMap(Double.init) {
+            session.data.hero.hp = max(1, Int(Double(session.heroStats.hp) * fraction))
         }
         if let map = flags["map"], Content.shared.map(map) != nil {
             session.data.mapID = map

@@ -1,0 +1,32 @@
+{
+  "_about": "Look customisation for the hero. Each preset is a palette swap (recolor rules, same format as `derive` in art/assets.json) applied to the hero's walk sheet. Companions keep their species' colours. `swatch` is the colour shown in the picker. The first preset in each list is the default. `unlock` names a quest that has to be finished before the look can be picked.",
+  "hair": [
+    { "id": "ginger", "name": "Ginger", "swatch": "#EB871E", "recolor": [] },
+    { "id": "blonde", "name": "Blonde", "swatch": "#F7D774", "recolor": [{ "hue": [12, 58], "minSaturation": 0.55, "minValue": 0.55, "to": 48, "saturation": 0.6, "value": 1.12 }] },
+    { "id": "brown", "name": "Brown", "swatch": "#7A4A26", "recolor": [{ "hue": [12, 58], "minSaturation": 0.55, "minValue": 0.55, "to": 25, "saturation": 0.75, "value": 0.6 }] },
+    { "id": "black", "name": "Black", "swatch": "#2A2D3A", "recolor": [{ "hue": [12, 58], "minSaturation": 0.55, "minValue": 0.55, "to": 230, "saturation": 0.25, "value": 0.35 }] },
+    { "id": "white", "unlock": "bouncy_menace", "name": "Snow", "swatch": "#F4F1EA", "recolor": [{ "hue": [12, 58], "minSaturation": 0.55, "minValue": 0.55, "to": 40, "saturation": 0.06, "value": 1.3 }] },
+    { "id": "pink", "unlock": "jelly_trouble", "name": "Pink", "swatch": "#F48FB1", "recolor": [{ "hue": [12, 58], "minSaturation": 0.55, "minValue": 0.55, "to": 330, "saturation": 0.7, "value": 1.05 }] },
+    { "id": "blue", "unlock": "pineapple_harvest", "name": "Sky", "swatch": "#64B5F6", "recolor": [{ "hue": [12, 58], "minSaturation": 0.55, "minValue": 0.55, "to": 208, "saturation": 0.8 }] },
+    { "id": "green", "name": "Leaf", "swatch": "#66BB6A", "recolor": [{ "hue": [12, 58], "minSaturation": 0.55, "minValue": 0.55, "to": 125, "saturation": 0.7, "value": 0.9 }] },
+    { "id": "purple", "unlock": "new_friend", "name": "Plum", "swatch": "#9C6ADE", "recolor": [{ "hue": [12, 58], "minSaturation": 0.55, "minValue": 0.55, "to": 275, "saturation": 0.7, "value": 0.95 }] }
+  ],
+  "outfits": [
+    { "id": "green", "name": "Forest", "swatch": "#3DC92D", "recolor": [] },
+    { "id": "red", "name": "Cherry", "swatch": "#E04848", "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 358 }] },
+    { "id": "blue", "name": "Ocean", "swatch": "#3E7FE0", "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 215 }] },
+    { "id": "purple", "unlock": "choose_path", "name": "Mystic", "swatch": "#8E55D8", "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 275 }] },
+    { "id": "pink", "unlock": "jelly_trouble", "name": "Blossom", "swatch": "#F06FA8", "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 332, "saturation": 0.8, "value": 1.1 }] },
+    { "id": "gold", "unlock": "pineapple_harvest", "name": "Sunny", "swatch": "#F2C230", "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 46, "value": 1.1 }] },
+    { "id": "teal", "name": "Lagoon", "swatch": "#26B5A5", "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 174 }] },
+    { "id": "black", "unlock": "bouncy_menace", "name": "Midnight", "swatch": "#343848", "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 230, "saturation": 0.25, "value": 0.5 }] },
+    { "id": "white", "unlock": "new_friend", "name": "Cloud", "swatch": "#EEF2F6", "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 210, "saturation": 0.08, "value": 1.3 }] }
+  ],
+  "skin": [
+    { "id": "fair", "name": "Fair", "swatch": "#FCD0B9", "recolor": [] },
+    { "id": "rosy", "name": "Rosy", "swatch": "#F4B7A6", "recolor": [{ "hue": [5, 45], "minSaturation": 0.08, "maxSaturation": 0.54, "minValue": 0.6, "to": 12, "saturation": 1.25, "value": 0.97 }] },
+    { "id": "tan", "name": "Tan", "swatch": "#D9A07A", "recolor": [{ "hue": [5, 45], "minSaturation": 0.08, "maxSaturation": 0.54, "minValue": 0.6, "saturation": 1.5, "value": 0.85 }] },
+    { "id": "brown", "name": "Brown", "swatch": "#A86B45", "recolor": [{ "hue": [5, 45], "minSaturation": 0.08, "maxSaturation": 0.54, "minValue": 0.6, "saturation": 1.8, "value": 0.66 }] },
+    { "id": "deep", "name": "Deep", "swatch": "#6E4430", "recolor": [{ "hue": [5, 45], "minSaturation": 0.08, "maxSaturation": 0.54, "minValue": 0.6, "saturation": 1.8, "value": 0.46 }] }
+  ]
+}

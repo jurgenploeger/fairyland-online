@@ -1,8 +1,9 @@
 {
-  "_about": "Items. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
+  "_about": "Items. `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift); weapons are drawn in the hero's hand by their icon. Armour `recolor` changes the outfit colours while worn. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
   "items": [
     {
       "id": "potion",
+      "icon": "potion",
       "name": "Potion",
       "type": "consumable",
       "price": 15,
@@ -11,6 +12,7 @@
     },
     {
       "id": "ether",
+      "icon": "flask",
       "name": "Ether",
       "type": "consumable",
       "price": 30,
@@ -18,7 +20,17 @@
       "description": "Restores 20 MP."
     },
     {
+      "id": "seal_stone",
+      "icon": "gem",
+      "name": "Seal Stone",
+      "type": "consumable",
+      "price": 60,
+      "capture": true,
+      "description": "Throw it at the last monster standing once it's below 20% HP to befriend it. Only used up if it works."
+    },
+    {
       "id": "pet_egg",
+      "icon": "egg",
       "name": "Pet Egg",
       "type": "consumable",
       "price": 0,
@@ -31,6 +43,7 @@
     },
     {
       "id": "wooden_sword",
+      "icon": "sword",
       "name": "Wooden Sword",
       "type": "weapon",
       "price": 40,
@@ -46,6 +59,7 @@
     },
     {
       "id": "oak_staff",
+      "icon": "wand",
       "name": "Oak Staff",
       "type": "weapon",
       "price": 45,
@@ -61,6 +75,7 @@
     },
     {
       "id": "iron_axe",
+      "icon": "axe",
       "name": "Iron Axe",
       "type": "weapon",
       "price": 160,
@@ -75,6 +90,7 @@
     },
     {
       "id": "crystal_wand",
+      "icon": "diamond",
       "name": "Crystal Wand",
       "type": "weapon",
       "price": 170,
@@ -89,6 +105,7 @@
     },
     {
       "id": "tamer_whip",
+      "icon": "paw",
       "name": "Tamer's Whip",
       "type": "weapon",
       "price": 150,
@@ -104,6 +121,7 @@
     },
     {
       "id": "cloth_tunic",
+      "icon": "shield",
       "name": "Cloth Tunic",
       "type": "armor",
       "price": 30,
@@ -114,6 +132,8 @@
     },
     {
       "id": "leather_vest",
+      "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 28, "saturation": 0.7, "value": 0.72 }],
+      "icon": "shield-check",
       "name": "Leather Vest",
       "type": "armor",
       "price": 90,
@@ -125,6 +145,8 @@
     },
     {
       "id": "chain_mail",
+      "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 215, "saturation": 0.12, "value": 0.95 }],
+      "icon": "shield-plus",
       "name": "Chain Mail",
       "type": "armor",
       "price": 220,
@@ -139,6 +161,8 @@
     },
     {
       "id": "silk_robe",
+      "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 268, "saturation": 0.75, "value": 1.1 }],
+      "icon": "shield-star",
       "name": "Silk Robe",
       "type": "armor",
       "price": 180,
@@ -155,6 +179,8 @@
     },
     {
       "id": "ranger_cloak",
+      "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 150, "saturation": 0.85, "value": 0.62 }],
+      "icon": "shield-heart",
       "name": "Ranger Cloak",
       "type": "armor",
       "price": 170,
@@ -170,6 +196,7 @@
     },
     {
       "id": "lucky_clover",
+      "icon": "clover",
       "name": "Lucky Clover",
       "type": "accessory",
       "price": 120,
@@ -180,6 +207,7 @@
     },
     {
       "id": "ruby_ring",
+      "icon": "gem",
       "name": "Ruby Ring",
       "type": "accessory",
       "price": 150,
@@ -190,6 +218,7 @@
     },
     {
       "id": "novice_ring",
+      "icon": "ring",
       "name": "Novice Ring",
       "type": "accessory",
       "price": 25,

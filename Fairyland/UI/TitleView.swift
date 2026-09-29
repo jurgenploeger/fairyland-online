@@ -6,6 +6,7 @@ struct TitleView: View {
 
     @State private var creating = false
     @State private var name = "Hero"
+    @State private var look = Look.standard
     @State private var raceID = "human"
     @State private var confirmNewGame = false
     private let savedGame = SaveStore.load()
@@ -55,14 +56,17 @@ struct TitleView: View {
                 Button {
                     onStart(GameSession(data: savedGame))
                 } label: {
-                    Label("Continue: \(savedGame.hero.name), Lv \(savedGame.hero.level)", systemImage: "play.fill")
+                    Label("Continue: \(savedGame.hero.name), Lv \(savedGame.hero.level)", icon: .play)
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
+                Text("Your progress saves automatically.")
+                    .font(HUDStyle.font(11))
+                    .foregroundStyle(HUDStyle.ink.opacity(0.6))
             }
             Button {
                 if savedGame != nil { confirmNewGame = true } else { creating = true }
             } label: {
-                Label("New game", systemImage: "sparkles")
+                Label("New game", icon: .sparkles)
             }
             .buttonStyle(PixelButtonStyle())
         }
@@ -71,12 +75,7 @@ struct TitleView: View {
     private var creation: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Create your hero").font(HUDStyle.font(16)).foregroundStyle(HUDStyle.gold)
-            TextField("Name", text: $name)
-                .textInputAutocapitalization(.words)
-                .autocorrectionDisabled()
-                .font(HUDStyle.font(15))
-                .padding(10)
-                .background(RoundedRectangle(cornerRadius: 6).fill(.white.opacity(0.12)))
+            LookEditor(name: $name, look: $look, raceID: raceID)
 
             Text("Race").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
             AdaptiveStack(spacing: 10) {
@@ -92,11 +91,11 @@ struct TitleView: View {
                 Spacer()
                 Button {
                     let trimmed = name.trimmingCharacters(in: .whitespaces)
-                    let session = GameSession.newGame(name: trimmed.isEmpty ? "Hero" : String(trimmed.prefix(12)), raceID: raceID)
+                    let session = GameSession.newGame(name: trimmed.isEmpty ? "Hero" : String(trimmed.prefix(12)), raceID: raceID, look: look)
                     session.save()
                     onStart(session)
                 } label: {
-                    Label("Begin adventure", systemImage: "arrow.right")
+                    Label("Begin adventure", icon: .arrowRight)
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
             }

@@ -35,7 +35,7 @@ struct BattleView: View {
                 .allowsHitTesting(controller.phase != .animating)
 
             if controller.phase == .finished, let result = controller.result {
-                ResultPanel(result: result, onContinue: controller.leave)
+                ResultPanel(result: result, session: controller.session, onContinue: controller.leave)
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.phase)
@@ -48,13 +48,16 @@ struct BattleView: View {
             CommandWheel(controller: controller)
                 .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
         case .skills:
-            ChoiceCard(title: "Skills", icon: "sparkles", onBack: controller.back) {
+            ChoiceCard(title: "Skills", icon: .sparkles, onBack: controller.back) {
                 if controller.skills.isEmpty {
-                    Text("No skills yet. You'll learn Bash at level 2.").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
+                    EmptyNote(controller.skills.isEmpty && !controller.session.learnableSkills.isEmpty
+                              ? "No skills yet.\nLearn one in the Character menu."
+                              : controller.session.skillHint)
                 }
                 ForEach(controller.skills) { skill in
                     let affordable = (controller.hero?.mp ?? 0) >= controller.cost(of: skill)
                     ChoiceRow(action: { controller.useSkill(skill) }, enabled: affordable) {
+                        SkillIcon(skill: skill, size: 26)
                         Text(skill.name)
                         Text("Lv\(controller.level(of: skill))").font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
                         if let element = skill.element { ElementBadge(element: element) }
@@ -65,22 +68,23 @@ struct BattleView: View {
             }
             .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
         case .items:
-            ChoiceCard(title: "Items", icon: "bag.fill", onBack: controller.back) {
+            ChoiceCard(title: "Items", icon: .backpack, onBack: controller.back) {
                 if controller.items.isEmpty {
-                    Text("Your bag is empty.").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
+                    EmptyNote("Your bag is empty.\nShops in town sell potions.")
                 }
                 ForEach(controller.items) { item in
                     ChoiceRow(action: { controller.useItem(item) }, enabled: true) {
+                        ItemIcon(item: item, size: 26)
                         Text(item.name)
                         Spacer()
-                        Text("×\(controller.session.count(of: item.id))").foregroundStyle(HUDStyle.dim)
+                        Text("×\(controller.session.count(of: item.id))").foregroundStyle(HUDStyle.frameDark)
                     }
                 }
             }
             .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
         case .target:
             HStack(spacing: 10) {
-                Image(systemName: "hand.tap.fill").foregroundStyle(HUDStyle.gold)
+                IconImage(.tap, size: 18).foregroundStyle(HUDStyle.gold)
                 Text(controller.prompt).font(HUDStyle.font(13))
                 Button("Cancel", action: controller.back)
                     .buttonStyle(PixelButtonStyle(compact: true))
@@ -100,68 +104,84 @@ struct BattleView: View {
 // MARK: - Command wheel
 
 /// A big Attack button in the corner with a few round buttons curving around it.
-/// Less-used commands hide behind "More"; Capture only appears when a monster is weak enough.
+/// Less-used commands hide behind "More". Capture appears when a monster is weak enough, and
+/// Items comes out from under "More" when someone is low on HP.
 private struct CommandWheel: View {
     let controller: BattleController
     @State private var showMore = false
 
     private struct Command: Identifiable {
         let id: String
-        let icon: String
+        let icon: GameIcon
         let tint: RoundCommandButton.Tint
         let action: () -> Void
     }
 
-    private let size: CGFloat = 230
+    private let size: CGFloat = 280
     private let mainSize: CGFloat = 88
-    private let satelliteSize: CGFloat = 58
-    private let orbit: CGFloat = 112
+    private let satelliteSize: CGFloat = 56
+    private let orbit: CGFloat = 162
+    /// Room between neighbours on the arc, so each label sits clear of the button below it.
+    private let spacing: Double = 32
 
+    /// Commands on the arc. More/close has its own fixed spot straight above Attack.
     private var satellites: [Command] {
+        let lowHP = controller.needsHealing
         if showMore {
-            return [
-                Command(id: "Items", icon: "bag.fill", tint: .normal) { controller.openItems() },
-                Command(id: "Guard", icon: "shield.fill", tint: .normal) { controller.defend() },
-                Command(id: "Run", icon: "figure.run", tint: .normal) { controller.escape() },
-                Command(id: "Back", icon: "xmark", tint: .quiet) { showMore = false },
-            ]
+            var commands: [Command] = []
+            if !lowHP {
+                commands.append(Command(id: "Items", icon: .backpack, tint: .normal) { controller.openItems() })
+            }
+            commands.append(Command(id: "Guard", icon: .shield, tint: .normal) { controller.defend() })
+            commands.append(Command(id: "Run", icon: .wind, tint: .normal) { controller.escape() })
+            return commands
         }
-        var commands = [Command(id: "Skills", icon: "sparkles", tint: .normal) { controller.openSkills() }]
+        var commands = [Command(id: "Skills", icon: .sparkles, tint: .normal) { controller.openSkills() }]
+        if lowHP {
+            commands.append(Command(id: "Items", icon: .heartPlus, tint: .heal) { controller.openItems() })
+        }
         if controller.canCapture {
-            commands.append(Command(id: "Capture", icon: "heart.fill", tint: .special) { controller.capture() })
+            commands.append(Command(id: "Capture", icon: .heart, tint: .special) { controller.capture() })
         }
-        commands.append(Command(id: "More", icon: "ellipsis", tint: .quiet) { showMore = true })
         return commands
+    }
+
+    private func point(_ degrees: Double, around main: CGPoint) -> CGPoint {
+        let radians = degrees * .pi / 180
+        return CGPoint(x: main.x + orbit * cos(radians), y: main.y + orbit * sin(radians))
     }
 
     var body: some View {
         let main = CGPoint(x: size - mainSize / 2 - 4, y: size - mainSize / 2 - 4)
-        let items = satellites
         ZStack {
-            ForEach(Array(items.enumerated()), id: \.element.id) { index, command in
-                // Spread from straight left (180°) to straight up (270°).
-                let angle = items.count == 1 ? 225.0 : 180 + 90 * Double(index) / Double(items.count - 1)
-                let radians = angle * .pi / 180
+            // Evenly spaced from straight left, leaving room for labels.
+            ForEach(Array(satellites.enumerated()), id: \.element.id) { index, command in
                 RoundCommandButton(title: command.id, icon: command.icon, size: satelliteSize, tint: command.tint, action: command.action)
-                    .position(x: main.x + orbit * cos(radians), y: main.y + orbit * sin(radians))
+                    .position(point(180 + spacing * Double(index), around: main))
                     .transition(.scale(scale: 0.2, anchor: .bottomTrailing).combined(with: .opacity))
             }
-            RoundCommandButton(title: "Attack", icon: "bolt.fill", size: mainSize, tint: .primary) { controller.attack() }
+            RoundCommandButton(title: showMore ? "Close" : "More", icon: showMore ? .close : .more, size: satelliteSize, tint: .quiet) {
+                showMore.toggle()
+            }
+            .position(point(270, around: main))
+            RoundCommandButton(title: "Attack", icon: .sword, size: mainSize, tint: .primary) { controller.attack() }
                 .position(main)
         }
         .frame(width: size, height: size)
-        .animation(.spring(response: 0.38, dampingFraction: 0.68), value: showMore)
-        .animation(.spring(response: 0.38, dampingFraction: 0.68), value: controller.canCapture)
+        .animation(.spring(response: 0.38, dampingFraction: 0.72), value: showMore)
+        .animation(.spring(response: 0.38, dampingFraction: 0.72), value: controller.canCapture)
+        .animation(.spring(response: 0.38, dampingFraction: 0.72), value: controller.needsHealing)
     }
 }
 
 struct RoundCommandButton: View {
     enum Tint {
-        case primary, normal, special, quiet
+        /// special glows gold (Capture); heal glows green (Items when HP is low).
+        case primary, normal, special, heal, quiet
     }
 
     let title: String
-    let icon: String
+    let icon: GameIcon
     let size: CGFloat
     let tint: Tint
     let action: () -> Void
@@ -172,23 +192,32 @@ struct RoundCommandButton: View {
         switch tint {
         case .primary: [Color(red: 1, green: 0.62, blue: 0.45), Color(red: 0.9, green: 0.3, blue: 0.3)]
         case .special: [Color(red: 1, green: 0.92, blue: 0.55), Color(red: 0.98, green: 0.68, blue: 0.2)]
+        case .heal: [Color(red: 0.8, green: 1, blue: 0.75), Color(red: 0.3, green: 0.78, blue: 0.4)]
         case .normal: [.white, HUDStyle.cream, Color(red: 0.86, green: 0.78, blue: 0.64)]
         case .quiet: [Color(red: 0.42, green: 0.36, blue: 0.56), HUDStyle.ink]
+        }
+    }
+
+    /// Buttons that want attention pulse with a coloured glow.
+    private var glow: Color? {
+        switch tint {
+        case .special: HUDStyle.gold
+        case .heal: HUDStyle.green
+        default: nil
         }
     }
 
     private var foreground: Color {
         switch tint {
         case .primary, .quiet: .white
-        case .normal, .special: HUDStyle.ink
+        case .normal, .special, .heal: HUDStyle.ink
         }
     }
 
     var body: some View {
         Button(action: action) {
             VStack(spacing: 1) {
-                Image(systemName: icon)
-                    .font(.system(size: size * 0.33, weight: .heavy))
+                IconImage(icon, size: size * 0.4)
                 if size >= 80 {
                     Text(title).font(HUDStyle.font(12))
                 }
@@ -205,8 +234,8 @@ struct RoundCommandButton: View {
                             .offset(y: -size * 0.3)
                     )
             )
-            .shadow(color: tint == .special ? HUDStyle.gold.opacity(pulse ? 0.9 : 0.3) : .black.opacity(0.4),
-                    radius: tint == .special ? (pulse ? 12 : 5) : 4, x: 0, y: tint == .special ? 0 : 4)
+            .shadow(color: glow?.opacity(pulse ? 0.9 : 0.3) ?? .black.opacity(0.4),
+                    radius: glow == nil ? 4 : (pulse ? 12 : 5), x: 0, y: glow == nil ? 4 : 0)
         }
         .buttonStyle(RoundPressStyle())
         .overlay(alignment: .bottom) {
@@ -220,7 +249,7 @@ struct RoundCommandButton: View {
             }
         }
         .onAppear {
-            guard tint == .special else { return }
+            guard glow != nil else { return }
             withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) { pulse = true }
         }
         .accessibilityLabel(title)
@@ -239,20 +268,20 @@ private struct RoundPressStyle: ButtonStyle {
 
 private struct ChoiceCard<Content: View>: View {
     let title: String
-    let icon: String
+    let icon: GameIcon
     let onBack: () -> Void
     @ViewBuilder let content: () -> Content
+    @State private var contentHeight: CGFloat = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Label(title, systemImage: icon)
+                Label(title, icon: icon, size: 17)
                     .font(HUDStyle.font(14))
                     .foregroundStyle(HUDStyle.gold)
                 Spacer()
                 Button(action: onBack) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 13, weight: .black))
+                    IconImage(.close, size: 16)
                         .foregroundStyle(HUDStyle.cream)
                         .frame(width: 32, height: 32)
                         .background(Circle().fill(.white.opacity(0.1)))
@@ -260,11 +289,12 @@ private struct ChoiceCard<Content: View>: View {
                 .accessibilityLabel("Back")
             }
             // Hug the rows; long lists scroll instead of growing past the scene.
-            ViewThatFits(in: .vertical) {
+            ScrollView {
                 VStack(spacing: 6, content: content)
-                ScrollView { VStack(spacing: 6, content: content) }
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
             }
-            .frame(maxHeight: 220)
+            .scrollBounceBehavior(.basedOnSize)
+            .frame(height: min(max(contentHeight, 1), 220))
         }
         .padding(12)
         .frame(width: 300)
@@ -286,8 +316,9 @@ private struct ChoiceRow<Label: View>: View {
             HStack(spacing: 6, content: label)
                 .font(HUDStyle.font(13))
                 .foregroundStyle(HUDStyle.ink)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
+                .padding(.leading, 6)
+                .padding(.trailing, 14)
+                .padding(.vertical, 6)
                 .background(Capsule().fill(enabled ? HUDStyle.cream : HUDStyle.dim))
         }
         .buttonStyle(RoundPressStyle())
@@ -326,11 +357,17 @@ private struct PartyStatus: View {
 
 private struct ResultPanel: View {
     let result: BattleResult
+    let session: GameSession
     let onContinue: () -> Void
+
+    /// Summary first; then, if needed, who stays behind (full party) and skill choices.
+    private enum Stage { case summary, release, levelUp }
+    @State private var stage = Stage.summary
 
     private var title: String {
         switch result.outcome {
         case .victory: "Victory!"
+        case .fled: "It got away…"
         case .defeat: "Defeated…"
         case .escaped: "Escaped"
         case .ongoing: ""
@@ -340,7 +377,34 @@ private struct ResultPanel: View {
     var body: some View {
         ZStack {
             Color.black.opacity(0.45).ignoresSafeArea()
-            VStack(spacing: 10) {
+            switch stage {
+            case .summary:
+                summary
+            case .release:
+                LeaveBehindCard(session: session, onDone: advance)
+                    .transition(.scale(scale: 0.9).combined(with: .opacity))
+            case .levelUp:
+                if let level = result.newLevel {
+                    LevelUpCard(session: session, level: level, onDone: onContinue)
+                        .transition(.scale(scale: 0.9).combined(with: .opacity))
+                }
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: stage)
+    }
+
+    private func advance() {
+        if stage == .summary, session.pendingPet != nil {
+            stage = .release
+        } else if stage != .levelUp, result.newLevel != nil, session.unspentSkillPoints > 0 {
+            stage = .levelUp
+        } else {
+            onContinue()
+        }
+    }
+
+    private var summary: some View {
+        VStack(spacing: 10) {
                 Text(title)
                     .font(HUDStyle.font(26))
                     .foregroundStyle(result.outcome == .victory ? HUDStyle.gold : HUDStyle.cream)
@@ -350,18 +414,17 @@ private struct ResultPanel: View {
                         .foregroundStyle(HUDStyle.cream)
                         .multilineTextAlignment(.center)
                 }
-                Button("Continue", action: onContinue)
+                Button("Continue", action: advance)
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
                     .padding(.top, 6)
-            }
-            .padding(22)
-            .frame(maxWidth: 420)
-            .background(
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(HUDStyle.ink.opacity(0.92))
-                    .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(HUDStyle.cream.opacity(0.85), lineWidth: 2))
-            )
-            .padding(20)
         }
+        .padding(22)
+        .frame(maxWidth: 420)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(HUDStyle.ink.opacity(0.92))
+                .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(HUDStyle.cream.opacity(0.85), lineWidth: 2))
+        )
+        .padding(20)
     }
 }

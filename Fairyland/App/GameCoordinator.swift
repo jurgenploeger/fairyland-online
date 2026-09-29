@@ -9,12 +9,12 @@ enum MenuTab: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var icon: String {
+    var icon: GameIcon {
         switch self {
-        case .character: "person.fill"
-        case .companions: "pawprint.fill"
-        case .bag: "bag.fill"
-        case .quests: "scroll.fill"
+        case .character: .user
+        case .companions: .paw
+        case .bag: .backpack
+        case .quests: .book
         }
     }
 }
@@ -26,6 +26,7 @@ final class GameCoordinator {
         case menu(MenuTab)
         case npc(String)
         case worldMap
+        case chat
     }
 
     let session: GameSession
@@ -35,6 +36,9 @@ final class GameCoordinator {
     private(set) var overlay: Overlay?
     /// False until the first map frame has rendered (the loading curtain stays up until then).
     private(set) var isReady = false
+    /// The map being travelled to, while its loading card is showing.
+    private(set) var loadingMapName: String?
+    @ObservationIgnored private var loadingStarted = Date()
     @ObservationIgnored private(set) var battleScene: BattleScene?
 
     init(session: GameSession) {
@@ -44,16 +48,29 @@ final class GameCoordinator {
         self.input = input
         world = WorldScene(map: map, session: session, input: input, entry: nil)
         wire(world)
+        startAutosave()
+    }
+
+    /// Saves quietly every 20 seconds while exploring (and after every important moment elsewhere).
+    private func startAutosave() {
+        Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(20))
+                guard let self else { return }
+                if self.battle == nil { self.session.save() }
+            }
+        }
     }
 
     /// The scene SpriteKit should show right now.
     var scene: SKScene { battle != nil ? (battleScene ?? world) : world }
 
     private func wire(_ scene: WorldScene) {
-        scene.onFirstFrame = { [weak self] in self?.isReady = true }
+        scene.onFirstFrame = { [weak self] in self?.finishLoading() }
         scene.onEncounter = { [weak self] encounters, backdrop in self?.startBattle(encounters, backdrop: backdrop) }
         scene.onTalk = { [weak self] npc in self?.open(.npc(npc.id)) }
         scene.onTravel = { [weak self] exit in self?.travel(through: exit) }
+        scene.onDuel = { [weak self] rival, backdrop in self?.startDuel(with: rival, backdrop: backdrop) }
     }
 
     // MARK: Maps
@@ -63,12 +80,34 @@ final class GameCoordinator {
             world.resume()
             return
         }
-        loadMap(destination, entry: exit.edge.opposite)
+        go(to: destination, entry: exit.edge.opposite)
+    }
+
+    /// Shows the loading card first, then builds the (big) map behind it.
+    private func go(to map: MapDef, entry: Edge?) {
+        loadingMapName = map.name
+        loadingStarted = Date()
+        isReady = false
+        Task {
+            try? await Task.sleep(for: .milliseconds(280))
+            loadMap(map, entry: entry)
+        }
+    }
+
+    /// Keeps the loading card up long enough to read, then fades it out.
+    private func finishLoading() {
+        let remaining = 0.8 - Date().timeIntervalSince(loadingStarted)
+        Task {
+            if remaining > 0 { try? await Task.sleep(for: .seconds(remaining)) }
+            isReady = true
+            loadingMapName = nil
+        }
     }
 
     private func loadMap(_ map: MapDef, entry: Edge?) {
         session.data.mapID = map.id
         if entry == nil { session.playerPosition = nil }
+        if entry != nil || map.fence == true { session.reachCheckpoint(map, entry: entry) }
         let scene = WorldScene(map: map, session: session, input: input, entry: entry)
         wire(scene)
         input.move = .zero
@@ -87,12 +126,43 @@ final class GameCoordinator {
         isReady = true
     }
 
+    /// The adventurer you're duelling, so they can leave the map if you win.
+    private var rival: Adventurer?
+
+    private func startDuel(with rival: Adventurer, backdrop: SKTexture?) {
+        let controller = BattleController.duel(with: rival, session: session)
+        controller.onFinish = { [weak self] outcome in self?.endBattle(outcome) }
+        battleScene = BattleScene(controller: controller, size: world.size, backdrop: backdrop)
+        input.move = .zero
+        self.rival = rival
+        battle = controller
+        isReady = true
+    }
+
+    /// From the adventurer card: befriend, invite along, or challenge.
+    func befriend(_ adventurer: Adventurer) {
+        if session.befriend(adventurer) {
+            world.adventurerSays(["Yay, friends! ^_^", "Sure! Let's adventure sometime!", "Friends! :D"].randomElement()!, adventurer.id)
+        }
+    }
+
+    func invite(_ adventurer: Adventurer) {
+        session.invite(adventurer.id)
+        session.nearbyAdventurer = nil
+    }
+
+    func challenge(_ adventurer: Adventurer) {
+        world.startDuel(with: adventurer)
+    }
+
     private func endBattle(_ outcome: BattleOutcome) {
         battle = nil
         battleScene = nil
-        if outcome == .defeat, let town = Content.shared.map(session.data.mapID) {
-            // Fainted: session.faint() already moved us to town.
-            loadMap(town, entry: nil)
+        if let rival, outcome == .victory { world.dismissAdventurer(rival.id) }
+        rival = nil
+        if outcome == .defeat, let map = Content.shared.map(session.checkpoint.mapID) {
+            // Fainted: wake up at the checkpoint.
+            go(to: map, entry: session.checkpoint.entry)
         } else {
             world.resume()
         }
@@ -103,6 +173,10 @@ final class GameCoordinator {
 
     func open(_ overlay: Overlay) {
         self.overlay = overlay
+        if case .npc(let id) = overlay, let npc = Content.shared.npc(id), npc.role != .chest {
+            session.postChat(npc.greeting, from: npc.name, kind: .npc)
+            session.unreadChat = max(0, session.unreadChat - 1)
+        }
         world.isInputLocked = true
         input.move = .zero
     }
@@ -115,5 +189,9 @@ final class GameCoordinator {
 
     func talkToNearby() {
         world.talkToNearby()
+    }
+
+    func say(_ text: String) {
+        world.heroSay(text)
     }
 }

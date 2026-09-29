@@ -62,7 +62,7 @@ private struct HealerPanel: View {
             session.save()
             reply = "There you go! Everyone is fully rested."
         } label: {
-            Label("Rest and recover (free)", systemImage: "heart.fill")
+            Label("Rest and recover (free)", icon: .heartPlus)
         }
         .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
     }
@@ -75,7 +75,7 @@ private struct ChestPanel: View {
 
     var body: some View {
         if session.isOpened(chest.id) {
-            Text("It's empty now.").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
+            EmptyNote("It's empty now.")
         } else if session.canOpen(chest) {
             Button {
                 if let item = session.openChest(chest) {
@@ -83,7 +83,7 @@ private struct ChestPanel: View {
                     reply = "You untie the ribbon… You found a \(item.name)!"
                 }
             } label: {
-                Label("Open the gift box", systemImage: "gift.fill")
+                Label("Open the gift box", icon: .gift)
             }
             .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
         } else {
@@ -101,11 +101,12 @@ private struct ShopPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("\(session.data.gold) gold", systemImage: "circle.fill")
+            Label("\(session.data.gold) gold", icon: .coins)
                 .font(HUDStyle.font(12))
                 .foregroundStyle(HUDStyle.gold)
             ForEach(stock.compactMap { session.content.item($0) }) { item in
-                HStack {
+                HStack(spacing: 10) {
+                    ItemIcon(item: item, size: 36)
                     VStack(alignment: .leading, spacing: 1) {
                         Text(item.name)
                         let detail = item.type == .consumable ? (item.description ?? "") : "\(item.type.displayName) · \(item.stats?.bonusSummary ?? "")"

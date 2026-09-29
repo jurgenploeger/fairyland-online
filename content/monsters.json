@@ -1,53 +1,338 @@
 {
-  "_about": "Monster species. Wild monsters and companions share these stats: stats = base + growth × (level − 1). captureRate 0 means it can't be captured. `art` is an id from art/assets.json.",
+  "_about": "Monster species. Wild monsters and companions share these stats: stats = base + growth × (level − 1). captureRate 0 means it can't be captured. `art` is an id from art/assets.json. Variants like Frost Puff reuse a base monster's art with a free palette swap (see art/assets.json). Rare colour variants (`rare`, `variantOf`) are about 30% tougher, give more EXP and gold, and are harder to catch. `motion` is how it fidgets standing still (breathe, squish, hop, sway, bounce).",
   "monsters": [
     {
       "id": "bunny",
       "name": "Fluffy Bunny",
       "art": "pet_walk",
       "element": "wood",
-      "base": { "hp": 40, "mp": 12, "attack": 9, "defense": 6, "magic": 6, "speed": 11 },
-      "growth": { "hp": 8, "mp": 2, "attack": 2, "defense": 1, "magic": 1, "speed": 1 },
+      "base": {
+        "hp": 40,
+        "mp": 12,
+        "attack": 9,
+        "defense": 6,
+        "magic": 6,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
       "exp": 7,
       "gold": 4,
       "captureRate": 0.55,
-      "skills": ["nibble"]
+      "skills": [
+        "nibble"
+      ],
+      "motion": "hop"
     },
     {
       "id": "jelly",
       "name": "Jelly Puff",
       "art": "monster_jelly",
       "element": "water",
-      "base": { "hp": 26, "mp": 10, "attack": 6, "defense": 4, "magic": 5, "speed": 6 },
-      "growth": { "hp": 6, "mp": 2, "attack": 1, "defense": 1, "magic": 1, "speed": 1 },
+      "base": {
+        "hp": 26,
+        "mp": 10,
+        "attack": 6,
+        "defense": 4,
+        "magic": 5,
+        "speed": 6
+      },
+      "growth": {
+        "hp": 6,
+        "mp": 2,
+        "attack": 1,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
       "exp": 8,
       "gold": 5,
       "captureRate": 0.6,
-      "skills": ["jelly_splash"]
+      "skills": [
+        "jelly_splash"
+      ],
+      "motion": "squish"
     },
     {
       "id": "pineapple",
       "name": "Pineapple Sprout",
       "art": "monster_pineapple",
       "element": "wood",
-      "base": { "hp": 36, "mp": 8, "attack": 10, "defense": 7, "magic": 4, "speed": 8 },
-      "growth": { "hp": 7, "mp": 1, "attack": 2, "defense": 2, "magic": 1, "speed": 1 },
+      "base": {
+        "hp": 36,
+        "mp": 8,
+        "attack": 10,
+        "defense": 7,
+        "magic": 4,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 1,
+        "attack": 2,
+        "defense": 2,
+        "magic": 1,
+        "speed": 1
+      },
       "exp": 13,
       "gold": 9,
       "captureRate": 0.45,
-      "skills": ["pine_needles"]
+      "skills": [
+        "pine_needles"
+      ],
+      "motion": "sway"
     },
     {
       "id": "bun",
       "name": "Bouncy Bun",
       "art": "monster_bun",
       "element": "earth",
-      "base": { "hp": 50, "mp": 10, "attack": 13, "defense": 9, "magic": 6, "speed": 12 },
-      "growth": { "hp": 9, "mp": 2, "attack": 3, "defense": 2, "magic": 1, "speed": 2 },
+      "base": {
+        "hp": 50,
+        "mp": 10,
+        "attack": 13,
+        "defense": 9,
+        "magic": 6,
+        "speed": 12
+      },
+      "growth": {
+        "hp": 9,
+        "mp": 2,
+        "attack": 3,
+        "defense": 2,
+        "magic": 1,
+        "speed": 2
+      },
       "exp": 22,
       "gold": 14,
       "captureRate": 0.3,
-      "skills": ["bounce"]
+      "skills": [
+        "bounce"
+      ],
+      "motion": "bounce"
+    },
+    {
+      "id": "sakura_bunny",
+      "name": "Sakura Bunny",
+      "art": "pet_walk_sakura",
+      "element": "light",
+      "base": {
+        "hp": 52,
+        "mp": 16,
+        "attack": 12,
+        "defense": 8,
+        "magic": 9,
+        "speed": 14
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 3,
+        "attack": 2,
+        "defense": 1,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 12,
+      "gold": 10,
+      "captureRate": 0.33,
+      "skills": [
+        "nibble"
+      ],
+      "rare": true,
+      "variantOf": "bunny",
+      "motion": "hop"
+    },
+    {
+      "id": "frost_puff",
+      "name": "Frost Puff",
+      "art": "monster_jelly_frost",
+      "element": "water",
+      "base": {
+        "hp": 34,
+        "mp": 14,
+        "attack": 8,
+        "defense": 6,
+        "magic": 9,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 2,
+        "attack": 1,
+        "defense": 1,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 14,
+      "gold": 9,
+      "captureRate": 0.36,
+      "skills": [
+        "jelly_splash"
+      ],
+      "rare": true,
+      "variantOf": "jelly",
+      "motion": "squish"
+    },
+    {
+      "id": "ember_puff",
+      "name": "Ember Puff",
+      "art": "monster_jelly_ember",
+      "element": "fire",
+      "base": {
+        "hp": 38,
+        "mp": 14,
+        "attack": 10,
+        "defense": 6,
+        "magic": 11,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 18,
+      "gold": 12,
+      "captureRate": 0.36,
+      "skills": [
+        "jelly_splash"
+      ],
+      "rare": true,
+      "variantOf": "jelly",
+      "motion": "squish"
+    },
+    {
+      "id": "shade_puff",
+      "name": "Shade Puff",
+      "art": "monster_jelly_shade",
+      "element": "dark",
+      "base": {
+        "hp": 46,
+        "mp": 18,
+        "attack": 11,
+        "defense": 8,
+        "magic": 13,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 2,
+        "attack": 2,
+        "defense": 2,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 15,
+      "captureRate": 0.35,
+      "skills": [
+        "jelly_splash"
+      ],
+      "rare": true,
+      "variantOf": "jelly",
+      "motion": "squish"
+    },
+    {
+      "id": "dragonfruit",
+      "name": "Dragonfruit Sprout",
+      "art": "monster_pineapple_dragon",
+      "element": "fire",
+      "base": {
+        "hp": 47,
+        "mp": 10,
+        "attack": 13,
+        "defense": 9,
+        "magic": 6,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 1,
+        "attack": 3,
+        "defense": 2,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 21,
+      "gold": 14,
+      "captureRate": 0.27,
+      "skills": [
+        "pine_needles"
+      ],
+      "rare": true,
+      "variantOf": "pineapple",
+      "motion": "sway"
+    },
+    {
+      "id": "cotton_bun",
+      "name": "Cotton Bun",
+      "art": "monster_bun_cotton",
+      "element": "light",
+      "base": {
+        "hp": 65,
+        "mp": 14,
+        "attack": 17,
+        "defense": 12,
+        "magic": 9,
+        "speed": 16
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 2,
+        "attack": 2,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 35,
+      "gold": 21,
+      "captureRate": 0.18,
+      "skills": [
+        "bounce"
+      ],
+      "rare": true,
+      "variantOf": "bun",
+      "motion": "bounce"
+    },
+    {
+      "id": "night_bun",
+      "name": "Night Bun",
+      "art": "monster_bun_night",
+      "element": "dark",
+      "base": {
+        "hp": 65,
+        "mp": 13,
+        "attack": 17,
+        "defense": 12,
+        "magic": 8,
+        "speed": 16
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 2,
+        "attack": 3,
+        "defense": 2,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 35,
+      "gold": 21,
+      "captureRate": 0.18,
+      "skills": [
+        "bounce"
+      ],
+      "rare": true,
+      "variantOf": "bun",
+      "motion": "bounce"
     }
   ]
 }

@@ -16,6 +16,8 @@ nonisolated struct ArtAsset: Decodable {
     let directions: [String]?
     /// Optional draw-size multiplier. Stick to whole numbers to keep pixels square.
     let scale: Double?
+    /// A free palette-swapped copy of another sprite (used until this one gets its own PNG).
+    let derive: Derivation?
 }
 
 /// A texture plus the size it should be drawn at.
@@ -43,6 +45,8 @@ final class ArtLibrary {
     private var textures: [String: SKTexture] = [:]
     private var cycles: [String: WalkCycle] = [:]
     private var images: [String: UIImage] = [:]
+    /// Sprites made at runtime (the customised hero, recoloured companions), keyed by id.
+    private var runtime: [String: (asset: ArtAsset, key: String)] = [:]
 
     init() {
         do {
@@ -56,8 +60,29 @@ final class ArtLibrary {
         }
     }
 
+    /// Registers (or updates) a recoloured copy of `base` under `id`, e.g. the customised hero.
+    /// `key` identifies the look, so re-registering the same look is free.
+    func register(_ id: String, from base: String, recolor rules: [RecolorRule], key: String) {
+        guard runtime[id]?.key != key else { return }
+        let kind = asset(base)?.kind ?? "monster"
+        runtime[id] = (ArtAsset(id: id, kind: kind, frame: nil, directions: nil, scale: nil, derive: Derivation(from: base, recolor: rules)), key)
+        textures[id] = nil
+        cycles[id] = nil
+        images = images.filter { $0.key != id && !$0.key.hasPrefix(id + "#") }
+    }
+
+    /// A one-off recoloured portrait for pickers and previews (cached by `key`).
+    func preview(from base: String, recolor rules: [RecolorRule], key: String, facing direction: Direction = .down) -> UIImage {
+        let id = "preview:" + base + ":" + key
+        register(id, from: base, recolor: rules, key: key)
+        return image(id, facing: direction)
+    }
+
     func asset(_ id: String) -> ArtAsset? {
-        manifest.assets.first { $0.id == id }
+        guard let own = manifest.assets.first(where: { $0.id == id }) ?? runtime[id]?.asset else { return nil }
+        guard let derive = own.derive, let base = manifest.assets.first(where: { $0.id == derive.from }) else { return own }
+        return ArtAsset(id: own.id, kind: own.kind, frame: own.frame ?? base.frame, directions: own.directions ?? base.directions,
+                        scale: own.scale ?? base.scale, derive: derive)
     }
 
     private func kind(of id: String) -> String {
@@ -71,15 +96,92 @@ final class ArtLibrary {
     /// The generated PNG for `id` (art/sprites/<id>.png), or nil if it doesn't exist yet.
     func generatedTexture(_ id: String) -> SKTexture? {
         if let cached = textures[id] { return cached }
-        guard let url = pngURL(id), let image = UIImage(contentsOfFile: url.path) else { return nil }
-        let texture = SKTexture(image: image)
+        guard let image = sourceImage(id) else { return nil }
+        let texture = SKTexture(cgImage: image)
         texture.filteringMode = .nearest
         textures[id] = texture
         return texture
     }
 
+    /// The sprite's own PNG, or — for derived sprites — its base's PNG with the palette swap applied.
+    private func sourceImage(_ id: String, depth: Int = 0) -> CGImage? {
+        if let url = pngURL(id), let image = UIImage(contentsOfFile: url.path)?.cgImage { return image }
+        guard depth < 3, let derive = asset(id)?.derive, let base = sourceImage(derive.from, depth: depth + 1) else { return nil }
+        return Recolor.apply(derive.recolor, to: base)
+    }
+
     func tileTexture(_ id: String) -> SKTexture {
         generatedTexture(id) ?? Placeholder.canvas(for: id, kind: "tile").texture()
+    }
+
+    private func tileImage(_ id: String) -> CGImage {
+        sourceImage(id) ?? Placeholder.canvas(for: id, kind: "tile").cgImage()
+    }
+
+    private var blended: [String: SKTexture] = [:]
+
+    /// A road tile whose edges (per `mask`: 1 north, 2 east, 4 south, 8 west) give way to
+    /// `ground` along a soft wavy line with a darker rim, and rounded corners where two
+    /// edges meet, so roads read as winding paths instead of squares.
+    func roadTile(_ path: String, on ground: String, mask: Int) -> SKTexture {
+        let key = "\(path)|\(ground)|\(mask)"
+        if let cached = blended[key] { return cached }
+        let road = tileImage(path)
+        let size = max(road.width, 16)
+        func pixels(_ image: CGImage) -> [UInt8] {
+            var buffer = [UInt8](repeating: 0, count: size * size * 4)
+            let context = CGContext(data: &buffer, width: size, height: size, bitsPerComponent: 8, bytesPerRow: size * 4,
+                                    space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+            context.interpolationQuality = .none
+            context.draw(image, in: CGRect(x: 0, y: 0, width: size, height: size))
+            return buffer
+        }
+        let roadPixels = pixels(road)
+        let grassPixels = pixels(tileImage(ground))
+        var out = roadPixels
+        let n = mask & 1 != 0, e = mask & 2 != 0, s = mask & 4 != 0, w = mask & 8 != 0
+        // Edge inset (share of the tile), wobbling with a period that tiles seamlessly.
+        func inset(_ along: Double) -> Double { 0.2 + 0.06 * sin(along * 4 * .pi) + 0.03 * sin(along * 10 * .pi + 1) }
+        let corner = 0.42
+        func roadDepth(_ x: Double, _ y: Double) -> Double {
+            // Signed distance inside the road shape (in tile units); y = 0 is north.
+            var depth = 1.0
+            if n { depth = min(depth, y - inset(x)) }
+            if s { depth = min(depth, (1 - y) - inset(x)) }
+            if w { depth = min(depth, x - inset(y)) }
+            if e { depth = min(depth, (1 - x) - inset(y)) }
+            // Round the outside corners.
+            for (cornerX, cornerY, open) in [(0.0, 0.0, n && w), (1.0, 0.0, n && e), (0.0, 1.0, s && w), (1.0, 1.0, s && e)] where open {
+                let cx = cornerX == 0 ? corner : 1 - corner, cy = cornerY == 0 ? corner : 1 - corner
+                let inCorner = (cornerX == 0 ? x < cx : x > cx) && (cornerY == 0 ? y < cy : y > cy)
+                if inCorner {
+                    let distance = ((x - cx) * (x - cx) + (y - cy) * (y - cy)).squareRoot()
+                    depth = min(depth, (corner - inset(0.5)) - distance)
+                }
+            }
+            return depth
+        }
+        let rim = 1.2 / Double(size)
+        for py in 0..<size {
+            for px in 0..<size {
+                let x = (Double(px) + 0.5) / Double(size), y = (Double(py) + 0.5) / Double(size)
+                let depth = roadDepth(x, y)
+                let index = (py * size + px) * 4
+                if depth < 0 {
+                    for c in 0..<4 { out[index + c] = grassPixels[index + c] }
+                } else if depth < rim {
+                    for c in 0..<3 { out[index + c] = UInt8(Double(roadPixels[index + c]) * 0.72) }
+                }
+            }
+        }
+        let provider = CGDataProvider(data: Data(out) as CFData)!
+        let image = CGImage(width: size, height: size, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: size * 4,
+                            space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+                            provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent)!
+        let texture = SKTexture(cgImage: image)
+        texture.filteringMode = .nearest
+        blended[key] = texture
+        return texture
     }
 
     /// Animation frames for a water tile (a generated tile is a single frame).
@@ -150,25 +252,27 @@ final class ArtLibrary {
         return WalkCycle(frames: frames, size: CGSize(width: frameSize, height: frameSize) * scale)
     }
 
-    /// A portrait for SwiftUI screens (front-facing, unscaled pixels — draw with `.interpolation(.none)`).
-    func image(_ id: String) -> UIImage {
-        if let cached = images[id] { return cached }
+    /// A portrait for SwiftUI screens (unscaled pixels — draw with `.interpolation(.none)`).
+    /// Walk sheets can be shown facing any direction.
+    func image(_ id: String, facing direction: Direction = .down) -> UIImage {
+        let cacheKey = direction == .down ? id : id + "#" + direction.rawValue
+        if let cached = images[cacheKey] { return cached }
         let asset = asset(id)
         let kind = kind(of: id)
         var cgImage: CGImage?
-        if let url = pngURL(id), let full = UIImage(contentsOfFile: url.path)?.cgImage {
+        if let full = sourceImage(id) {
             if kind == "walk_sheet" {
                 let frame = CGFloat(asset?.frame ?? 48)
                 let layout = SheetLayout(asset: asset, width: CGFloat(full.width), height: CGFloat(full.height))
-                if let cell = layout.cells(for: .down).first {
+                if let cell = layout.cells(for: direction).first {
                     cgImage = full.cropping(to: CGRect(x: CGFloat(cell.column) * frame, y: CGFloat(cell.row) * frame, width: frame, height: frame))
                 }
             } else {
                 cgImage = full
             }
         }
-        let image = UIImage(cgImage: cgImage ?? Placeholder.canvas(for: id, kind: kind).cgImage())
-        images[id] = image
+        let image = UIImage(cgImage: cgImage ?? Placeholder.canvas(for: id, kind: kind, direction: direction).cgImage())
+        images[cacheKey] = image
         return image
     }
 }

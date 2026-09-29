@@ -1,24 +1,48 @@
 {
-  "_about": "Races (chosen at character creation) and classes. Everyone starts as a Novice; at classChoiceLevel you join a guild and pick a path. Stats = race base + class growth × (level − 1) + equipment.",
+  "_about": "Races (chosen at character creation) and classes. Everyone starts as a Novice; at classChoiceLevel you join a guild and pick a path. Stats = race base + class growth × (level − 1) + equipment. Each race has its own walk sheet (`art`); your hair/outfit/skin choices recolour it.",
   "classChoiceLevel": 5,
   "races": [
     {
       "id": "human",
       "name": "Human",
       "description": "Versatile, with no real strengths or weaknesses.",
-      "base": { "hp": 60, "mp": 20, "attack": 10, "defense": 8, "magic": 8, "speed": 10 }
+      "base": {
+        "hp": 60,
+        "mp": 20,
+        "attack": 10,
+        "defense": 8,
+        "magic": 8,
+        "speed": 10
+      },
+      "art": "player_walk"
     },
     {
       "id": "elf",
       "name": "Elf",
       "description": "Quick and gifted with magic, but frail.",
-      "base": { "hp": 50, "mp": 30, "attack": 8, "defense": 6, "magic": 12, "speed": 13 }
+      "base": {
+        "hp": 50,
+        "mp": 30,
+        "attack": 8,
+        "defense": 6,
+        "magic": 12,
+        "speed": 13
+      },
+      "art": "elf_walk"
     },
     {
       "id": "dwarf",
       "name": "Dwarf",
       "description": "Sturdy and strong, but slow on their feet.",
-      "base": { "hp": 72, "mp": 14, "attack": 12, "defense": 11, "magic": 5, "speed": 7 }
+      "base": {
+        "hp": 72,
+        "mp": 14,
+        "attack": 12,
+        "defense": 11,
+        "magic": 5,
+        "speed": 7
+      },
+      "art": "dwarf_walk"
     }
   ],
   "classes": [
@@ -26,10 +50,23 @@
       "id": "novice",
       "name": "Novice",
       "description": "A fresh adventurer who hasn't chosen a path yet.",
-      "growth": { "hp": 9, "mp": 3, "attack": 2, "defense": 2, "magic": 2, "speed": 1 },
+      "growth": {
+        "hp": 9,
+        "mp": 3,
+        "attack": 2,
+        "defense": 2,
+        "magic": 2,
+        "speed": 1
+      },
       "skills": [
-        { "skill": "bash", "level": 2 },
-        { "skill": "first_aid", "level": 3 }
+        {
+          "skill": "bash",
+          "level": 2
+        },
+        {
+          "skill": "first_aid",
+          "level": 3
+        }
       ]
     },
     {
@@ -37,12 +74,31 @@
       "name": "Fighter",
       "guild": "Warrior Guild",
       "description": "Front-line fighters with the most HP, attack and defense. Hits hard with blades and axes.",
-      "growth": { "hp": 14, "mp": 2, "attack": 4, "defense": 3, "magic": 1, "speed": 1 },
+      "growth": {
+        "hp": 14,
+        "mp": 2,
+        "attack": 4,
+        "defense": 3,
+        "magic": 1,
+        "speed": 1
+      },
       "skills": [
-        { "skill": "bash", "level": 1 },
-        { "skill": "first_aid", "level": 1 },
-        { "skill": "power_strike", "level": 5 },
-        { "skill": "whirlwind", "level": 7 }
+        {
+          "skill": "bash",
+          "level": 1
+        },
+        {
+          "skill": "first_aid",
+          "level": 1
+        },
+        {
+          "skill": "power_strike",
+          "level": 5
+        },
+        {
+          "skill": "whirlwind",
+          "level": 7
+        }
       ]
     },
     {
@@ -50,13 +106,35 @@
       "name": "Mage",
       "guild": "Diviner Guild",
       "description": "Masters of elemental spells and healing. Frail, but their magic is devastating when it hits a weak spot.",
-      "growth": { "hp": 8, "mp": 7, "attack": 1, "defense": 1, "magic": 5, "speed": 2 },
+      "growth": {
+        "hp": 8,
+        "mp": 7,
+        "attack": 1,
+        "defense": 1,
+        "magic": 5,
+        "speed": 2
+      },
       "skills": [
-        { "skill": "first_aid", "level": 1 },
-        { "skill": "fire_bolt", "level": 5 },
-        { "skill": "stone_spike", "level": 6 },
-        { "skill": "leaf_storm", "level": 8 },
-        { "skill": "blessing", "level": 9 }
+        {
+          "skill": "first_aid",
+          "level": 1
+        },
+        {
+          "skill": "fire_bolt",
+          "level": 5
+        },
+        {
+          "skill": "stone_spike",
+          "level": 6
+        },
+        {
+          "skill": "leaf_storm",
+          "level": 8
+        },
+        {
+          "skill": "blessing",
+          "level": 9
+        }
       ]
     },
     {
@@ -64,14 +142,33 @@
       "name": "Beast Tamer",
       "guild": "Journeyman Guild",
       "description": "Friends of every creature. Much better at capturing monsters, and their companions share all battle EXP.",
-      "growth": { "hp": 11, "mp": 4, "attack": 3, "defense": 2, "magic": 2, "speed": 2 },
+      "growth": {
+        "hp": 11,
+        "mp": 4,
+        "attack": 3,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
       "captureBonus": 1.6,
       "petExpShare": 1.0,
       "skills": [
-        { "skill": "bash", "level": 1 },
-        { "skill": "first_aid", "level": 1 },
-        { "skill": "wild_call", "level": 5 },
-        { "skill": "mend_beast", "level": 6 }
+        {
+          "skill": "bash",
+          "level": 1
+        },
+        {
+          "skill": "first_aid",
+          "level": 1
+        },
+        {
+          "skill": "wild_call",
+          "level": 5
+        },
+        {
+          "skill": "mend_beast",
+          "level": 6
+        }
       ]
     }
   ]

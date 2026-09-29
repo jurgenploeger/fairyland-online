@@ -23,7 +23,9 @@ struct JoystickView: View {
                 .offset(offset)
         }
         .frame(width: radius * 2, height: radius * 2)
-        .opacity(isPressed ? 1 : 0.85)
+        // Flatten first so the stick fades as one piece (no layers showing through each other).
+        .compositingGroup()
+        .opacity(isPressed ? 1 : 0.9)
         .contentShape(Circle().inset(by: -30))
         .gesture(drag)
         .sensoryFeedback(.impact(weight: .light), trigger: isPressed) { _, pressed in pressed }
@@ -68,36 +70,29 @@ private struct JoystickBase: View {
 
     var body: some View {
         ZStack {
-            // Bevelled outer rim, lit from the top-left.
+            // Glossy light-blue rim, lit from above.
             Circle()
-                .fill(LinearGradient(
-                    colors: [HUDStyle.frameLight, HUDStyle.frameMid, HUDStyle.frameDark],
-                    startPoint: .top, endPoint: .bottom
-                ))
+                .fill(LinearGradient(colors: [HUDStyle.frameLight, HUDStyle.frameMid], startPoint: .top, endPoint: .bottom))
             Circle()
-                .strokeBorder(.white.opacity(0.7), lineWidth: 1.5)
+                .strokeBorder(HUDStyle.frameDark.opacity(0.85), lineWidth: 1.5)
 
-            // Recessed well with an inner shadow along its top edge.
+            // Recessed well, with a soft shadow just under its top edge.
             Circle()
-                .inset(by: 8)
+                .inset(by: 9)
                 .fill(RadialGradient(
-                    colors: [Color(red: 0.14, green: 0.3, blue: 0.52), Color(red: 0.04, green: 0.12, blue: 0.26)],
-                    center: .center, startRadius: 4, endRadius: radius
+                    colors: [Color(red: 0.17, green: 0.34, blue: 0.57), Color(red: 0.08, green: 0.18, blue: 0.35)],
+                    center: .center, startRadius: 2, endRadius: radius - 9
                 ))
             Circle()
-                .inset(by: 8)
-                .stroke(.black.opacity(0.7), lineWidth: 8)
-                .blur(radius: 5)
-                .offset(y: 3)
-                .mask(Circle().inset(by: 8))
+                .inset(by: 9)
+                .strokeBorder(LinearGradient(colors: [.black.opacity(0.4), .clear], startPoint: .top, endPoint: .center), lineWidth: 5)
             Circle()
-                .inset(by: 8)
-                .strokeBorder(HUDStyle.orange.opacity(isPressed ? 0.7 : 0.2), lineWidth: 1.5)
+                .inset(by: 9)
+                .strokeBorder(HUDStyle.orange.opacity(isPressed ? 0.75 : 0), lineWidth: 1.5)
 
             // Direction chevrons; the one you're pushing toward lights up.
             ForEach(Direction.allCases, id: \.self) { mark in
-                Image(systemName: "chevron.compact.up")
-                    .font(.system(size: 15, weight: .heavy))
+                IconImage(.chevronUp, size: 15)
                     .foregroundStyle(mark == direction ? HUDStyle.orange : HUDStyle.frameLight.opacity(0.4))
                     .shadow(color: mark == direction ? HUDStyle.orange.opacity(0.9) : .clear, radius: 4)
                     .offset(y: -radius * 0.74)
@@ -105,7 +100,8 @@ private struct JoystickBase: View {
             }
         }
         .frame(width: radius * 2, height: radius * 2)
-        .shadow(color: .black.opacity(0.45), radius: 7, x: 0, y: 5)
+        .compositingGroup()
+        .shadow(color: .black.opacity(0.22), radius: 3, x: 0, y: 2)
         .animation(.easeOut(duration: 0.12), value: direction)
         .animation(.easeOut(duration: 0.15), value: isPressed)
     }
@@ -180,7 +176,7 @@ private struct JoystickCap: View {
             perspective: 0.6
         )
         .scaleEffect(isPressed ? 0.94 : 1)
-        .shadow(color: .black.opacity(0.5), radius: isPressed ? 2 : 4, x: 0, y: isPressed ? 2 : 5)
+        .shadow(color: .black.opacity(0.35), radius: isPressed ? 1.5 : 3, x: 0, y: isPressed ? 1 : 3)
         .animation(.easeOut(duration: 0.12), value: isPressed)
     }
 }

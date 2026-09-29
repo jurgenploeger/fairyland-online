@@ -37,6 +37,7 @@ ART = ROOT / "art"
 MANIFEST = ART / "assets.json"
 SPRITES = ART / "sprites"
 VARIANTS = ROOT / "art-variants"
+LEDGER = ART / "spend-log.jsonl"   # one line per paid generation, read by the budget dashboard
 POLL_SECONDS = 2
 TASK_TIMEOUT_SECONDS = 600
 
@@ -140,6 +141,7 @@ def save(asset_id: str, payload: dict, result: dict) -> None:
         (folder / f"{stamp}_{index}.{extension}").write_bytes(image)
     meta = {"request": payload, "result": {k: v for k, v in result.items() if k != "base64_images"}}
     (folder / f"{stamp}.json").write_text(json.dumps(meta, indent=2))
+    log_spend(asset_id, payload, result, datetime.now())
 
     first = images[0]
     size = png_size(first)
@@ -154,6 +156,21 @@ def save(asset_id: str, payload: dict, result: dict) -> None:
     )
     if len(images) > 1:
         print(f"    {len(images)} variants in {folder.relative_to(ROOT)}/ — pick one with: python3 tools/rd.py use {asset_id} <file>")
+
+
+def log_spend(asset_id: str, payload: dict, result: dict, when: datetime) -> None:
+    entry = {
+        "date": when.isoformat(timespec="seconds"),
+        "asset": asset_id,
+        "style": payload.get("prompt_style"),
+        "size": f"{payload.get('width')}x{payload.get('height')}",
+        "images": payload.get("num_images", 1),
+        "cost": result.get("balance_cost"),
+        "balance": result.get("remaining_balance"),
+        "prompt": payload.get("prompt"),
+    }
+    with LEDGER.open("a") as ledger:
+        ledger.write(json.dumps(entry) + "\n")
 
 
 def touch_art_folder() -> None:
@@ -175,11 +192,22 @@ def select(manifest: dict, ids: list[str]) -> list[dict]:
 
 def cmd_list(_: argparse.Namespace) -> None:
     for asset in load_manifest()["assets"]:
-        request = asset["request"]
-        done = "✓" if (SPRITES / f"{asset['id']}.png").exists() else "·"
-        size = f"{request.get('width')}×{request.get('height')}"
-        print(f"{done} {asset['id']:<20} {asset['kind']:<11} {request['prompt_style']:<36} {size}")
-    print("\n✓ generated   · using placeholder art")
+        request = asset.get("request")
+        generated = (SPRITES / f"{asset['id']}.png").exists()
+        if generated:
+            mark = "✓"
+        elif asset.get("derive"):
+            mark = "~"
+        else:
+            mark = "·"
+        if asset.get("derive") and not generated:
+            detail = f"derived from {asset['derive']['from']} (free)" + (" · upgradable" if request else "")
+        elif request:
+            detail = f"{request['prompt_style']:<36} {request.get('width')}×{request.get('height')}"
+        else:
+            detail = ""
+        print(f"{mark} {asset['id']:<22} {asset['kind']:<11} {detail}")
+    print("\n✓ generated   ~ derived for free (palette swap)   · using placeholder art")
 
 
 def cmd_credits(_: argparse.Namespace) -> None:
@@ -196,6 +224,13 @@ def cmd_generate(args: argparse.Namespace) -> None:
 
     for asset in select(manifest, args.ids):
         asset_id = asset["id"]
+        if "request" not in asset:
+            if args.ids:
+                print(f"~ {asset_id}: derived from {asset['derive']['from']} for free; add a `request` to generate its own art")
+            continue
+        if asset.get("derive") and not args.ids:
+            # Derived sprites already look fine for free; only generate them when asked by name.
+            continue
         if (SPRITES / f"{asset_id}.png").exists() and not args.force:
             print(f"· {asset_id}: already generated (use --force to redo)")
             continue

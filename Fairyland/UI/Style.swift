@@ -115,12 +115,12 @@ struct GlossyBar: View {
 /// A window title bar with an orange close button, like Fairyland's panels.
 struct FLTitleBar: View {
     let title: String
-    var icon: String?
+    var icon: GameIcon?
     let onClose: () -> Void
 
     var body: some View {
         HStack(spacing: 6) {
-            if let icon { Image(systemName: icon) }
+            if let icon { IconImage(icon, size: 16) }
             Text(title).lineLimit(1)
             Spacer(minLength: 4)
             OrangeCloseButton(action: onClose)
@@ -143,8 +143,7 @@ struct OrangeCloseButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: "xmark")
-                .font(.system(size: 11, weight: .black))
+            IconImage(.close, size: 13)
                 .foregroundStyle(.white)
                 .frame(width: 24, height: 24)
                 .background(
@@ -161,7 +160,7 @@ struct OrangeCloseButton: View {
 
 /// Glossy square toolbar button (Fairyland's top-right / hotbar icons).
 struct FLIconButton: View {
-    let icon: String
+    let icon: GameIcon
     let label: String
     var size: CGFloat = 46
     var badge: Bool = false
@@ -169,8 +168,7 @@ struct FLIconButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: icon)
-                .font(.system(size: size * 0.4, weight: .heavy))
+            IconImage(icon, size: size * 0.5)
                 .foregroundStyle(.white)
                 .shadow(color: HUDStyle.frameDark, radius: 0, x: 1, y: 1)
                 .frame(width: size, height: size)
@@ -219,6 +217,11 @@ struct SpriteImage: View {
 }
 
 /// Glossy pill button (light, with dark text).
+extension HUDStyle {
+    /// Name colour for friends travelling in your party.
+    static let partyGreen = UIColor(red: 0.55, green: 1, blue: 0.55, alpha: 1)
+}
+
 struct PixelButtonStyle: ButtonStyle {
     var tint: Color = HUDStyle.cream
     var compact = false
@@ -261,5 +264,28 @@ extension Stats {
             .filter { $0.1 != 0 }
             .map { "\($0.0) +\($0.1)" }
             .joined(separator: " · ")
+    }
+}
+
+/// A friendly "nothing here yet" line, centred in the space it's given. Use "\n" to pick
+/// where it breaks so it wraps into even lines.
+struct EmptyNote: View {
+    let text: String
+    var size: CGFloat = 12
+
+    init(_ text: String, size: CGFloat = 12) {
+        self.text = text
+        self.size = size
+    }
+
+    var body: some View {
+        Text(text)
+            .font(HUDStyle.font(size))
+            .foregroundStyle(HUDStyle.dim)
+            .multilineTextAlignment(.center)
+            .lineSpacing(3)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
     }
 }

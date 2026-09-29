@@ -13,7 +13,7 @@ struct MapOverlay: View {
                 .onTapGesture(perform: onClose)
 
             VStack(spacing: 10) {
-                FLTitleBar(title: overview.name, icon: "map.fill", onClose: onClose)
+                FLTitleBar(title: overview.name, icon: .map, onClose: onClose)
 
                 Image(uiImage: overview.image)
                     .interpolation(.none)
@@ -45,9 +45,9 @@ struct MapOverlay: View {
                     .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(HUDStyle.cream.opacity(0.6), lineWidth: 2))
 
                 HStack(spacing: 14) {
-                    Label("You", systemImage: "circle.fill").foregroundStyle(HUDStyle.gold)
-                    Label("Companion", systemImage: "circle.fill").foregroundStyle(HUDStyle.green)
-                    Label("Water", systemImage: "circle.fill").foregroundStyle(Color(red: 0.31, green: 0.64, blue: 0.88))
+                    Label { Text("You") } icon: { Circle().frame(width: 9, height: 9) }.foregroundStyle(HUDStyle.gold)
+                    Label { Text("Companion") } icon: { Circle().frame(width: 9, height: 9) }.foregroundStyle(HUDStyle.green)
+                    Label { Text("Water") } icon: { Circle().frame(width: 9, height: 9) }.foregroundStyle(Color(red: 0.31, green: 0.64, blue: 0.88))
                 }
                 .font(HUDStyle.font(11))
                 .labelStyle(CompactLabelStyle())
@@ -82,13 +82,13 @@ private struct ExitTag: View {
 
     var body: some View {
         let name = Content.shared.map(exit.to)?.name ?? exit.to
-        let arrow = switch exit.edge {
-        case .north: "arrow.up"
-        case .south: "arrow.down"
-        case .east: "arrow.right"
-        case .west: "arrow.left"
+        let arrow: GameIcon = switch exit.edge {
+        case .north: .arrowUp
+        case .south: .arrowDown
+        case .east: .arrowRight
+        case .west: .arrowLeft
         }
-        Label(name, systemImage: arrow)
+        Label(name, icon: arrow, size: 11)
             .font(HUDStyle.font(10))
             .foregroundStyle(HUDStyle.ink)
             .padding(.horizontal, 8)

@@ -1,3 +1,4 @@
+import CoreImage
 import SpriteKit
 
 /// The battle stage, Fairyland-style: the fight happens right where you were walking (a
@@ -9,6 +10,7 @@ final class BattleScene: SKScene {
     /// Everything that shakes on big hits.
     private let stage = SKNode()
     private let backdrop: SKTexture?
+    private lazy var blurredBackdrop: SKTexture? = backdrop.flatMap { Self.blur($0, radius: 5) }
     private var ground: SKNode?
     private var actors: [Int: BattleActor] = [:]
     private var markers: [SKNode] = []
@@ -23,6 +25,9 @@ final class BattleScene: SKScene {
         addChild(stage)
         for fighter in controller.combatants {
             let actor = BattleActor(fighter: fighter, art: art)
+            if fighter.isHero {
+                actor.setGear(weapon: controller.session.equipped(.weapon), accessory: controller.session.equipped(.accessory))
+            }
             actors[fighter.id] = actor
             stage.addChild(actor)
         }
@@ -35,6 +40,29 @@ final class BattleScene: SKScene {
     override func didMove(to view: SKView) {
         MusicPlayer.shared.play("battle")
         layout()
+        enter()
+    }
+
+    /// Both sides march in from off-stage at the start, monsters hopping into place.
+    private func enter() {
+        for (index, actor) in actors.values.sorted(by: { $0.fighterID < $1.fighterID }).enumerated() {
+            let isEnemy = controller.enemies.contains { $0.id == actor.fighterID }
+            let offset = isPortrait
+                ? CGVector(dx: 0, dy: isEnemy ? 160 : -160)
+                : CGVector(dx: isEnemy ? -220 : 220, dy: 0)
+            actor.position = actor.home + offset
+            actor.alpha = 0
+            // Track `home` every frame: the layout can still change while they walk in.
+            let duration = 0.5
+            let march = SKAction.customAction(withDuration: duration) { node, elapsed in
+                guard let actor = node as? BattleActor else { return }
+                let t = min(1, elapsed / duration)
+                let eased = 1 - (1 - t) * (1 - t)
+                actor.position = actor.home + offset * (1 - eased)
+                actor.alpha = min(1, t * 2)
+            }
+            actor.run(.sequence([.wait(forDuration: 0.08 * Double(index)), march]), withKey: "enter")
+        }
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
@@ -52,7 +80,7 @@ final class BattleScene: SKScene {
         let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (190, 240) : (70, 40)
         let area = CGRect(x: 0, y: insets.bottom, width: size.width, height: max(120, size.height - insets.top - insets.bottom))
         if isPortrait {
-            arrange(controller.enemies, around: CGPoint(x: area.midX - 20, y: area.minY + area.height * 0.72), facing: .down)
+            arrange(controller.enemies, around: CGPoint(x: area.midX - 20, y: area.minY + area.height * 0.66), facing: .down)
             arrange(controller.party, around: CGPoint(x: area.midX - 40, y: area.minY + area.height * 0.2), facing: .up)
         } else {
             arrange(controller.enemies, around: CGPoint(x: area.minX + area.width * 0.28, y: area.midY + 4), facing: .right)
@@ -77,8 +105,8 @@ final class BattleScene: SKScene {
         let node = SKNode()
         node.zPosition = -10_000
         if let backdrop {
-            // The map you were standing on, softly dimmed — Fairyland fought in place.
-            let sprite = SKSpriteNode(texture: backdrop)
+            // The map you were standing on, softly blurred so the fighters stand out.
+            let sprite = SKSpriteNode(texture: blurredBackdrop ?? backdrop)
             let scale = max(size.width / backdrop.size().width, size.height / backdrop.size().height)
             sprite.size = backdrop.size() * scale
             sprite.position = CGPoint(x: size.width / 2, y: size.height / 2)
@@ -95,12 +123,26 @@ final class BattleScene: SKScene {
                 }
             }
         }
-        let shade = SKSpriteNode(color: UIColor(red: 0.05, green: 0.08, blue: 0.2, alpha: 0.3), size: size)
+        let shade = SKSpriteNode(color: UIColor(red: 0.05, green: 0.08, blue: 0.2, alpha: backdrop == nil ? 0.3 : 0.38), size: size)
         shade.anchorPoint = .zero
         shade.zPosition = 2
         node.addChild(shade)
         stage.addChild(node)
         ground = node
+    }
+
+    /// Gaussian-blurs a texture once, clamping the edges so the borders don't fade out.
+    private static func blur(_ texture: SKTexture, radius: Double) -> SKTexture? {
+        let source = CIImage(cgImage: texture.cgImage())
+        guard let filter = CIFilter(name: "CIGaussianBlur") else { return nil }
+        filter.setValue(source.clampedToExtent(), forKey: kCIInputImageKey)
+        filter.setValue(radius, forKey: kCIInputRadiusKey)
+        guard let output = filter.outputImage?.cropped(to: source.extent),
+              let image = CIContext(options: nil).createCGImage(output, from: source.extent)
+        else { return nil }
+        let blurred = SKTexture(cgImage: image)
+        blurred.filteringMode = .linear
+        return blurred
     }
 
     // MARK: - Targeting
@@ -112,9 +154,10 @@ final class BattleScene: SKScene {
             guard let actor = actors[id] else { continue }
             let arrow = SKLabelNode()
             arrow.attributedText = Nodes.outlined("▼", size: 20, color: UIColor(red: 1, green: 0.55, blue: 0.15, alpha: 1))
-            arrow.position = CGPoint(x: actor.position.x, y: actor.position.y + actor.height + 28)
+            // Right above the head (name tags sit under the fighters, so nothing's in the way).
+            arrow.position = CGPoint(x: actor.position.x, y: actor.position.y + actor.height + 2)
             arrow.zPosition = 20_000
-            arrow.run(.repeatForever(.sequence([.moveBy(x: 0, y: 6, duration: 0.3), .moveBy(x: 0, y: -6, duration: 0.3)])))
+            arrow.run(.repeatForever(.sequence([.moveBy(x: 0, y: 5, duration: 0.3), .moveBy(x: 0, y: -5, duration: 0.3)])))
             stage.addChild(arrow)
             markers.append(arrow)
             actor.setHighlighted(true)
@@ -162,8 +205,7 @@ final class BattleScene: SKScene {
             controller.apply(event)
             if let actor = actors[target] {
                 SkillEffects.sparkles(on: actor, color: SkillEffects.healGreen, level: 1, in: stage)
-                let text = hp > 0 ? "+\(hp)" : "+\(mp) MP"
-                Effects.floatingText(text, color: SkillEffects.healGreen, at: actor.top, in: stage, size: 16)
+                Effects.damageBurst(hp > 0 ? "+\(hp)" : "+\(mp) MP", style: .heal, at: actor.top, in: stage)
             }
             await pause(0.5)
 
@@ -175,11 +217,23 @@ final class BattleScene: SKScene {
             }
             await pause(0.45)
 
-        case .capture(let actorID, let targetID, let success):
-            controller.announce("\(controller.name(actorID)) throws a capture charm!")
-            await captureAnimation(from: actorID, to: targetID, success: success)
+        case .capture(let actorID, let targetID, let success, let wobbles):
+            controller.announce("\(controller.name(actorID)) throws a Seal Stone!")
+            await captureAnimation(from: actorID, to: targetID, success: success, wobbles: wobbles)
             controller.apply(event)
             await pause(0.6)
+
+        case .fled(let id):
+            controller.apply(event)
+            if let actor = actors[id] {
+                // A panicked hop or two, then off it goes in a puff of dust.
+                let away: CGFloat = actor.position.x > size.width / 2 ? 1 : -1
+                let hop = SKAction.sequence([.moveBy(x: away * 14, y: 16, duration: 0.12), .moveBy(x: away * 14, y: -16, duration: 0.12)])
+                await actor.run(.repeat(hop, count: 2))
+                SkillEffects.smoke(at: actor.center, in: stage)
+                await actor.run(.group([.moveBy(x: away * size.width * 0.6, y: 0, duration: 0.35), .fadeOut(withDuration: 0.35)]))
+            }
+            await pause(0.3)
 
         case .escape(_, let success):
             controller.apply(event)
@@ -332,10 +386,10 @@ final class BattleScene: SKScene {
         guard let target = actors[hit.target] else { return }
         if heal {
             SkillEffects.sparkles(on: target, color: SkillEffects.healGreen, level: 2, in: stage)
-            Effects.damageNumber("+\(hit.amount)", color: SkillEffects.healGreen, at: target.top, in: stage, big: false)
+            Effects.damageBurst("+\(hit.amount)", style: .heal, at: target.top, in: stage)
             return
         }
-        Effects.damageNumber("\(hit.amount)", color: hit.critical ? Nodes.gold : .white, at: target.top, in: stage, big: hit.critical)
+        Effects.damageBurst("\(hit.amount)", style: hit.critical ? .critical : hit.splash ? .splash : .normal, at: target.top, in: stage)
         if hit.effectiveness > 1 {
             Effects.floatingText("Weak spot!", color: Nodes.gold, at: target.top + CGVector(dx: 0, dy: 22), in: stage, size: 12)
         } else if hit.effectiveness < 1 {
@@ -357,30 +411,88 @@ final class BattleScene: SKScene {
         stage.run(.sequence(moves), withKey: "shake")
     }
 
-    private func captureAnimation(from actorID: Int, to targetID: Int, success: Bool) async {
+    /// Fairyland-style sealing: the stone arcs over, draws the monster in, drops and wobbles
+    /// (the suspense!), then either seals with a golden burst or cracks and the monster pops out.
+    private func captureAnimation(from actorID: Int, to targetID: Int, success: Bool, wobbles: Int) async {
         guard let actor = actors[actorID], let target = actors[targetID] else { return }
-        let charm = SKShapeNode(circleOfRadius: 9)
-        charm.fillColor = UIColor(red: 1, green: 0.55, blue: 0.75, alpha: 1)
-        charm.strokeColor = .white
-        charm.lineWidth = 2
-        charm.glowWidth = 5
-        charm.position = actor.center
-        charm.zPosition = 15_000
-        stage.addChild(charm)
-        let arc = SKAction.move(to: target.center, duration: 0.4)
-        arc.timingMode = .easeOut
-        await charm.run(.group([arc, .rotate(byAngle: .pi * 4, duration: 0.4)]))
-        let wiggle = SKAction.sequence([.rotate(byAngle: 0.35, duration: 0.1), .rotate(byAngle: -0.7, duration: 0.2), .rotate(byAngle: 0.35, duration: 0.1)])
-        await target.run(.repeat(wiggle, count: 2))
-        if success {
-            await target.run(.group([.scale(to: 0.1, duration: 0.3), .fadeOut(withDuration: 0.3), .move(to: charm.position, duration: 0.3)]))
-            SkillEffects.burst(at: charm.position, color: Nodes.gold, count: 24, speed: 90, in: stage)
-            await charm.run(.sequence([.scale(to: 1.6, duration: 0.15), .fadeOut(withDuration: 0.25)]))
-        } else {
-            SkillEffects.burst(at: charm.position, color: .white, count: 12, speed: 70, in: stage)
-            await charm.run(.fadeOut(withDuration: 0.2))
+        let stone = SKSpriteNode(texture: SkillEffects.sealStoneTexture)
+        stone.size = CGSize(width: 26, height: 26)
+        stone.position = actor.center
+        stone.zPosition = 15_000
+        stage.addChild(stone)
+
+        // Everything else dims so the moment is about the stone.
+        let dim = SKSpriteNode(color: .black, size: CGSize(width: size.width * 3, height: size.height * 3))
+        dim.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        dim.zPosition = 14_000
+        dim.alpha = 0
+        stage.addChild(dim)
+        dim.run(.fadeAlpha(to: 0.35, duration: 0.4), withKey: "fade")
+
+        // Throw: a high arc with a spin.
+        let hover = target.center + CGVector(dx: 0, dy: target.height * 0.5 + 18)
+        let arc = CGMutablePath()
+        arc.move(to: stone.position)
+        arc.addQuadCurve(to: hover, control: CGPoint(x: (stone.position.x + hover.x) / 2, y: max(stone.position.y, hover.y) + 90))
+        let fly = SKAction.follow(arc, asOffset: false, orientToPath: false, duration: 0.55)
+        fly.timingMode = .easeInEaseOut
+        await stone.run(.group([fly, .rotate(byAngle: .pi * 3, duration: 0.55)]))
+        stone.zRotation = 0
+
+        // Draw the monster in: a flash, a beam, and it shrinks into the stone.
+        SkillEffects.screenFlash(color: .white, strength: 0.5, size: size, in: self)
+        let beam = SKSpriteNode(color: UIColor(red: 0.85, green: 0.75, blue: 1, alpha: 0.7), size: CGSize(width: 18, height: hover.y - target.position.y))
+        beam.anchorPoint = CGPoint(x: 0.5, y: 0)
+        beam.position = target.position
+        beam.zPosition = 14_500
+        beam.blendMode = .add
+        stage.addChild(beam)
+        beam.run(.sequence([.fadeOut(withDuration: 0.5), .removeFromParent()]), withKey: "fade")
+        SkillEffects.implode(to: hover, color: UIColor(red: 0.8, green: 0.7, blue: 1, alpha: 1), in: stage)
+        target.sprite.color = .white
+        await target.run(.group([
+            .customAction(withDuration: 0.15) { _, t in target.sprite.colorBlendFactor = t / 0.15 },
+            .sequence([.wait(forDuration: 0.12), .group([.scale(to: 0.05, duration: 0.35), .move(to: hover, duration: 0.35), .fadeOut(withDuration: 0.35)])]),
+        ]))
+
+        // Drop and wobble.
+        let ground = target.home + CGVector(dx: 0, dy: 6)
+        let drop = SKAction.move(to: ground, duration: 0.28)
+        drop.timingMode = .easeIn
+        await stone.run(.sequence([drop, .moveBy(x: 0, y: 8, duration: 0.08), .moveBy(x: 0, y: -8, duration: 0.08)]))
+        for index in 0..<wobbles {
+            await pause(0.35)
+            let tip = SKAction.sequence([
+                .rotate(toAngle: 0.45, duration: 0.1), .rotate(toAngle: -0.45, duration: 0.16), .rotate(toAngle: 0, duration: 0.1),
+            ])
+            await stone.run(.group([tip, .sequence([.moveBy(x: 0, y: 4, duration: 0.12), .moveBy(x: 0, y: -4, duration: 0.12)])]))
+            Effects.floatingText(String(repeating: "•", count: index + 1), color: Nodes.gold, at: ground + CGVector(dx: 0, dy: 26), in: stage, size: 16)
         }
-        charm.removeFromParent()
+        await pause(0.45)
+
+        if success {
+            SkillEffects.burst(at: stone.position, color: Nodes.gold, count: 30, speed: 110, in: stage)
+            Effects.floatingText("Sealed!", color: Nodes.gold, at: stone.position + CGVector(dx: 0, dy: 34), in: stage, size: 24)
+            await stone.run(.sequence([.scale(to: 1.5, duration: 0.12), .scale(to: 1.1, duration: 0.1)]))
+            await pause(0.5)
+            // The stone floats back to its new friend.
+            let home = SKAction.move(to: actor.center, duration: 0.45)
+            home.timingMode = .easeInEaseOut
+            await stone.run(.group([home, .scale(to: 0.4, duration: 0.45), .sequence([.wait(forDuration: 0.3), .fadeOut(withDuration: 0.15)])]))
+        } else {
+            SkillEffects.screenFlash(color: .white, strength: 0.35, size: size, in: self)
+            SkillEffects.burst(at: stone.position, color: UIColor(red: 0.75, green: 0.7, blue: 0.85, alpha: 1), count: 14, speed: 90, in: stage)
+            stone.run(.group([.scale(to: 1.4, duration: 0.15), .fadeOut(withDuration: 0.15)]), withKey: "burst")
+            target.position = target.home
+            target.setScale(0.3)
+            target.sprite.colorBlendFactor = 1
+            await target.run(.group([.fadeIn(withDuration: 0.15), .scale(to: 1, duration: 0.2)]))
+            target.run(.customAction(withDuration: 0.3) { _, t in target.sprite.colorBlendFactor = 1 - t / 0.3 }, withKey: "unflash")
+            Effects.floatingText("Broke free!", color: .white, at: target.top, in: stage, size: 18)
+        }
+        stone.removeFromParent()
+        await dim.run(.fadeOut(withDuration: 0.3))
+        dim.removeFromParent()
     }
 
     private func refreshBars() {
@@ -421,10 +533,10 @@ final class BattleActor: SKNode {
         bar.position = CGPoint(x: 0, y: -18)
         bar.fraction = CGFloat(fighter.hpFraction)
         addChild(bar)
-        let label = Nodes.nameLabel("[Lv.\(fighter.level)] \(fighter.name)")
-        label.position = CGPoint(x: 0, y: size.height + 2)
+        let label = NameTag(fighter.name, level: fighter.level, size: 14, alignment: .top)
+        label.position = CGPoint(x: 0, y: -26)
         addChild(label)
-        sprite.run(.repeatForever(.sequence([.scaleY(to: 0.95, duration: 0.6), .scaleY(to: 1, duration: 0.6)])))
+        sprite.run(IdleMotion.of(art: fighter.art).action(height: size.height, delay: .random(in: 0..<0.8)), withKey: "idle")
     }
 
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
@@ -438,6 +550,23 @@ final class BattleActor: SKNode {
         if !hasActions() { position = point }
         zPosition = -point.y
         sprite.texture = cycle.frames(direction).first
+        facing = direction
+        if let weapon = sprite.childNode(withName: "weapon") as? SKSpriteNode {
+            GearArt.pose(weapon, facing: direction, height: sprite.size.height)
+        }
+    }
+
+    private var facing: Direction = .down
+
+    /// The hero's weapon in hand and accessory sparkle (drawn at the sprite's own scale).
+    func setGear(weapon: ItemDef?, accessory: ItemDef?) {
+        if let weapon, let node = GearArt.weapon(weapon, height: sprite.size.height) {
+            sprite.addChild(node)
+            GearArt.pose(node, facing: facing, height: sprite.size.height)
+        }
+        if let accessory, let aura = GearArt.aura(accessory, height: sprite.size.height) {
+            addChild(aura)
+        }
     }
 
     func setHealth(_ fraction: Double) {

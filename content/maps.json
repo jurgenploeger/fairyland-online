@@ -5,6 +5,7 @@
     {
       "id": "meadowbrook",
       "name": "Meadowbrook",
+      "crowd": { "adventurers": 4, "villagers": 7 },
       "width": 44,
       "height": 32,
       "music": "town",
@@ -149,6 +150,7 @@
           "greeting": "Potions, blades, robes — take a look!",
           "stock": [
             "potion",
+            "seal_stone",
             "ether",
             "wooden_sword",
             "oak_staff",
@@ -247,6 +249,7 @@
     {
       "id": "sunny_meadow",
       "name": "Sunny Meadow",
+      "crowd": { "adventurers": 5 },
       "width": 110,
       "height": 80,
       "music": "meadow",
@@ -277,6 +280,13 @@
             "sway": true
           },
           {
+            "art": "autumn_tree",
+            "count": 36,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true
+          },
+          {
             "art": "rock",
             "count": 55,
             "blocking": true,
@@ -304,11 +314,13 @@
         },
         {
           "edge": "north",
-          "to": "pineapple_shore"
+          "to": "pineapple_shore",
+          "requires": "jelly_trouble"
         },
         {
           "edge": "east",
-          "to": "twilight_woods"
+          "to": "twilight_woods",
+          "requires": "pineapple_harvest"
         }
       ],
       "encounters": {
@@ -324,7 +336,8 @@
         ],
         "monsters": {
           "jelly": 7,
-          "bunny": 3
+          "bunny": 3,
+          "sakura_bunny": 1
         }
       },
       "ambience": {
@@ -339,6 +352,7 @@
     {
       "id": "pineapple_shore",
       "name": "Pineapple Shore",
+      "crowd": { "adventurers": 4 },
       "width": 100,
       "height": 72,
       "music": "shore",
@@ -388,8 +402,10 @@
           3
         ],
         "monsters": {
-          "pineapple": 7,
-          "jelly": 3
+          "pineapple": 6,
+          "jelly": 2,
+          "frost_puff": 1,
+          "dragonfruit": 1
         }
       },
       "ambience": {
@@ -404,6 +420,8 @@
     {
       "id": "twilight_woods",
       "name": "Twilight Woods",
+      "crowd": { "adventurers": 5 },
+      "danger": true,
       "width": 100,
       "height": 80,
       "music": "woods",
@@ -458,8 +476,12 @@
           3
         ],
         "monsters": {
-          "bun": 6,
-          "pineapple": 3
+          "bun": 5,
+          "shade_puff": 1,
+          "night_bun": 1,
+          "ember_puff": 1,
+          "cotton_bun": 1,
+          "pineapple": 1
         }
       },
       "ambience": {

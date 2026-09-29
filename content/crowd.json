@@ -1,0 +1,47 @@
+{
+  "_about": "Background life on the maps. Adventurers stand in for Fairyland's other players: a random race and look, sometimes with a companion, wandering and chatting. Villagers potter around towns. How many of each a map gets is its `crowd` in maps.json. Tap anyone to hear a line.",
+  "adventurerNames": [
+    "Momo", "Pudding", "Lulu", "Kiki", "Tofu", "Sora", "Bubbles", "Mochi", "Pippin", "Clover",
+    "Nana", "Yuki", "Toffee", "Maple", "Juniper", "Biscuit", "Hazel", "Sprout", "Rin", "Miso",
+    "Poppy", "Taro", "Luna", "Fern", "Dumpling", "Kiwi", "Sunny", "Pebble", "Noodle", "Wisp"
+  ],
+  "adventurerLines": [
+    "Anyone seen a Sakura Bunny?",
+    "LF party for Twilight Woods!",
+    "Selling potions, cheap!",
+    "Just hit level 5 :D",
+    "The jellies here are so bouncy",
+    "brb, feeding my pet",
+    "Which guild are you joining?",
+    "WTB Ruby Ring",
+    "So many jellies today...",
+    "Has anyone found the fairy ring?",
+    "My bunny keeps wandering off ><",
+    "Pineapples bite, be careful!",
+    "Almost caught one... it ran away T_T",
+    "Heading to the shore, who's coming?",
+    "Nice outfit!",
+    "Remember to rest at the healer~"
+  ],
+  "villagerNames": [
+    "Old Tom", "Granny Bea", "Farmer Ned", "Little Pim", "Baker Rosa", "Milo", "Ada", "Wren",
+    "Auntie Fay", "Postman Rob", "Tilly", "Grandpa Oak"
+  ],
+  "villagerLines": [
+    "Lovely weather in Meadowbrook!",
+    "Mind the jellies past the gate.",
+    "Fresh bread at the market today!",
+    "My hens got loose again...",
+    "The fountain sparkles at night, you know.",
+    "Have you visited the guilds yet?",
+    "Back in my day, bunnies were bigger.",
+    "Nurse Mira fixes up anyone for free.",
+    "Something glows in the Twilight Woods...",
+    "Welcome, traveller!"
+  ],
+  "replies": [
+    "hi!", "hello :)", "hey there", "^_^", "lol", "good luck!", "same here", "nice!",
+    "want to party up?", "haha", "gg", "o/", "see you around!", "yay"
+  ],
+  "companions": ["pet_walk", "monster_jelly", "monster_bun", "monster_pineapple", "pet_walk_sakura", "monster_jelly_frost", "monster_bun_cotton"]
+}

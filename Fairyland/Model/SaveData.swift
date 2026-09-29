@@ -36,6 +36,22 @@ nonisolated struct Hero: Codable, Equatable, Sendable {
     var equipment: Equipment
     /// Skill id → level (1 when learned; raised with skill points).
     var skillLevels: [String: Int]?
+    var look: Look?
+    /// Skills learned with skill points (nil in saves from before skills had to be learned).
+    var learnedSkills: [String]?
+    /// Extra points, e.g. for skills older saves got for free.
+    var bonusSkillPoints: Int?
+}
+
+/// The hero's chosen colours (preset ids from content/appearance.json).
+nonisolated struct Look: Codable, Equatable, Sendable {
+    var hair: String
+    var outfit: String
+    var skin: String
+
+    static let standard = Look(hair: "ginger", outfit: "green", skin: "fair")
+
+    var key: String { "\(hair)/\(outfit)/\(skin)" }
 }
 
 /// A captured monster travelling with the hero.
@@ -75,11 +91,39 @@ nonisolated struct SaveData: Codable, Sendable {
     var openedChests: [String]?
     /// What will hatch from the pet egg (from the elder's question).
     var eggSpecies: String?
+    /// Where you wake up after fainting.
+    var checkpoint: Checkpoint?
+    /// Adventurers you've befriended, and which of them travel with you.
+    var friends: [Adventurer]?
+    var partyIDs: [UUID]?
+}
+
+/// Another adventurer (Fairyland's other players): met on the map, befriended, and maybe
+/// invited to travel and fight alongside you.
+nonisolated struct Adventurer: Codable, Equatable, Identifiable, Sendable {
+    var id = UUID()
+    var name: String
+    var raceID: String
+    var classID: String
+    var level: Int
+    var look: Look
+    var petSpecies: String?
+    /// Red-named troublemakers in danger zones pick fights.
+    var hostile = false
+}
+
+/// A town square, or the entrance you last walked into a map through.
+nonisolated struct Checkpoint: Codable, Equatable, Sendable {
+    var mapID: String
+    /// nil: the map's centre (towns); otherwise just inside this edge.
+    var entry: Edge?
 }
 
 enum SaveStore {
-    /// Debug launches use their own file so testing never overwrites your real game.
-    static var fileName = "fairyland-save.json"
+    /// Tests and debug launches use their own files so they never overwrite your real game.
+    static var fileName = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        ? "fairyland-tests-save.json"
+        : "fairyland-save.json"
     static var url: URL { URL.applicationSupportDirectory.appending(path: fileName) }
 
     static var exists: Bool { load() != nil }

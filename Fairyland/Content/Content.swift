@@ -77,6 +77,10 @@ nonisolated struct RaceDef: Decodable, Identifiable, Sendable {
     let name: String
     let description: String
     let base: Stats
+    /// This race's walk sheet in art/assets.json.
+    let art: String?
+
+    var sheet: String { art ?? "player_walk" }
 }
 
 nonisolated struct ClassDef: Decodable, Identifiable, Sendable {
@@ -116,6 +120,11 @@ nonisolated struct SkillDef: Decodable, Identifiable, Sendable {
     let description: String?
     /// Battle effect: slash | whirlwind | fire | stone | leaves | water | heal | holy | wild | needles | bounce | bite
     let animation: String?
+    /// A GameIcon name for menus.
+    let icon: String?
+    /// Spells: the share of damage that also hits the target's neighbours at skill level 5
+    /// (60% of that at level 3, 80% at level 4, none below).
+    let splash: Double?
 }
 
 nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {
@@ -129,6 +138,12 @@ nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {
     let gold: Int
     let captureRate: Double
     let skills: [String]
+    /// A rarer colour variant: tougher, worth more, harder to catch.
+    let rare: Bool?
+    /// The species this is a colour variant of.
+    let variantOf: String?
+    /// How it fidgets standing still: breathe | squish | hop | sway | bounce.
+    let motion: String?
 
     func stats(at level: Int) -> Stats { base + growth * (level - 1) }
 }
@@ -154,6 +169,12 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     let description: String?
     /// For eggs: the species that can hatch from it.
     let hatches: [String]?
+    /// A GameIcon name for the bag and shops.
+    let icon: String?
+    /// Seal Stones: thrown in battle to befriend a weakened monster.
+    let capture: Bool?
+    /// Armour: how it recolours the hero's outfit while worn (same rules as looks).
+    let recolor: [RecolorRule]?
 }
 
 nonisolated struct QuestDef: Decodable, Identifiable, Sendable {
@@ -193,9 +214,11 @@ nonisolated struct QuestDef: Decodable, Identifiable, Sendable {
     let question: Question?
     let objective: Objective
     let reward: Reward
+    /// Items handed over when you accept (e.g. Seal Stones for the capture quest).
+    let starterItems: [String]?
 }
 
-nonisolated enum Edge: String, Decodable, Sendable {
+nonisolated enum Edge: String, Codable, Sendable {
     case north, south, east, west
 
     var opposite: Edge {
@@ -280,6 +303,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
     nonisolated struct Exit: Decodable, Sendable {
         let edge: Edge
         let to: String
+        /// A quest you must finish before this road opens.
+        let requires: String?
     }
 
     nonisolated struct Building: Decodable, Sendable {
@@ -309,6 +334,15 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
     let npcs: [NPCDef]?
     let encounters: Encounters?
     let ambience: Ambience?
+    /// Background characters wandering the map (see content/crowd.json).
+    let crowd: Crowd?
+    /// A danger zone: adventurers can duel here, and some will pick a fight.
+    let danger: Bool?
+
+    nonisolated struct Crowd: Decodable, Sendable {
+        let adventurers: Int?
+        let villagers: Int?
+    }
 }
 
 nonisolated struct SongDef: Decodable, Identifiable, Sendable {
@@ -324,6 +358,33 @@ nonisolated struct SongDef: Decodable, Identifiable, Sendable {
     let tempo: Double
     let loops: Bool?
     let tracks: [Track]
+}
+
+/// A colour choice in the look customiser (content/appearance.json).
+nonisolated struct LookPreset: Decodable, Identifiable, Sendable {
+    let id: String
+    let name: String
+    let swatch: String
+    let recolor: [RecolorRule]
+    /// A quest that unlocks this look.
+    let unlock: String?
+}
+
+/// Names and chatter for the background characters (content/crowd.json).
+nonisolated struct CrowdOptions: Decodable, Sendable {
+    let adventurerNames: [String]
+    let adventurerLines: [String]
+    let villagerNames: [String]
+    let villagerLines: [String]
+    /// Answers when you say something in chat.
+    let replies: [String]
+    let companions: [String]
+}
+
+nonisolated struct AppearanceOptions: Decodable, Sendable {
+    let hair: [LookPreset]
+    let outfits: [LookPreset]
+    let skin: [LookPreset]
 }
 
 // MARK: - Loading
@@ -355,6 +416,8 @@ final class Content {
     let maps: [MapDef]
     let startMap: String
     let songs: [SongDef]
+    let appearance: AppearanceOptions
+    let crowd: CrowdOptions
 
     init(bundle: Bundle = .main) {
         let classFile: ClassesFile = Self.load("classes", from: bundle)
@@ -369,6 +432,8 @@ final class Content {
         maps = mapFile.maps
         startMap = mapFile.start
         songs = (Self.load("music", from: bundle) as MusicFile).songs
+        appearance = Self.load("appearance", from: bundle)
+        crowd = Self.load("crowd", from: bundle)
     }
 
     private static func load<T: Decodable>(_ name: String, from bundle: Bundle) -> T {

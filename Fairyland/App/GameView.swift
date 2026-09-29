@@ -18,6 +18,8 @@ struct GameView: View {
                     MenuView(session: coordinator.session, initialTab: tab, onClose: coordinator.closeOverlay)
                 case .worldMap:
                     MapOverlay(overview: coordinator.world.overview(), onClose: coordinator.closeOverlay)
+                case .chat:
+                    ChatView(session: coordinator.session, onSay: coordinator.say, onClose: coordinator.closeOverlay)
                 case .npc(let id):
                     if let npc = Content.shared.npc(id) {
                         NPCDialogView(npc: npc, session: coordinator.session, onClose: coordinator.closeOverlay)
@@ -29,7 +31,11 @@ struct GameView: View {
         }
         .overlay {
             if !coordinator.isReady {
-                LoadingCurtain().transition(.opacity)
+                if let name = coordinator.loadingMapName {
+                    MapLoadingCard(mapName: name).transition(.opacity)
+                } else {
+                    LoadingCurtain().transition(.opacity)
+                }
             }
         }
         .animation(.easeOut(duration: 0.4), value: coordinator.isReady)

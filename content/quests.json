@@ -65,7 +65,8 @@
       "requires": [
         "jelly_trouble"
       ],
-      "description": "Every adventurer needs friends. Weaken a wild monster below half HP, then use Capture in battle.",
+      "description": "Every adventurer needs friends. Take these Seal Stones. Beat a group down to its last monster, weaken that one below 20% HP, then throw a stone with Capture. It may take a few tries!",
+      "starterItems": ["seal_stone", "seal_stone", "seal_stone"],
       "objective": {
         "type": "capture",
         "count": 1

@@ -295,4 +295,49 @@ enum SkillEffects {
             bit.run(.sequence([.group([move, .fadeOut(withDuration: 0.4), .scale(to: 0.3, duration: 0.4)]), .removeFromParent()]))
         }
     }
+
+    /// Motes swirling inward to a point (a monster being drawn into a Seal Stone).
+    static func implode(to point: CGPoint, color: UIColor, in parent: SKNode) {
+        for index in 0..<18 {
+            let bit = glowSprite(color, size: CGSize(width: 7, height: 7))
+            let angle = CGFloat(index) / 18 * 2 * .pi
+            let distance = CGFloat.random(in: 50...80)
+            bit.position = point + CGVector(dx: cos(angle) * distance, dy: sin(angle) * distance * 0.7)
+            bit.alpha = 0
+            parent.addChild(bit)
+            let swirl = SKAction.move(to: point, duration: 0.45)
+            swirl.timingMode = .easeIn
+            bit.run(.sequence([.wait(forDuration: Double(index % 6) * 0.03), .fadeIn(withDuration: 0.08),
+                               .group([swirl, .scale(to: 0.3, duration: 0.45)]), .removeFromParent()]))
+        }
+    }
+
+    /// A round lavender stone with a glowing rune ring: Fairyland's capture capsule.
+    static let sealStoneTexture: SKTexture = {
+        let size = CGSize(width: 52, height: 52)
+        let image = UIGraphicsImageRenderer(size: size).image { context in
+            let rect = CGRect(origin: .zero, size: size).insetBy(dx: 3, dy: 3)
+            let colors = [UIColor(red: 0.85, green: 0.8, blue: 1, alpha: 1).cgColor, UIColor(red: 0.45, green: 0.35, blue: 0.75, alpha: 1).cgColor] as CFArray
+            let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors, locations: [0, 1])!
+            context.cgContext.saveGState()
+            UIBezierPath(ovalIn: rect).addClip()
+            context.cgContext.drawRadialGradient(gradient, startCenter: CGPoint(x: rect.midX - 8, y: rect.midY - 10), startRadius: 2,
+                                                 endCenter: CGPoint(x: rect.midX, y: rect.midY), endRadius: rect.width / 2, options: .drawsAfterEndLocation)
+            context.cgContext.restoreGState()
+            let rune = UIBezierPath(ovalIn: rect.insetBy(dx: 10, dy: 10))
+            UIColor(red: 1, green: 0.9, blue: 0.5, alpha: 0.95).setStroke()
+            rune.lineWidth = 3
+            rune.stroke()
+            let dot = UIBezierPath(ovalIn: CGRect(x: rect.midX - 4, y: rect.midY - 4, width: 8, height: 8))
+            UIColor(red: 1, green: 0.95, blue: 0.7, alpha: 1).setFill()
+            dot.fill()
+            UIColor(white: 1, alpha: 0.7).setFill()
+            UIBezierPath(ovalIn: CGRect(x: rect.minX + 9, y: rect.minY + 7, width: 12, height: 7)).fill()
+            UIColor(red: 0.2, green: 0.12, blue: 0.35, alpha: 1).setStroke()
+            let rim = UIBezierPath(ovalIn: rect)
+            rim.lineWidth = 2.5
+            rim.stroke()
+        }
+        return SKTexture(image: image)
+    }()
 }

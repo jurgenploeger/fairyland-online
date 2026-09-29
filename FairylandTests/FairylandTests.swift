@@ -89,7 +89,51 @@ struct ContentTests {
 }
 
 @MainActor
+struct LookTests {
+    init() {
+        // Belt and braces: never touch the real save from tests.
+        SaveStore.fileName = "fairyland-tests-save.json"
+    }
+
+    @Test func derivedSpritesHaveABase() throws {
+        let url = try #require(Bundle.main.url(forResource: "assets", withExtension: "json", subdirectory: "art"))
+        let manifest = try JSONDecoder().decode(ArtManifest.self, from: Data(contentsOf: url))
+        let ids = Set(manifest.assets.map(\.id))
+        for asset in manifest.assets {
+            if let base = asset.derive?.from {
+                #expect(ids.contains(base), "\(asset.id) derives from unknown \(base)")
+            }
+        }
+    }
+
+    @Test func customisingTheHeroAndCompanion() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let options = Content.shared.appearance
+        #expect(options.hair.first?.id == Look.standard.hair)
+        let look = Look(hair: "pink", outfit: "blue", skin: "tan")
+        session.customizeHero(name: "  Pip  ", look: look)
+        #expect(session.data.hero.name == "Pip")
+        #expect(session.data.hero.look == look)
+        #expect(!GameSession.rules(for: look).isEmpty)
+        #expect(session.lastSaved != nil)
+
+        let pet = session.makePet(species: "jelly", level: 1)!
+        session.addPet(pet, countsForQuests: false)
+        #expect(session.artID(for: pet) == "monster_jelly")
+        session.renamePet(pet.id, to: "Wobble")
+        let updated = session.data.pets[0]
+        #expect(updated.name == "Wobble")
+        // Companions keep their species' colours.
+        #expect(session.artID(for: updated) == "monster_jelly")
+    }
+}
+
+@MainActor
 struct RulesTests {
+    init() {
+        SaveStore.fileName = "fairyland-tests-save.json"
+    }
+
     @Test func elementChart() {
         #expect(Element.water.multiplier(against: .fire) == 1.5)
         #expect(Element.fire.multiplier(against: .water) == 0.75)
@@ -108,7 +152,12 @@ struct RulesTests {
         #expect(session.data.hero.level == 2)
         #expect(session.heroStats.hp > before.hp)
         #expect(session.data.hero.hp == session.heroStats.hp)
+        // Reaching level 2 unlocks Bash; learning it takes the new skill point.
+        #expect(session.heroSkills.isEmpty)
+        #expect(session.learnableSkills.contains { $0.id == "bash" })
+        session.learnSkill("bash")
         #expect(session.heroSkills.contains { $0.id == "bash" })
+        #expect(session.unspentSkillPoints == 0)
     }
 
     @Test func classChoiceNeedsLevel() {
@@ -123,7 +172,7 @@ struct RulesTests {
         // The wooden sword isn't for mages, so it goes back into the bag.
         #expect(session.data.hero.equipment.weapon == nil)
         #expect(session.count(of: "wooden_sword") == 1)
-        #expect(session.heroSkills.contains { $0.id == "fire_bolt" })
+        #expect(session.learnableSkills.contains { $0.id == "fire_bolt" })
     }
 
     @Test func firstCompanionHatchesFromTheGiftBoxEgg() {
@@ -149,9 +198,13 @@ struct RulesTests {
         session.gainHeroEXP(GameSession.expToNext(level: 1) + GameSession.expToNext(level: 2))
         #expect(session.data.hero.level == 3)
         #expect(session.unspentSkillPoints == 2)
+        session.upgradeSkill("bash")   // not learned yet
+        #expect(session.unspentSkillPoints == 2)
+        session.learnSkill("bash")
         session.upgradeSkill("bash")
         #expect(session.skillLevel("bash") == 2)
-        #expect(session.unspentSkillPoints == 1)
+        #expect(session.unspentSkillPoints == 0)
+        #expect(session.learnableSkills.map(\.id) == ["first_aid"])
     }
 
     @Test func questFlow() {
@@ -186,10 +239,11 @@ struct RulesTests {
             _ = engine.resolveRound(heroAction: .attack(target: 10))
             rounds += 1
         }
-        #expect(engine.outcome == .victory)
+        // A nearly beaten monster may run off instead of going down.
+        #expect(engine.outcome == .victory || engine.outcome == .fled)
     }
 
-    @Test func captureNeedsAWeakenedMonster() {
+    @Test func captureNeedsALoneWeakenedMonster() {
         let content = Content.shared
         let jelly = content.monster("jelly")!
         let stats = jelly.stats(at: 1)
@@ -198,13 +252,77 @@ struct RulesTests {
         var enemy = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
                               stats: stats, hp: stats.hp, mp: 0, skills: [], captureRate: jelly.captureRate)
         #expect(BattleEngine(party: [hero], enemies: [enemy], content: content).captureStatus(of: 10) == .tooHealthy)
-        enemy.hp = stats.hp / 4
+        // Half HP isn't weak enough any more: Fairyland wanted them below 20%.
+        enemy.hp = stats.hp / 2
+        #expect(BattleEngine(party: [hero], enemies: [enemy], content: content).captureStatus(of: 10) == .tooHealthy)
+        // And only the last one standing.
+        enemy.hp = 1
+        var friend = enemy
+        friend = Combatant(id: 11, side: .enemies, source: .wild("jelly"), name: "Jelly B", art: jelly.art, level: 1, element: jelly.element,
+                           stats: stats, hp: stats.hp, mp: 0, skills: [], captureRate: jelly.captureRate)
+        #expect(BattleEngine(party: [hero], enemies: [enemy, friend], content: content).captureStatus(of: 10) == .notAlone)
+
         let engine = BattleEngine(party: [hero], enemies: [enemy], content: content)
         guard case .ready(let chance) = engine.captureStatus(of: 10) else {
             Issue.record("expected capture to be possible")
             return
         }
-        #expect(chance > 0.3)
+        // Not easy, even at 1 HP.
+        #expect(chance > 0.2 && chance < 0.6)
+    }
+
+    @Test func fullPartyLeavesSomeoneBehind() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        for _ in 0..<GameSession.maxPets {
+            #expect(session.addPet(session.makePet(species: "jelly", level: 1)!, countsForQuests: false))
+        }
+        let newcomer = session.makePet(species: "bunny", level: 3)!
+        #expect(!session.addPet(newcomer, countsForQuests: false))
+        session.pendingPet = newcomer
+        let parting = session.data.pets[2]
+        session.leaveBehind(parting.id)
+        #expect(session.data.pets.count == GameSession.maxPets)
+        #expect(session.data.pets.contains { $0.id == newcomer.id })
+        #expect(!session.data.pets.contains { $0.id == parting.id })
+        #expect(session.pendingPet == nil)
+    }
+
+    @Test func friendsJoinTheParty() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.data.hero.level = 6
+        let momo = Adventurer(name: "Momo", raceID: "elf", classID: "mage", level: 4, look: .standard, petSpecies: "jelly")
+        let grump = Adventurer(name: "Grump", raceID: "dwarf", classID: "fighter", level: 7, look: .standard, hostile: true)
+        #expect(!session.befriend(grump))
+        #expect(session.befriend(momo))
+        session.invite(momo.id)
+        #expect(session.partyMembers.map(\.name) == ["Momo"])
+        // Friends keep up with you.
+        #expect(session.partyMembers[0].level == 5)
+        let controller = BattleController.duel(with: grump, session: session)
+        #expect(controller.party.contains { $0.name == "Momo" })
+        #expect(controller.enemies.map(\.name) == ["Grump"])
+        session.leaveParty(momo.id)
+        #expect(session.partyMembers.isEmpty)
+        #expect(session.friends.count == 1)
+    }
+
+    @Test func questsUnlockLooksAndRoads() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let pink = Content.shared.appearance.hair.first { $0.id == "pink" }!
+        let road = Content.shared.map("sunny_meadow")!.exits.first { $0.to == "pineapple_shore" }!
+        #expect(!session.isUnlocked(pink))
+        #expect(!session.canTravel(road))
+        session.data.quests["jelly_trouble"] = QuestProgress(state: .completed, count: 3)
+        #expect(session.isUnlocked(pink))
+        #expect(session.canTravel(road))
+    }
+
+    @Test func bigSpellsSplash() {
+        let fire = Content.shared.skill("fire_bolt")!
+        #expect(BattleEngine.splashFraction(of: fire, level: 2) == 0)
+        #expect(BattleEngine.splashFraction(of: fire, level: 3) > 0)
+        #expect(BattleEngine.splashFraction(of: fire, level: 5) > BattleEngine.splashFraction(of: fire, level: 3))
+        #expect(BattleEngine.splashFraction(of: Content.shared.skill("bash")!, level: 5) == 0)
     }
 }
 

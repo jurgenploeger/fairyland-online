@@ -1,7 +1,8 @@
 import SpriteKit
 
-/// Anything that walks around a map: the hero, a companion, or an NPC.
-/// Walk sheets animate per direction; single-image sprites hop instead.
+/// Anything that walks around a map: the hero, a companion, an NPC or a passer-by.
+/// Walk sheets animate per direction; single-image sprites hop instead. Standing still,
+/// everyone breathes gently so the world never looks frozen.
 final class Walker: SKNode {
     let sprite: SKSpriteNode
     var walkSpeed: CGFloat = 88
@@ -10,7 +11,19 @@ final class Walker: SKNode {
 
     private(set) var facing: Direction = .down
     private var isWalking = false
-    private let cycle: WalkCycle
+    private var cycle: WalkCycle
+    private var tag: NameTag?
+    private var bubble: SKNode?
+    /// Breathing while standing still; off for things that shouldn't, like gift boxes.
+    var idles = true {
+        didSet { if idles != oldValue { animate() } }
+    }
+    /// Monsters squish, hop or sway instead of breathing.
+    var motion: IdleMotion = .breathe {
+        didSet { if motion != oldValue { animate() } }
+    }
+    /// So a crowd doesn't breathe in unison.
+    private let breathOffset = TimeInterval.random(in: 0..<1.6)
 
     init(cycle: WalkCycle, label: String?, labelColor: UIColor = .white) {
         self.cycle = cycle
@@ -20,9 +33,76 @@ final class Walker: SKNode {
         addChild(Nodes.shadow(width: cycle.size.width * 0.5))
         addChild(sprite)
         if let label {
-            let tag = Nodes.nameLabel(label, color: labelColor)
+            let tag = NameTag(label, color: labelColor, size: 11)
             tag.position = CGPoint(x: 0, y: cycle.size.height * 0.95)
             addChild(tag)
+            self.tag = tag
+        }
+        animate()
+    }
+
+    /// Swaps the look (after customising the hero or recolouring a companion).
+    func setCycle(_ cycle: WalkCycle) {
+        self.cycle = cycle
+        sprite.size = cycle.size
+        animate()
+    }
+
+    /// Shows the weapon in hand and an accessory's sparkle.
+    func setGear(weapon: ItemDef?, accessory: ItemDef?) {
+        sprite.childNode(withName: "weapon")?.removeFromParent()
+        childNode(withName: "aura")?.removeFromParent()
+        if let weapon, let node = GearArt.weapon(weapon, height: cycle.size.height) {
+            sprite.addChild(node)
+        }
+        if let accessory, let aura = GearArt.aura(accessory, height: cycle.size.height) {
+            addChild(aura)
+        }
+        poseGear()
+    }
+
+    private func poseGear() {
+        if let weapon = sprite.childNode(withName: "weapon") as? SKSpriteNode {
+            GearArt.pose(weapon, facing: facing, height: cycle.size.height)
+        }
+    }
+
+    func setLabel(_ text: String) {
+        tag?.setText(text)
+    }
+
+    /// A speech bubble above the name tag for a few seconds.
+    func say(_ text: String, for duration: TimeInterval = 3.5) {
+        bubble?.removeFromParent()
+        let node = Nodes.speechBubble(text)
+        node.position = CGPoint(x: 0, y: (tag?.position.y ?? sprite.size.height) + 20)
+        node.zPosition = 6_000
+        node.alpha = 0
+        node.setScale(0.6)
+        addChild(node)
+        bubble = node
+        let pop = SKAction.group([.fadeIn(withDuration: 0.15), .scale(to: 1, duration: 0.15)])
+        node.run(.sequence([pop, .wait(forDuration: duration), .fadeOut(withDuration: 0.3), .removeFromParent()]))
+    }
+
+    /// Trails behind `leader` like a companion: close enough to feel together, never on top.
+    func follow(_ leader: Walker, dt: TimeInterval) {
+        let behind = leader.facing.vector * -1
+        let goal = leader.facing.isHorizontal
+            ? leader.position + behind * 34 + CGVector(dx: 0, dy: 6)
+            : leader.position + behind * 14 + CGVector(dx: -30, dy: 0)
+        let offset = goal - position
+        let distance = offset.length
+        if distance > 300 {
+            position = goal
+        } else if distance > 6 {
+            let step = min(distance, max(walkSpeed, distance * 2) * CGFloat(dt))
+            position = position + offset * (step / distance)
+            face(Direction(offset, current: facing))
+            setWalking(true)
+        } else {
+            setWalking(false)
+            face(leader.facing)
         }
     }
 
@@ -61,10 +141,18 @@ final class Walker: SKNode {
 
     private func animate() {
         sprite.removeAction(forKey: "walk")
+        sprite.removeAction(forKey: "idle")
         sprite.position = .zero
+        sprite.xScale = 1
+        sprite.yScale = 1
+        sprite.zRotation = 0
         let frames = cycle.frames(facing)
         sprite.texture = frames.first
-        guard isWalking else { return }
+        poseGear()
+        guard isWalking else {
+            breathe()
+            return
+        }
         if frames.count > 1 {
             sprite.run(.repeatForever(.animate(with: frames, timePerFrame: 0.16)), withKey: "walk")
         } else {
@@ -74,5 +162,11 @@ final class Walker: SKNode {
             down.timingMode = .easeIn
             sprite.run(.repeatForever(.sequence([up, down])), withKey: "walk")
         }
+    }
+
+    /// Standing still: breathing for people, a squish, hop or sway for monsters.
+    private func breathe() {
+        guard idles else { return }
+        sprite.run(motion.action(height: sprite.size.height, delay: breathOffset), withKey: "idle")
     }
 }
