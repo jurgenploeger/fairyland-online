@@ -1,0 +1,20 @@
+{
+  "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
+  "releases": [
+    {
+      "version": "0.0.1",
+      "date": "2026-09-29",
+      "title": "First steps into Fairyland",
+      "notes": [
+        "14 maps joined by winding roads: Meadowbrook, Rainbow City and Goldburg, plus wild zones from Sunny Meadow to Moonglow.",
+        "Random encounters and turn-based battles fought where you stand. Big spells splash onto nearby monsters.",
+        "81 monsters across seven elements, with rare colour variants and three bosses.",
+        "Capture with Seal Stones and keep up to 5 companions. Your first hatches from the starter egg.",
+        "Start as a Novice and join a guild at level 5. Spend skill points to learn and power up skills.",
+        "Villagers and adventurers wander and chat. Befriend adventurers and bring two along in your party.",
+        "Customise hair, outfit and skin. Armour recolours your outfit and your weapon shows in hand.",
+        "Quests, shops, healers, checkpoints, an in-game calendar and a chiptune soundtrack."
+      ]
+    }
+  ]
+}

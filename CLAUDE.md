@@ -18,5 +18,7 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 - **Retro Diffusion costs money.** Always run `python3 tools/rd.py generate <ids> --dry-run` (free) and get
   the user's OK before generating. Paid runs are logged in `art/spend-log.jsonl`. Never commit `.env` or the
   API key (`RETRO_DIFFUSION_API_KEY`).
+- **Versions:** `MARKETING_VERSION` in `project.yml` and the top entry of `content/changelog.json` move together
+  (the checker enforces it). Add a changelog entry when shipping a user-visible change. 1.0.0 = App Store launch.
 - On a Mac: `make open` or `make sim`; tests with `xcodebuild test` (see README). Tests and debug launches use
   separate save files, so they never touch the player's save.

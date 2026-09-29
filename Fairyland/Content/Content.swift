@@ -409,6 +409,15 @@ nonisolated struct CrowdOptions: Decodable, Sendable {
     let companions: [String]
 }
 
+/// One entry in content/changelog.json, shown under "What's new" on the title screen.
+nonisolated struct ReleaseNote: Decodable, Identifiable, Sendable {
+    let version: String
+    let date: String
+    let title: String
+    let notes: [String]
+    var id: String { version }
+}
+
 nonisolated struct AppearanceOptions: Decodable, Sendable {
     let hair: [LookPreset]
     let outfits: [LookPreset]
@@ -429,6 +438,7 @@ private nonisolated struct ItemsFile: Decodable { let items: [ItemDef] }
 private nonisolated struct QuestsFile: Decodable { let quests: [QuestDef] }
 private nonisolated struct MapsFile: Decodable { let start: String; let maps: [MapDef] }
 private nonisolated struct MusicFile: Decodable { let songs: [SongDef] }
+private nonisolated struct ChangelogFile: Decodable { let releases: [ReleaseNote] }
 
 /// All game data from the bundled content/ folder. Edit the JSON, rebuild, done.
 final class Content {
@@ -446,6 +456,8 @@ final class Content {
     let songs: [SongDef]
     let appearance: AppearanceOptions
     let crowd: CrowdOptions
+    /// Newest first.
+    let releases: [ReleaseNote]
 
     init(bundle: Bundle = .main) {
         let classFile: ClassesFile = Self.load("classes", from: bundle)
@@ -462,6 +474,7 @@ final class Content {
         songs = (Self.load("music", from: bundle) as MusicFile).songs
         appearance = Self.load("appearance", from: bundle)
         crowd = Self.load("crowd", from: bundle)
+        releases = (Self.load("changelog", from: bundle) as ChangelogFile).releases
     }
 
     private static func load<T: Decodable>(_ name: String, from bundle: Bundle) -> T {
