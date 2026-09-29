@@ -22,4 +22,6 @@ grep -vE '^\s*(#|$)' "$SCENES" | while IFS='|' read -r name flags wait; do
   SIMCTL_CHILD_FAIRYLAND_DEBUG="$flags" xcrun simctl launch "$SIM" "$BUNDLE" >/dev/null
   sleep "${wait:-8}"
   xcrun simctl io "$SIM" screenshot --type=png "$OUT/$name.png"
+  # The simulator stays in portrait, so a landscape-locked app comes out sideways; turn it upright.
+  if [[ ",$flags," == *",landscape,"* ]]; then sips -r 270 "$OUT/$name.png" >/dev/null; fi
 done
