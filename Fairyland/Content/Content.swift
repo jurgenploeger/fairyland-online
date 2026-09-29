@@ -280,6 +280,9 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let cluster: Int?
         /// Sways gently in the breeze.
         let sway: Bool?
+        /// Plant only within this many cells of the map's centre, inside a town's fence too
+        /// (flower beds around the square). Otherwise props go anywhere free (in towns: the border).
+        let within: Int?
     }
 
     nonisolated struct FairyRings: Decodable, Sendable {

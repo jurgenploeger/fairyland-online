@@ -203,13 +203,14 @@ final class WorldMap {
 
     /// Whether scenery may go in `cell`: free, off roads and water, clear of the centre and
     /// the arrival spots, and (in fenced towns) outside the fence.
-    func isFreeForScenery(_ cell: GridPoint) -> Bool {
+    /// `insideFence` lets town-square planting use the town's ground, not just its border.
+    func isFreeForScenery(_ cell: GridPoint, insideFence: Bool = false) -> Bool {
         guard cell.col >= 1, cell.row >= 1, cell.col < columns - 1, cell.row < rows - 1 else { return false }
         guard !occupied.contains(cell) else { return false }
         let tile = ground[cell.row][cell.col]
         guard tile != .path, tile != .water else { return false }
         guard max(abs(cell.col - center.col), abs(cell.row - center.row)) > 2 else { return false }
-        if def.fence == true, tile != .border { return false }
+        if def.fence == true, (insideFence ? tile != .ground : tile != .border) { return false }
         for entry in entryCells where max(abs(cell.col - entry.col), abs(cell.row - entry.row)) <= 2 {
             return false
         }
@@ -230,6 +231,16 @@ final class WorldMap {
         for _ in 0..<400 {
             let cell = GridPoint(col: Int.random(in: 1..<(columns - 1), using: &rng), row: Int.random(in: 1..<(rows - 1), using: &rng))
             if isFreeForScenery(cell) { return cell }
+        }
+        return nil
+    }
+
+    /// A free cell within `radius` cells of the map's centre, for planting around a town square.
+    func randomFreeCell(within radius: Int, using rng: inout SeededRandom) -> GridPoint? {
+        for _ in 0..<400 {
+            let cell = GridPoint(col: center.col + Int.random(in: -radius...radius, using: &rng),
+                                 row: center.row + Int.random(in: -radius...radius, using: &rng))
+            if isFreeForScenery(cell, insideFence: true) { return cell }
         }
         return nil
     }

@@ -398,7 +398,12 @@ final class WorldScene: SKScene {
             var attempts = 0
             while placed < placement.count, attempts < placement.count * 3 {
                 attempts += 1
-                guard let middle = map.randomFreeCell(using: &rng) else { break }
+                let found: GridPoint? = if let radius = placement.within {
+                    map.randomFreeCell(within: radius, using: &rng)
+                } else {
+                    map.randomFreeCell(using: &rng)
+                }
+                guard let middle = found else { break }
                 let wanted = min(groupSize, placement.count - placed)
                 var inGroup = 0
                 for index in 0..<(wanted * 5) where inGroup < wanted {
@@ -406,7 +411,7 @@ final class WorldScene: SKScene {
                         col: middle.col + Int.random(in: -spread...spread, using: &rng),
                         row: middle.row + Int.random(in: -spread...spread, using: &rng)
                     )
-                    guard map.isFreeForScenery(cell) else { continue }
+                    guard map.isFreeForScenery(cell, insideFence: placement.within != nil) else { continue }
                     map.occupy(cell, blocking: placement.blocking)
                     addScenery(sprite, at: cell, sway: placement.sway == true, jitter: true)
                     inGroup += 1
@@ -441,7 +446,7 @@ final class WorldScene: SKScene {
             for _ in 0..<30 {
                 guard let middle = map.randomFreeCell(using: &rng) else { break }
                 let area = (-2...2).flatMap { dr in (-2...2).map { dc in GridPoint(col: middle.col + dc, row: middle.row + dr) } }
-                guard area.allSatisfy(map.isFreeForScenery) else { continue }
+                guard area.allSatisfy { map.isFreeForScenery($0) } else { continue }
                 area.forEach { map.occupy($0, blocking: false) }
                 let origin = map.center(of: middle)
                 for index in 0..<9 {

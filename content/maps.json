@@ -68,6 +68,36 @@
             "blocking": false,
             "cluster": 4,
             "sway": true
+          },
+          {
+            "art": "daisy",
+            "count": 30,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "within": 10
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 24,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "within": 10
+          },
+          {
+            "art": "flowering_bush",
+            "count": 14,
+            "blocking": false,
+            "cluster": 3,
+            "within": 10
+          },
+          {
+            "art": "bush",
+            "count": 12,
+            "blocking": false,
+            "cluster": 3,
+            "within": 10
           }
         ],
         "accent": "tile_scree",
@@ -408,9 +438,9 @@
         "props": [
           {
             "art": "tree",
-            "count": 420,
+            "count": 600,
             "blocking": true,
-            "cluster": 12,
+            "cluster": 16,
             "sway": true
           },
           {
@@ -644,9 +674,9 @@
         "props": [
           {
             "art": "dark_tree",
-            "count": 600,
+            "count": 1000,
             "blocking": true,
-            "cluster": 14,
+            "cluster": 20,
             "sway": true
           },
           {
@@ -663,7 +693,7 @@
           },
           {
             "art": "dark_bush",
-            "count": 220,
+            "count": 320,
             "blocking": true,
             "cluster": 6
           }
@@ -734,9 +764,9 @@
         "props": [
           {
             "art": "tree",
-            "count": 520,
+            "count": 900,
             "blocking": true,
-            "cluster": 12,
+            "cluster": 20,
             "sway": true
           },
           {
@@ -760,7 +790,7 @@
           },
           {
             "art": "bush",
-            "count": 260,
+            "count": 360,
             "blocking": true,
             "cluster": 7
           },
@@ -902,6 +932,44 @@
             "blocking": false,
             "cluster": 4,
             "sway": true
+          },
+          {
+            "art": "daisy",
+            "count": 30,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "within": 11
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 30,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "within": 11
+          },
+          {
+            "art": "daisy_blue",
+            "count": 20,
+            "blocking": false,
+            "cluster": 4,
+            "sway": true,
+            "within": 11
+          },
+          {
+            "art": "flowering_bush",
+            "count": 16,
+            "blocking": false,
+            "cluster": 3,
+            "within": 11
+          },
+          {
+            "art": "bush",
+            "count": 10,
+            "blocking": false,
+            "cluster": 3,
+            "within": 11
           }
         ],
         "accentPatches": 0
@@ -1065,16 +1133,16 @@
         "props": [
           {
             "art": "snow_tree",
-            "count": 380,
+            "count": 650,
             "blocking": true,
-            "cluster": 10,
+            "cluster": 16,
             "sway": true
           },
           {
             "art": "snow_pine",
-            "count": 300,
+            "count": 500,
             "blocking": true,
-            "cluster": 10
+            "cluster": 16
           },
           {
             "art": "boulder",
@@ -1165,7 +1233,7 @@
           },
           {
             "art": "dead_tree",
-            "count": 170,
+            "count": 240,
             "blocking": true,
             "cluster": 6
           },
@@ -1241,15 +1309,15 @@
         "props": [
           {
             "art": "dead_tree",
-            "count": 320,
+            "count": 420,
             "blocking": true,
             "cluster": 12
           },
           {
             "art": "dark_tree",
-            "count": 280,
+            "count": 420,
             "blocking": true,
-            "cluster": 10,
+            "cluster": 14,
             "sway": true
           },
           {
