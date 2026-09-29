@@ -446,7 +446,7 @@ final class WorldScene: SKScene {
             for _ in 0..<30 {
                 guard let middle = map.randomFreeCell(using: &rng) else { break }
                 let area = (-2...2).flatMap { dr in (-2...2).map { dc in GridPoint(col: middle.col + dc, row: middle.row + dr) } }
-                guard area.allSatisfy { map.isFreeForScenery($0) } else { continue }
+                guard area.allSatisfy({ map.isFreeForScenery($0) }) else { continue }
                 area.forEach { map.occupy($0, blocking: false) }
                 let origin = map.center(of: middle)
                 for index in 0..<9 {
