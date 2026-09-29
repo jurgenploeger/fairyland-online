@@ -1,0 +1,474 @@
+{
+  "_about": "Maps. Walk off an edge listed in `exits` to travel to that map. `theme` picks ground tiles, ponds, fairy rings and scenery (art ids from art/assets.json); props with `cluster` grow in groups, `sway` ones move in the breeze. `ambience` adds particles (petals | leaves | fireflies | sparkles), butterflies, cloud shadows and a colour tint. Maps with `encounters` have random battles; `music` is a song id from music.json. Building/decor/NPC x,y are tile offsets from the map centre (y up).",
+  "start": "meadowbrook",
+  "maps": [
+    {
+      "id": "meadowbrook",
+      "name": "Meadowbrook",
+      "width": 44,
+      "height": 32,
+      "music": "town",
+      "theme": {
+        "ground": "tile_town",
+        "path": "tile_path",
+        "border": "tile_grass",
+        "props": [
+          {
+            "art": "blossom_tree",
+            "count": 24,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true
+          },
+          {
+            "art": "tree",
+            "count": 30,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "mushroom",
+            "count": 10,
+            "blocking": false
+          }
+        ]
+      },
+      "fence": true,
+      "exits": [
+        {
+          "edge": "east",
+          "to": "sunny_meadow"
+        }
+      ],
+      "buildings": [
+        {
+          "art": "house",
+          "x": -7,
+          "y": 5
+        },
+        {
+          "art": "house",
+          "x": 7,
+          "y": 5
+        },
+        {
+          "art": "guild_hall",
+          "x": -7,
+          "y": -4
+        },
+        {
+          "art": "house",
+          "x": 7,
+          "y": -4
+        },
+        {
+          "art": "house",
+          "x": -14,
+          "y": 8
+        },
+        {
+          "art": "house",
+          "x": 14,
+          "y": 8
+        },
+        {
+          "art": "house",
+          "x": -14,
+          "y": -8
+        },
+        {
+          "art": "house",
+          "x": 14,
+          "y": -8
+        }
+      ],
+      "decor": [
+        {
+          "art": "fountain",
+          "x": -3,
+          "y": 5,
+          "blocking": true
+        },
+        {
+          "art": "blossom_tree",
+          "x": 3,
+          "y": 6,
+          "blocking": true
+        },
+        {
+          "art": "blossom_tree",
+          "x": -11,
+          "y": 1,
+          "blocking": true
+        },
+        {
+          "art": "blossom_tree",
+          "x": 11,
+          "y": -1,
+          "blocking": true
+        },
+        {
+          "art": "giant_flower",
+          "x": -3,
+          "y": -4
+        },
+        {
+          "art": "giant_flower",
+          "x": 3,
+          "y": -5
+        },
+        {
+          "art": "giant_flower",
+          "x": -17,
+          "y": 3
+        },
+        {
+          "art": "giant_flower",
+          "x": 17,
+          "y": -3
+        }
+      ],
+      "npcs": [
+        {
+          "id": "healer",
+          "name": "Nurse Mira",
+          "role": "healer",
+          "art": "npc_healer",
+          "x": -7,
+          "y": 3,
+          "greeting": "Tired, dear? Rest here and your whole party will feel brand new."
+        },
+        {
+          "id": "shop",
+          "name": "Trader Bo",
+          "role": "shop",
+          "art": "npc_trader",
+          "x": 7,
+          "y": 3,
+          "greeting": "Potions, blades, robes — take a look!",
+          "stock": [
+            "potion",
+            "ether",
+            "wooden_sword",
+            "oak_staff",
+            "cloth_tunic",
+            "leather_vest",
+            "iron_axe",
+            "crystal_wand",
+            "tamer_whip",
+            "chain_mail",
+            "silk_robe",
+            "ranger_cloak",
+            "lucky_clover",
+            "ruby_ring"
+          ]
+        },
+        {
+          "id": "elder",
+          "name": "Elder Oak",
+          "role": "quests",
+          "art": "npc_elder",
+          "x": 2,
+          "y": 3,
+          "greeting": "Ah, a new face! Meadowbrook could use a helping hand."
+        },
+        {
+          "id": "guild_warrior",
+          "name": "Captain Brann",
+          "role": "guild",
+          "classId": "fighter",
+          "art": "npc_warrior",
+          "x": -9,
+          "y": -6,
+          "greeting": "The Warrior Guild wants strong arms and brave hearts."
+        },
+        {
+          "id": "guild_diviner",
+          "name": "Sage Lumi",
+          "role": "guild",
+          "classId": "mage",
+          "art": "npc_diviner",
+          "x": -7,
+          "y": -6,
+          "greeting": "The Diviner Guild studies the seven elements. Magic is a path of patience."
+        },
+        {
+          "id": "guild_journeyman",
+          "name": "Ranger Pip",
+          "role": "guild",
+          "classId": "tamer",
+          "art": "npc_journeyman",
+          "x": -5,
+          "y": -6,
+          "greeting": "The Journeyman Guild! We befriend beasts, not beat them. Well, mostly."
+        },
+        {
+          "id": "gift_box_1",
+          "name": "Gift Box",
+          "role": "chest",
+          "art": "gift_box",
+          "x": -16,
+          "y": 4,
+          "quest": "hope_of_meadowbrook",
+          "gives": "wooden_sword",
+          "greeting": "A gift box tied with a red ribbon."
+        },
+        {
+          "id": "gift_box_2",
+          "name": "Gift Box",
+          "role": "chest",
+          "art": "gift_box",
+          "x": 16,
+          "y": -5,
+          "quest": "hope_of_meadowbrook",
+          "gives": "novice_ring",
+          "greeting": "A gift box tied with a blue ribbon."
+        },
+        {
+          "id": "gift_box_3",
+          "name": "Gift Box",
+          "role": "chest",
+          "art": "gift_box",
+          "x": 0,
+          "y": -11,
+          "quest": "hope_of_meadowbrook",
+          "gives": "pet_egg",
+          "greeting": "A gift box that seems to... wiggle?"
+        }
+      ],
+      "ambience": {
+        "particles": "petals",
+        "butterflies": 8,
+        "clouds": true,
+        "vignette": 0.15
+      }
+    },
+    {
+      "id": "sunny_meadow",
+      "name": "Sunny Meadow",
+      "width": 110,
+      "height": 80,
+      "music": "meadow",
+      "theme": {
+        "ground": "tile_grass",
+        "path": "tile_path",
+        "accent": "tile_flowers",
+        "accentPatches": 45,
+        "water": "tile_water",
+        "ponds": 9,
+        "fairyRings": {
+          "count": 4,
+          "art": "mushroom"
+        },
+        "props": [
+          {
+            "art": "tree",
+            "count": 280,
+            "blocking": true,
+            "cluster": 12,
+            "sway": true
+          },
+          {
+            "art": "blossom_tree",
+            "count": 70,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "rock",
+            "count": 55,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "giant_flower",
+            "count": 45,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "mushroom",
+            "count": 60,
+            "blocking": false,
+            "cluster": 3
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "west",
+          "to": "meadowbrook"
+        },
+        {
+          "edge": "north",
+          "to": "pineapple_shore"
+        },
+        {
+          "edge": "east",
+          "to": "twilight_woods"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          1,
+          3
+        ],
+        "groupSize": [
+          1,
+          2
+        ],
+        "monsters": {
+          "jelly": 7,
+          "bunny": 3
+        }
+      },
+      "ambience": {
+        "particles": "petals",
+        "butterflies": 36,
+        "clouds": true,
+        "tint": "#FFF1C2",
+        "tintAlpha": 0.06,
+        "vignette": 0.15
+      }
+    },
+    {
+      "id": "pineapple_shore",
+      "name": "Pineapple Shore",
+      "width": 100,
+      "height": 72,
+      "music": "shore",
+      "theme": {
+        "ground": "tile_sand",
+        "path": "tile_path",
+        "accent": "tile_shells",
+        "accentPatches": 30,
+        "water": "tile_water",
+        "ponds": 14,
+        "props": [
+          {
+            "art": "palm_tree",
+            "count": 170,
+            "blocking": true,
+            "cluster": 7,
+            "sway": true
+          },
+          {
+            "art": "rock",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4
+          },
+          {
+            "art": "sandcastle",
+            "count": 14,
+            "blocking": true
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "south",
+          "to": "sunny_meadow"
+        }
+      ],
+      "encounters": {
+        "rate": 0.07,
+        "graceSteps": 7,
+        "levels": [
+          3,
+          6
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "pineapple": 7,
+          "jelly": 3
+        }
+      },
+      "ambience": {
+        "particles": "sparkles",
+        "butterflies": 10,
+        "clouds": true,
+        "tint": "#FFD9A0",
+        "tintAlpha": 0.08,
+        "vignette": 0.12
+      }
+    },
+    {
+      "id": "twilight_woods",
+      "name": "Twilight Woods",
+      "width": 100,
+      "height": 80,
+      "music": "woods",
+      "theme": {
+        "ground": "tile_dark_grass",
+        "path": "tile_path",
+        "accent": "tile_dark_flowers",
+        "accentPatches": 40,
+        "water": "tile_water",
+        "ponds": 6,
+        "fairyRings": {
+          "count": 7,
+          "art": "glow_mushroom"
+        },
+        "props": [
+          {
+            "art": "dark_tree",
+            "count": 420,
+            "blocking": true,
+            "cluster": 14,
+            "sway": true
+          },
+          {
+            "art": "crystal",
+            "count": 45,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "glow_mushroom",
+            "count": 130,
+            "blocking": false,
+            "cluster": 5
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "west",
+          "to": "sunny_meadow"
+        }
+      ],
+      "encounters": {
+        "rate": 0.08,
+        "graceSteps": 6,
+        "levels": [
+          5,
+          9
+        ],
+        "groupSize": [
+          2,
+          3
+        ],
+        "monsters": {
+          "bun": 6,
+          "pineapple": 3
+        }
+      },
+      "ambience": {
+        "particles": "fireflies",
+        "clouds": false,
+        "tint": "#2E1F5E",
+        "tintAlpha": 0.3,
+        "vignette": 0.45
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+import SwiftUI
+import UIKit
+
+@main
+struct FairylandApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
+    var body: some Scene {
+        WindowGroup {
+            RootView()
+        }
+    }
+}
+
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        DebugLaunch.forcesLandscape ? .landscape : .allButUpsideDown
+    }
+}
+
+/// Title screen until a game is started or continued.
+struct RootView: View {
+    @State private var coordinator: GameCoordinator?
+    @State private var pending: GameSession?
+    @Environment(\.scenePhase) private var scenePhase
+
+    var body: some View {
+        Group {
+            if let coordinator {
+                GameView(coordinator: coordinator)
+            } else if let pending {
+                LoadingCurtain()
+                    .task {
+                        // Let the curtain draw before the (heavier) map build starts.
+                        try? await Task.sleep(for: .milliseconds(60))
+                        coordinator = GameCoordinator(session: pending)
+                    }
+            } else {
+                TitleView { session in
+                    pending = session
+                }
+            }
+        }
+        .onAppear {
+            if coordinator == nil, let session = DebugLaunch.session() {
+                let coordinator = GameCoordinator(session: session)
+                self.coordinator = coordinator
+                DebugLaunch.apply(to: coordinator)
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            switch phase {
+            case .background: coordinator?.session.save()
+            case .active: MusicPlayer.shared.resume()
+            default: break
+            }
+        }
+    }
+}

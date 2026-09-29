@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "tiny fluffy white bunny pet with long ears and pink cheeks",
+    "prompt_style": "rd_animation__four_angle_walking",
+    "width": 48,
+    "height": 48,
+    "return_spritesheet": true
+  },
+  "result": {
+    "created_at": 1790681565,
+    "credit_cost": 10,
+    "balance_cost": 0.07,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 0.36,
+    "request_id": "65740b34-9af5-44f7-ab26-ddbd119efb66",
+    "outputs_retained_until": 1790767931
+  }
+}

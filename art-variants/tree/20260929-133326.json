@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "round fluffy fairytale tree with a bright green canopy and short brown trunk",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 64,
+    "height": 64,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790681605,
+    "credit_cost": 2,
+    "balance_cost": 0.03,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 0.255,
+    "request_id": "eff9fee3-ac50-44cd-afc1-a93699afe508",
+    "outputs_retained_until": 1790767992
+  }
+}

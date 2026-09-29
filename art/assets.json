@@ -1,0 +1,420 @@
+{
+  "_about": "Every sprite in the game. `request` is sent as-is to Retro Diffusion (POST /v2/inferences); `kind`, `frame` and `directions` tell the game how to use it. Generate with `make art`; results land in art/sprites/<id>.png. Anything not generated yet shows as placeholder pixel art. Gameplay data (stats, maps, quests) lives in content/.",
+  "defaults": {
+    "num_images": 1
+  },
+  "assets": [
+    {
+      "id": "player_walk",
+      "kind": "walk_sheet",
+      "frame": 48,
+      "directions": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "request": {
+        "prompt": "cute chibi adventurer kid with spiky orange hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      }
+    },
+    {
+      "id": "pet_walk",
+      "kind": "walk_sheet",
+      "frame": 48,
+      "directions": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "request": {
+        "prompt": "tiny fluffy white bunny pet with long ears and pink cheeks",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      }
+    },
+    {
+      "id": "tile_grass",
+      "kind": "tile",
+      "request": {
+        "prompt": "lush bright green meadow grass",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_path",
+      "kind": "tile",
+      "request": {
+        "prompt": "sandy dirt road with small pebbles",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_flowers",
+      "kind": "tile",
+      "request": {
+        "prompt": "green grass with tiny pink and yellow flowers",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_town",
+      "kind": "tile",
+      "request": {
+        "prompt": "light warm cobblestone town plaza",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_sand",
+      "kind": "tile",
+      "request": {
+        "prompt": "soft golden beach sand",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_shells",
+      "kind": "tile",
+      "request": {
+        "prompt": "golden beach sand with small pink seashells",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_dark_grass",
+      "kind": "tile",
+      "request": {
+        "prompt": "dark teal forest grass at twilight",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_dark_flowers",
+      "kind": "tile",
+      "request": {
+        "prompt": "dark teal forest grass with tiny glowing blue flowers",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tree",
+      "kind": "prop",
+      "request": {
+        "prompt": "round fluffy fairytale tree with a bright green canopy and short brown trunk",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "rock",
+      "kind": "prop",
+      "request": {
+        "prompt": "mossy grey boulder",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "mushroom",
+      "kind": "prop",
+      "request": {
+        "prompt": "small cluster of red spotted mushrooms",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "palm_tree",
+      "kind": "prop",
+      "request": {
+        "prompt": "cute tropical palm tree with coconuts",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "dark_tree",
+      "kind": "prop",
+      "request": {
+        "prompt": "spooky twisted fairytale tree with dark purple leaves",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "glow_mushroom",
+      "kind": "prop",
+      "request": {
+        "prompt": "small cluster of glowing cyan mushrooms",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "tile_water",
+      "kind": "tile",
+      "request": {
+        "prompt": "sparkling clear blue pond water",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "blossom_tree",
+      "kind": "prop",
+      "request": {
+        "prompt": "fluffy pink cherry blossom fairytale tree",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "giant_flower",
+      "kind": "prop",
+      "request": {
+        "prompt": "giant whimsical pink daisy flower taller than a person",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "crystal",
+      "kind": "prop",
+      "request": {
+        "prompt": "cluster of glowing cyan magic crystals",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "sandcastle",
+      "kind": "prop",
+      "request": {
+        "prompt": "cute little sandcastle with a red flag",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "lily_pad",
+      "kind": "prop",
+      "request": {
+        "prompt": "green lily pad with a small pink flower, top-down",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "fountain",
+      "kind": "prop",
+      "request": {
+        "prompt": "round stone town fountain with sparkling water",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 96,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "gift_box",
+      "kind": "prop",
+      "request": {
+        "prompt": "cute wrapped gift box with a red ribbon bow",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "pet_egg",
+      "kind": "prop",
+      "request": {
+        "prompt": "cute speckled pastel pet egg with a tiny crack",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "house",
+      "kind": "building",
+      "request": {
+        "prompt": "cozy fairytale cottage with a red tiled roof and round wooden door",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 96,
+        "height": 96,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "guild_hall",
+      "kind": "building",
+      "request": {
+        "prompt": "grand fairytale guild hall with a blue roof and three banners",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 96,
+        "height": 96,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "fence",
+      "kind": "building",
+      "request": {
+        "prompt": "short wooden picket fence segment",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "npc_healer",
+      "kind": "npc",
+      "request": {
+        "prompt": "kind village nurse in a pink dress and white apron, chibi, front view",
+        "prompt_style": "rd_plus__low_res",
+        "width": 48,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "npc_trader",
+      "kind": "npc",
+      "request": {
+        "prompt": "cheerful merchant with a big backpack and cap, chibi, front view",
+        "prompt_style": "rd_plus__low_res",
+        "width": 48,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "npc_elder",
+      "kind": "npc",
+      "request": {
+        "prompt": "old village elder with a long white beard and wooden staff, chibi, front view",
+        "prompt_style": "rd_plus__low_res",
+        "width": 48,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "npc_warrior",
+      "kind": "npc",
+      "request": {
+        "prompt": "sturdy guild captain in shiny armor holding a sword, chibi, front view",
+        "prompt_style": "rd_plus__low_res",
+        "width": 48,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "npc_diviner",
+      "kind": "npc",
+      "request": {
+        "prompt": "young sage in a starry purple robe with a glowing wand, chibi, front view",
+        "prompt_style": "rd_plus__low_res",
+        "width": 48,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "npc_journeyman",
+      "kind": "npc",
+      "request": {
+        "prompt": "friendly ranger in a leaf cloak with a small bird, chibi, front view",
+        "prompt_style": "rd_plus__low_res",
+        "width": 48,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_jelly",
+      "kind": "monster",
+      "request": {
+        "prompt": "cute round pink jelly blob monster with big shiny eyes, chibi",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_pineapple",
+      "kind": "monster",
+      "request": {
+        "prompt": "cute little walking pineapple creature with leafy hair and tiny feet, chibi",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_bun",
+      "kind": "monster",
+      "request": {
+        "prompt": "cute blue fluffy puffball bunny monster with tiny horns, chibi",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "lush bright green meadow grass",
+    "prompt_style": "rd_tile__single_tile",
+    "width": 32,
+    "height": 32
+  },
+  "result": {
+    "created_at": 1790681574,
+    "credit_cost": 2,
+    "balance_cost": 0.025,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 0.335,
+    "request_id": "c6b23ce6-e7c8-4dbd-9f2e-eff7a8df7c23",
+    "outputs_retained_until": 1790767968
+  }
+}

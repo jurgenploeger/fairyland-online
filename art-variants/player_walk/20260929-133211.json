@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "cute chibi adventurer kid with spiky orange hair, green tunic, brown belt and boots",
+    "prompt_style": "rd_animation__four_angle_walking",
+    "width": 48,
+    "height": 48,
+    "return_spritesheet": true
+  },
+  "result": {
+    "created_at": 1790681530,
+    "credit_cost": 10,
+    "balance_cost": 0.07,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 0.43,
+    "request_id": "6209904d-a1d4-44a1-b8a1-cc1bc3ef6748",
+    "outputs_retained_until": 1790767902
+  }
+}

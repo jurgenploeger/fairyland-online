@@ -1,0 +1,137 @@
+{
+  "_about": "Quests. objective.type: defeat (target = monster id, omit for any) | capture | collect (gift boxes) | reachLevel (count = level) | chooseClass. `requires` lists quests that must be completed first. `question` is asked on accepting; each answer's `egg` decides what hatches from the Pet Egg. `giver` is an NPC id from maps.json.",
+  "quests": [
+    {
+      "id": "hope_of_meadowbrook",
+      "title": "Hope of Meadowbrook",
+      "giver": "elder",
+      "description": "Every new adventurer gets three gifts from the village. Find the three gift boxes hidden around Meadowbrook, then come back to me.",
+      "question": {
+        "text": "Before you go, tell me: what do you treasure most?",
+        "answers": [
+          {
+            "text": "Friendship",
+            "egg": "bunny"
+          },
+          {
+            "text": "Wisdom",
+            "egg": "jelly"
+          },
+          {
+            "text": "Courage",
+            "egg": "pineapple"
+          }
+        ]
+      },
+      "objective": {
+        "type": "collect",
+        "target": "gift_box",
+        "count": 3
+      },
+      "reward": {
+        "gold": 20,
+        "exp": 15,
+        "items": [
+          "potion"
+        ]
+      }
+    },
+    {
+      "id": "jelly_trouble",
+      "title": "Jelly Trouble",
+      "giver": "elder",
+      "description": "Jelly Puffs keep sliming our vegetable patch! Head east to Sunny Meadow and defeat 3 of them.",
+      "objective": {
+        "type": "defeat",
+        "target": "jelly",
+        "count": 3
+      },
+      "reward": {
+        "gold": 40,
+        "exp": 25,
+        "items": [
+          "potion",
+          "potion"
+        ]
+      },
+      "requires": [
+        "hope_of_meadowbrook"
+      ]
+    },
+    {
+      "id": "new_friend",
+      "title": "A New Friend",
+      "giver": "elder",
+      "requires": [
+        "jelly_trouble"
+      ],
+      "description": "Every adventurer needs friends. Weaken a wild monster below half HP, then use Capture in battle.",
+      "objective": {
+        "type": "capture",
+        "count": 1
+      },
+      "reward": {
+        "gold": 30,
+        "exp": 30,
+        "items": [
+          "ether"
+        ]
+      }
+    },
+    {
+      "id": "choose_path",
+      "title": "Choose Your Path",
+      "giver": "elder",
+      "description": "Reach level 5, then speak to a guild master in town to choose your path: Fighter, Mage or Beast Tamer.",
+      "objective": {
+        "type": "chooseClass"
+      },
+      "reward": {
+        "gold": 100,
+        "items": [
+          "leather_vest"
+        ]
+      }
+    },
+    {
+      "id": "pineapple_harvest",
+      "title": "Pineapple Harvest",
+      "giver": "elder",
+      "requires": [
+        "jelly_trouble"
+      ],
+      "description": "Pineapple Sprouts have taken over Pineapple Shore, north of Sunny Meadow. Defeat 5.",
+      "objective": {
+        "type": "defeat",
+        "target": "pineapple",
+        "count": 5
+      },
+      "reward": {
+        "gold": 80,
+        "exp": 60
+      }
+    },
+    {
+      "id": "bouncy_menace",
+      "title": "The Bouncy Menace",
+      "giver": "elder",
+      "requires": [
+        "pineapple_harvest"
+      ],
+      "minLevel": 5,
+      "description": "Something bounces in the dark of Twilight Woods, east of Sunny Meadow. Defeat 3 Bouncy Buns.",
+      "objective": {
+        "type": "defeat",
+        "target": "bun",
+        "count": 3
+      },
+      "reward": {
+        "gold": 150,
+        "exp": 120,
+        "items": [
+          "lucky_clover"
+        ]
+      }
+    }
+  ]
+}

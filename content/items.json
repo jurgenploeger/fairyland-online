@@ -1,0 +1,203 @@
+{
+  "_about": "Items. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
+  "items": [
+    {
+      "id": "potion",
+      "name": "Potion",
+      "type": "consumable",
+      "price": 15,
+      "heal": 40,
+      "description": "Restores 40 HP."
+    },
+    {
+      "id": "ether",
+      "name": "Ether",
+      "type": "consumable",
+      "price": 30,
+      "mp": 20,
+      "description": "Restores 20 MP."
+    },
+    {
+      "id": "pet_egg",
+      "name": "Pet Egg",
+      "type": "consumable",
+      "price": 0,
+      "hatches": [
+        "bunny",
+        "jelly",
+        "pineapple"
+      ],
+      "description": "Something is wiggling inside. Hatch it from your bag!"
+    },
+    {
+      "id": "wooden_sword",
+      "name": "Wooden Sword",
+      "type": "weapon",
+      "price": 40,
+      "stats": {
+        "attack": 4
+      },
+      "classes": [
+        "novice",
+        "fighter",
+        "tamer"
+      ],
+      "description": "Better than a stick."
+    },
+    {
+      "id": "oak_staff",
+      "name": "Oak Staff",
+      "type": "weapon",
+      "price": 45,
+      "stats": {
+        "attack": 1,
+        "magic": 4
+      },
+      "classes": [
+        "novice",
+        "mage"
+      ],
+      "description": "Hums faintly with magic."
+    },
+    {
+      "id": "iron_axe",
+      "name": "Iron Axe",
+      "type": "weapon",
+      "price": 160,
+      "stats": {
+        "attack": 10
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 5,
+      "description": "Heavy and honest."
+    },
+    {
+      "id": "crystal_wand",
+      "name": "Crystal Wand",
+      "type": "weapon",
+      "price": 170,
+      "stats": {
+        "magic": 10
+      },
+      "classes": [
+        "mage"
+      ],
+      "level": 5,
+      "description": "Focuses elemental power."
+    },
+    {
+      "id": "tamer_whip",
+      "name": "Tamer's Whip",
+      "type": "weapon",
+      "price": 150,
+      "stats": {
+        "attack": 7,
+        "speed": 2
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 5,
+      "description": "Cracks, but never hurts a friend."
+    },
+    {
+      "id": "cloth_tunic",
+      "name": "Cloth Tunic",
+      "type": "armor",
+      "price": 30,
+      "stats": {
+        "defense": 3
+      },
+      "description": "Comfy and practical."
+    },
+    {
+      "id": "leather_vest",
+      "name": "Leather Vest",
+      "type": "armor",
+      "price": 90,
+      "stats": {
+        "defense": 6,
+        "hp": 10
+      },
+      "description": "Sturdy leather."
+    },
+    {
+      "id": "chain_mail",
+      "name": "Chain Mail",
+      "type": "armor",
+      "price": 220,
+      "stats": {
+        "defense": 12
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 5,
+      "description": "Clinks when you walk."
+    },
+    {
+      "id": "silk_robe",
+      "name": "Silk Robe",
+      "type": "armor",
+      "price": 180,
+      "stats": {
+        "defense": 5,
+        "magic": 4,
+        "mp": 10
+      },
+      "classes": [
+        "mage"
+      ],
+      "level": 5,
+      "description": "Woven with starlight."
+    },
+    {
+      "id": "ranger_cloak",
+      "name": "Ranger Cloak",
+      "type": "armor",
+      "price": 170,
+      "stats": {
+        "defense": 8,
+        "speed": 2
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 5,
+      "description": "Smells like pine."
+    },
+    {
+      "id": "lucky_clover",
+      "name": "Lucky Clover",
+      "type": "accessory",
+      "price": 120,
+      "stats": {
+        "speed": 4
+      },
+      "description": "Four leaves, twice the luck."
+    },
+    {
+      "id": "ruby_ring",
+      "name": "Ruby Ring",
+      "type": "accessory",
+      "price": 150,
+      "stats": {
+        "magic": 5
+      },
+      "description": "Warm to the touch."
+    },
+    {
+      "id": "novice_ring",
+      "name": "Novice Ring",
+      "type": "accessory",
+      "price": 25,
+      "stats": {
+        "hp": 8,
+        "mp": 4
+      },
+      "description": "A small ring for new adventurers."
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+import SpriteKit
+import SwiftUI
+
+/// Hosts an SKView and cross-fades whenever the scene changes (map to map, into and out of battle).
+struct SpriteKitView: UIViewRepresentable {
+    let scene: SKScene
+
+    func makeUIView(context: Context) -> SKView {
+        let view = SKView()
+        view.ignoresSiblingOrder = true
+        view.preferredFramesPerSecond = 60
+        #if DEBUG
+        view.showsFPS = true
+        view.showsNodeCount = true
+        #endif
+        view.presentScene(scene)
+        return view
+    }
+
+    func updateUIView(_ view: SKView, context: Context) {
+        guard view.scene !== scene else { return }
+        let transition: SKTransition = scene is BattleScene
+            ? .fade(with: .white, duration: 0.45)
+            : .fade(withDuration: 0.5)
+        view.presentScene(scene, transition: transition)
+    }
+}

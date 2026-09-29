@@ -1,0 +1,53 @@
+{
+  "_about": "Monster species. Wild monsters and companions share these stats: stats = base + growth × (level − 1). captureRate 0 means it can't be captured. `art` is an id from art/assets.json.",
+  "monsters": [
+    {
+      "id": "bunny",
+      "name": "Fluffy Bunny",
+      "art": "pet_walk",
+      "element": "wood",
+      "base": { "hp": 40, "mp": 12, "attack": 9, "defense": 6, "magic": 6, "speed": 11 },
+      "growth": { "hp": 8, "mp": 2, "attack": 2, "defense": 1, "magic": 1, "speed": 1 },
+      "exp": 7,
+      "gold": 4,
+      "captureRate": 0.55,
+      "skills": ["nibble"]
+    },
+    {
+      "id": "jelly",
+      "name": "Jelly Puff",
+      "art": "monster_jelly",
+      "element": "water",
+      "base": { "hp": 26, "mp": 10, "attack": 6, "defense": 4, "magic": 5, "speed": 6 },
+      "growth": { "hp": 6, "mp": 2, "attack": 1, "defense": 1, "magic": 1, "speed": 1 },
+      "exp": 8,
+      "gold": 5,
+      "captureRate": 0.6,
+      "skills": ["jelly_splash"]
+    },
+    {
+      "id": "pineapple",
+      "name": "Pineapple Sprout",
+      "art": "monster_pineapple",
+      "element": "wood",
+      "base": { "hp": 36, "mp": 8, "attack": 10, "defense": 7, "magic": 4, "speed": 8 },
+      "growth": { "hp": 7, "mp": 1, "attack": 2, "defense": 2, "magic": 1, "speed": 1 },
+      "exp": 13,
+      "gold": 9,
+      "captureRate": 0.45,
+      "skills": ["pine_needles"]
+    },
+    {
+      "id": "bun",
+      "name": "Bouncy Bun",
+      "art": "monster_bun",
+      "element": "earth",
+      "base": { "hp": 50, "mp": 10, "attack": 13, "defense": 9, "magic": 6, "speed": 12 },
+      "growth": { "hp": 9, "mp": 2, "attack": 3, "defense": 2, "magic": 1, "speed": 2 },
+      "exp": 22,
+      "gold": 14,
+      "captureRate": 0.3,
+      "skills": ["bounce"]
+    }
+  ]
+}

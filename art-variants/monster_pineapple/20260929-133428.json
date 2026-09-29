@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "cute little walking pineapple creature with leafy hair and tiny feet, chibi",
+    "prompt_style": "rd_plus__low_res",
+    "width": 40,
+    "height": 40,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790681668,
+    "credit_cost": 2,
+    "balance_cost": 0.025,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 0.155,
+    "request_id": "1c65c02e-895c-456e-a9cd-6cf4dface92a",
+    "outputs_retained_until": 1790768058
+  }
+}

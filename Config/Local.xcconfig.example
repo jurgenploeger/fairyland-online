@@ -1,0 +1,8 @@
+// Copy to Config/Local.xcconfig and fill in your Apple team.
+// Find it in Xcode → Settings → Accounts, or run:
+//   security find-certificate -c "Apple Development" -p | openssl x509 -noout -subject
+// and use the OU= value.
+DEVELOPMENT_TEAM = ABCDE12345
+
+// Bundle IDs must be unique per Apple account; change this if signing complains.
+// BUNDLE_ID_PREFIX = com.yourname

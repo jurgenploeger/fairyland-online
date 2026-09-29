@@ -1,0 +1,20 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "sandy dirt road with small pebbles",
+    "prompt_style": "rd_tile__single_tile",
+    "width": 32,
+    "height": 32
+  },
+  "result": {
+    "created_at": 1790681582,
+    "credit_cost": 2,
+    "balance_cost": 0.025,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 0.31,
+    "request_id": "d996fc0d-d403-441e-ab59-35472285319a",
+    "outputs_retained_until": 1790767975
+  }
+}

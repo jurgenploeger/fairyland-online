@@ -1,0 +1,145 @@
+{
+  "_about": "Skills and spells. kind: physical | magic | heal. target: enemy | allEnemies | ally | allAllies. animation picks the battle effect (slash, whirlwind, fire, stone, leaves, water, heal, holy, wild, needles, bounce, bite); it grows with the skill's level (1-5, raised with skill points). Elements: metal, wood, water, fire, earth, light, dark.",
+  "skills": [
+    {
+      "id": "bash",
+      "name": "Bash",
+      "mp": 3,
+      "kind": "physical",
+      "power": 1.6,
+      "target": "enemy",
+      "description": "A heavy swing.",
+      "animation": "slash"
+    },
+    {
+      "id": "first_aid",
+      "name": "First Aid",
+      "mp": 4,
+      "kind": "heal",
+      "power": 1.2,
+      "target": "ally",
+      "description": "Patch up one ally.",
+      "animation": "heal"
+    },
+    {
+      "id": "power_strike",
+      "name": "Power Strike",
+      "mp": 6,
+      "kind": "physical",
+      "power": 2.4,
+      "target": "enemy",
+      "description": "A crushing blow.",
+      "animation": "slash"
+    },
+    {
+      "id": "whirlwind",
+      "name": "Whirlwind",
+      "mp": 9,
+      "kind": "physical",
+      "power": 1.2,
+      "target": "allEnemies",
+      "description": "Spin and hit every foe.",
+      "animation": "whirlwind"
+    },
+    {
+      "id": "fire_bolt",
+      "name": "Fire Bolt",
+      "mp": 5,
+      "kind": "magic",
+      "element": "fire",
+      "power": 2.2,
+      "target": "enemy",
+      "description": "Fire magic. Melts metal.",
+      "animation": "fire"
+    },
+    {
+      "id": "stone_spike",
+      "name": "Stone Spike",
+      "mp": 6,
+      "kind": "magic",
+      "element": "earth",
+      "power": 2.4,
+      "target": "enemy",
+      "description": "Earth magic. Dams water.",
+      "animation": "stone"
+    },
+    {
+      "id": "leaf_storm",
+      "name": "Leaf Storm",
+      "mp": 10,
+      "kind": "magic",
+      "element": "wood",
+      "power": 1.5,
+      "target": "allEnemies",
+      "description": "Wood magic on every foe. Breaks earth.",
+      "animation": "leaves"
+    },
+    {
+      "id": "blessing",
+      "name": "Blessing",
+      "mp": 12,
+      "kind": "heal",
+      "power": 1.0,
+      "target": "allAllies",
+      "description": "Heal the whole party.",
+      "animation": "holy"
+    },
+    {
+      "id": "wild_call",
+      "name": "Wild Call",
+      "mp": 7,
+      "kind": "physical",
+      "power": 1.3,
+      "target": "allEnemies",
+      "description": "Call the wild to strike every foe.",
+      "animation": "wild"
+    },
+    {
+      "id": "mend_beast",
+      "name": "Mend Beast",
+      "mp": 5,
+      "kind": "heal",
+      "power": 2.0,
+      "target": "ally",
+      "description": "A strong heal, perfect for companions.",
+      "animation": "heal"
+    },
+    {
+      "id": "nibble",
+      "name": "Nibble",
+      "mp": 0,
+      "kind": "physical",
+      "power": 1.3,
+      "target": "enemy",
+      "animation": "bite"
+    },
+    {
+      "id": "jelly_splash",
+      "name": "Jelly Splash",
+      "mp": 0,
+      "kind": "magic",
+      "element": "water",
+      "power": 1.4,
+      "target": "enemy",
+      "animation": "water"
+    },
+    {
+      "id": "pine_needles",
+      "name": "Pine Needles",
+      "mp": 0,
+      "kind": "physical",
+      "power": 0.9,
+      "target": "allEnemies",
+      "animation": "needles"
+    },
+    {
+      "id": "bounce",
+      "name": "Bounce",
+      "mp": 0,
+      "kind": "physical",
+      "power": 1.8,
+      "target": "enemy",
+      "animation": "bounce"
+    }
+  ]
+}

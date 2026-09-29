@@ -1,0 +1,7 @@
+// Shared signing settings. Put your own team in Config/Local.xcconfig
+// (copy Local.xcconfig.example) — that file is git-ignored.
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM =
+BUNDLE_ID_PREFIX = com.jurgenploeger
+
+#include? "Local.xcconfig"

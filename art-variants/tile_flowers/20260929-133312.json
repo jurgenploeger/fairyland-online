@@ -1,0 +1,20 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "green grass with tiny pink and yellow flowers",
+    "prompt_style": "rd_tile__single_tile",
+    "width": 32,
+    "height": 32
+  },
+  "result": {
+    "created_at": 1790681590,
+    "credit_cost": 2,
+    "balance_cost": 0.025,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 0.285,
+    "request_id": "4447f195-7780-4260-9b5a-139d4dec8af3",
+    "outputs_retained_until": 1790767982
+  }
+}

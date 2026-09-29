@@ -1,0 +1,14 @@
+.DS_Store
+
+# Xcode (the project is generated from project.yml)
+Fairyland.xcodeproj/
+xcuserdata/
+DerivedData/
+build/
+
+# Secrets and per-machine config
+.env
+Config/Local.xcconfig
+
+# Python
+__pycache__/

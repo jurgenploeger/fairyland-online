@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "cute blue fluffy puffball bunny monster with tiny horns, chibi",
+    "prompt_style": "rd_plus__low_res",
+    "width": 40,
+    "height": 40,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790681677,
+    "credit_cost": 2,
+    "balance_cost": 0.025,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 0.13,
+    "request_id": "e11f3316-1c97-4f5d-b6bf-1f73218e3513",
+    "outputs_retained_until": 1790768068
+  }
+}
