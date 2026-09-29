@@ -49,6 +49,11 @@ final class WorldMap {
     private(set) var fenceCells: [GridPoint] = []
     /// Each pond's water cells, for lily pads.
     private(set) var ponds: [[GridPoint]] = []
+    /// Town planning results: where each building and bit of street furniture goes.
+    private(set) var lots: [(art: String, anchor: GridPoint)] = []
+    private(set) var streetDecor: [(art: String, cell: GridPoint)] = []
+    /// Raised terraces: their rectangles in grid cells (min corner inclusive), and stair cells.
+    private(set) var terraces: [(origin: GridPoint, width: Int, height: Int, stairs: [GridPoint])] = []
     private var occupied: Set<GridPoint> = []
     private var blocked: Set<GridPoint> = []
     private let graph: GKGridGraph<GKGridGraphNode>
@@ -78,6 +83,7 @@ final class WorldMap {
         var rng = SeededRandom(text: def.id)
         if def.fence == true { layOutTownBorder() }
         for exit in def.exits { carveRoad(to: exit.edge, &rng) }
+        if let town = def.town { planTown(town, &rng) }
         if def.theme.water != nil, let count = def.theme.ponds { digPonds(count, &rng) }
         if def.theme.accent != nil {
             if let patches = def.theme.accentPatches {
@@ -374,6 +380,100 @@ final class WorldMap {
         return (open(0, 1) ? 1 : 0) | (open(1, 0) ? 2 : 0) | (open(0, -1) ? 4 : 0) | (open(-1, 0) ? 8 : 0)
     }
 
+    // MARK: Town planning
+
+    private func planTown(_ town: MapDef.Town, _ rng: inout SeededRandom) {
+        for street in town.streets ?? [] where street.count == 4 {
+            let a = offset(street[0], street[1]), b = offset(street[2], street[3])
+            let steps = max(abs(b.col - a.col), abs(b.row - a.row)) * 3
+            for step in 0...max(1, steps) {
+                let t = CGFloat(step) / CGFloat(max(1, steps))
+                paintRoad(around: CGPoint(x: CGFloat(a.col) + 0.5 + CGFloat(b.col - a.col) * t,
+                                          y: CGFloat(a.row) + 0.5 + CGFloat(b.row - a.row) * t), radius: 1.05)
+            }
+        }
+        if let radius = town.plaza {
+            paintRoad(around: CGPoint(x: CGFloat(center.col) + 0.5, y: CGFloat(center.row) + 0.5), radius: CGFloat(radius) + 0.3)
+        }
+        for terrace in town.terraces ?? [] { raiseTerrace(terrace) }
+
+        // Shops along the streets: a 3×2 plot just off a street, clear of everything else.
+        let frontage = streetFrontage(&rng)
+        var used: Set<GridPoint> = []
+        for art in town.lots ?? [] {
+            guard let anchor = frontage.first(where: { plotFits($0, used: used) }) else { continue }
+            for dc in -2...2 {
+                for dr in -1...2 { used.insert(GridPoint(col: anchor.col + dc, row: anchor.row + dr)) }
+            }
+            for dc in -1...1 {
+                for dr in 0...1 { occupy(GridPoint(col: anchor.col + dc, row: anchor.row + dr), blocking: true) }
+            }
+            lots.append((art, anchor))
+        }
+        // Street furniture on single cells beside the streets.
+        var spots = frontage.filter { isFreeForTownDecor($0) }
+        for (art, count) in (town.streetDecor ?? [:]).sorted(by: { $0.key < $1.key }) {
+            for _ in 0..<count {
+                guard let index = spots.indices.randomElement(using: &rng) else { break }
+                let cell = spots.remove(at: index)
+                guard isFreeForTownDecor(cell) else { continue }
+                occupy(cell, blocking: true)
+                streetDecor.append((art, cell))
+            }
+        }
+    }
+
+    /// Cells one step off a street (on plain ground), shuffled but stable per map.
+    private func streetFrontage(_ rng: inout SeededRandom) -> [GridPoint] {
+        var cells: [GridPoint] = []
+        for row in 1..<(rows - 1) {
+            for col in 1..<(columns - 1) where ground[row][col] == .ground {
+                let touches = [(0, 1), (1, 0), (0, -1), (-1, 0)].contains { ground[row + $0.1][col + $0.0] == .path }
+                if touches { cells.append(GridPoint(col: col, row: row)) }
+            }
+        }
+        // Closer to the centre first, a little shuffled, so the busiest shops sit near the plaza.
+        return cells.map { ($0, Double(abs($0.col - center.col) + abs($0.row - center.row)) + Double.random(in: 0..<6, using: &rng)) }
+            .sorted { $0.1 < $1.1 }
+            .map(\.0)
+    }
+
+    private func plotFits(_ anchor: GridPoint, used: Set<GridPoint>) -> Bool {
+        for dc in -1...1 {
+            for dr in 0...1 {
+                let cell = GridPoint(col: anchor.col + dc, row: anchor.row + dr)
+                guard contains(cell), ground[cell.row][cell.col] == .ground, !occupied.contains(cell), !used.contains(cell) else { return false }
+            }
+        }
+        return max(abs(anchor.col - center.col), abs(anchor.row - center.row)) > 3
+    }
+
+    private func isFreeForTownDecor(_ cell: GridPoint) -> Bool {
+        contains(cell) && ground[cell.row][cell.col] == .ground && !occupied.contains(cell)
+            && !(-1...1).contains { dc in (-1...1).contains { dr in occupied.contains(GridPoint(col: cell.col + dc, row: cell.row + dr)) } }
+    }
+
+    /// A raised stone terrace: its edges are walls (railings along the back), with stairs in
+    /// the middle of the front and one side. The walls block; the top is walkable.
+    private func raiseTerrace(_ terrace: MapDef.Terrace) {
+        let origin = offset(terrace.x, terrace.y)
+        let stairs = [GridPoint(col: origin.col + terrace.width / 2, row: origin.row),
+                      GridPoint(col: origin.col, row: origin.row + terrace.height / 2)]
+        for col in origin.col..<(origin.col + terrace.width) {
+            for row in origin.row..<(origin.row + terrace.height) {
+                let cell = GridPoint(col: col, row: row)
+                guard contains(cell) else { continue }
+                let onEdge = col == origin.col || row == origin.row || col == origin.col + terrace.width - 1 || row == origin.row + terrace.height - 1
+                if onEdge, !stairs.contains(cell) {
+                    occupy(cell, blocking: true)
+                } else if ground[row][col] == .ground {
+                    ground[row][col] = .accent   // the terrace top is paved
+                }
+            }
+        }
+        terraces.append((origin, terrace.width, terrace.height, stairs))
+    }
+
     private func scatterAccents(_ rng: inout SeededRandom) {
         for row in 0..<rows {
             for col in 0..<columns where ground[row][col] == .ground && Double.random(in: 0..<1, using: &rng) < 0.06 {
@@ -446,7 +546,10 @@ final class WorldMap {
 
     /// One pixel per tile, for the map screen.
     func overviewImage() -> CGImage {
+        // First match wins, so more specific names come first.
         let tileColors: [(String, UInt32)] = [
+            ("snow_path", 0xC9D6E8), ("snow", 0xF2F6FA), ("cave_rock", 0x2B2F3A), ("cave", 0x4A4F5C), ("scree", 0x8C9099),
+            ("desert", 0xE8C872), ("swamp", 0x5F6B32), ("forest", 0x3F7A3A),
             ("dark", 0x2E5E5A), ("sand", 0xF2D78F), ("shell", 0xF2D78F), ("town", 0xD8CDBB), ("path", 0xD9B77A),
         ]
         func color(forTile id: String) -> PixelColor {
@@ -460,7 +563,7 @@ final class WorldMap {
                 var pixel: PixelColor = switch ground[row][col] {
                 case .ground: color(forTile: theme.ground)
                 case .accent: color(forTile: theme.accent ?? theme.ground).shaded(1.08)
-                case .path: PixelColor(0xE8C98C)
+                case .path: theme.path == "tile_path" ? PixelColor(0xE8C98C) : color(forTile: theme.path).shaded(1.15)
                 case .border: color(forTile: theme.border ?? theme.ground)
                 case .water: PixelColor(0x4FA3E0)
                 }

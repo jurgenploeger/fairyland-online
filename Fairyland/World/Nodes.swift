@@ -80,7 +80,10 @@ enum IdleMotion: String {
         let jump = max(4, height * 0.14)
         let loop: SKAction = switch self {
         case .breathe:
-            .sequence([scale(x: 0.98, y: 1.04, 0.9), scale(x: 1, y: 1, 0.9)])
+            .sequence([
+                .group([scale(x: 0.98, y: 1.05, 0.9), ease(.moveBy(x: 0, y: 1, duration: 0.9))]),
+                .group([scale(x: 1, y: 1, 0.9), ease(.moveBy(x: 0, y: -1, duration: 0.9))]),
+            ])
         case .squish:
             .sequence([scale(x: 1.1, y: 0.86, 0.35), scale(x: 0.96, y: 1.06, 0.3), scale(x: 1, y: 1, 0.25), .wait(forDuration: 0.35)])
         case .hop:

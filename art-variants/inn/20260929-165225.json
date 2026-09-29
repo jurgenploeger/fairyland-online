@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "fairytale inn with a bed sign, warm windows and a purple roof",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 96,
+    "height": 96,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790693544,
+    "credit_cost": 2,
+    "balance_cost": 0.038,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 53.288,
+    "request_id": "d5aa74d6-b718-48ef-93ec-94bde5c4726a",
+    "outputs_retained_until": 1790779911
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "ornate carved stone balustrade railing segment with round posts",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 64,
+    "height": 48,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790693690,
+    "credit_cost": 2,
+    "balance_cost": 0.028,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 53.037,
+    "request_id": "b98c726d-1f12-4667-8b32-23d92401e12e",
+    "outputs_retained_until": 1790780078
+  }
+}

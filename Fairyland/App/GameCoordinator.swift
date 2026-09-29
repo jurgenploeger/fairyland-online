@@ -139,6 +139,20 @@ final class GameCoordinator {
         isReady = true
     }
 
+    /// The boss you're fighting, so it disappears from the map once beaten.
+    private var boss: NPCDef?
+
+    func fightBoss(_ npc: NPCDef) {
+        guard let controller = BattleController.boss(npc, session: session) else { return }
+        overlay = nil
+        controller.onFinish = { [weak self] outcome in self?.endBattle(outcome) }
+        battleScene = BattleScene(controller: controller, size: world.size, backdrop: nil)
+        input.move = .zero
+        boss = npc
+        battle = controller
+        isReady = true
+    }
+
     /// From the adventurer card: befriend, invite along, or challenge.
     func befriend(_ adventurer: Adventurer) {
         if session.befriend(adventurer) {
@@ -160,6 +174,8 @@ final class GameCoordinator {
         battleScene = nil
         if let rival, outcome == .victory { world.dismissAdventurer(rival.id) }
         rival = nil
+        if let boss, outcome == .victory { session.defeatBoss(boss) }
+        boss = nil
         if outcome == .defeat, let map = Content.shared.map(session.checkpoint.mapID) {
             // Fainted: wake up at the checkpoint.
             go(to: map, entry: session.checkpoint.entry)

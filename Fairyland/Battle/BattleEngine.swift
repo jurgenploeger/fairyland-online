@@ -165,7 +165,8 @@ final class BattleEngine {
 
     /// A nearly beaten monster on its own may bolt.
     private func fleeChance(of monster: Combatant) -> Double {
-        guard alive(on: .enemies).count == 1, monster.hpFraction <= Self.captureThreshold else { return 0 }
+        // Bosses (who can't be captured) stand their ground.
+        guard monster.captureRate > 0, alive(on: .enemies).count == 1, monster.hpFraction <= Self.captureThreshold else { return 0 }
         let panic = (Self.captureThreshold - monster.hpFraction) / Self.captureThreshold
         return min(0.4, 0.05 + 0.15 * panic + 0.02 * Double(round))
     }

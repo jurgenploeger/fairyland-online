@@ -7,6 +7,7 @@ import Foundation
 ///   level=5        start at a level
 ///   hp=0.2         start with this fraction of HP left
 ///   map=<id>       start on a map from content/maps.json
+///   at=x_y         start at this offset from the map's centre (e.g. at=0_14)
 ///   battle         start in a random battle on the current map
 ///   menu=<tab>     open character | companions | bag | quests
 ///   npc=<id>       open an NPC dialog
@@ -42,6 +43,14 @@ enum DebugLaunch {
         }
         if let map = flags["map"], Content.shared.map(map) != nil {
             session.data.mapID = map
+        }
+        if let at = flags["at"]?.split(separator: ";").first ?? flags["at"].map({ Substring($0) }),
+           let def = Content.shared.map(session.data.mapID) {
+            let parts = at.split(separator: "_").compactMap { Int($0) }
+            if parts.count == 2 {
+                let grid = WorldMap(def: def)
+                session.playerPosition = grid.center(of: grid.offset(parts[0], parts[1]))
+            }
         }
         return session
     }

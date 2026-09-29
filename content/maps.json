@@ -5,13 +5,16 @@
     {
       "id": "meadowbrook",
       "name": "Meadowbrook",
-      "crowd": { "adventurers": 4, "villagers": 7 },
-      "width": 44,
-      "height": 32,
+      "crowd": {
+        "adventurers": 6,
+        "villagers": 10
+      },
+      "width": 64,
+      "height": 48,
       "music": "town",
       "theme": {
-        "ground": "tile_town",
-        "path": "tile_path",
+        "ground": "tile_grass",
+        "path": "tile_town",
         "border": "tile_grass",
         "props": [
           {
@@ -33,7 +36,9 @@
             "count": 10,
             "blocking": false
           }
-        ]
+        ],
+        "accent": "tile_scree",
+        "accentPatches": 0
       },
       "fence": true,
       "exits": [
@@ -44,12 +49,12 @@
       ],
       "buildings": [
         {
-          "art": "house",
+          "art": "inn",
           "x": -7,
           "y": 5
         },
         {
-          "art": "house",
+          "art": "item_shop",
           "x": 7,
           "y": 5
         },
@@ -82,6 +87,16 @@
           "art": "house",
           "x": 14,
           "y": -8
+        },
+        {
+          "art": "windmill",
+          "x": 0,
+          "y": 18
+        },
+        {
+          "art": "magic_tower",
+          "x": -14,
+          "y": -19
         }
       ],
       "decor": [
@@ -99,14 +114,14 @@
         },
         {
           "art": "blossom_tree",
-          "x": -11,
-          "y": 1,
+          "x": -15,
+          "y": 2,
           "blocking": true
         },
         {
           "art": "blossom_tree",
-          "x": 11,
-          "y": -1,
+          "x": 15,
+          "y": -2,
           "blocking": true
         },
         {
@@ -244,12 +259,105 @@
         "butterflies": 8,
         "clouds": true,
         "vignette": 0.15
+      },
+      "town": {
+        "streets": [
+          [
+            -29,
+            0,
+            0,
+            0
+          ],
+          [
+            -24,
+            13,
+            24,
+            13
+          ],
+          [
+            -24,
+            -13,
+            24,
+            -13
+          ],
+          [
+            -24,
+            -13,
+            -24,
+            13
+          ],
+          [
+            24,
+            -13,
+            24,
+            13
+          ],
+          [
+            -11,
+            -13,
+            -11,
+            13
+          ],
+          [
+            11,
+            -13,
+            11,
+            13
+          ],
+          [
+            0,
+            1,
+            0,
+            13
+          ],
+          [
+            0,
+            -13,
+            0,
+            -1
+          ]
+        ],
+        "plaza": 3,
+        "lots": [
+          "blacksmith",
+          "bakery",
+          "mushroom_house",
+          "mushroom_house",
+          "house",
+          "house",
+          "house",
+          "inn",
+          "item_shop",
+          "mushroom_house"
+        ],
+        "streetDecor": {
+          "street_lamp": 16,
+          "flower_planter": 10,
+          "bench": 6,
+          "market_stall": 5
+        },
+        "terraces": [
+          {
+            "x": -8,
+            "y": 16,
+            "width": 16,
+            "height": 5
+          },
+          {
+            "x": -20,
+            "y": -21,
+            "width": 12,
+            "height": 5
+          }
+        ]
       }
     },
     {
       "id": "sunny_meadow",
       "name": "Sunny Meadow",
-      "crowd": { "adventurers": 5 },
+      "crowd": {
+        "adventurers": 5
+      },
       "width": 110,
       "height": 80,
       "music": "meadow",
@@ -321,6 +429,11 @@
           "edge": "east",
           "to": "twilight_woods",
           "requires": "pineapple_harvest"
+        },
+        {
+          "edge": "south",
+          "to": "frog_swamp",
+          "requires": "new_friend"
         }
       ],
       "encounters": {
@@ -337,7 +450,9 @@
         "monsters": {
           "jelly": 7,
           "bunny": 3,
-          "sakura_bunny": 1
+          "sakura_bunny": 1,
+          "golden_hamster": 2,
+          "yellow_butterfly": 2
         }
       },
       "ambience": {
@@ -352,7 +467,9 @@
     {
       "id": "pineapple_shore",
       "name": "Pineapple Shore",
-      "crowd": { "adventurers": 4 },
+      "crowd": {
+        "adventurers": 4
+      },
       "width": 100,
       "height": 72,
       "music": "shore",
@@ -388,6 +505,11 @@
         {
           "edge": "south",
           "to": "sunny_meadow"
+        },
+        {
+          "edge": "north",
+          "to": "smiling_forest",
+          "requires": "pineapple_harvest"
         }
       ],
       "encounters": {
@@ -405,7 +527,9 @@
           "pineapple": 6,
           "jelly": 2,
           "frost_puff": 1,
-          "dragonfruit": 1
+          "dragonfruit": 1,
+          "wood_crab": 3,
+          "mud_eagle": 2
         }
       },
       "ambience": {
@@ -420,7 +544,9 @@
     {
       "id": "twilight_woods",
       "name": "Twilight Woods",
-      "crowd": { "adventurers": 5 },
+      "crowd": {
+        "adventurers": 5
+      },
       "danger": true,
       "width": 100,
       "height": 80,
@@ -462,6 +588,11 @@
         {
           "edge": "west",
           "to": "sunny_meadow"
+        },
+        {
+          "edge": "south",
+          "to": "valley_of_fear",
+          "requires": "bouncy_menace"
         }
       ],
       "encounters": {
@@ -481,7 +612,10 @@
           "night_bun": 1,
           "ember_puff": 1,
           "cotton_bun": 1,
-          "pineapple": 1
+          "pineapple": 1,
+          "werewolf": 3,
+          "dark_beetle": 2,
+          "night_monkey": 2
         }
       },
       "ambience": {
@@ -490,6 +624,1059 @@
         "tint": "#2E1F5E",
         "tintAlpha": 0.3,
         "vignette": 0.45
+      }
+    },
+    {
+      "id": "smiling_forest",
+      "name": "Smiling Forest",
+      "width": 110,
+      "height": 80,
+      "music": "meadow",
+      "crowd": {
+        "adventurers": 5
+      },
+      "theme": {
+        "ground": "tile_forest_floor",
+        "path": "tile_path",
+        "accent": "tile_flowers",
+        "accentPatches": 30,
+        "water": "tile_water",
+        "ponds": 5,
+        "fairyRings": {
+          "count": 6,
+          "art": "mushroom"
+        },
+        "props": [
+          {
+            "art": "tree",
+            "count": 360,
+            "blocking": true,
+            "cluster": 12,
+            "sway": true
+          },
+          {
+            "art": "blossom_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "giant_mushroom",
+            "count": 40,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "mushroom",
+            "count": 120,
+            "blocking": false,
+            "cluster": 5
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "south",
+          "to": "pineapple_shore"
+        },
+        {
+          "edge": "north",
+          "to": "rainbow_city"
+        },
+        {
+          "edge": "east",
+          "to": "snow_white_forest",
+          "requires": "dragon_hangover"
+        }
+      ],
+      "encounters": {
+        "rate": 0.075,
+        "graceSteps": 6,
+        "levels": [
+          5,
+          9
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "wood_monkey": 4,
+          "tree_snake": 3,
+          "flame_sheep": 2,
+          "wood_hog": 2,
+          "hedgehog": 2,
+          "red_butterfly": 1,
+          "shadow_wood_monkey": 1,
+          "sunny_tree_snake": 1,
+          "mint_flame_sheep": 1,
+          "violet_wood_hog": 1
+        }
+      },
+      "ambience": {
+        "particles": "leaves",
+        "butterflies": 10,
+        "clouds": true,
+        "vignette": 0.2
+      }
+    },
+    {
+      "id": "rainbow_city",
+      "name": "Rainbow City",
+      "width": 70,
+      "height": 54,
+      "music": "town",
+      "fence": true,
+      "crowd": {
+        "adventurers": 8,
+        "villagers": 10
+      },
+      "theme": {
+        "ground": "tile_grass",
+        "path": "tile_town",
+        "border": "tile_grass",
+        "accent": "tile_scree",
+        "props": [
+          {
+            "art": "blossom_tree",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true
+          },
+          {
+            "art": "tree",
+            "count": 30,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          }
+        ],
+        "accentPatches": 0
+      },
+      "town": {
+        "streets": [
+          [
+            -26,
+            11,
+            26,
+            11
+          ],
+          [
+            -26,
+            -11,
+            26,
+            -11
+          ],
+          [
+            -26,
+            -11,
+            -26,
+            11
+          ],
+          [
+            26,
+            -11,
+            26,
+            11
+          ],
+          [
+            -13,
+            -11,
+            -13,
+            11
+          ],
+          [
+            13,
+            -11,
+            13,
+            11
+          ],
+          [
+            -26,
+            0,
+            26,
+            0
+          ]
+        ],
+        "plaza": 4,
+        "lots": [
+          "item_shop",
+          "inn",
+          "blacksmith",
+          "bakery",
+          "magic_tower",
+          "mushroom_house",
+          "house",
+          "house",
+          "house",
+          "house",
+          "windmill",
+          "mushroom_house"
+        ],
+        "streetDecor": {
+          "street_lamp": 20,
+          "flower_planter": 12,
+          "bench": 8,
+          "market_stall": 8
+        },
+        "terraces": [
+          {
+            "x": -9,
+            "y": 14,
+            "width": 18,
+            "height": 7
+          }
+        ]
+      },
+      "buildings": [
+        {
+          "art": "guild_hall",
+          "x": 0,
+          "y": 17
+        }
+      ],
+      "decor": [
+        {
+          "art": "fountain",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "exits": [
+        {
+          "edge": "south",
+          "to": "smiling_forest"
+        }
+      ],
+      "npcs": [
+        {
+          "id": "rainbow_healer",
+          "name": "Healer Lily",
+          "role": "healer",
+          "art": "npc_healer",
+          "x": -6,
+          "y": 3,
+          "greeting": "Welcome to Rainbow City! Rest a while, adventurer."
+        },
+        {
+          "id": "rainbow_shop",
+          "name": "Rainbow Market",
+          "role": "shop",
+          "art": "npc_trader",
+          "x": 6,
+          "y": 3,
+          "greeting": "The finest goods this side of the rainbow!",
+          "stock": [
+            "potion",
+            "hi_potion",
+            "ether",
+            "hi_ether",
+            "seal_stone",
+            "steel_sword",
+            "elder_staff",
+            "beast_whip",
+            "iron_plate",
+            "mage_robe",
+            "tamer_jacket",
+            "star_charm",
+            "power_band"
+          ]
+        },
+        {
+          "id": "mayor",
+          "name": "Mayor Poppy",
+          "role": "quests",
+          "art": "npc_mayor",
+          "x": 3,
+          "y": -4,
+          "greeting": "Oh! You came all the way through the Smiling Forest? Splendid!"
+        }
+      ]
+    },
+    {
+      "id": "snow_white_forest",
+      "name": "Snow White Forest",
+      "width": 100,
+      "height": 80,
+      "music": "snow",
+      "crowd": {
+        "adventurers": 3
+      },
+      "theme": {
+        "ground": "tile_snow",
+        "path": "tile_snow_path",
+        "accent": "tile_grass",
+        "accentPatches": 20,
+        "water": "tile_water",
+        "ponds": 4,
+        "props": [
+          {
+            "art": "snow_tree",
+            "count": 280,
+            "blocking": true,
+            "cluster": 10,
+            "sway": true
+          },
+          {
+            "art": "snow_pine",
+            "count": 200,
+            "blocking": true,
+            "cluster": 10
+          },
+          {
+            "art": "boulder",
+            "count": 30,
+            "blocking": true,
+            "cluster": 2
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "west",
+          "to": "smiling_forest"
+        }
+      ],
+      "npcs": [
+        {
+          "id": "wolf_den",
+          "name": "Big Bad Wolf",
+          "role": "boss",
+          "art": "boss_big_bad_wolf",
+          "x": 12,
+          "y": 18,
+          "greeting": "Grrr… what big eyes you have. All the better to FIGHT you with!",
+          "monster": "big_bad_wolf",
+          "level": 28
+        }
+      ],
+      "encounters": {
+        "rate": 0.075,
+        "graceSteps": 6,
+        "levels": [
+          22,
+          28
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "fire_bear": 3,
+          "pegasus": 2,
+          "phantom": 3,
+          "snowman": 3,
+          "frost_bear": 2,
+          "starry_fire_bear": 1,
+          "rosy_pegasus": 1,
+          "shadow_snowman": 1
+        }
+      },
+      "ambience": {
+        "particles": "snow",
+        "clouds": true,
+        "tint": "#B8D8FF",
+        "tintAlpha": 0.12,
+        "vignette": 0.2
+      }
+    },
+    {
+      "id": "frog_swamp",
+      "name": "Frog Swamp",
+      "width": 100,
+      "height": 72,
+      "music": "woods",
+      "crowd": {
+        "adventurers": 3
+      },
+      "theme": {
+        "ground": "tile_swamp",
+        "path": "tile_path",
+        "accent": "tile_dark_grass",
+        "accentPatches": 30,
+        "water": "tile_water",
+        "ponds": 14,
+        "props": [
+          {
+            "art": "reeds",
+            "count": 220,
+            "blocking": false,
+            "cluster": 8,
+            "sway": true
+          },
+          {
+            "art": "dead_tree",
+            "count": 120,
+            "blocking": true,
+            "cluster": 6
+          },
+          {
+            "art": "glow_mushroom",
+            "count": 60,
+            "blocking": false,
+            "cluster": 4
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "north",
+          "to": "sunny_meadow"
+        },
+        {
+          "edge": "east",
+          "to": "valley_of_fear",
+          "requires": "swamp_song"
+        }
+      ],
+      "encounters": {
+        "rate": 0.075,
+        "graceSteps": 6,
+        "levels": [
+          7,
+          11
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "treefrog": 4,
+          "water_slug": 3,
+          "mud_slime": 2,
+          "fire_crab": 1,
+          "ember_puff": 1,
+          "crimson_treefrog": 1,
+          "starry_water_slug": 1
+        }
+      },
+      "ambience": {
+        "particles": "fireflies",
+        "clouds": false,
+        "tint": "#4E5B2A",
+        "tintAlpha": 0.18,
+        "vignette": 0.3
+      }
+    },
+    {
+      "id": "valley_of_fear",
+      "name": "Valley of Fear",
+      "width": 100,
+      "height": 80,
+      "music": "woods",
+      "crowd": {
+        "adventurers": 4
+      },
+      "danger": true,
+      "theme": {
+        "ground": "tile_dark_grass",
+        "path": "tile_path",
+        "accent": "tile_scree",
+        "accentPatches": 30,
+        "props": [
+          {
+            "art": "dead_tree",
+            "count": 240,
+            "blocking": true,
+            "cluster": 12
+          },
+          {
+            "art": "dark_tree",
+            "count": 200,
+            "blocking": true,
+            "cluster": 10,
+            "sway": true
+          },
+          {
+            "art": "boulder",
+            "count": 60,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "skull_bones",
+            "count": 30,
+            "blocking": false
+          },
+          {
+            "art": "glow_mushroom",
+            "count": 40,
+            "blocking": false,
+            "cluster": 4
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "north",
+          "to": "twilight_woods"
+        },
+        {
+          "edge": "west",
+          "to": "frog_swamp"
+        },
+        {
+          "edge": "east",
+          "to": "rat_cavern"
+        },
+        {
+          "edge": "south",
+          "to": "goldburg",
+          "requires": "rat_king"
+        }
+      ],
+      "encounters": {
+        "rate": 0.075,
+        "graceSteps": 6,
+        "levels": [
+          10,
+          15
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "wisp": 3,
+          "earth_lion": 3,
+          "red_bull": 2,
+          "black_bull": 2,
+          "light_mouse": 2,
+          "night_monkey": 2,
+          "rosy_wisp": 1,
+          "frosted_earth_lion": 1,
+          "shadow_red_bull": 1
+        }
+      },
+      "ambience": {
+        "particles": "fireflies",
+        "clouds": false,
+        "tint": "#3A2E4A",
+        "tintAlpha": 0.28,
+        "vignette": 0.4
+      }
+    },
+    {
+      "id": "rat_cavern",
+      "name": "Rat Cavern",
+      "width": 80,
+      "height": 60,
+      "music": "cave",
+      "crowd": {
+        "adventurers": 2
+      },
+      "theme": {
+        "ground": "tile_cave_floor",
+        "path": "tile_scree",
+        "accent": "tile_cave_rock",
+        "accentPatches": 40,
+        "water": "tile_water",
+        "ponds": 5,
+        "props": [
+          {
+            "art": "stalagmite",
+            "count": 300,
+            "blocking": true,
+            "cluster": 6
+          },
+          {
+            "art": "boulder",
+            "count": 80,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "crystal",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "mine_cart",
+            "count": 10,
+            "blocking": true
+          },
+          {
+            "art": "skull_bones",
+            "count": 20,
+            "blocking": false
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "west",
+          "to": "valley_of_fear"
+        }
+      ],
+      "npcs": [
+        {
+          "id": "rat_throne",
+          "name": "Rat King",
+          "role": "boss",
+          "art": "boss_rat_king",
+          "x": 0,
+          "y": 16,
+          "greeting": "Squeak! Who dares enter MY cavern? Bow to the king!",
+          "monster": "rat_king",
+          "level": 18
+        }
+      ],
+      "encounters": {
+        "rate": 0.075,
+        "graceSteps": 6,
+        "levels": [
+          13,
+          18
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "fire_rat": 4,
+          "earth_snake": 3,
+          "mud_slime": 2,
+          "dark_beetle": 2,
+          "sunny_fire_rat": 1
+        }
+      },
+      "ambience": {
+        "particles": "motes",
+        "clouds": false,
+        "tint": "#101828",
+        "tintAlpha": 0.45,
+        "vignette": 0.65
+      }
+    },
+    {
+      "id": "goldburg",
+      "name": "Goldburg",
+      "width": 64,
+      "height": 50,
+      "music": "town",
+      "fence": true,
+      "crowd": {
+        "adventurers": 6,
+        "villagers": 8
+      },
+      "theme": {
+        "ground": "tile_desert",
+        "path": "tile_scree",
+        "border": "tile_scree",
+        "accent": "tile_cave_floor",
+        "props": [
+          {
+            "art": "boulder",
+            "count": 24,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "mine_cart",
+            "count": 8,
+            "blocking": true
+          }
+        ],
+        "accentPatches": 0
+      },
+      "town": {
+        "streets": [
+          [
+            -24,
+            12,
+            24,
+            12
+          ],
+          [
+            -24,
+            -12,
+            24,
+            -12
+          ],
+          [
+            -24,
+            -12,
+            -24,
+            12
+          ],
+          [
+            24,
+            -12,
+            24,
+            12
+          ],
+          [
+            0,
+            -12,
+            0,
+            12
+          ],
+          [
+            -29,
+            0,
+            29,
+            0
+          ]
+        ],
+        "plaza": 3,
+        "lots": [
+          "blacksmith",
+          "blacksmith",
+          "inn",
+          "item_shop",
+          "house",
+          "house",
+          "house",
+          "mushroom_house"
+        ],
+        "streetDecor": {
+          "street_lamp": 12,
+          "mine_cart": 6,
+          "market_stall": 4,
+          "bench": 4
+        },
+        "terraces": [
+          {
+            "x": -22,
+            "y": 15,
+            "width": 14,
+            "height": 5
+          },
+          {
+            "x": 6,
+            "y": 15,
+            "width": 16,
+            "height": 5
+          },
+          {
+            "x": -22,
+            "y": -20,
+            "width": 14,
+            "height": 5
+          },
+          {
+            "x": 6,
+            "y": -20,
+            "width": 16,
+            "height": 5
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "north",
+          "to": "valley_of_fear"
+        },
+        {
+          "edge": "east",
+          "to": "genie_desert"
+        },
+        {
+          "edge": "south",
+          "to": "crystal_mountain",
+          "requires": "dragon_hangover"
+        }
+      ],
+      "npcs": [
+        {
+          "id": "goldburg_healer",
+          "name": "Healer Brunhild",
+          "role": "healer",
+          "art": "npc_healer",
+          "x": -6,
+          "y": 3,
+          "greeting": "Hammer-bruised? Sit down, I'll patch you up."
+        },
+        {
+          "id": "goldburg_shop",
+          "name": "Dwarven Forge",
+          "role": "shop",
+          "art": "npc_trader",
+          "x": 6,
+          "y": 3,
+          "greeting": "Forged in Goldburg, built to last a thousand years!",
+          "stock": [
+            "hi_potion",
+            "hi_ether",
+            "seal_stone",
+            "battle_axe",
+            "star_wand",
+            "wild_horn",
+            "dragon_mail",
+            "snow_cloak",
+            "speed_boots"
+          ]
+        },
+        {
+          "id": "chief",
+          "name": "Chief Brom",
+          "role": "quests",
+          "art": "npc_chief",
+          "x": 3,
+          "y": -4,
+          "greeting": "You cleared the cavern? Then Goldburg owes you one, friend."
+        }
+      ],
+      "ambience": {
+        "particles": "dust",
+        "clouds": false,
+        "tint": "#FFB060",
+        "tintAlpha": 0.08,
+        "vignette": 0.2
+      }
+    },
+    {
+      "id": "genie_desert",
+      "name": "Genie Desert",
+      "width": 110,
+      "height": 80,
+      "music": "desert",
+      "crowd": {
+        "adventurers": 3
+      },
+      "theme": {
+        "ground": "tile_desert",
+        "path": "tile_path",
+        "accent": "tile_sand",
+        "accentPatches": 30,
+        "water": "tile_water",
+        "ponds": 4,
+        "props": [
+          {
+            "art": "cactus",
+            "count": 160,
+            "blocking": true,
+            "cluster": 4
+          },
+          {
+            "art": "palm_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "boulder",
+            "count": 60,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "skull_bones",
+            "count": 40,
+            "blocking": false
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "west",
+          "to": "goldburg"
+        }
+      ],
+      "npcs": [
+        {
+          "id": "dragon_oasis",
+          "name": "Drunk Dragon",
+          "role": "boss",
+          "art": "boss_drunk_dragon",
+          "x": 18,
+          "y": 12,
+          "greeting": "*hic* Heyyy… you wanna piece of this? *hic*",
+          "monster": "drunk_dragon",
+          "level": 24
+        }
+      ],
+      "encounters": {
+        "rate": 0.075,
+        "graceSteps": 6,
+        "levels": [
+          17,
+          23
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "black_widow": 3,
+          "black_lizard": 3,
+          "light_snake": 2,
+          "light_hedgehog": 2,
+          "mint_black_widow": 1,
+          "violet_black_lizard": 1
+        }
+      },
+      "ambience": {
+        "particles": "dust",
+        "clouds": false,
+        "tint": "#FFC870",
+        "tintAlpha": 0.1,
+        "vignette": 0.2
+      }
+    },
+    {
+      "id": "crystal_mountain",
+      "name": "Crystal Mountain",
+      "width": 100,
+      "height": 80,
+      "music": "cave",
+      "crowd": {
+        "adventurers": 3
+      },
+      "theme": {
+        "ground": "tile_scree",
+        "path": "tile_path",
+        "accent": "tile_cave_floor",
+        "accentPatches": 30,
+        "props": [
+          {
+            "art": "boulder",
+            "count": 220,
+            "blocking": true,
+            "cluster": 8
+          },
+          {
+            "art": "crystal",
+            "count": 160,
+            "blocking": true,
+            "cluster": 5
+          },
+          {
+            "art": "stalagmite",
+            "count": 80,
+            "blocking": true,
+            "cluster": 4
+          },
+          {
+            "art": "mine_cart",
+            "count": 12,
+            "blocking": true
+          },
+          {
+            "art": "snow_pine",
+            "count": 40,
+            "blocking": true,
+            "cluster": 5
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "north",
+          "to": "goldburg"
+        },
+        {
+          "edge": "south",
+          "to": "moonglow",
+          "requires": "crystal_hearts"
+        }
+      ],
+      "encounters": {
+        "rate": 0.075,
+        "graceSteps": 6,
+        "levels": [
+          21,
+          27
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "floating_stone": 3,
+          "golden_cloud": 3,
+          "gem_crawler": 2,
+          "mining_lizard": 2,
+          "amber_floating_stone": 1,
+          "azure_golden_cloud": 1,
+          "crimson_gem_crawler": 1
+        }
+      },
+      "ambience": {
+        "particles": "sparkles",
+        "clouds": true,
+        "tint": "#8EA0C8",
+        "tintAlpha": 0.12,
+        "vignette": 0.3
+      }
+    },
+    {
+      "id": "moonglow",
+      "name": "Moonglow",
+      "width": 90,
+      "height": 70,
+      "music": "snow",
+      "crowd": {
+        "adventurers": 3
+      },
+      "theme": {
+        "ground": "tile_scree",
+        "path": "tile_snow_path",
+        "accent": "tile_snow",
+        "accentPatches": 40,
+        "props": [
+          {
+            "art": "crystal",
+            "count": 200,
+            "blocking": true,
+            "cluster": 6
+          },
+          {
+            "art": "boulder",
+            "count": 100,
+            "blocking": true,
+            "cluster": 4
+          },
+          {
+            "art": "snow_pine",
+            "count": 60,
+            "blocking": true,
+            "cluster": 5
+          },
+          {
+            "art": "stalagmite",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3
+          }
+        ]
+      },
+      "exits": [
+        {
+          "edge": "north",
+          "to": "crystal_mountain"
+        }
+      ],
+      "encounters": {
+        "rate": 0.075,
+        "graceSteps": 6,
+        "levels": [
+          26,
+          32
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "gem_crawler": 3,
+          "poison_skeleton": 3,
+          "black_kong": 3,
+          "snowman": 2,
+          "sunny_poison_skeleton": 1,
+          "mint_black_kong": 1
+        }
+      },
+      "ambience": {
+        "particles": "snow",
+        "clouds": false,
+        "tint": "#5060A0",
+        "tintAlpha": 0.25,
+        "vignette": 0.4
       }
     }
   ]

@@ -156,6 +156,148 @@
       "power": 1.8,
       "target": "enemy",
       "animation": "bounce"
+    },
+    {
+      "id": "golden_spin",
+      "icon": "sparkles",
+      "name": "Golden Spin",
+      "mp": 0,
+      "kind": "physical",
+      "power": 1.5,
+      "target": "enemy",
+      "description": "A dazzling spinning tackle.",
+      "animation": "whirlwind",
+      "element": "metal"
+    },
+    {
+      "id": "flash",
+      "icon": "sun",
+      "name": "Flash",
+      "mp": 0,
+      "kind": "magic",
+      "power": 1.5,
+      "target": "enemy",
+      "description": "A burst of blinding light.",
+      "animation": "holy",
+      "element": "light"
+    },
+    {
+      "id": "shadow_bite",
+      "icon": "tooth",
+      "name": "Shadow Bite",
+      "mp": 0,
+      "kind": "magic",
+      "power": 1.6,
+      "target": "enemy",
+      "description": "Fangs made of darkness.",
+      "animation": "bite",
+      "element": "dark"
+    },
+    {
+      "id": "ember",
+      "icon": "flame",
+      "name": "Ember",
+      "mp": 0,
+      "kind": "magic",
+      "power": 1.5,
+      "target": "enemy",
+      "description": "A little ball of fire.",
+      "animation": "fire",
+      "element": "fire"
+    },
+    {
+      "id": "mud_shot",
+      "icon": "mountain",
+      "name": "Mud Shot",
+      "mp": 0,
+      "kind": "magic",
+      "power": 1.5,
+      "target": "enemy",
+      "description": "A splat of heavy mud.",
+      "animation": "stone",
+      "element": "earth"
+    },
+    {
+      "id": "vine_whip",
+      "icon": "leaf",
+      "name": "Vine Whip",
+      "mp": 0,
+      "kind": "physical",
+      "power": 1.6,
+      "target": "enemy",
+      "description": "Lashes with a leafy vine.",
+      "animation": "leaves",
+      "element": "wood"
+    },
+    {
+      "id": "bubble",
+      "icon": "droplet",
+      "name": "Bubble",
+      "mp": 0,
+      "kind": "magic",
+      "power": 1.4,
+      "target": "enemy",
+      "description": "Pops a bubble in your face.",
+      "animation": "water",
+      "element": "water"
+    },
+    {
+      "id": "web_shot",
+      "icon": "pine-tree",
+      "name": "Web Shot",
+      "mp": 0,
+      "kind": "physical",
+      "power": 1.0,
+      "target": "allEnemies",
+      "description": "Sprays sticky webs everywhere.",
+      "animation": "needles",
+      "element": "dark"
+    },
+    {
+      "id": "frost_breath",
+      "icon": "droplet",
+      "name": "Frost Breath",
+      "mp": 0,
+      "kind": "magic",
+      "power": 1.2,
+      "target": "allEnemies",
+      "description": "An icy gust that chills the party.",
+      "animation": "water",
+      "element": "water"
+    },
+    {
+      "id": "roar",
+      "icon": "paw",
+      "name": "Roar",
+      "mp": 0,
+      "kind": "physical",
+      "power": 1.1,
+      "target": "allEnemies",
+      "description": "A mighty roar that shakes everyone.",
+      "animation": "wild"
+    },
+    {
+      "id": "gust",
+      "icon": "tornado",
+      "name": "Gust",
+      "mp": 0,
+      "kind": "physical",
+      "power": 1.1,
+      "target": "allEnemies",
+      "description": "Wings whip up a gale.",
+      "animation": "whirlwind"
+    },
+    {
+      "id": "rock_throw",
+      "icon": "mountain",
+      "name": "Rock Throw",
+      "mp": 0,
+      "kind": "physical",
+      "power": 1.8,
+      "target": "enemy",
+      "description": "Hurls a boulder.",
+      "animation": "stone",
+      "element": "earth"
     }
   ]
 }

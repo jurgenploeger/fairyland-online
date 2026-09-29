@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "cozy fairytale item shop with a potion sign and green roof",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 96,
+    "height": 96,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790693509,
+    "credit_cost": 2,
+    "balance_cost": 0.038,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 53.326,
+    "request_id": "ab8b956b-14e5-4357-9986-37983b1e7b35",
+    "outputs_retained_until": 1790779888
+  }
+}

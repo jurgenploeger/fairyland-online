@@ -144,6 +144,8 @@ nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {
     let variantOf: String?
     /// How it fidgets standing still: breathe | squish | hop | sway | bounce.
     let motion: String?
+    /// Bosses can't be captured and never run away.
+    let boss: Bool?
 
     func stats(at level: Int) -> Stats { base + growth * (level - 1) }
 }
@@ -232,7 +234,8 @@ nonisolated enum Edge: String, Codable, Sendable {
 }
 
 nonisolated enum NPCRole: String, Decodable, Sendable {
-    case healer, shop, quests, guild, chest
+    /// `boss`: a mighty monster waiting on the map; talk to it to fight.
+    case healer, shop, quests, guild, chest, boss
 }
 
 nonisolated struct NPCDef: Decodable, Identifiable, Sendable {
@@ -248,6 +251,9 @@ nonisolated struct NPCDef: Decodable, Identifiable, Sendable {
     /// Chests: the item inside, and the quest that unlocks them.
     let gives: String?
     let quest: String?
+    /// Bosses: which monster, at what level.
+    let monster: String?
+    let level: Int?
 }
 
 nonisolated struct MapDef: Decodable, Identifiable, Sendable {
@@ -338,6 +344,28 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
     let crowd: Crowd?
     /// A danger zone: adventurers can duel here, and some will pick a fight.
     let danger: Bool?
+    /// Town planning: streets, a plaza, shops along the streets and raised terraces.
+    let town: Town?
+
+    nonisolated struct Town: Decodable, Sendable {
+        /// Straight streets as [x1, y1, x2, y2] offsets from the centre.
+        let streets: [[Int]]?
+        /// Radius of the cobbled plaza in the middle.
+        let plaza: Int?
+        /// Buildings placed along the streets, in order.
+        let lots: [String]?
+        /// Street furniture: art id → how many.
+        let streetDecor: [String: Int]?
+        /// Raised stone terraces (layered walls with balustrades and stairs).
+        let terraces: [Terrace]?
+    }
+
+    nonisolated struct Terrace: Decodable, Sendable {
+        let x: Int
+        let y: Int
+        let width: Int
+        let height: Int
+    }
 
     nonisolated struct Crowd: Decodable, Sendable {
         let adventurers: Int?

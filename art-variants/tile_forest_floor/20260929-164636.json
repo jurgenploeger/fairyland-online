@@ -1,0 +1,20 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "mossy dark green forest floor with fallen leaves",
+    "prompt_style": "rd_tile__single_tile",
+    "width": 32,
+    "height": 32
+  },
+  "result": {
+    "created_at": 1790693195,
+    "credit_cost": 2,
+    "balance_cost": 0.025,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 53.744,
+    "request_id": "d33f69d4-94a6-433d-9b92-41ec1e700de2",
+    "outputs_retained_until": 1790779583
+  }
+}

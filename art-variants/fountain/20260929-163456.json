@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "round stone town fountain with sparkling water",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 96,
+    "height": 64,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790692495,
+    "credit_cost": 2,
+    "balance_cost": 0.033,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 54.847,
+    "request_id": "fc7e777c-5ebe-4a63-bee6-6db6db45f6b9",
+    "outputs_retained_until": 1790778871
+  }
+}

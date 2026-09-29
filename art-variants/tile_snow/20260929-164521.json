@@ -1,0 +1,20 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "soft white snow ground with light blue shadows",
+    "prompt_style": "rd_tile__single_tile",
+    "width": 32,
+    "height": 32
+  },
+  "result": {
+    "created_at": 1790693120,
+    "credit_cost": 2,
+    "balance_cost": 0.025,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 53.919,
+    "request_id": "ba02a5f8-75d7-48cc-ad59-5de129ffebd2",
+    "outputs_retained_until": 1790779514
+  }
+}

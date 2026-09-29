@@ -54,6 +54,7 @@ final class WorldScene: SKScene {
     init(map def: MapDef, session: GameSession, input: InputState, entry: Edge?) {
         let map = WorldMap(def: def)
         let player = Walker(cycle: ArtLibrary.shared.walkCycle(GameSession.heroArt), label: session.data.hero.name)
+        player.fidgets = true
         self.def = def
         self.session = session
         self.input = input
@@ -257,6 +258,25 @@ final class WorldScene: SKScene {
 
     /// Houses take a 3×2 footprint above their anchor tile.
     private func placeBuildings() {
+        for lot in map.lots {
+            addScenery(art.sprite(lot.art), at: lot.anchor)
+        }
+        for decor in map.streetDecor {
+            addScenery(art.sprite(decor.art), at: decor.cell)
+            if decor.art == "street_lamp" {
+                // A warm glow around each lamp.
+                let glow = SKSpriteNode(texture: SoftTextures.glow, size: CGSize(width: 70, height: 50))
+                glow.color = UIColor(red: 1, green: 0.85, blue: 0.5, alpha: 1)
+                glow.colorBlendFactor = 1
+                glow.blendMode = .add
+                glow.alpha = 0.35
+                glow.position = map.center(of: decor.cell) + CGVector(dx: 0, dy: 34)
+                glow.zPosition = 4_800
+                glow.run(.repeatForever(.sequence([.fadeAlpha(to: 0.5, duration: 1.4), .fadeAlpha(to: 0.3, duration: 1.4)])))
+                world.addChild(glow)
+            }
+        }
+        placeTerraces()
         for building in def.buildings ?? [] {
             let anchor = map.offset(building.x, building.y)
             for dc in -1...1 {
@@ -266,12 +286,80 @@ final class WorldScene: SKScene {
         }
     }
 
+    /// Layered stone terraces like Fairyland's: the paved top sits behind a stone wall face
+    /// on the two edges facing you, balustrades run along every edge, pillars stand on the
+    /// corners, and stairs break the front wall where you can climb up.
+    private func placeTerraces() {
+        let rail = art.sprite("stone_balustrade"), pillar = art.sprite("wall_pillar"), steps = art.sprite("stone_stairs")
+        let stone = art.tileTexture(def.theme.accent ?? "tile_scree")
+        let tile = WorldMap.tileSize
+        let wallHeight: CGFloat = 22
+        for terrace in map.terraces {
+            let o = terrace.origin
+            let last = GridPoint(col: o.col + terrace.width - 1, row: o.row + terrace.height - 1)
+            // The wall face hangs under the inner edge of the border ring (the border cells block).
+            let south = (row: CGFloat(o.row + 1) * tile, from: CGFloat(o.col + 1) * tile, to: CGFloat(last.col) * tile)
+            let west = (col: CGFloat(o.col + 1) * tile, from: CGFloat(o.row + 1) * tile, to: CGFloat(last.row) * tile)
+            let stairsSouth = terrace.stairs.first { $0.row == o.row }.map { (CGFloat($0.col) * tile, CGFloat($0.col + 1) * tile) }
+            let stairsWest = terrace.stairs.first { $0.col == o.col }.map { (CGFloat($0.row) * tile, CGFloat($0.row + 1) * tile) }
+            var faces: [(CGPoint, CGPoint)] = []
+            func span(_ a: CGFloat, _ b: CGFloat, gap: (CGFloat, CGFloat)?, point: (CGFloat) -> CGPoint) {
+                if let gap, gap.0 > a, gap.1 < b {
+                    faces.append((point(a), point(gap.0)))
+                    faces.append((point(gap.1), point(b)))
+                } else {
+                    faces.append((point(a), point(b)))
+                }
+            }
+            span(south.from, south.to, gap: stairsSouth) { WorldMap.project(CGPoint(x: $0, y: south.row)) }
+            span(west.from, west.to, gap: stairsWest) { WorldMap.project(CGPoint(x: west.col, y: $0)) }
+            for (a, b) in faces {
+                let path = CGMutablePath()
+                path.move(to: a)
+                path.addLine(to: b)
+                path.addLine(to: b + CGVector(dx: 0, dy: -wallHeight))
+                path.addLine(to: a + CGVector(dx: 0, dy: -wallHeight))
+                path.closeSubpath()
+                let face = SKShapeNode(path: path)
+                face.fillTexture = stone
+                face.fillColor = UIColor(white: 0.78, alpha: 1)
+                face.strokeColor = UIColor(white: 0.25, alpha: 0.9)
+                face.lineWidth = 1.5
+                face.zPosition = -min(a.y, b.y) + 1
+                world.addChild(face)
+                // A lighter lip along the top edge.
+                let lip = SKShapeNode(path: { let p = CGMutablePath(); p.move(to: a); p.addLine(to: b); return p }())
+                lip.strokeColor = UIColor(white: 1, alpha: 0.55)
+                lip.lineWidth = 2
+                lip.zPosition = face.zPosition + 0.5
+                world.addChild(lip)
+            }
+            // Railings, pillars and stairs on the border ring.
+            for col in o.col...last.col {
+                for row in o.row...last.row {
+                    let cell = GridPoint(col: col, row: row)
+                    guard col == o.col || row == o.row || col == last.col || row == last.row else { continue }
+                    let corner = (col == o.col || col == last.col) && (row == o.row || row == last.row)
+                    let sprite = terrace.stairs.contains(cell) ? steps : corner ? pillar : rail
+                    let node = SKSpriteNode(texture: sprite.texture, size: sprite.size * (corner ? 0.6 : 0.7))
+                    node.anchorPoint = CGPoint(x: 0.5, y: 0.1)
+                    node.position = map.base(of: cell)
+                    // Railings follow the edge they're on.
+                    if !corner, col == o.col || col == last.col { node.xScale = -1 }
+                    node.zPosition = -node.position.y
+                    world.addChild(node)
+                }
+            }
+        }
+    }
+
     private func placeNPCs() {
         for npc in def.npcs ?? [] {
             let cell = map.offset(npc.x, npc.y)
             map.occupy(cell, blocking: true)
             let node = Walker(cycle: art.walkCycle(npc.art), label: npc.name)
             node.idles = npc.role != .chest
+            if npc.role == .boss { node.motion = IdleMotion.of(art: npc.art) }
             node.position = map.center(of: cell)
             node.zPosition = -node.position.y
             let marker = SKLabelNode()
@@ -747,6 +835,13 @@ final class WorldScene: SKScene {
             if npc.def.role == .chest, session.isOpened(npc.def.id), npc.node.alpha > 0.5 {
                 npc.node.run(.fadeAlpha(to: 0.35, duration: 0.3))
             }
+            if npc.def.role == .boss, session.isDefeated(npc.def) {
+                if !npc.node.isHidden {
+                    SkillEffects.smoke(at: npc.node.position, in: world)
+                    npc.node.isHidden = true
+                }
+                continue
+            }
             let notice = session.notice(for: npc.def.id)
             npc.marker.isHidden = notice == nil
             if let notice {
@@ -757,7 +852,7 @@ final class WorldScene: SKScene {
                 nearest = (npc.def.id, distance)
             }
             // Townsfolk at their posts turn to watch you pass, and glance around otherwise.
-            if npc.def.role != .chest {
+            if npc.def.role != .chest, npc.def.role != .boss {
                 if distance < 130 {
                     npc.node.face(Direction(player.position - npc.node.position, current: npc.node.facing))
                 } else if Int.random(in: 0..<12) == 0 {

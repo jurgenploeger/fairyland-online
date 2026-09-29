@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "cozy mushroom house with a red spotted cap roof and round door",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 96,
+    "height": 96,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790693629,
+    "credit_cost": 2,
+    "balance_cost": 0.038,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 53.136,
+    "request_id": "e3873f04-4c86-4a66-8780-984d5df20e5d",
+    "outputs_retained_until": 1790780013
+  }
+}

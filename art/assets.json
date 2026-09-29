@@ -872,6 +872,1319 @@
           }
         ]
       }
+    },
+    {
+      "id": "monster_golden_hamster",
+      "kind": "monster",
+      "request": {
+        "prompt": "round golden hamster with shiny metallic gold fur and rosy cheeks, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_hedgehog",
+      "kind": "monster",
+      "request": {
+        "prompt": "little brown hedgehog with soft spikes and a big nose, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_yellow_butterfly",
+      "kind": "monster",
+      "request": {
+        "prompt": "big friendly yellow butterfly with sparkly glowing wings, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_earth_lion",
+      "kind": "monster",
+      "request": {
+        "prompt": "lion cub with a mane of moss and pebbles, earthy brown, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_werewolf",
+      "kind": "monster",
+      "request": {
+        "prompt": "fluffy grey werewolf pup with a crescent moon mark, mischievous grin, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_wood_monkey",
+      "kind": "monster",
+      "request": {
+        "prompt": "green monkey with leaf ears and a vine tail, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_tree_snake",
+      "kind": "monster",
+      "request": {
+        "prompt": "coiled green snake with leaves along its back, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_flame_sheep",
+      "kind": "monster",
+      "request": {
+        "prompt": "fluffy sheep whose wool is soft orange flames, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_wood_hog",
+      "kind": "monster",
+      "request": {
+        "prompt": "chubby boar covered in moss and leaves with small tusks, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_treefrog",
+      "kind": "monster",
+      "request": {
+        "prompt": "bright green tree frog with big round eyes and sticky toes, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_water_slug",
+      "kind": "monster",
+      "request": {
+        "prompt": "translucent blue water slug with bubbly antennae, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_wood_crab",
+      "kind": "monster",
+      "request": {
+        "prompt": "crab with a mossy shell and leafy claws, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_red_bull",
+      "kind": "monster",
+      "request": {
+        "prompt": "stocky red bull calf with little horns, snorting, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_mud_eagle",
+      "kind": "monster",
+      "request": {
+        "prompt": "brown eagle chick with mud-streaked feathers, wings spread, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_wisp",
+      "kind": "monster",
+      "request": {
+        "prompt": "glowing white will-o-wisp spirit with a tiny face, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_dark_beetle",
+      "kind": "monster",
+      "request": {
+        "prompt": "shiny black beetle with purple glowing eyes, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_fire_rat",
+      "kind": "monster",
+      "request": {
+        "prompt": "red rat with a flickering flame tail, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_black_widow",
+      "kind": "monster",
+      "request": {
+        "prompt": "round black spider with a red heart on its back, cute, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_black_lizard",
+      "kind": "monster",
+      "request": {
+        "prompt": "dark grey lizard with a curly tail and yellow eyes, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_fire_bear",
+      "kind": "monster",
+      "request": {
+        "prompt": "red bear cub with glowing ember paws, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_pegasus",
+      "kind": "monster",
+      "request": {
+        "prompt": "white winged pony pegasus with a golden mane, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_phantom",
+      "kind": "monster",
+      "request": {
+        "prompt": "floating purple ghost with a tattered cloak and lantern eyes, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_snowman",
+      "kind": "monster",
+      "request": {
+        "prompt": "round snowman with a carrot nose and stick arms, cheerful, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_floating_stone",
+      "kind": "monster",
+      "request": {
+        "prompt": "floating grey rock golem with glowing blue runes, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_golden_cloud",
+      "kind": "monster",
+      "request": {
+        "prompt": "puffy golden cloud creature with a sleepy face, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_gem_crawler",
+      "kind": "monster",
+      "request": {
+        "prompt": "crab-like crawler with a shell of cyan crystals, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_poison_skeleton",
+      "kind": "monster",
+      "request": {
+        "prompt": "small goofy skeleton with a green poison glow, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_black_kong",
+      "kind": "monster",
+      "request": {
+        "prompt": "big black gorilla with a silver chest, grumpy but cute, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "boss_rat_king",
+      "kind": "monster",
+      "request": {
+        "prompt": "giant rat king wearing a tiny crown and cape, boss monster, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "boss_drunk_dragon",
+      "kind": "monster",
+      "request": {
+        "prompt": "chubby red dragon with rosy cheeks holding a jug, boss monster, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "boss_big_bad_wolf",
+      "kind": "monster",
+      "request": {
+        "prompt": "big bad grey wolf in a nightcap, fairytale boss monster, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "tile_snow",
+      "kind": "tile",
+      "request": {
+        "prompt": "soft white snow ground with light blue shadows",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_snow_path",
+      "kind": "tile",
+      "request": {
+        "prompt": "packed snowy footpath with little footprints",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_desert",
+      "kind": "tile",
+      "request": {
+        "prompt": "warm golden desert sand with gentle ripples",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_cave_floor",
+      "kind": "tile",
+      "request": {
+        "prompt": "dark grey cave stone floor with pebbles",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_cave_rock",
+      "kind": "tile",
+      "request": {
+        "prompt": "rough dark cave rock wall surface",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_swamp",
+      "kind": "tile",
+      "request": {
+        "prompt": "murky olive green swamp mud with moss",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_scree",
+      "kind": "tile",
+      "request": {
+        "prompt": "grey mountain scree gravel with small crystals",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "tile_forest_floor",
+      "kind": "tile",
+      "request": {
+        "prompt": "mossy dark green forest floor with fallen leaves",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
+    },
+    {
+      "id": "snow_pine",
+      "kind": "prop",
+      "request": {
+        "prompt": "snow-capped pine tree",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "snow_tree",
+      "kind": "prop",
+      "request": {
+        "prompt": "round fluffy tree covered in snow",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "cactus",
+      "kind": "prop",
+      "request": {
+        "prompt": "cute round desert cactus with a pink flower",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "boulder",
+      "kind": "prop",
+      "request": {
+        "prompt": "large mossy grey boulder",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "stalagmite",
+      "kind": "prop",
+      "request": {
+        "prompt": "cave stalagmite rock spike",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "mine_cart",
+      "kind": "prop",
+      "request": {
+        "prompt": "wooden mine cart full of glittering ore",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "reeds",
+      "kind": "prop",
+      "request": {
+        "prompt": "tall swamp reeds and cattails",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "dead_tree",
+      "kind": "prop",
+      "request": {
+        "prompt": "spooky bare twisted tree",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "giant_mushroom",
+      "kind": "prop",
+      "request": {
+        "prompt": "giant red mushroom with white spots, whimsical",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "skull_bones",
+      "kind": "prop",
+      "request": {
+        "prompt": "old bleached animal skull and bones in sand",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "street_lamp",
+      "kind": "prop",
+      "request": {
+        "prompt": "fairytale iron street lamp with a warm glowing light",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "market_stall",
+      "kind": "prop",
+      "request": {
+        "prompt": "colorful market stall with a striped awning and fruit",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "flower_planter",
+      "kind": "prop",
+      "request": {
+        "prompt": "wooden planter box full of colorful flowers",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "bench",
+      "kind": "prop",
+      "request": {
+        "prompt": "small wooden park bench",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_shop",
+      "kind": "building",
+      "request": {
+        "prompt": "cozy fairytale item shop with a potion sign and green roof",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 96,
+        "height": 96,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "inn",
+      "kind": "building",
+      "request": {
+        "prompt": "fairytale inn with a bed sign, warm windows and a purple roof",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 96,
+        "height": 96,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "blacksmith",
+      "kind": "building",
+      "request": {
+        "prompt": "fairytale blacksmith with an anvil sign, chimney smoke and grey stone walls",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 96,
+        "height": 96,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "magic_tower",
+      "kind": "building",
+      "request": {
+        "prompt": "tall whimsical wizard tower with a pointy blue roof and stars",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 96,
+        "height": 96,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "windmill",
+      "kind": "building",
+      "request": {
+        "prompt": "cute fairytale windmill with white sails",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 96,
+        "height": 96,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "mushroom_house",
+      "kind": "building",
+      "request": {
+        "prompt": "cozy mushroom house with a red spotted cap roof and round door",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 96,
+        "height": 96,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "bakery",
+      "kind": "building",
+      "request": {
+        "prompt": "fairytale bakery with a bread sign and a yellow striped awning",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 96,
+        "height": 96,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "town_gate",
+      "kind": "building",
+      "request": {
+        "prompt": "stone town gate archway with a banner",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 96,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "stone_balustrade",
+      "kind": "prop",
+      "request": {
+        "prompt": "ornate carved stone balustrade railing segment with round posts",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "cliff_wall",
+      "kind": "prop",
+      "request": {
+        "prompt": "carved sandstone terrace wall with pillars, isometric",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "stone_stairs",
+      "kind": "prop",
+      "request": {
+        "prompt": "short stone stairs going up, isometric",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "wall_pillar",
+      "kind": "prop",
+      "request": {
+        "prompt": "carved stone pillar with a round top",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_golden_hamster_azure",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_golden_hamster",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 120,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_yellow_butterfly_crimson",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_yellow_butterfly",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 200,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_hedgehog_starry",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_hedgehog",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 280,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_wood_crab_rosy",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_wood_crab",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 60,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_mud_eagle_frosted",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_mud_eagle",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 160,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_wood_monkey_shadow",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_wood_monkey",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 240,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_tree_snake_sunny",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_tree_snake",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 320,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_flame_sheep_mint",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_flame_sheep",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 90,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_wood_hog_violet",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_wood_hog",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 180,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_werewolf_amber",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_werewolf",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 30,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_dark_beetle_azure",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_dark_beetle",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 120,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_treefrog_crimson",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_treefrog",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 200,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_water_slug_starry",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_water_slug",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 280,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_wisp_rosy",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_wisp",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 60,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_earth_lion_frosted",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_earth_lion",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 160,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_red_bull_shadow",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_red_bull",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 240,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_fire_rat_sunny",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_fire_rat",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 320,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_black_widow_mint",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_black_widow",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 90,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_black_lizard_violet",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_black_lizard",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 180,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_floating_stone_amber",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_floating_stone",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 30,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_golden_cloud_azure",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_golden_cloud",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 120,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_gem_crawler_crimson",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_gem_crawler",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 200,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_fire_bear_starry",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_fire_bear",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 280,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_pegasus_rosy",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_pegasus",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 60,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_phantom_frosted",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_phantom",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 160,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_snowman_shadow",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_snowman",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 240,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_poison_skeleton_sunny",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_poison_skeleton",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 320,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_black_kong_mint",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_black_kong",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 90,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_yellow_butterfly_red",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_yellow_butterfly",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": -55
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_wood_monkey_night",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_wood_monkey",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 150
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_jelly_mud",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_jelly",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 40
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_wood_crab_fire",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_wood_crab",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": -110
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_red_bull_black",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_red_bull",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 250
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_golden_hamster_light",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_golden_hamster",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 25
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_tree_snake_earth",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_tree_snake",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": -80
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_tree_snake_light",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_tree_snake",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": -60
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_hedgehog_light",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_hedgehog",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 30
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_black_lizard_mining",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_black_lizard",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 30
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_fire_bear_frost",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_fire_bear",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 190
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_mayor",
+      "kind": "walk_sheet",
+      "frame": 48,
+      "directions": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "derive": {
+        "from": "player_walk",
+        "recolor": [
+          {
+            "hue": [
+              12,
+              58
+            ],
+            "minSaturation": 0.55,
+            "minValue": 0.55,
+            "to": 330,
+            "saturation": 0.7,
+            "value": 1.05
+          },
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "minSaturation": 0.3,
+            "to": 46,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_chief",
+      "kind": "walk_sheet",
+      "frame": 48,
+      "directions": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "derive": {
+        "from": "dwarf_walk",
+        "recolor": [
+          {
+            "hue": [
+              12,
+              58
+            ],
+            "minSaturation": 0.55,
+            "minValue": 0.55,
+            "to": 40,
+            "saturation": 0.06,
+            "value": 1.3
+          },
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "minSaturation": 0.3,
+            "to": 358
+          }
+        ]
+      }
     }
   ]
 }

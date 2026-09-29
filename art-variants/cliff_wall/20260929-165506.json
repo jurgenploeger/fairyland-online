@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "carved sandstone terrace wall with pillars, isometric",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 64,
+    "height": 64,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790693704,
+    "credit_cost": 2,
+    "balance_cost": 0.03,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 53.007,
+    "request_id": "145cc477-8671-4f35-88da-97489a9b4815",
+    "outputs_retained_until": 1790780091
+  }
+}

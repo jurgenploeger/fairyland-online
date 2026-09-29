@@ -22,7 +22,7 @@ struct GameView: View {
                     ChatView(session: coordinator.session, onSay: coordinator.say, onClose: coordinator.closeOverlay)
                 case .npc(let id):
                     if let npc = Content.shared.npc(id) {
-                        NPCDialogView(npc: npc, session: coordinator.session, onClose: coordinator.closeOverlay)
+                        NPCDialogView(npc: npc, session: coordinator.session, onClose: coordinator.closeOverlay, onFight: coordinator.fightBoss)
                     }
                 case nil:
                     EmptyView()

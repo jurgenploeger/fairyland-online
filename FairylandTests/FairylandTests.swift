@@ -62,7 +62,27 @@ struct ContentTests {
                 if npc.role == .guild {
                     #expect(content.classes.contains { $0.id == npc.classId }, "guild \(npc.id) → unknown class")
                 }
+                if npc.role == .boss {
+                    #expect(npc.monster.flatMap(content.monster)?.boss == true, "boss \(npc.id) → unknown boss monster")
+                }
             }
+            for exit in map.exits {
+                if let quest = exit.requires { #expect(content.quest(quest) != nil, "map \(map.id) road → unknown quest \(quest)") }
+            }
+            let art = map.theme.props.map(\.art) + (map.town?.lots ?? []) + (map.town?.streetDecor?.keys.sorted() ?? [])
+                + (map.buildings ?? []).map(\.art) + (map.decor ?? []).map(\.art)
+            for id in art {
+                #expect(ArtLibrary.shared.asset(id) != nil, "map \(map.id) → unknown art \(id)")
+            }
+        }
+        for preset in content.appearance.hair + content.appearance.outfits {
+            if let quest = preset.unlock { #expect(content.quest(quest) != nil, "look \(preset.id) → unknown quest \(quest)") }
+        }
+        for item in content.items {
+            #expect(item.icon.flatMap(GameIcon.init) != nil, "item \(item.id) → unknown icon \(item.icon ?? "nil")")
+        }
+        for skill in content.skills {
+            #expect(skill.icon.flatMap(GameIcon.init) != nil, "skill \(skill.id) → unknown icon \(skill.icon ?? "nil")")
         }
     }
 

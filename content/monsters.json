@@ -1,5 +1,5 @@
 {
-  "_about": "Monster species. Wild monsters and companions share these stats: stats = base + growth × (level − 1). captureRate 0 means it can't be captured. `art` is an id from art/assets.json. Variants like Frost Puff reuse a base monster's art with a free palette swap (see art/assets.json). Rare colour variants (`rare`, `variantOf`) are about 30% tougher, give more EXP and gold, and are harder to catch. `motion` is how it fidgets standing still (breathe, squish, hop, sway, bounce).",
+  "_about": "Monster species. Wild monsters and companions share these stats: stats = base + growth × (level − 1). captureRate 0 means it can't be captured. `art` is an id from art/assets.json. Variants like Frost Puff reuse a base monster's art with a free palette swap (see art/assets.json). Rare colour variants (`rare`, `variantOf`) are about 30% tougher, give more EXP and gold, and are harder to catch. `motion` is how it fidgets standing still (breathe, squish, hop, sway, bounce). Bosses (`boss`) can't be captured and wait on the map to be challenged.",
   "monsters": [
     {
       "id": "bunny",
@@ -333,6 +333,2127 @@
       "rare": true,
       "variantOf": "bun",
       "motion": "bounce"
+    },
+    {
+      "id": "golden_hamster",
+      "name": "Golden Hamster",
+      "art": "monster_golden_hamster",
+      "element": "metal",
+      "base": {
+        "hp": 26,
+        "mp": 10,
+        "attack": 10,
+        "defense": 5,
+        "magic": 5,
+        "speed": 13
+      },
+      "growth": {
+        "hp": 6,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 9,
+      "gold": 5,
+      "captureRate": 0.55,
+      "skills": [
+        "golden_spin"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "azure_golden_hamster",
+      "name": "Azure Golden Hamster",
+      "art": "monster_golden_hamster_azure",
+      "element": "metal",
+      "base": {
+        "hp": 34,
+        "mp": 13,
+        "attack": 13,
+        "defense": 6,
+        "magic": 6,
+        "speed": 17
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 14,
+      "gold": 8,
+      "captureRate": 0.33,
+      "skills": [
+        "golden_spin"
+      ],
+      "motion": "hop",
+      "rare": true,
+      "variantOf": "golden_hamster"
+    },
+    {
+      "id": "yellow_butterfly",
+      "name": "Yellow Butterfly",
+      "art": "monster_yellow_butterfly",
+      "element": "light",
+      "base": {
+        "hp": 26,
+        "mp": 16,
+        "attack": 6,
+        "defense": 5,
+        "magic": 11,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 6,
+        "mp": 3,
+        "attack": 1,
+        "defense": 1,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 9,
+      "gold": 5,
+      "captureRate": 0.55,
+      "skills": [
+        "flash"
+      ],
+      "motion": "sway"
+    },
+    {
+      "id": "crimson_yellow_butterfly",
+      "name": "Crimson Yellow Butterfly",
+      "art": "monster_yellow_butterfly_crimson",
+      "element": "light",
+      "base": {
+        "hp": 34,
+        "mp": 21,
+        "attack": 8,
+        "defense": 6,
+        "magic": 14,
+        "speed": 12
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 3,
+        "attack": 1,
+        "defense": 1,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 14,
+      "gold": 8,
+      "captureRate": 0.33,
+      "skills": [
+        "flash"
+      ],
+      "motion": "sway",
+      "rare": true,
+      "variantOf": "yellow_butterfly"
+    },
+    {
+      "id": "hedgehog",
+      "name": "Hedgehog",
+      "art": "monster_hedgehog",
+      "element": "earth",
+      "base": {
+        "hp": 59,
+        "mp": 11,
+        "attack": 12,
+        "defense": 14,
+        "magic": 5,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 1,
+        "attack": 2,
+        "defense": 2,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 15,
+      "gold": 9,
+      "captureRate": 0.45,
+      "skills": [
+        "mud_shot"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "starry_hedgehog",
+      "name": "Starry Hedgehog",
+      "art": "monster_hedgehog_starry",
+      "element": "earth",
+      "base": {
+        "hp": 77,
+        "mp": 14,
+        "attack": 16,
+        "defense": 18,
+        "magic": 7,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 1,
+        "attack": 3,
+        "defense": 3,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.27,
+      "skills": [
+        "mud_shot"
+      ],
+      "motion": "hop",
+      "rare": true,
+      "variantOf": "hedgehog"
+    },
+    {
+      "id": "wood_crab",
+      "name": "Wood Crab",
+      "art": "monster_wood_crab",
+      "element": "wood",
+      "base": {
+        "hp": 59,
+        "mp": 11,
+        "attack": 12,
+        "defense": 14,
+        "magic": 5,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 1,
+        "attack": 2,
+        "defense": 2,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 15,
+      "gold": 9,
+      "captureRate": 0.45,
+      "skills": [
+        "vine_whip"
+      ],
+      "motion": "sway"
+    },
+    {
+      "id": "rosy_wood_crab",
+      "name": "Rosy Wood Crab",
+      "art": "monster_wood_crab_rosy",
+      "element": "wood",
+      "base": {
+        "hp": 77,
+        "mp": 14,
+        "attack": 16,
+        "defense": 18,
+        "magic": 7,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 1,
+        "attack": 3,
+        "defense": 3,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.27,
+      "skills": [
+        "vine_whip"
+      ],
+      "motion": "sway",
+      "rare": true,
+      "variantOf": "wood_crab"
+    },
+    {
+      "id": "mud_eagle",
+      "name": "Mud Eagle",
+      "art": "monster_mud_eagle",
+      "element": "earth",
+      "base": {
+        "hp": 35,
+        "mp": 14,
+        "attack": 14,
+        "defense": 7,
+        "magic": 7,
+        "speed": 18
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 15,
+      "gold": 9,
+      "captureRate": 0.4,
+      "skills": [
+        "gust"
+      ],
+      "motion": "bounce"
+    },
+    {
+      "id": "frosted_mud_eagle",
+      "name": "Frosted Mud Eagle",
+      "art": "monster_mud_eagle_frosted",
+      "element": "earth",
+      "base": {
+        "hp": 46,
+        "mp": 18,
+        "attack": 18,
+        "defense": 9,
+        "magic": 9,
+        "speed": 23
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 3,
+        "attack": 3,
+        "defense": 1,
+        "magic": 1,
+        "speed": 3
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.24,
+      "skills": [
+        "gust"
+      ],
+      "motion": "bounce",
+      "rare": true,
+      "variantOf": "mud_eagle"
+    },
+    {
+      "id": "wood_monkey",
+      "name": "Wood Monkey",
+      "art": "monster_wood_monkey",
+      "element": "wood",
+      "base": {
+        "hp": 35,
+        "mp": 14,
+        "attack": 14,
+        "defense": 7,
+        "magic": 7,
+        "speed": 18
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 15,
+      "gold": 9,
+      "captureRate": 0.45,
+      "skills": [
+        "vine_whip"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "shadow_wood_monkey",
+      "name": "Shadow Wood Monkey",
+      "art": "monster_wood_monkey_shadow",
+      "element": "wood",
+      "base": {
+        "hp": 46,
+        "mp": 18,
+        "attack": 18,
+        "defense": 9,
+        "magic": 9,
+        "speed": 23
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 3,
+        "attack": 3,
+        "defense": 1,
+        "magic": 1,
+        "speed": 3
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.27,
+      "skills": [
+        "vine_whip"
+      ],
+      "motion": "hop",
+      "rare": true,
+      "variantOf": "wood_monkey"
+    },
+    {
+      "id": "tree_snake",
+      "name": "Tree Snake",
+      "art": "monster_tree_snake",
+      "element": "wood",
+      "base": {
+        "hp": 43,
+        "mp": 14,
+        "attack": 12,
+        "defense": 8,
+        "magic": 8,
+        "speed": 12
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 15,
+      "gold": 9,
+      "captureRate": 0.45,
+      "skills": [
+        "vine_whip"
+      ],
+      "motion": "sway"
+    },
+    {
+      "id": "sunny_tree_snake",
+      "name": "Sunny Tree Snake",
+      "art": "monster_tree_snake_sunny",
+      "element": "wood",
+      "base": {
+        "hp": 56,
+        "mp": 18,
+        "attack": 16,
+        "defense": 11,
+        "magic": 11,
+        "speed": 16
+      },
+      "growth": {
+        "hp": 9,
+        "mp": 3,
+        "attack": 3,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.27,
+      "skills": [
+        "vine_whip"
+      ],
+      "motion": "sway",
+      "rare": true,
+      "variantOf": "tree_snake"
+    },
+    {
+      "id": "flame_sheep",
+      "name": "Flame Sheep",
+      "art": "monster_flame_sheep",
+      "element": "fire",
+      "base": {
+        "hp": 59,
+        "mp": 11,
+        "attack": 12,
+        "defense": 14,
+        "magic": 5,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 1,
+        "attack": 2,
+        "defense": 2,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 15,
+      "gold": 9,
+      "captureRate": 0.4,
+      "skills": [
+        "ember"
+      ],
+      "motion": "bounce"
+    },
+    {
+      "id": "mint_flame_sheep",
+      "name": "Mint Flame Sheep",
+      "art": "monster_flame_sheep_mint",
+      "element": "fire",
+      "base": {
+        "hp": 77,
+        "mp": 14,
+        "attack": 16,
+        "defense": 18,
+        "magic": 7,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 1,
+        "attack": 3,
+        "defense": 3,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.24,
+      "skills": [
+        "ember"
+      ],
+      "motion": "bounce",
+      "rare": true,
+      "variantOf": "flame_sheep"
+    },
+    {
+      "id": "wood_hog",
+      "name": "Wood Hog",
+      "art": "monster_wood_hog",
+      "element": "wood",
+      "base": {
+        "hp": 51,
+        "mp": 11,
+        "attack": 18,
+        "defense": 9,
+        "magic": 5,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 9,
+        "mp": 1,
+        "attack": 3,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 15,
+      "gold": 9,
+      "captureRate": 0.4,
+      "skills": [
+        "roar"
+      ],
+      "motion": "bounce"
+    },
+    {
+      "id": "violet_wood_hog",
+      "name": "Violet Wood Hog",
+      "art": "monster_wood_hog_violet",
+      "element": "wood",
+      "base": {
+        "hp": 67,
+        "mp": 14,
+        "attack": 23,
+        "defense": 12,
+        "magic": 7,
+        "speed": 14
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 1,
+        "attack": 4,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.24,
+      "skills": [
+        "roar"
+      ],
+      "motion": "bounce",
+      "rare": true,
+      "variantOf": "wood_hog"
+    },
+    {
+      "id": "werewolf",
+      "name": "Werewolf",
+      "art": "monster_werewolf",
+      "element": "dark",
+      "base": {
+        "hp": 66,
+        "mp": 14,
+        "attack": 23,
+        "defense": 12,
+        "magic": 7,
+        "speed": 14
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 1,
+        "attack": 4,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.35,
+      "skills": [
+        "shadow_bite",
+        "roar"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "amber_werewolf",
+      "name": "Amber Werewolf",
+      "art": "monster_werewolf_amber",
+      "element": "dark",
+      "base": {
+        "hp": 86,
+        "mp": 18,
+        "attack": 30,
+        "defense": 16,
+        "magic": 9,
+        "speed": 18
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 1,
+        "attack": 4,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 38,
+      "gold": 22,
+      "captureRate": 0.21,
+      "skills": [
+        "shadow_bite",
+        "roar"
+      ],
+      "motion": "hop",
+      "rare": true,
+      "variantOf": "werewolf"
+    },
+    {
+      "id": "dark_beetle",
+      "name": "Dark Beetle",
+      "art": "monster_dark_beetle",
+      "element": "dark",
+      "base": {
+        "hp": 77,
+        "mp": 14,
+        "attack": 16,
+        "defense": 18,
+        "magic": 7,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 1,
+        "attack": 2,
+        "defense": 2,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.4,
+      "skills": [
+        "shadow_bite"
+      ],
+      "motion": "squish"
+    },
+    {
+      "id": "azure_dark_beetle",
+      "name": "Azure Dark Beetle",
+      "art": "monster_dark_beetle_azure",
+      "element": "dark",
+      "base": {
+        "hp": 100,
+        "mp": 18,
+        "attack": 20,
+        "defense": 23,
+        "magic": 9,
+        "speed": 14
+      },
+      "growth": {
+        "hp": 13,
+        "mp": 1,
+        "attack": 3,
+        "defense": 3,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 38,
+      "gold": 22,
+      "captureRate": 0.24,
+      "skills": [
+        "shadow_bite"
+      ],
+      "motion": "squish",
+      "rare": true,
+      "variantOf": "dark_beetle"
+    },
+    {
+      "id": "treefrog",
+      "name": "Treefrog",
+      "art": "monster_treefrog",
+      "element": "wood",
+      "base": {
+        "hp": 46,
+        "mp": 18,
+        "attack": 18,
+        "defense": 9,
+        "magic": 9,
+        "speed": 23
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.4,
+      "skills": [
+        "vine_whip",
+        "bubble"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "crimson_treefrog",
+      "name": "Crimson Treefrog",
+      "art": "monster_treefrog_crimson",
+      "element": "wood",
+      "base": {
+        "hp": 59,
+        "mp": 23,
+        "attack": 23,
+        "defense": 11,
+        "magic": 11,
+        "speed": 30
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 3,
+        "attack": 3,
+        "defense": 1,
+        "magic": 1,
+        "speed": 3
+      },
+      "exp": 38,
+      "gold": 22,
+      "captureRate": 0.24,
+      "skills": [
+        "vine_whip",
+        "bubble"
+      ],
+      "motion": "hop",
+      "rare": true,
+      "variantOf": "treefrog"
+    },
+    {
+      "id": "water_slug",
+      "name": "Water Slug",
+      "art": "monster_water_slug",
+      "element": "water",
+      "base": {
+        "hp": 46,
+        "mp": 28,
+        "attack": 10,
+        "defense": 9,
+        "magic": 19,
+        "speed": 16
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 4,
+        "attack": 1,
+        "defense": 1,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.45,
+      "skills": [
+        "bubble"
+      ],
+      "motion": "squish"
+    },
+    {
+      "id": "starry_water_slug",
+      "name": "Starry Water Slug",
+      "art": "monster_water_slug_starry",
+      "element": "water",
+      "base": {
+        "hp": 59,
+        "mp": 36,
+        "attack": 14,
+        "defense": 11,
+        "magic": 25,
+        "speed": 20
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 4,
+        "attack": 1,
+        "defense": 1,
+        "magic": 3,
+        "speed": 1
+      },
+      "exp": 38,
+      "gold": 22,
+      "captureRate": 0.27,
+      "skills": [
+        "bubble"
+      ],
+      "motion": "squish",
+      "rare": true,
+      "variantOf": "water_slug"
+    },
+    {
+      "id": "wisp",
+      "name": "Wisp",
+      "art": "monster_wisp",
+      "element": "light",
+      "base": {
+        "hp": 57,
+        "mp": 35,
+        "attack": 13,
+        "defense": 11,
+        "magic": 24,
+        "speed": 20
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 4,
+        "attack": 1,
+        "defense": 1,
+        "magic": 3,
+        "speed": 1
+      },
+      "exp": 34,
+      "gold": 20,
+      "captureRate": 0.35,
+      "skills": [
+        "flash"
+      ],
+      "motion": "sway"
+    },
+    {
+      "id": "rosy_wisp",
+      "name": "Rosy Wisp",
+      "art": "monster_wisp_rosy",
+      "element": "light",
+      "base": {
+        "hp": 74,
+        "mp": 46,
+        "attack": 17,
+        "defense": 14,
+        "magic": 31,
+        "speed": 26
+      },
+      "growth": {
+        "hp": 9,
+        "mp": 5,
+        "attack": 2,
+        "defense": 2,
+        "magic": 3,
+        "speed": 2
+      },
+      "exp": 54,
+      "gold": 31,
+      "captureRate": 0.21,
+      "skills": [
+        "flash"
+      ],
+      "motion": "sway",
+      "rare": true,
+      "variantOf": "wisp"
+    },
+    {
+      "id": "earth_lion",
+      "name": "Earth Lion",
+      "art": "monster_earth_lion",
+      "element": "earth",
+      "base": {
+        "hp": 84,
+        "mp": 18,
+        "attack": 29,
+        "defense": 15,
+        "magic": 9,
+        "speed": 18
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 1,
+        "attack": 4,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 34,
+      "gold": 20,
+      "captureRate": 0.3,
+      "skills": [
+        "roar",
+        "mud_shot"
+      ],
+      "motion": "bounce"
+    },
+    {
+      "id": "frosted_earth_lion",
+      "name": "Frosted Earth Lion",
+      "art": "monster_earth_lion_frosted",
+      "element": "earth",
+      "base": {
+        "hp": 109,
+        "mp": 23,
+        "attack": 37,
+        "defense": 20,
+        "magic": 11,
+        "speed": 23
+      },
+      "growth": {
+        "hp": 12,
+        "mp": 2,
+        "attack": 5,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 54,
+      "gold": 31,
+      "captureRate": 0.18,
+      "skills": [
+        "roar",
+        "mud_shot"
+      ],
+      "motion": "bounce",
+      "rare": true,
+      "variantOf": "earth_lion"
+    },
+    {
+      "id": "red_bull",
+      "name": "Red Bull",
+      "art": "monster_red_bull",
+      "element": "fire",
+      "base": {
+        "hp": 84,
+        "mp": 18,
+        "attack": 29,
+        "defense": 15,
+        "magic": 9,
+        "speed": 18
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 1,
+        "attack": 4,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 34,
+      "gold": 20,
+      "captureRate": 0.3,
+      "skills": [
+        "ember"
+      ],
+      "motion": "bounce"
+    },
+    {
+      "id": "shadow_red_bull",
+      "name": "Shadow Red Bull",
+      "art": "monster_red_bull_shadow",
+      "element": "fire",
+      "base": {
+        "hp": 109,
+        "mp": 23,
+        "attack": 37,
+        "defense": 20,
+        "magic": 11,
+        "speed": 23
+      },
+      "growth": {
+        "hp": 12,
+        "mp": 2,
+        "attack": 5,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 54,
+      "gold": 31,
+      "captureRate": 0.18,
+      "skills": [
+        "ember"
+      ],
+      "motion": "bounce",
+      "rare": true,
+      "variantOf": "red_bull"
+    },
+    {
+      "id": "fire_rat",
+      "name": "Fire Rat",
+      "art": "monster_fire_rat",
+      "element": "fire",
+      "base": {
+        "hp": 57,
+        "mp": 22,
+        "attack": 22,
+        "defense": 11,
+        "magic": 11,
+        "speed": 29
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 3,
+        "attack": 3,
+        "defense": 1,
+        "magic": 1,
+        "speed": 3
+      },
+      "exp": 34,
+      "gold": 20,
+      "captureRate": 0.4,
+      "skills": [
+        "ember"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "sunny_fire_rat",
+      "name": "Sunny Fire Rat",
+      "art": "monster_fire_rat_sunny",
+      "element": "fire",
+      "base": {
+        "hp": 74,
+        "mp": 29,
+        "attack": 29,
+        "defense": 14,
+        "magic": 14,
+        "speed": 37
+      },
+      "growth": {
+        "hp": 9,
+        "mp": 3,
+        "attack": 3,
+        "defense": 2,
+        "magic": 2,
+        "speed": 3
+      },
+      "exp": 54,
+      "gold": 31,
+      "captureRate": 0.24,
+      "skills": [
+        "ember"
+      ],
+      "motion": "hop",
+      "rare": true,
+      "variantOf": "fire_rat"
+    },
+    {
+      "id": "black_widow",
+      "name": "Black Widow",
+      "art": "monster_black_widow",
+      "element": "dark",
+      "base": {
+        "hp": 73,
+        "mp": 45,
+        "attack": 17,
+        "defense": 14,
+        "magic": 31,
+        "speed": 25
+      },
+      "growth": {
+        "hp": 9,
+        "mp": 4,
+        "attack": 1,
+        "defense": 1,
+        "magic": 3,
+        "speed": 1
+      },
+      "exp": 48,
+      "gold": 29,
+      "captureRate": 0.3,
+      "skills": [
+        "web_shot",
+        "shadow_bite"
+      ],
+      "motion": "squish"
+    },
+    {
+      "id": "mint_black_widow",
+      "name": "Mint Black Widow",
+      "art": "monster_black_widow_mint",
+      "element": "dark",
+      "base": {
+        "hp": 95,
+        "mp": 58,
+        "attack": 22,
+        "defense": 18,
+        "magic": 40,
+        "speed": 33
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 5,
+        "attack": 2,
+        "defense": 2,
+        "magic": 3,
+        "speed": 2
+      },
+      "exp": 77,
+      "gold": 43,
+      "captureRate": 0.18,
+      "skills": [
+        "web_shot",
+        "shadow_bite"
+      ],
+      "motion": "squish",
+      "rare": true,
+      "variantOf": "black_widow"
+    },
+    {
+      "id": "black_lizard",
+      "name": "Black Lizard",
+      "art": "monster_black_lizard",
+      "element": "dark",
+      "base": {
+        "hp": 73,
+        "mp": 28,
+        "attack": 28,
+        "defense": 14,
+        "magic": 14,
+        "speed": 36
+      },
+      "growth": {
+        "hp": 9,
+        "mp": 3,
+        "attack": 3,
+        "defense": 1,
+        "magic": 1,
+        "speed": 3
+      },
+      "exp": 48,
+      "gold": 29,
+      "captureRate": 0.3,
+      "skills": [
+        "shadow_bite"
+      ],
+      "motion": "sway"
+    },
+    {
+      "id": "violet_black_lizard",
+      "name": "Violet Black Lizard",
+      "art": "monster_black_lizard_violet",
+      "element": "dark",
+      "base": {
+        "hp": 95,
+        "mp": 36,
+        "attack": 36,
+        "defense": 18,
+        "magic": 18,
+        "speed": 47
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 3,
+        "attack": 3,
+        "defense": 2,
+        "magic": 2,
+        "speed": 3
+      },
+      "exp": 77,
+      "gold": 43,
+      "captureRate": 0.18,
+      "skills": [
+        "shadow_bite"
+      ],
+      "motion": "sway",
+      "rare": true,
+      "variantOf": "black_lizard"
+    },
+    {
+      "id": "floating_stone",
+      "name": "Floating Stone",
+      "art": "monster_floating_stone",
+      "element": "earth",
+      "base": {
+        "hp": 123,
+        "mp": 22,
+        "attack": 25,
+        "defense": 28,
+        "magic": 11,
+        "speed": 17
+      },
+      "growth": {
+        "hp": 13,
+        "mp": 1,
+        "attack": 3,
+        "defense": 3,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 48,
+      "gold": 29,
+      "captureRate": 0.3,
+      "skills": [
+        "rock_throw"
+      ],
+      "motion": "bounce"
+    },
+    {
+      "id": "amber_floating_stone",
+      "name": "Amber Floating Stone",
+      "art": "monster_floating_stone_amber",
+      "element": "earth",
+      "base": {
+        "hp": 160,
+        "mp": 29,
+        "attack": 33,
+        "defense": 36,
+        "magic": 15,
+        "speed": 22
+      },
+      "growth": {
+        "hp": 15,
+        "mp": 2,
+        "attack": 3,
+        "defense": 3,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 77,
+      "gold": 43,
+      "captureRate": 0.18,
+      "skills": [
+        "rock_throw"
+      ],
+      "motion": "bounce",
+      "rare": true,
+      "variantOf": "floating_stone"
+    },
+    {
+      "id": "golden_cloud",
+      "name": "Golden Cloud",
+      "art": "monster_golden_cloud",
+      "element": "metal",
+      "base": {
+        "hp": 73,
+        "mp": 45,
+        "attack": 17,
+        "defense": 14,
+        "magic": 31,
+        "speed": 25
+      },
+      "growth": {
+        "hp": 9,
+        "mp": 4,
+        "attack": 1,
+        "defense": 1,
+        "magic": 3,
+        "speed": 1
+      },
+      "exp": 48,
+      "gold": 29,
+      "captureRate": 0.3,
+      "skills": [
+        "golden_spin",
+        "flash"
+      ],
+      "motion": "sway"
+    },
+    {
+      "id": "azure_golden_cloud",
+      "name": "Azure Golden Cloud",
+      "art": "monster_golden_cloud_azure",
+      "element": "metal",
+      "base": {
+        "hp": 95,
+        "mp": 58,
+        "attack": 22,
+        "defense": 18,
+        "magic": 40,
+        "speed": 33
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 5,
+        "attack": 2,
+        "defense": 2,
+        "magic": 3,
+        "speed": 2
+      },
+      "exp": 77,
+      "gold": 43,
+      "captureRate": 0.18,
+      "skills": [
+        "golden_spin",
+        "flash"
+      ],
+      "motion": "sway",
+      "rare": true,
+      "variantOf": "golden_cloud"
+    },
+    {
+      "id": "gem_crawler",
+      "name": "Gem Crawler",
+      "art": "monster_gem_crawler",
+      "element": "light",
+      "base": {
+        "hp": 123,
+        "mp": 22,
+        "attack": 25,
+        "defense": 28,
+        "magic": 11,
+        "speed": 17
+      },
+      "growth": {
+        "hp": 13,
+        "mp": 1,
+        "attack": 3,
+        "defense": 3,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 48,
+      "gold": 29,
+      "captureRate": 0.3,
+      "skills": [
+        "flash"
+      ],
+      "motion": "squish"
+    },
+    {
+      "id": "crimson_gem_crawler",
+      "name": "Crimson Gem Crawler",
+      "art": "monster_gem_crawler_crimson",
+      "element": "light",
+      "base": {
+        "hp": 160,
+        "mp": 29,
+        "attack": 33,
+        "defense": 36,
+        "magic": 15,
+        "speed": 22
+      },
+      "growth": {
+        "hp": 15,
+        "mp": 2,
+        "attack": 3,
+        "defense": 3,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 77,
+      "gold": 43,
+      "captureRate": 0.18,
+      "skills": [
+        "flash"
+      ],
+      "motion": "squish",
+      "rare": true,
+      "variantOf": "gem_crawler"
+    },
+    {
+      "id": "fire_bear",
+      "name": "Fire Bear",
+      "art": "monster_fire_bear",
+      "element": "fire",
+      "base": {
+        "hp": 133,
+        "mp": 28,
+        "attack": 46,
+        "defense": 24,
+        "magic": 14,
+        "speed": 28
+      },
+      "growth": {
+        "hp": 13,
+        "mp": 2,
+        "attack": 5,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 64,
+      "gold": 38,
+      "captureRate": 0.25,
+      "skills": [
+        "ember",
+        "roar"
+      ],
+      "motion": "bounce"
+    },
+    {
+      "id": "starry_fire_bear",
+      "name": "Starry Fire Bear",
+      "art": "monster_fire_bear_starry",
+      "element": "fire",
+      "base": {
+        "hp": 173,
+        "mp": 36,
+        "attack": 59,
+        "defense": 32,
+        "magic": 18,
+        "speed": 36
+      },
+      "growth": {
+        "hp": 15,
+        "mp": 2,
+        "attack": 5,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 102,
+      "gold": 58,
+      "captureRate": 0.15,
+      "skills": [
+        "ember",
+        "roar"
+      ],
+      "motion": "bounce",
+      "rare": true,
+      "variantOf": "fire_bear"
+    },
+    {
+      "id": "pegasus",
+      "name": "Pegasus",
+      "art": "monster_pegasus",
+      "element": "light",
+      "base": {
+        "hp": 91,
+        "mp": 35,
+        "attack": 35,
+        "defense": 18,
+        "magic": 18,
+        "speed": 46
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 3,
+        "attack": 3,
+        "defense": 2,
+        "magic": 2,
+        "speed": 3
+      },
+      "exp": 64,
+      "gold": 38,
+      "captureRate": 0.2,
+      "skills": [
+        "gust",
+        "flash"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "rosy_pegasus",
+      "name": "Rosy Pegasus",
+      "art": "monster_pegasus_rosy",
+      "element": "light",
+      "base": {
+        "hp": 118,
+        "mp": 46,
+        "attack": 46,
+        "defense": 23,
+        "magic": 23,
+        "speed": 59
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 4,
+        "attack": 4,
+        "defense": 2,
+        "magic": 2,
+        "speed": 4
+      },
+      "exp": 102,
+      "gold": 58,
+      "captureRate": 0.12,
+      "skills": [
+        "gust",
+        "flash"
+      ],
+      "motion": "hop",
+      "rare": true,
+      "variantOf": "pegasus"
+    },
+    {
+      "id": "phantom",
+      "name": "Phantom",
+      "art": "monster_phantom",
+      "element": "dark",
+      "base": {
+        "hp": 91,
+        "mp": 56,
+        "attack": 21,
+        "defense": 18,
+        "magic": 38,
+        "speed": 32
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 5,
+        "attack": 2,
+        "defense": 2,
+        "magic": 3,
+        "speed": 2
+      },
+      "exp": 64,
+      "gold": 38,
+      "captureRate": 0.25,
+      "skills": [
+        "shadow_bite"
+      ],
+      "motion": "sway"
+    },
+    {
+      "id": "frosted_phantom",
+      "name": "Frosted Phantom",
+      "art": "monster_phantom_frosted",
+      "element": "dark",
+      "base": {
+        "hp": 118,
+        "mp": 73,
+        "attack": 27,
+        "defense": 23,
+        "magic": 50,
+        "speed": 41
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 5,
+        "attack": 2,
+        "defense": 2,
+        "magic": 4,
+        "speed": 2
+      },
+      "exp": 102,
+      "gold": 58,
+      "captureRate": 0.15,
+      "skills": [
+        "shadow_bite"
+      ],
+      "motion": "sway",
+      "rare": true,
+      "variantOf": "phantom"
+    },
+    {
+      "id": "snowman",
+      "name": "Snowman",
+      "art": "monster_snowman",
+      "element": "water",
+      "base": {
+        "hp": 154,
+        "mp": 28,
+        "attack": 32,
+        "defense": 35,
+        "magic": 14,
+        "speed": 21
+      },
+      "growth": {
+        "hp": 14,
+        "mp": 2,
+        "attack": 3,
+        "defense": 3,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 64,
+      "gold": 38,
+      "captureRate": 0.3,
+      "skills": [
+        "frost_breath"
+      ],
+      "motion": "squish"
+    },
+    {
+      "id": "shadow_snowman",
+      "name": "Shadow Snowman",
+      "art": "monster_snowman_shadow",
+      "element": "water",
+      "base": {
+        "hp": 200,
+        "mp": 36,
+        "attack": 41,
+        "defense": 46,
+        "magic": 18,
+        "speed": 27
+      },
+      "growth": {
+        "hp": 16,
+        "mp": 2,
+        "attack": 4,
+        "defense": 4,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 102,
+      "gold": 58,
+      "captureRate": 0.18,
+      "skills": [
+        "frost_breath"
+      ],
+      "motion": "squish",
+      "rare": true,
+      "variantOf": "snowman"
+    },
+    {
+      "id": "poison_skeleton",
+      "name": "Poison Skeleton",
+      "art": "monster_poison_skeleton",
+      "element": "dark",
+      "base": {
+        "hp": 112,
+        "mp": 35,
+        "attack": 32,
+        "defense": 21,
+        "magic": 21,
+        "speed": 32
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 3,
+        "attack": 3,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 64,
+      "gold": 38,
+      "captureRate": 0.25,
+      "skills": [
+        "shadow_bite",
+        "web_shot"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "sunny_poison_skeleton",
+      "name": "Sunny Poison Skeleton",
+      "art": "monster_poison_skeleton_sunny",
+      "element": "dark",
+      "base": {
+        "hp": 146,
+        "mp": 46,
+        "attack": 41,
+        "defense": 27,
+        "magic": 27,
+        "speed": 41
+      },
+      "growth": {
+        "hp": 13,
+        "mp": 4,
+        "attack": 4,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 102,
+      "gold": 58,
+      "captureRate": 0.15,
+      "skills": [
+        "shadow_bite",
+        "web_shot"
+      ],
+      "motion": "hop",
+      "rare": true,
+      "variantOf": "poison_skeleton"
+    },
+    {
+      "id": "black_kong",
+      "name": "Black Kong",
+      "art": "monster_black_kong",
+      "element": "dark",
+      "base": {
+        "hp": 133,
+        "mp": 28,
+        "attack": 46,
+        "defense": 24,
+        "magic": 14,
+        "speed": 28
+      },
+      "growth": {
+        "hp": 13,
+        "mp": 2,
+        "attack": 5,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 64,
+      "gold": 38,
+      "captureRate": 0.2,
+      "skills": [
+        "roar",
+        "rock_throw"
+      ],
+      "motion": "bounce"
+    },
+    {
+      "id": "mint_black_kong",
+      "name": "Mint Black Kong",
+      "art": "monster_black_kong_mint",
+      "element": "dark",
+      "base": {
+        "hp": 173,
+        "mp": 36,
+        "attack": 59,
+        "defense": 32,
+        "magic": 18,
+        "speed": 36
+      },
+      "growth": {
+        "hp": 15,
+        "mp": 2,
+        "attack": 5,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 102,
+      "gold": 58,
+      "captureRate": 0.12,
+      "skills": [
+        "roar",
+        "rock_throw"
+      ],
+      "motion": "bounce",
+      "rare": true,
+      "variantOf": "black_kong"
+    },
+    {
+      "id": "red_butterfly",
+      "name": "Red Butterfly",
+      "art": "monster_yellow_butterfly_red",
+      "element": "fire",
+      "base": {
+        "hp": 35,
+        "mp": 22,
+        "attack": 8,
+        "defense": 7,
+        "magic": 15,
+        "speed": 12
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 3,
+        "attack": 1,
+        "defense": 1,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 15,
+      "gold": 9,
+      "captureRate": 0.5,
+      "skills": [
+        "ember"
+      ],
+      "motion": "sway",
+      "variantOf": "yellow_butterfly"
+    },
+    {
+      "id": "night_monkey",
+      "name": "Night Monkey",
+      "art": "monster_wood_monkey_night",
+      "element": "dark",
+      "base": {
+        "hp": 45,
+        "mp": 18,
+        "attack": 18,
+        "defense": 9,
+        "magic": 9,
+        "speed": 23
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.41,
+      "skills": [
+        "shadow_bite"
+      ],
+      "motion": "hop",
+      "variantOf": "wood_monkey"
+    },
+    {
+      "id": "mud_slime",
+      "name": "Mud Slime",
+      "art": "monster_jelly_mud",
+      "element": "earth",
+      "base": {
+        "hp": 34,
+        "mp": 13,
+        "attack": 8,
+        "defense": 5,
+        "magic": 6,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 2,
+        "attack": 1,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.54,
+      "skills": [
+        "mud_shot"
+      ],
+      "motion": "squish",
+      "variantOf": "jelly"
+    },
+    {
+      "id": "fire_crab",
+      "name": "Fire Crab",
+      "art": "monster_wood_crab_fire",
+      "element": "fire",
+      "base": {
+        "hp": 76,
+        "mp": 14,
+        "attack": 16,
+        "defense": 18,
+        "magic": 6,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 1,
+        "attack": 2,
+        "defense": 2,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.41,
+      "skills": [
+        "ember"
+      ],
+      "motion": "sway",
+      "variantOf": "wood_crab"
+    },
+    {
+      "id": "black_bull",
+      "name": "Black Bull",
+      "art": "monster_red_bull_black",
+      "element": "dark",
+      "base": {
+        "hp": 106,
+        "mp": 23,
+        "attack": 36,
+        "defense": 19,
+        "magic": 11,
+        "speed": 23
+      },
+      "growth": {
+        "hp": 12,
+        "mp": 1,
+        "attack": 4,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 34,
+      "gold": 20,
+      "captureRate": 0.27,
+      "skills": [
+        "shadow_bite"
+      ],
+      "motion": "bounce",
+      "variantOf": "red_bull"
+    },
+    {
+      "id": "light_mouse",
+      "name": "Light Mouse",
+      "art": "monster_golden_hamster_light",
+      "element": "light",
+      "base": {
+        "hp": 33,
+        "mp": 13,
+        "attack": 13,
+        "defense": 6,
+        "magic": 6,
+        "speed": 16
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 34,
+      "gold": 20,
+      "captureRate": 0.5,
+      "skills": [
+        "flash"
+      ],
+      "motion": "hop",
+      "variantOf": "golden_hamster"
+    },
+    {
+      "id": "earth_snake",
+      "name": "Earth Snake",
+      "art": "monster_tree_snake_earth",
+      "element": "earth",
+      "base": {
+        "hp": 54,
+        "mp": 18,
+        "attack": 15,
+        "defense": 10,
+        "magic": 10,
+        "speed": 15
+      },
+      "growth": {
+        "hp": 9,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 34,
+      "gold": 20,
+      "captureRate": 0.41,
+      "skills": [
+        "mud_shot"
+      ],
+      "motion": "sway",
+      "variantOf": "tree_snake"
+    },
+    {
+      "id": "light_snake",
+      "name": "Light Snake",
+      "art": "monster_tree_snake_light",
+      "element": "light",
+      "base": {
+        "hp": 55,
+        "mp": 18,
+        "attack": 15,
+        "defense": 10,
+        "magic": 10,
+        "speed": 15
+      },
+      "growth": {
+        "hp": 9,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 48,
+      "gold": 29,
+      "captureRate": 0.41,
+      "skills": [
+        "flash"
+      ],
+      "motion": "sway",
+      "variantOf": "tree_snake"
+    },
+    {
+      "id": "light_hedgehog",
+      "name": "Light Hedgehog",
+      "art": "monster_hedgehog_light",
+      "element": "light",
+      "base": {
+        "hp": 75,
+        "mp": 14,
+        "attack": 15,
+        "defense": 18,
+        "magic": 6,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 1,
+        "attack": 2,
+        "defense": 2,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 48,
+      "gold": 29,
+      "captureRate": 0.41,
+      "skills": [
+        "flash"
+      ],
+      "motion": "hop",
+      "variantOf": "hedgehog"
+    },
+    {
+      "id": "mining_lizard",
+      "name": "Mining Lizard",
+      "art": "monster_black_lizard_mining",
+      "element": "earth",
+      "base": {
+        "hp": 93,
+        "mp": 36,
+        "attack": 36,
+        "defense": 18,
+        "magic": 18,
+        "speed": 46
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 3,
+        "attack": 3,
+        "defense": 1,
+        "magic": 1,
+        "speed": 3
+      },
+      "exp": 48,
+      "gold": 29,
+      "captureRate": 0.27,
+      "skills": [
+        "rock_throw"
+      ],
+      "motion": "sway",
+      "variantOf": "black_lizard"
+    },
+    {
+      "id": "frost_bear",
+      "name": "Frost Bear",
+      "art": "monster_fire_bear_frost",
+      "element": "water",
+      "base": {
+        "hp": 166,
+        "mp": 35,
+        "attack": 58,
+        "defense": 30,
+        "magic": 18,
+        "speed": 35
+      },
+      "growth": {
+        "hp": 14,
+        "mp": 2,
+        "attack": 6,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 64,
+      "gold": 38,
+      "captureRate": 0.23,
+      "skills": [
+        "frost_breath"
+      ],
+      "motion": "bounce",
+      "variantOf": "fire_bear"
+    },
+    {
+      "id": "rat_king",
+      "name": "Rat King",
+      "art": "boss_rat_king",
+      "element": "fire",
+      "base": {
+        "hp": 268,
+        "mp": 56,
+        "attack": 92,
+        "defense": 49,
+        "magic": 28,
+        "speed": 56
+      },
+      "growth": {
+        "hp": 19,
+        "mp": 2,
+        "attack": 7,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 272,
+      "gold": 204,
+      "captureRate": 0,
+      "skills": [
+        "ember",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "drunk_dragon",
+      "name": "Drunk Dragon",
+      "art": "boss_drunk_dragon",
+      "element": "fire",
+      "base": {
+        "hp": 362,
+        "mp": 76,
+        "attack": 124,
+        "defense": 67,
+        "magic": 38,
+        "speed": 76
+      },
+      "growth": {
+        "hp": 22,
+        "mp": 3,
+        "attack": 8,
+        "defense": 3,
+        "magic": 3,
+        "speed": 3
+      },
+      "exp": 384,
+      "gold": 288,
+      "captureRate": 0,
+      "skills": [
+        "ember",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "big_bad_wolf",
+      "name": "Big Bad Wolf",
+      "art": "boss_big_bad_wolf",
+      "element": "dark",
+      "base": {
+        "hp": 479,
+        "mp": 101,
+        "attack": 164,
+        "defense": 88,
+        "magic": 50,
+        "speed": 101
+      },
+      "growth": {
+        "hp": 24,
+        "mp": 3,
+        "attack": 9,
+        "defense": 3,
+        "magic": 3,
+        "speed": 3
+      },
+      "exp": 512,
+      "gold": 384,
+      "captureRate": 0,
+      "skills": [
+        "shadow_bite",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "lion cub with a mane of moss and pebbles, earthy brown, chibi, cute monster",
+    "prompt_style": "rd_plus__low_res",
+    "width": 40,
+    "height": 40,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790692676,
+    "credit_cost": 2,
+    "balance_cost": 0.025,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 54.634,
+    "request_id": "d9b72b74-8f28-4fd4-a0ed-d9565206d1bb",
+    "outputs_retained_until": 1790779068
+  }
+}

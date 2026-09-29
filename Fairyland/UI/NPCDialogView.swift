@@ -5,6 +5,8 @@ struct NPCDialogView: View {
     let npc: NPCDef
     let session: GameSession
     let onClose: () -> Void
+    /// Bosses: start the fight.
+    var onFight: (NPCDef) -> Void = { _ in }
     @State private var reply: String?
 
     var body: some View {
@@ -34,6 +36,7 @@ struct NPCDialogView: View {
                             case .quests: QuestGiverPanel(session: session, giver: npc.id, reply: $reply)
                             case .guild: GuildPanel(session: session, classID: npc.classId ?? "", reply: $reply)
                             case .chest: ChestPanel(session: session, chest: npc, reply: $reply)
+                            case .boss: BossPanel(session: session, boss: npc, onFight: onFight)
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -229,6 +232,36 @@ private struct GuildPanel: View {
             } else {
                 Button("Join and become a \(path.name)") { confirming = true }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
+            }
+        }
+    }
+}
+
+/// A boss: how strong it is, and a button to take it on.
+private struct BossPanel: View {
+    let session: GameSession
+    let boss: NPCDef
+    let onFight: (NPCDef) -> Void
+
+    var body: some View {
+        let species = boss.monster.flatMap(session.content.monster)
+        let level = boss.level ?? 10
+        VStack(alignment: .leading, spacing: 8) {
+            if let species {
+                HStack(spacing: 8) {
+                    Text("Lv \(level) \(species.name)").foregroundStyle(HUDStyle.gold)
+                    ElementBadge(element: species.element)
+                }
+                .font(HUDStyle.font(13))
+                if level > session.data.hero.level + 2 {
+                    Text("This looks really dangerous at your level…").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.orange)
+                }
+            }
+            if session.isDefeated(boss) {
+                EmptyNote("You've already beaten it.")
+            } else {
+                Button { onFight(boss) } label: { Label("Fight!", icon: .sword) }
+                    .buttonStyle(PixelButtonStyle(tint: Color(red: 1, green: 0.55, blue: 0.5)))
             }
         }
     }

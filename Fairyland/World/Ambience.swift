@@ -115,6 +115,47 @@ final class Ambience {
             emitter.particleScale = 1.5
             emitter.particleScaleRange = 1
             emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 1, 0], times: [0, 0.4, 1])
+        case "snow":
+            emitter.particleTexture = SoftTextures.glow
+            emitter.particleColor = .white
+            emitter.particleColorBlendFactor = 1
+            emitter.particleBirthRate = 14
+            emitter.particleLifetime = 14
+            emitter.particleSpeed = 26
+            emitter.particleSpeedRange = 10
+            emitter.emissionAngle = -.pi / 2
+            emitter.emissionAngleRange = 0.5
+            emitter.xAcceleration = 3
+            emitter.particleScale = 0.2
+            emitter.particleScaleRange = 0.12
+            emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.9, 0.9, 0], times: [0, 0.1, 0.85, 1])
+        case "dust":
+            emitter.particleTexture = SoftTextures.glow
+            emitter.particleColor = UIColor(red: 1, green: 0.88, blue: 0.62, alpha: 1)
+            emitter.particleColorBlendFactor = 1
+            emitter.particleBirthRate = 6
+            emitter.particleLifetime = 10
+            emitter.particleSpeed = 34
+            emitter.particleSpeedRange = 14
+            emitter.emissionAngle = 0.15
+            emitter.emissionAngleRange = 0.3
+            emitter.particleScale = 0.16
+            emitter.particleScaleRange = 0.1
+            emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.6, 0.6, 0], times: [0, 0.2, 0.8, 1])
+        case "motes":
+            emitter.particleTexture = SoftTextures.glow
+            emitter.particleColor = UIColor(red: 0.55, green: 0.85, blue: 1, alpha: 1)
+            emitter.particleColorBlendFactor = 1
+            emitter.particleBlendMode = .add
+            emitter.particleBirthRate = 3
+            emitter.particleLifetime = 9
+            emitter.particleLifetimeRange = 3
+            emitter.particleSpeed = 6
+            emitter.emissionAngle = .pi / 2
+            emitter.emissionAngleRange = 1
+            emitter.particleScale = 0.3
+            emitter.particleScaleRange = 0.15
+            emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.8, 0.3, 0.8, 0], times: [0, 0.25, 0.5, 0.75, 1])
         default:
             return nil
         }

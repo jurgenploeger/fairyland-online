@@ -661,6 +661,16 @@ final class GameSession {
         }
     }
 
+    func isDefeated(_ boss: NPCDef) -> Bool {
+        data.defeatedBosses?.contains(boss.id) == true
+    }
+
+    func defeatBoss(_ boss: NPCDef) {
+        guard !isDefeated(boss) else { return }
+        data.defeatedBosses = (data.defeatedBosses ?? []) + [boss.id]
+        save()
+    }
+
     func hasCompleted(_ questID: String) -> Bool {
         data.quests[questID]?.state == .completed
     }

@@ -98,6 +98,18 @@ final class BattleController {
         return BattleController(engine: engine, session: session, intro: intro)
     }
 
+    /// A boss waiting on the map.
+    static func boss(_ npc: NPCDef, session: GameSession) -> BattleController? {
+        guard let id = npc.monster, let species = session.content.monster(id) else { return nil }
+        let level = npc.level ?? 10
+        let stats = species.stats(at: level)
+        let boss = Combatant(id: 10, side: .enemies, source: .wild(id), name: species.name, art: species.art,
+                             level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp,
+                             skills: species.skills, captureRate: 0)
+        let engine = BattleEngine(party: party(for: session), enemies: [boss], content: session.content)
+        return BattleController(engine: engine, session: session, intro: "\(species.name) blocks your way!")
+    }
+
     /// Builds a random encounter for the current map.
     static func encounter(_ encounters: MapDef.Encounters, session: GameSession) -> BattleController {
         let content = session.content

@@ -132,7 +132,18 @@
     },
     {
       "id": "leather_vest",
-      "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 28, "saturation": 0.7, "value": 0.72 }],
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 28,
+          "saturation": 0.7,
+          "value": 0.72
+        }
+      ],
       "icon": "shield-check",
       "name": "Leather Vest",
       "type": "armor",
@@ -145,7 +156,18 @@
     },
     {
       "id": "chain_mail",
-      "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 215, "saturation": 0.12, "value": 0.95 }],
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 215,
+          "saturation": 0.12,
+          "value": 0.95
+        }
+      ],
       "icon": "shield-plus",
       "name": "Chain Mail",
       "type": "armor",
@@ -161,7 +183,18 @@
     },
     {
       "id": "silk_robe",
-      "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 268, "saturation": 0.75, "value": 1.1 }],
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 268,
+          "saturation": 0.75,
+          "value": 1.1
+        }
+      ],
       "icon": "shield-star",
       "name": "Silk Robe",
       "type": "armor",
@@ -179,7 +212,18 @@
     },
     {
       "id": "ranger_cloak",
-      "recolor": [{ "hue": [85, 170], "minSaturation": 0.3, "to": 150, "saturation": 0.85, "value": 0.62 }],
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 150,
+          "saturation": 0.85,
+          "value": 0.62
+        }
+      ],
       "icon": "shield-heart",
       "name": "Ranger Cloak",
       "type": "armor",
@@ -227,6 +271,287 @@
         "mp": 4
       },
       "description": "A small ring for new adventurers."
+    },
+    {
+      "id": "hi_potion",
+      "icon": "potion",
+      "name": "Hi-Potion",
+      "type": "consumable",
+      "price": 60,
+      "heal": 120,
+      "description": "Restores 120 HP."
+    },
+    {
+      "id": "hi_ether",
+      "icon": "flask",
+      "name": "Hi-Ether",
+      "type": "consumable",
+      "price": 90,
+      "mp": 50,
+      "description": "Restores 50 MP."
+    },
+    {
+      "id": "steel_sword",
+      "icon": "sword",
+      "name": "Steel Sword",
+      "type": "weapon",
+      "price": 400,
+      "stats": {
+        "attack": 18
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 10,
+      "description": "A proper knight's blade."
+    },
+    {
+      "id": "battle_axe",
+      "icon": "axe",
+      "name": "Battle Axe",
+      "type": "weapon",
+      "price": 1100,
+      "stats": {
+        "attack": 30
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 18,
+      "description": "Dwarven steel, twice your weight."
+    },
+    {
+      "id": "elder_staff",
+      "icon": "wand",
+      "name": "Elder Staff",
+      "type": "weapon",
+      "price": 420,
+      "stats": {
+        "magic": 18
+      },
+      "classes": [
+        "mage"
+      ],
+      "level": 10,
+      "description": "Carved from the Smiling Forest's oldest oak."
+    },
+    {
+      "id": "star_wand",
+      "icon": "diamond",
+      "name": "Star Wand",
+      "type": "weapon",
+      "price": 1150,
+      "stats": {
+        "magic": 30
+      },
+      "classes": [
+        "mage"
+      ],
+      "level": 18,
+      "description": "A shooting star, caught and polished."
+    },
+    {
+      "id": "beast_whip",
+      "icon": "paw",
+      "name": "Beast Whip",
+      "type": "weapon",
+      "price": 400,
+      "stats": {
+        "attack": 12,
+        "speed": 4
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 10,
+      "description": "Every monster listens to this one."
+    },
+    {
+      "id": "wild_horn",
+      "icon": "paw",
+      "name": "Wild Horn",
+      "type": "weapon",
+      "price": 1100,
+      "stats": {
+        "attack": 20,
+        "magic": 10
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 18,
+      "description": "Its call echoes through every forest."
+    },
+    {
+      "id": "iron_plate",
+      "icon": "shield-plus",
+      "name": "Iron Plate",
+      "type": "armor",
+      "price": 450,
+      "stats": {
+        "defense": 20,
+        "hp": 30
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 12,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 220,
+          "saturation": 0.2,
+          "value": 0.75
+        }
+      ],
+      "description": "Heavy, shiny, and very safe."
+    },
+    {
+      "id": "mage_robe",
+      "icon": "shield-star",
+      "name": "Mage Robe",
+      "type": "armor",
+      "price": 450,
+      "stats": {
+        "defense": 9,
+        "magic": 8,
+        "mp": 20
+      },
+      "classes": [
+        "mage"
+      ],
+      "level": 12,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 232,
+          "saturation": 0.9,
+          "value": 0.9
+        }
+      ],
+      "description": "Embroidered with glowing runes."
+    },
+    {
+      "id": "tamer_jacket",
+      "icon": "shield-heart",
+      "name": "Tamer Jacket",
+      "type": "armor",
+      "price": 450,
+      "stats": {
+        "defense": 14,
+        "speed": 4
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 12,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 36,
+          "saturation": 0.6,
+          "value": 0.85
+        }
+      ],
+      "description": "Lots of pockets for treats."
+    },
+    {
+      "id": "dragon_mail",
+      "icon": "shield-plus",
+      "name": "Dragon Mail",
+      "type": "armor",
+      "price": 1400,
+      "stats": {
+        "defense": 28,
+        "hp": 50
+      },
+      "level": 20,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 356,
+          "saturation": 0.95,
+          "value": 0.8
+        }
+      ],
+      "description": "Scales from a very sleepy dragon."
+    },
+    {
+      "id": "snow_cloak",
+      "icon": "shield-star",
+      "name": "Snow Cloak",
+      "type": "armor",
+      "price": 1500,
+      "stats": {
+        "defense": 30,
+        "magic": 10
+      },
+      "level": 24,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 200,
+          "saturation": 0.15,
+          "value": 1.25
+        }
+      ],
+      "description": "Woven from the first snow of winter."
+    },
+    {
+      "id": "star_charm",
+      "icon": "gem",
+      "name": "Star Charm",
+      "type": "accessory",
+      "price": 500,
+      "stats": {
+        "magic": 10
+      },
+      "level": 15,
+      "description": "Twinkles when you cast."
+    },
+    {
+      "id": "power_band",
+      "icon": "ring",
+      "name": "Power Band",
+      "type": "accessory",
+      "price": 500,
+      "stats": {
+        "attack": 10
+      },
+      "level": 15,
+      "description": "Makes you feel mighty."
+    },
+    {
+      "id": "speed_boots",
+      "icon": "clover",
+      "name": "Speed Boots",
+      "type": "accessory",
+      "price": 900,
+      "stats": {
+        "speed": 8
+      },
+      "level": 18,
+      "description": "Zoom!"
     }
   ]
 }

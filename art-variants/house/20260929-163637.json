@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "cozy fairytale cottage with a red tiled roof and round wooden door",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 96,
+    "height": 96,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790692595,
+    "credit_cost": 2,
+    "balance_cost": 0.038,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 54.759,
+    "request_id": "fa15704d-52c8-4113-bdb4-1b4613ed8b9c",
+    "outputs_retained_until": 1790778928
+  }
+}

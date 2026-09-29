@@ -66,7 +66,11 @@
         "jelly_trouble"
       ],
       "description": "Every adventurer needs friends. Take these Seal Stones. Beat a group down to its last monster, weaken that one below 20% HP, then throw a stone with Capture. It may take a few tries!",
-      "starterItems": ["seal_stone", "seal_stone", "seal_stone"],
+      "starterItems": [
+        "seal_stone",
+        "seal_stone",
+        "seal_stone"
+      ],
       "objective": {
         "type": "capture",
         "count": 1
@@ -133,6 +137,184 @@
           "lucky_clover"
         ]
       }
+    },
+    {
+      "id": "swamp_song",
+      "title": "Swamp Song",
+      "giver": "elder",
+      "requires": [
+        "new_friend"
+      ],
+      "description": "Frogs croak all night south of Sunny Meadow and nobody can sleep! Quiet 4 Treefrogs in Frog Swamp.",
+      "objective": {
+        "type": "defeat",
+        "target": "treefrog",
+        "count": 4
+      },
+      "reward": {
+        "gold": 90,
+        "exp": 120,
+        "items": [
+          "ether"
+        ]
+      },
+      "minLevel": 6
+    },
+    {
+      "id": "forest_friends",
+      "title": "Monkey Business",
+      "giver": "elder",
+      "requires": [
+        "pineapple_harvest"
+      ],
+      "description": "Wood Monkeys from the Smiling Forest, north of Pineapple Shore, keep stealing our apples. Defeat 5.",
+      "objective": {
+        "type": "defeat",
+        "target": "wood_monkey",
+        "count": 5
+      },
+      "reward": {
+        "gold": 120,
+        "exp": 150,
+        "items": [
+          "hi_potion",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 5
+    },
+    {
+      "id": "city_errands",
+      "title": "Sheep Shearing",
+      "giver": "mayor",
+      "requires": [
+        "forest_friends"
+      ],
+      "description": "The Flame Sheep of the Smiling Forest have set the market awnings alight again. Defeat 4, please!",
+      "objective": {
+        "type": "defeat",
+        "target": "flame_sheep",
+        "count": 4
+      },
+      "reward": {
+        "gold": 200,
+        "exp": 220,
+        "items": [
+          "star_charm"
+        ]
+      },
+      "minLevel": 7
+    },
+    {
+      "id": "valley_lights",
+      "title": "Lights in the Valley",
+      "giver": "elder",
+      "requires": [
+        "bouncy_menace"
+      ],
+      "description": "Strange lights drift through the Valley of Fear, south of Twilight Woods. Defeat 4 Wisps and see what's there.",
+      "objective": {
+        "type": "defeat",
+        "target": "wisp",
+        "count": 4
+      },
+      "reward": {
+        "gold": 180,
+        "exp": 300,
+        "items": [
+          "hi_potion",
+          "seal_stone"
+        ]
+      },
+      "minLevel": 10
+    },
+    {
+      "id": "rat_king",
+      "title": "The Rat King",
+      "giver": "elder",
+      "requires": [
+        "valley_lights"
+      ],
+      "description": "The dwarves of Goldburg are cut off! A Rat King has taken over the cavern east of the Valley of Fear. Defeat him.",
+      "objective": {
+        "type": "defeat",
+        "target": "rat_king",
+        "count": 1
+      },
+      "reward": {
+        "gold": 500,
+        "exp": 900,
+        "items": [
+          "power_band"
+        ]
+      },
+      "minLevel": 14
+    },
+    {
+      "id": "dragon_hangover",
+      "title": "Dragon Hangover",
+      "giver": "chief",
+      "requires": [
+        "rat_king"
+      ],
+      "description": "A dragon's been drinking at the oasis in Genie Desert, east of town, and scaring off the caravans. Sober him up… with force.",
+      "objective": {
+        "type": "defeat",
+        "target": "drunk_dragon",
+        "count": 1
+      },
+      "reward": {
+        "gold": 900,
+        "exp": 1800,
+        "items": [
+          "dragon_mail"
+        ]
+      },
+      "minLevel": 20
+    },
+    {
+      "id": "crystal_hearts",
+      "title": "Crystal Hearts",
+      "giver": "chief",
+      "requires": [
+        "dragon_hangover"
+      ],
+      "description": "We need Gem Crawler shells for the forge. Defeat 4 on Crystal Mountain, south of Goldburg.",
+      "objective": {
+        "type": "defeat",
+        "target": "gem_crawler",
+        "count": 4
+      },
+      "reward": {
+        "gold": 700,
+        "exp": 1600,
+        "items": [
+          "speed_boots"
+        ]
+      },
+      "minLevel": 22
+    },
+    {
+      "id": "wolf_hunt",
+      "title": "Who's Afraid of the Big Bad Wolf?",
+      "giver": "mayor",
+      "requires": [
+        "dragon_hangover"
+      ],
+      "description": "A Big Bad Wolf prowls the Snow White Forest, east of the Smiling Forest. Be brave, and be careful.",
+      "objective": {
+        "type": "defeat",
+        "target": "big_bad_wolf",
+        "count": 1
+      },
+      "reward": {
+        "gold": 1500,
+        "exp": 3000,
+        "items": [
+          "snow_cloak"
+        ]
+      },
+      "minLevel": 25
     }
   ]
 }

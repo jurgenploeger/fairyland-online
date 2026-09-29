@@ -5,15 +5,22 @@ Built with SwiftUI + SpriteKit. Art is generated with [Retro Diffusion](https://
 
 ## What's in the game
 
-- **Isometric maps** you walk between by leaving along a road: Meadowbrook (town), Sunny Meadow,
-  Pineapple Shore and Twilight Woods. Each has its own ground, scenery, ambience and music.
-- **Random encounters** in the wild (no monsters on the map), with **turn-based battles** fought where you stand:
-  Attack, Skills, Items, Guard, Run, and **Capture** once a monster is below half HP.
-- **Companions:** your first comes from the pet egg in the "Hope of Meadowbrook" quest (your answer to the
-  elder decides which one hatches). After that, capture monsters. Companions fight beside you and level up.
-- **Classes:** start as a Novice; at level 5 join a guild as a Fighter, Mage or Beast Tamer.
-- **Skills** with levels 1–5 (one skill point per level-up). Every skill has its own battle animation that grows with its level.
-- **Quests, a shop, a healer**, equipment, the seven-element chart, an in-game calendar, and an original chiptune soundtrack.
+- **14 isometric maps** you walk between along winding roads: towns (Meadowbrook, Rainbow City, dwarven
+  Goldburg) with streets, shops, fairytale buildings and raised stone terraces, and wild zones from Sunny
+  Meadow and the Smiling Forest to Frog Swamp, the Valley of Fear, Rat Cavern, Genie Desert, Crystal Mountain,
+  Snow White Forest and Moonglow. Quests open the roads onward.
+- **Random encounters** in the wild (no monsters on the map), with **turn-based battles** fought where you
+  stand. Big spells splash onto nearby monsters. Three bosses wait on their maps.
+- **81 monsters** across seven elements, including rare, tougher colour variants.
+- **Capture like Fairyland Online:** throw a Seal Stone at the last monster standing once it's below 20% HP.
+  It may break free or run away. Keep up to 5 companions; your first hatches from the starter quest's egg.
+- **Classes and skills:** start as a Novice, join a guild at level 5. Each level gives a skill point to learn
+  a new skill or power one up (levels 1–5), each with its own animation.
+- **A living world:** villagers and other adventurers wander and chat (see the chat window), you can befriend
+  adventurers and bring two along in your party, and danger zones allow duels.
+- **Customisation:** hair, outfit and skin (more unlock through quests); armour recolours your outfit and your
+  weapon shows in hand.
+- Quests, shops, healers, checkpoints, an in-game calendar and an original chiptune soundtrack.
 
 ## Run it
 
@@ -85,3 +92,18 @@ Fairyland/Art/         sprite loading and placeholder art
 Fairyland/UI/          SwiftUI HUD, menus, dialogs, battle UI
 FairylandTests/        rules and content tests
 ```
+
+## Working from your phone (no Mac needed)
+
+Pushes to `main` are built by **Xcode Cloud** (`ci_scripts/ci_post_clone.sh` installs XcodeGen and generates
+the project). With a TestFlight step in the Xcode Cloud workflow, every build lands on your iPhone through the
+TestFlight app:
+
+1. In App Store Connect, create the app (bundle id `com.jurgenploeger.fairyland`) and an internal TestFlight
+   group with yourself in it; install **TestFlight** on the iPhone.
+2. In Xcode Cloud, edit the workflow: start condition **Branch changes → main**, action **Archive (iOS)** with
+   deployment preparation **TestFlight (Internal Testing Only)**, and a post-action **TestFlight Internal
+   Testing** for your group.
+3. From the Claude app on your phone, open a **Claude Code** cloud session on this repo. It can edit and push
+   but can't run Xcode, so check game-data edits with `python3 tools/check_content.py` before pushing.
+   To generate art there, add `RETRO_DIFFUSION_API_KEY` to the cloud environment's variables.

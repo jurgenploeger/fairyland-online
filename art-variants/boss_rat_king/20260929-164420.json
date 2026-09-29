@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "giant rat king wearing a tiny crown and cape, boss monster, chibi, cute monster",
+    "prompt_style": "rd_plus__low_res",
+    "width": 64,
+    "height": 64,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790693060,
+    "credit_cost": 2,
+    "balance_cost": 0.03,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 54.004,
+    "request_id": "67ae5b5e-bf98-4b96-923a-cb4aa9870c6a",
+    "outputs_retained_until": 1790779426
+  }
+}

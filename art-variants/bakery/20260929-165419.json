@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "fairytale bakery with a bread sign and a yellow striped awning",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 96,
+    "height": 96,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790693658,
+    "credit_cost": 2,
+    "balance_cost": 0.038,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 53.098,
+    "request_id": "787adce2-8da9-4b99-9080-89d483d692a4",
+    "outputs_retained_until": 1790780030
+  }
+}

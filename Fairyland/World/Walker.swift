@@ -22,6 +22,10 @@ final class Walker: SKNode {
     var motion: IdleMotion = .breathe {
         didSet { if motion != oldValue { animate() } }
     }
+    /// The hero fidgets when left standing: glances around, stretches.
+    var fidgets = false {
+        didSet { if fidgets, !isWalking { startFidgeting() } }
+    }
     /// So a crowd doesn't breathe in unison.
     private let breathOffset = TimeInterval.random(in: 0..<1.6)
 
@@ -137,6 +141,35 @@ final class Walker: SKNode {
         guard walking != isWalking else { return }
         isWalking = walking
         animate()
+        if walking {
+            removeAction(forKey: "fidget")
+            removeAction(forKey: "glance")
+        } else if fidgets {
+            startFidgeting()
+        }
+    }
+
+    private func startFidgeting() {
+        let fidget = SKAction.sequence([.wait(forDuration: 5, withRange: 4), .run { [weak self] in self?.fidget() }])
+        run(.repeatForever(fidget), withKey: "fidget")
+    }
+
+    /// Look left and right, or have a little stretch.
+    private func fidget() {
+        guard !isWalking else { return }
+        if Bool.random() {
+            let original = facing
+            let sides: [Direction] = original.isHorizontal ? [.down, original == .left ? .right : .left] : [.left, .right].shuffled()
+            run(.sequence([
+                .run { [weak self] in self?.face(sides[0]) }, .wait(forDuration: 0.7),
+                .run { [weak self] in self?.face(sides[1]) }, .wait(forDuration: 0.7),
+                .run { [weak self] in self?.face(original) },
+            ]), withKey: "glance")
+        } else {
+            let stretch = SKAction.sequence([.scaleY(to: 1.12, duration: 0.18), .scaleY(to: 0.94, duration: 0.12), .scaleY(to: 1, duration: 0.14)])
+            stretch.timingMode = .easeInEaseOut
+            sprite.run(stretch, withKey: "stretch")
+        }
     }
 
     private func animate() {

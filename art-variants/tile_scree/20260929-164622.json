@@ -1,0 +1,20 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "grey mountain scree gravel with small crystals",
+    "prompt_style": "rd_tile__single_tile",
+    "width": 32,
+    "height": 32
+  },
+  "result": {
+    "created_at": 1790693181,
+    "credit_cost": 2,
+    "balance_cost": 0.025,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 53.769,
+    "request_id": "c24f7ddd-2c48-4fee-8db7-04e1cd1acb28",
+    "outputs_retained_until": 1790779564
+  }
+}
