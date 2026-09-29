@@ -19,14 +19,14 @@
         "props": [
           {
             "art": "blossom_tree",
-            "count": 24,
+            "count": 32,
             "blocking": true,
             "cluster": 3,
             "sway": true
           },
           {
             "art": "tree",
-            "count": 30,
+            "count": 44,
             "blocking": true,
             "cluster": 4,
             "sway": true
@@ -35,6 +35,39 @@
             "art": "mushroom",
             "count": 10,
             "blocking": false
+          },
+          {
+            "art": "bush",
+            "count": 40,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "flowering_bush",
+            "count": 20,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "daisy",
+            "count": 24,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 24,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "daisy_blue",
+            "count": 12,
+            "blocking": false,
+            "cluster": 4,
+            "sway": true
           }
         ],
         "accent": "tile_scree",
@@ -365,7 +398,7 @@
         "ground": "tile_grass",
         "path": "tile_path",
         "accent": "tile_flowers",
-        "accentPatches": 45,
+        "accentPatches": 70,
         "water": "tile_water",
         "ponds": 9,
         "fairyRings": {
@@ -375,21 +408,21 @@
         "props": [
           {
             "art": "tree",
-            "count": 280,
+            "count": 420,
             "blocking": true,
             "cluster": 12,
             "sway": true
           },
           {
             "art": "blossom_tree",
-            "count": 70,
+            "count": 100,
             "blocking": true,
             "cluster": 5,
             "sway": true
           },
           {
             "art": "autumn_tree",
-            "count": 36,
+            "count": 50,
             "blocking": true,
             "cluster": 6,
             "sway": true
@@ -402,7 +435,7 @@
           },
           {
             "art": "giant_flower",
-            "count": 45,
+            "count": 60,
             "blocking": true,
             "cluster": 4,
             "sway": true
@@ -412,6 +445,39 @@
             "count": 60,
             "blocking": false,
             "cluster": 3
+          },
+          {
+            "art": "bush",
+            "count": 220,
+            "blocking": true,
+            "cluster": 6
+          },
+          {
+            "art": "flowering_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4
+          },
+          {
+            "art": "daisy",
+            "count": 90,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 90,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "daisy_blue",
+            "count": 45,
+            "blocking": false,
+            "cluster": 4,
+            "sway": true
           }
         ]
       },
@@ -477,13 +543,13 @@
         "ground": "tile_sand",
         "path": "tile_path",
         "accent": "tile_shells",
-        "accentPatches": 30,
+        "accentPatches": 40,
         "water": "tile_water",
         "ponds": 14,
         "props": [
           {
             "art": "palm_tree",
-            "count": 170,
+            "count": 250,
             "blocking": true,
             "cluster": 7,
             "sway": true
@@ -498,6 +564,19 @@
             "art": "sandcastle",
             "count": 14,
             "blocking": true
+          },
+          {
+            "art": "bush",
+            "count": 110,
+            "blocking": true,
+            "cluster": 5
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 60,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true
           }
         ]
       },
@@ -565,7 +644,7 @@
         "props": [
           {
             "art": "dark_tree",
-            "count": 420,
+            "count": 600,
             "blocking": true,
             "cluster": 14,
             "sway": true
@@ -578,9 +657,15 @@
           },
           {
             "art": "glow_mushroom",
-            "count": 130,
+            "count": 180,
             "blocking": false,
             "cluster": 5
+          },
+          {
+            "art": "dark_bush",
+            "count": 220,
+            "blocking": true,
+            "cluster": 6
           }
         ]
       },
@@ -639,7 +724,7 @@
         "ground": "tile_forest_floor",
         "path": "tile_path",
         "accent": "tile_flowers",
-        "accentPatches": 30,
+        "accentPatches": 50,
         "water": "tile_water",
         "ponds": 5,
         "fairyRings": {
@@ -649,21 +734,21 @@
         "props": [
           {
             "art": "tree",
-            "count": 360,
+            "count": 520,
             "blocking": true,
             "cluster": 12,
             "sway": true
           },
           {
             "art": "blossom_tree",
-            "count": 60,
+            "count": 90,
             "blocking": true,
             "cluster": 4,
             "sway": true
           },
           {
             "art": "giant_mushroom",
-            "count": 40,
+            "count": 55,
             "blocking": true,
             "cluster": 3
           },
@@ -672,6 +757,39 @@
             "count": 120,
             "blocking": false,
             "cluster": 5
+          },
+          {
+            "art": "bush",
+            "count": 260,
+            "blocking": true,
+            "cluster": 7
+          },
+          {
+            "art": "flowering_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4
+          },
+          {
+            "art": "daisy",
+            "count": 60,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 60,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "daisy_blue",
+            "count": 30,
+            "blocking": false,
+            "cluster": 4,
+            "sway": true
           }
         ]
       },
@@ -740,15 +858,48 @@
         "props": [
           {
             "art": "blossom_tree",
-            "count": 30,
+            "count": 40,
             "blocking": true,
             "cluster": 3,
             "sway": true
           },
           {
             "art": "tree",
+            "count": 40,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "flowering_bush",
+            "count": 40,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "bush",
             "count": 30,
             "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "daisy",
+            "count": 30,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 30,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "daisy_blue",
+            "count": 15,
+            "blocking": false,
             "cluster": 4,
             "sway": true
           }
@@ -914,14 +1065,14 @@
         "props": [
           {
             "art": "snow_tree",
-            "count": 280,
+            "count": 380,
             "blocking": true,
             "cluster": 10,
             "sway": true
           },
           {
             "art": "snow_pine",
-            "count": 200,
+            "count": 300,
             "blocking": true,
             "cluster": 10
           },
@@ -930,6 +1081,12 @@
             "count": 30,
             "blocking": true,
             "cluster": 2
+          },
+          {
+            "art": "snow_bush",
+            "count": 180,
+            "blocking": true,
+            "cluster": 6
           }
         ]
       },
@@ -1001,14 +1158,14 @@
         "props": [
           {
             "art": "reeds",
-            "count": 220,
+            "count": 320,
             "blocking": false,
             "cluster": 8,
             "sway": true
           },
           {
             "art": "dead_tree",
-            "count": 120,
+            "count": 170,
             "blocking": true,
             "cluster": 6
           },
@@ -1017,6 +1174,12 @@
             "count": 60,
             "blocking": false,
             "cluster": 4
+          },
+          {
+            "art": "moss_bush",
+            "count": 160,
+            "blocking": true,
+            "cluster": 6
           }
         ]
       },
@@ -1078,13 +1241,13 @@
         "props": [
           {
             "art": "dead_tree",
-            "count": 240,
+            "count": 320,
             "blocking": true,
             "cluster": 12
           },
           {
             "art": "dark_tree",
-            "count": 200,
+            "count": 280,
             "blocking": true,
             "cluster": 10,
             "sway": true
@@ -1105,6 +1268,12 @@
             "count": 40,
             "blocking": false,
             "cluster": 4
+          },
+          {
+            "art": "dark_bush",
+            "count": 150,
+            "blocking": true,
+            "cluster": 5
           }
         ]
       },
@@ -1278,6 +1447,12 @@
             "art": "mine_cart",
             "count": 8,
             "blocking": true
+          },
+          {
+            "art": "dry_bush",
+            "count": 24,
+            "blocking": true,
+            "cluster": 3
           }
         ],
         "accentPatches": 0
@@ -1447,13 +1622,13 @@
         "props": [
           {
             "art": "cactus",
-            "count": 160,
+            "count": 220,
             "blocking": true,
             "cluster": 4
           },
           {
             "art": "palm_tree",
-            "count": 60,
+            "count": 90,
             "blocking": true,
             "cluster": 5,
             "sway": true
@@ -1468,6 +1643,12 @@
             "art": "skull_bones",
             "count": 40,
             "blocking": false
+          },
+          {
+            "art": "dry_bush",
+            "count": 110,
+            "blocking": true,
+            "cluster": 4
           }
         ]
       },
@@ -1558,9 +1739,15 @@
           },
           {
             "art": "snow_pine",
-            "count": 40,
+            "count": 120,
             "blocking": true,
             "cluster": 5
+          },
+          {
+            "art": "snow_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4
           }
         ]
       },
@@ -1633,7 +1820,7 @@
           },
           {
             "art": "snow_pine",
-            "count": 60,
+            "count": 160,
             "blocking": true,
             "cluster": 5
           },
@@ -1642,6 +1829,12 @@
             "count": 50,
             "blocking": true,
             "cluster": 3
+          },
+          {
+            "art": "snow_bush",
+            "count": 80,
+            "blocking": true,
+            "cluster": 4
           }
         ]
       },
