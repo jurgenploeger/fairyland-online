@@ -123,8 +123,9 @@ final class ArtLibrary {
     /// A road tile whose edges (per `mask`: 1 north, 2 east, 4 south, 8 west) give way to
     /// `ground` along a soft wavy line with a darker rim, and rounded corners where two
     /// edges meet, so roads read as winding paths instead of squares.
-    func roadTile(_ path: String, on ground: String, mask: Int) -> SKTexture {
-        let key = "\(path)|\(ground)|\(mask)"
+    /// `shadeRim` darkens the edge like a worn road; patches of flowers or moss go without.
+    func roadTile(_ path: String, on ground: String, mask: Int, shadeRim: Bool = true) -> SKTexture {
+        let key = "\(path)|\(ground)|\(mask)|\(shadeRim)"
         if let cached = blended[key] { return cached }
         let road = tileImage(path)
         let size = max(road.width, 16)
@@ -169,7 +170,7 @@ final class ArtLibrary {
                 let index = (py * size + px) * 4
                 if depth < 0 {
                     for c in 0..<4 { out[index + c] = grassPixels[index + c] }
-                } else if depth < rim {
+                } else if shadeRim, depth < rim {
                     for c in 0..<3 { out[index + c] = UInt8(Double(roadPixels[index + c]) * 0.72) }
                 }
             }

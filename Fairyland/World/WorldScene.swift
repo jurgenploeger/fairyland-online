@@ -161,8 +161,16 @@ final class WorldScene: SKScene {
         for mask in 1..<16 {
             roadEdges[mask] = SKTileGroup(tileDefinition: SKTileDefinition(texture: art.roadTile(theme.path, on: theme.ground, mask: mask), size: tileSize))
         }
+        // Accent patches (flower meadows, moss) blend the same way, so they read as soft blobs
+        // rather than square tiles. Not in towns, where the accent is terrace paving.
+        var accentEdges: [Int: SKTileGroup] = [:]
+        if (theme.accentPatches ?? 0) > 0, let accent = theme.accent, accent != theme.ground {
+            for mask in 1..<16 {
+                accentEdges[mask] = SKTileGroup(tileDefinition: SKTileDefinition(texture: art.roadTile(accent, on: theme.ground, mask: mask, shadeRim: false), size: tileSize))
+            }
+        }
         let tileMap = SKTileMapNode(
-            tileSet: SKTileSet(tileGroups: Array(groups.values) + roadEdges.filter { $0.key != 0 }.map(\.value)),
+            tileSet: SKTileSet(tileGroups: Array(groups.values) + roadEdges.filter { $0.key != 0 }.map(\.value) + Array(accentEdges.values)),
             columns: map.columns,
             rows: map.rows,
             tileSize: tileSize
@@ -171,7 +179,12 @@ final class WorldScene: SKScene {
         for row in 0..<map.rows {
             for col in 0..<map.columns {
                 let kind = map.ground[row][col]
-                let group = kind == .path ? roadEdges[map.roadEdgeMask(GridPoint(col: col, row: row))] : groups[kind]
+                let cell = GridPoint(col: col, row: row)
+                let group: SKTileGroup? = switch kind {
+                case .path: roadEdges[map.roadEdgeMask(cell)]
+                case .accent: accentEdges[map.edgeMask(cell, of: .accent)] ?? groups[kind]
+                default: groups[kind]
+                }
                 tileMap.setTileGroup(group, forColumn: col, row: row)
             }
         }
