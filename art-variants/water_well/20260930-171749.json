@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "stone water well with a little roof",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 64,
+    "height": 64,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790788669,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 49.811,
+    "request_id": "462a5e3f-c27b-4c49-9e5f-7f41fa9106fa",
+    "outputs_retained_until": 1790875016
+  }
+}
