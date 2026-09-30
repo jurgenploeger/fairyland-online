@@ -116,6 +116,35 @@ _X = (_px + 0.5) / _S - 0.5; _Y = 0.5 - (_py + 0.5) / _S
 _WOBBLE = 0.045 * np.sin(2 * np.pi * (2 * _X + _Y)) + 0.03 * np.sin(2 * np.pi * (3 * _Y - _X) + 1.3)
 RADIUS = {'road': 0.36, 'patch': 0.42, 'water': 0.5}
 
+M64 = (1 << 64) - 1
+def variant_of(col, row):
+    """Mirrors WorldScene.variant(of:)."""
+    h = ((col & M64) * 0x9E3779B97F4A7C15) & M64
+    h ^= ((row & M64) * 0xC2B2AE3D27D4EB4F) & M64
+    h ^= h >> 29
+    h = (h * 0xBF58476D1CE4E5B9) & M64
+    h ^= h >> 32
+    return h % 4
+
+_variants = {}
+def tile_variant(tex, index):
+    """Mirrors ArtLibrary.variantPixels: the texture shifted/mirrored inside a soft frame of itself."""
+    index %= 4
+    if index == 0: return tex
+    key = (hash(tex.tobytes()), index)
+    if key in _variants: return _variants[key]
+    n = tex.shape[0]
+    dx, dy, mx, my = [(0, 0, 0, 0), (n // 2, n // 2, 0, 0), (n // 4, n * 5 // 8, 1, 0), (n * 5 // 8, n // 4, 0, 1)][index]
+    ys, xs = np.mgrid[0:n, 0:n]
+    sx = (xs + dx) % n; sy = (ys + dy) % n
+    if mx: sx = n - 1 - sx
+    if my: sy = n - 1 - sy
+    edge = np.minimum(np.minimum(xs, ys), np.minimum(n - 1 - xs, n - 1 - ys)).astype(float)
+    t = np.clip((edge - 1) / (n / 5), 0, 1); inside = (t * t * (3 - 2 * t))[..., None]
+    out = tex * (1 - inside) + tex[sy, sx] * inside
+    _variants[key] = out
+    return out
+
 def strokes(mask):
     pts = [(b % 3 - 1, 1 - b // 3) for b in range(9) if mask & (1 << b)]
     segs = []
@@ -133,13 +162,19 @@ def seg_distance(x0, y0, x1, y1):
 def organic_tile(base, layers, col=0, row=0):
     out = base.copy(); rim = 1.2 / _S
     for tex, mask, style in layers:
-        d = np.min([seg_distance(*sg) for sg in strokes(mask)], axis=0)
         if style == 'water':
+            # mirrors ArtLibrary.waterDepth: soft blobs from the 5x5 water cells
             gx, gy = col + _X, row + _Y
             wobble = 0.08 * np.sin(1.7 * gx + 0.9 * gy) + 0.05 * np.sin(2.3 * gy - 1.1 * gx + 1.7) + 0.03 * np.sin(3.1 * gx + 2.9 * gy + 0.4)
+            field = np.zeros_like(_X)
+            for b in range(25):
+                if mask & (1 << b):
+                    cx, cy = b % 5 - 2, 2 - b // 5
+                    field += np.exp(-((_X - cx) ** 2 + (_Y - cy) ** 2) / 0.49)
+            depth = (field + wobble * 1.8 - 0.55) / 1.2
         else:
-            wobble = _WOBBLE
-        depth = RADIUS[style] + wobble - d
+            d = np.min([seg_distance(*sg) for sg in strokes(mask)], axis=0)
+            depth = RADIUS[style] + _WOBBLE - d
         on = depth > 0
         if style in ('road', 'patch'):
             shade = np.where((style == 'road') & (depth < rim), 0.72, 1.0)[..., None]
@@ -158,6 +193,13 @@ def ground_tiles(m, kinds, palette, col0=0, row0=0):
     tex = {k: grade(raw(v), palette) for k, v in (('g', th['ground']), ('p', th['path']), ('a', th.get('accent')),
                                                    ('w', th.get('water') or 'tile_water'), ('b', th.get('border'))) if v}
     patch_accent = (th.get('accentPatches') or 0) > 0 and th.get('accent') and th.get('accent') != th['ground']
+    def pool_mask(r, c):
+        bits = 0
+        for dy in range(-2, 3):
+            for dx in range(-2, 3):
+                rr, cc = r + dy, c + dx
+                if 0 <= rr < N and 0 <= cc < Wd and kinds[rr][cc] == 'w': bits |= 1 << ((2 - dy) * 5 + dx + 2)
+        return bits
     def mask(r, c, k):
         own = kinds[r][c] == k; bits = 0
         for dy in (-1, 0, 1):
@@ -178,14 +220,18 @@ def ground_tiles(m, kinds, palette, col0=0, row0=0):
             layers = []
             if patch: layers.append(('a', patch, 'patch'))
             if road: layers.append(('p', road, 'road'))
-            if pond: layers.append(('w', pond, 'water'))
-            if pond == 511: key = ('w',)
-            elif road == 511 and pond == 0: key = ('p',)
-            elif not layers: key = (base,)
-            elif patch == 511 and road == 0 and pond == 0: key = ('a',)
-            else: key = (base, tuple(layers), (c, r) if pond else None)
+            if pond: layers.append(('w', pool_mask(r, c), 'water'))
+            v = variant_of(c + col0, r + row0)
+            if pond == 511: key = ('w', v)
+            elif road == 511 and pond == 0: key = ('p', v)
+            elif not layers: key = (base, v)
+            elif patch == 511 and road == 0 and pond == 0: key = ('a', v)
+            else: key = (base, tuple(layers), (c, r, v) if pond else None)
             if key not in cache:
-                cache[key] = tex[key[0]] if len(key) == 1 else organic_tile(tex[base], [(tex[t], mk, st) for t, mk, st in layers], c + col0, r + row0)
+                if len(key) == 2: cache[key] = tile_variant(tex[key[0]], v)
+                else:
+                    pick = v if pond else 0
+                    cache[key] = organic_tile(tile_variant(tex[base], pick), [(tile_variant(tex[t], pick), mk, st) for t, mk, st in layers], c + col0, r + row0)
             out[r, c] = cache[key]
     return out
 
@@ -197,9 +243,48 @@ def blend_light(s, m):
     s[..., :3] = s[..., :3] * (1 - k) + s[..., :3] * hexrgb(p['light']) * k
     return s
 
-def draw_scene(mid, palette, kinds, items, W=420, H=300, seed=3, tint=True, organic=True, light=True, origin=(0, 0)):
-    """items: (art, col, row, scale). Walkers (walk sheets) keep their colours, lit by the map's light."""
+def _soft(w, h):
+    """SoftTextures.glow: white fading linearly to clear from the middle."""
+    ys, xs = np.mgrid[0:max(1, int(h)), 0:max(1, int(w))]
+    r = np.hypot((xs + 0.5) / max(1, w) * 2 - 1, (ys + 0.5) / max(1, h) * 2 - 1)
+    return np.clip(1 - r, 0, 1)
+
+def _paint(img, x0, y0, alpha, color, add):
+    """Blends an alpha mask of colour into img at (x0, y0): additive light or normal paint."""
+    h, w = alpha.shape; H, W = img.shape[:2]
+    xa, ya = max(0, x0), max(0, y0); xb, yb = min(W, x0 + w), min(H, y0 + h)
+    if xa >= xb or ya >= yb: return
+    a = alpha[ya - y0:yb - y0, xa - x0:xb - x0][..., None]
+    if add: img[ya:yb, xa:xb, :3] += a * color
+    else: img[ya:yb, xa:xb, :3] = img[ya:yb, xa:xb, :3] * (1 - a) + a * color
+
+def _variation(m, palette, gx, gy, seed=5):
+    """Mirrors Lighting.groundVariation (smooth value noise leaning to shadow and highlight)."""
+    strength = (palette or {}).get('variation', 0.12)
+    if not palette or strength <= 0: return None
+    rng = np.random.default_rng(seed)
+    def noise(step):
+        grid = rng.random((64, 64))
+        fx, fy = gx / step, gy / step
+        ix, iy = np.floor(fx).astype(int) % 63, np.floor(fy).astype(int) % 63
+        tx, ty = fx - np.floor(fx), fy - np.floor(fy)
+        tx, ty = tx * tx * (3 - 2 * tx), ty * ty * (3 - 2 * ty)
+        a, b, c, d = grid[iy, ix], grid[iy, ix + 1], grid[iy + 1, ix], grid[iy + 1, ix + 1]
+        return (a + (b - a) * tx) + ((c + (d - c) * tx) - (a + (b - a) * tx)) * ty
+    n = noise(7) * 0.7 + noise(3) * 0.3
+    lean = (n - 0.5) * 2
+    alpha = strength * np.minimum(1, np.abs(lean) * 1.6)
+    dark = hexrgb(palette.get('shadow', '#333A4D')); light = hexrgb(palette.get('highlight', '#FFF2CC'))
+    color = np.where((lean < 0)[..., None], dark, light)
+    return alpha[..., None], color
+
+def draw_scene(mid, palette, kinds, items, W=420, H=300, seed=3, tint=True, organic=True, light=True, origin=(0, 0), lighting=True):
+    """items: (art, col, row, scale). Walkers (walk sheets) keep their colours, lit by the map's light.
+    lighting=True adds what Lighting.swift does: ground colour patches, light pools, prop shadows and
+    glows, sunbeams, foreground blur, haze and the sun flare."""
     m = maps[mid]; rng = random.Random(seed); N = len(kinds); Wd = len(kinds[0])
+    amb = m.get('ambience') or {}
+    props = {p['art']: p for p in m['theme']['props']}
     if organic:
         tiles = ground_tiles(m, kinds, palette, *origin)
     else:
@@ -217,9 +302,21 @@ def draw_scene(mid, palette, kinds, items, W=420, H=300, seed=3, tint=True, orga
     u = ((gx / T) % 1 * _S).astype(int).clip(0, _S - 1); v = ((1 - (gy / T) % 1) * _S).astype(int).clip(0, _S - 1)
     img[inside] = tiles[rr[inside], cc[inside], v[inside], u[inside]]
     img[..., 3] = 1
+    if lighting and organic:
+        var = _variation(m, palette, gx / T + origin[0], gy / T + origin[1])
+        if var is not None:
+            a, col = var
+            img[..., :3] = np.where(inside[..., None], img[..., :3] * (1 - a) + col * a, img[..., :3])
+        lp = amb.get('lightPatches')
+        if lp:
+            density = lp['count'] / (m['width'] * m['height'])
+            for _ in range(max(1, int(density * N * Wd))):
+                w = rng.uniform(*(lp.get('size') or [60, 140])); a = _soft(w, w * 0.5) * lp.get('alpha', 0.2)
+                _paint(img, rng.randint(0, W) - int(w / 2), rng.randint(0, H) - int(w / 4), a, hexrgb(lp['color']), True)
     def screen(c, r):
         x, y = project((c + 0.5) * T, (r + 0.5) * T)
         return x - ox + W / 2, H / 2 - (y - 4 - oy)
+    drawn = []
     for art, c, r, scale in sorted(items, key=lambda t: screen(t[1], t[2])[1]):   # back first, like the game
         walker = assets[art]['kind'] == 'walk_sheet'
         s = sprite(art, None if walker else palette)
@@ -230,15 +327,57 @@ def draw_scene(mid, palette, kinds, items, W=420, H=300, seed=3, tint=True, orga
         h, w = s.shape[:2]
         sx, sy = screen(c, r)
         x0 = int(sx - w / 2 + (0 if walker else rng.randint(-7, 7))); y0 = int(sy - h * 0.95)
+        drawn.append((art, s, x0, y0, w, h, walker))
+    if lighting:
+        for art, s, x0, y0, w, h, walker in drawn:   # shadows lie under everything that stands
+            if props.get(art, {}).get('shadow'):
+                sw = w * 0.8
+                _paint(img, int(x0 + w / 2 - sw / 2 + sw * 0.12), int(y0 + h * 0.95 - sw * 0.18 + 1), _soft(sw, sw * 0.36) * 0.3, np.zeros(3), False)
+    for art, s, x0, y0, w, h, walker in drawn:
+        g = props.get(art, {}).get('glow') if lighting else None
+        if g:
+            gw, gh = w * 1.9, w * 1.5
+            _paint(img, int(x0 + w / 2 - gw / 2), int(y0 + h * 0.95 - h * 0.4 - gh / 2), _soft(gw, gh) * 0.38, hexrgb(g), True)
         xa, ya = max(0, x0), max(0, y0); xb, yb = min(W, x0 + w), min(H, y0 + h)
         if xa >= xb or ya >= yb: continue
         part = s[ya - y0:yb - y0, xa - x0:xb - x0]
         al = (part[..., 3:] > 0.5).astype(float)
         img[ya:yb, xa:xb, :3] = img[ya:yb, xa:xb, :3] * (1 - al) + part[..., :3] * al
-    amb = m.get('ambience') or {}
+    if lighting:
+        sb = amb.get('sunbeams')
+        if sb:
+            density = sb['count'] / (m['width'] * m['height'])
+            for _ in range(max(1, int(density * N * Wd * 1.5))):
+                w = rng.uniform(*(sb.get('size') or [30, 70])); beam = _soft(w, w * 7) * sb.get('alpha', 0.12)
+                beam = np.asarray(Image.fromarray((beam * 255).astype(np.uint8)).rotate(26, expand=True, resample=Image.BILINEAR)).astype(float) / 255
+                _paint(img, rng.randint(-40, W), rng.randint(-int(w * 5), H - int(w * 3)), beam, hexrgb(sb['color']), True)
+        fg = amb.get('foreground')
+        if fg:
+            for _ in range(2):
+                art = rng.choice(fg['art']); s = sprite(art, palette)
+                sc = fg.get('scale', 3); h, w = s.shape[:2]
+                big = Image.fromarray((s * 255).astype(np.uint8)).resize((int(w * sc), int(h * sc)), Image.BILINEAR)
+                from PIL import ImageFilter
+                big = np.asarray(big.filter(ImageFilter.GaussianBlur(fg.get('blur', 3) * sc))).astype(float) / 255
+                a = big[..., 3] * fg.get('alpha', 0.5)
+                colr = big[..., :3] * 0.65
+                x0 = rng.choice([-int(big.shape[1] * 0.55), W - int(big.shape[1] * 0.45)]); y0 = rng.randint(-40, H - big.shape[0] // 2)
+                hh, ww = a.shape; xa, ya = max(0, x0), max(0, y0); xb, yb = min(W, x0 + ww), min(H, y0 + hh)
+                if xa < xb and ya < yb:
+                    aa = a[ya - y0:yb - y0, xa - x0:xb - x0][..., None]
+                    img[ya:yb, xa:xb, :3] = img[ya:yb, xa:xb, :3] * (1 - aa) + colr[ya - y0:yb - y0, xa - x0:xb - x0] * aa
     if tint:
         tc, ta = amb.get('tint'), amb.get('tintAlpha', 0.15)
         if tc: img[..., :3] = img[..., :3] * (1 - ta) + hexrgb(tc) * ta
+        if lighting and amb.get('haze'):
+            hz = np.clip(1 - ys / (H * 0.55), 0, 1)
+            hz = np.where(hz > 0.55, 0.35 + (hz - 0.55) / 0.45 * 0.65, hz / 0.55 * 0.35) * amb.get('hazeAlpha', 0.2)
+            img[..., :3] = img[..., :3] * (1 - hz[..., None]) + hexrgb(amb['haze']) * hz[..., None]
+        if lighting and amb.get('sun'):
+            sun = (W / 2 - W * 0.42, H / 2 - H * 0.45)
+            for size, alpha, along in [(1.1, 0.4, 0), (0.2, 0.1, 0.45), (0.12, 0.08, 0.7), (0.3, 0.05, 1.3)]:
+                side = H * size; cx = W / 2 + (sun[0] - W / 2) * (1 - along); cy = H / 2 + (sun[1] - H / 2) * (1 - along)
+                _paint(img, int(cx - side / 2), int(cy - side / 2), _soft(side, side) * alpha, hexrgb(amb['sun']), True)
         vg = amb.get('vignette', 0)
         if vg:
             d = np.sqrt(((xs - W / 2) / (W * 0.62)) ** 2 + ((ys - H / 2) / (H * 0.62)) ** 2)

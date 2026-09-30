@@ -38,6 +38,7 @@ final class WorldScene: SKScene {
     private var noticeTimer: TimeInterval = 0
     private var hasLeft = false
     private var ambience: Ambience?
+    private var lighting: Lighting?
     private var crowd: Crowd?
     /// Friends in your party walk behind you in a little line.
     private var allies: [(id: UUID, node: Walker)] = []
@@ -160,11 +161,15 @@ final class WorldScene: SKScene {
         cam.addChild(edgeFade)
         ambience = Ambience(def.ambience, world: world, camera: cam, bounds: map.bounds, seed: def.id)
         ambience?.resize(to: size)
+        lighting = Lighting(def.ambience, world: world, camera: cam, bounds: map.bounds, seed: def.id)
+        lighting?.resize(to: size)
+        lighting?.follow(cam.position)
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
         edgeFade.size = CGSize(width: size.width * 1.2, height: size.height * 1.2)
         ambience?.resize(to: size)
+        lighting?.resize(to: size)
     }
 
     private func makeGround() -> SKNode {
@@ -196,6 +201,23 @@ final class WorldScene: SKScene {
             }
             return bits
         }
+        /// The water cells of the 5×5 around `cell` (bit row * 5 + col, row 0 north), for shorelines.
+        func poolMask(_ cell: GridPoint) -> Int {
+            var bits = 0
+            for dy in -2...2 {
+                for dx in -2...2 {
+                    let next = GridPoint(col: cell.col + dx, row: cell.row + dy)
+                    if map.contains(next), map.ground[next.row][next.col] == .water { bits |= 1 << ((2 - dy) * 5 + dx + 2) }
+                }
+            }
+            return bits
+        }
+        // Plain tiles come in four versions that fit together in any order, so big areas don't
+        // repeat. Animated placeholder water keeps its single animated tile.
+        let waterVaries = art.waterFrames(waterID).count == 1
+        func plain(_ id: String, _ variant: Int) -> SKTileGroup {
+            group("\(id)#\(variant)") { art.tileVariant(id, variant) }
+        }
         let full = 0b111_111_111, sides = 0b010_101_010
         var picks: [(col: Int, row: Int, group: SKTileGroup)] = []
         for row in 0..<map.rows {
@@ -203,6 +225,7 @@ final class WorldScene: SKScene {
                 let cell = GridPoint(col: col, row: row)
                 let kind = map.ground[row][col]
                 let road = mask(cell, .path), pond = mask(cell, .water)
+                let variant = Self.variant(of: cell)
                 let patch = patchAccent ? mask(cell, .accent) : 0
                 // What shows between the soft shapes: the cell's own ground, or for a road, pond or
                 // patch cell the ground around it.
@@ -215,21 +238,21 @@ final class WorldScene: SKScene {
                 var layers: [ArtLibrary.GroundLayer] = []
                 if patch != 0, let accent = theme.accent { layers.append(.init(tile: accent, mask: patch, style: .patch)) }
                 if road != 0 { layers.append(.init(tile: theme.path, mask: road, style: .road)) }
-                if pond != 0 { layers.append(.init(tile: waterID, mask: pond, style: .water)) }
+                if pond != 0 { layers.append(.init(tile: waterID, mask: poolMask(cell), style: .water)) }
                 let chosen: SKTileGroup
                 if pond == full {
-                    chosen = water
+                    chosen = waterVaries ? plain(waterID, variant) : water
                 } else if road == full, pond == 0 {
-                    chosen = group(theme.path) { art.tileTexture(theme.path) }
+                    chosen = plain(theme.path, variant)
                 } else if layers.isEmpty {
-                    chosen = group(base) { art.tileTexture(base) }
+                    chosen = plain(base, variant)
                 } else if let accent = theme.accent, patch == full, road == 0, pond == 0 {
-                    chosen = group(accent) { art.tileTexture(accent) }
+                    chosen = plain(accent, variant)
                 } else {
                     // Shorelines depend on where they are (see organicTile), so each gets its own tile.
                     let place = pond != 0 ? "@\(col),\(row)" : ""
                     let key = base + "|" + layers.map { "\($0.style)\($0.mask)" }.joined(separator: "|") + place
-                    chosen = group(key) { art.organicTile(base: base, layers: layers, cell: cell) }
+                    chosen = group(key) { art.organicTile(base: base, layers: layers, cell: cell, variant: variant) }
                 }
                 picks.append((col, row, chosen))
             }
@@ -239,9 +262,26 @@ final class WorldScene: SKScene {
         for pick in picks {
             tileMap.setTileGroup(pick.group, forColumn: pick.col, row: pick.row)
         }
-        let ground = projected(tileMap)
+        // Soft patches of colour over the whole ground, so it isn't one flat colour.
+        let grid = SKNode()
+        grid.addChild(tileMap)
+        if let variation = Lighting.groundVariation(columns: map.columns, rows: map.rows, tile: WorldMap.tileSize, palette: theme.palette, seed: def.id) {
+            variation.zPosition = 1
+            grid.addChild(variation)
+        }
+        let ground = projected(grid)
         ground.zPosition = -100_000
         return ground
+    }
+
+    /// Which of a tile's four versions a cell shows: a hash, so neighbours differ without a pattern.
+    private static func variant(of cell: GridPoint) -> Int {
+        var hash = UInt64(bitPattern: Int64(cell.col)) &* 0x9E37_79B9_7F4A_7C15
+        hash ^= UInt64(bitPattern: Int64(cell.row)) &* 0xC2B2_AE3D_27D4_EB4F
+        hash ^= hash >> 29
+        hash = hash &* 0xBF58_476D_1CE4_E5B9
+        hash ^= hash >> 32
+        return Int(hash % 4)
     }
 
     /// Wraps grid-space ground so it renders in Fairyland's isometric 2.5D view:
@@ -326,7 +366,7 @@ final class WorldScene: SKScene {
             addScenery(art.sprite(lot.art), at: lot.anchor)
         }
         for decor in map.streetDecor {
-            addScenery(art.sprite(decor.art), at: decor.cell)
+            let lamp = addScenery(art.sprite(decor.art), at: decor.cell)
             if decor.art == "street_lamp" {
                 // A warm glow around each lamp.
                 let glow = SKSpriteNode(texture: SoftTextures.glow, size: CGSize(width: 70, height: 50))
@@ -335,7 +375,8 @@ final class WorldScene: SKScene {
                 glow.blendMode = .add
                 glow.alpha = 0.35
                 glow.position = map.center(of: decor.cell) + CGVector(dx: 0, dy: 34)
-                glow.zPosition = 4_800
+                // Just behind the lamp: whoever stands in front hides the glow, whoever is behind is lit.
+                glow.zPosition = lamp.zPosition - 0.5
                 glow.run(.repeatForever(.sequence([.fadeAlpha(to: 0.5, duration: 1.4), .fadeAlpha(to: 0.3, duration: 1.4)])))
                 world.addChild(glow)
             }
@@ -468,7 +509,9 @@ final class WorldScene: SKScene {
                     if let range = placement.size, range.count == 2, range[0] <= range[1] {
                         scale = CGFloat(Double.random(in: range[0]...range[1], using: &rng))
                     }
-                    addScenery(sprite, at: cell, sway: placement.sway == true, jitter: true, scale: scale)
+                    let node = addScenery(sprite, at: cell, sway: placement.sway == true, jitter: true, scale: scale)
+                    if placement.shadow == true { Lighting.shadow(under: node, in: world) }
+                    if let hex = placement.glow, let color = UIColor(hex: hex) { Lighting.glow(behind: node, color: color, in: world, rng: &rng) }
                     inGroup += 1
                 }
                 placed += inGroup
@@ -594,7 +637,8 @@ final class WorldScene: SKScene {
         }
     }
 
-    private func addScenery(_ sprite: SpriteArt, at cell: GridPoint, sway: Bool = false, jitter: Bool = false, scale: CGFloat = 1) {
+    @discardableResult
+    private func addScenery(_ sprite: SpriteArt, at cell: GridPoint, sway: Bool = false, jitter: Bool = false, scale: CGFloat = 1) -> SKSpriteNode {
         let node = SKSpriteNode(texture: sprite.texture, size: CGSize(width: sprite.size.width * scale, height: sprite.size.height * scale))
         node.anchorPoint = CGPoint(x: 0.5, y: 0.05)
         var position = map.base(of: cell)
@@ -616,6 +660,7 @@ final class WorldScene: SKScene {
             node.run(.repeatForever(.sequence([left, right])))
         }
         world.addChild(node)
+        return node
     }
 
     /// One pixel per tile, for the HUD minimap.
@@ -959,5 +1004,6 @@ final class WorldScene: SKScene {
         // Snap to whole screen pixels so pixel art doesn't shimmer (zooming changes their size).
         let scale = (view?.contentScaleFactor ?? 1) / cam.xScale
         cam.position = CGPoint(x: (eased.x * scale).rounded() / scale, y: (eased.y * scale).rounded() / scale)
+        lighting?.follow(cam.position)
     }
 }

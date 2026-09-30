@@ -50,6 +50,9 @@ nonisolated struct MapPalette: Decodable, Sendable {
     /// (0...1, default 0.4), so they blend with the map instead of looking pasted on.
     let light: String?
     let lightStrength: Double?
+    /// How strongly the ground varies in colour across the map, in big soft patches leaning
+    /// toward `shadow` and `highlight` (0...1, default 0.12).
+    let variation: Double?
 }
 
 enum Recolor {
