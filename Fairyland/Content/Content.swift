@@ -270,6 +270,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let ponds: Int?
         let fairyRings: FairyRings?
         let props: [PropPlacement]
+        /// The map's colour mood for ground, scenery and buildings.
+        let palette: MapPalette?
     }
 
     nonisolated struct PropPlacement: Decodable, Sendable {

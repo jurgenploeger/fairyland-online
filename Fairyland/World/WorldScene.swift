@@ -102,6 +102,7 @@ final class WorldScene: SKScene {
     // MARK: - Building the map
 
     private func build() {
+        art.use(palette: def.theme.palette, for: def.id)
         addChild(world)
         addChild(cam)
         camera = cam

@@ -143,7 +143,24 @@
           }
         ],
         "accent": "tile_scree",
-        "accentPatches": 0
+        "accentPatches": 0,
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 8,
+              "saturation": 0.9
+            }
+          ],
+          "saturation": 1.0,
+          "shadow": "#2050C0",
+          "highlight": "#FFD070",
+          "tone": 0.5,
+          "glow": 0.25
+        }
       },
       "fence": true,
       "exits": [
@@ -644,7 +661,31 @@
             "blocking": true,
             "sway": true
           }
-        ]
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 4,
+              "saturation": 0.92
+            },
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 192
+            }
+          ],
+          "saturation": 1.05,
+          "shadow": "#2A40D0",
+          "highlight": "#FFC050",
+          "tone": 0.55,
+          "glow": 0.3
+        }
       },
       "exits": [
         {
@@ -690,8 +731,8 @@
         "particles": "petals",
         "butterflies": 36,
         "clouds": true,
-        "tint": "#FFF1C2",
-        "tintAlpha": 0.06,
+        "tint": "#FFE0A0",
+        "tintAlpha": 0.07,
         "vignette": 0.15
       }
     },
@@ -784,7 +825,38 @@
             "blocking": true,
             "cluster": 3
           }
-        ]
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 176,
+              "saturation": 1.05
+            },
+            {
+              "hue": [
+                25,
+                55
+              ],
+              "shift": -8,
+              "saturation": 0.9
+            },
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 12
+            }
+          ],
+          "saturation": 1.08,
+          "shadow": "#1080C0",
+          "highlight": "#FFA070",
+          "tone": 0.45
+        }
       },
       "exits": [
         {
@@ -821,8 +893,8 @@
         "particles": "sparkles",
         "butterflies": 10,
         "clouds": true,
-        "tint": "#FFD9A0",
-        "tintAlpha": 0.08,
+        "tint": "#FFD0B0",
+        "tintAlpha": 0.06,
         "vignette": 0.12
       }
     },
@@ -937,7 +1009,39 @@
             "count": 5,
             "blocking": true
           }
-        ]
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                150,
+                215
+              ],
+              "shift": 62,
+              "saturation": 1.15
+            },
+            {
+              "hue": [
+                20,
+                60
+              ],
+              "to": 300,
+              "saturation": 0.28,
+              "value": 0.9
+            },
+            {
+              "hue": [
+                70,
+                150
+              ],
+              "shift": 70
+            }
+          ],
+          "saturation": 1.1,
+          "shadow": "#3010C0",
+          "highlight": "#FF60D0",
+          "tone": 0.55
+        }
       },
       "exits": [
         {
@@ -976,8 +1080,8 @@
       "ambience": {
         "particles": "fireflies",
         "clouds": false,
-        "tint": "#2E1F5E",
-        "tintAlpha": 0.3,
+        "tint": "#3A2A8A",
+        "tintAlpha": 0.16,
         "vignette": 0.45
       }
     },
@@ -1140,7 +1244,31 @@
             "count": 5,
             "blocking": true
           }
-        ]
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                50,
+                75
+              ],
+              "shift": 18,
+              "saturation": 1.1
+            },
+            {
+              "hue": [
+                75,
+                160
+              ],
+              "shift": 10,
+              "saturation": 0.95
+            }
+          ],
+          "saturation": 1.08,
+          "shadow": "#0870A0",
+          "highlight": "#FFC040",
+          "tone": 0.55
+        }
       },
       "exits": [
         {
@@ -1329,7 +1457,25 @@
             "blocking": true
           }
         ],
-        "accentPatches": 0
+        "accentPatches": 0,
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 22,
+              "saturation": 0.85,
+              "value": 1.05
+            }
+          ],
+          "saturation": 1.0,
+          "shadow": "#6040E0",
+          "highlight": "#FF90D0",
+          "tone": 0.5,
+          "glow": 0.28
+        }
       },
       "town": {
         "streets": [
@@ -1557,7 +1703,31 @@
             "count": 5,
             "blocking": true
           }
-        ]
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                70,
+                170
+              ],
+              "shift": 45,
+              "saturation": 0.75
+            },
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 200,
+              "saturation": 0.8
+            }
+          ],
+          "saturation": 1.0,
+          "shadow": "#3050E0",
+          "highlight": "#FFE0F0",
+          "tone": 0.55
+        }
       },
       "exits": [
         {
@@ -1603,8 +1773,8 @@
       "ambience": {
         "particles": "snow",
         "clouds": true,
-        "tint": "#B8D8FF",
-        "tintAlpha": 0.12,
+        "tint": "#C8D8FF",
+        "tintAlpha": 0.08,
         "vignette": 0.2
       }
     },
@@ -1706,7 +1876,41 @@
             "cluster": 3,
             "sway": true
           }
-        ]
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                40,
+                90
+              ],
+              "shift": 14,
+              "saturation": 1.25,
+              "maxValue": 0.7
+            },
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 158,
+              "saturation": 0.75,
+              "value": 0.85
+            },
+            {
+              "hue": [
+                90,
+                170
+              ],
+              "shift": 8
+            }
+          ],
+          "saturation": 1.1,
+          "shadow": "#0090A0",
+          "highlight": "#D8FF80",
+          "tone": 0.5,
+          "glow": 0.2
+        }
       },
       "exits": [
         {
@@ -1743,8 +1947,8 @@
       "ambience": {
         "particles": "fireflies",
         "clouds": false,
-        "tint": "#4E5B2A",
-        "tintAlpha": 0.18,
+        "tint": "#2F5A3A",
+        "tintAlpha": 0.1,
         "vignette": 0.3
       }
     },
@@ -1847,7 +2051,31 @@
             "blocking": true,
             "cluster": 3
           }
-        ]
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                150,
+                215
+              ],
+              "shift": 95,
+              "saturation": 1.1
+            },
+            {
+              "hue": [
+                70,
+                150
+              ],
+              "shift": 110,
+              "saturation": 0.8
+            }
+          ],
+          "saturation": 1.0,
+          "shadow": "#5010A0",
+          "highlight": "#FF7020",
+          "tone": 0.6
+        }
       },
       "exits": [
         {
@@ -1894,8 +2122,8 @@
       "ambience": {
         "particles": "fireflies",
         "clouds": false,
-        "tint": "#3A2E4A",
-        "tintAlpha": 0.28,
+        "tint": "#2A1848",
+        "tintAlpha": 0.18,
         "vignette": 0.4
       }
     },
@@ -1985,7 +2213,31 @@
             "blocking": true,
             "cluster": 2
           }
-        ]
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 170,
+              "saturation": 0.9
+            },
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "to": 175,
+              "saturation": 0.9
+            }
+          ],
+          "saturation": 1.3,
+          "shadow": "#3020D0",
+          "highlight": "#20F0FF",
+          "tone": 0.65
+        }
       },
       "exits": [
         {
@@ -2028,8 +2280,8 @@
       "ambience": {
         "particles": "motes",
         "clouds": false,
-        "tint": "#101828",
-        "tintAlpha": 0.45,
+        "tint": "#101838",
+        "tintAlpha": 0.2,
         "vignette": 0.65
       }
     },
@@ -2102,7 +2354,23 @@
             "cluster": 2
           }
         ],
-        "accentPatches": 0
+        "accentPatches": 0,
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                20,
+                45
+              ],
+              "shift": 4,
+              "saturation": 0.88
+            }
+          ],
+          "saturation": 1.0,
+          "shadow": "#A02070",
+          "highlight": "#FFD040",
+          "tone": 0.5
+        }
       },
       "town": {
         "streets": [
@@ -2246,7 +2514,7 @@
         "particles": "dust",
         "clouds": false,
         "tint": "#FFB060",
-        "tintAlpha": 0.08,
+        "tintAlpha": 0.06,
         "vignette": 0.2
       }
     },
@@ -2361,7 +2629,31 @@
             "count": 10,
             "blocking": false
           }
-        ]
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                20,
+                50
+              ],
+              "shift": -9,
+              "saturation": 0.95
+            },
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 174,
+              "saturation": 1.05
+            }
+          ],
+          "saturation": 1.05,
+          "shadow": "#7020C0",
+          "highlight": "#FFC060",
+          "tone": 0.5
+        }
       },
       "exits": [
         {
@@ -2405,8 +2697,8 @@
       "ambience": {
         "particles": "dust",
         "clouds": false,
-        "tint": "#FFC870",
-        "tintAlpha": 0.1,
+        "tint": "#FFB07A",
+        "tintAlpha": 0.07,
         "vignette": 0.2
       }
     },
@@ -2497,7 +2789,31 @@
             "blocking": true,
             "cluster": 2
           }
-        ]
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                20,
+                60
+              ],
+              "to": 265,
+              "saturation": 0.22
+            },
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 40,
+              "saturation": 0.8
+            }
+          ],
+          "saturation": 1.2,
+          "shadow": "#3030E0",
+          "highlight": "#FFB0F0",
+          "tone": 0.7
+        }
       },
       "exits": [
         {
@@ -2534,8 +2850,8 @@
       "ambience": {
         "particles": "sparkles",
         "clouds": true,
-        "tint": "#8EA0C8",
-        "tintAlpha": 0.12,
+        "tint": "#8EA0E0",
+        "tintAlpha": 0.08,
         "vignette": 0.3
       }
     },
@@ -2622,7 +2938,23 @@
             "blocking": true,
             "cluster": 2
           }
-        ]
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                70,
+                170
+              ],
+              "shift": 60,
+              "saturation": 0.8
+            }
+          ],
+          "saturation": 1.15,
+          "shadow": "#2020E0",
+          "highlight": "#A0C0FF",
+          "tone": 0.8
+        }
       },
       "exits": [
         {
@@ -2653,8 +2985,8 @@
       "ambience": {
         "particles": "snow",
         "clouds": false,
-        "tint": "#5060A0",
-        "tintAlpha": 0.25,
+        "tint": "#4050A8",
+        "tintAlpha": 0.14,
         "vignette": 0.4
       }
     }

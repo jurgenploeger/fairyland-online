@@ -114,6 +114,23 @@ for map_def in maps.values():
         within = prop.get("within", 1)
         check(isinstance(within, int) and within > 0, f"map {map_def['id']} prop {prop['art']} → within must be a positive whole number")
 
+hex_colour = re.compile(r"^#[0-9A-Fa-f]{6}$")
+rule_keys = {"hue", "minSaturation", "maxSaturation", "minValue", "maxValue", "to", "shift", "saturation", "value"}
+for map_def in maps.values():
+    palette = map_def["theme"].get("palette")
+    if not palette:
+        continue
+    where = f"map {map_def['id']} palette"
+    check(set(palette) <= {"recolor", "saturation", "shadow", "highlight", "tone", "glow"}, f"{where} → unknown keys {set(palette) - {'recolor', 'saturation', 'shadow', 'highlight', 'tone', 'glow'}}")
+    for key in ("shadow", "highlight"):
+        if key in palette:
+            check(bool(hex_colour.match(palette[key])), f"{where} → {key} must be a #RRGGBB colour")
+    for key in ("saturation", "tone", "glow"):
+        if key in palette:
+            check(isinstance(palette[key], (int, float)) and 0 <= palette[key] <= 2, f"{where} → {key} must be between 0 and 2")
+    for rule in palette.get("recolor", []):
+        check(set(rule) <= rule_keys, f"{where} → unknown recolor keys {set(rule) - rule_keys}")
+
 for kind in ("hair", "outfits", "skin"):
     for preset in appearance[kind]:
         if "unlock" in preset:

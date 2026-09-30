@@ -60,6 +60,29 @@ final class ArtLibrary {
         }
     }
 
+    /// The current map's colour grade, and which map it belongs to.
+    private var palette: MapPalette?
+    private var paletteMap: String?
+    /// Sprite kinds that take on a map's palette.
+    private static let gradedKinds: Set<String> = ["tile", "prop", "building"]
+
+    /// Grades ground, scenery and buildings with `map`'s palette from now on. Sprites already
+    /// on screen keep their textures; cached ones are graded again on next use.
+    func use(palette: MapPalette?, for map: String) {
+        guard map != paletteMap else { return }
+        paletteMap = map
+        self.palette = palette
+        textures = textures.filter { !Self.gradedKinds.contains(kind(of: $0.key)) }
+        blended = [:]
+    }
+
+    /// The sprite's image with the current map's palette, for ground, scenery and buildings.
+    private func gradedImage(_ id: String) -> CGImage? {
+        guard let image = sourceImage(id) else { return nil }
+        guard let palette, Self.gradedKinds.contains(kind(of: id)) else { return image }
+        return Recolor.grade(palette, image: image) ?? image
+    }
+
     /// Registers (or updates) a recoloured copy of `base` under `id`, e.g. the customised hero.
     /// `key` identifies the look, so re-registering the same look is free.
     func register(_ id: String, from base: String, recolor rules: [RecolorRule], key: String) {
@@ -96,7 +119,7 @@ final class ArtLibrary {
     /// The generated PNG for `id` (art/sprites/<id>.png), or nil if it doesn't exist yet.
     func generatedTexture(_ id: String) -> SKTexture? {
         if let cached = textures[id] { return cached }
-        guard let image = sourceImage(id) else { return nil }
+        guard let image = gradedImage(id) else { return nil }
         let texture = SKTexture(cgImage: image)
         texture.filteringMode = .nearest
         textures[id] = texture
@@ -115,7 +138,7 @@ final class ArtLibrary {
     }
 
     private func tileImage(_ id: String) -> CGImage {
-        sourceImage(id) ?? Placeholder.canvas(for: id, kind: "tile").cgImage()
+        gradedImage(id) ?? Placeholder.canvas(for: id, kind: "tile").cgImage()
     }
 
     private var blended: [String: SKTexture] = [:]
