@@ -4219,7 +4219,7 @@
         }
       },
       "ambience": {
-        "particles": "sparkles",
+        "particles": "snow+sparkles",
         "clouds": true,
         "tint": "#8EA0E0",
         "tintAlpha": 0.08,

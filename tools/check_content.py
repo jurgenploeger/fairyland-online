@@ -155,6 +155,8 @@ for map_def in maps.values():
         if key in ambience:
             lights = ambience[key]
             check(bool(hex_colour.match(lights.get("color", ""))) and isinstance(lights.get("count"), int), f"{where} → {key} needs a colour and a count")
+    for kind in (ambience.get("particles") or "").split("+") if ambience.get("particles") else []:
+        check(kind in {"petals", "leaves", "fireflies", "sparkles", "snow", "dust", "motes"}, f"{where} → unknown particles {kind}")
     if "foreground" in ambience:
         for art_id in ambience["foreground"].get("art", []):
             check(art_id in art, f"{where} foreground → unknown art {art_id}")

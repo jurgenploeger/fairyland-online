@@ -10,10 +10,21 @@ final class Ambience {
     init(_ def: MapDef.Ambience?, world: SKNode, camera: SKCameraNode, bounds: CGRect, seed: String) {
         var rng = SeededRandom(text: seed + "/ambience")
 
-        if let kind = def?.particles, let emitter = Self.particles(kind) {
+        // One kind, or several joined with "+" (e.g. "snow+sparkles").
+        for kind in (def?.particles ?? "").split(separator: "+").map(String.init) {
+            guard let emitter = Self.particles(kind) else { continue }
             emitter.targetNode = world
             emitter.zPosition = 30_000
             camera.addChild(emitter)
+            // Already drifting when you arrive, instead of starting from an empty sky.
+            emitter.advanceSimulationTime(TimeInterval(emitter.particleLifetime))
+            if kind == "snow" {
+                // Big close flakes that move with the camera, rushing past in front of the world.
+                let near = Self.nearSnow()
+                near.zPosition = 30_500
+                camera.addChild(near)
+                near.advanceSimulationTime(TimeInterval(near.particleLifetime))
+            }
         }
 
         for _ in 0..<(def?.butterflies ?? 0) {
@@ -71,6 +82,29 @@ final class Ambience {
 
     // MARK: Particles
 
+    /// The near layer of a snowfall: fewer, bigger, faster flakes in screen space, a little soft.
+    private static func nearSnow() -> SKEmitterNode {
+        let emitter = SKEmitterNode()
+        // Out of focus: a plain soft blur, faintly blue so it shows over snow.
+        emitter.particleTexture = SoftTextures.glow
+        emitter.particleColor = UIColor(red: 0.9, green: 0.94, blue: 1, alpha: 1)
+        emitter.particleColorBlendFactor = 1
+        emitter.particlePositionRange = CGVector(dx: 1100, dy: 700)
+        emitter.position = CGPoint(x: 0, y: 120)
+        emitter.particleBirthRate = 5
+        emitter.particleLifetime = 8
+        emitter.particleLifetimeRange = 2
+        emitter.particleSpeed = 55
+        emitter.particleSpeedRange = 20
+        emitter.emissionAngle = -.pi / 2 - 0.15
+        emitter.emissionAngleRange = 0.35
+        emitter.xAcceleration = 6
+        emitter.particleScale = 0.7
+        emitter.particleScaleRange = 0.25
+        emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.8, 0.8, 0], times: [0, 0.1, 0.85, 1])
+        return emitter
+    }
+
     private static func particles(_ kind: String) -> SKEmitterNode? {
         let emitter = SKEmitterNode()
         emitter.particlePositionRange = CGVector(dx: 1200, dy: 1200)
@@ -116,19 +150,19 @@ final class Ambience {
             emitter.particleScaleRange = 1
             emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 1, 0], times: [0, 0.4, 1])
         case "snow":
-            emitter.particleTexture = SoftTextures.glow
-            emitter.particleColor = .white
-            emitter.particleColorBlendFactor = 1
-            emitter.particleBirthRate = 14
-            emitter.particleLifetime = 14
-            emitter.particleSpeed = 26
+            // Far flakes: small, slow and many, settling with the ground as you walk.
+            emitter.particleTexture = SoftTextures.flake
+            emitter.particleBirthRate = 40
+            emitter.particleLifetime = 12
+            emitter.particleLifetimeRange = 4
+            emitter.particleSpeed = 24
             emitter.particleSpeedRange = 10
             emitter.emissionAngle = -.pi / 2
             emitter.emissionAngleRange = 0.5
             emitter.xAcceleration = 3
-            emitter.particleScale = 0.2
-            emitter.particleScaleRange = 0.12
-            emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.9, 0.9, 0], times: [0, 0.1, 0.85, 1])
+            emitter.particleScale = 0.28
+            emitter.particleScaleRange = 0.14
+            emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.95, 0.95, 0], times: [0, 0.1, 0.85, 1])
         case "dust":
             emitter.particleTexture = SoftTextures.glow
             emitter.particleColor = UIColor(red: 1, green: 0.88, blue: 0.62, alpha: 1)
@@ -218,6 +252,11 @@ final class Ambience {
 /// Small generated textures for effects: soft glows, petals, butterflies, the vignette.
 enum SoftTextures {
     static let glow: SKTexture = radial(size: 32, colors: [.white, UIColor(white: 1, alpha: 0)])
+    /// A snowflake: white with a pale blue rim, so it still shows against snowy ground.
+    static let flake: SKTexture = radial(size: 32, colors: [
+        .white, .white, UIColor(red: 0.93, green: 0.96, blue: 1, alpha: 1),
+        UIColor(red: 0.62, green: 0.72, blue: 0.88, alpha: 0.6), UIColor(red: 0.62, green: 0.72, blue: 0.88, alpha: 0),
+    ])
     static let cloud: SKTexture = radial(size: 128, colors: [.white, UIColor(white: 1, alpha: 0.6), UIColor(white: 1, alpha: 0)])
     static let vignette: SKTexture = radial(size: 256, colors: [UIColor(white: 0, alpha: 0), UIColor(white: 0, alpha: 0), UIColor(white: 0, alpha: 0.9)])
     /// White at the top fading to clear at the bottom (distance haze).
