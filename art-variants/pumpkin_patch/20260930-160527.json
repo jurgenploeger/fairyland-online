@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "cute orange pumpkins with leaves",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 32,
+    "height": 32,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790784326,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 51.671,
+    "request_id": "18e71c21-382a-4248-a32b-8de93129328e",
+    "outputs_retained_until": 1790870709
+  }
+}

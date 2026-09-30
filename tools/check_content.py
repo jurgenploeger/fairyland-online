@@ -110,6 +110,57 @@ for map_def in maps.values():
         if npc["role"] == "boss":
             check(monsters.get(npc.get("monster"), {}).get("boss") is True, f"boss {npc['id']} → unknown boss {npc.get('monster')}")
 
+hex_colour = re.compile(r"^#[0-9A-Fa-f]{6}$")
+for map_def in maps.values():
+    for prop in map_def["theme"].get("props", []):
+        check(prop["art"] in art, f"map {map_def['id']} prop → unknown art {prop['art']}")
+        within = prop.get("within", 1)
+        check(isinstance(within, int) and within > 0, f"map {map_def['id']} prop {prop['art']} → within must be a positive whole number")
+        size = prop.get("size", [1, 1])
+        check(isinstance(size, list) and len(size) == 2 and all(isinstance(v, (int, float)) and 0.2 <= v <= 3 for v in size) and size[0] <= size[1],
+              f"map {map_def['id']} prop {prop['art']} → size must be [smallest, biggest] between 0.2 and 3")
+        if "glow" in prop:
+            check(bool(hex_colour.match(prop["glow"])), f"map {map_def['id']} prop {prop['art']} → glow must be a #RRGGBB colour")
+        check(isinstance(prop.get("shadow", False), bool), f"map {map_def['id']} prop {prop['art']} → shadow must be true or false")
+        spread = prop.get("spread", 1)
+        check(isinstance(spread, int) and spread > 0, f"map {map_def['id']} prop {prop['art']} → spread must be a positive whole number")
+
+rule_keys = {"hue", "minSaturation", "maxSaturation", "minValue", "maxValue", "to", "shift", "saturation", "value"}
+for map_def in maps.values():
+    palette = map_def["theme"].get("palette")
+    if not palette:
+        continue
+    where = f"map {map_def['id']} palette"
+    palette_keys = {"recolor", "saturation", "shadow", "highlight", "tone", "glow", "light", "lightStrength", "variation"}
+    check(set(palette) <= palette_keys, f"{where} → unknown keys {set(palette) - palette_keys}")
+    for key in ("shadow", "highlight", "light"):
+        if key in palette:
+            check(bool(hex_colour.match(palette[key])), f"{where} → {key} must be a #RRGGBB colour")
+    for key in ("saturation", "tone", "glow"):
+        if key in palette:
+            check(isinstance(palette[key], (int, float)) and 0 <= palette[key] <= 2, f"{where} → {key} must be between 0 and 2")
+    for key in ("lightStrength", "variation"):
+        if key in palette:
+            check(isinstance(palette[key], (int, float)) and 0 <= palette[key] <= 1, f"{where} → {key} must be between 0 and 1")
+    for rule in palette.get("recolor", []):
+        check(set(rule) <= rule_keys, f"{where} → unknown recolor keys {set(rule) - rule_keys}")
+
+ambience_keys = {"particles", "butterflies", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground"}
+for map_def in maps.values():
+    ambience = map_def.get("ambience") or {}
+    where = f"map {map_def['id']} ambience"
+    check(set(ambience) <= ambience_keys, f"{where} → unknown keys {set(ambience) - ambience_keys}")
+    for key in ("tint", "sun", "haze"):
+        if key in ambience:
+            check(bool(hex_colour.match(ambience[key])), f"{where} → {key} must be a #RRGGBB colour")
+    for key in ("lightPatches", "sunbeams"):
+        if key in ambience:
+            lights = ambience[key]
+            check(bool(hex_colour.match(lights.get("color", ""))) and isinstance(lights.get("count"), int), f"{where} → {key} needs a colour and a count")
+    if "foreground" in ambience:
+        for art_id in ambience["foreground"].get("art", []):
+            check(art_id in art, f"{where} foreground → unknown art {art_id}")
+
 for kind in ("hair", "outfits", "skin"):
     for preset in appearance[kind]:
         if "unlock" in preset:
