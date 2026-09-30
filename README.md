@@ -74,6 +74,13 @@ Every generation is kept in `art-variants/<id>/`.
 
 The app icon and title logo come from the Figma file and live in `Fairyland/Resources/Assets.xcassets`.
 
+## Screenshots without a Mac
+
+Every push to a `claude/**` branch runs the **Screenshots** GitHub Action on a macOS runner. It builds the app
+for the iOS Simulator, opens each scene in `tools/screenshots.txt` with the debug shortcuts below, and saves
+the images to the `screenshots` branch in a folder named after the branch (also attached to the run as an
+artifact). On a private repo, macOS runner minutes count 10× against the Actions allowance.
+
 ## Debug shortcuts
 
 Set `FAIRYLAND_DEBUG` in the scheme's environment variables (comma-separated):
