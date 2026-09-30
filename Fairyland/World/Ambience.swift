@@ -220,6 +220,19 @@ enum SoftTextures {
     static let glow: SKTexture = radial(size: 32, colors: [.white, UIColor(white: 1, alpha: 0)])
     static let cloud: SKTexture = radial(size: 128, colors: [.white, UIColor(white: 1, alpha: 0.6), UIColor(white: 1, alpha: 0)])
     static let vignette: SKTexture = radial(size: 256, colors: [UIColor(white: 0, alpha: 0), UIColor(white: 0, alpha: 0), UIColor(white: 0, alpha: 0.9)])
+    /// White at the top fading to clear at the bottom (distance haze).
+    static let fade: SKTexture = {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let size = CGSize(width: 4, height: 128)
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
+            let colors = [UIColor.white.cgColor, UIColor(white: 1, alpha: 0.35).cgColor, UIColor(white: 1, alpha: 0).cgColor] as CFArray
+            let locations: [CGFloat] = [0, 0.45, 1]
+            guard let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors, locations: locations) else { return }
+            context.cgContext.drawLinearGradient(gradient, start: .zero, end: CGPoint(x: 0, y: size.height), options: [])
+        }
+        return SKTexture(image: image)
+    }()
 
     static let petal: SKTexture = pixel(width: 3, height: 3) { c in
         c.fill(0, 0, 3, 3, PixelColor(0xF8BBD0))

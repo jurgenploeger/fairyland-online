@@ -38,6 +38,7 @@ final class WorldScene: SKScene {
     private var noticeTimer: TimeInterval = 0
     private var hasLeft = false
     private var ambience: Ambience?
+    private var lighting: Lighting?
     private var crowd: Crowd?
     /// Friends in your party walk behind you in a little line.
     private var allies: [(id: UUID, node: Walker)] = []
@@ -50,8 +51,20 @@ final class WorldScene: SKScene {
     private let walkSpeed: CGFloat = 88
     private let talkRange: CGFloat = 50
 
+    /// Pinch to zoom in on the ground around you, or out for a wider view. Kept from map to map.
+    private static var zoom: CGFloat = 1
+    private static let zoomRange: ClosedRange<CGFloat> = 0.85...2.2
+    private var pinchStartZoom: CGFloat = 1
+    private lazy var pinch = UIPinchGestureRecognizer(target: self, action: #selector(pinched(_:)))
+
     /// `entry` is the edge the player walked in through, or nil to use the saved position.
     init(map def: MapDef, session: GameSession, input: InputState, entry: Edge?) {
+        // Characters made for this map pick up its light.
+        if let palette = def.theme.palette, let hex = palette.light, let color = UIColor(hex: hex) {
+            Walker.light = (color, CGFloat(palette.lightStrength ?? 0.4))
+        } else {
+            Walker.light = nil
+        }
         let map = WorldMap(def: def)
         let player = Walker(cycle: ArtLibrary.shared.walkCycle(GameSession.heroArt), label: session.data.hero.name)
         player.fidgets = true
@@ -86,6 +99,8 @@ final class WorldScene: SKScene {
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
 
     override func didMove(to view: SKView) {
+        view.addGestureRecognizer(pinch)
+        cam.setScale(1 / Self.zoom)
         if session.mapName != def.name {
             session.post("You arrive at \(def.name).")
             if def.danger == true {
@@ -99,9 +114,20 @@ final class WorldScene: SKScene {
         lastUpdate = 0
     }
 
+    override func willMove(from view: SKView) {
+        view.removeGestureRecognizer(pinch)
+    }
+
+    @objc private func pinched(_ gesture: UIPinchGestureRecognizer) {
+        if gesture.state == .began { pinchStartZoom = Self.zoom }
+        Self.zoom = min(Self.zoomRange.upperBound, max(Self.zoomRange.lowerBound, pinchStartZoom * gesture.scale))
+        cam.setScale(1 / Self.zoom)
+    }
+
     // MARK: - Building the map
 
     private func build() {
+        art.use(palette: def.theme.palette, for: def.id)
         addChild(world)
         addChild(cam)
         camera = cam
@@ -135,49 +161,127 @@ final class WorldScene: SKScene {
         cam.addChild(edgeFade)
         ambience = Ambience(def.ambience, world: world, camera: cam, bounds: map.bounds, seed: def.id)
         ambience?.resize(to: size)
+        lighting = Lighting(def.ambience, world: world, camera: cam, bounds: map.bounds, seed: def.id)
+        lighting?.resize(to: size)
+        lighting?.follow(cam.position)
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
         edgeFade.size = CGSize(width: size.width * 1.2, height: size.height * 1.2)
         ambience?.resize(to: size)
+        lighting?.resize(to: size)
     }
 
     private func makeGround() -> SKNode {
         let tileSize = CGSize(width: WorldMap.tileSize, height: WorldMap.tileSize)
         let theme = def.theme
-        func group(_ id: String) -> SKTileGroup {
-            SKTileGroup(tileDefinition: SKTileDefinition(texture: art.tileTexture(id), size: tileSize))
+        let waterID = theme.water ?? "tile_water"
+        let water = SKTileGroup(tileDefinition: SKTileDefinition(textures: art.waterFrames(waterID), size: tileSize, timePerFrame: 0.9))
+        var groups: [String: SKTileGroup] = ["water": water]
+        func group(_ key: String, _ texture: () -> SKTexture) -> SKTileGroup {
+            if let known = groups[key] { return known }
+            let made = SKTileGroup(tileDefinition: SKTileDefinition(texture: texture(), size: tileSize))
+            groups[key] = made
+            return made
         }
-        let water = SKTileGroup(tileDefinition: SKTileDefinition(textures: art.waterFrames(theme.water ?? "tile_water"), size: tileSize, timePerFrame: 0.9))
-        let groups: [Ground: SKTileGroup] = [
-            .ground: group(theme.ground),
-            .path: group(theme.path),
-            .accent: group(theme.accent ?? theme.ground),
-            .border: group(theme.border ?? theme.ground),
-            .water: water,
-        ]
-        // Road tiles blend into the ground at their edges (one variant per edge mask).
-        var roadEdges: [Int: SKTileGroup] = [0: groups[.path]!]
-        for mask in 1..<16 {
-            roadEdges[mask] = SKTileGroup(tileDefinition: SKTileDefinition(texture: art.roadTile(theme.path, on: theme.ground, mask: mask), size: tileSize))
+        // Accent patches (flower meadows, moss) blend in as soft blobs. Not in towns, where the
+        // accent is terrace paving and stays square.
+        let patchAccent = (theme.accentPatches ?? 0) > 0 && theme.accent != nil && theme.accent != theme.ground
+        /// Which cells of the 3×3 around `cell` are `kind` (bit row * 3 + col, row 0 north).
+        func mask(_ cell: GridPoint, _ kind: Ground) -> Int {
+            let own = map.ground[cell.row][cell.col] == kind
+            var bits = 0
+            for dy in -1...1 {
+                for dx in -1...1 {
+                    let next = GridPoint(col: cell.col + dx, row: cell.row + dy)
+                    // Off the map a road or patch carries on; water doesn't.
+                    let hit = map.contains(next) ? map.ground[next.row][next.col] == kind : own && kind != .water
+                    if hit { bits |= 1 << ((1 - dy) * 3 + dx + 1) }
+                }
+            }
+            return bits
         }
-        let tileMap = SKTileMapNode(
-            tileSet: SKTileSet(tileGroups: Array(groups.values) + roadEdges.filter { $0.key != 0 }.map(\.value)),
-            columns: map.columns,
-            rows: map.rows,
-            tileSize: tileSize
-        )
-        tileMap.anchorPoint = .zero
+        /// The water cells of the 5×5 around `cell` (bit row * 5 + col, row 0 north), for shorelines.
+        func poolMask(_ cell: GridPoint) -> Int {
+            var bits = 0
+            for dy in -2...2 {
+                for dx in -2...2 {
+                    let next = GridPoint(col: cell.col + dx, row: cell.row + dy)
+                    if map.contains(next), map.ground[next.row][next.col] == .water { bits |= 1 << ((2 - dy) * 5 + dx + 2) }
+                }
+            }
+            return bits
+        }
+        // Plain tiles come in four versions that fit together in any order, so big areas don't
+        // repeat. Animated placeholder water keeps its single animated tile.
+        let waterVaries = art.waterFrames(waterID).count == 1
+        func plain(_ id: String, _ variant: Int) -> SKTileGroup {
+            group("\(id)#\(variant)") { art.tileVariant(id, variant) }
+        }
+        let full = 0b111_111_111, sides = 0b010_101_010
+        var picks: [(col: Int, row: Int, group: SKTileGroup)] = []
         for row in 0..<map.rows {
             for col in 0..<map.columns {
+                let cell = GridPoint(col: col, row: row)
                 let kind = map.ground[row][col]
-                let group = kind == .path ? roadEdges[map.roadEdgeMask(GridPoint(col: col, row: row))] : groups[kind]
-                tileMap.setTileGroup(group, forColumn: col, row: row)
+                let road = mask(cell, .path), pond = mask(cell, .water)
+                let variant = Self.variant(of: cell)
+                let patch = patchAccent ? mask(cell, .accent) : 0
+                // What shows between the soft shapes: the cell's own ground, or for a road, pond or
+                // patch cell the ground around it.
+                let base: String = switch kind {
+                case .ground: theme.ground
+                case .border: theme.border ?? theme.ground
+                case .accent where !patchAccent: theme.accent ?? theme.ground
+                default: mask(cell, .border) & sides != 0 ? (theme.border ?? theme.ground) : theme.ground
+                }
+                var layers: [ArtLibrary.GroundLayer] = []
+                if patch != 0, let accent = theme.accent { layers.append(.init(tile: accent, mask: patch, style: .patch)) }
+                if road != 0 { layers.append(.init(tile: theme.path, mask: road, style: .road)) }
+                if pond != 0 { layers.append(.init(tile: waterID, mask: poolMask(cell), style: .water)) }
+                let chosen: SKTileGroup
+                if pond == full {
+                    chosen = waterVaries ? plain(waterID, variant) : water
+                } else if road == full, pond == 0 {
+                    chosen = plain(theme.path, variant)
+                } else if layers.isEmpty {
+                    chosen = plain(base, variant)
+                } else if let accent = theme.accent, patch == full, road == 0, pond == 0 {
+                    chosen = plain(accent, variant)
+                } else {
+                    // Shorelines depend on where they are (see organicTile), so each gets its own tile.
+                    let place = pond != 0 ? "@\(col),\(row)" : ""
+                    let key = base + "|" + layers.map { "\($0.style)\($0.mask)" }.joined(separator: "|") + place
+                    chosen = group(key) { art.organicTile(base: base, layers: layers, cell: cell, variant: variant) }
+                }
+                picks.append((col, row, chosen))
             }
         }
-        let ground = projected(tileMap)
+        let tileMap = SKTileMapNode(tileSet: SKTileSet(tileGroups: Array(groups.values)), columns: map.columns, rows: map.rows, tileSize: tileSize)
+        tileMap.anchorPoint = .zero
+        for pick in picks {
+            tileMap.setTileGroup(pick.group, forColumn: pick.col, row: pick.row)
+        }
+        // Soft patches of colour over the whole ground, so it isn't one flat colour.
+        let grid = SKNode()
+        grid.addChild(tileMap)
+        if let variation = Lighting.groundVariation(columns: map.columns, rows: map.rows, tile: WorldMap.tileSize, palette: theme.palette, seed: def.id) {
+            variation.zPosition = 1
+            grid.addChild(variation)
+        }
+        let ground = projected(grid)
         ground.zPosition = -100_000
         return ground
+    }
+
+    /// Which of a tile's four versions a cell shows: a hash, so neighbours differ without a pattern.
+    private static func variant(of cell: GridPoint) -> Int {
+        var hash = UInt64(bitPattern: Int64(cell.col)) &* 0x9E37_79B9_7F4A_7C15
+        hash ^= UInt64(bitPattern: Int64(cell.row)) &* 0xC2B2_AE3D_27D4_EB4F
+        hash ^= hash >> 29
+        hash = hash &* 0xBF58_476D_1CE4_E5B9
+        hash ^= hash >> 32
+        return Int(hash % 4)
     }
 
     /// Wraps grid-space ground so it renders in Fairyland's isometric 2.5D view:
@@ -262,7 +366,7 @@ final class WorldScene: SKScene {
             addScenery(art.sprite(lot.art), at: lot.anchor)
         }
         for decor in map.streetDecor {
-            addScenery(art.sprite(decor.art), at: decor.cell)
+            let lamp = addScenery(art.sprite(decor.art), at: decor.cell)
             if decor.art == "street_lamp" {
                 // A warm glow around each lamp.
                 let glow = SKSpriteNode(texture: SoftTextures.glow, size: CGSize(width: 70, height: 50))
@@ -271,7 +375,8 @@ final class WorldScene: SKScene {
                 glow.blendMode = .add
                 glow.alpha = 0.35
                 glow.position = map.center(of: decor.cell) + CGVector(dx: 0, dy: 34)
-                glow.zPosition = 4_800
+                // Just behind the lamp: whoever stands in front hides the glow, whoever is behind is lit.
+                glow.zPosition = lamp.zPosition - 0.5
                 glow.run(.repeatForever(.sequence([.fadeAlpha(to: 0.5, duration: 1.4), .fadeAlpha(to: 0.3, duration: 1.4)])))
                 world.addChild(glow)
             }
@@ -380,12 +485,17 @@ final class WorldScene: SKScene {
         for placement in def.theme.props {
             let sprite = art.sprite(placement.art)
             let groupSize = max(1, placement.cluster ?? 1)
-            let spread = max(1, Int(Double(groupSize).squareRoot().rounded()) + 1)
+            let spread = max(1, placement.spread ?? Int(Double(groupSize).squareRoot().rounded()) + 1)
             var placed = 0
             var attempts = 0
             while placed < placement.count, attempts < placement.count * 3 {
                 attempts += 1
-                guard let middle = map.randomFreeCell(using: &rng) else { break }
+                let found: GridPoint? = if let radius = placement.within {
+                    map.randomFreeCell(within: radius, using: &rng)
+                } else {
+                    map.randomFreeCell(using: &rng)
+                }
+                guard let middle = found else { break }
                 let wanted = min(groupSize, placement.count - placed)
                 var inGroup = 0
                 for index in 0..<(wanted * 5) where inGroup < wanted {
@@ -393,9 +503,15 @@ final class WorldScene: SKScene {
                         col: middle.col + Int.random(in: -spread...spread, using: &rng),
                         row: middle.row + Int.random(in: -spread...spread, using: &rng)
                     )
-                    guard map.isFreeForScenery(cell) else { continue }
+                    guard map.isFreeForScenery(cell, insideFence: placement.within != nil) else { continue }
                     map.occupy(cell, blocking: placement.blocking)
-                    addScenery(sprite, at: cell, sway: placement.sway == true, jitter: true)
+                    var scale: CGFloat = 1
+                    if let range = placement.size, range.count == 2, range[0] <= range[1] {
+                        scale = CGFloat(Double.random(in: range[0]...range[1], using: &rng))
+                    }
+                    let node = addScenery(sprite, at: cell, sway: placement.sway == true, jitter: true, scale: scale)
+                    if placement.shadow == true { Lighting.shadow(under: node, in: world) }
+                    if let hex = placement.glow, let color = UIColor(hex: hex) { Lighting.glow(behind: node, color: color, in: world, rng: &rng) }
                     inGroup += 1
                 }
                 placed += inGroup
@@ -428,7 +544,7 @@ final class WorldScene: SKScene {
             for _ in 0..<30 {
                 guard let middle = map.randomFreeCell(using: &rng) else { break }
                 let area = (-2...2).flatMap { dr in (-2...2).map { dc in GridPoint(col: middle.col + dc, row: middle.row + dr) } }
-                guard area.allSatisfy(map.isFreeForScenery) else { continue }
+                guard area.allSatisfy({ map.isFreeForScenery($0) }) else { continue }
                 area.forEach { map.occupy($0, blocking: false) }
                 let origin = map.center(of: middle)
                 for index in 0..<9 {
@@ -521,8 +637,9 @@ final class WorldScene: SKScene {
         }
     }
 
-    private func addScenery(_ sprite: SpriteArt, at cell: GridPoint, sway: Bool = false, jitter: Bool = false) {
-        let node = SKSpriteNode(texture: sprite.texture, size: sprite.size)
+    @discardableResult
+    private func addScenery(_ sprite: SpriteArt, at cell: GridPoint, sway: Bool = false, jitter: Bool = false, scale: CGFloat = 1) -> SKSpriteNode {
+        let node = SKSpriteNode(texture: sprite.texture, size: CGSize(width: sprite.size.width * scale, height: sprite.size.height * scale))
         node.anchorPoint = CGPoint(x: 0.5, y: 0.05)
         var position = map.base(of: cell)
         if jitter {
@@ -543,6 +660,7 @@ final class WorldScene: SKScene {
             node.run(.repeatForever(.sequence([left, right])))
         }
         world.addChild(node)
+        return node
     }
 
     /// One pixel per tile, for the HUD minimap.
@@ -883,8 +1001,9 @@ final class WorldScene: SKScene {
         let goal = player.position
         let t = dt == 0 ? 1 : min(1, CGFloat(dt) * 10)
         let eased = CGPoint(x: cam.position.x + (goal.x - cam.position.x) * t, y: cam.position.y + (goal.y - cam.position.y) * t)
-        // Snap to whole screen pixels so pixel art doesn't shimmer.
-        let scale = view?.contentScaleFactor ?? 1
+        // Snap to whole screen pixels so pixel art doesn't shimmer (zooming changes their size).
+        let scale = (view?.contentScaleFactor ?? 1) / cam.xScale
         cam.position = CGPoint(x: (eased.x * scale).rounded() / scale, y: (eased.y * scale).rounded() / scale)
+        lighting?.follow(cam.position)
     }
 }
