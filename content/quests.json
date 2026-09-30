@@ -315,6 +315,389 @@
         ]
       },
       "minLevel": 82
+    },
+    {
+      "id": "slime_gold",
+      "title": "The Golden God's Grunt",
+      "giver": "elder",
+      "description": "Slime Cave, west of the Northern Grassland, is full of Golden Slimes. Their master calls himself the Grunt of the Golden God. Defeat him.",
+      "objective": {
+        "type": "defeat",
+        "target": "golden_grunt",
+        "count": 1
+      },
+      "reward": {
+        "gold": 560,
+        "exp": 1600,
+        "items": [
+          "hi_potion",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 16
+    },
+    {
+      "id": "lambs_in_distress",
+      "title": "Lambs In Distress",
+      "giver": "linns",
+      "description": "The wolves of Candy Mountain took Mother Sheep's lambs to the Big Bad Wolf's Lair, west of the mountain. Thin out their pack: defeat 6 Earth Wolves.",
+      "objective": {
+        "type": "defeat",
+        "target": "earth_wolf",
+        "count": 6
+      },
+      "reward": {
+        "gold": 853,
+        "exp": 2548,
+        "items": [
+          "hi_potion",
+          "ether"
+        ]
+      },
+      "minLevel": 24
+    },
+    {
+      "id": "wolf_leader",
+      "title": "The Wolf Leader",
+      "giver": "linns",
+      "description": "The pack still follows its leader. Find the Wolf Leader deep in the lair and bring those lambs home.",
+      "objective": {
+        "type": "defeat",
+        "target": "wolf_leader",
+        "count": 1
+      },
+      "reward": {
+        "gold": 1469,
+        "exp": 4608,
+        "items": [
+          "power_band"
+        ]
+      },
+      "minLevel": 32,
+      "requires": [
+        "lambs_in_distress"
+      ]
+    },
+    {
+      "id": "fine_woolen_cloth",
+      "title": "Fine Woolen Cloth",
+      "giver": "linns",
+      "description": "I need wool for a very special dress, the kind a swan would wear. Candy Puffs spin the softest fluff; bring me what 8 of them leave behind.",
+      "objective": {
+        "type": "defeat",
+        "target": "candy_puff",
+        "count": 8
+      },
+      "reward": {
+        "gold": 963,
+        "exp": 2912,
+        "items": [
+          "ruby_ring"
+        ]
+      },
+      "minLevel": 22
+    },
+    {
+      "id": "wishes_of_a_duckling",
+      "title": "Wishes of an Ugly Duck",
+      "giver": "swan_keeper",
+      "description": "The little grey duckling of Swan Lake hides from the Water Slugs. Clear 6 of them so it can swim out and meet the swans.",
+      "objective": {
+        "type": "defeat",
+        "target": "water_slug",
+        "count": 6
+      },
+      "reward": {
+        "gold": 1760,
+        "exp": 5600,
+        "items": [
+          "hi_ether",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 34
+    },
+    {
+      "id": "some_love_and_happiness",
+      "title": "Some Love and Happiness",
+      "giver": "thumbelina",
+      "description": "The Lotus Sprites won't let me cross the pond to see my prince. Would you shoo away 6 of them? Gently, please.",
+      "objective": {
+        "type": "defeat",
+        "target": "lotus_sprite",
+        "count": 6
+      },
+      "reward": {
+        "gold": 2245,
+        "exp": 7268,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "star_charm"
+        ]
+      },
+      "minLevel": 40
+    },
+    {
+      "id": "animals_home",
+      "title": "Animal's Home",
+      "giver": "hermit_will",
+      "description": "The Wooden Puppets chased every animal off Puppet Hill. Break 8 of them and the animals can come home.",
+      "objective": {
+        "type": "defeat",
+        "target": "wooden_puppet",
+        "count": 8
+      },
+      "reward": {
+        "gold": 2981,
+        "exp": 9828,
+        "items": [
+          "hi_ether",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 50
+    },
+    {
+      "id": "puppet_king",
+      "title": "The Puppet King",
+      "giver": "hermit_will",
+      "description": "The puppets dance for their king at the top of the hill. Cut his strings for good.",
+      "objective": {
+        "type": "defeat",
+        "target": "puppet_king",
+        "count": 1
+      },
+      "reward": {
+        "gold": 3819,
+        "exp": 12772,
+        "items": [
+          "speed_boots"
+        ]
+      },
+      "minLevel": 56,
+      "requires": [
+        "animals_home"
+      ]
+    },
+    {
+      "id": "mystery_of_fantasy_ore",
+      "title": "Mystery of the Fantasy Ore",
+      "giver": "hamini",
+      "description": "Fantasy Ore Golems roll about Goldburg Lake. Their cores glow like the goddess Shiria's treasure. Defeat 6 and let me study one.",
+      "objective": {
+        "type": "defeat",
+        "target": "ore_golem",
+        "count": 6
+      },
+      "reward": {
+        "gold": 4045,
+        "exp": 13568,
+        "items": [
+          "hi_ether",
+          "seal_stone"
+        ]
+      },
+      "minLevel": 60
+    },
+    {
+      "id": "treasures_of_shiria",
+      "title": "Treasures of Goddess Shiria",
+      "giver": "hamini",
+      "description": "The ore points south, to the Secret Plain. Idreus guards the goddess's treasure there, and can hit for thousands. Bring a strong party.",
+      "objective": {
+        "type": "defeat",
+        "target": "idreus",
+        "count": 1
+      },
+      "reward": {
+        "gold": 14000,
+        "exp": 49375,
+        "items": [
+          "dragon_mail",
+          "hi_potion",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 110,
+      "requires": [
+        "mystery_of_fantasy_ore"
+      ]
+    },
+    {
+      "id": "sleeping_sophia",
+      "title": "Sleeping Sophia",
+      "giver": "thomas",
+      "description": "The Dream Phantoms keep Sleepy Town dreaming. Defeat 8 of them, then wake Sophia by beating the Rock Monster that snores in the cave.",
+      "objective": {
+        "type": "defeat",
+        "target": "dream_phantom",
+        "count": 8
+      },
+      "reward": {
+        "gold": 5533,
+        "exp": 18848,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 72
+    },
+    {
+      "id": "rock_monster",
+      "title": "The Rock Monster",
+      "giver": "thomas",
+      "description": "Now the monster itself. It's big, it's stone, and it has been asleep for a year. Wake it up the hard way.",
+      "objective": {
+        "type": "defeat",
+        "target": "rock_monster",
+        "count": 1
+      },
+      "reward": {
+        "gold": 6949,
+        "exp": 23908,
+        "items": [
+          "power_band"
+        ]
+      },
+      "minLevel": 80,
+      "requires": [
+        "sleeping_sophia"
+      ]
+    },
+    {
+      "id": "ore_of_hachoo",
+      "title": "Ore of Hachoo Island",
+      "giver": "hamini",
+      "description": "Even bigger golems live on Hachoo Island, south of the Secret Plain. Defeat 10 and the mystery of the ore is solved.",
+      "objective": {
+        "type": "defeat",
+        "target": "ore_golem",
+        "count": 10
+      },
+      "reward": {
+        "gold": 15080,
+        "exp": 53300,
+        "items": [
+          "hi_ether",
+          "hi_ether",
+          "star_charm"
+        ]
+      },
+      "minLevel": 120,
+      "requires": [
+        "treasures_of_shiria"
+      ]
+    },
+    {
+      "id": "temple_below",
+      "title": "The Temple Below",
+      "giver": "temple_keeper",
+      "description": "Temple Jellies drift up from the sunken Water Temple. Defeat 10 of them and the way down will clear.",
+      "objective": {
+        "type": "defeat",
+        "target": "temple_jelly",
+        "count": 10
+      },
+      "reward": {
+        "gold": 18560,
+        "exp": 65975,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 135
+    },
+    {
+      "id": "tide_dragon",
+      "title": "The Tide Dragon",
+      "giver": "temple_keeper",
+      "description": "The Tide Dragon sleeps in the deepest hall of the Water Temple. Wake it, and end it.",
+      "objective": {
+        "type": "defeat",
+        "target": "tide_dragon",
+        "count": 1
+      },
+      "reward": {
+        "gold": 25160,
+        "exp": 90100,
+        "items": [
+          "dragon_mail"
+        ]
+      },
+      "minLevel": 155,
+      "requires": [
+        "temple_below"
+      ]
+    },
+    {
+      "id": "silver_demon",
+      "title": "The Silver Demon's Lieutenant",
+      "giver": "emerald_guard",
+      "description": "The Silver Demon's Lieutenant holds the Mysterious Cave, the only way to this road. Defeat him so travellers can pass.",
+      "objective": {
+        "type": "defeat",
+        "target": "silver_lieutenant",
+        "count": 1
+      },
+      "reward": {
+        "gold": 29600,
+        "exp": 106375,
+        "items": [
+          "speed_boots",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 170
+    },
+    {
+      "id": "crystal_widows",
+      "title": "Crystal Widows",
+      "giver": "emerald_guard",
+      "description": "Crystal Widows spin webs across the cave mouth. Clear 10 of them.",
+      "objective": {
+        "type": "defeat",
+        "target": "crystal_widow",
+        "count": 10
+      },
+      "reward": {
+        "gold": 26600,
+        "exp": 95375,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 165
+    },
+    {
+      "id": "emerald_dragon",
+      "title": "At the End of the Road",
+      "giver": "emerald_guard",
+      "description": "The Emerald Dragon waits at the gate of the Emerald City. Only a hero near level 200 should try.",
+      "objective": {
+        "type": "defeat",
+        "target": "emerald_dragon",
+        "count": 1
+      },
+      "reward": {
+        "gold": 34400,
+        "exp": 124000,
+        "items": [
+          "dragon_mail",
+          "star_charm",
+          "power_band"
+        ]
+      },
+      "minLevel": 190,
+      "requires": [
+        "silver_demon"
+      ]
     }
   ]
 }

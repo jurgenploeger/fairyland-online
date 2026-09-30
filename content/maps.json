@@ -256,6 +256,10 @@
         {
           "edge": "east",
           "to": "sunny_meadow"
+        },
+        {
+          "edge": "north",
+          "to": "northern_grassland"
         }
       ],
       "buildings": [
@@ -1188,6 +1192,10 @@
           "edge": "north",
           "to": "smiling_forest",
           "requires": "pineapple_harvest"
+        },
+        {
+          "edge": "west",
+          "to": "northern_grassland"
         }
       ],
       "encounters": {
@@ -1495,6 +1503,14 @@
           "edge": "south",
           "to": "valley_of_fear",
           "requires": "bouncy_menace"
+        },
+        {
+          "edge": "north",
+          "to": "swan_lake"
+        },
+        {
+          "edge": "east",
+          "to": "lotus_land"
         }
       ],
       "encounters": {
@@ -1933,6 +1949,10 @@
           "edge": "east",
           "to": "snow_white_forest",
           "requires": "dragon_hangover"
+        },
+        {
+          "edge": "west",
+          "to": "candy_mountain"
         }
       ],
       "encounters": {
@@ -2342,6 +2362,10 @@
         {
           "edge": "south",
           "to": "smiling_forest"
+        },
+        {
+          "edge": "west",
+          "to": "bluebird"
         }
       ],
       "npcs": [
@@ -2633,6 +2657,10 @@
         {
           "edge": "west",
           "to": "smiling_forest"
+        },
+        {
+          "edge": "south",
+          "to": "swan_lake"
         }
       ],
       "npcs": [
@@ -2935,6 +2963,10 @@
           "edge": "east",
           "to": "valley_of_fear",
           "requires": "swamp_song"
+        },
+        {
+          "edge": "south",
+          "to": "goldburg_lake"
         }
       ],
       "encounters": {
@@ -3391,6 +3423,10 @@
         {
           "edge": "west",
           "to": "valley_of_fear"
+        },
+        {
+          "edge": "north",
+          "to": "lotus_land"
         }
       ],
       "npcs": [
@@ -3673,6 +3709,10 @@
           "edge": "south",
           "to": "crystal_mountain",
           "requires": "dragon_hangover"
+        },
+        {
+          "edge": "west",
+          "to": "goldburg_lake"
         }
       ],
       "npcs": [
@@ -3942,6 +3982,14 @@
         {
           "edge": "west",
           "to": "goldburg"
+        },
+        {
+          "edge": "east",
+          "to": "sleepy_town"
+        },
+        {
+          "edge": "south",
+          "to": "secret_plain"
         }
       ],
       "npcs": [
@@ -4196,6 +4244,14 @@
           "edge": "south",
           "to": "moonglow",
           "requires": "crystal_hearts"
+        },
+        {
+          "edge": "east",
+          "to": "secret_plain"
+        },
+        {
+          "edge": "west",
+          "to": "rosen_lake"
         }
       ],
       "encounters": {
@@ -4424,6 +4480,18 @@
         {
           "edge": "north",
           "to": "crystal_mountain"
+        },
+        {
+          "edge": "east",
+          "to": "hachoo_island"
+        },
+        {
+          "edge": "west",
+          "to": "water_temple"
+        },
+        {
+          "edge": "south",
+          "to": "mysterious_cave"
         }
       ],
       "encounters": {
@@ -4464,6 +4532,4900 @@
         "haze": "#303A80",
         "hazeAlpha": 0.28
       }
+    },
+    {
+      "id": "northern_grassland",
+      "name": "Northern Grassland",
+      "crowd": {
+        "adventurers": 5
+      },
+      "width": 110,
+      "height": 80,
+      "music": "meadow",
+      "theme": {
+        "ground": "tile_grass",
+        "path": "tile_path",
+        "accent": "tile_flowers",
+        "accentPatches": 70,
+        "water": "tile_water",
+        "ponds": 9,
+        "fairyRings": {
+          "count": 4,
+          "art": "mushroom"
+        },
+        "props": [
+          {
+            "art": "big_tree",
+            "count": 120,
+            "blocking": true,
+            "cluster": 10,
+            "sway": true,
+            "spread": 3,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_blossom_tree",
+            "count": 25,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "tree",
+            "count": 600,
+            "blocking": true,
+            "cluster": 16,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "blossom_tree",
+            "count": 100,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "autumn_tree",
+            "count": 50,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "rock",
+            "count": 55,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "giant_flower",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "mushroom",
+            "count": 60,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "bush",
+            "count": 220,
+            "blocking": true,
+            "cluster": 6,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "flowering_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "daisy",
+            "count": 90,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 90,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "daisy_blue",
+            "count": 45,
+            "blocking": false,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "golden_tree",
+            "count": 40,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "red_maple",
+            "count": 30,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "sapling",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.7,
+              1.15
+            ]
+          },
+          {
+            "art": "pebbles",
+            "count": 70,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "small_boulder",
+            "count": 25,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "purple_mushroom",
+            "count": 30,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "toadstool",
+            "count": 20,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "tree_stump",
+            "count": 10,
+            "blocking": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "berry_bush",
+            "count": 12,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "sunflower",
+            "count": 14,
+            "blocking": false,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "tulip_patch",
+            "count": 12,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "clover_patch",
+            "count": 16,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "haystack",
+            "count": 6,
+            "blocking": true,
+            "cluster": 2,
+            "shadow": true
+          },
+          {
+            "art": "pumpkin_patch",
+            "count": 8,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "beehive_tree",
+            "count": 4,
+            "blocking": true,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "signpost",
+            "count": 6,
+            "blocking": true
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 4,
+              "saturation": 0.92
+            },
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 192
+            }
+          ],
+          "saturation": 1.05,
+          "shadow": "#2060B0",
+          "highlight": "#FFE080",
+          "tone": 0.55,
+          "glow": 0.3,
+          "light": "#FFE6B8",
+          "lightStrength": 0.4,
+          "variation": 0.16
+        }
+      },
+      "ambience": {
+        "particles": "leaves",
+        "butterflies": 36,
+        "clouds": true,
+        "tint": "#FFE0A0",
+        "tintAlpha": 0.07,
+        "vignette": 0.15,
+        "lightPatches": {
+          "color": "#FFE9A0",
+          "count": 90,
+          "size": [
+            80,
+            170
+          ],
+          "alpha": 0.16
+        },
+        "sunbeams": {
+          "color": "#FFF0C0",
+          "count": 30,
+          "size": [
+            30,
+            70
+          ],
+          "alpha": 0.1
+        },
+        "sun": "#FFE0A0",
+        "haze": "#CFE8FF",
+        "hazeAlpha": 0.2
+      },
+      "exits": [
+        {
+          "edge": "south",
+          "to": "meadowbrook"
+        },
+        {
+          "edge": "east",
+          "to": "pineapple_shore"
+        },
+        {
+          "edge": "west",
+          "to": "slime_cave"
+        },
+        {
+          "edge": "north",
+          "to": "candy_mountain"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          4,
+          12
+        ],
+        "groupSize": [
+          1,
+          2
+        ],
+        "monsters": {
+          "jelly": 4,
+          "bunny": 3,
+          "golden_hamster": 3,
+          "hedgehog": 2,
+          "yellow_butterfly": 2
+        }
+      }
+    },
+    {
+      "id": "slime_cave",
+      "name": "Slime Cave",
+      "width": 80,
+      "height": 60,
+      "music": "cave",
+      "crowd": {
+        "adventurers": 2
+      },
+      "theme": {
+        "ground": "tile_cave_floor",
+        "path": "tile_scree",
+        "accent": "tile_cave_rock",
+        "accentPatches": 40,
+        "water": "tile_water",
+        "ponds": 5,
+        "props": [
+          {
+            "art": "stalagmite",
+            "count": 300,
+            "blocking": true,
+            "cluster": 6,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "boulder",
+            "count": 80,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "crystal",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#9FE8FF"
+          },
+          {
+            "art": "mine_cart",
+            "count": 10,
+            "blocking": true
+          },
+          {
+            "art": "skull_bones",
+            "count": 20,
+            "blocking": false
+          },
+          {
+            "art": "small_stalagmite",
+            "count": 150,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "amber_crystal",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FFC870"
+          },
+          {
+            "art": "crystal_shard",
+            "count": 40,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#9FE8FF"
+          },
+          {
+            "art": "pebbles",
+            "count": 60,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "ore_vein",
+            "count": 12,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FFD27A"
+          },
+          {
+            "art": "mine_beam",
+            "count": 4,
+            "blocking": true
+          },
+          {
+            "art": "glow_moss_rock",
+            "count": 10,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#90FFB8"
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 170,
+              "saturation": 0.9
+            },
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "to": 175,
+              "saturation": 0.9
+            }
+          ],
+          "saturation": 1.3,
+          "shadow": "#206040",
+          "highlight": "#FFE040",
+          "tone": 0.65,
+          "light": "#C8FF90",
+          "lightStrength": 0.55,
+          "variation": 0.14
+        }
+      },
+      "ambience": {
+        "particles": "motes",
+        "clouds": false,
+        "tint": "#10301A",
+        "tintAlpha": 0.2,
+        "vignette": 0.65,
+        "lightPatches": {
+          "color": "#FFE060",
+          "count": 40,
+          "size": [
+            60,
+            130
+          ],
+          "alpha": 0.14
+        },
+        "haze": "#102040",
+        "hazeAlpha": 0.3
+      },
+      "exits": [
+        {
+          "edge": "east",
+          "to": "northern_grassland"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          10,
+          20
+        ],
+        "groupSize": [
+          1,
+          2
+        ],
+        "monsters": {
+          "golden_slime": 5,
+          "mud_slime": 4,
+          "jelly": 2,
+          "frost_puff": 2
+        }
+      },
+      "npcs": [
+        {
+          "id": "slime_throne",
+          "name": "Grunt of the Golden God",
+          "role": "boss",
+          "art": "boss_golden_grunt",
+          "x": 0,
+          "y": 14,
+          "greeting": "The Golden God's treasure is mine! Mine, mine, MINE!",
+          "monster": "golden_grunt",
+          "level": 20
+        }
+      ]
+    },
+    {
+      "id": "candy_mountain",
+      "name": "Candy Mountain",
+      "crowd": {
+        "adventurers": 5
+      },
+      "width": 110,
+      "height": 80,
+      "music": "meadow",
+      "theme": {
+        "ground": "tile_grass",
+        "path": "tile_path",
+        "accent": "tile_flowers",
+        "accentPatches": 70,
+        "water": "tile_water",
+        "ponds": 9,
+        "fairyRings": {
+          "count": 4,
+          "art": "mushroom"
+        },
+        "props": [
+          {
+            "art": "big_blossom_tree",
+            "count": 120,
+            "blocking": true,
+            "cluster": 10,
+            "sway": true,
+            "spread": 3,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "blossom_tree",
+            "count": 600,
+            "blocking": true,
+            "cluster": 16,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "autumn_tree",
+            "count": 50,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "rock",
+            "count": 55,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "giant_flower",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "mushroom",
+            "count": 60,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "flowering_bush",
+            "count": 220,
+            "blocking": true,
+            "cluster": 6,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "daisy",
+            "count": 90,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 90,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "daisy_blue",
+            "count": 45,
+            "blocking": false,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "lilac_tree",
+            "count": 40,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_lilac_tree",
+            "count": 30,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "sapling",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.7,
+              1.15
+            ]
+          },
+          {
+            "art": "pebbles",
+            "count": 70,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "small_boulder",
+            "count": 25,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "purple_mushroom",
+            "count": 30,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "toadstool",
+            "count": 20,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "tree_stump",
+            "count": 10,
+            "blocking": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "berry_bush",
+            "count": 12,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "sunflower",
+            "count": 14,
+            "blocking": false,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "tulip_patch",
+            "count": 12,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "clover_patch",
+            "count": 16,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "haystack",
+            "count": 6,
+            "blocking": true,
+            "cluster": 2,
+            "shadow": true
+          },
+          {
+            "art": "pumpkin_patch",
+            "count": 8,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "beehive_tree",
+            "count": 4,
+            "blocking": true,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "signpost",
+            "count": 6,
+            "blocking": true
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 40,
+              "saturation": 0.7,
+              "value": 1.08
+            }
+          ],
+          "saturation": 1.05,
+          "shadow": "#8040C0",
+          "highlight": "#FFB0E0",
+          "tone": 0.55,
+          "glow": 0.3,
+          "light": "#FFE0F2",
+          "lightStrength": 0.4,
+          "variation": 0.16
+        }
+      },
+      "ambience": {
+        "particles": "petals",
+        "butterflies": 36,
+        "clouds": true,
+        "tint": "#FFD0F0",
+        "tintAlpha": 0.06,
+        "vignette": 0.15,
+        "lightPatches": {
+          "color": "#FFE9A0",
+          "count": 90,
+          "size": [
+            80,
+            170
+          ],
+          "alpha": 0.16
+        },
+        "sunbeams": {
+          "color": "#FFF0C0",
+          "count": 30,
+          "size": [
+            30,
+            70
+          ],
+          "alpha": 0.1
+        },
+        "sun": "#FFE0A0",
+        "haze": "#CFE8FF",
+        "hazeAlpha": 0.2
+      },
+      "exits": [
+        {
+          "edge": "south",
+          "to": "northern_grassland"
+        },
+        {
+          "edge": "east",
+          "to": "smiling_forest"
+        },
+        {
+          "edge": "west",
+          "to": "wolf_lair"
+        },
+        {
+          "edge": "north",
+          "to": "bluebird"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          16,
+          28
+        ],
+        "groupSize": [
+          1,
+          2
+        ],
+        "monsters": {
+          "candy_puff": 5,
+          "cotton_bun": 3,
+          "sakura_bunny": 2,
+          "flame_sheep": 3,
+          "earth_wolf": 1
+        }
+      }
+    },
+    {
+      "id": "wolf_lair",
+      "name": "Big Bad Wolf's Lair",
+      "crowd": {
+        "adventurers": 5
+      },
+      "danger": true,
+      "width": 100,
+      "height": 80,
+      "music": "cave",
+      "theme": {
+        "ground": "tile_dark_grass",
+        "path": "tile_path",
+        "accent": "tile_dark_flowers",
+        "accentPatches": 40,
+        "water": "tile_water",
+        "ponds": 6,
+        "fairyRings": {
+          "count": 7,
+          "art": "glow_mushroom"
+        },
+        "props": [
+          {
+            "art": "big_dark_tree",
+            "count": 300,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "spread": 3,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_lilac_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_hollow_tree",
+            "count": 5,
+            "blocking": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_dead_tree",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "dark_tree",
+            "count": 1100,
+            "blocking": true,
+            "cluster": 24,
+            "sway": true,
+            "spread": 4,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "crystal",
+            "count": 45,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#9FE8FF"
+          },
+          {
+            "art": "glow_mushroom",
+            "count": 360,
+            "blocking": false,
+            "cluster": 6,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#8FE8FF"
+          },
+          {
+            "art": "dark_bush",
+            "count": 400,
+            "blocking": true,
+            "cluster": 8,
+            "spread": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "violet_crystal",
+            "count": 25,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#C9A0FF"
+          },
+          {
+            "art": "pink_shard",
+            "count": 90,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FF9FD8"
+          },
+          {
+            "art": "purple_mushroom",
+            "count": 160,
+            "blocking": false,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "blue_mushroom",
+            "count": 160,
+            "blocking": false,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "lilac_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "lilac_bush",
+            "count": 120,
+            "blocking": true,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "fairy_ring",
+            "count": 8,
+            "blocking": false,
+            "glow": "#FFB8F0"
+          },
+          {
+            "art": "wisp_lantern",
+            "count": 10,
+            "blocking": true,
+            "glow": "#B8F0FF"
+          },
+          {
+            "art": "fern",
+            "count": 600,
+            "blocking": false,
+            "cluster": 8,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "hollow_tree",
+            "count": 4,
+            "blocking": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "fallen_log",
+            "count": 25,
+            "blocking": true
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                150,
+                215
+              ],
+              "shift": 70,
+              "saturation": 0.9
+            },
+            {
+              "hue": [
+                70,
+                150
+              ],
+              "shift": -40,
+              "saturation": 0.7
+            }
+          ],
+          "saturation": 1.1,
+          "shadow": "#301040",
+          "highlight": "#FF7040",
+          "tone": 0.55,
+          "light": "#D8A0C0",
+          "lightStrength": 0.5,
+          "variation": 0.14
+        }
+      },
+      "ambience": {
+        "particles": "fireflies",
+        "clouds": false,
+        "tint": "#2A1030",
+        "tintAlpha": 0.22,
+        "vignette": 0.45,
+        "lightPatches": {
+          "color": "#9F8CFF",
+          "count": 60,
+          "size": [
+            60,
+            140
+          ],
+          "alpha": 0.18
+        },
+        "haze": "#3A2A8A",
+        "hazeAlpha": 0.25,
+        "foreground": {
+          "art": [
+            "big_dark_tree",
+            "dark_bush",
+            "big_lilac_tree"
+          ],
+          "count": 26,
+          "alpha": 0.5,
+          "blur": 3,
+          "scale": 3
+        }
+      },
+      "exits": [
+        {
+          "edge": "east",
+          "to": "candy_mountain"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          24,
+          36
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "earth_wolf": 5,
+          "flame_wolf": 4,
+          "werewolf": 2,
+          "night_monkey": 1
+        }
+      },
+      "npcs": [
+        {
+          "id": "wolf_den_leader",
+          "name": "Wolf Leader",
+          "role": "boss",
+          "art": "boss_wolf_leader",
+          "x": 0,
+          "y": 18,
+          "greeting": "Grrr... the sheep's lambs are ours. Turn back, little hero.",
+          "monster": "wolf_leader",
+          "level": 36
+        }
+      ]
+    },
+    {
+      "id": "bluebird",
+      "name": "Bluebird",
+      "width": 70,
+      "height": 54,
+      "music": "town",
+      "fence": true,
+      "crowd": {
+        "adventurers": 8,
+        "villagers": 10
+      },
+      "theme": {
+        "ground": "tile_grass",
+        "path": "tile_town",
+        "border": "tile_grass",
+        "accent": "tile_scree",
+        "props": [
+          {
+            "art": "blossom_tree",
+            "count": 40,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "tree",
+            "count": 40,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "flowering_bush",
+            "count": 40,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "bush",
+            "count": 30,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "daisy",
+            "count": 30,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 30,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "daisy_blue",
+            "count": 15,
+            "blocking": false,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "lilac_tree",
+            "count": 12,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "lilac_bush",
+            "count": 16,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "tulip_patch",
+            "count": 10,
+            "blocking": false,
+            "cluster": 3,
+            "within": 12,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "sunflower",
+            "count": 6,
+            "blocking": false,
+            "cluster": 2,
+            "sway": true,
+            "within": 12,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "wooden_crates",
+            "count": 4,
+            "blocking": true
+          },
+          {
+            "art": "barrels",
+            "count": 4,
+            "blocking": true
+          },
+          {
+            "art": "water_well",
+            "count": 1,
+            "blocking": true,
+            "within": 10,
+            "shadow": true
+          },
+          {
+            "art": "statue",
+            "count": 2,
+            "blocking": true,
+            "within": 13,
+            "shadow": true
+          }
+        ],
+        "accentPatches": 0,
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 22,
+              "saturation": 0.85,
+              "value": 1.05
+            }
+          ],
+          "saturation": 1.0,
+          "shadow": "#3050C0",
+          "highlight": "#C8E8FF",
+          "tone": 0.5,
+          "glow": 0.28,
+          "light": "#E0F0FF",
+          "lightStrength": 0.35,
+          "variation": 0.1
+        }
+      },
+      "town": {
+        "streets": [
+          [
+            -26,
+            11,
+            26,
+            11
+          ],
+          [
+            -26,
+            -11,
+            26,
+            -11
+          ],
+          [
+            -26,
+            -11,
+            -26,
+            11
+          ],
+          [
+            26,
+            -11,
+            26,
+            11
+          ],
+          [
+            -13,
+            -11,
+            -13,
+            11
+          ],
+          [
+            13,
+            -11,
+            13,
+            11
+          ],
+          [
+            -26,
+            0,
+            26,
+            0
+          ]
+        ],
+        "plaza": 4,
+        "lots": [
+          "item_shop",
+          "inn",
+          "blacksmith",
+          "bakery",
+          "magic_tower",
+          "mushroom_house",
+          "house",
+          "house",
+          "house",
+          "house",
+          "windmill",
+          "mushroom_house"
+        ],
+        "streetDecor": {
+          "street_lamp": 20,
+          "flower_planter": 12,
+          "bench": 8,
+          "market_stall": 8
+        },
+        "terraces": [
+          {
+            "x": -9,
+            "y": 14,
+            "width": 18,
+            "height": 7
+          }
+        ]
+      },
+      "ambience": {
+        "lightPatches": {
+          "color": "#FFE0F4",
+          "count": 30,
+          "size": [
+            80,
+            160
+          ],
+          "alpha": 0.14
+        },
+        "sun": "#FFE8F0",
+        "haze": "#F0E0FF",
+        "hazeAlpha": 0.16,
+        "tint": "#C8E0FF",
+        "tintAlpha": 0.05
+      },
+      "exits": [
+        {
+          "edge": "south",
+          "to": "candy_mountain"
+        },
+        {
+          "edge": "east",
+          "to": "rainbow_city"
+        }
+      ],
+      "npcs": [
+        {
+          "id": "bluebird_healer",
+          "name": "Healer Mei",
+          "role": "healer",
+          "art": "npc_healer",
+          "x": -6,
+          "y": 3,
+          "greeting": "Welcome to Bluebird. Let me see those scrapes."
+        },
+        {
+          "id": "bluebird_shop",
+          "name": "Bluebird Market",
+          "role": "shop",
+          "art": "npc_trader",
+          "x": 6,
+          "y": 3,
+          "greeting": "Cloth, potions and charms, fresh from the capital!",
+          "stock": [
+            "hi_potion",
+            "hi_ether",
+            "seal_stone",
+            "ruby_ring",
+            "star_charm"
+          ]
+        },
+        {
+          "id": "linns",
+          "name": "Linns the Tailor",
+          "role": "quests",
+          "art": "npc_linns",
+          "x": 3,
+          "y": -4,
+          "greeting": "Mind the thread! Bluebird's finest tailor, at your service."
+        }
+      ]
+    },
+    {
+      "id": "swan_lake",
+      "name": "Swan Lake",
+      "crowd": {
+        "adventurers": 5
+      },
+      "width": 110,
+      "height": 80,
+      "music": "shore",
+      "theme": {
+        "ground": "tile_grass",
+        "path": "tile_path",
+        "accent": "tile_flowers",
+        "accentPatches": 70,
+        "water": "tile_water",
+        "ponds": 9,
+        "fairyRings": {
+          "count": 4,
+          "art": "mushroom"
+        },
+        "props": [
+          {
+            "art": "big_tree",
+            "count": 120,
+            "blocking": true,
+            "cluster": 10,
+            "sway": true,
+            "spread": 3,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_blossom_tree",
+            "count": 25,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "tree",
+            "count": 600,
+            "blocking": true,
+            "cluster": 16,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "blossom_tree",
+            "count": 100,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "autumn_tree",
+            "count": 50,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "rock",
+            "count": 55,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "giant_flower",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "mushroom",
+            "count": 60,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "bush",
+            "count": 220,
+            "blocking": true,
+            "cluster": 6,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "flowering_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "daisy",
+            "count": 90,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 90,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "daisy_blue",
+            "count": 45,
+            "blocking": false,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "golden_tree",
+            "count": 40,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "red_maple",
+            "count": 30,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "sapling",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.7,
+              1.15
+            ]
+          },
+          {
+            "art": "pebbles",
+            "count": 70,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "small_boulder",
+            "count": 25,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "purple_mushroom",
+            "count": 30,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "toadstool",
+            "count": 20,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "tree_stump",
+            "count": 10,
+            "blocking": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "berry_bush",
+            "count": 12,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "sunflower",
+            "count": 14,
+            "blocking": false,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "tulip_patch",
+            "count": 12,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "clover_patch",
+            "count": 16,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "haystack",
+            "count": 6,
+            "blocking": true,
+            "cluster": 2,
+            "shadow": true
+          },
+          {
+            "art": "pumpkin_patch",
+            "count": 8,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "beehive_tree",
+            "count": 4,
+            "blocking": true,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "signpost",
+            "count": 6,
+            "blocking": true
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 20,
+              "saturation": 0.85
+            },
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 196,
+              "saturation": 1.1
+            }
+          ],
+          "saturation": 1.05,
+          "shadow": "#2040C0",
+          "highlight": "#E0F0FF",
+          "tone": 0.55,
+          "glow": 0.3,
+          "light": "#E0ECFF",
+          "lightStrength": 0.4,
+          "variation": 0.16
+        }
+      },
+      "ambience": {
+        "particles": "sparkles",
+        "butterflies": 36,
+        "clouds": true,
+        "tint": "#D0E0FF",
+        "tintAlpha": 0.06,
+        "vignette": 0.15,
+        "lightPatches": {
+          "color": "#FFE9A0",
+          "count": 90,
+          "size": [
+            80,
+            170
+          ],
+          "alpha": 0.16
+        },
+        "sunbeams": {
+          "color": "#FFF0C0",
+          "count": 30,
+          "size": [
+            30,
+            70
+          ],
+          "alpha": 0.1
+        },
+        "sun": "#FFE0A0",
+        "haze": "#CFE8FF",
+        "hazeAlpha": 0.2
+      },
+      "exits": [
+        {
+          "edge": "south",
+          "to": "twilight_woods"
+        },
+        {
+          "edge": "north",
+          "to": "snow_white_forest"
+        },
+        {
+          "edge": "east",
+          "to": "puppet_hill"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          30,
+          44
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "water_slug": 3,
+          "starry_water_slug": 2,
+          "frost_puff": 3,
+          "wisp": 2,
+          "treefrog": 2
+        }
+      },
+      "npcs": [
+        {
+          "id": "swan_keeper",
+          "name": "Old Swan Keeper",
+          "role": "quests",
+          "art": "npc_elder",
+          "x": 3,
+          "y": 3,
+          "greeting": "The swans come home in spring. Every one of them was once an ugly duckling."
+        }
+      ]
+    },
+    {
+      "id": "lotus_land",
+      "name": "Lotus Land",
+      "width": 100,
+      "height": 72,
+      "music": "woods",
+      "crowd": {
+        "adventurers": 3
+      },
+      "theme": {
+        "ground": "tile_swamp",
+        "path": "tile_path",
+        "accent": "tile_dark_grass",
+        "accentPatches": 30,
+        "water": "tile_water",
+        "ponds": 14,
+        "props": [
+          {
+            "art": "big_swamp_tree",
+            "count": 200,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "spread": 3,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_dead_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "reeds",
+            "count": 700,
+            "blocking": false,
+            "cluster": 10,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "dead_tree",
+            "count": 240,
+            "blocking": true,
+            "cluster": 6,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "glow_mushroom",
+            "count": 140,
+            "blocking": false,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#8FE8FF"
+          },
+          {
+            "art": "moss_bush",
+            "count": 320,
+            "blocking": true,
+            "cluster": 8,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "autumn_reeds",
+            "count": 120,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "swamp_tree",
+            "count": 400,
+            "blocking": true,
+            "cluster": 12,
+            "sway": true,
+            "spread": 3,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "dead_bush",
+            "count": 80,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "blue_mushroom",
+            "count": 30,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "toadstool",
+            "count": 20,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "lotus",
+            "count": 16,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "swamp_stump",
+            "count": 10,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "cattail_log",
+            "count": 6,
+            "blocking": true
+          },
+          {
+            "art": "fern",
+            "count": 400,
+            "blocking": false,
+            "cluster": 8,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                40,
+                100
+              ],
+              "to": 128,
+              "saturation": 0.75,
+              "value": 1.12
+            },
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 190,
+              "saturation": 0.9
+            }
+          ],
+          "saturation": 1.1,
+          "shadow": "#A04090",
+          "highlight": "#FFC0E0",
+          "tone": 0.5,
+          "glow": 0.2,
+          "light": "#FFE0F0",
+          "lightStrength": 0.45,
+          "variation": 0.16
+        }
+      },
+      "ambience": {
+        "particles": "petals",
+        "clouds": false,
+        "tint": "#FFD0E8",
+        "tintAlpha": 0.06,
+        "vignette": 0.3,
+        "lightPatches": {
+          "color": "#C8FF90",
+          "count": 50,
+          "size": [
+            70,
+            150
+          ],
+          "alpha": 0.14
+        },
+        "haze": "#6A8A50",
+        "hazeAlpha": 0.22,
+        "foreground": {
+          "art": [
+            "big_swamp_tree",
+            "reeds",
+            "fern"
+          ],
+          "count": 24,
+          "alpha": 0.5,
+          "blur": 3,
+          "scale": 3
+        }
+      },
+      "exits": [
+        {
+          "edge": "west",
+          "to": "twilight_woods"
+        },
+        {
+          "edge": "south",
+          "to": "rat_cavern"
+        },
+        {
+          "edge": "north",
+          "to": "puppet_hill"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          38,
+          52
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "lotus_sprite": 5,
+          "crimson_treefrog": 3,
+          "yellow_butterfly": 2,
+          "dragonfruit": 2,
+          "water_slug": 2
+        }
+      },
+      "npcs": [
+        {
+          "id": "thumbelina",
+          "name": "Thumbelina",
+          "role": "quests",
+          "art": "npc_thumbelina",
+          "x": -3,
+          "y": 3,
+          "greeting": "Oh! Hello, giant. Please mind the lily pads, one of them is my house."
+        }
+      ]
+    },
+    {
+      "id": "puppet_hill",
+      "name": "Puppet Hill",
+      "width": 100,
+      "height": 80,
+      "music": "cave",
+      "crowd": {
+        "adventurers": 4
+      },
+      "danger": true,
+      "theme": {
+        "ground": "tile_dark_grass",
+        "path": "tile_path",
+        "accent": "tile_scree",
+        "accentPatches": 30,
+        "props": [
+          {
+            "art": "dead_tree",
+            "count": 420,
+            "blocking": true,
+            "cluster": 12,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "dark_tree",
+            "count": 420,
+            "blocking": true,
+            "cluster": 14,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "boulder",
+            "count": 60,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "skull_bones",
+            "count": 30,
+            "blocking": false
+          },
+          {
+            "art": "glow_mushroom",
+            "count": 40,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#8FE8FF"
+          },
+          {
+            "art": "dark_bush",
+            "count": 150,
+            "blocking": true,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "dead_bush",
+            "count": 120,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "small_skull",
+            "count": 30,
+            "blocking": false
+          },
+          {
+            "art": "violet_crystal",
+            "count": 15,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#C9A0FF"
+          },
+          {
+            "art": "small_boulder",
+            "count": 40,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "small_stalagmite",
+            "count": 30,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "tombstone",
+            "count": 16,
+            "blocking": true,
+            "cluster": 4
+          },
+          {
+            "art": "spooky_lantern",
+            "count": 8,
+            "blocking": true,
+            "cluster": 2,
+            "glow": "#FFA040"
+          },
+          {
+            "art": "thorn_bush",
+            "count": 14,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                150,
+                215
+              ],
+              "shift": 150,
+              "saturation": 0.7
+            }
+          ],
+          "saturation": 1.0,
+          "shadow": "#401830",
+          "highlight": "#FFB060",
+          "tone": 0.6,
+          "light": "#E8B8A0",
+          "lightStrength": 0.5,
+          "variation": 0.14
+        }
+      },
+      "ambience": {
+        "particles": "fireflies",
+        "clouds": false,
+        "tint": "#2A1418",
+        "tintAlpha": 0.18,
+        "vignette": 0.4,
+        "lightPatches": {
+          "color": "#FF9040",
+          "count": 40,
+          "size": [
+            60,
+            130
+          ],
+          "alpha": 0.12
+        },
+        "haze": "#3A2050",
+        "hazeAlpha": 0.28
+      },
+      "exits": [
+        {
+          "edge": "west",
+          "to": "swan_lake"
+        },
+        {
+          "edge": "south",
+          "to": "lotus_land"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          48,
+          62
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "wooden_puppet": 6,
+          "night_monkey": 2,
+          "dark_beetle": 2,
+          "shade_puff": 2
+        }
+      },
+      "npcs": [
+        {
+          "id": "hermit_will",
+          "name": "Hermit Will",
+          "role": "quests",
+          "art": "npc_hermit_will",
+          "x": 3,
+          "y": -3,
+          "greeting": "The puppets on the hill used to dance for children. Now they don't stop."
+        },
+        {
+          "id": "puppet_throne",
+          "name": "Puppet King",
+          "role": "boss",
+          "art": "boss_puppet_king",
+          "x": 0,
+          "y": 18,
+          "greeting": "Dance! Dance for your king, forever and ever!",
+          "monster": "puppet_king",
+          "level": 62
+        }
+      ]
+    },
+    {
+      "id": "goldburg_lake",
+      "name": "Goldburg Lake",
+      "crowd": {
+        "adventurers": 4
+      },
+      "width": 100,
+      "height": 72,
+      "music": "shore",
+      "theme": {
+        "ground": "tile_sand",
+        "path": "tile_path",
+        "accent": "tile_shells",
+        "accentPatches": 40,
+        "water": "tile_water",
+        "ponds": 14,
+        "props": [
+          {
+            "art": "palm_tree",
+            "count": 250,
+            "blocking": true,
+            "cluster": 7,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "rock",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "sandcastle",
+            "count": 14,
+            "blocking": true
+          },
+          {
+            "art": "bush",
+            "count": 110,
+            "blocking": true,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 60,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "palm_sapling",
+            "count": 90,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.7,
+              1.15
+            ]
+          },
+          {
+            "art": "pebbles",
+            "count": 60,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "small_boulder",
+            "count": 20,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "seashells",
+            "count": 20,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "driftwood",
+            "count": 10,
+            "blocking": false,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "beach_umbrella",
+            "count": 5,
+            "blocking": true
+          },
+          {
+            "art": "coral",
+            "count": 10,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "signpost",
+            "count": 4,
+            "blocking": true
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 176,
+              "saturation": 1.05
+            },
+            {
+              "hue": [
+                25,
+                55
+              ],
+              "shift": -8,
+              "saturation": 0.9
+            },
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 12
+            }
+          ],
+          "saturation": 1.08,
+          "shadow": "#A04020",
+          "highlight": "#FFD040",
+          "tone": 0.45,
+          "light": "#FFE4A8",
+          "lightStrength": 0.4,
+          "variation": 0.12
+        }
+      },
+      "ambience": {
+        "particles": "sparkles",
+        "butterflies": 10,
+        "clouds": true,
+        "tint": "#FFD080",
+        "tintAlpha": 0.06,
+        "vignette": 0.12,
+        "lightPatches": {
+          "color": "#FFF4D0",
+          "count": 50,
+          "size": [
+            80,
+            160
+          ],
+          "alpha": 0.14
+        },
+        "sun": "#FFE8C0",
+        "haze": "#D0F0FF",
+        "hazeAlpha": 0.22
+      },
+      "exits": [
+        {
+          "edge": "north",
+          "to": "frog_swamp"
+        },
+        {
+          "edge": "east",
+          "to": "goldburg"
+        },
+        {
+          "edge": "south",
+          "to": "rosen_lake"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          58,
+          72
+        ],
+        "groupSize": [
+          1,
+          3
+        ],
+        "monsters": {
+          "ore_golem": 4,
+          "fire_crab": 3,
+          "mining_lizard": 3,
+          "starry_water_slug": 2
+        }
+      },
+      "npcs": [
+        {
+          "id": "hamini",
+          "name": "Hamini the Wise",
+          "role": "quests",
+          "art": "npc_hamini",
+          "x": 3,
+          "y": 3,
+          "greeting": "The goddess Shiria hid her treasure where only the patient look."
+        }
+      ]
+    },
+    {
+      "id": "sleepy_town",
+      "name": "Sleepy Town",
+      "crowd": {
+        "adventurers": 5
+      },
+      "danger": true,
+      "width": 100,
+      "height": 80,
+      "music": "snow",
+      "theme": {
+        "ground": "tile_dark_grass",
+        "path": "tile_path",
+        "accent": "tile_dark_flowers",
+        "accentPatches": 40,
+        "water": "tile_water",
+        "ponds": 6,
+        "fairyRings": {
+          "count": 7,
+          "art": "glow_mushroom"
+        },
+        "props": [
+          {
+            "art": "big_dark_tree",
+            "count": 300,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "spread": 3,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_lilac_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_hollow_tree",
+            "count": 5,
+            "blocking": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_dead_tree",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "dark_tree",
+            "count": 1100,
+            "blocking": true,
+            "cluster": 24,
+            "sway": true,
+            "spread": 4,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "crystal",
+            "count": 45,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#9FE8FF"
+          },
+          {
+            "art": "glow_mushroom",
+            "count": 360,
+            "blocking": false,
+            "cluster": 6,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#8FE8FF"
+          },
+          {
+            "art": "dark_bush",
+            "count": 400,
+            "blocking": true,
+            "cluster": 8,
+            "spread": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "violet_crystal",
+            "count": 25,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#C9A0FF"
+          },
+          {
+            "art": "pink_shard",
+            "count": 90,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FF9FD8"
+          },
+          {
+            "art": "purple_mushroom",
+            "count": 160,
+            "blocking": false,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "blue_mushroom",
+            "count": 160,
+            "blocking": false,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "lilac_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "lilac_bush",
+            "count": 120,
+            "blocking": true,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "fairy_ring",
+            "count": 8,
+            "blocking": false,
+            "glow": "#FFB8F0"
+          },
+          {
+            "art": "wisp_lantern",
+            "count": 10,
+            "blocking": true,
+            "glow": "#B8F0FF"
+          },
+          {
+            "art": "fern",
+            "count": 600,
+            "blocking": false,
+            "cluster": 8,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "hollow_tree",
+            "count": 4,
+            "blocking": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "fallen_log",
+            "count": 25,
+            "blocking": true
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                150,
+                215
+              ],
+              "shift": 90,
+              "saturation": 0.6,
+              "value": 1.1
+            }
+          ],
+          "saturation": 1.1,
+          "shadow": "#403080",
+          "highlight": "#E8D0FF",
+          "tone": 0.55,
+          "light": "#B8B0F0",
+          "lightStrength": 0.5,
+          "variation": 0.14
+        }
+      },
+      "ambience": {
+        "particles": "fireflies",
+        "clouds": false,
+        "tint": "#403070",
+        "tintAlpha": 0.2,
+        "vignette": 0.45,
+        "lightPatches": {
+          "color": "#9F8CFF",
+          "count": 60,
+          "size": [
+            60,
+            140
+          ],
+          "alpha": 0.18
+        },
+        "haze": "#3A2A8A",
+        "hazeAlpha": 0.25,
+        "foreground": {
+          "art": [
+            "big_dark_tree",
+            "dark_bush",
+            "big_lilac_tree"
+          ],
+          "count": 26,
+          "alpha": 0.5,
+          "blur": 3,
+          "scale": 3
+        }
+      },
+      "exits": [
+        {
+          "edge": "west",
+          "to": "genie_desert"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          70,
+          86
+        ],
+        "groupSize": [
+          2,
+          3
+        ],
+        "monsters": {
+          "dream_phantom": 5,
+          "phantom": 2,
+          "poison_skeleton": 2,
+          "shadow_snowman": 1
+        }
+      },
+      "npcs": [
+        {
+          "id": "thomas",
+          "name": "Thomas",
+          "role": "quests",
+          "art": "npc_thomas",
+          "x": 3,
+          "y": 3,
+          "greeting": "Sophia fell asleep a year ago and never woke up. The whole town did."
+        },
+        {
+          "id": "rock_cave",
+          "name": "Rock Monster",
+          "role": "boss",
+          "art": "boss_rock_monster",
+          "x": 0,
+          "y": 18,
+          "greeting": "Rrrrmmmbbllle... sleep... everyone... sleep...",
+          "monster": "rock_monster",
+          "level": 86
+        }
+      ]
+    },
+    {
+      "id": "secret_plain",
+      "name": "Secret Plain",
+      "width": 110,
+      "height": 80,
+      "music": "desert",
+      "crowd": {
+        "adventurers": 3
+      },
+      "theme": {
+        "ground": "tile_desert",
+        "path": "tile_path",
+        "accent": "tile_sand",
+        "accentPatches": 30,
+        "water": "tile_water",
+        "ponds": 4,
+        "props": [
+          {
+            "art": "cactus",
+            "count": 220,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "palm_tree",
+            "count": 90,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "boulder",
+            "count": 60,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "skull_bones",
+            "count": 40,
+            "blocking": false
+          },
+          {
+            "art": "dry_bush",
+            "count": 110,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "small_cactus",
+            "count": 120,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "yellow_cactus",
+            "count": 60,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "sandstone_boulder",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "red_rock",
+            "count": 80,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "dead_bush",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "small_skull",
+            "count": 20,
+            "blocking": false
+          },
+          {
+            "art": "palm_sapling",
+            "count": 40,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.7,
+              1.15
+            ]
+          },
+          {
+            "art": "desert_pot",
+            "count": 10,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "sand_ruin",
+            "count": 5,
+            "blocking": true
+          },
+          {
+            "art": "oasis_palm",
+            "count": 4,
+            "blocking": true,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "tumbleweed",
+            "count": 10,
+            "blocking": false,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "signpost",
+            "count": 4,
+            "blocking": true
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                20,
+                50
+              ],
+              "shift": 12,
+              "saturation": 0.8
+            }
+          ],
+          "saturation": 1.05,
+          "shadow": "#602080",
+          "highlight": "#FFE0A0",
+          "tone": 0.5,
+          "light": "#FFD8B0",
+          "lightStrength": 0.45,
+          "variation": 0.14
+        }
+      },
+      "ambience": {
+        "particles": "dust",
+        "clouds": false,
+        "tint": "#FFC090",
+        "tintAlpha": 0.06,
+        "vignette": 0.2,
+        "lightPatches": {
+          "color": "#FFD8A0",
+          "count": 40,
+          "size": [
+            80,
+            170
+          ],
+          "alpha": 0.12
+        },
+        "sunbeams": {
+          "color": "#FFE0B0",
+          "count": 16,
+          "size": [
+            30,
+            70
+          ],
+          "alpha": 0.08
+        },
+        "sun": "#FFC880",
+        "haze": "#FFD8B0",
+        "hazeAlpha": 0.22
+      },
+      "danger": true,
+      "exits": [
+        {
+          "edge": "north",
+          "to": "genie_desert"
+        },
+        {
+          "edge": "west",
+          "to": "crystal_mountain"
+        },
+        {
+          "edge": "south",
+          "to": "hachoo_island"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          105,
+          125
+        ],
+        "groupSize": [
+          2,
+          3
+        ],
+        "monsters": {
+          "earth_lion": 3,
+          "frosted_earth_lion": 2,
+          "red_bull": 2,
+          "black_bull": 2,
+          "light_snake": 2,
+          "golden_cloud": 1
+        }
+      },
+      "npcs": [
+        {
+          "id": "treasure_of_queen",
+          "name": "Idreus",
+          "role": "boss",
+          "art": "boss_idreus",
+          "x": 0,
+          "y": 20,
+          "greeting": "The goddess's treasure has a guardian, and it is me.",
+          "monster": "idreus",
+          "level": 125
+        }
+      ]
+    },
+    {
+      "id": "hachoo_island",
+      "name": "Hachoo Island",
+      "crowd": {
+        "adventurers": 4
+      },
+      "width": 100,
+      "height": 72,
+      "music": "shore",
+      "theme": {
+        "ground": "tile_sand",
+        "path": "tile_path",
+        "accent": "tile_shells",
+        "accentPatches": 40,
+        "water": "tile_water",
+        "ponds": 14,
+        "props": [
+          {
+            "art": "palm_tree",
+            "count": 250,
+            "blocking": true,
+            "cluster": 7,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "rock",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "sandcastle",
+            "count": 14,
+            "blocking": true
+          },
+          {
+            "art": "bush",
+            "count": 110,
+            "blocking": true,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 60,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "palm_sapling",
+            "count": 90,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.7,
+              1.15
+            ]
+          },
+          {
+            "art": "pebbles",
+            "count": 60,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "small_boulder",
+            "count": 20,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "seashells",
+            "count": 20,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "driftwood",
+            "count": 10,
+            "blocking": false,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "beach_umbrella",
+            "count": 5,
+            "blocking": true
+          },
+          {
+            "art": "coral",
+            "count": 10,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "signpost",
+            "count": 4,
+            "blocking": true
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 172,
+              "saturation": 1.1
+            },
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 16
+            }
+          ],
+          "saturation": 1.08,
+          "shadow": "#1070A0",
+          "highlight": "#FFC070",
+          "tone": 0.45,
+          "light": "#FFE8C8",
+          "lightStrength": 0.4,
+          "variation": 0.12
+        }
+      },
+      "ambience": {
+        "particles": "sparkles",
+        "butterflies": 10,
+        "clouds": true,
+        "tint": "#FFD0B0",
+        "tintAlpha": 0.06,
+        "vignette": 0.12,
+        "lightPatches": {
+          "color": "#FFF4D0",
+          "count": 50,
+          "size": [
+            80,
+            160
+          ],
+          "alpha": 0.14
+        },
+        "sun": "#FFE8C0",
+        "haze": "#D0F0FF",
+        "hazeAlpha": 0.22
+      },
+      "exits": [
+        {
+          "edge": "north",
+          "to": "secret_plain"
+        },
+        {
+          "edge": "west",
+          "to": "moonglow"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          120,
+          140
+        ],
+        "groupSize": [
+          2,
+          3
+        ],
+        "monsters": {
+          "ore_golem": 4,
+          "wood_monkey": 2,
+          "shadow_wood_monkey": 2,
+          "fire_crab": 2,
+          "mint_black_kong": 2
+        }
+      }
+    },
+    {
+      "id": "rosen_lake",
+      "name": "Rosen Lake",
+      "width": 100,
+      "height": 80,
+      "music": "snow",
+      "crowd": {
+        "adventurers": 3
+      },
+      "theme": {
+        "ground": "tile_snow",
+        "path": "tile_snow_path",
+        "accent": "tile_grass",
+        "accentPatches": 20,
+        "water": "tile_water",
+        "ponds": 6,
+        "props": [
+          {
+            "art": "big_snow_tree",
+            "count": 120,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "spread": 3,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_snow_pine",
+            "count": 340,
+            "blocking": true,
+            "cluster": 6,
+            "spread": 3,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_frost_pine",
+            "count": 80,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_frost_tree",
+            "count": 50,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "snow_tree",
+            "count": 560,
+            "blocking": true,
+            "cluster": 20,
+            "sway": true,
+            "spread": 4,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "snow_pine",
+            "count": 560,
+            "blocking": true,
+            "cluster": 20,
+            "spread": 4,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "boulder",
+            "count": 30,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "snow_bush",
+            "count": 300,
+            "blocking": true,
+            "cluster": 8,
+            "spread": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "frost_pine",
+            "count": 160,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "pine_sapling",
+            "count": 250,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "size": [
+              0.7,
+              1.15
+            ]
+          },
+          {
+            "art": "frost_tree",
+            "count": 100,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "small_boulder",
+            "count": 30,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "ice_rock",
+            "count": 40,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "frozen_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "snowman_prop",
+            "count": 5,
+            "blocking": true
+          },
+          {
+            "art": "frost_fern",
+            "count": 500,
+            "blocking": false,
+            "cluster": 8,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                70,
+                170
+              ],
+              "shift": 45,
+              "saturation": 0.75
+            },
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 200,
+              "saturation": 0.8
+            }
+          ],
+          "saturation": 1.0,
+          "shadow": "#4030C0",
+          "highlight": "#FFD8E8",
+          "tone": 0.55,
+          "light": "#D6E4FF",
+          "lightStrength": 0.45,
+          "variation": 0.1
+        }
+      },
+      "ambience": {
+        "particles": "snow",
+        "clouds": true,
+        "tint": "#D8D0FF",
+        "tintAlpha": 0.08,
+        "vignette": 0.2,
+        "lightPatches": {
+          "color": "#FFFFFF",
+          "count": 50,
+          "size": [
+            70,
+            150
+          ],
+          "alpha": 0.12
+        },
+        "sunbeams": {
+          "color": "#FFFFFF",
+          "count": 30,
+          "size": [
+            30,
+            70
+          ],
+          "alpha": 0.08
+        },
+        "sun": "#F0F6FF",
+        "haze": "#DDE8FF",
+        "hazeAlpha": 0.25,
+        "foreground": {
+          "art": [
+            "big_snow_pine",
+            "snow_bush",
+            "big_snow_tree"
+          ],
+          "count": 24,
+          "alpha": 0.45,
+          "blur": 3,
+          "scale": 3
+        }
+      },
+      "exits": [
+        {
+          "edge": "north",
+          "to": "goldburg_lake"
+        },
+        {
+          "edge": "east",
+          "to": "crystal_mountain"
+        },
+        {
+          "edge": "south",
+          "to": "water_temple"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          135,
+          155
+        ],
+        "groupSize": [
+          2,
+          3
+        ],
+        "monsters": {
+          "frost_bear": 3,
+          "snowman": 2,
+          "shadow_snowman": 2,
+          "temple_jelly": 3,
+          "frosted_phantom": 2
+        }
+      },
+      "npcs": [
+        {
+          "id": "temple_keeper",
+          "name": "Temple Keeper",
+          "role": "quests",
+          "art": "npc_temple_keeper",
+          "x": 3,
+          "y": 3,
+          "greeting": "The Water Temple sank beneath the lake long ago. Something still guards it."
+        }
+      ]
+    },
+    {
+      "id": "water_temple",
+      "name": "Water Temple",
+      "width": 100,
+      "height": 80,
+      "music": "cave",
+      "crowd": {
+        "adventurers": 3
+      },
+      "theme": {
+        "ground": "tile_scree",
+        "path": "tile_path",
+        "accent": "tile_cave_floor",
+        "accentPatches": 30,
+        "props": [
+          {
+            "art": "boulder",
+            "count": 220,
+            "blocking": true,
+            "cluster": 8,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "crystal",
+            "count": 160,
+            "blocking": true,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#9FE8FF"
+          },
+          {
+            "art": "stalagmite",
+            "count": 80,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "mine_cart",
+            "count": 12,
+            "blocking": true
+          },
+          {
+            "art": "snow_pine",
+            "count": 120,
+            "blocking": true,
+            "cluster": 5,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "snow_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "pink_crystal",
+            "count": 60,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FF9FD8"
+          },
+          {
+            "art": "amber_crystal",
+            "count": 40,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FFC870"
+          },
+          {
+            "art": "crystal_shard",
+            "count": 80,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#9FE8FF"
+          },
+          {
+            "art": "small_boulder",
+            "count": 80,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "pine_sapling",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true,
+            "size": [
+              0.7,
+              1.15
+            ]
+          },
+          {
+            "art": "ore_vein",
+            "count": 8,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FFD27A"
+          },
+          {
+            "art": "star_crystal",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FFF3A0"
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                20,
+                60
+              ],
+              "to": 200,
+              "saturation": 0.3
+            },
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 60,
+              "saturation": 0.8
+            }
+          ],
+          "saturation": 1.2,
+          "shadow": "#1030D0",
+          "highlight": "#80F0FF",
+          "tone": 0.7,
+          "light": "#90C8FF",
+          "lightStrength": 0.45,
+          "variation": 0.12
+        },
+        "ponds": 7
+      },
+      "ambience": {
+        "particles": "sparkles",
+        "clouds": true,
+        "tint": "#2040A0",
+        "tintAlpha": 0.12,
+        "vignette": 0.3,
+        "lightPatches": {
+          "color": "#D0C8FF",
+          "count": 50,
+          "size": [
+            70,
+            150
+          ],
+          "alpha": 0.14
+        },
+        "sun": "#F0E8FF",
+        "haze": "#C8D0FF",
+        "hazeAlpha": 0.25
+      },
+      "danger": true,
+      "exits": [
+        {
+          "edge": "north",
+          "to": "rosen_lake"
+        },
+        {
+          "edge": "east",
+          "to": "moonglow"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          150,
+          170
+        ],
+        "groupSize": [
+          2,
+          3
+        ],
+        "monsters": {
+          "temple_jelly": 5,
+          "frost_puff": 2,
+          "gem_crawler": 2,
+          "crimson_gem_crawler": 2,
+          "azure_golden_cloud": 1
+        }
+      },
+      "npcs": [
+        {
+          "id": "temple_depths",
+          "name": "Tide Dragon",
+          "role": "boss",
+          "art": "boss_tide_dragon",
+          "x": 0,
+          "y": 20,
+          "greeting": "The lake keeps its secrets. So will your bones.",
+          "monster": "tide_dragon",
+          "level": 170
+        }
+      ]
+    },
+    {
+      "id": "mysterious_cave",
+      "name": "Mysterious Cave",
+      "width": 80,
+      "height": 60,
+      "music": "cave",
+      "crowd": {
+        "adventurers": 2
+      },
+      "theme": {
+        "ground": "tile_cave_floor",
+        "path": "tile_scree",
+        "accent": "tile_cave_rock",
+        "accentPatches": 40,
+        "water": "tile_water",
+        "ponds": 5,
+        "props": [
+          {
+            "art": "stalagmite",
+            "count": 300,
+            "blocking": true,
+            "cluster": 6,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "boulder",
+            "count": 80,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "crystal",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#9FE8FF"
+          },
+          {
+            "art": "mine_cart",
+            "count": 10,
+            "blocking": true
+          },
+          {
+            "art": "skull_bones",
+            "count": 20,
+            "blocking": false
+          },
+          {
+            "art": "small_stalagmite",
+            "count": 150,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "amber_crystal",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FFC870"
+          },
+          {
+            "art": "crystal_shard",
+            "count": 40,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#9FE8FF"
+          },
+          {
+            "art": "pebbles",
+            "count": 60,
+            "blocking": false,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "ore_vein",
+            "count": 12,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FFD27A"
+          },
+          {
+            "art": "mine_beam",
+            "count": 4,
+            "blocking": true
+          },
+          {
+            "art": "glow_moss_rock",
+            "count": 10,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#90FFB8"
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                180,
+                215
+              ],
+              "to": 170,
+              "saturation": 0.9
+            },
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "to": 175,
+              "saturation": 0.9
+            }
+          ],
+          "saturation": 1.3,
+          "shadow": "#5020C0",
+          "highlight": "#C0A0FF",
+          "tone": 0.65,
+          "light": "#B8A0FF",
+          "lightStrength": 0.55,
+          "variation": 0.14
+        }
+      },
+      "ambience": {
+        "particles": "motes",
+        "clouds": false,
+        "tint": "#180C30",
+        "tintAlpha": 0.22,
+        "vignette": 0.65,
+        "lightPatches": {
+          "color": "#60E0FF",
+          "count": 40,
+          "size": [
+            60,
+            130
+          ],
+          "alpha": 0.14
+        },
+        "haze": "#102040",
+        "hazeAlpha": 0.3
+      },
+      "danger": true,
+      "exits": [
+        {
+          "edge": "north",
+          "to": "moonglow"
+        },
+        {
+          "edge": "south",
+          "to": "emerald_road"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          165,
+          185
+        ],
+        "groupSize": [
+          2,
+          3
+        ],
+        "monsters": {
+          "crystal_widow": 4,
+          "black_widow": 2,
+          "violet_black_lizard": 2,
+          "dark_beetle": 2,
+          "azure_dark_beetle": 2
+        }
+      },
+      "npcs": [
+        {
+          "id": "silver_depths",
+          "name": "Lieutenant of the Silver Demon",
+          "role": "boss",
+          "art": "boss_silver_lieutenant",
+          "x": 0,
+          "y": 14,
+          "greeting": "The Silver Demon sends his regards.",
+          "monster": "silver_lieutenant",
+          "level": 185
+        }
+      ]
+    },
+    {
+      "id": "emerald_road",
+      "name": "Emerald Road",
+      "width": 110,
+      "height": 80,
+      "music": "woods",
+      "crowd": {
+        "adventurers": 5
+      },
+      "theme": {
+        "ground": "tile_forest_floor",
+        "path": "tile_path",
+        "accent": "tile_flowers",
+        "accentPatches": 50,
+        "water": "tile_water",
+        "ponds": 5,
+        "fairyRings": {
+          "count": 6,
+          "art": "mushroom"
+        },
+        "props": [
+          {
+            "art": "big_tree",
+            "count": 360,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "spread": 3,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_red_maple",
+            "count": 60,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_golden_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_blossom_tree",
+            "count": 40,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_hollow_tree",
+            "count": 6,
+            "blocking": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "shadow": true
+          },
+          {
+            "art": "tree",
+            "count": 1100,
+            "blocking": true,
+            "cluster": 24,
+            "sway": true,
+            "spread": 4,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "blossom_tree",
+            "count": 90,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "giant_mushroom",
+            "count": 55,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "mushroom",
+            "count": 260,
+            "blocking": false,
+            "cluster": 6,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "bush",
+            "count": 420,
+            "blocking": true,
+            "cluster": 8,
+            "spread": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "flowering_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "daisy",
+            "count": 150,
+            "blocking": false,
+            "cluster": 6,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 150,
+            "blocking": false,
+            "cluster": 6,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "daisy_blue",
+            "count": 90,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "red_maple",
+            "count": 60,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "golden_tree",
+            "count": 50,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "golden_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "toadstool",
+            "count": 140,
+            "blocking": false,
+            "cluster": 5,
+            "size": [
+              0.75,
+              1.25
+            ]
+          },
+          {
+            "art": "blue_giant_mushroom",
+            "count": 15,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "sapling",
+            "count": 150,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.7,
+              1.15
+            ]
+          },
+          {
+            "art": "pebbles",
+            "count": 110,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "tree_stump",
+            "count": 60,
+            "blocking": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "fallen_log",
+            "count": 30,
+            "blocking": true
+          },
+          {
+            "art": "fern",
+            "count": 700,
+            "blocking": false,
+            "cluster": 8,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "berry_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "pumpkin_patch",
+            "count": 6,
+            "blocking": false,
+            "cluster": 2,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "hollow_tree",
+            "count": 5,
+            "blocking": true,
+            "size": [
+              0.7,
+              1.3
+            ],
+            "shadow": true
+          },
+          {
+            "art": "clover_patch",
+            "count": 260,
+            "blocking": false,
+            "cluster": 6,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "tulip_patch",
+            "count": 60,
+            "blocking": false,
+            "cluster": 4,
+            "size": [
+              0.8,
+              1.2
+            ]
+          },
+          {
+            "art": "signpost",
+            "count": 4,
+            "blocking": true
+          }
+        ],
+        "palette": {
+          "recolor": [
+            {
+              "hue": [
+                70,
+                160
+              ],
+              "shift": 25,
+              "saturation": 1.1
+            }
+          ],
+          "saturation": 1.08,
+          "shadow": "#006050",
+          "highlight": "#E0FF80",
+          "tone": 0.55,
+          "light": "#C8FFD0",
+          "lightStrength": 0.4,
+          "variation": 0.16
+        }
+      },
+      "ambience": {
+        "particles": "leaves",
+        "butterflies": 10,
+        "clouds": true,
+        "vignette": 0.2,
+        "lightPatches": {
+          "color": "#F8FFB0",
+          "count": 140,
+          "size": [
+            60,
+            150
+          ],
+          "alpha": 0.2
+        },
+        "sunbeams": {
+          "color": "#FFF6C8",
+          "count": 50,
+          "size": [
+            30,
+            70
+          ],
+          "alpha": 0.13
+        },
+        "sun": "#FFF0B8",
+        "haze": "#BFE8C8",
+        "hazeAlpha": 0.16,
+        "foreground": {
+          "art": [
+            "big_tree",
+            "bush",
+            "fern",
+            "big_red_maple"
+          ],
+          "count": 30,
+          "alpha": 0.5,
+          "blur": 3,
+          "scale": 3
+        },
+        "tint": "#C0FFD0",
+        "tintAlpha": 0.05
+      },
+      "danger": true,
+      "exits": [
+        {
+          "edge": "north",
+          "to": "mysterious_cave"
+        }
+      ],
+      "encounters": {
+        "rate": 0.06,
+        "graceSteps": 8,
+        "levels": [
+          180,
+          200
+        ],
+        "groupSize": [
+          2,
+          3
+        ],
+        "monsters": {
+          "emerald_pegasus": 4,
+          "rosy_pegasus": 2,
+          "golden_cloud": 2,
+          "starry_fire_bear": 2,
+          "mint_black_kong": 2
+        }
+      },
+      "npcs": [
+        {
+          "id": "emerald_guard",
+          "name": "Emerald Guard",
+          "role": "quests",
+          "art": "npc_emerald_guard",
+          "x": 3,
+          "y": 3,
+          "greeting": "Follow the road to the Emerald City. Nobody said it was safe."
+        },
+        {
+          "id": "emerald_gate",
+          "name": "Emerald Dragon",
+          "role": "boss",
+          "art": "boss_emerald_dragon",
+          "x": 0,
+          "y": 22,
+          "greeting": "At the end of the road, a dragon. Of course there is.",
+          "monster": "emerald_dragon",
+          "level": 200
+        }
+      ]
     }
   ]
 }

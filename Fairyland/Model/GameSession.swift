@@ -295,7 +295,13 @@ final class GameSession {
         data.hero.classID == "novice" && data.hero.level >= content.classChoiceLevel
     }
 
-    static func expToNext(level: Int) -> Int { 10 + level * level * 5 }
+    /// EXP for the next level. Past 100 it climbs faster, like Fairyland Online's slow late game:
+    /// twice the old amount by level 140 and 3.5 times by 200.
+    static func expToNext(level: Int) -> Int {
+        let base = 10 + level * level * 5
+        guard level > 100 else { return base }
+        return Int((Double(base) * (1 + Double(level - 100) / 40)).rounded())
+    }
 
     func restoreHero() {
         let stats = heroStats
