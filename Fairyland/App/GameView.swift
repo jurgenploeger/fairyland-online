@@ -15,7 +15,7 @@ struct GameView: View {
                 WorldHUD(coordinator: coordinator)
                 switch coordinator.overlay {
                 case .menu(let tab):
-                    MenuView(session: coordinator.session, initialTab: tab, onClose: coordinator.closeOverlay)
+                    MenuView(session: coordinator.session, initialTab: tab, onClose: coordinator.closeOverlay, onQuitToTitle: coordinator.onQuitToTitle)
                 case .worldMap:
                     MapOverlay(overview: coordinator.world.overview(), onClose: coordinator.closeOverlay)
                 case .chat:

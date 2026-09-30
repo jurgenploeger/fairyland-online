@@ -27,6 +27,15 @@ final class MusicPlayer {
         synth?.setMuted(isMuted)
     }
 
+    /// Music volume from Settings (0...1).
+    func setVolume(_ volume: Double) {
+        engine.mainMixerNode.outputVolume = Self.mixerVolume(volume)
+    }
+
+    private static func mixerVolume(_ volume: Double) -> Float {
+        Float(0.7 * min(1, max(0, volume)))
+    }
+
     /// Switches to a song (nil = silence). Playing the current song again does nothing.
     func play(_ id: String?) {
         guard id != current else { return }
@@ -56,7 +65,7 @@ final class MusicPlayer {
             let source = Self.makeSourceNode(synth: synth, format: format)
             engine.attach(source)
             engine.connect(source, to: engine.mainMixerNode, format: format)
-            engine.mainMixerNode.outputVolume = 0.7
+            engine.mainMixerNode.outputVolume = Self.mixerVolume(GameSettings.musicVolume)
             engine.prepare()
             try engine.start()
             self.synth = synth

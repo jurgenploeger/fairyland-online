@@ -6,6 +6,7 @@ enum MenuTab: String, CaseIterable, Identifiable {
     case companions = "Companions"
     case bag = "Bag"
     case quests = "Quests"
+    case settings = "Settings"
 
     var id: String { rawValue }
 
@@ -13,6 +14,7 @@ enum MenuTab: String, CaseIterable, Identifiable {
         switch self {
         case .character: .user
         case .companions: .paw
+        case .settings: .settings
         case .bag: .backpack
         case .quests: .book
         }
@@ -40,6 +42,8 @@ final class GameCoordinator {
     private(set) var loadingMapName: String?
     @ObservationIgnored private var loadingStarted = Date()
     @ObservationIgnored private(set) var battleScene: BattleScene?
+    /// Set by the app: saves are done, go back to the title screen.
+    @ObservationIgnored var onQuitToTitle: (() -> Void)?
 
     init(session: GameSession) {
         let input = InputState()
@@ -49,6 +53,7 @@ final class GameCoordinator {
         world = WorldScene(map: map, session: session, input: input, entry: nil)
         wire(world)
         startAutosave()
+        SoundEffects.shared.preload()
     }
 
     /// Saves quietly every 20 seconds while exploring (and after every important moment elsewhere).
@@ -80,6 +85,7 @@ final class GameCoordinator {
             world.resume()
             return
         }
+        SoundEffects.shared.play(.whoosh)
         go(to: destination, entry: exit.edge.opposite)
     }
 
@@ -119,6 +125,7 @@ final class GameCoordinator {
 
     func startBattle(_ encounters: MapDef.Encounters, backdrop: SKTexture? = nil) {
         let controller = BattleController.encounter(encounters, session: session)
+        SoundEffects.shared.play(.encounter)
         controller.onFinish = { [weak self] outcome in self?.endBattle(outcome) }
         battleScene = BattleScene(controller: controller, size: world.size, backdrop: backdrop)
         input.move = .zero
@@ -189,6 +196,7 @@ final class GameCoordinator {
 
     func open(_ overlay: Overlay) {
         self.overlay = overlay
+        if case .npc = overlay { SoundEffects.shared.play(.talk) }
         if case .npc(let id) = overlay, let npc = Content.shared.npc(id), npc.role != .chest {
             session.postChat(npc.greeting, from: npc.name, kind: .npc)
             session.unreadChat = max(0, session.unreadChat - 1)
@@ -198,6 +206,7 @@ final class GameCoordinator {
     }
 
     func closeOverlay() {
+        SoundEffects.shared.play(.close, volume: 0.8)
         overlay = nil
         world.resume()
         session.save()

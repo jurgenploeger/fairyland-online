@@ -12,6 +12,8 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
   `tools/check_content.py`: validates the game data.
 - `theme.palette` in `content/maps.json` colour-grades each map's ground, scenery and buildings at load time.
   `tools/palette_preview.py` (needs pillow + numpy) renders every map with and without it, to tune without a Mac.
+- `sound/*.wav`: sound effects, synthesized by `tools/make_sounds.py` (needs numpy). Edit a recipe and rerun;
+  `SoundEffects.Sound` in `Fairyland/Audio/SoundEffects.swift` lists them. Settings live in `GameSettings` (UserDefaults).
 
 ## Rules
 - **Cloud sessions (Linux) can't build or run the app.** After editing `content/` or `art/assets.json`, run

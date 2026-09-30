@@ -4,11 +4,13 @@ import SwiftUI
 struct MenuView: View {
     let session: GameSession
     let onClose: () -> Void
+    var onQuitToTitle: (() -> Void)?
     @State private var tab: MenuTab
 
-    init(session: GameSession, initialTab: MenuTab, onClose: @escaping () -> Void) {
+    init(session: GameSession, initialTab: MenuTab, onClose: @escaping () -> Void, onQuitToTitle: (() -> Void)? = nil) {
         self.session = session
         self.onClose = onClose
+        self.onQuitToTitle = onQuitToTitle
         _tab = State(initialValue: initialTab)
     }
 
@@ -22,6 +24,7 @@ struct MenuView: View {
                 HStack(spacing: 6) {
                     ForEach(MenuTab.allCases) { item in
                         Button {
+                            if tab != item { SoundEffects.shared.play(.tap, volume: 0.7) }
                             tab = item
                         } label: {
                             Label(item.rawValue, icon: item.icon)
@@ -42,6 +45,7 @@ struct MenuView: View {
                         case .companions: CompanionsTab(session: session)
                         case .bag: BagTab(session: session)
                         case .quests: QuestsTab(session: session)
+                        case .settings: SettingsView(session: session, onQuitToTitle: onQuitToTitle)
                         }
                     }
                     .padding(14)

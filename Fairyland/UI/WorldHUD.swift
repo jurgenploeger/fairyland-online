@@ -27,8 +27,13 @@ struct WorldHUD: View {
                     rows: coordinator.world.def.height,
                     onOpen: { coordinator.open(.worldMap) }
                 )
-                FLIconButton(icon: .talk, label: "Chat", size: 40, badge: session.unreadChat > 0) {
-                    coordinator.open(.chat)
+                HStack(spacing: 6) {
+                    FLIconButton(icon: .settings, label: "Settings", size: 40) {
+                        coordinator.open(.menu(.settings))
+                    }
+                    FLIconButton(icon: .talk, label: "Chat", size: 40, badge: session.unreadChat > 0) {
+                        coordinator.open(.chat)
+                    }
                 }
                 SavedBadge(lastSaved: session.lastSaved)
             }
@@ -53,7 +58,8 @@ struct WorldHUD: View {
                         .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
                 }
                 HStack(spacing: 7) {
-                    ForEach(MenuTab.allCases) { tab in
+                    // Settings has its own button up top, next to Chat.
+                    ForEach(MenuTab.allCases.filter { $0 != .settings }) { tab in
                         FLIconButton(icon: tab.icon, label: tab.rawValue, badge: badge(for: tab)) {
                             coordinator.open(.menu(tab))
                         }
@@ -74,7 +80,7 @@ struct WorldHUD: View {
         case .character: session.canChooseClass || session.unspentSkillPoints > 0
         case .quests: session.activeQuests.contains { session.status(of: $0) == .ready }
         case .bag: session.count(of: "pet_egg") > 0
-        case .companions: false
+        case .companions, .settings: false
         }
     }
 }
