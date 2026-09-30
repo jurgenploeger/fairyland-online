@@ -32,6 +32,29 @@ nonisolated struct RecolorRule: Decodable, Sendable {
     }
 }
 
+/// A map's colour mood (`theme.palette` in content/maps.json), applied to its ground, scenery and
+/// buildings as they load. Heroes, monsters and items keep their own colours so they stand out.
+nonisolated struct MapPalette: Decodable, Sendable {
+    /// Hue swaps applied first, like a derive (greens to teal, sand to lilac).
+    let recolor: [RecolorRule]?
+    /// Saturation multiplier for coloured pixels (greys and outlines stay grey).
+    let saturation: Double?
+    /// Dark pixels lean toward `shadow` and bright ones toward `highlight`. Only the colour's
+    /// difference from grey is added, so brightness stays put.
+    let shadow: String?
+    let highlight: String?
+    /// How strongly shadows lean (default 0.35) and highlights lean (defaults to `tone`).
+    let tone: Double?
+    let glow: Double?
+    /// The light characters stand in: their sprites are tinted toward it by `lightStrength`
+    /// (0...1, default 0.4), so they blend with the map instead of looking pasted on.
+    let light: String?
+    let lightStrength: Double?
+    /// How strongly the ground varies in colour across the map, in big soft patches leaning
+    /// toward `shadow` and `highlight` (0...1, default 0.12).
+    let variation: Double?
+}
+
 enum Recolor {
     /// Applies the first matching rule to every opaque pixel. Outlines and greys stay put
     /// unless a rule explicitly asks for low saturation.
@@ -60,6 +83,48 @@ enum Recolor {
             pixels[index + 2] = UInt8(max(0, min(255, (nb * alpha).rounded())))
         }
         return context.makeImage()
+    }
+
+    /// Grades a sprite with a map's palette: hue swaps, saturation, then coloured shadows and highlights.
+    nonisolated static func grade(_ palette: MapPalette, image: CGImage) -> CGImage? {
+        var source = image
+        if let rules = palette.recolor, !rules.isEmpty, let swapped = apply(rules, to: image) { source = swapped }
+        let width = source.width, height = source.height
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let space = CGColorSpaceCreateDeviceRGB()
+        let info = CGImageAlphaInfo.premultipliedLast.rawValue
+        guard let context = CGContext(data: &pixels, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4, space: space, bitmapInfo: info) else { return nil }
+        context.draw(source, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        let saturation = palette.saturation ?? 1
+        let tone = palette.tone ?? 0.35, glow = palette.glow ?? tone
+        let shadow = offset(palette.shadow), highlight = offset(palette.highlight)
+        for index in stride(from: 0, to: pixels.count, by: 4) {
+            let alpha = Double(pixels[index + 3])
+            guard alpha > 0 else { continue }
+            var r = Double(pixels[index]) / alpha, g = Double(pixels[index + 1]) / alpha, b = Double(pixels[index + 2]) / alpha
+            if saturation != 1 {
+                let (h, s, v) = hsv(r, g, b)
+                if s > 0.08 { (r, g, b) = rgb(h, min(1, s * saturation), v) }
+            }
+            let luminance = 0.299 * r + 0.587 * g + 0.114 * b
+            let dark = tone * pow(max(0, 1 - luminance), 1.5), light = glow * pow(max(0, luminance), 1.5)
+            r += dark * shadow.r + light * highlight.r
+            g += dark * shadow.g + light * highlight.g
+            b += dark * shadow.b + light * highlight.b
+            pixels[index] = UInt8(max(0, min(1, r)) * alpha)
+            pixels[index + 1] = UInt8(max(0, min(1, g)) * alpha)
+            pixels[index + 2] = UInt8(max(0, min(1, b)) * alpha)
+        }
+        return context.makeImage()
+    }
+
+    /// A hex colour's difference from the grey of the same brightness.
+    nonisolated private static func offset(_ hex: String?) -> (r: Double, g: Double, b: Double) {
+        guard let hex, let value = UInt32(hex.trimmingCharacters(in: CharacterSet(charactersIn: "#")), radix: 16) else { return (0, 0, 0) }
+        let r = Double((value >> 16) & 255) / 255, g = Double((value >> 8) & 255) / 255, b = Double(value & 255) / 255
+        let grey = 0.299 * r + 0.587 * g + 0.114 * b
+        return (r - grey, g - grey, b - grey)
     }
 
     nonisolated private static func hsv(_ r: Double, _ g: Double, _ b: Double) -> (Double, Double, Double) {
