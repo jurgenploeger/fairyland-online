@@ -1004,7 +1004,7 @@
         },
         "sun": "#FFE0A0",
         "haze": "#CFE8FF",
-        "hazeAlpha": 0.2
+        "hazeAlpha": 0.23
       }
     },
     {
@@ -1230,7 +1230,7 @@
         },
         "sun": "#FFE8C0",
         "haze": "#D0F0FF",
-        "hazeAlpha": 0.22
+        "hazeAlpha": 0.25
       }
     },
     {
@@ -1538,7 +1538,7 @@
           "alpha": 0.18
         },
         "haze": "#3A2A8A",
-        "hazeAlpha": 0.25,
+        "hazeAlpha": 0.3,
         "foreground": {
           "art": [
             "big_dark_tree",
@@ -1989,7 +1989,7 @@
         },
         "sun": "#FFF0B8",
         "haze": "#BFE8C8",
-        "hazeAlpha": 0.16,
+        "hazeAlpha": 0.24,
         "foreground": {
           "art": [
             "big_tree",
@@ -2708,7 +2708,7 @@
         },
         "sun": "#F0F6FF",
         "haze": "#DDE8FF",
-        "hazeAlpha": 0.25,
+        "hazeAlpha": 0.3,
         "foreground": {
           "art": [
             "big_snow_pine",
@@ -2989,7 +2989,7 @@
           "alpha": 0.14
         },
         "haze": "#6A8A50",
-        "hazeAlpha": 0.22,
+        "hazeAlpha": 0.28,
         "foreground": {
           "art": [
             "big_swamp_tree",
@@ -4025,7 +4025,7 @@
         },
         "sun": "#FFC880",
         "haze": "#FFD8B0",
-        "hazeAlpha": 0.22
+        "hazeAlpha": 0.25
       }
     },
     {
