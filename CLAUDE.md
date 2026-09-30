@@ -10,6 +10,8 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 - `Fairyland/`: Swift code (World = maps and walking, Battle = combat, UI = SwiftUI HUD and menus).
 - `tools/rd.py`: Retro Diffusion client. `tools/icons.py`: vendors Iconaut icons (MIT).
   `tools/check_content.py`: validates the game data.
+- `theme.palette` in `content/maps.json` colour-grades each map's ground, scenery and buildings at load time.
+  `tools/palette_preview.py` (needs pillow + numpy) renders every map with and without it, to tune without a Mac.
 
 ## Rules
 - **Cloud sessions (Linux) can't build or run the app.** After editing `content/` or `art/assets.json`, run

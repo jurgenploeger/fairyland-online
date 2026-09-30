@@ -60,6 +60,31 @@ final class ArtLibrary {
         }
     }
 
+    /// The current map's colour grade, and which map it belongs to.
+    private var palette: MapPalette?
+    private var paletteMap: String?
+    /// Sprite kinds that take on a map's palette.
+    private static let gradedKinds: Set<String> = ["tile", "prop", "building"]
+
+    /// Grades ground, scenery and buildings with `map`'s palette from now on. Sprites already
+    /// on screen keep their textures; cached ones are graded again on next use.
+    func use(palette: MapPalette?, for map: String) {
+        guard map != paletteMap else { return }
+        paletteMap = map
+        self.palette = palette
+        textures = textures.filter { !Self.gradedKinds.contains(kind(of: $0.key)) }
+        blended = [:]
+        tileImages = [:]
+        variantCache = [:]
+    }
+
+    /// The sprite's image with the current map's palette, for ground, scenery and buildings.
+    private func gradedImage(_ id: String) -> CGImage? {
+        guard let image = sourceImage(id) else { return nil }
+        guard let palette, Self.gradedKinds.contains(kind(of: id)) else { return image }
+        return Recolor.grade(palette, image: image) ?? image
+    }
+
     /// Registers (or updates) a recoloured copy of `base` under `id`, e.g. the customised hero.
     /// `key` identifies the look, so re-registering the same look is free.
     func register(_ id: String, from base: String, recolor rules: [RecolorRule], key: String) {
@@ -96,7 +121,7 @@ final class ArtLibrary {
     /// The generated PNG for `id` (art/sprites/<id>.png), or nil if it doesn't exist yet.
     func generatedTexture(_ id: String) -> SKTexture? {
         if let cached = textures[id] { return cached }
-        guard let image = sourceImage(id) else { return nil }
+        guard let image = gradedImage(id) else { return nil }
         let texture = SKTexture(cgImage: image)
         texture.filteringMode = .nearest
         textures[id] = texture
@@ -114,75 +139,223 @@ final class ArtLibrary {
         generatedTexture(id) ?? Placeholder.canvas(for: id, kind: "tile").texture()
     }
 
+    /// Graded tile images and their variants' pixels for the current map (cleared by `use(palette:for:)`).
+    private var tileImages: [String: CGImage] = [:]
+    private var variantCache: [String: [UInt8]] = [:]
+
     private func tileImage(_ id: String) -> CGImage {
-        sourceImage(id) ?? Placeholder.canvas(for: id, kind: "tile").cgImage()
+        if let cached = tileImages[id] { return cached }
+        let image = gradedImage(id) ?? Placeholder.canvas(for: id, kind: "tile").cgImage()
+        tileImages[id] = image
+        return image
     }
 
     private var blended: [String: SKTexture] = [:]
 
-    /// A road tile whose edges (per `mask`: 1 north, 2 east, 4 south, 8 west) give way to
-    /// `ground` along a soft wavy line with a darker rim, and rounded corners where two
-    /// edges meet, so roads read as winding paths instead of squares.
-    /// `shadeRim` darkens the edge like a worn road; patches of flowers or moss go without.
-    func roadTile(_ path: String, on ground: String, mask: Int, shadeRim: Bool = true) -> SKTexture {
-        let key = "\(path)|\(ground)|\(mask)|\(shadeRim)"
+    /// One layer of an organic ground tile (see `organicTile`).
+    nonisolated struct GroundLayer: Sendable {
+        nonisolated enum Style: Sendable { case road, patch, water }
+        let tile: String
+        /// Roads and patches: bit `row * 3 + col` is set where that cell of the 3×3 around this one
+        /// holds the layer (row 0 north, col 0 west; bit 4 is the cell itself). Water: the same for
+        /// the 5×5 around it (bit `row * 5 + col`, bit 12 is the cell itself).
+        let mask: Int
+        let style: Style
+    }
+
+    /// One of four versions of a tile (0 is the tile itself). The others show the texture shifted
+    /// and mirrored inside a soft frame of the original, so they share its edges: any mix of them
+    /// tiles seamlessly, and big areas stop repeating the same square.
+    func tileVariant(_ id: String, _ index: Int) -> SKTexture {
+        let key = "variant|\(id)|\(index % 4)"
         if let cached = blended[key] { return cached }
-        let road = tileImage(path)
-        let size = max(road.width, 16)
-        func pixels(_ image: CGImage) -> [UInt8] {
-            var buffer = [UInt8](repeating: 0, count: size * size * 4)
-            let context = CGContext(data: &buffer, width: size, height: size, bitsPerComponent: 8, bytesPerRow: size * 4,
-                                    space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-            context.interpolationQuality = .none
-            context.draw(image, in: CGRect(x: 0, y: 0, width: size, height: size))
-            return buffer
-        }
-        let roadPixels = pixels(road)
-        let grassPixels = pixels(tileImage(ground))
-        var out = roadPixels
-        let n = mask & 1 != 0, e = mask & 2 != 0, s = mask & 4 != 0, w = mask & 8 != 0
-        // Edge inset (share of the tile), wobbling with a period that tiles seamlessly.
-        func inset(_ along: Double) -> Double { 0.2 + 0.06 * sin(along * 4 * .pi) + 0.03 * sin(along * 10 * .pi + 1) }
-        let corner = 0.42
-        func roadDepth(_ x: Double, _ y: Double) -> Double {
-            // Signed distance inside the road shape (in tile units); y = 0 is north.
-            var depth = 1.0
-            if n { depth = min(depth, y - inset(x)) }
-            if s { depth = min(depth, (1 - y) - inset(x)) }
-            if w { depth = min(depth, x - inset(y)) }
-            if e { depth = min(depth, (1 - x) - inset(y)) }
-            // Round the outside corners.
-            for (cornerX, cornerY, open) in [(0.0, 0.0, n && w), (1.0, 0.0, n && e), (0.0, 1.0, s && w), (1.0, 1.0, s && e)] where open {
-                let cx = cornerX == 0 ? corner : 1 - corner, cy = cornerY == 0 ? corner : 1 - corner
-                let inCorner = (cornerX == 0 ? x < cx : x > cx) && (cornerY == 0 ? y < cy : y > cy)
-                if inCorner {
-                    let distance = ((x - cx) * (x - cx) + (y - cy) * (y - cy)).squareRoot()
-                    depth = min(depth, (corner - inset(0.5)) - distance)
+        let image = tileImage(id)
+        let size = max(image.width, 16)
+        let texture = Self.makeTexture(variantPixels(id, index, size: size), size: size)
+        blended[key] = texture
+        return texture
+    }
+
+    private func variantPixels(_ id: String, _ index: Int, size: Int) -> [UInt8] {
+        let key = "\(id)|\(index % 4)|\(size)"
+        if let cached = variantCache[key] { return cached }
+        let made = makeVariantPixels(id, index, size: size)
+        variantCache[key] = made
+        return made
+    }
+
+    private func makeVariantPixels(_ id: String, _ index: Int, size: Int) -> [UInt8] {
+        let source = Self.pixels(tileImage(id), size: size)
+        let shifts: [(dx: Int, dy: Int, mirrorX: Bool, mirrorY: Bool)] = [
+            (0, 0, false, false), (size / 2, size / 2, false, false), (size / 4, size * 5 / 8, true, false), (size * 5 / 8, size / 4, false, true),
+        ]
+        let shift = shifts[index % 4]
+        guard index % 4 != 0 else { return source }
+        var out = source
+        let band = Double(size) / 5
+        for y in 0..<size {
+            for x in 0..<size {
+                var sx = (x + shift.dx) % size, sy = (y + shift.dy) % size
+                if shift.mirrorX { sx = size - 1 - sx }
+                if shift.mirrorY { sy = size - 1 - sy }
+                let edge = Double(min(min(x, y), min(size - 1 - x, size - 1 - y)))
+                let t = max(0, min(1, (edge - 1) / band))
+                let inside: Double = t * t * (3 - 2 * t)
+                let i = (y * size + x) * 4, j = (sy * size + sx) * 4
+                for c in 0..<4 {
+                    let mixed: Double = Double(source[i + c]) * (1 - inside) + Double(source[j + c]) * inside
+                    out[i + c] = UInt8(min(255, mixed))
                 }
             }
-            return depth
         }
+        return out
+    }
+
+    /// A ground tile with soft, rounded roads, patches and water drawn over `base`. Roads and
+    /// patches are rounded strokes joining the cells around this one that hold them, so corners
+    /// curve and diagonal steps become smooth bends; their edges wobble in a pattern that repeats
+    /// every tile. Water is a smooth field over the 5×5 cells around, so shores curve freely instead
+    /// of following cell edges, and wobbles with its place on the map (`cell`). Either way
+    /// neighbouring tiles meet seamlessly. Roads get a darker rim, water a foamy edge and a damp bank.
+    /// Shoreline tiles are unique anyway, so they also use tile variant `variant`.
+    func organicTile(base: String, layers: [GroundLayer], cell: GridPoint, variant: Int) -> SKTexture {
+        let hasWater = layers.contains { $0.style == .water }
+        let place = hasWater ? "@\(cell.col),\(cell.row)#\(variant)" : ""
+        let key = "organic|\(base)|" + layers.map { "\($0.tile):\($0.mask):\($0.style)" }.joined(separator: "|") + place
+        if let cached = blended[key] { return cached }
+        let size = max(tileImage(base).width, 16)
+        let pick = hasWater ? variant : 0
+        var out = variantPixels(base, pick, size: size)
         let rim = 1.2 / Double(size)
-        for py in 0..<size {
-            for px in 0..<size {
-                let x = (Double(px) + 0.5) / Double(size), y = (Double(py) + 0.5) / Double(size)
-                let depth = roadDepth(x, y)
-                let index = (py * size + px) * 4
-                if depth < 0 {
-                    for c in 0..<4 { out[index + c] = grassPixels[index + c] }
-                } else if shadeRim, depth < rim {
-                    for c in 0..<3 { out[index + c] = UInt8(Double(roadPixels[index + c]) * 0.72) }
+        for layer in layers {
+            let texels = variantPixels(layer.tile, pick, size: size)
+            let segments: [(x0: Double, y0: Double, x1: Double, y1: Double)] = layer.style == .water ? [] : Self.strokes(mask: layer.mask)
+            let pools: [(x: Double, y: Double)] = layer.style == .water ? Self.pools(mask: layer.mask) : []
+            let radius: Double = switch layer.style {
+            case .road: 0.36
+            case .patch: 0.42
+            case .water: 0
+            }
+            for py in 0..<size {
+                for px in 0..<size {
+                    // Cell coordinates: this cell spans -0.5...0.5, x east, y north.
+                    let x = (Double(px) + 0.5) / Double(size) - 0.5, y = 0.5 - (Double(py) + 0.5) / Double(size)
+                    let wobble = Self.wobble(x, y, style: layer.style, cell: cell)
+                    let depth: Double
+                    if layer.style == .water {
+                        depth = Self.waterDepth(x, y, pools: pools, wobble: wobble)
+                    } else {
+                        var distance = Double.infinity
+                        for segment in segments { distance = min(distance, Self.distance(x, y, to: segment)) }
+                        depth = radius + wobble - distance
+                    }
+                    let index = (py * size + px) * 4
+                    switch layer.style {
+                    case .road, .patch:
+                        guard depth > 0 else { continue }
+                        let shade = layer.style == .road && depth < rim ? 0.72 : 1
+                        for c in 0..<3 { out[index + c] = UInt8(Double(texels[index + c]) * shade) }
+                        out[index + 3] = 255
+                    case .water:
+                        if depth > 0 {
+                            let foam = depth < 0.05 ? 0.35 : 0
+                            for c in 0..<3 {
+                                let mixed: Double = Double(texels[index + c]) * (1 - foam) + 255 * foam
+                                out[index + c] = UInt8(min(255, mixed))
+                            }
+                            out[index + 3] = 255
+                        } else if depth > -0.06 {
+                            for c in 0..<3 { out[index + c] = UInt8(Double(out[index + c]) * 0.8) }
+                        }
+                    }
                 }
             }
         }
-        let provider = CGDataProvider(data: Data(out) as CFData)!
+        let texture = Self.makeTexture(out, size: size)
+        blended[key] = texture
+        return texture
+    }
+
+    private static func makeTexture(_ bytes: [UInt8], size: Int) -> SKTexture {
+        let provider = CGDataProvider(data: Data(bytes) as CFData)!
         let image = CGImage(width: size, height: size, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: size * 4,
                             space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
                             provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent)!
         let texture = SKTexture(cgImage: image)
         texture.filteringMode = .nearest
-        blended[key] = texture
         return texture
+    }
+
+    /// Centres of the water cells in a 5×5 mask, relative to the middle cell (x east, y north).
+    nonisolated private static func pools(mask: Int) -> [(x: Double, y: Double)] {
+        var points: [(x: Double, y: Double)] = []
+        for bit in 0..<25 where mask & (1 << bit) != 0 {
+            points.append((Double(bit % 5 - 2), Double(2 - bit / 5)))
+        }
+        return points
+    }
+
+    /// How far inside the water a point is (in cells, negative on land): each water cell adds a
+    /// soft round blob, and the shore is where they add up to a threshold.
+    nonisolated private static func waterDepth(_ x: Double, _ y: Double, pools: [(x: Double, y: Double)], wobble: Double) -> Double {
+        var field = 0.0
+        for pool in pools {
+            let dx = x - pool.x, dy = y - pool.y
+            field += exp(-(dx * dx + dy * dy) / 0.49)
+        }
+        return (field + wobble * 1.8 - 0.55) / 1.2
+    }
+
+    /// An image's pixels (premultiplied RGBA), scaled to `size` × `size`.
+    nonisolated private static func pixels(_ image: CGImage, size: Int) -> [UInt8] {
+        var buffer = [UInt8](repeating: 0, count: size * size * 4)
+        let context = CGContext(data: &buffer, width: size, height: size, bitsPerComponent: 8, bytesPerRow: size * 4,
+                                space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        context.interpolationQuality = .none
+        context.draw(image, in: CGRect(x: 0, y: 0, width: size, height: size))
+        return buffer
+    }
+
+    /// The strokes a layer is drawn with: a dot on every cell that holds it, and a line to each
+    /// neighbouring cell (diagonals too) that also holds it.
+    nonisolated private static func strokes(mask: Int) -> [(x0: Double, y0: Double, x1: Double, y1: Double)] {
+        var points: [(x: Double, y: Double)] = []
+        for bit in 0..<9 where mask & (1 << bit) != 0 {
+            points.append((Double(bit % 3 - 1), Double(1 - bit / 3)))
+        }
+        var segments: [(x0: Double, y0: Double, x1: Double, y1: Double)] = []
+        for i in points.indices {
+            segments.append((points[i].x, points[i].y, points[i].x, points[i].y))
+            for j in points.indices where j > i && abs(points[i].x - points[j].x) <= 1 && abs(points[i].y - points[j].y) <= 1 {
+                segments.append((points[i].x, points[i].y, points[j].x, points[j].y))
+            }
+        }
+        return segments
+    }
+
+    /// How far an edge bulges out (+) or in (-) at a point. Roads and patches repeat every tile;
+    /// shorelines follow the point's place on the map, so lakes meander.
+    nonisolated private static func wobble(_ x: Double, _ y: Double, style: GroundLayer.Style, cell: GridPoint) -> Double {
+        let turn: Double = 2 * Double.pi
+        if style == .water {
+            let gx: Double = Double(cell.col) + x
+            let gy: Double = Double(cell.row) + y
+            let a: Double = sin(1.7 * gx + 0.9 * gy)
+            let b: Double = sin(2.3 * gy - 1.1 * gx + 1.7)
+            let c: Double = sin(3.1 * gx + 2.9 * gy + 0.4)
+            return 0.08 * a + 0.05 * b + 0.03 * c
+        }
+        let a: Double = sin(turn * (2 * x + y))
+        let b: Double = sin(turn * (3 * y - x) + 1.3)
+        return 0.045 * a + 0.03 * b
+    }
+
+    nonisolated private static func distance(_ x: Double, _ y: Double, to s: (x0: Double, y0: Double, x1: Double, y1: Double)) -> Double {
+        let dx = s.x1 - s.x0, dy = s.y1 - s.y0
+        let length = dx * dx + dy * dy
+        let t = length == 0 ? 0 : max(0, min(1, ((x - s.x0) * dx + (y - s.y0) * dy) / length))
+        let ex = s.x0 + t * dx - x, ey = s.y0 + t * dy - y
+        return (ex * ex + ey * ey).squareRoot()
     }
 
     /// Animation frames for a water tile (a generated tile is a single frame).

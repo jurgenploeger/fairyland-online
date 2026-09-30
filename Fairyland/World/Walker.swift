@@ -28,6 +28,8 @@ final class Walker: SKNode {
     }
     /// So a crowd doesn't breathe in unison.
     private let breathOffset = TimeInterval.random(in: 0..<1.6)
+    /// The current map's light, cast softly on everyone standing in it (`theme.palette.light`).
+    static var light: (color: UIColor, strength: CGFloat)?
 
     init(cycle: WalkCycle, label: String?, labelColor: UIColor = .white) {
         self.cycle = cycle
@@ -36,6 +38,7 @@ final class Walker: SKNode {
         super.init()
         addChild(Nodes.shadow(width: cycle.size.width * 0.5))
         addChild(sprite)
+        Self.lit(sprite)
         if let label {
             let tag = NameTag(label, color: labelColor, size: 11)
             tag.position = CGPoint(x: 0, y: cycle.size.height * 0.95)
@@ -57,12 +60,20 @@ final class Walker: SKNode {
         sprite.childNode(withName: "weapon")?.removeFromParent()
         childNode(withName: "aura")?.removeFromParent()
         if let weapon, let node = GearArt.weapon(weapon, height: cycle.size.height) {
+            Self.lit(node)
             sprite.addChild(node)
         }
         if let accessory, let aura = GearArt.aura(accessory, height: cycle.size.height) {
             addChild(aura)
         }
         poseGear()
+    }
+
+    /// Tints a sprite with the map's light, so characters take on the colours around them.
+    private static func lit(_ node: SKSpriteNode) {
+        guard let light else { return }
+        node.color = light.color
+        node.colorBlendFactor = light.strength
     }
 
     private func poseGear() {

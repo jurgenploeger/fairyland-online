@@ -379,21 +379,6 @@ final class WorldMap {
         return CGPoint(x: blend(p0.x, p1.x, p2.x, p3.x), y: blend(p0.y, p1.y, p2.y, p3.y))
     }
 
-    /// Which sides of a road cell touch something that isn't road (for soft road edges):
-    /// bit 1 north, 2 east, 4 south, 8 west.
-    func roadEdgeMask(_ cell: GridPoint) -> Int { edgeMask(cell, of: .path) }
-
-    /// Which sides of a cell border a different kind of ground (1 north, 2 east, 4 south, 8 west).
-    func edgeMask(_ cell: GridPoint, of kind: Ground) -> Int {
-        func open(_ dc: Int, _ dr: Int) -> Bool {
-            let next = GridPoint(col: cell.col + dc, row: cell.row + dr)
-            // Off the map the road (or patch) carries on, so that side stays closed.
-            guard contains(next) else { return false }
-            return ground[next.row][next.col] != kind
-        }
-        return (open(0, 1) ? 1 : 0) | (open(1, 0) ? 2 : 0) | (open(0, -1) ? 4 : 0) | (open(-1, 0) ? 8 : 0)
-    }
-
     // MARK: Town planning
 
     private func planTown(_ town: MapDef.Town, _ rng: inout SeededRandom) {
