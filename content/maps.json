@@ -212,6 +212,20 @@
             "art": "barrels",
             "count": 4,
             "blocking": true
+          },
+          {
+            "art": "water_well",
+            "count": 1,
+            "blocking": true,
+            "within": 9,
+            "shadow": true
+          },
+          {
+            "art": "statue",
+            "count": 1,
+            "blocking": true,
+            "within": 11,
+            "shadow": true
           }
         ],
         "accent": "tile_scree",
@@ -885,6 +899,11 @@
               1.3
             ],
             "shadow": true
+          },
+          {
+            "art": "signpost",
+            "count": 6,
+            "blocking": true
           }
         ],
         "palette": {
@@ -1117,6 +1136,11 @@
               0.8,
               1.2
             ]
+          },
+          {
+            "art": "signpost",
+            "count": 4,
+            "blocking": true
           }
         ],
         "palette": {
@@ -1860,6 +1884,11 @@
               0.8,
               1.2
             ]
+          },
+          {
+            "art": "signpost",
+            "count": 4,
+            "blocking": true
           }
         ],
         "palette": {
@@ -2180,6 +2209,20 @@
             "art": "barrels",
             "count": 4,
             "blocking": true
+          },
+          {
+            "art": "water_well",
+            "count": 1,
+            "blocking": true,
+            "within": 10,
+            "shadow": true
+          },
+          {
+            "art": "statue",
+            "count": 2,
+            "blocking": true,
+            "within": 13,
+            "shadow": true
           }
         ],
         "accentPatches": 0,
@@ -3496,6 +3539,20 @@
             "count": 6,
             "blocking": true,
             "cluster": 2
+          },
+          {
+            "art": "water_well",
+            "count": 1,
+            "blocking": true,
+            "within": 9,
+            "shadow": true
+          },
+          {
+            "art": "statue",
+            "count": 1,
+            "blocking": true,
+            "within": 11,
+            "shadow": true
           }
         ],
         "accentPatches": 0,
@@ -3845,6 +3902,11 @@
               0.8,
               1.2
             ]
+          },
+          {
+            "art": "signpost",
+            "count": 4,
+            "blocking": true
           }
         ],
         "palette": {
@@ -4083,6 +4145,17 @@
               1.25
             ],
             "glow": "#FFD27A"
+          },
+          {
+            "art": "star_crystal",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FFF3A0"
           }
         ],
         "palette": {
@@ -4301,6 +4374,29 @@
               0.75,
               1.25
             ]
+          },
+          {
+            "art": "moon_flower",
+            "count": 60,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true,
+            "size": [
+              0.8,
+              1.2
+            ],
+            "glow": "#D8D8FF"
+          },
+          {
+            "art": "star_crystal",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#FFF3A0"
           }
         ],
         "palette": {

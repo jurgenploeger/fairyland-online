@@ -123,3 +123,8 @@
 {"date": "2026-09-30T16:12:32", "asset": "tumbleweed", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.231, "prompt": "dry tumbleweed"}
 {"date": "2026-09-30T16:12:50", "asset": "wooden_crates", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.171, "prompt": "stack of wooden crates"}
 {"date": "2026-09-30T16:13:04", "asset": "barrels", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.111, "prompt": "two wooden barrels"}
+{"date": "2026-09-30T17:17:49", "asset": "water_well", "style": "rd_tile__tile_object", "size": "64x64", "images": 1, "cost": 0.06, "balance": 49.811, "prompt": "stone water well with a little roof"}
+{"date": "2026-09-30T17:18:34", "asset": "signpost", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 49.751, "prompt": "wooden signpost with arrows"}
+{"date": "2026-09-30T17:18:48", "asset": "statue", "style": "rd_tile__tile_object", "size": "64x64", "images": 1, "cost": 0.06, "balance": 49.691, "prompt": "small stone fairy statue on a plinth"}
+{"date": "2026-09-30T17:18:59", "asset": "moon_flower", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 49.631, "prompt": "glowing white moon flower"}
+{"date": "2026-09-30T17:19:44", "asset": "star_crystal", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 49.571, "prompt": "star-shaped glowing crystal"}
