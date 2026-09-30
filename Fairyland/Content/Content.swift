@@ -335,6 +335,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
     let theme: Theme
     let fence: Bool?
     let exits: [Exit]
+    /// Where this place sits on the world map, in steps [east, north] from the start town.
+    let world: [Int]?
     let buildings: [Building]?
     let decor: [Decor]?
     let npcs: [NPCDef]?

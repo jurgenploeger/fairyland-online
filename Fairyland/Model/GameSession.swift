@@ -685,6 +685,18 @@ final class GameSession {
         exit.requires.map(hasCompleted) ?? true
     }
 
+    /// Whether you've been to a map (saves from before this was tracked know the start town,
+    /// the current map and the last checkpoint).
+    func hasVisited(_ mapID: String) -> Bool {
+        data.visitedMaps?.contains(mapID) == true || mapID == data.mapID
+            || mapID == content.startMap || mapID == data.checkpoint?.mapID
+    }
+
+    func markVisited(_ mapID: String) {
+        guard data.visitedMaps?.contains(mapID) != true else { return }
+        data.visitedMaps = (data.visitedMaps ?? []) + [mapID]
+    }
+
     /// Hands in a finished quest and pays out. Returns what was earned.
     @discardableResult
     func turnInQuest(_ id: String) -> [String] {

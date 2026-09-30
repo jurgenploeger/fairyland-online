@@ -98,6 +98,8 @@ nonisolated struct SaveData: Codable, Sendable {
     var partyIDs: [UUID]?
     /// Bosses you've beaten (their NPC ids); they don't come back.
     var defeatedBosses: [String]?
+    /// Maps you've set foot on, for the world map.
+    var visitedMaps: [String]?
 }
 
 /// Another adventurer (Fairyland's other players): met on the map, befriended, and maybe

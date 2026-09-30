@@ -117,6 +117,23 @@ for asset in art.values():
     if "derive" in asset:
         check(asset["derive"]["from"] in art, f"art {asset['id']} → unknown base {asset['derive']['from']}")
 
+STEP = {"east": (1, 0), "west": (-1, 0), "north": (0, 1), "south": (0, -1)}
+places = {}
+for map_def in maps.values():
+    world = map_def.get("world")
+    if not (isinstance(world, list) and len(world) == 2 and all(isinstance(n, int) for n in world)):
+        errors.append(f"map {map_def['id']} → needs \"world\": [east, north] for the world map")
+        continue
+    check(tuple(world) not in places, f"map {map_def['id']} → world spot {world} already taken by {places.get(tuple(world))}")
+    places[tuple(world)] = map_def["id"]
+for map_def in maps.values():
+    for exit_def in map_def["exits"]:
+        a, b = map_def.get("world"), maps.get(exit_def["to"], {}).get("world")
+        if a and b:
+            dx, dy = STEP[exit_def["edge"]]
+            check([a[0] + dx, a[1] + dy] == b,
+                  f"map {map_def['id']} {exit_def['edge']} exit → {exit_def['to']} isn't one step {exit_def['edge']} on the world map")
+
 if errors:
     print(f"✗ {len(errors)} problem(s):")
     for error in errors:
