@@ -468,10 +468,11 @@ final class WorldScene: SKScene {
         for exit in def.exits {
             guard let destination = Content.shared.map(exit.to) else { continue }
             let text = switch exit.edge {
-            case .north: "▲ \(destination.name)"
-            case .south: "▼ \(destination.name)"
-            case .east: "\(destination.name) ▶"
-            case .west: "◀ \(destination.name)"
+            // Arrows follow the road on screen: north runs up-left, east up-right.
+            case .north: "↖ \(destination.name)"
+            case .south: "\(destination.name) ↘"
+            case .east: "\(destination.name) ↗"
+            case .west: "↙ \(destination.name)"
             }
             let label = SKLabelNode()
             label.attributedText = Nodes.outlined(text, size: 11, color: Nodes.gold)
