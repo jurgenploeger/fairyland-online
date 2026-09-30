@@ -51,7 +51,7 @@
         "left"
       ],
       "request": {
-        "prompt": "cute chibi dwarf adventurer kid, short and stocky, round rosy cheeks, clean-shaven with no beard and no moustache, ginger hair, green tunic, brown belt and boots",
+        "prompt": "cute chibi dwarf adventurer kid, very short and chubby with a round belly and short legs, round rosy cheeks, clean-shaven with no beard and no moustache, ginger hair, green tunic, brown belt and boots",
         "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
@@ -144,7 +144,7 @@
       "id": "dwarf_female_walk",
       "kind": "walk_sheet",
       "request": {
-        "prompt": "cute chibi dwarf adventurer girl, short and stocky, round rosy cheeks, two thick ginger braids, no beard, green tunic, brown belt and boots",
+        "prompt": "cute chibi dwarf adventurer girl, very short and chubby with a round belly and short legs, round rosy cheeks, two thick ginger braids, no beard, green tunic, brown belt and boots",
         "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
@@ -159,7 +159,7 @@
       "id": "dwarf_other_walk",
       "kind": "walk_sheet",
       "request": {
-        "prompt": "cute chibi androgynous dwarf adventurer, short and stocky, round rosy cheeks, messy short ginger hair, no beard, green tunic, brown belt and boots",
+        "prompt": "cute chibi androgynous dwarf adventurer, very short and chubby with a round belly and short legs, round rosy cheeks, messy short ginger hair, no beard, green tunic, brown belt and boots",
         "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
