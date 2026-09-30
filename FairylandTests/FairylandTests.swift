@@ -195,22 +195,36 @@ struct RulesTests {
         #expect(session.learnableSkills.contains { $0.id == "fire_bolt" })
     }
 
-    @Test func firstCompanionHatchesFromTheGiftBoxEgg() {
+    @Test func firstCompanionHatchesFromTheEldersEgg() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         #expect(session.data.pets.isEmpty)
         let quest = Content.shared.quest("hope_of_meadowbrook")!
-        let chests = (Content.shared.map("meadowbrook")?.npcs ?? []).filter { $0.role == .chest }
-        #expect(chests.count == 3)
-        #expect(!session.canOpen(chests[0]))   // needs the quest first
+        // No gift boxes lying around: the elder hands over the three gifts himself.
+        #expect((Content.shared.map("meadowbrook")?.npcs ?? []).allSatisfy { $0.role != .chest })
         session.acceptQuest(quest.id, answer: quest.question?.answers.first { $0.egg == "jelly" })
-        for chest in chests { session.openChest(chest) }
-        #expect(session.status(of: quest) == .ready)
+        #expect(session.count(of: "wooden_sword") == 1)
+        #expect(session.count(of: "novice_ring") == 1)
         #expect(session.count(of: "pet_egg") == 1)
+        #expect(session.status(of: quest) != .ready)   // hatch the egg first
         let pet = session.hatch("pet_egg")
         #expect(pet?.speciesID == "jelly")
         #expect(session.activePet?.id == pet?.id)
+        #expect(session.status(of: quest) == .ready)
         session.turnInQuest(quest.id)
         #expect(session.status(of: Content.shared.quest("jelly_trouble")!) == .available)
+    }
+
+    @Test func oldSavesGetTheGiftsTheyMissed() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.data.version = 1
+        session.data.quests["hope_of_meadowbrook"] = QuestProgress(state: .active, count: 1)
+        session.data.openedChests = ["gift_box_1"]   // found the sword box only
+        session.handOutMissingStarterGifts()
+        #expect(session.count(of: "novice_ring") == 1)
+        #expect(session.count(of: "pet_egg") == 1)
+        #expect(session.count(of: "wooden_sword") == 0)
+        session.handOutMissingStarterGifts()   // only once
+        #expect(session.count(of: "pet_egg") == 1)
     }
 
     @Test func skillPointsRaiseSkills() {
