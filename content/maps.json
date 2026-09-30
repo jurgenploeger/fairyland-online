@@ -140,6 +140,18 @@
             "art": "barrels",
             "count": 4,
             "blocking": true
+          },
+          {
+            "art": "water_well",
+            "count": 1,
+            "blocking": true,
+            "within": 9
+          },
+          {
+            "art": "statue",
+            "count": 1,
+            "blocking": true,
+            "within": 11
           }
         ],
         "accent": "tile_scree",
@@ -643,6 +655,11 @@
             "count": 4,
             "blocking": true,
             "sway": true
+          },
+          {
+            "art": "signpost",
+            "count": 6,
+            "blocking": true
           }
         ]
       },
@@ -783,6 +800,11 @@
             "count": 10,
             "blocking": true,
             "cluster": 3
+          },
+          {
+            "art": "signpost",
+            "count": 4,
+            "blocking": true
           }
         ]
       },
@@ -1139,6 +1161,11 @@
             "art": "hollow_tree",
             "count": 5,
             "blocking": true
+          },
+          {
+            "art": "signpost",
+            "count": 4,
+            "blocking": true
           }
         ]
       },
@@ -1327,6 +1354,18 @@
             "art": "barrels",
             "count": 4,
             "blocking": true
+          },
+          {
+            "art": "water_well",
+            "count": 1,
+            "blocking": true,
+            "within": 10
+          },
+          {
+            "art": "statue",
+            "count": 2,
+            "blocking": true,
+            "within": 13
           }
         ],
         "accentPatches": 0
@@ -2100,6 +2139,18 @@
             "count": 6,
             "blocking": true,
             "cluster": 2
+          },
+          {
+            "art": "water_well",
+            "count": 1,
+            "blocking": true,
+            "within": 9
+          },
+          {
+            "art": "statue",
+            "count": 1,
+            "blocking": true,
+            "within": 11
           }
         ],
         "accentPatches": 0
@@ -2360,6 +2411,11 @@
             "art": "tumbleweed",
             "count": 10,
             "blocking": false
+          },
+          {
+            "art": "signpost",
+            "count": 4,
+            "blocking": true
           }
         ]
       },
@@ -2496,6 +2552,12 @@
             "count": 8,
             "blocking": true,
             "cluster": 2
+          },
+          {
+            "art": "star_crystal",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3
           }
         ]
       },
@@ -2621,6 +2683,19 @@
             "count": 6,
             "blocking": true,
             "cluster": 2
+          },
+          {
+            "art": "moon_flower",
+            "count": 60,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "star_crystal",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3
           }
         ]
       },
