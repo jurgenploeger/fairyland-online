@@ -184,6 +184,34 @@ final class GameSession {
         return classSkills(upTo: data.hero.level).filter { learned.contains($0.id) }
     }
 
+    // MARK: - Pinned skills
+
+    /// How many skills fit on the battle bar.
+    static let maxPinnedSkills = 4
+
+    /// Pinned skills the hero can use right now, in the order they were pinned.
+    var pinnedSkills: [SkillDef] {
+        let known = heroSkills
+        return (data.pinnedSkills ?? []).compactMap { id in known.first { $0.id == id } }
+    }
+
+    func isPinned(_ id: String) -> Bool { data.pinnedSkills?.contains(id) == true }
+
+    /// Pins or unpins a skill. Returns false when the bar is already full.
+    @discardableResult
+    func togglePin(_ id: String) -> Bool {
+        let known = Set(heroSkills.map(\.id))
+        var pins = (data.pinnedSkills ?? []).filter { known.contains($0) }
+        if let index = pins.firstIndex(of: id) {
+            pins.remove(at: index)
+        } else {
+            guard pins.count < Self.maxPinnedSkills, known.contains(id) else { return false }
+            pins.append(id)
+        }
+        data.pinnedSkills = pins
+        return true
+    }
+
     /// Skills your class offers at your level that you haven't learned yet.
     var learnableSkills: [SkillDef] {
         let learned = Set(data.hero.learnedSkills ?? [])

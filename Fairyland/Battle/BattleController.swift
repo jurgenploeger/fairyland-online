@@ -214,6 +214,16 @@ final class BattleController {
 
     func level(of skill: SkillDef) -> Int { session.skillLevel(skill.id) }
 
+    var pinnedSkills: [SkillDef] { session.pinnedSkills }
+
+    func togglePin(_ skill: SkillDef) {
+        if session.togglePin(skill.id) {
+            session.save()
+        } else {
+            message = "The quick bar holds \(GameSession.maxPinnedSkills) skills. Unpin one first."
+        }
+    }
+
     func cost(of skill: SkillDef) -> Int { GameSession.mpCost(of: skill, level: level(of: skill)) }
 
     func useSkill(_ skill: SkillDef) {

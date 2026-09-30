@@ -60,7 +60,8 @@ struct SkillIcon: View {
     var size: CGFloat = 32
 
     var body: some View {
-        IconTile(icon: skill.icon.flatMap(GameIcon.init) ?? .sparkles, tint: tint, size: size)
+        IconTile(icon: skill.icon.flatMap(GameIcon.init) ?? .sparkles, tint: tint, size: size,
+                 picture: skill.art.flatMap(ArtLibrary.shared.artImage))
     }
 
     private var tint: Color {

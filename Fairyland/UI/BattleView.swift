@@ -45,8 +45,11 @@ struct BattleView: View {
     private var commandArea: some View {
         switch controller.phase {
         case .command:
-            CommandWheel(controller: controller)
-                .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
+            HStack(alignment: .bottom, spacing: 10) {
+                QuickSkillBar(controller: controller)
+                CommandWheel(controller: controller)
+            }
+            .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
         case .skills:
             ChoiceCard(title: "Skills", icon: .sparkles, onBack: controller.back) {
                 if controller.skills.isEmpty {
@@ -56,14 +59,31 @@ struct BattleView: View {
                 }
                 ForEach(controller.skills) { skill in
                     let affordable = (controller.hero?.mp ?? 0) >= controller.cost(of: skill)
-                    ChoiceRow(action: { controller.useSkill(skill) }, enabled: affordable) {
-                        SkillIcon(skill: skill, size: 26)
-                        Text(skill.name)
-                        Text("Lv\(controller.level(of: skill))").font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
-                        if let element = skill.element { ElementBadge(element: element) }
-                        Spacer()
-                        Text("\(controller.cost(of: skill)) MP").foregroundStyle(HUDStyle.mp)
+                    let pinned = controller.session.isPinned(skill.id)
+                    HStack(spacing: 6) {
+                        ChoiceRow(action: { controller.useSkill(skill) }, enabled: affordable) {
+                            SkillIcon(skill: skill, size: 26)
+                            Text(skill.name)
+                            Text("Lv\(controller.level(of: skill))").font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
+                            if let element = skill.element { ElementBadge(element: element) }
+                            Spacer()
+                            Text("\(controller.cost(of: skill)) MP").foregroundStyle(HUDStyle.mp)
+                        }
+                        // Pin to the quick bar next to the command wheel.
+                        Button { controller.togglePin(skill) } label: {
+                            IconImage(pinned ? .star : .starOutline, size: 18)
+                                .foregroundStyle(pinned ? HUDStyle.gold : HUDStyle.cream)
+                                .frame(width: 34, height: 34)
+                                .background(Circle().fill(HUDStyle.ink.opacity(0.85)))
+                        }
+                        .buttonStyle(RoundPressStyle())
+                        .accessibilityLabel(pinned ? "Unpin \(skill.name)" : "Pin \(skill.name) to the quick bar")
                     }
+                }
+                if !controller.skills.isEmpty {
+                    Text("Tap the star to pin up to \(GameSession.maxPinnedSkills) skills next to Attack.")
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.cream.opacity(0.8))
                 }
             }
             .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
@@ -303,6 +323,34 @@ private struct ChoiceCard<Content: View>: View {
                 .fill(HUDStyle.ink.opacity(0.92))
                 .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2))
         )
+    }
+}
+
+/// Pinned skills beside the command wheel: one tap casts (or asks for a target).
+private struct QuickSkillBar: View {
+    let controller: BattleController
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ForEach(controller.pinnedSkills) { skill in
+                let cost = controller.cost(of: skill)
+                let affordable = (controller.hero?.mp ?? 0) >= cost
+                Button { controller.useSkill(skill) } label: {
+                    VStack(spacing: 2) {
+                        SkillIcon(skill: skill, size: 46)
+                        Text("\(cost) MP")
+                            .font(HUDStyle.mono(10))
+                            .foregroundStyle(affordable ? HUDStyle.cream : HUDStyle.dim)
+                            .padding(.horizontal, 5)
+                            .background(Capsule().fill(HUDStyle.ink.opacity(0.85)))
+                    }
+                    .opacity(affordable ? 1 : 0.5)
+                }
+                .buttonStyle(RoundPressStyle())
+                .accessibilityLabel("\(skill.name), \(cost) MP")
+            }
+        }
+        .padding(.bottom, 6)
     }
 }
 

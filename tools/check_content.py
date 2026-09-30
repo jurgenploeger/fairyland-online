@@ -52,6 +52,10 @@ for race in classes["races"]:
 
 for skill in skills.values():
     check(skill.get("icon") in icon_names, f"skill {skill['id']} → unknown icon {skill.get('icon')}")
+    if skill.get("art"):
+        check(skill["art"] in art, f"skill {skill['id']} → unknown art {skill['art']}")
+        check((ROOT / "art" / "sprites" / f"{skill['art']}.png").exists(),
+              f"skill {skill['id']} → art/sprites/{skill['art']}.png is missing (python3 tools/skill_art.py)")
 
 for monster in monsters.values():
     check(monster["art"] in art, f"monster {monster['id']} → unknown art {monster['art']}")
