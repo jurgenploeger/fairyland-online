@@ -110,6 +110,36 @@
             "count": 16,
             "blocking": false,
             "cluster": 2
+          },
+          {
+            "art": "tulip_patch",
+            "count": 8,
+            "blocking": false,
+            "cluster": 2,
+            "within": 10
+          },
+          {
+            "art": "sunflower",
+            "count": 6,
+            "blocking": false,
+            "cluster": 2,
+            "sway": true,
+            "within": 10
+          },
+          {
+            "art": "haystack",
+            "count": 4,
+            "blocking": true
+          },
+          {
+            "art": "wooden_crates",
+            "count": 4,
+            "blocking": true
+          },
+          {
+            "art": "barrels",
+            "count": 4,
+            "blocking": true
           }
         ],
         "accent": "tile_scree",
@@ -565,6 +595,54 @@
             "count": 20,
             "blocking": false,
             "cluster": 3
+          },
+          {
+            "art": "tree_stump",
+            "count": 10,
+            "blocking": true
+          },
+          {
+            "art": "berry_bush",
+            "count": 12,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "sunflower",
+            "count": 14,
+            "blocking": false,
+            "cluster": 3,
+            "sway": true
+          },
+          {
+            "art": "tulip_patch",
+            "count": 12,
+            "blocking": false,
+            "cluster": 3
+          },
+          {
+            "art": "clover_patch",
+            "count": 16,
+            "blocking": false,
+            "cluster": 4
+          },
+          {
+            "art": "haystack",
+            "count": 6,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "pumpkin_patch",
+            "count": 8,
+            "blocking": false,
+            "cluster": 3
+          },
+          {
+            "art": "beehive_tree",
+            "count": 4,
+            "blocking": true,
+            "sway": true
           }
         ]
       },
@@ -683,6 +761,28 @@
             "count": 20,
             "blocking": true,
             "cluster": 2
+          },
+          {
+            "art": "seashells",
+            "count": 20,
+            "blocking": false,
+            "cluster": 3
+          },
+          {
+            "art": "driftwood",
+            "count": 10,
+            "blocking": false
+          },
+          {
+            "art": "beach_umbrella",
+            "count": 5,
+            "blocking": true
+          },
+          {
+            "art": "coral",
+            "count": 10,
+            "blocking": true,
+            "cluster": 3
           }
         ]
       },
@@ -809,6 +909,33 @@
             "count": 60,
             "blocking": true,
             "cluster": 4
+          },
+          {
+            "art": "fairy_ring",
+            "count": 8,
+            "blocking": false
+          },
+          {
+            "art": "wisp_lantern",
+            "count": 10,
+            "blocking": true
+          },
+          {
+            "art": "fern",
+            "count": 12,
+            "blocking": false,
+            "cluster": 3,
+            "sway": true
+          },
+          {
+            "art": "hollow_tree",
+            "count": 4,
+            "blocking": true
+          },
+          {
+            "art": "fallen_log",
+            "count": 5,
+            "blocking": true
           }
         ]
       },
@@ -978,6 +1105,40 @@
             "count": 40,
             "blocking": false,
             "cluster": 3
+          },
+          {
+            "art": "tree_stump",
+            "count": 14,
+            "blocking": true
+          },
+          {
+            "art": "fallen_log",
+            "count": 8,
+            "blocking": true
+          },
+          {
+            "art": "fern",
+            "count": 20,
+            "blocking": false,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "berry_bush",
+            "count": 10,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "pumpkin_patch",
+            "count": 6,
+            "blocking": false,
+            "cluster": 2
+          },
+          {
+            "art": "hollow_tree",
+            "count": 5,
+            "blocking": true
           }
         ]
       },
@@ -1141,6 +1302,31 @@
             "count": 16,
             "blocking": true,
             "cluster": 3
+          },
+          {
+            "art": "tulip_patch",
+            "count": 10,
+            "blocking": false,
+            "cluster": 3,
+            "within": 12
+          },
+          {
+            "art": "sunflower",
+            "count": 6,
+            "blocking": false,
+            "cluster": 2,
+            "sway": true,
+            "within": 12
+          },
+          {
+            "art": "wooden_crates",
+            "count": 4,
+            "blocking": true
+          },
+          {
+            "art": "barrels",
+            "count": 4,
+            "blocking": true
           }
         ],
         "accentPatches": 0
@@ -1353,6 +1539,23 @@
             "count": 30,
             "blocking": true,
             "cluster": 2
+          },
+          {
+            "art": "ice_rock",
+            "count": 12,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "frozen_bush",
+            "count": 14,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "snowman_prop",
+            "count": 5,
+            "blocking": true
           }
         ]
       },
@@ -1478,6 +1681,30 @@
             "count": 20,
             "blocking": false,
             "cluster": 3
+          },
+          {
+            "art": "lotus",
+            "count": 16,
+            "blocking": false,
+            "cluster": 4
+          },
+          {
+            "art": "swamp_stump",
+            "count": 10,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "cattail_log",
+            "count": 6,
+            "blocking": true
+          },
+          {
+            "art": "fern",
+            "count": 12,
+            "blocking": false,
+            "cluster": 3,
+            "sway": true
           }
         ]
       },
@@ -1601,6 +1828,24 @@
             "count": 30,
             "blocking": false,
             "cluster": 3
+          },
+          {
+            "art": "tombstone",
+            "count": 16,
+            "blocking": true,
+            "cluster": 4
+          },
+          {
+            "art": "spooky_lantern",
+            "count": 8,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "thorn_bush",
+            "count": 14,
+            "blocking": true,
+            "cluster": 3
           }
         ]
       },
@@ -1722,6 +1967,23 @@
             "count": 60,
             "blocking": false,
             "cluster": 3
+          },
+          {
+            "art": "ore_vein",
+            "count": 12,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "mine_beam",
+            "count": 4,
+            "blocking": true
+          },
+          {
+            "art": "glow_moss_rock",
+            "count": 10,
+            "blocking": true,
+            "cluster": 2
           }
         ]
       },
@@ -1814,6 +2076,28 @@
           {
             "art": "red_rock",
             "count": 20,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "ore_vein",
+            "count": 4,
+            "blocking": true
+          },
+          {
+            "art": "tumbleweed",
+            "count": 4,
+            "blocking": false
+          },
+          {
+            "art": "wooden_crates",
+            "count": 6,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "barrels",
+            "count": 6,
             "blocking": true,
             "cluster": 2
           }
@@ -2054,6 +2338,28 @@
             "blocking": true,
             "cluster": 3,
             "sway": true
+          },
+          {
+            "art": "desert_pot",
+            "count": 10,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "sand_ruin",
+            "count": 5,
+            "blocking": true
+          },
+          {
+            "art": "oasis_palm",
+            "count": 4,
+            "blocking": true,
+            "sway": true
+          },
+          {
+            "art": "tumbleweed",
+            "count": 10,
+            "blocking": false
           }
         ]
       },
@@ -2184,6 +2490,12 @@
             "blocking": true,
             "cluster": 3,
             "sway": true
+          },
+          {
+            "art": "ore_vein",
+            "count": 8,
+            "blocking": true,
+            "cluster": 2
           }
         ]
       },
@@ -2303,6 +2615,12 @@
             "count": 40,
             "blocking": false,
             "cluster": 3
+          },
+          {
+            "art": "ice_rock",
+            "count": 6,
+            "blocking": true,
+            "cluster": 2
           }
         ]
       },

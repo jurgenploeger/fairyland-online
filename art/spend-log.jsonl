@@ -88,3 +88,38 @@
 {"date": "2026-09-29T16:55:22", "asset": "stone_stairs", "style": "rd_tile__tile_object", "size": "64x64", "images": 1, "cost": 0.03, "balance": 52.977, "prompt": "short stone stairs going up, isometric"}
 {"date": "2026-09-29T16:55:38", "asset": "wall_pillar", "style": "rd_tile__tile_object", "size": "32x64", "images": 1, "cost": 0.026, "balance": 52.951, "prompt": "carved stone pillar with a round top"}
 {"date": "2026-09-29T16:56:08", "asset": "dwarf_walk", "style": "rd_animation__four_angle_walking", "size": "48x48", "images": 1, "cost": 0.07, "balance": 52.881, "prompt": "cute chibi dwarf adventurer, short and stocky, big bushy ginger beard, ginger hair, green tunic, brown belt and boots"}
+{"date": "2026-09-30T16:03:22", "asset": "tree_stump", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 52.151, "prompt": "mossy tree stump with a tiny mushroom"}
+{"date": "2026-09-30T16:03:47", "asset": "fallen_log", "style": "rd_tile__tile_object", "size": "64x64", "images": 1, "cost": 0.06, "balance": 52.091, "prompt": "fallen mossy log with ferns"}
+{"date": "2026-09-30T16:04:06", "asset": "fern", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 52.031, "prompt": "lush green fern plant"}
+{"date": "2026-09-30T16:04:20", "asset": "berry_bush", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.971, "prompt": "round bush with red berries"}
+{"date": "2026-09-30T16:04:31", "asset": "sunflower", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.911, "prompt": "tall cheerful sunflower"}
+{"date": "2026-09-30T16:04:45", "asset": "tulip_patch", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.851, "prompt": "small patch of red and yellow tulips"}
+{"date": "2026-09-30T16:04:57", "asset": "clover_patch", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.791, "prompt": "patch of clover with tiny white flowers"}
+{"date": "2026-09-30T16:05:09", "asset": "haystack", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.731, "prompt": "round golden haystack"}
+{"date": "2026-09-30T16:05:27", "asset": "pumpkin_patch", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.671, "prompt": "cute orange pumpkins with leaves"}
+{"date": "2026-09-30T16:05:57", "asset": "beehive_tree", "style": "rd_tile__tile_object", "size": "64x64", "images": 1, "cost": 0.06, "balance": 51.611, "prompt": "fairytale tree with a hanging beehive"}
+{"date": "2026-09-30T16:06:21", "asset": "fairy_ring", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.551, "prompt": "ring of tiny glowing toadstools"}
+{"date": "2026-09-30T16:06:33", "asset": "wisp_lantern", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.491, "prompt": "floating magic lantern flower glowing blue"}
+{"date": "2026-09-30T16:06:49", "asset": "hollow_tree", "style": "rd_tile__tile_object", "size": "64x64", "images": 1, "cost": 0.06, "balance": 51.431, "prompt": "hollow old tree with a round door, whimsical"}
+{"date": "2026-09-30T16:07:00", "asset": "seashells", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.371, "prompt": "pink and white seashells and a starfish on sand"}
+{"date": "2026-09-30T16:07:14", "asset": "driftwood", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.311, "prompt": "bleached driftwood branch"}
+{"date": "2026-09-30T16:07:31", "asset": "beach_umbrella", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.251, "prompt": "striped beach umbrella"}
+{"date": "2026-09-30T16:07:42", "asset": "coral", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.191, "prompt": "pink and orange coral"}
+{"date": "2026-09-30T16:07:54", "asset": "ice_rock", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.131, "prompt": "blue ice crystal rock"}
+{"date": "2026-09-30T16:08:08", "asset": "frozen_bush", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.071, "prompt": "frost-covered bush with icicles"}
+{"date": "2026-09-30T16:08:25", "asset": "snowman_prop", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 51.011, "prompt": "little snowman with a carrot nose and scarf"}
+{"date": "2026-09-30T16:08:43", "asset": "lotus", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.951, "prompt": "pink lotus flower on a lily pad"}
+{"date": "2026-09-30T16:08:55", "asset": "swamp_stump", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.891, "prompt": "rotten stump with glowing fungus"}
+{"date": "2026-09-30T16:09:09", "asset": "cattail_log", "style": "rd_tile__tile_object", "size": "64x64", "images": 1, "cost": 0.06, "balance": 50.831, "prompt": "half-sunken log in murky water with cattails"}
+{"date": "2026-09-30T16:09:32", "asset": "tombstone", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.771, "prompt": "crooked old stone tombstone"}
+{"date": "2026-09-30T16:09:57", "asset": "spooky_lantern", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.711, "prompt": "carved jack-o-lantern"}
+{"date": "2026-09-30T16:10:08", "asset": "thorn_bush", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.651, "prompt": "dark thorny bramble"}
+{"date": "2026-09-30T16:10:20", "asset": "ore_vein", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.591, "prompt": "rock with glittering gold ore"}
+{"date": "2026-09-30T16:10:54", "asset": "mine_beam", "style": "rd_tile__tile_object", "size": "64x64", "images": 1, "cost": 0.06, "balance": 50.531, "prompt": "wooden mine support beams"}
+{"date": "2026-09-30T16:11:11", "asset": "glow_moss_rock", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.471, "prompt": "cave rock covered in glowing green moss"}
+{"date": "2026-09-30T16:11:27", "asset": "desert_pot", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.411, "prompt": "cracked clay pot"}
+{"date": "2026-09-30T16:11:48", "asset": "sand_ruin", "style": "rd_tile__tile_object", "size": "64x64", "images": 1, "cost": 0.06, "balance": 50.351, "prompt": "broken sandstone pillar ruin"}
+{"date": "2026-09-30T16:12:11", "asset": "oasis_palm", "style": "rd_tile__tile_object", "size": "64x64", "images": 1, "cost": 0.06, "balance": 50.291, "prompt": "lush palm tree by a tiny oasis pond"}
+{"date": "2026-09-30T16:12:32", "asset": "tumbleweed", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.231, "prompt": "dry tumbleweed"}
+{"date": "2026-09-30T16:12:50", "asset": "wooden_crates", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.171, "prompt": "stack of wooden crates"}
+{"date": "2026-09-30T16:13:04", "asset": "barrels", "style": "rd_tile__tile_object", "size": "32x32", "images": 1, "cost": 0.06, "balance": 50.111, "prompt": "two wooden barrels"}
