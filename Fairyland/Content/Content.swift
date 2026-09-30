@@ -151,7 +151,8 @@ nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {
 }
 
 nonisolated enum ItemType: String, Decodable, Sendable {
-    case consumable, weapon, armor, accessory
+    /// `material`: wood, metal, gems and hides that monsters drop, for the blacksmith.
+    case consumable, weapon, armor, accessory, material
 
     static let equipmentSlots: [ItemType] = [.weapon, .armor, .accessory]
 
@@ -179,6 +180,10 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     let capture: Bool?
     /// Armour: how it recolours the hero's outfit while worn (same rules as looks).
     let recolor: [RecolorRule]?
+    /// Materials: wood | metal | gem | hide. Monsters of at least `level` drop them.
+    let material: String?
+    /// What a blacksmith needs to forge it: material id → how many.
+    let recipe: [String: Int]?
 }
 
 nonisolated struct QuestDef: Decodable, Identifiable, Sendable {
@@ -237,7 +242,8 @@ nonisolated enum Edge: String, Codable, Sendable {
 
 nonisolated enum NPCRole: String, Decodable, Sendable {
     /// `boss`: a mighty monster waiting on the map; talk to it to fight.
-    case healer, shop, quests, guild, chest, boss
+    /// `smith`: forges weapons from materials (the item's `recipe`).
+    case healer, shop, quests, guild, chest, boss, smith
 }
 
 nonisolated struct NPCDef: Decodable, Identifiable, Sendable {

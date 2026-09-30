@@ -254,6 +254,39 @@ struct RulesTests {
         #expect(session.rebirthLevel == 106)
     }
 
+    @Test func smithForgesFromMaterials() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let sword = try #require(Content.shared.item("novice_bronze_sword"))
+        #expect(!session.canCraft(sword))
+        #expect(!session.craft(sword.id))
+        for (material, needed) in sword.recipe ?? [:] {
+            session.addItem(material, needed + 1)
+        }
+        #expect(session.canCraft(sword))
+        #expect(session.craft(sword.id))
+        #expect(session.count(of: sword.id) == 1)
+        for (material, _) in sword.recipe ?? [:] {
+            #expect(session.count(of: material) == 1)   // one of each left over
+        }
+        #expect(!session.bagMaterials.isEmpty)
+        #expect(!session.bagEquipment.contains { $0.type == .material })
+    }
+
+    @Test func recipesUseMaterialsMonstersDrop() {
+        for item in Content.shared.items {
+            for (id, _) in item.recipe ?? [:] {
+                let material = Content.shared.item(id)
+                #expect(material?.type == .material, "recipe for \(item.id) → \(id) isn't a material")
+                #expect((material?.level ?? 1) <= max(item.level ?? 1, 1), "recipe for \(item.id) → \(id) drops too late")
+            }
+        }
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        for _ in 0..<50 {
+            let drop = session.materialDrop(level: 1)
+            #expect(drop == nil || (drop?.level ?? 1) <= 1)
+        }
+    }
+
     @Test func levelsStopAtTheCap() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.data.hero.level = GameSession.levelCap

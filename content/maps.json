@@ -64,7 +64,7 @@
           "y": -4
         },
         {
-          "art": "house",
+          "art": "blacksmith",
           "x": 7,
           "y": -4
         },
@@ -257,6 +257,15 @@
           "quest": "hope_of_meadowbrook",
           "gives": "pet_egg",
           "greeting": "A gift box that seems to... wiggle?"
+        },
+        {
+          "id": "smith",
+          "name": "Smith Brom",
+          "role": "smith",
+          "art": "npc_smith",
+          "x": 7,
+          "y": -6,
+          "greeting": "Clang! Bring me wood and metal from the wilds and I'll forge you something fine."
         }
       ],
       "ambience": {
@@ -324,7 +333,7 @@
         ],
         "plaza": 3,
         "lots": [
-          "blacksmith",
+          "house",
           "bakery",
           "mushroom_house",
           "mushroom_house",
@@ -903,6 +912,15 @@
           "x": 3,
           "y": -4,
           "greeting": "Oh! You came all the way through the Smiling Forest? Splendid!"
+        },
+        {
+          "id": "rainbow_smith",
+          "name": "Smith Iris",
+          "role": "smith",
+          "art": "npc_smith",
+          "x": -3,
+          "y": -3,
+          "greeting": "Monsters drop the best materials. Bring them here and we'll make something sharp."
         }
       ]
     },
@@ -1441,6 +1459,15 @@
           "x": 3,
           "y": -4,
           "greeting": "You cleared the cavern? Then Goldburg owes you one, friend."
+        },
+        {
+          "id": "goldburg_smith",
+          "name": "Smith Ingot",
+          "role": "smith",
+          "art": "npc_smith",
+          "x": -2,
+          "y": -2,
+          "greeting": "Goldburg steel is the finest there is. Show me what you've gathered."
         }
       ],
       "ambience": {

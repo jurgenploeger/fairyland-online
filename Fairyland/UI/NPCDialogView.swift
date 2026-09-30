@@ -37,6 +37,7 @@ struct NPCDialogView: View {
                             case .guild: GuildPanel(session: session, classID: npc.classId ?? "", reply: $reply)
                             case .chest: ChestPanel(session: session, chest: npc, reply: $reply)
                             case .boss: BossPanel(session: session, boss: npc, onFight: onFight)
+                            case .smith: SmithPanel(session: session, reply: $reply)
                             }
                             if npc.rebirth == true {
                                 RebirthPanel(session: session, reply: $reply)

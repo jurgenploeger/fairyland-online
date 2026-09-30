@@ -11,7 +11,7 @@ nonisolated struct Equipment: Codable, Equatable, Sendable {
             case .weapon: weapon
             case .armor: armor
             case .accessory: accessory
-            case .consumable: nil
+            case .consumable, .material: nil
             }
         }
         set {
@@ -19,7 +19,7 @@ nonisolated struct Equipment: Codable, Equatable, Sendable {
             case .weapon: weapon = newValue
             case .armor: armor = newValue
             case .accessory: accessory = newValue
-            case .consumable: break
+            case .consumable, .material: break
             }
         }
     }

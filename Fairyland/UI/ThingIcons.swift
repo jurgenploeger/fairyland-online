@@ -51,6 +51,7 @@ struct ItemIcon: View {
         case .weapon: Color(red: 0.5, green: 0.56, blue: 0.68)
         case .armor: Color(red: 0.62, green: 0.45, blue: 0.3)
         case .accessory: Color(red: 0.62, green: 0.4, blue: 0.85)
+        case .material: Color(red: 0.55, green: 0.6, blue: 0.4)
         }
     }
 }
