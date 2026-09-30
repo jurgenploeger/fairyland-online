@@ -328,6 +328,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let hazeAlpha: Double?
         /// Out-of-focus scenery drifting past in front of the camera.
         let foreground: Foreground?
+        /// Depth of field on the map's own scenery (on by default). See `DepthOfField`.
+        let focus: Focus?
 
         nonisolated struct Lights: Decodable, Sendable {
             let color: String
@@ -345,6 +347,15 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
             /// Blur radius in texture pixels, and how many times bigger than the sprite.
             let blur: Double?
             let scale: Double?
+        }
+
+        nonisolated struct Focus: Decodable, Sendable {
+            /// Strongest blur in points, at the top of the screen (default 1.5; 0 turns it off).
+            let blur: Double?
+            /// Half-height of the sharp band around the hero, as a fraction of half the screen (default 0.4).
+            let band: Double?
+            /// How soft the bottom of the screen gets compared with the top (default 0.5).
+            let near: Double?
         }
     }
 

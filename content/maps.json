@@ -481,7 +481,10 @@
         },
         "sun": "#FFE6B0",
         "haze": "#CFE6FF",
-        "hazeAlpha": 0.18
+        "hazeAlpha": 0.18,
+        "focus": {
+          "blur": 1.2
+        }
       },
       "town": {
         "streets": [
@@ -1546,6 +1549,9 @@
           "alpha": 0.5,
           "blur": 3,
           "scale": 3
+        },
+        "focus": {
+          "blur": 2.2
         }
       }
     },
@@ -1995,6 +2001,9 @@
           "alpha": 0.5,
           "blur": 3,
           "scale": 3
+        },
+        "focus": {
+          "blur": 2.0
         }
       }
     },
@@ -2399,7 +2408,11 @@
         },
         "sun": "#FFE8F0",
         "haze": "#F0E0FF",
-        "hazeAlpha": 0.16
+        "hazeAlpha": 0.16,
+        "focus": {
+          "blur": 1.0,
+          "band": 0.5
+        }
       }
     },
     {
@@ -2706,6 +2719,9 @@
           "alpha": 0.45,
           "blur": 3,
           "scale": 3
+        },
+        "focus": {
+          "blur": 2.0
         }
       }
     },
@@ -2984,6 +3000,9 @@
           "alpha": 0.5,
           "blur": 3,
           "scale": 3
+        },
+        "focus": {
+          "blur": 1.8
         }
       }
     },
@@ -3731,7 +3750,11 @@
         },
         "sun": "#FFD090",
         "haze": "#FFE0B0",
-        "hazeAlpha": 0.18
+        "hazeAlpha": 0.18,
+        "focus": {
+          "blur": 1.0,
+          "band": 0.5
+        }
       }
     },
     {
