@@ -1722,6 +1722,434 @@
       }
     },
     {
+      "id": "pink_crystal",
+      "kind": "prop",
+      "derive": {
+        "from": "crystal",
+        "recolor": [
+          {
+            "hue": [
+              140,
+              210
+            ],
+            "to": 322,
+            "saturation": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "amber_crystal",
+      "kind": "prop",
+      "derive": {
+        "from": "crystal",
+        "recolor": [
+          {
+            "hue": [
+              140,
+              210
+            ],
+            "to": 40,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "violet_crystal",
+      "kind": "prop",
+      "derive": {
+        "from": "crystal",
+        "recolor": [
+          {
+            "hue": [
+              140,
+              210
+            ],
+            "to": 272
+          }
+        ]
+      }
+    },
+    {
+      "id": "crystal_shard",
+      "kind": "prop",
+      "scale": 0.55,
+      "derive": {
+        "from": "crystal",
+        "recolor": []
+      }
+    },
+    {
+      "id": "pink_shard",
+      "kind": "prop",
+      "scale": 0.55,
+      "derive": {
+        "from": "pink_crystal",
+        "recolor": []
+      }
+    },
+    {
+      "id": "purple_mushroom",
+      "kind": "prop",
+      "derive": {
+        "from": "mushroom",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.3,
+            "to": 282
+          }
+        ]
+      }
+    },
+    {
+      "id": "blue_mushroom",
+      "kind": "prop",
+      "derive": {
+        "from": "mushroom",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.3,
+            "to": 205
+          }
+        ]
+      }
+    },
+    {
+      "id": "blue_giant_mushroom",
+      "kind": "prop",
+      "derive": {
+        "from": "giant_mushroom",
+        "recolor": [
+          {
+            "hue": [
+              325,
+              20
+            ],
+            "minSaturation": 0.3,
+            "to": 208
+          }
+        ]
+      }
+    },
+    {
+      "id": "toadstool",
+      "kind": "prop",
+      "scale": 0.45,
+      "derive": {
+        "from": "giant_mushroom",
+        "recolor": []
+      }
+    },
+    {
+      "id": "pebbles",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "rock",
+        "recolor": []
+      }
+    },
+    {
+      "id": "small_boulder",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "boulder",
+        "recolor": []
+      }
+    },
+    {
+      "id": "sandstone_boulder",
+      "kind": "prop",
+      "derive": {
+        "from": "boulder",
+        "recolor": [
+          {
+            "hue": [
+              60,
+              145
+            ],
+            "minSaturation": 0.1,
+            "to": 38,
+            "saturation": 0.9,
+            "value": 1.05
+          },
+          {
+            "hue": [
+              145,
+              230
+            ],
+            "minSaturation": 0.05,
+            "to": 28,
+            "saturation": 2.2,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "red_rock",
+      "kind": "prop",
+      "scale": 0.8,
+      "derive": {
+        "from": "rock",
+        "recolor": [
+          {
+            "hue": [
+              60,
+              145
+            ],
+            "minSaturation": 0.1,
+            "to": 20,
+            "saturation": 1.1
+          },
+          {
+            "hue": [
+              145,
+              230
+            ],
+            "minSaturation": 0.05,
+            "to": 12,
+            "saturation": 2.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "yellow_cactus",
+      "kind": "prop",
+      "derive": {
+        "from": "cactus",
+        "recolor": [
+          {
+            "hue": [
+              290,
+              355
+            ],
+            "to": 50,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "small_cactus",
+      "kind": "prop",
+      "scale": 0.6,
+      "derive": {
+        "from": "cactus",
+        "recolor": []
+      }
+    },
+    {
+      "id": "palm_sapling",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "palm_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "pine_sapling",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "snow_pine",
+        "recolor": []
+      }
+    },
+    {
+      "id": "frost_pine",
+      "kind": "prop",
+      "derive": {
+        "from": "snow_pine",
+        "recolor": [
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "to": 188,
+            "saturation": 0.55,
+            "value": 1.12
+          }
+        ]
+      }
+    },
+    {
+      "id": "autumn_reeds",
+      "kind": "prop",
+      "derive": {
+        "from": "reeds",
+        "recolor": [
+          {
+            "hue": [
+              70,
+              145
+            ],
+            "to": 38,
+            "value": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "small_stalagmite",
+      "kind": "prop",
+      "scale": 0.55,
+      "derive": {
+        "from": "stalagmite",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dead_bush",
+      "kind": "prop",
+      "scale": 0.42,
+      "derive": {
+        "from": "dead_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "golden_tree",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 46,
+            "saturation": 1.05,
+            "value": 1.12
+          }
+        ]
+      }
+    },
+    {
+      "id": "red_maple",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 356,
+            "saturation": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "golden_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "golden_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "frost_tree",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 192,
+            "saturation": 0.4,
+            "value": 1.15
+          }
+        ]
+      }
+    },
+    {
+      "id": "swamp_tree",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 150,
+            "saturation": 0.8,
+            "value": 0.72
+          }
+        ]
+      }
+    },
+    {
+      "id": "small_skull",
+      "kind": "prop",
+      "scale": 0.6,
+      "derive": {
+        "from": "skull_bones",
+        "recolor": []
+      }
+    },
+    {
+      "id": "lilac_tree",
+      "kind": "prop",
+      "derive": {
+        "from": "blossom_tree",
+        "recolor": [
+          {
+            "hue": [
+              290,
+              355
+            ],
+            "to": 272,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "lilac_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "lilac_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "sapling",
+      "kind": "prop",
+      "scale": 0.4,
+      "derive": {
+        "from": "tree",
+        "recolor": []
+      }
+    },
+    {
       "id": "monster_golden_hamster_azure",
       "kind": "monster",
       "derive": {

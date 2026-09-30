@@ -98,6 +98,18 @@
             "blocking": false,
             "cluster": 3,
             "within": 10
+          },
+          {
+            "art": "lilac_bush",
+            "count": 12,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "pebbles",
+            "count": 16,
+            "blocking": false,
+            "cluster": 2
           }
         ],
         "accent": "tile_scree",
@@ -508,6 +520,51 @@
             "blocking": false,
             "cluster": 4,
             "sway": true
+          },
+          {
+            "art": "golden_tree",
+            "count": 40,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "red_maple",
+            "count": 30,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "sapling",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true
+          },
+          {
+            "art": "pebbles",
+            "count": 70,
+            "blocking": false,
+            "cluster": 3
+          },
+          {
+            "art": "small_boulder",
+            "count": 25,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "purple_mushroom",
+            "count": 30,
+            "blocking": false,
+            "cluster": 3
+          },
+          {
+            "art": "toadstool",
+            "count": 20,
+            "blocking": false,
+            "cluster": 3
           }
         ]
       },
@@ -607,6 +664,25 @@
             "blocking": false,
             "cluster": 5,
             "sway": true
+          },
+          {
+            "art": "palm_sapling",
+            "count": 90,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "pebbles",
+            "count": 60,
+            "blocking": false,
+            "cluster": 3
+          },
+          {
+            "art": "small_boulder",
+            "count": 20,
+            "blocking": true,
+            "cluster": 2
           }
         ]
       },
@@ -696,6 +772,43 @@
             "count": 320,
             "blocking": true,
             "cluster": 6
+          },
+          {
+            "art": "violet_crystal",
+            "count": 25,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "pink_shard",
+            "count": 40,
+            "blocking": false,
+            "cluster": 3
+          },
+          {
+            "art": "purple_mushroom",
+            "count": 70,
+            "blocking": false,
+            "cluster": 4
+          },
+          {
+            "art": "blue_mushroom",
+            "count": 70,
+            "blocking": false,
+            "cluster": 4
+          },
+          {
+            "art": "lilac_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "lilac_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4
           }
         ]
       },
@@ -820,6 +933,51 @@
             "blocking": false,
             "cluster": 4,
             "sway": true
+          },
+          {
+            "art": "red_maple",
+            "count": 60,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "golden_tree",
+            "count": 50,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "golden_bush",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4
+          },
+          {
+            "art": "toadstool",
+            "count": 60,
+            "blocking": false,
+            "cluster": 4
+          },
+          {
+            "art": "blue_giant_mushroom",
+            "count": 15,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "sapling",
+            "count": 70,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "pebbles",
+            "count": 40,
+            "blocking": false,
+            "cluster": 3
           }
         ]
       },
@@ -970,6 +1128,19 @@
             "blocking": false,
             "cluster": 3,
             "within": 11
+          },
+          {
+            "art": "lilac_tree",
+            "count": 12,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true
+          },
+          {
+            "art": "lilac_bush",
+            "count": 16,
+            "blocking": true,
+            "cluster": 3
           }
         ],
         "accentPatches": 0
@@ -1155,6 +1326,33 @@
             "count": 180,
             "blocking": true,
             "cluster": 6
+          },
+          {
+            "art": "frost_pine",
+            "count": 160,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true
+          },
+          {
+            "art": "pine_sapling",
+            "count": 120,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "frost_tree",
+            "count": 100,
+            "blocking": true,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "small_boulder",
+            "count": 30,
+            "blocking": true,
+            "cluster": 2
           }
         ]
       },
@@ -1248,6 +1446,38 @@
             "count": 160,
             "blocking": true,
             "cluster": 6
+          },
+          {
+            "art": "autumn_reeds",
+            "count": 120,
+            "blocking": false,
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "swamp_tree",
+            "count": 90,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "dead_bush",
+            "count": 80,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "blue_mushroom",
+            "count": 30,
+            "blocking": false,
+            "cluster": 3
+          },
+          {
+            "art": "toadstool",
+            "count": 20,
+            "blocking": false,
+            "cluster": 3
           }
         ]
       },
@@ -1342,6 +1572,35 @@
             "count": 150,
             "blocking": true,
             "cluster": 5
+          },
+          {
+            "art": "dead_bush",
+            "count": 120,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "small_skull",
+            "count": 30,
+            "blocking": false
+          },
+          {
+            "art": "violet_crystal",
+            "count": 15,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "small_boulder",
+            "count": 40,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "small_stalagmite",
+            "count": 30,
+            "blocking": false,
+            "cluster": 3
           }
         ]
       },
@@ -1439,6 +1698,30 @@
             "art": "skull_bones",
             "count": 20,
             "blocking": false
+          },
+          {
+            "art": "small_stalagmite",
+            "count": 150,
+            "blocking": false,
+            "cluster": 4
+          },
+          {
+            "art": "amber_crystal",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "crystal_shard",
+            "count": 40,
+            "blocking": false,
+            "cluster": 3
+          },
+          {
+            "art": "pebbles",
+            "count": 60,
+            "blocking": false,
+            "cluster": 3
           }
         ]
       },
@@ -1521,6 +1804,18 @@
             "count": 24,
             "blocking": true,
             "cluster": 3
+          },
+          {
+            "art": "sandstone_boulder",
+            "count": 10,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "red_rock",
+            "count": 20,
+            "blocking": true,
+            "cluster": 2
           }
         ],
         "accentPatches": 0
@@ -1717,6 +2012,48 @@
             "count": 110,
             "blocking": true,
             "cluster": 4
+          },
+          {
+            "art": "small_cactus",
+            "count": 120,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "yellow_cactus",
+            "count": 60,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "sandstone_boulder",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "red_rock",
+            "count": 80,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "dead_bush",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "small_skull",
+            "count": 20,
+            "blocking": false
+          },
+          {
+            "art": "palm_sapling",
+            "count": 40,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true
           }
         ]
       },
@@ -1816,6 +2153,37 @@
             "count": 60,
             "blocking": true,
             "cluster": 4
+          },
+          {
+            "art": "pink_crystal",
+            "count": 60,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "amber_crystal",
+            "count": 40,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "crystal_shard",
+            "count": 80,
+            "blocking": false,
+            "cluster": 4
+          },
+          {
+            "art": "small_boulder",
+            "count": 80,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "pine_sapling",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true
           }
         ]
       },
@@ -1903,6 +2271,38 @@
             "count": 80,
             "blocking": true,
             "cluster": 4
+          },
+          {
+            "art": "violet_crystal",
+            "count": 70,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "pink_shard",
+            "count": 60,
+            "blocking": false,
+            "cluster": 3
+          },
+          {
+            "art": "frost_pine",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "frost_tree",
+            "count": 40,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "crystal_shard",
+            "count": 40,
+            "blocking": false,
+            "cluster": 3
           }
         ]
       },
