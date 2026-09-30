@@ -3329,6 +3329,50 @@
           }
         ]
       }
+    },
+    {
+      "id": "ice_spikes",
+      "kind": "prop",
+      "request": {
+        "prompt": "cluster of sharp translucent pale blue ice spikes",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "big_ice_spikes",
+      "kind": "prop",
+      "scale": 1.6,
+      "derive": {
+        "from": "ice_spikes",
+        "recolor": []
+      }
+    },
+    {
+      "id": "ice_cluster",
+      "kind": "prop",
+      "derive": {
+        "from": "crystal",
+        "recolor": [
+          {
+            "to": 195,
+            "saturation": 0.5,
+            "value": 1.25
+          }
+        ]
+      }
+    },
+    {
+      "id": "tile_ice",
+      "kind": "tile",
+      "request": {
+        "prompt": "frozen pond ice, pale blue with white cracks and frost",
+        "prompt_style": "rd_tile__single_tile",
+        "width": 32,
+        "height": 32
+      }
     }
   ]
 }
