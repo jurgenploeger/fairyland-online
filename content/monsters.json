@@ -1059,6 +1059,37 @@
       "variantOf": "treefrog"
     },
     {
+      "id": "frog_warrior",
+      "name": "Frog Warrior",
+      "art": "monster_frog_warrior",
+      "element": "water",
+      "base": {
+        "hp": 62,
+        "mp": 16,
+        "attack": 27,
+        "defense": 14,
+        "magic": 8,
+        "speed": 24
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 2,
+        "attack": 3,
+        "defense": 2,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 36,
+      "gold": 20,
+      "captureRate": 0.3,
+      "skills": [
+        "power_strike",
+        "bash",
+        "bubble"
+      ],
+      "motion": "hop"
+    },
+    {
       "id": "water_slug",
       "name": "Water Slug",
       "art": "monster_water_slug",

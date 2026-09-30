@@ -2318,6 +2318,17 @@
       }
     },
     {
+      "id": "monster_frog_warrior",
+      "kind": "monster",
+      "request": {
+        "prompt": "brave frog warrior holding a tiny sword and a lily pad shield, wearing a leaf helmet, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
       "id": "monster_water_slug_starry",
       "kind": "monster",
       "derive": {
