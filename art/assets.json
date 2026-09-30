@@ -2190,10 +2190,10 @@
       "id": "item_potion",
       "kind": "item",
       "request": {
-        "prompt": "round red healing potion bottle with a cork, game item icon",
-        "prompt_style": "rd_tile__tile_object",
-        "width": 32,
-        "height": 32,
+        "prompt": "round red healing potion bottle with a cork, cute fairytale game item icon, soft 3D shading",
+        "prompt_style": "rd_pro__fantasy",
+        "width": 64,
+        "height": 64,
         "remove_bg": true
       }
     },
@@ -2206,6 +2206,21 @@
         "width": 32,
         "height": 32,
         "remove_bg": true
+      },
+      "derive": {
+        "from": "item_potion",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              9
+            ],
+            "minSaturation": 0.1,
+            "to": 212,
+            "saturation": 1.0,
+            "value": 1.0
+          }
+        ]
       }
     },
     {
@@ -2382,6 +2397,21 @@
         "width": 32,
         "height": 32,
         "remove_bg": true
+      },
+      "derive": {
+        "from": "item_potion",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              9
+            ],
+            "minSaturation": 0.1,
+            "to": 328,
+            "saturation": 0.9,
+            "value": 1.12
+          }
+        ]
       }
     },
     {
@@ -2393,6 +2423,21 @@
         "width": 32,
         "height": 32,
         "remove_bg": true
+      },
+      "derive": {
+        "from": "item_potion",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              9
+            ],
+            "minSaturation": 0.1,
+            "to": 272,
+            "saturation": 0.9,
+            "value": 1.05
+          }
+        ]
       }
     },
     {

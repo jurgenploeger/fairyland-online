@@ -146,35 +146,6 @@ def light_top_left(c, colors, cx, cy, r):
                     c.px[y][x] = light
 
 
-def flask_round(c, liquid, glass=hexc("dff4ff"), cork=WOOD, label=None):
-    dark, mid, light = liquid
-    c.rect(13, 6, 18, 12, glass)          # neck
-    c.disc(15.5, 20.5, 8.5, mid)          # body
-    c.rect(12, 4, 19, 7, cork[1])         # cork
-    c.rect(12, 7, 19, 7, cork[0])
-    c.rect(13, 4, 17, 4, cork[2])
-    light_top_left(c, liquid, 15.5, 20.5, 8.5)
-    c.shade(lambda x, y, col: col in liquid and y < 15, glass)   # air at the top of the bottle
-    c.rect(13, 9, 14, 12, WHITE)
-    c.disc(11.5, 17.5, 1.2, WHITE)
-    c.set(10, 20, WHITE)
-    if label:
-        label(c)
-
-
-def flask_cone(c, liquid, glass=hexc("dff4ff"), cork=WOOD):
-    dark, mid, light = liquid
-    c.rect(13, 5, 18, 12, glass)
-    c.poly([(13, 11), (19, 11), (26, 27), (6, 27)], mid)
-    c.rect(12, 3, 19, 6, cork[1])
-    c.rect(12, 6, 19, 6, cork[0])
-    c.rect(13, 3, 17, 3, cork[2])
-    c.shade(lambda x, y, col: col == mid and y < 16, glass)
-    c.shade(lambda x, y, col: col == mid and (x - 16) > (y - 10) * 0.35, dark)
-    c.shade(lambda x, y, col: col == mid and (16 - x) > (y - 10) * 0.55, light)
-    c.rect(13, 8, 14, 12, WHITE)
-    c.line(11, 16, 9, 21, WHITE)
-    c.rect(7, 26, 25, 27, dark)
 
 
 def sword(c, blade, guard, grip, gem=None, long=True):
@@ -307,21 +278,8 @@ LILAC = [hexc("8a5ab0"), hexc("c49ae8"), hexc("eedcff")]
 COPPER = [hexc("8a4a22"), hexc("c8783a"), hexc("f0b07a")]
 
 
-def draw_potion(c):
-    flask_round(c, RED)
 
 
-def draw_hi_potion(c):
-    flask_round(c, PINK, label=lambda c: star_shape(c, 16, 22, 5, GOLD[1], inner=0.5))
-
-
-def draw_ether(c):
-    flask_cone(c, BLUE)
-
-
-def draw_hi_ether(c):
-    flask_cone(c, VIOLET)
-    star_shape(c, 16, 21.5, 5, GOLD[1], inner=0.5)
 
 
 def draw_seal_stone(c):
@@ -551,6 +509,8 @@ def draw_speed_boots(c):
 
 
 DRAWINGS = {name[5:]: fn for name, fn in globals().items() if name.startswith("draw_")}
+# Not drawn here: the Potion is a Retro Diffusion sprite (rd_pro__fantasy) and the Hi-Potion,
+# Ether and Hi-Ether are palette swaps of it (`derive` in art/assets.json).
 
 PROMPTS = {  # for a later Retro Diffusion upgrade (python3 tools/rd.py generate item_<id>)
     "potion": "round red healing potion bottle with a cork",
