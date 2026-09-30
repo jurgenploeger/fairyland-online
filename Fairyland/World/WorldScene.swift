@@ -562,6 +562,8 @@ final class WorldScene: SKScene {
     }
 
     private func placeLilyPads() {
+        // Frozen ponds don't grow lily pads.
+        guard !(def.theme.water ?? "").contains("ice") else { return }
         let sprite = art.sprite("lily_pad")
         var padRNG = SeededRandom(text: def.id + "/lilies")
         for pond in map.ponds {
