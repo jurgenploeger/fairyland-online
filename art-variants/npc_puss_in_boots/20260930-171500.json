@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "orange tabby cat standing upright in tall brown boots and a feathered hat, chibi, cute",
+    "prompt_style": "rd_plus__low_res",
+    "width": 40,
+    "height": 40,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790788496,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 49.871,
+    "request_id": "f43047e6-e61e-4d97-b890-1f72fb5e4f86",
+    "outputs_retained_until": 1790874864
+  }
+}

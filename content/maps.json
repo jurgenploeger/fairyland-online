@@ -462,7 +462,18 @@
         "tint": "#FFF1C2",
         "tintAlpha": 0.06,
         "vignette": 0.15
-      }
+      },
+      "npcs": [
+        {
+          "id": "mother_sheep",
+          "name": "Mother Sheep",
+          "role": "quests",
+          "art": "npc_mother_sheep",
+          "x": 4,
+          "y": 3,
+          "greeting": "Baa! Oh, a kind face at last."
+        }
+      ]
     },
     {
       "id": "pineapple_shore",
@@ -539,7 +550,18 @@
         "tint": "#FFD9A0",
         "tintAlpha": 0.08,
         "vignette": 0.12
-      }
+      },
+      "npcs": [
+        {
+          "id": "old_shelly",
+          "name": "Old Shelly",
+          "role": "quests",
+          "art": "monster_wood_crab",
+          "x": -4,
+          "y": 3,
+          "greeting": "Click-clack! Mind the tide pools, youngster."
+        }
+      ]
     },
     {
       "id": "twilight_woods",
@@ -624,7 +646,18 @@
         "tint": "#2E1F5E",
         "tintAlpha": 0.3,
         "vignette": 0.45
-      }
+      },
+      "npcs": [
+        {
+          "id": "willow_wisp",
+          "name": "Willow the Wisp",
+          "role": "quests",
+          "art": "monster_wisp",
+          "x": -4,
+          "y": -3,
+          "greeting": "Shh... the woods are listening."
+        }
+      ]
     },
     {
       "id": "smiling_forest",
@@ -719,7 +752,18 @@
         "butterflies": 10,
         "clouds": true,
         "vignette": 0.2
-      }
+      },
+      "npcs": [
+        {
+          "id": "little_pig",
+          "name": "Little Pig",
+          "role": "quests",
+          "art": "npc_little_pig",
+          "x": 4,
+          "y": -3,
+          "greeting": "Oink! Have you seen a wolf around here?"
+        }
+      ]
     },
     {
       "id": "rainbow_city",
@@ -950,6 +994,15 @@
           "greeting": "Grrr… what big eyes you have. All the better to FIGHT you with!",
           "monster": "big_bad_wolf",
           "level": 28
+        },
+        {
+          "id": "mister_frost",
+          "name": "Mister Frost",
+          "role": "quests",
+          "art": "monster_snowman",
+          "x": -4,
+          "y": 3,
+          "greeting": "Brrr-illiant to see you!"
         }
       ],
       "encounters": {
@@ -1058,7 +1111,27 @@
         "tint": "#4E5B2A",
         "tintAlpha": 0.18,
         "vignette": 0.3
-      }
+      },
+      "npcs": [
+        {
+          "id": "frog_prince",
+          "name": "Frog Prince",
+          "role": "quests",
+          "art": "npc_frog_prince",
+          "x": 4,
+          "y": 3,
+          "greeting": "Ribbit. I am a prince, you know. Truly."
+        },
+        {
+          "id": "ugly_duckling",
+          "name": "Ugly Duckling",
+          "role": "quests",
+          "art": "npc_ugly_duckling",
+          "x": -4,
+          "y": -3,
+          "greeting": "Oh... hello. You don't think I'm ugly, do you?"
+        }
+      ]
     },
     {
       "id": "valley_of_fear",
@@ -1156,7 +1229,18 @@
         "tint": "#3A2E4A",
         "tintAlpha": 0.28,
         "vignette": 0.4
-      }
+      },
+      "npcs": [
+        {
+          "id": "brave_mouse",
+          "name": "Brave Mouse",
+          "role": "quests",
+          "art": "monster_golden_hamster_light",
+          "x": 3,
+          "y": -3,
+          "greeting": "Squeak! Small, but brave!"
+        }
+      ]
     },
     {
       "id": "rat_cavern",
@@ -1488,6 +1572,15 @@
           "greeting": "*hic* Heyyy… you wanna piece of this? *hic*",
           "monster": "drunk_dragon",
           "level": 24
+        },
+        {
+          "id": "puss_in_boots",
+          "name": "Puss in Boots",
+          "role": "quests",
+          "art": "npc_puss_in_boots",
+          "x": -4,
+          "y": 3,
+          "greeting": "Good day! A fine pair of boots you have."
         }
       ],
       "encounters": {
@@ -1602,7 +1695,18 @@
         "tint": "#8EA0C8",
         "tintAlpha": 0.12,
         "vignette": 0.3
-      }
+      },
+      "npcs": [
+        {
+          "id": "pebble",
+          "name": "Pebble",
+          "role": "quests",
+          "art": "monster_floating_stone_amber",
+          "x": 4,
+          "y": -3,
+          "greeting": "...rumble. Oh! Sorry, I was napping."
+        }
+      ]
     },
     {
       "id": "moonglow",
@@ -1677,7 +1781,18 @@
         "tint": "#5060A0",
         "tintAlpha": 0.25,
         "vignette": 0.4
-      }
+      },
+      "npcs": [
+        {
+          "id": "stardust",
+          "name": "Stardust",
+          "role": "quests",
+          "art": "monster_pegasus_rosy",
+          "x": -3,
+          "y": 4,
+          "greeting": "Neigh... the stars are restless tonight."
+        }
+      ]
     }
   ]
 }
