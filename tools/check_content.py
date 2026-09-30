@@ -36,7 +36,9 @@ items = {i["id"]: i for i in load("content/items.json")["items"]}
 quests = {q["id"]: q for q in load("content/quests.json")["quests"]}
 maps_file = load("content/maps.json")
 maps = {m["id"]: m for m in maps_file["maps"]}
-songs = {s["id"] for s in load("content/music.json")["songs"]}
+music = load("content/music.json")
+songs = {s["id"] for s in music["songs"]}
+instruments = {i["id"]: i for i in music.get("instruments", [])}
 appearance = load("content/appearance.json")
 art = {a["id"]: a for a in load("art/assets.json")["assets"]}
 npcs = {n["id"]: n for m in maps.values() for n in m.get("npcs", [])}
@@ -169,6 +171,24 @@ for kind in ("hair", "outfits", "skin"):
 for asset in art.values():
     if "derive" in asset:
         check(asset["derive"]["from"] in art, f"art {asset['id']} → unknown base {asset['derive']['from']}")
+
+# Music: every track names a known instrument (or an old chiptune wave), and every note token parses.
+NOTE_TOKEN = re.compile(r"^(-|[A-G][#b]?-?\d(\+[A-G][#b]?-?\d)*|[KSHTCRN](\+[KSHTCRN])*):\d+$")
+for inst in instruments.values():
+    for partial in inst.get("partials", []):
+        check(len(partial) == 3, f"instrument {inst['id']}: partial {partial} needs [ratio, level, decay]")
+    check(len(inst.get("partials", [])) <= 8, f"instrument {inst['id']}: at most 8 partials")
+    check(len(inst.get("vibrato", [0, 0, 0])) == 3, f"instrument {inst['id']}: vibrato is [depth, rate, delay]")
+for song in music["songs"]:
+    for index, track in enumerate(song["tracks"]):
+        where = f"song {song['id']} track {index}"
+        if "instrument" in track:
+            check(track["instrument"] in instruments, f"{where} → unknown instrument {track['instrument']}")
+        else:
+            check(track.get("wave") in ("square", "triangle", "noise"), f"{where}: needs an instrument or a wave")
+        for token in track["notes"].split():
+            if token != "|":
+                check(bool(NOTE_TOKEN.match(token)), f"{where}: bad note {token}")
 
 if errors:
     print(f"✗ {len(errors)} problem(s):")

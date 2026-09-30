@@ -92,10 +92,16 @@ struct ContentTests {
 
     @Test func songsParse() {
         for song in content.songs {
-            let tune = Tune(song)
+            let tune = Tune(song, instruments: content.instruments)
+            #expect(!tune.isLegacy, "song \(song.id) still uses chiptune waves")
             for (index, voice) in tune.voices.enumerated() {
                 #expect(!voice.notes.isEmpty, "song \(song.id) track \(index) has no notes")
-                #expect(voice.notes.allSatisfy { $0.frequency != 0 || true })
+                #expect(voice.instrument != nil, "song \(song.id) track \(index) → unknown instrument")
+                if voice.isDrums {
+                    #expect(voice.notes.contains { !$0.drums.isEmpty }, "song \(song.id) track \(index) has no drum hits")
+                } else {
+                    #expect(voice.notes.contains { !$0.frequencies.isEmpty }, "song \(song.id) track \(index) has no pitches")
+                }
             }
         }
         #expect(abs((Tune.frequency(of: "A4") ?? 0) - 440) < 0.01)

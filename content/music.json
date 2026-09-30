@@ -1,50 +1,106 @@
 {
-  "_about": "Original chiptune songs, played by the built-in synth (Fairyland/Audio). Each track is a voice: wave = square | triangle | noise, duty = square pulse width. Notes are NOTE+OCTAVE:STEPS (e.g. F#5:2), - is a rest, N is a noise hit. A step is an eighth note at the song's tempo (quarter notes per minute). | marks bars and is ignored.",
+  "_about": "Original songs for the built-in storybook synth (Fairyland/Audio/SongSynth.swift). instruments: additive voices; partials are [frequency ratio, level, decay per second] (decay 0 = held), plus attack/release seconds, vibrato [semitones, Hz, delay s], voices + detune (cents) for chorus, breath and click noise, gain. 'drums' is the kit: K kick, S brush snare, H hi-hat, T tambourine, C cymbal, R rim/shaker. Each track: instrument, volume, pan (-1 left..1 right), reverb (send 0..1), notes. Song reverb = hall level. Notes are NOTE+OCTAVE:STEPS (e.g. F#5:2), chords join with + (C4+E4+G4:4), - is a rest, | is a bar line. A step is an eighth note at the song's tempo (quarter notes per minute). loops: false plays once. Tracks with wave (square | triangle | noise, duty) instead of instrument still play as old chiptune voices. tools/music_preview.py renders any song to WAV without a Mac.",
+  "instruments": [
+    {"id": "piano", "partials": [[1, 1.0, 1.4], [2, 0.5, 2.2], [3, 0.26, 3.2], [4, 0.14, 4.4], [5, 0.08, 6.0], [6, 0.05, 8.0]], "attack": 0.003, "release": 0.35, "click": 0.05, "gain": 0.55},
+    {"id": "harp", "partials": [[1, 1.0, 0.9], [2, 0.32, 1.8], [3, 0.12, 3.2], [4, 0.05, 5.0]], "attack": 0.002, "release": 1.4, "click": 0.03, "gain": 0.7},
+    {"id": "musicbox", "partials": [[1, 1.0, 1.8], [2, 0.12, 3.0], [4, 0.2, 6.0], [7.9, 0.05, 11.0]], "attack": 0.001, "release": 1.0, "click": 0.02, "gain": 0.6},
+    {"id": "bell", "partials": [[1, 1.0, 1.1], [2.76, 0.4, 2.5], [5.4, 0.2, 4.0], [8.93, 0.08, 6.0]], "attack": 0.001, "release": 1.6, "gain": 0.45},
+    {"id": "marimba", "partials": [[1, 1.0, 4.5], [4, 0.28, 12.0], [10, 0.06, 25.0]], "attack": 0.002, "release": 0.25, "click": 0.04, "gain": 0.75},
+    {"id": "pizzicato", "partials": [[1, 1.0, 6.0], [2, 0.45, 9.0], [3, 0.22, 12.0], [4, 0.1, 15.0]], "attack": 0.002, "release": 0.15, "click": 0.03, "gain": 0.7},
+    {"id": "bass", "partials": [[1, 1.0, 1.2], [2, 0.45, 2.6], [3, 0.14, 4.0]], "attack": 0.006, "release": 0.12, "gain": 0.85},
+    {"id": "flute", "partials": [[1, 1.0, 0], [2, 0.2, 0], [3, 0.08, 0], [4, 0.03, 0]], "held": true, "attack": 0.06, "release": 0.12, "vibrato": [0.12, 5.2, 0.25], "breath": 0.035, "gain": 0.5},
+    {"id": "ocarina", "partials": [[1, 1.0, 0], [2, 0.04, 0], [3, 0.1, 0]], "held": true, "attack": 0.04, "release": 0.1, "vibrato": [0.08, 5.0, 0.3], "breath": 0.02, "gain": 0.55},
+    {"id": "strings", "partials": [[1, 1.0, 0], [2, 0.45, 0], [3, 0.28, 0], [4, 0.18, 0], [5, 0.11, 0], [6, 0.07, 0]], "held": true, "attack": 0.16, "release": 0.35, "vibrato": [0.07, 5.5, 0.3], "voices": 2, "detune": 7, "gain": 0.32},
+    {"id": "pad", "partials": [[1, 1.0, 0], [2, 0.25, 0], [3, 0.08, 0]], "held": true, "attack": 0.45, "release": 0.8, "voices": 2, "detune": 5, "gain": 0.35},
+    {"id": "accordion", "partials": [[1, 1.0, 0], [2, 0.6, 0], [3, 0.45, 0], [4, 0.28, 0], [5, 0.2, 0], [6, 0.1, 0]], "held": true, "attack": 0.03, "release": 0.08, "voices": 2, "detune": 9, "gain": 0.3},
+    {"id": "reed", "partials": [[1, 0.7, 0], [2, 0.25, 0], [3, 0.55, 0], [4, 0.12, 0], [5, 0.3, 0], [7, 0.12, 0]], "held": true, "attack": 0.04, "release": 0.1, "vibrato": [0.1, 5.5, 0.2], "breath": 0.015, "gain": 0.35},
+    {"id": "horn", "partials": [[1, 1.0, 0], [2, 0.6, 0], [3, 0.35, 0], [4, 0.2, 0], [5, 0.1, 0]], "held": true, "attack": 0.05, "release": 0.18, "vibrato": [0.05, 5.0, 0.35], "voices": 2, "detune": 4, "gain": 0.36},
+    {"id": "drums", "gain": 0.8}
+  ],
   "songs": [
     {
       "id": "town",
       "title": "Meadowbrook Waltz",
-      "tempo": 100,
+      "tempo": 96,
+      "reverb": 0.25,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.16,
-          "notes": "E5:2 G5:2 C6:2 | B5:2 A5:2 E5:2 | F5:2 A5:2 C6:2 | B5:3 A5:1 G5:2 | E5:2 G5:2 C6:2 | D6:2 C6:2 A5:2 | F5:2 A5:2 B5:2 | C6:4 -:2"
+          "instrument": "flute",
+          "volume": 0.423,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "E5:2 G5:2 C6:2 | B5:2 A5:2 E5:2 | F5:2 A5:2 C6:2 | B5:3 A5:1 G5:2 | E5:2 G5:2 C6:2 | D6:2 C6:2 A5:2 | F5:2 A5:2 B5:2 | C6:4 -:2 | -:48"
         },
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.06,
-          "notes": "E4:6 | C4:6 | A4:6 | B4:6 | E4:6 | C4:6 | F4:3 D4:3 | E4:6"
+          "instrument": "accordion",
+          "volume": 0.769,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:48 | E5:2 G5:2 C6:2 | B5:2 A5:2 E5:2 | F5:2 A5:2 C6:2 | B5:3 A5:1 G5:2 | E5:2 G5:2 C6:2 | D6:2 C6:2 A5:2 | F5:2 A5:2 B5:2 | C6:4 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.34,
-          "notes": "C3:2 E3:2 G3:2 | A2:2 E3:2 A3:2 | F2:2 C3:2 F3:2 | G2:2 D3:2 G3:2 | C3:2 E3:2 G3:2 | A2:2 E3:2 A3:2 | D3:2 A3:2 G2:2 | C3:2 G3:2 C3:2"
+          "instrument": "strings",
+          "volume": 0.304,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "E4:6 | C4:6 | A4:6 | B4:6 | E4:6 | C4:6 | F4:3 D4:3 | E4:6 | E4:6 | C4:6 | A4:6 | B4:6 | E4:6 | C4:6 | F4:3 D4:3 | E4:6"
+        },
+        {
+          "instrument": "bass",
+          "volume": 0.207,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "C3:2 E3:2 G3:2 | A2:2 E3:2 A3:2 | F2:2 C3:2 F3:2 | G2:2 D3:2 G3:2 | C3:2 E3:2 G3:2 | A2:2 E3:2 A3:2 | D3:2 A3:2 G2:2 | C3:2 G3:2 C3:2 | C3:2 E3:2 G3:2 | A2:2 E3:2 A3:2 | F2:2 C3:2 F3:2 | G2:2 D3:2 G3:2 | C3:2 E3:2 G3:2 | A2:2 E3:2 A3:2 | D3:2 A3:2 G2:2 | C3:2 G3:2 C3:2"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.162,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2 | K:2 H:2 H:2"
         }
       ]
     },
     {
       "id": "meadow",
       "title": "Sunny Meadow",
-      "tempo": 132,
+      "tempo": 120,
+      "reverb": 0.25,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.15,
-          "notes": "D5:1 G5:1 B5:2 A5:1 G5:1 D5:2 | F#5:1 A5:1 D6:2 C6:1 A5:1 F#5:2 | G5:1 B5:1 E6:2 D6:1 B5:1 G5:2 | E5:2 G5:2 C6:3 -:1 | D5:1 G5:1 B5:2 D6:1 B5:1 G5:2 | A5:1 F#5:1 A5:2 D6:2 C6:2 | B5:1 C6:1 B5:1 G5:1 A5:2 F#5:2 | G5:4 -:2 D5:2"
+          "instrument": "flute",
+          "volume": 0.431,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "D5:1 G5:1 B5:2 A5:1 G5:1 D5:2 | F#5:1 A5:1 D6:2 C6:1 A5:1 F#5:2 | G5:1 B5:1 E6:2 D6:1 B5:1 G5:2 | E5:2 G5:2 C6:3 -:1 | D5:1 G5:1 B5:2 D6:1 B5:1 G5:2 | A5:1 F#5:1 A5:2 D6:2 C6:2 | B5:1 C6:1 B5:1 G5:1 A5:2 F#5:2 | G5:4 -:2 D5:2 | -:64"
         },
         {
-          "wave": "triangle",
-          "volume": 0.34,
-          "notes": "G2:2 D3:2 G2:2 D3:2 | D3:2 A2:2 D3:2 A2:2 | E2:2 B2:2 E2:2 B2:2 | C3:2 G2:2 C3:2 G2:2 | G2:2 D3:2 G2:2 D3:2 | D3:2 A2:2 D3:2 A2:2 | C3:2 G2:2 D3:2 A2:2 | G2:2 D3:2 G2:4"
+          "instrument": "ocarina",
+          "volume": 0.394,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:64 | D5:1 G5:1 B5:2 A5:1 G5:1 D5:2 | F#5:1 A5:1 D6:2 C6:1 A5:1 F#5:2 | G5:1 B5:1 E6:2 D6:1 B5:1 G5:2 | E5:2 G5:2 C6:3 -:1 | D5:1 G5:1 B5:2 D6:1 B5:1 G5:2 | A5:1 F#5:1 A5:2 D6:2 C6:2 | B5:1 C6:1 B5:1 G5:1 A5:2 F#5:2 | G5:4 -:2 D5:2"
         },
         {
-          "wave": "noise",
-          "volume": 0.05,
-          "notes": "N:1 -:1 N:1 -:1 N:1 -:1 N:1 -:1"
+          "instrument": "bass",
+          "volume": 0.199,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "G2:2 D3:2 G2:2 D3:2 | D3:2 A2:2 D3:2 A2:2 | E2:2 B2:2 E2:2 B2:2 | C3:2 G2:2 C3:2 G2:2 | G2:2 D3:2 G2:2 D3:2 | D3:2 A2:2 D3:2 A2:2 | C3:2 G2:2 D3:2 A2:2 | G2:2 D3:2 G2:4 | G2:2 D3:2 G2:2 D3:2 | D3:2 A2:2 D3:2 A2:2 | E2:2 B2:2 E2:2 B2:2 | C3:2 G2:2 C3:2 G2:2 | G2:2 D3:2 G2:2 D3:2 | D3:2 A2:2 D3:2 A2:2 | C3:2 G2:2 D3:2 A2:2 | G2:2 D3:2 G2:4"
+        },
+        {
+          "instrument": "harp",
+          "volume": 0.095,
+          "pan": 0.35,
+          "reverb": 1.0,
+          "notes": "G4:1 B4:1 D5:1 B4:1 G5:1 D5:1 B4:1 D5:1 | D4:1 F#4:1 A4:1 F#4:1 D5:1 A4:1 F#4:1 A4:1 | E4:1 G4:1 B4:1 G4:1 E5:1 B4:1 G4:1 B4:1 | C4:1 E4:1 G4:1 E4:1 C5:1 G4:1 E4:1 G4:1 | G4:1 B4:1 D5:1 B4:1 G5:1 D5:1 B4:1 D5:1 | D4:1 F#4:1 A4:1 F#4:1 D5:1 A4:1 F#4:1 A4:1 | C4:1 E4:1 G4:1 E4:1 C5:1 G4:1 E4:1 G4:1 | G4:1 B4:1 D5:1 B4:1 G5:1 D5:1 B4:1 D5:1 | G4:1 B4:1 D5:1 B4:1 G5:1 D5:1 B4:1 D5:1 | D4:1 F#4:1 A4:1 F#4:1 D5:1 A4:1 F#4:1 A4:1 | E4:1 G4:1 B4:1 G4:1 E5:1 B4:1 G4:1 B4:1 | C4:1 E4:1 G4:1 E4:1 C5:1 G4:1 E4:1 G4:1 | G4:1 B4:1 D5:1 B4:1 G5:1 D5:1 B4:1 D5:1 | D4:1 F#4:1 A4:1 F#4:1 D5:1 A4:1 F#4:1 A4:1 | C4:1 E4:1 G4:1 E4:1 C5:1 G4:1 E4:1 G4:1 | G4:1 B4:1 D5:1 B4:1 G5:1 D5:1 B4:1 D5:1"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.163,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1"
         }
       ]
     },
@@ -52,22 +108,42 @@
       "id": "shore",
       "title": "Pineapple Shore",
       "tempo": 112,
+      "reverb": 0.22,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.12,
-          "notes": "A5:3 C6:1 A5:2 F5:2 | D5:2 F5:2 A5:3 G5:1 | F5:2 D5:2 Bb4:2 D5:2 | C5:3 E5:1 G5:4 | A5:3 C6:1 D6:2 C6:2 | A5:2 F5:2 D6:3 C6:1 | Bb5:2 A5:2 G5:2 E5:2 | F5:6 -:2"
+          "instrument": "marimba",
+          "volume": 0.654,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "A5:3 C6:1 A5:2 F5:2 | D5:2 F5:2 A5:3 G5:1 | F5:2 D5:2 Bb4:2 D5:2 | C5:3 E5:1 G5:4 | A5:3 C6:1 D6:2 C6:2 | A5:2 F5:2 D6:3 C6:1 | Bb5:2 A5:2 G5:2 E5:2 | F5:6 -:2 | -:64"
         },
         {
-          "wave": "triangle",
-          "volume": 0.34,
-          "notes": "F2:3 F2:1 C3:2 F2:2 | D2:3 D2:1 A2:2 D2:2 | Bb2:3 Bb2:1 F2:2 Bb2:2 | C3:3 C3:1 G2:2 C3:2 | F2:3 F2:1 C3:2 F2:2 | D2:3 D2:1 A2:2 D2:2 | Bb2:2 F2:2 C3:2 G2:2 | F2:4 C3:2 F2:2"
+          "instrument": "flute",
+          "volume": 0.422,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:64 | A5:3 C6:1 A5:2 F5:2 | D5:2 F5:2 A5:3 G5:1 | F5:2 D5:2 Bb4:2 D5:2 | C5:3 E5:1 G5:4 | A5:3 C6:1 D6:2 C6:2 | A5:2 F5:2 D6:3 C6:1 | Bb5:2 A5:2 G5:2 E5:2 | F5:6 -:2"
         },
         {
-          "wave": "noise",
-          "volume": 0.04,
-          "notes": "-:1 N:1 -:1 N:1 -:1 N:1 -:1 N:1"
+          "instrument": "bass",
+          "volume": 0.202,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "F2:3 F2:1 C3:2 F2:2 | D2:3 D2:1 A2:2 D2:2 | Bb2:3 Bb2:1 F2:2 Bb2:2 | C3:3 C3:1 G2:2 C3:2 | F2:3 F2:1 C3:2 F2:2 | D2:3 D2:1 A2:2 D2:2 | Bb2:2 F2:2 C3:2 G2:2 | F2:4 C3:2 F2:2 | F2:3 F2:1 C3:2 F2:2 | D2:3 D2:1 A2:2 D2:2 | Bb2:3 Bb2:1 F2:2 Bb2:2 | C3:3 C3:1 G2:2 C3:2 | F2:3 F2:1 C3:2 F2:2 | D2:3 D2:1 A2:2 D2:2 | Bb2:2 F2:2 C3:2 G2:2 | F2:4 C3:2 F2:2"
+        },
+        {
+          "instrument": "pizzicato",
+          "volume": 0.151,
+          "pan": 0.35,
+          "reverb": 1.0,
+          "notes": "F4:1 A4:1 C5:1 A4:1 F5:1 C5:1 A4:1 C5:1 | D4:1 F4:1 A4:1 F4:1 D5:1 A4:1 F4:1 A4:1 | Bb3:1 D4:1 F4:1 D4:1 Bb4:1 F4:1 D4:1 F4:1 | C4:1 E4:1 G4:1 E4:1 C5:1 G4:1 E4:1 G4:1 | F4:1 A4:1 C5:1 A4:1 F5:1 C5:1 A4:1 C5:1 | D4:1 F4:1 A4:1 F4:1 D5:1 A4:1 F4:1 A4:1 | Bb3:1 D4:1 F4:1 D4:1 Bb4:1 F4:1 D4:1 F4:1 | F4:1 A4:1 C5:1 A4:1 F5:1 C5:1 A4:1 C5:1 | F4:1 A4:1 C5:1 A4:1 F5:1 C5:1 A4:1 C5:1 | D4:1 F4:1 A4:1 F4:1 D5:1 A4:1 F4:1 A4:1 | Bb3:1 D4:1 F4:1 D4:1 Bb4:1 F4:1 D4:1 F4:1 | C4:1 E4:1 G4:1 E4:1 C5:1 G4:1 E4:1 G4:1 | F4:1 A4:1 C5:1 A4:1 F5:1 C5:1 A4:1 C5:1 | D4:1 F4:1 A4:1 F4:1 D5:1 A4:1 F4:1 A4:1 | Bb3:1 D4:1 F4:1 D4:1 Bb4:1 F4:1 D4:1 F4:1 | F4:1 A4:1 C5:1 A4:1 F5:1 C5:1 A4:1 C5:1"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.169,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1"
         }
       ]
     },
@@ -75,23 +151,42 @@
       "id": "woods",
       "title": "Twilight Woods",
       "tempo": 88,
+      "reverb": 0.38,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.125,
-          "volume": 0.13,
-          "notes": "A4:2 C5:2 E5:4 | F5:2 E5:2 C5:4 | D5:2 E5:2 G5:3 F5:1 | E5:6 -:2 | A5:2 G5:2 E5:4 | F5:2 A5:2 C6:4 | D6:2 C6:2 B5:2 G#5:2 | A5:6 -:2"
+          "instrument": "flute",
+          "volume": 0.425,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "A4:2 C5:2 E5:4 | F5:2 E5:2 C5:4 | D5:2 E5:2 G5:3 F5:1 | E5:6 -:2 | A5:2 G5:2 E5:4 | F5:2 A5:2 C6:4 | D6:2 C6:2 B5:2 G#5:2 | A5:6 -:2 | -:64"
         },
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.05,
-          "notes": "A3:1 C4:1 E4:1 A4:1 E4:1 C4:1 A3:1 C4:1 | F3:1 A3:1 C4:1 F4:1 C4:1 A3:1 F3:1 A3:1 | G3:1 B3:1 D4:1 G4:1 D4:1 B3:1 G3:1 B3:1 | E3:1 G3:1 B3:1 E4:1 B3:1 G3:1 E3:1 G3:1 | A3:1 C4:1 E4:1 A4:1 E4:1 C4:1 A3:1 C4:1 | F3:1 A3:1 C4:1 F4:1 C4:1 A3:1 F3:1 A3:1 | D3:1 F3:1 A3:1 D4:1 E3:1 G#3:1 B3:1 E4:1 | A3:1 C4:1 E4:1 A4:1 E4:1 C4:1 A3:2"
+          "instrument": "musicbox",
+          "volume": 0.661,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:64 | A4:2 C5:2 E5:4 | F5:2 E5:2 C5:4 | D5:2 E5:2 G5:3 F5:1 | E5:6 -:2 | A5:2 G5:2 E5:4 | F5:2 A5:2 C6:4 | D6:2 C6:2 B5:2 G#5:2 | A5:6 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.34,
-          "notes": "A2:4 E2:4 | F2:4 C3:4 | G2:4 D3:4 | E2:4 B2:4 | A2:4 E2:4 | F2:4 C3:4 | D2:4 E2:4 | A2:8"
+          "instrument": "harp",
+          "volume": 0.135,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "A3:1 C4:1 E4:1 A4:1 E4:1 C4:1 A3:1 C4:1 | F3:1 A3:1 C4:1 F4:1 C4:1 A3:1 F3:1 A3:1 | G3:1 B3:1 D4:1 G4:1 D4:1 B3:1 G3:1 B3:1 | E3:1 G3:1 B3:1 E4:1 B3:1 G3:1 E3:1 G3:1 | A3:1 C4:1 E4:1 A4:1 E4:1 C4:1 A3:1 C4:1 | F3:1 A3:1 C4:1 F4:1 C4:1 A3:1 F3:1 A3:1 | D3:1 F3:1 A3:1 D4:1 E3:1 G#3:1 B3:1 E4:1 | A3:1 C4:1 E4:1 A4:1 E4:1 C4:1 A3:2 | A3:1 C4:1 E4:1 A4:1 E4:1 C4:1 A3:1 C4:1 | F3:1 A3:1 C4:1 F4:1 C4:1 A3:1 F3:1 A3:1 | G3:1 B3:1 D4:1 G4:1 D4:1 B3:1 G3:1 B3:1 | E3:1 G3:1 B3:1 E4:1 B3:1 G3:1 E3:1 G3:1 | A3:1 C4:1 E4:1 A4:1 E4:1 C4:1 A3:1 C4:1 | F3:1 A3:1 C4:1 F4:1 C4:1 A3:1 F3:1 A3:1 | D3:1 F3:1 A3:1 D4:1 E3:1 G#3:1 B3:1 E4:1 | A3:1 C4:1 E4:1 A4:1 E4:1 C4:1 A3:2"
+        },
+        {
+          "instrument": "strings",
+          "volume": 0.488,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "A2:4 E2:4 | F2:4 C3:4 | G2:4 D3:4 | E2:4 B2:4 | A2:4 E2:4 | F2:4 C3:4 | D2:4 E2:4 | A2:8 | A2:4 E2:4 | F2:4 C3:4 | G2:4 D3:4 | E2:4 B2:4 | A2:4 E2:4 | F2:4 C3:4 | D2:4 E2:4 | A2:8"
+        },
+        {
+          "instrument": "pad",
+          "volume": 0.154,
+          "pan": 0.35,
+          "reverb": 1.0,
+          "notes": "A3+C4+E4:8 | F4+A4+C5:8 | G4+B4+D5:8 | E4+G4+B4:8 | A3+C4+E4:8 | F4+A4+C5:8 | D4+F4+A4:8 | A3+C4+E4:8 | A3+C4+E4:8 | F4+A4+C5:8 | G4+B4+D5:8 | E4+G4+B4:8 | A3+C4+E4:8 | F4+A4+C5:8 | D4+F4+A4:8 | A3+C4+E4:8"
         }
       ]
     },
@@ -99,22 +194,42 @@
       "id": "battle",
       "title": "Battle!",
       "tempo": 150,
+      "reverb": 0.16,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.15,
-          "notes": "D5:1 D5:1 F5:1 A5:1 D6:2 C6:1 A5:1 | Bb5:2 A5:1 F5:1 D5:2 F5:2 | E5:1 G5:1 C6:2 Bb5:1 A5:1 G5:2 | A5:2 C#6:2 E6:3 -:1 | D6:1 C6:1 A5:1 F5:1 D5:2 F5:1 A5:1 | Bb5:1 D6:1 F6:2 E6:1 D6:1 Bb5:2 | G5:1 Bb5:1 D6:2 C#6:1 A5:1 E5:2 | D5:4 A4:2 D5:2"
+          "instrument": "strings",
+          "volume": 0.888,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "D5:1 D5:1 F5:1 A5:1 D6:2 C6:1 A5:1 | Bb5:2 A5:1 F5:1 D5:2 F5:2 | E5:1 G5:1 C6:2 Bb5:1 A5:1 G5:2 | A5:2 C#6:2 E6:3 -:1 | D6:1 C6:1 A5:1 F5:1 D5:2 F5:1 A5:1 | Bb5:1 D6:1 F6:2 E6:1 D6:1 Bb5:2 | G5:1 Bb5:1 D6:2 C#6:1 A5:1 E5:2 | D5:4 A4:2 D5:2 | -:64"
         },
         {
-          "wave": "triangle",
-          "volume": 0.36,
-          "notes": "D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 | Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 | C2:1 C3:1 C2:1 C3:1 C2:1 C3:1 C2:1 C3:1 | A1:1 A2:1 A1:1 A2:1 A1:1 A2:1 A1:1 A2:1 | D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 | Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 | G1:1 G2:1 G1:1 G2:1 A1:1 A2:1 A1:1 A2:1 | D2:1 D3:1 D2:1 D3:1 D2:4"
+          "instrument": "horn",
+          "volume": 0.7,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:64 | D4:1 D4:1 F4:1 A4:1 D5:2 C5:1 A4:1 | Bb4:2 A4:1 F4:1 D4:2 F4:2 | E4:1 G4:1 C5:2 Bb4:1 A4:1 G4:2 | A4:2 C#5:2 E5:3 -:1 | D5:1 C5:1 A4:1 F4:1 D4:2 F4:1 A4:1 | Bb4:1 D5:1 F5:2 E5:1 D5:1 Bb4:2 | G4:1 Bb4:1 D5:2 C#5:1 A4:1 E4:2 | D4:4 A3:2 D4:2"
         },
         {
-          "wave": "noise",
-          "volume": 0.06,
-          "notes": "N:1 -:1 N:1 N:1 N:1 -:1 N:1 N:1"
+          "instrument": "bass",
+          "volume": 0.183,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 | Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 | C2:1 C3:1 C2:1 C3:1 C2:1 C3:1 C2:1 C3:1 | A1:1 A2:1 A1:1 A2:1 A1:1 A2:1 A1:1 A2:1 | D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 | Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 | G1:1 G2:1 G1:1 G2:1 A1:1 A2:1 A1:1 A2:1 | D2:1 D3:1 D2:1 D3:1 D2:4 | D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 | Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 | C2:1 C3:1 C2:1 C3:1 C2:1 C3:1 C2:1 C3:1 | A1:1 A2:1 A1:1 A2:1 A1:1 A2:1 A1:1 A2:1 | D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 D2:1 D3:1 | Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 Bb1:1 Bb2:1 | G1:1 G2:1 G1:1 G2:1 A1:1 A2:1 A1:1 A2:1 | D2:1 D3:1 D2:1 D3:1 D2:4"
+        },
+        {
+          "instrument": "pizzicato",
+          "volume": 0.13,
+          "pan": 0.35,
+          "reverb": 1.0,
+          "notes": "D4:1 F4:1 A4:1 F4:1 D5:1 A4:1 F4:1 A4:1 | Bb3:1 D4:1 F4:1 D4:1 Bb4:1 F4:1 D4:1 F4:1 | C4:1 E4:1 G4:1 E4:1 C5:1 G4:1 E4:1 G4:1 | A3:1 C4:1 E4:1 C4:1 A4:1 E4:1 C4:1 E4:1 | D4:1 F4:1 A4:1 F4:1 D5:1 A4:1 F4:1 A4:1 | Bb3:1 D4:1 F4:1 D4:1 Bb4:1 F4:1 D4:1 F4:1 | G4:1 Bb4:1 D5:1 Bb4:1 G5:1 D5:1 Bb4:1 D5:1 | D4:1 F4:1 A4:1 F4:1 D5:1 A4:1 F4:1 A4:1 | D4:1 F4:1 A4:1 F4:1 D5:1 A4:1 F4:1 A4:1 | Bb3:1 D4:1 F4:1 D4:1 Bb4:1 F4:1 D4:1 F4:1 | C4:1 E4:1 G4:1 E4:1 C5:1 G4:1 E4:1 G4:1 | A3:1 C4:1 E4:1 C4:1 A4:1 E4:1 C4:1 E4:1 | D4:1 F4:1 A4:1 F4:1 D5:1 A4:1 F4:1 A4:1 | Bb3:1 D4:1 F4:1 D4:1 Bb4:1 F4:1 D4:1 F4:1 | G4:1 Bb4:1 D5:1 Bb4:1 G5:1 D5:1 Bb4:1 D5:1 | D4:1 F4:1 A4:1 F4:1 D5:1 A4:1 F4:1 A4:1"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.097,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1"
         }
       ]
     },
@@ -123,16 +238,20 @@
       "title": "Victory Fanfare",
       "tempo": 140,
       "loops": false,
+      "reverb": 0.3,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.16,
-          "notes": "G5:1 G5:1 G5:1 C6:3 D6:1 E6:1 D6:1 E6:1 G6:6 -:2"
+          "instrument": "horn",
+          "volume": 0.638,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "G4:1 G4:1 G4:1 C5:3 D5:1 E5:1 D5:1 E5:1 G5:6 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.36,
+          "instrument": "strings",
+          "volume": 0.531,
+          "pan": 0.0,
+          "reverb": 0.25,
           "notes": "C3:1 C3:1 C3:1 E3:3 G2:4 C3:6 -:2"
         }
       ]
@@ -141,28 +260,42 @@
       "id": "cave",
       "title": "Echoing Cavern",
       "tempo": 72,
+      "reverb": 0.45,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.1,
-          "notes": "D5:4 -:2 F5:2 | E5:4 -:2 C5:2 | D5:3 A4:1 -:4 | -:8 | F5:4 -:2 G5:2 | A5:4 -:2 E5:2 | D5:6 -:2 | -:8"
+          "instrument": "musicbox",
+          "volume": 1.02,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "D5:4 -:2 F5:2 | E5:4 -:2 C5:2 | D5:3 A4:1 -:4 | -:8 | F5:4 -:2 G5:2 | A5:4 -:2 E5:2 | D5:6 -:2 | -:8 | -:64"
         },
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.04,
-          "notes": "D4:1 A4:1 D5:1 A4:1 D4:1 A4:1 D5:1 A4:1 | D4:1 A4:1 D5:1 A4:1 D4:1 A4:1 D5:1 A4:1 | C4:1 G4:1 C5:1 G4:1 C4:1 G4:1 C5:1 G4:1 | C4:1 G4:1 C5:1 G4:1 C4:1 G4:1 C5:1 G4:1 | F3:1 C4:1 F4:1 C4:1 F3:1 C4:1 F4:1 C4:1 | F3:1 C4:1 F4:1 C4:1 F3:1 C4:1 F4:1 C4:1 | D4:1 A4:1 D5:1 A4:1 D4:1 A4:1 D5:1 A4:1 | D4:1 A4:1 D5:1 A4:1 D4:2 -:2"
+          "instrument": "bell",
+          "volume": 1.052,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:64 | D5:4 -:2 F5:2 | E5:4 -:2 C5:2 | D5:3 A4:1 -:4 | -:8 | F5:4 -:2 G5:2 | A5:4 -:2 E5:2 | D5:6 -:2 | -:8"
         },
         {
-          "wave": "triangle",
-          "volume": 0.32,
-          "notes": "D2:8 | D2:8 | C2:8 | C2:8 | F2:8 | F2:8 | D2:8 | D2:8"
+          "instrument": "harp",
+          "volume": 0.14,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "D4:1 A4:1 D5:1 A4:1 D4:1 A4:1 D5:1 A4:1 | D4:1 A4:1 D5:1 A4:1 D4:1 A4:1 D5:1 A4:1 | C4:1 G4:1 C5:1 G4:1 C4:1 G4:1 C5:1 G4:1 | C4:1 G4:1 C5:1 G4:1 C4:1 G4:1 C5:1 G4:1 | F3:1 C4:1 F4:1 C4:1 F3:1 C4:1 F4:1 C4:1 | F3:1 C4:1 F4:1 C4:1 F3:1 C4:1 F4:1 C4:1 | D4:1 A4:1 D5:1 A4:1 D4:1 A4:1 D5:1 A4:1 | D4:1 A4:1 D5:1 A4:1 D4:2 -:2 | D4:1 A4:1 D5:1 A4:1 D4:1 A4:1 D5:1 A4:1 | D4:1 A4:1 D5:1 A4:1 D4:1 A4:1 D5:1 A4:1 | C4:1 G4:1 C5:1 G4:1 C4:1 G4:1 C5:1 G4:1 | C4:1 G4:1 C5:1 G4:1 C4:1 G4:1 C5:1 G4:1 | F3:1 C4:1 F4:1 C4:1 F3:1 C4:1 F4:1 C4:1 | F3:1 C4:1 F4:1 C4:1 F3:1 C4:1 F4:1 C4:1 | D4:1 A4:1 D5:1 A4:1 D4:1 A4:1 D5:1 A4:1 | D4:1 A4:1 D5:1 A4:1 D4:2 -:2"
         },
         {
-          "wave": "noise",
-          "volume": 0.05,
-          "notes": "-:6 N:1 -:1 | -:8 | -:3 N:1 -:4 | -:8 | -:6 N:1 -:1 | -:8 | -:3 N:1 -:4 | -:8"
+          "instrument": "pad",
+          "volume": 0.468,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "D2:8 | D2:8 | C2:8 | C2:8 | F2:8 | F2:8 | D2:8 | D2:8 | D2:8 | D2:8 | C2:8 | C2:8 | F2:8 | F2:8 | D2:8 | D2:8"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.5,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "-:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2"
         }
       ]
     },
@@ -170,28 +303,42 @@
       "id": "desert",
       "title": "Genie Sands",
       "tempo": 96,
+      "reverb": 0.28,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.11,
-          "notes": "E5:2 F5:2 G#5:2 A5:2 | B5:3 A5:1 G#5:2 F5:2 | E5:2 F5:1 E5:1 D5:2 C5:2 | B4:6 -:2 | E5:2 G#5:2 B5:2 C6:2 | B5:2 A5:2 G#5:2 F5:2 | G#5:2 F5:2 E5:2 D5:2 | E5:6 -:2"
+          "instrument": "reed",
+          "volume": 0.62,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "E5:2 F5:2 G#5:2 A5:2 | B5:3 A5:1 G#5:2 F5:2 | E5:2 F5:1 E5:1 D5:2 C5:2 | B4:6 -:2 | E5:2 G#5:2 B5:2 C6:2 | B5:2 A5:2 G#5:2 F5:2 | G#5:2 F5:2 E5:2 D5:2 | E5:6 -:2 | -:64"
         },
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.04,
-          "notes": "E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | F4:1 A4:1 C5:1 A4:1 F4:1 A4:1 C5:1 A4:1 | F4:1 A4:1 C5:1 A4:1 F4:1 A4:1 C5:1 A4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | D4:1 F4:1 A4:1 F4:1 D4:1 F4:1 A4:1 F4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:2 -:2"
+          "instrument": "flute",
+          "volume": 0.428,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:64 | E5:2 F5:2 G#5:2 A5:2 | B5:3 A5:1 G#5:2 F5:2 | E5:2 F5:1 E5:1 D5:2 C5:2 | B4:6 -:2 | E5:2 G#5:2 B5:2 C6:2 | B5:2 A5:2 G#5:2 F5:2 | G#5:2 F5:2 E5:2 D5:2 | E5:6 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.32,
-          "notes": "E2:4 B2:4 | E2:4 B2:4 | F2:4 C3:4 | F2:4 C3:4 | E2:4 B2:4 | E2:4 B2:4 | D2:4 A2:4 | E2:8"
+          "instrument": "harp",
+          "volume": 0.134,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | F4:1 A4:1 C5:1 A4:1 F4:1 A4:1 C5:1 A4:1 | F4:1 A4:1 C5:1 A4:1 F4:1 A4:1 C5:1 A4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | D4:1 F4:1 A4:1 F4:1 D4:1 F4:1 A4:1 F4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:2 -:2 | E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | F4:1 A4:1 C5:1 A4:1 F4:1 A4:1 C5:1 A4:1 | F4:1 A4:1 C5:1 A4:1 F4:1 A4:1 C5:1 A4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:1 G#4:1 B4:1 G#4:1 | D4:1 F4:1 A4:1 F4:1 D4:1 F4:1 A4:1 F4:1 | E4:1 G#4:1 B4:1 G#4:1 E4:2 -:2"
         },
         {
-          "wave": "noise",
-          "volume": 0.06,
-          "notes": "N:1 -:3 N:1 -:1 N:1 -:1 | N:1 -:3 N:1 -:1 N:1 -:1 | N:1 -:3 N:1 -:1 N:1 -:1 | N:1 -:3 N:1 -:1 N:1 -:1 | N:1 -:3 N:1 -:1 N:1 -:1 | N:1 -:3 N:1 -:1 N:1 -:1 | N:1 -:3 N:1 -:1 N:1 -:1 | N:1 -:3 N:1 -:1 N:1 -:1"
+          "instrument": "bass",
+          "volume": 0.242,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "E2:4 B2:4 | E2:4 B2:4 | F2:4 C3:4 | F2:4 C3:4 | E2:4 B2:4 | E2:4 B2:4 | D2:4 A2:4 | E2:8 | E2:4 B2:4 | E2:4 B2:4 | F2:4 C3:4 | F2:4 C3:4 | E2:4 B2:4 | E2:4 B2:4 | D2:4 A2:4 | E2:8"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.107,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1 | K:1 T:1 S:1 T:1 K:1 K:1 S:1 T:1"
         }
       ]
     },
@@ -199,52 +346,92 @@
       "id": "snow",
       "title": "Snow White",
       "tempo": 80,
+      "reverb": 0.38,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.125,
-          "volume": 0.1,
-          "notes": "A5:2 C6:2 A5:2 F5:2 | G5:4 E5:4 | F5:2 A5:2 C6:2 D6:2 | C6:6 -:2 | A#5:2 A5:2 G5:2 F5:2 | E5:2 G5:2 C6:4 | A5:2 G5:2 F5:2 E5:2 | F5:6 -:2"
+          "instrument": "musicbox",
+          "volume": 0.673,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "A5:2 C6:2 A5:2 F5:2 | G5:4 E5:4 | F5:2 A5:2 C6:2 D6:2 | C6:6 -:2 | A#5:2 A5:2 G5:2 F5:2 | E5:2 G5:2 C6:4 | A5:2 G5:2 F5:2 E5:2 | F5:6 -:2 | -:64"
         },
         {
-          "wave": "square",
-          "duty": 0.125,
-          "volume": 0.035,
-          "notes": "F6:1 -:1 C6:1 -:1 A5:1 -:1 C6:1 -:1 | E6:1 -:1 C6:1 -:1 G5:1 -:1 C6:1 -:1 | F6:1 -:1 C6:1 -:1 A5:1 -:1 C6:1 -:1 | E6:1 -:1 C6:1 -:1 G5:1 -:1 C6:1 -:1 | D6:1 -:1 A#5:1 -:1 F5:1 -:1 A#5:1 -:1 | E6:1 -:1 C6:1 -:1 G5:1 -:1 C6:1 -:1 | F6:1 -:1 C6:1 -:1 A5:1 -:1 C6:1 -:1 | F6:1 -:1 C6:1 -:1 A5:2 -:2"
+          "instrument": "flute",
+          "volume": 0.425,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:64 | A5:2 C6:2 A5:2 F5:2 | G5:4 E5:4 | F5:2 A5:2 C6:2 D6:2 | C6:6 -:2 | A#5:2 A5:2 G5:2 F5:2 | E5:2 G5:2 C6:4 | A5:2 G5:2 F5:2 E5:2 | F5:6 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.3,
-          "notes": "F2:8 | C2:8 | F2:8 | C2:8 | A#1:8 | C2:8 | F2:4 C2:4 | F2:8"
+          "instrument": "bell",
+          "volume": 0.243,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "F6:1 -:1 C6:1 -:1 A5:1 -:1 C6:1 -:1 | E6:1 -:1 C6:1 -:1 G5:1 -:1 C6:1 -:1 | F6:1 -:1 C6:1 -:1 A5:1 -:1 C6:1 -:1 | E6:1 -:1 C6:1 -:1 G5:1 -:1 C6:1 -:1 | D6:1 -:1 A#5:1 -:1 F5:1 -:1 A#5:1 -:1 | E6:1 -:1 C6:1 -:1 G5:1 -:1 C6:1 -:1 | F6:1 -:1 C6:1 -:1 A5:1 -:1 C6:1 -:1 | F6:1 -:1 C6:1 -:1 A5:2 -:2 | F6:1 -:1 C6:1 -:1 A5:1 -:1 C6:1 -:1 | E6:1 -:1 C6:1 -:1 G5:1 -:1 C6:1 -:1 | F6:1 -:1 C6:1 -:1 A5:1 -:1 C6:1 -:1 | E6:1 -:1 C6:1 -:1 G5:1 -:1 C6:1 -:1 | D6:1 -:1 A#5:1 -:1 F5:1 -:1 A#5:1 -:1 | E6:1 -:1 C6:1 -:1 G5:1 -:1 C6:1 -:1 | F6:1 -:1 C6:1 -:1 A5:1 -:1 C6:1 -:1 | F6:1 -:1 C6:1 -:1 A5:2 -:2"
+        },
+        {
+          "instrument": "strings",
+          "volume": 0.467,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "F2:8 | C2:8 | F2:8 | C2:8 | A#1:8 | C2:8 | F2:4 C2:4 | F2:8 | F2:8 | C2:8 | F2:8 | C2:8 | A#1:8 | C2:8 | F2:4 C2:4 | F2:8"
+        },
+        {
+          "instrument": "pad",
+          "volume": 0.154,
+          "pan": 0.35,
+          "reverb": 1.0,
+          "notes": "F4+A4+C5:8 | C4+E4+G4:8 | F4+A4+C5:8 | C4+E4+G4:8 | Bb3+D4+F4:8 | C4+E4+G4:8 | F4+A4+C5:8 | F4+A4+C5:8 | F4+A4+C5:8 | C4+E4+G4:8 | F4+A4+C5:8 | C4+E4+G4:8 | Bb3+D4+F4:8 | C4+E4+G4:8 | F4+A4+C5:8 | F4+A4+C5:8"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.294,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2 | T:2 T:2 T:2 T:2"
         }
       ]
     },
     {
       "id": "forest",
       "title": "Smiling Forest",
-      "tempo": 138,
+      "tempo": 126,
+      "reverb": 0.24,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.12,
-          "notes": "E5:1 A5:1 C#6:1 A5:1 B5:2 A5:2 | F#5:1 A5:1 D6:1 A5:1 F#5:2 D5:2 | E5:1 G#5:1 B5:1 E6:1 D6:1 B5:1 G#5:2 | A5:3 C#6:1 A5:2 -:2 | C#6:1 B5:1 A5:1 F#5:1 A5:2 C#6:2 | D6:2 C#6:1 B5:1 A5:2 F#5:2 | B5:1 C#6:1 D6:1 B5:1 F#5:2 A5:2 | G#5:2 B5:2 E6:3 -:1 | E5:1 A5:1 C#6:1 A5:1 B5:2 A5:2 | F#5:1 A5:1 D6:1 E6:1 F#6:2 D6:2 | E6:1 D6:1 B5:1 G#5:1 E5:2 G#5:2 | C#6:2 B5:1 G#5:1 E5:2 -:2 | F#5:1 A5:1 D6:1 F#6:1 E6:2 D6:2 | C#6:1 D6:1 E6:1 D6:1 C#6:2 B5:2 | A5:1 C#6:1 E6:2 D6:1 C#6:1 B5:2 | A5:4 E5:2 -:2"
+          "instrument": "flute",
+          "volume": 0.434,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "E5:1 A5:1 C#6:1 A5:1 B5:2 A5:2 | F#5:1 A5:1 D6:1 A5:1 F#5:2 D5:2 | E5:1 G#5:1 B5:1 E6:1 D6:1 B5:1 G#5:2 | A5:3 C#6:1 A5:2 -:2 | C#6:1 B5:1 A5:1 F#5:1 A5:2 C#6:2 | D6:2 C#6:1 B5:1 A5:2 F#5:2 | B5:1 C#6:1 D6:1 B5:1 F#5:2 A5:2 | G#5:2 B5:2 E6:3 -:1 | E5:1 A5:1 C#6:1 A5:1 B5:2 A5:2 | F#5:1 A5:1 D6:1 E6:1 F#6:2 D6:2 | E6:1 D6:1 B5:1 G#5:1 E5:2 G#5:2 | C#6:2 B5:1 G#5:1 E5:2 -:2 | F#5:1 A5:1 D6:1 F#6:1 E6:2 D6:2 | C#6:1 D6:1 E6:1 D6:1 C#6:2 B5:2 | A5:1 C#6:1 E6:2 D6:1 C#6:1 B5:2 | A5:4 E5:2 -:2 | -:128"
         },
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.05,
-          "notes": "-:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1 | -:1 F#4:1 -:1 A4:1 -:1 F#4:1 -:1 A4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1"
+          "instrument": "ocarina",
+          "volume": 0.397,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:128 | E5:1 A5:1 C#6:1 A5:1 B5:2 A5:2 | F#5:1 A5:1 D6:1 A5:1 F#5:2 D5:2 | E5:1 G#5:1 B5:1 E6:1 D6:1 B5:1 G#5:2 | A5:3 C#6:1 A5:2 -:2 | C#6:1 B5:1 A5:1 F#5:1 A5:2 C#6:2 | D6:2 C#6:1 B5:1 A5:2 F#5:2 | B5:1 C#6:1 D6:1 B5:1 F#5:2 A5:2 | G#5:2 B5:2 E6:3 -:1 | E5:1 A5:1 C#6:1 A5:1 B5:2 A5:2 | F#5:1 A5:1 D6:1 E6:1 F#6:2 D6:2 | E6:1 D6:1 B5:1 G#5:1 E5:2 G#5:2 | C#6:2 B5:1 G#5:1 E5:2 -:2 | F#5:1 A5:1 D6:1 F#6:1 E6:2 D6:2 | C#6:1 D6:1 E6:1 D6:1 C#6:2 B5:2 | A5:1 C#6:1 E6:2 D6:1 C#6:1 B5:2 | A5:4 E5:2 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.34,
-          "notes": "A2:2 E3:2 A2:1 A2:1 E3:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | A2:2 E3:2 A2:1 A2:1 E3:2 | F#2:2 C#3:2 F#2:1 F#2:1 C#3:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | B2:2 F#2:2 B2:1 B2:1 F#2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | A2:2 E3:2 A2:1 A2:1 E3:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | C#3:2 G#2:2 C#3:1 C#3:1 G#2:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | A2:2 E3:2 A2:4"
+          "instrument": "pizzicato",
+          "volume": 0.228,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "-:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1 | -:1 F#4:1 -:1 A4:1 -:1 F#4:1 -:1 A4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1 | -:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1 | -:1 F#4:1 -:1 A4:1 -:1 F#4:1 -:1 A4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 D4:1 -:1 F#4:1 -:1 D4:1 -:1 F#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 E4:1 -:1 G#4:1 -:1 E4:1 -:1 G#4:1 | -:1 C#4:1 -:1 E4:1 -:1 C#4:1 -:1 E4:1"
         },
         {
-          "wave": "noise",
-          "volume": 0.05,
-          "notes": "N:1 -:1 -:1 N:1 N:1 -:1 N:1 -:1"
+          "instrument": "bass",
+          "volume": 0.193,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "A2:2 E3:2 A2:1 A2:1 E3:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | A2:2 E3:2 A2:1 A2:1 E3:2 | F#2:2 C#3:2 F#2:1 F#2:1 C#3:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | B2:2 F#2:2 B2:1 B2:1 F#2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | A2:2 E3:2 A2:1 A2:1 E3:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | C#3:2 G#2:2 C#3:1 C#3:1 G#2:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | A2:2 E3:2 A2:4 | A2:2 E3:2 A2:1 A2:1 E3:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | A2:2 E3:2 A2:1 A2:1 E3:2 | F#2:2 C#3:2 F#2:1 F#2:1 C#3:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | B2:2 F#2:2 B2:1 B2:1 F#2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | A2:2 E3:2 A2:1 A2:1 E3:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | C#3:2 G#2:2 C#3:1 C#3:1 G#2:2 | D3:2 A2:2 D3:1 D3:1 A2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | E2:2 B2:2 E2:1 E2:1 B2:2 | A2:2 E3:2 A2:4"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.161,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1 | K+R:1 R:1 R:1 R:1 S+R:1 R:1 R:1 R:1"
         }
       ]
     },
@@ -252,28 +439,42 @@
       "id": "rainbow",
       "title": "Rainbow City March",
       "tempo": 116,
+      "reverb": 0.22,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.15,
-          "notes": "F5:1 F5:1 Bb5:2 D6:3 Bb5:1 | C6:2 Bb5:1 G5:1 Eb6:4 | D6:1 C6:1 Bb5:1 A5:1 C6:2 F5:2 | Bb5:3 A5:1 Bb5:2 -:2 | G5:1 Bb5:1 D6:2 D6:1 C6:1 Bb5:2 | C6:1 Eb6:1 G6:2 F6:1 Eb6:1 C6:2 | A5:2 C6:2 F6:2 Eb6:2 | D6:2 C6:2 A5:2 -:2 | F5:1 F5:1 Bb5:2 D6:3 Bb5:1 | Eb6:2 D6:1 C6:1 Bb5:2 G5:2 | A5:1 Bb5:1 C6:1 D6:1 F6:2 D6:2 | G6:3 F6:1 D6:2 Bb5:2 | Eb6:1 D6:1 C6:1 Bb5:1 G5:2 Bb5:2 | C6:1 D6:1 Eb6:2 G6:2 Eb6:2 | F6:1 Eb6:1 D6:1 C6:1 A5:2 C6:2 | Bb5:4 F5:2 -:2"
+          "instrument": "horn",
+          "volume": 0.705,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "F4:1 F4:1 Bb4:2 D5:3 Bb4:1 | C5:2 Bb4:1 G4:1 Eb5:4 | D5:1 C5:1 Bb4:1 A4:1 C5:2 F4:2 | Bb4:3 A4:1 Bb4:2 -:2 | G4:1 Bb4:1 D5:2 D5:1 C5:1 Bb4:2 | C5:1 Eb5:1 G5:2 F5:1 Eb5:1 C5:2 | A4:2 C5:2 F5:2 Eb5:2 | D5:2 C5:2 A4:2 -:2 | F4:1 F4:1 Bb4:2 D5:3 Bb4:1 | Eb5:2 D5:1 C5:1 Bb4:2 G4:2 | A4:1 Bb4:1 C5:1 D5:1 F5:2 D5:2 | G5:3 F5:1 D5:2 Bb4:2 | Eb5:1 D5:1 C5:1 Bb4:1 G4:2 Bb4:2 | C5:1 D5:1 Eb5:2 G5:2 Eb5:2 | F5:1 Eb5:1 D5:1 C5:1 A4:2 C5:2 | Bb4:4 F4:2 -:2 | -:128"
         },
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.05,
-          "notes": "D4:4 F4:4 | Eb4:4 G4:4 | F4:4 A4:4 | D4:4 F4:4 | G4:4 Bb4:4 | Eb4:4 G4:4 | F4:4 A4:4 | F4:4 A4:4 | D4:4 F4:4 | Eb4:4 G4:4 | D4:4 F4:4 | G4:4 Bb4:4 | Eb4:4 G4:4 | Eb4:4 G4:4 | F4:4 A4:4 | D4:4 -:4"
+          "instrument": "flute",
+          "volume": 0.43,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:128 | F5:1 F5:1 Bb5:2 D6:3 Bb5:1 | C6:2 Bb5:1 G5:1 Eb6:4 | D6:1 C6:1 Bb5:1 A5:1 C6:2 F5:2 | Bb5:3 A5:1 Bb5:2 -:2 | G5:1 Bb5:1 D6:2 D6:1 C6:1 Bb5:2 | C6:1 Eb6:1 G6:2 F6:1 Eb6:1 C6:2 | A5:2 C6:2 F6:2 Eb6:2 | D6:2 C6:2 A5:2 -:2 | F5:1 F5:1 Bb5:2 D6:3 Bb5:1 | Eb6:2 D6:1 C6:1 Bb5:2 G5:2 | A5:1 Bb5:1 C6:1 D6:1 F6:2 D6:2 | G6:3 F6:1 D6:2 Bb5:2 | Eb6:1 D6:1 C6:1 Bb5:1 G5:2 Bb5:2 | C6:1 D6:1 Eb6:2 G6:2 Eb6:2 | F6:1 Eb6:1 D6:1 C6:1 A5:2 C6:2 | Bb5:4 F5:2 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.34,
-          "notes": "Bb2:2 F2:2 Bb2:2 F2:2 | Eb2:2 Bb2:2 Eb2:2 Bb2:2 | F2:2 C3:2 F2:2 C3:2 | Bb2:2 F2:2 Bb2:2 F2:2 | G2:2 D3:2 G2:2 D3:2 | C3:2 G2:2 C3:2 G2:2 | F2:2 C3:2 F2:2 C3:2 | F2:2 C3:2 F2:2 C3:2 | Bb2:2 F2:2 Bb2:2 F2:2 | Eb2:2 Bb2:2 Eb2:2 Bb2:2 | D3:2 A2:2 D3:2 A2:2 | G2:2 D3:2 G2:2 D3:2 | Eb2:2 Bb2:2 Eb2:2 Bb2:2 | C3:2 G2:2 C3:2 G2:2 | F2:2 C3:2 F2:2 C3:2 | Bb2:2 F2:2 Bb2:4"
+          "instrument": "strings",
+          "volume": 0.31,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "D4:4 F4:4 | Eb4:4 G4:4 | F4:4 A4:4 | D4:4 F4:4 | G4:4 Bb4:4 | Eb4:4 G4:4 | F4:4 A4:4 | F4:4 A4:4 | D4:4 F4:4 | Eb4:4 G4:4 | D4:4 F4:4 | G4:4 Bb4:4 | Eb4:4 G4:4 | Eb4:4 G4:4 | F4:4 A4:4 | D4:4 -:4 | D4:4 F4:4 | Eb4:4 G4:4 | F4:4 A4:4 | D4:4 F4:4 | G4:4 Bb4:4 | Eb4:4 G4:4 | F4:4 A4:4 | F4:4 A4:4 | D4:4 F4:4 | Eb4:4 G4:4 | D4:4 F4:4 | G4:4 Bb4:4 | Eb4:4 G4:4 | Eb4:4 G4:4 | F4:4 A4:4 | D4:4 -:4"
         },
         {
-          "wave": "noise",
-          "volume": 0.05,
-          "notes": "N:1 -:1 N:1 -:1 N:1 N:1 N:1 -:1 | N:1 -:1 N:1 -:1 N:1 -:1 N:1 N:1"
+          "instrument": "bass",
+          "volume": 0.202,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "Bb2:2 F2:2 Bb2:2 F2:2 | Eb2:2 Bb2:2 Eb2:2 Bb2:2 | F2:2 C3:2 F2:2 C3:2 | Bb2:2 F2:2 Bb2:2 F2:2 | G2:2 D3:2 G2:2 D3:2 | C3:2 G2:2 C3:2 G2:2 | F2:2 C3:2 F2:2 C3:2 | F2:2 C3:2 F2:2 C3:2 | Bb2:2 F2:2 Bb2:2 F2:2 | Eb2:2 Bb2:2 Eb2:2 Bb2:2 | D3:2 A2:2 D3:2 A2:2 | G2:2 D3:2 G2:2 D3:2 | Eb2:2 Bb2:2 Eb2:2 Bb2:2 | C3:2 G2:2 C3:2 G2:2 | F2:2 C3:2 F2:2 C3:2 | Bb2:2 F2:2 Bb2:4 | Bb2:2 F2:2 Bb2:2 F2:2 | Eb2:2 Bb2:2 Eb2:2 Bb2:2 | F2:2 C3:2 F2:2 C3:2 | Bb2:2 F2:2 Bb2:2 F2:2 | G2:2 D3:2 G2:2 D3:2 | C3:2 G2:2 C3:2 G2:2 | F2:2 C3:2 F2:2 C3:2 | F2:2 C3:2 F2:2 C3:2 | Bb2:2 F2:2 Bb2:2 F2:2 | Eb2:2 Bb2:2 Eb2:2 Bb2:2 | D3:2 A2:2 D3:2 A2:2 | G2:2 D3:2 G2:2 D3:2 | Eb2:2 Bb2:2 Eb2:2 Bb2:2 | C3:2 G2:2 C3:2 G2:2 | F2:2 C3:2 F2:2 C3:2 | Bb2:2 F2:2 Bb2:4"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.103,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1 | K:1 S:1 S:1 S:1 K:1 S:1 K+S:1 S:1"
         }
       ]
     },
@@ -281,28 +482,42 @@
       "id": "swamp",
       "title": "Froggy Bog Shuffle",
       "tempo": 120,
+      "reverb": 0.22,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.125,
-          "volume": 0.12,
-          "notes": "-:3 G4:2 A4:1 Bb4:2 A4:1 G4:3 | E4:2 G4:1 C5:3 Bb4:2 G4:1 -:3 | A4:2 C5:1 Eb5:3 D5:2 C5:1 A4:3 | G4:2 E4:1 C4:6 -:3 | D5:2 D5:1 D5:2 B4:1 F5:3 D5:3 | C5:2 C5:1 C5:2 A4:1 Eb5:3 C5:3 | G4:2 A4:1 C5:2 E5:1 G5:3 E5:2 C5:1 | D5:3 B4:3 G4:3 -:3 | -:3 G4:2 A4:1 Bb4:2 A4:1 G4:3 | C5:2 C5:1 Eb5:2 E5:1 G5:3 E5:3 | F5:2 Eb5:1 C5:3 A4:2 C5:1 -:3 | G4:2 E4:1 G4:2 Bb4:1 A4:3 G4:3 | B4:2 D5:1 G5:3 F5:2 D5:1 B4:3 | A4:2 C5:1 F5:3 Eb5:2 C5:1 A4:3 | G4:2 E4:1 C4:2 C4:1 -:3 G3:2 G3:1 | C4:3 -:3 C5:1 -:2 C4:1 -:2"
+          "instrument": "reed",
+          "volume": 0.653,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "-:3 G4:2 A4:1 Bb4:2 A4:1 G4:3 | E4:2 G4:1 C5:3 Bb4:2 G4:1 -:3 | A4:2 C5:1 Eb5:3 D5:2 C5:1 A4:3 | G4:2 E4:1 C4:6 -:3 | D5:2 D5:1 D5:2 B4:1 F5:3 D5:3 | C5:2 C5:1 C5:2 A4:1 Eb5:3 C5:3 | G4:2 A4:1 C5:2 E5:1 G5:3 E5:2 C5:1 | D5:3 B4:3 G4:3 -:3 | -:3 G4:2 A4:1 Bb4:2 A4:1 G4:3 | C5:2 C5:1 Eb5:2 E5:1 G5:3 E5:3 | F5:2 Eb5:1 C5:3 A4:2 C5:1 -:3 | G4:2 E4:1 G4:2 Bb4:1 A4:3 G4:3 | B4:2 D5:1 G5:3 F5:2 D5:1 B4:3 | A4:2 C5:1 F5:3 Eb5:2 C5:1 A4:3 | G4:2 E4:1 C4:2 C4:1 -:3 G3:2 G3:1 | C4:3 -:3 C5:1 -:2 C4:1 -:2 | -:192"
         },
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.04,
-          "notes": "-:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 B4:2 -:1 -:3 F4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 B4:2 -:1 -:3 F4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 B4:2 -:1 -:3 F4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1"
+          "instrument": "accordion",
+          "volume": 0.818,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:192 | -:3 G4:2 A4:1 Bb4:2 A4:1 G4:3 | E4:2 G4:1 C5:3 Bb4:2 G4:1 -:3 | A4:2 C5:1 Eb5:3 D5:2 C5:1 A4:3 | G4:2 E4:1 C4:6 -:3 | D5:2 D5:1 D5:2 B4:1 F5:3 D5:3 | C5:2 C5:1 C5:2 A4:1 Eb5:3 C5:3 | G4:2 A4:1 C5:2 E5:1 G5:3 E5:2 C5:1 | D5:3 B4:3 G4:3 -:3 | -:3 G4:2 A4:1 Bb4:2 A4:1 G4:3 | C5:2 C5:1 Eb5:2 E5:1 G5:3 E5:3 | F5:2 Eb5:1 C5:3 A4:2 C5:1 -:3 | G4:2 E4:1 G4:2 Bb4:1 A4:3 G4:3 | B4:2 D5:1 G5:3 F5:2 D5:1 B4:3 | A4:2 C5:1 F5:3 Eb5:2 C5:1 A4:3 | G4:2 E4:1 C4:2 C4:1 -:3 G3:2 G3:1 | C4:3 -:3 C5:1 -:2 C4:1 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.36,
-          "notes": "C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | G2:2 G3:1 B2:2 D3:1 E3:2 F3:1 E3:2 D3:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | G2:2 G3:1 B2:2 D3:1 E3:2 F3:1 E3:2 D3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | G2:2 G3:1 B2:2 D3:1 E3:2 F3:1 E3:2 D3:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | C2:2 C3:1 G2:2 E2:1 C2:3 -:3"
+          "instrument": "pizzicato",
+          "volume": 0.383,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "-:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 B4:2 -:1 -:3 F4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 B4:2 -:1 -:3 F4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 B4:2 -:1 -:3 F4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 B4:2 -:1 -:3 F4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 B4:2 -:1 -:3 F4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 B4:2 -:1 -:3 F4:2 -:1 | -:3 A4:2 -:1 -:3 Eb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1 | -:3 E4:2 -:1 -:3 Bb4:2 -:1"
         },
         {
-          "wave": "noise",
-          "volume": 0.04,
-          "notes": "N:2 N:1 -:2 N:1 N:2 N:1 -:2 N:1"
+          "instrument": "bass",
+          "volume": 0.194,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | G2:2 G3:1 B2:2 D3:1 E3:2 F3:1 E3:2 D3:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | G2:2 G3:1 B2:2 D3:1 E3:2 F3:1 E3:2 D3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | G2:2 G3:1 B2:2 D3:1 E3:2 F3:1 E3:2 D3:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | C2:2 C3:1 G2:2 E2:1 C2:3 -:3 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | G2:2 G3:1 B2:2 D3:1 E3:2 F3:1 E3:2 D3:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | G2:2 G3:1 B2:2 D3:1 E3:2 F3:1 E3:2 D3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | G2:2 G3:1 B2:2 D3:1 E3:2 F3:1 E3:2 D3:1 | F2:2 F3:1 A2:2 C3:1 D3:2 Eb3:1 D3:2 C3:1 | C2:2 C3:1 E2:2 G2:1 A2:2 Bb2:1 A2:2 G2:1 | C2:2 C3:1 G2:2 E2:1 C2:3 -:3"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.144,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1 | K:2 H:1 S:2 H:1 K:2 H:1 S:2 H:1"
         }
       ]
     },
@@ -310,28 +525,42 @@
       "id": "fear",
       "title": "Valley of Fear",
       "tempo": 96,
+      "reverb": 0.4,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.11,
-          "notes": "G4:1 -:1 C5:1 -:1 Eb5:1 D5:1 C5:2 | G5:3 F5:1 Eb5:1 -:1 D5:2 | C5:1 -:1 F5:1 -:1 Ab5:1 G5:1 F5:2 | D5:1 -:1 B4:1 -:1 G4:2 -:2 | G4:1 -:1 C5:1 -:1 Eb5:1 D5:1 C5:2 | Eb5:1 -:1 Ab5:1 -:1 C6:2 Bb5:1 Ab5:1 | Ab5:1 G5:1 F5:1 Eb5:1 D5:1 -:1 F5:1 -:1 | B4:1 -:1 D5:1 -:1 G5:3 -:1 | C6:1 -:1 G5:1 -:1 Eb5:1 -:1 C5:1 -:1 | D5:1 Eb5:1 F#5:1 G5:1 Ab5:2 G5:2 | F5:1 -:1 Ab5:1 -:1 C6:1 -:1 Ab5:1 -:1 | G5:1 F5:1 Eb5:1 D5:1 B4:2 -:2 | C5:1 -:1 Eb5:1 -:1 Ab5:2 G5:2 | F5:1 -:1 Ab5:1 -:1 C6:2 Ab5:2 | B5:1 C6:1 D6:1 B5:1 G5:2 F5:2 | Eb5:1 D5:1 C5:2 -:1 G4:1 C5:1 -:1"
+          "instrument": "musicbox",
+          "volume": 0.535,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "G4:1 -:1 C5:1 -:1 Eb5:1 D5:1 C5:2 | G5:3 F5:1 Eb5:1 -:1 D5:2 | C5:1 -:1 F5:1 -:1 Ab5:1 G5:1 F5:2 | D5:1 -:1 B4:1 -:1 G4:2 -:2 | G4:1 -:1 C5:1 -:1 Eb5:1 D5:1 C5:2 | Eb5:1 -:1 Ab5:1 -:1 C6:2 Bb5:1 Ab5:1 | Ab5:1 G5:1 F5:1 Eb5:1 D5:1 -:1 F5:1 -:1 | B4:1 -:1 D5:1 -:1 G5:3 -:1 | C6:1 -:1 G5:1 -:1 Eb5:1 -:1 C5:1 -:1 | D5:1 Eb5:1 F#5:1 G5:1 Ab5:2 G5:2 | F5:1 -:1 Ab5:1 -:1 C6:1 -:1 Ab5:1 -:1 | G5:1 F5:1 Eb5:1 D5:1 B4:2 -:2 | C5:1 -:1 Eb5:1 -:1 Ab5:2 G5:2 | F5:1 -:1 Ab5:1 -:1 C6:2 Ab5:2 | B5:1 C6:1 D6:1 B5:1 G5:2 F5:2 | Eb5:1 D5:1 C5:2 -:1 G4:1 C5:1 -:1 | -:128"
         },
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.04,
-          "notes": "Eb4:4 G4:4 | Eb4:4 F#4:4 | Ab4:4 C5:4 | B3:4 D4:4 | Eb4:4 G4:4 | C4:4 Eb4:4 | Ab4:4 F#4:4 | B3:4 D4:4 | Eb4:4 G4:4 | Eb4:4 F#4:4 | Ab4:4 C5:4 | B3:4 D4:4 | C4:4 Eb4:4 | Ab4:4 C5:4 | B3:4 F4:4 | Eb4:4 -:4"
+          "instrument": "strings",
+          "volume": 0.999,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:128 | G4:1 -:1 C5:1 -:1 Eb5:1 D5:1 C5:2 | G5:3 F5:1 Eb5:1 -:1 D5:2 | C5:1 -:1 F5:1 -:1 Ab5:1 G5:1 F5:2 | D5:1 -:1 B4:1 -:1 G4:2 -:2 | G4:1 -:1 C5:1 -:1 Eb5:1 D5:1 C5:2 | Eb5:1 -:1 Ab5:1 -:1 C6:2 Bb5:1 Ab5:1 | Ab5:1 G5:1 F5:1 Eb5:1 D5:1 -:1 F5:1 -:1 | B4:1 -:1 D5:1 -:1 G5:3 -:1 | C6:1 -:1 G5:1 -:1 Eb5:1 -:1 C5:1 -:1 | D5:1 Eb5:1 F#5:1 G5:1 Ab5:2 G5:2 | F5:1 -:1 Ab5:1 -:1 C6:1 -:1 Ab5:1 -:1 | G5:1 F5:1 Eb5:1 D5:1 B4:2 -:2 | C5:1 -:1 Eb5:1 -:1 Ab5:2 G5:2 | F5:1 -:1 Ab5:1 -:1 C6:2 Ab5:2 | B5:1 C6:1 D6:1 B5:1 G5:2 F5:2 | Eb5:1 D5:1 C5:2 -:1 G4:1 C5:1 -:1"
         },
         {
-          "wave": "triangle",
-          "volume": 0.34,
-          "notes": "C3:1 -:1 G2:1 -:1 C3:1 -:1 G2:1 -:1 | C3:1 -:1 G2:1 -:1 Ab2:1 -:1 A2:1 -:1 | F2:1 -:1 C3:1 -:1 F2:1 -:1 F#2:1 -:1 | G2:1 -:1 D3:1 -:1 G2:1 -:1 B2:1 -:1 | C3:1 -:1 G2:1 -:1 C3:1 -:1 Eb3:1 -:1 | Ab2:1 -:1 Eb3:1 -:1 Ab2:1 -:1 A2:1 -:1 | F2:1 -:1 Ab2:1 -:1 G2:1 -:1 F#2:1 -:1 | G2:1 -:1 D2:1 -:1 G2:1 -:1 G2:1 G2:1 | C3:1 -:1 G2:1 -:1 C3:1 -:1 G2:1 -:1 | C3:1 -:1 G2:1 -:1 Ab2:1 -:1 A2:1 -:1 | F2:1 -:1 C3:1 -:1 F2:1 -:1 F#2:1 -:1 | G2:1 -:1 D3:1 -:1 G2:1 -:1 B2:1 -:1 | Ab2:1 -:1 Eb3:1 -:1 Ab2:1 -:1 Eb3:1 -:1 | F2:1 -:1 C3:1 -:1 F2:1 -:1 Ab2:1 -:1 | G2:1 -:1 D3:1 -:1 G2:1 -:1 B2:1 -:1 | C3:1 -:1 G2:1 -:1 C2:2 -:2"
+          "instrument": "pad",
+          "volume": 0.309,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "Eb4:4 G4:4 | Eb4:4 F#4:4 | Ab4:4 C5:4 | B3:4 D4:4 | Eb4:4 G4:4 | C4:4 Eb4:4 | Ab4:4 F#4:4 | B3:4 D4:4 | Eb4:4 G4:4 | Eb4:4 F#4:4 | Ab4:4 C5:4 | B3:4 D4:4 | C4:4 Eb4:4 | Ab4:4 C5:4 | B3:4 F4:4 | Eb4:4 -:4 | Eb4:4 G4:4 | Eb4:4 F#4:4 | Ab4:4 C5:4 | B3:4 D4:4 | Eb4:4 G4:4 | C4:4 Eb4:4 | Ab4:4 F#4:4 | B3:4 D4:4 | Eb4:4 G4:4 | Eb4:4 F#4:4 | Ab4:4 C5:4 | B3:4 D4:4 | C4:4 Eb4:4 | Ab4:4 C5:4 | B3:4 F4:4 | Eb4:4 -:4"
         },
         {
-          "wave": "noise",
-          "volume": 0.04,
-          "notes": "-:4 N:1 -:3 | -:4 N:1 -:1 N:1 -:1"
+          "instrument": "pizzicato",
+          "volume": 0.389,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "C3:1 -:1 G2:1 -:1 C3:1 -:1 G2:1 -:1 | C3:1 -:1 G2:1 -:1 Ab2:1 -:1 A2:1 -:1 | F2:1 -:1 C3:1 -:1 F2:1 -:1 F#2:1 -:1 | G2:1 -:1 D3:1 -:1 G2:1 -:1 B2:1 -:1 | C3:1 -:1 G2:1 -:1 C3:1 -:1 Eb3:1 -:1 | Ab2:1 -:1 Eb3:1 -:1 Ab2:1 -:1 A2:1 -:1 | F2:1 -:1 Ab2:1 -:1 G2:1 -:1 F#2:1 -:1 | G2:1 -:1 D2:1 -:1 G2:1 -:1 G2:1 G2:1 | C3:1 -:1 G2:1 -:1 C3:1 -:1 G2:1 -:1 | C3:1 -:1 G2:1 -:1 Ab2:1 -:1 A2:1 -:1 | F2:1 -:1 C3:1 -:1 F2:1 -:1 F#2:1 -:1 | G2:1 -:1 D3:1 -:1 G2:1 -:1 B2:1 -:1 | Ab2:1 -:1 Eb3:1 -:1 Ab2:1 -:1 Eb3:1 -:1 | F2:1 -:1 C3:1 -:1 F2:1 -:1 Ab2:1 -:1 | G2:1 -:1 D3:1 -:1 G2:1 -:1 B2:1 -:1 | C3:1 -:1 G2:1 -:1 C2:2 -:2 | C3:1 -:1 G2:1 -:1 C3:1 -:1 G2:1 -:1 | C3:1 -:1 G2:1 -:1 Ab2:1 -:1 A2:1 -:1 | F2:1 -:1 C3:1 -:1 F2:1 -:1 F#2:1 -:1 | G2:1 -:1 D3:1 -:1 G2:1 -:1 B2:1 -:1 | C3:1 -:1 G2:1 -:1 C3:1 -:1 Eb3:1 -:1 | Ab2:1 -:1 Eb3:1 -:1 Ab2:1 -:1 A2:1 -:1 | F2:1 -:1 Ab2:1 -:1 G2:1 -:1 F#2:1 -:1 | G2:1 -:1 D2:1 -:1 G2:1 -:1 G2:1 G2:1 | C3:1 -:1 G2:1 -:1 C3:1 -:1 G2:1 -:1 | C3:1 -:1 G2:1 -:1 Ab2:1 -:1 A2:1 -:1 | F2:1 -:1 C3:1 -:1 F2:1 -:1 F#2:1 -:1 | G2:1 -:1 D3:1 -:1 G2:1 -:1 B2:1 -:1 | Ab2:1 -:1 Eb3:1 -:1 Ab2:1 -:1 Eb3:1 -:1 | F2:1 -:1 C3:1 -:1 F2:1 -:1 Ab2:1 -:1 | G2:1 -:1 D3:1 -:1 G2:1 -:1 B2:1 -:1 | C3:1 -:1 G2:1 -:1 C2:2 -:2"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.5,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "-:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2 | -:5 R:1 -:2"
         }
       ]
     },
@@ -339,28 +568,42 @@
       "id": "goldburg",
       "title": "Goldburg Forge",
       "tempo": 104,
+      "reverb": 0.25,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.14,
-          "notes": "G4:2 Bb4:1 C5:1 D5:2 G5:2 | F5:1 E5:1 D5:1 C5:1 A4:2 F4:2 | E5:2 G5:1 E5:1 C5:2 E5:2 | D5:3 C5:1 Bb4:2 G4:2 | G4:1 G4:1 Bb4:1 D5:1 G5:2 F5:1 E5:1 | F5:2 C5:2 A4:1 C5:1 F5:2 | D5:1 F5:1 Bb5:2 A5:1 F5:1 D5:2 | F#5:3 E5:1 D5:2 A4:2 | G5:2 F5:1 E5:1 D5:2 Bb4:2 | C5:1 E5:1 G5:2 E5:1 C5:1 G4:2 | Bb4:1 D5:1 G5:2 A5:1 Bb5:1 G5:2 | E5:2 G5:2 C6:3 -:1 | Bb5:2 A5:1 G5:1 F5:2 D5:2 | C5:1 D5:1 F5:1 A5:1 C6:2 A5:2 | A5:1 F#5:1 D5:1 F#5:1 A5:2 C6:2 | Bb5:2 A5:1 F#5:1 G5:2 -:2"
+          "instrument": "accordion",
+          "volume": 0.769,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "G4:2 Bb4:1 C5:1 D5:2 G5:2 | F5:1 E5:1 D5:1 C5:1 A4:2 F4:2 | E5:2 G5:1 E5:1 C5:2 E5:2 | D5:3 C5:1 Bb4:2 G4:2 | G4:1 G4:1 Bb4:1 D5:1 G5:2 F5:1 E5:1 | F5:2 C5:2 A4:1 C5:1 F5:2 | D5:1 F5:1 Bb5:2 A5:1 F5:1 D5:2 | F#5:3 E5:1 D5:2 A4:2 | G5:2 F5:1 E5:1 D5:2 Bb4:2 | C5:1 E5:1 G5:2 E5:1 C5:1 G4:2 | Bb4:1 D5:1 G5:2 A5:1 Bb5:1 G5:2 | E5:2 G5:2 C6:3 -:1 | Bb5:2 A5:1 G5:1 F5:2 D5:2 | C5:1 D5:1 F5:1 A5:1 C6:2 A5:2 | A5:1 F#5:1 D5:1 F#5:1 A5:2 C6:2 | Bb5:2 A5:1 F#5:1 G5:2 -:2 | -:128"
         },
         {
-          "wave": "square",
-          "duty": 0.125,
-          "volume": 0.035,
-          "notes": "-:2 G6:1 -:1 -:2 G6:1 G6:1 | -:2 G6:1 -:1 -:1 D6:1 G6:1 -:1"
+          "instrument": "horn",
+          "volume": 0.689,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:128 | G3:2 Bb3:1 C4:1 D4:2 G4:2 | F4:1 E4:1 D4:1 C4:1 A3:2 F3:2 | E4:2 G4:1 E4:1 C4:2 E4:2 | D4:3 C4:1 Bb3:2 G3:2 | G3:1 G3:1 Bb3:1 D4:1 G4:2 F4:1 E4:1 | F4:2 C4:2 A3:1 C4:1 F4:2 | D4:1 F4:1 Bb4:2 A4:1 F4:1 D4:2 | F#4:3 E4:1 D4:2 A3:2 | G4:2 F4:1 E4:1 D4:2 Bb3:2 | C4:1 E4:1 G4:2 E4:1 C4:1 G3:2 | Bb3:1 D4:1 G4:2 A4:1 Bb4:1 G4:2 | E4:2 G4:2 C5:3 -:1 | Bb4:2 A4:1 G4:1 F4:2 D4:2 | C4:1 D4:1 F4:1 A4:1 C5:2 A4:2 | A4:1 F#4:1 D4:1 F#4:1 A4:2 C5:2 | Bb4:2 A4:1 F#4:1 G4:2 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.36,
-          "notes": "G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | F2:1 F2:1 C3:2 F2:1 F2:1 C3:2 | C3:1 C3:1 G2:2 C3:1 C3:1 G2:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | F2:1 F2:1 C3:2 F2:1 F2:1 C3:2 | Bb2:1 Bb2:1 F2:2 Bb2:1 Bb2:1 F2:2 | D3:1 D3:1 A2:2 D3:1 D3:1 A2:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | C3:1 C3:1 G2:2 C3:1 C3:1 G2:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | C3:1 C3:1 G2:2 C3:1 C3:1 G2:2 | Bb2:1 Bb2:1 F2:2 Bb2:1 Bb2:1 F2:2 | F2:1 F2:1 C3:2 F2:1 F2:1 C3:2 | D3:1 D3:1 A2:2 D3:1 D3:1 A2:2 | G2:1 G2:1 D3:2 G2:4"
+          "instrument": "bell",
+          "volume": 0.243,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "-:2 G6:1 -:1 -:2 G6:1 G6:1 | -:2 G6:1 -:1 -:1 D6:1 G6:1 -:1 | -:2 G6:1 -:1 -:2 G6:1 G6:1 | -:2 G6:1 -:1 -:1 D6:1 G6:1 -:1"
         },
         {
-          "wave": "noise",
-          "volume": 0.06,
-          "notes": "N:1 -:1 N:1 -:1 N:1 N:1 N:1 -:1"
+          "instrument": "bass",
+          "volume": 0.195,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | F2:1 F2:1 C3:2 F2:1 F2:1 C3:2 | C3:1 C3:1 G2:2 C3:1 C3:1 G2:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | F2:1 F2:1 C3:2 F2:1 F2:1 C3:2 | Bb2:1 Bb2:1 F2:2 Bb2:1 Bb2:1 F2:2 | D3:1 D3:1 A2:2 D3:1 D3:1 A2:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | C3:1 C3:1 G2:2 C3:1 C3:1 G2:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | C3:1 C3:1 G2:2 C3:1 C3:1 G2:2 | Bb2:1 Bb2:1 F2:2 Bb2:1 Bb2:1 F2:2 | F2:1 F2:1 C3:2 F2:1 F2:1 C3:2 | D3:1 D3:1 A2:2 D3:1 D3:1 A2:2 | G2:1 G2:1 D3:2 G2:4 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | F2:1 F2:1 C3:2 F2:1 F2:1 C3:2 | C3:1 C3:1 G2:2 C3:1 C3:1 G2:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | F2:1 F2:1 C3:2 F2:1 F2:1 C3:2 | Bb2:1 Bb2:1 F2:2 Bb2:1 Bb2:1 F2:2 | D3:1 D3:1 A2:2 D3:1 D3:1 A2:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | C3:1 C3:1 G2:2 C3:1 C3:1 G2:2 | G2:1 G2:1 D3:2 G2:1 G2:1 D3:2 | C3:1 C3:1 G2:2 C3:1 C3:1 G2:2 | Bb2:1 Bb2:1 F2:2 Bb2:1 Bb2:1 F2:2 | F2:1 F2:1 C3:2 F2:1 F2:1 C3:2 | D3:1 D3:1 A2:2 D3:1 D3:1 A2:2 | G2:1 G2:1 D3:2 G2:4"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.176,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2"
         }
       ]
     },
@@ -368,23 +611,35 @@
       "id": "crystal",
       "title": "Crystal Mountain",
       "tempo": 104,
+      "reverb": 0.42,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.11,
-          "notes": "B5:6 G#5:2 | A#5:6 C#6:2 | B5:4 D#6:4 | C#6:6 -:2 | E6:4 D#6:2 C#6:2 | D#6:4 B5:4 | C#6:3 B5:1 G#5:4 | F#5:6 -:2 | G#5:2 B5:2 E6:4 | F#6:4 E6:2 C#6:2 | E6:3 D#6:1 C#6:2 G#5:2 | A5:4 C#6:4 | C#6:2 A5:2 F#5:4 | G#5:2 B5:2 D#6:4 | F#6:3 E6:1 D#6:2 A5:2 | G#5:6 -:2"
+          "instrument": "musicbox",
+          "volume": 0.65,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "B5:6 G#5:2 | A#5:6 C#6:2 | B5:4 D#6:4 | C#6:6 -:2 | E6:4 D#6:2 C#6:2 | D#6:4 B5:4 | C#6:3 B5:1 G#5:4 | F#5:6 -:2 | G#5:2 B5:2 E6:4 | F#6:4 E6:2 C#6:2 | E6:3 D#6:1 C#6:2 G#5:2 | A5:4 C#6:4 | C#6:2 A5:2 F#5:4 | G#5:2 B5:2 D#6:4 | F#6:3 E6:1 D#6:2 A5:2 | G#5:6 -:2 | -:128"
         },
         {
-          "wave": "square",
-          "duty": 0.125,
-          "volume": 0.04,
-          "notes": "E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1 | E5:1 F#5:1 A#5:1 C#6:1 F#6:1 C#6:1 A#5:1 F#5:1 | E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1 | E5:1 F#5:1 A#5:1 C#6:1 F#6:1 C#6:1 A#5:1 F#5:1 | C#5:1 E5:1 G#5:1 C#6:1 E6:1 C#6:1 G#5:1 E5:1 | B4:1 D#5:1 G#5:1 B5:1 D#6:1 B5:1 G#5:1 D#5:1 | C#5:1 E5:1 G#5:1 A5:1 C#6:1 A5:1 G#5:1 E5:1 | B4:1 D#5:1 F#5:1 B5:1 D#6:1 B5:1 F#5:1 D#5:1 | E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1 | E5:1 F#5:1 A#5:1 C#6:1 F#6:1 C#6:1 A#5:1 F#5:1 | C#5:1 E5:1 G#5:1 C#6:1 E6:1 C#6:1 G#5:1 E5:1 | C#5:1 E5:1 G#5:1 A5:1 C#6:1 A5:1 G#5:1 E5:1 | F#5:1 A5:1 C#6:1 E6:1 F#6:1 E6:1 C#6:1 A5:1 | B4:1 D#5:1 G#5:1 B5:1 D#6:1 B5:1 G#5:1 D#5:1 | B4:1 D#5:1 F#5:1 A5:1 B5:1 A5:1 F#5:1 D#5:1 | E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1"
+          "instrument": "flute",
+          "volume": 0.422,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:128 | B5:6 G#5:2 | A#5:6 C#6:2 | B5:4 D#6:4 | C#6:6 -:2 | E6:4 D#6:2 C#6:2 | D#6:4 B5:4 | C#6:3 B5:1 G#5:4 | F#5:6 -:2 | G#5:2 B5:2 E6:4 | F#6:4 E6:2 C#6:2 | E6:3 D#6:1 C#6:2 G#5:2 | A5:4 C#6:4 | C#6:2 A5:2 F#5:4 | G#5:2 B5:2 D#6:4 | F#6:3 E6:1 D#6:2 A5:2 | G#5:6 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.3,
-          "notes": "E2:6 B2:2 | E2:6 E3:2 | E2:6 B2:2 | E2:6 E3:2 | C#3:6 G#2:2 | G#2:6 D#3:2 | A2:6 E3:2 | B2:6 F#2:2 | E2:6 B2:2 | E2:6 E3:2 | C#3:6 G#2:2 | A2:6 E3:2 | F#2:6 C#3:2 | G#2:6 D#3:2 | B2:6 A2:2 | E2:8"
+          "instrument": "harp",
+          "volume": 0.131,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1 | E5:1 F#5:1 A#5:1 C#6:1 F#6:1 C#6:1 A#5:1 F#5:1 | E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1 | E5:1 F#5:1 A#5:1 C#6:1 F#6:1 C#6:1 A#5:1 F#5:1 | C#5:1 E5:1 G#5:1 C#6:1 E6:1 C#6:1 G#5:1 E5:1 | B4:1 D#5:1 G#5:1 B5:1 D#6:1 B5:1 G#5:1 D#5:1 | C#5:1 E5:1 G#5:1 A5:1 C#6:1 A5:1 G#5:1 E5:1 | B4:1 D#5:1 F#5:1 B5:1 D#6:1 B5:1 F#5:1 D#5:1 | E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1 | E5:1 F#5:1 A#5:1 C#6:1 F#6:1 C#6:1 A#5:1 F#5:1 | C#5:1 E5:1 G#5:1 C#6:1 E6:1 C#6:1 G#5:1 E5:1 | C#5:1 E5:1 G#5:1 A5:1 C#6:1 A5:1 G#5:1 E5:1 | F#5:1 A5:1 C#6:1 E6:1 F#6:1 E6:1 C#6:1 A5:1 | B4:1 D#5:1 G#5:1 B5:1 D#6:1 B5:1 G#5:1 D#5:1 | B4:1 D#5:1 F#5:1 A5:1 B5:1 A5:1 F#5:1 D#5:1 | E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1 | E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1 | E5:1 F#5:1 A#5:1 C#6:1 F#6:1 C#6:1 A#5:1 F#5:1 | E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1 | E5:1 F#5:1 A#5:1 C#6:1 F#6:1 C#6:1 A#5:1 F#5:1 | C#5:1 E5:1 G#5:1 C#6:1 E6:1 C#6:1 G#5:1 E5:1 | B4:1 D#5:1 G#5:1 B5:1 D#6:1 B5:1 G#5:1 D#5:1 | C#5:1 E5:1 G#5:1 A5:1 C#6:1 A5:1 G#5:1 E5:1 | B4:1 D#5:1 F#5:1 B5:1 D#6:1 B5:1 F#5:1 D#5:1 | E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1 | E5:1 F#5:1 A#5:1 C#6:1 F#6:1 C#6:1 A#5:1 F#5:1 | C#5:1 E5:1 G#5:1 C#6:1 E6:1 C#6:1 G#5:1 E5:1 | C#5:1 E5:1 G#5:1 A5:1 C#6:1 A5:1 G#5:1 E5:1 | F#5:1 A5:1 C#6:1 E6:1 F#6:1 E6:1 C#6:1 A5:1 | B4:1 D#5:1 G#5:1 B5:1 D#6:1 B5:1 G#5:1 D#5:1 | B4:1 D#5:1 F#5:1 A5:1 B5:1 A5:1 F#5:1 D#5:1 | E5:1 G#5:1 B5:1 D#6:1 E6:1 D#6:1 B5:1 G#5:1"
+        },
+        {
+          "instrument": "pad",
+          "volume": 0.545,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "E2:6 B2:2 | E2:6 E3:2 | E2:6 B2:2 | E2:6 E3:2 | C#3:6 G#2:2 | G#2:6 D#3:2 | A2:6 E3:2 | B2:6 F#2:2 | E2:6 B2:2 | E2:6 E3:2 | C#3:6 G#2:2 | A2:6 E3:2 | F#2:6 C#3:2 | G#2:6 D#3:2 | B2:6 A2:2 | E2:8 | E2:6 B2:2 | E2:6 E3:2 | E2:6 B2:2 | E2:6 E3:2 | C#3:6 G#2:2 | G#2:6 D#3:2 | A2:6 E3:2 | B2:6 F#2:2 | E2:6 B2:2 | E2:6 E3:2 | C#3:6 G#2:2 | A2:6 E3:2 | F#2:6 C#3:2 | G#2:6 D#3:2 | B2:6 A2:2 | E2:8"
         }
       ]
     },
@@ -392,23 +647,35 @@
       "id": "moonglow",
       "title": "Moonglow Lullaby",
       "tempo": 66,
+      "reverb": 0.4,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.1,
-          "notes": "G5:3 F5:1 Eb5:2 | G5:2 C6:2 Bb5:2 | C6:3 Bb5:1 Ab5:2 | F5:4 -:2 | G5:3 F5:1 Eb5:2 | D5:2 G5:2 Bb5:2 | Eb6:3 D6:1 C6:2 | Bb5:4 -:2 | G5:3 Ab5:1 G5:2 | Eb5:2 Ab5:2 C6:2 | Bb5:3 Ab5:1 F5:2 | Eb5:4 -:2"
+          "instrument": "musicbox",
+          "volume": 0.689,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "G5:3 F5:1 Eb5:2 | G5:2 C6:2 Bb5:2 | C6:3 Bb5:1 Ab5:2 | F5:4 -:2 | G5:3 F5:1 Eb5:2 | D5:2 G5:2 Bb5:2 | Eb6:3 D6:1 C6:2 | Bb5:4 -:2 | G5:3 Ab5:1 G5:2 | Eb5:2 Ab5:2 C6:2 | Bb5:3 Ab5:1 F5:2 | Eb5:4 -:2 | -:72"
         },
         {
-          "wave": "square",
-          "duty": 0.125,
-          "volume": 0.035,
-          "notes": "Eb4:1 Bb4:1 G4:1 Bb4:1 G4:1 Bb4:1 | C4:1 G4:1 Eb4:1 G4:1 Eb4:1 G4:1 | Ab3:1 Eb4:1 C4:1 Eb4:1 C4:1 Eb4:1 | Bb3:1 F4:1 D4:1 F4:1 D4:1 F4:1 | Eb4:1 Bb4:1 G4:1 Bb4:1 G4:1 Bb4:1 | G3:1 D4:1 Bb3:1 D4:1 Bb3:1 D4:1 | Ab3:1 Eb4:1 C4:1 Eb4:1 C4:1 Eb4:1 | Bb3:1 F4:1 D4:1 F4:1 D4:1 F4:1 | C4:1 G4:1 Eb4:1 G4:1 Eb4:1 G4:1 | Ab3:1 Eb4:1 C4:1 Eb4:1 C4:1 Eb4:1 | Bb3:1 F4:1 D4:1 F4:1 D4:1 F4:1 | Eb4:1 Bb4:1 G4:1 Eb5:3"
+          "instrument": "flute",
+          "volume": 0.43,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:72 | G5:3 F5:1 Eb5:2 | G5:2 C6:2 Bb5:2 | C6:3 Bb5:1 Ab5:2 | F5:4 -:2 | G5:3 F5:1 Eb5:2 | D5:2 G5:2 Bb5:2 | Eb6:3 D6:1 C6:2 | Bb5:4 -:2 | G5:3 Ab5:1 G5:2 | Eb5:2 Ab5:2 C6:2 | Bb5:3 Ab5:1 F5:2 | Eb5:4 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.3,
-          "notes": "Eb2:4 Bb2:2 | C2:4 G2:2 | Ab2:4 Eb2:2 | Bb2:4 F2:2 | Eb2:4 Bb2:2 | G2:4 D2:2 | Ab2:4 Eb2:2 | Bb2:4 F2:2 | C2:4 G2:2 | Ab2:4 Eb2:2 | Bb2:4 F2:2 | Eb2:6"
+          "instrument": "harp",
+          "volume": 0.141,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "Eb4:1 Bb4:1 G4:1 Bb4:1 G4:1 Bb4:1 | C4:1 G4:1 Eb4:1 G4:1 Eb4:1 G4:1 | Ab3:1 Eb4:1 C4:1 Eb4:1 C4:1 Eb4:1 | Bb3:1 F4:1 D4:1 F4:1 D4:1 F4:1 | Eb4:1 Bb4:1 G4:1 Bb4:1 G4:1 Bb4:1 | G3:1 D4:1 Bb3:1 D4:1 Bb3:1 D4:1 | Ab3:1 Eb4:1 C4:1 Eb4:1 C4:1 Eb4:1 | Bb3:1 F4:1 D4:1 F4:1 D4:1 F4:1 | C4:1 G4:1 Eb4:1 G4:1 Eb4:1 G4:1 | Ab3:1 Eb4:1 C4:1 Eb4:1 C4:1 Eb4:1 | Bb3:1 F4:1 D4:1 F4:1 D4:1 F4:1 | Eb4:1 Bb4:1 G4:1 Eb5:3 | Eb4:1 Bb4:1 G4:1 Bb4:1 G4:1 Bb4:1 | C4:1 G4:1 Eb4:1 G4:1 Eb4:1 G4:1 | Ab3:1 Eb4:1 C4:1 Eb4:1 C4:1 Eb4:1 | Bb3:1 F4:1 D4:1 F4:1 D4:1 F4:1 | Eb4:1 Bb4:1 G4:1 Bb4:1 G4:1 Bb4:1 | G3:1 D4:1 Bb3:1 D4:1 Bb3:1 D4:1 | Ab3:1 Eb4:1 C4:1 Eb4:1 C4:1 Eb4:1 | Bb3:1 F4:1 D4:1 F4:1 D4:1 F4:1 | C4:1 G4:1 Eb4:1 G4:1 Eb4:1 G4:1 | Ab3:1 Eb4:1 C4:1 Eb4:1 C4:1 Eb4:1 | Bb3:1 F4:1 D4:1 F4:1 D4:1 F4:1 | Eb4:1 Bb4:1 G4:1 Eb5:3"
+        },
+        {
+          "instrument": "strings",
+          "volume": 0.496,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "Eb2:4 Bb2:2 | C2:4 G2:2 | Ab2:4 Eb2:2 | Bb2:4 F2:2 | Eb2:4 Bb2:2 | G2:4 D2:2 | Ab2:4 Eb2:2 | Bb2:4 F2:2 | C2:4 G2:2 | Ab2:4 Eb2:2 | Bb2:4 F2:2 | Eb2:6 | Eb2:4 Bb2:2 | C2:4 G2:2 | Ab2:4 Eb2:2 | Bb2:4 F2:2 | Eb2:4 Bb2:2 | G2:4 D2:2 | Ab2:4 Eb2:2 | Bb2:4 F2:2 | C2:4 G2:2 | Ab2:4 Eb2:2 | Bb2:4 F2:2 | Eb2:6"
         }
       ]
     },
@@ -416,28 +683,49 @@
       "id": "title",
       "title": "A New Adventure",
       "tempo": 120,
+      "reverb": 0.3,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.15,
-          "notes": "A4:2 D5:2 F#5:3 E5:1 | E5:2 A5:4 G5:1 F#5:1 | F#5:2 B5:4 A5:1 G5:1 | G5:1 F#5:1 E5:2 D5:2 B4:2 | A4:2 D5:2 F#5:3 A5:1 | B5:2 D6:4 C#6:1 B5:1 | A5:3 G5:1 F#5:2 E5:2 | E5:6 -:2 | D5:1 F#5:1 B5:2 A5:2 F#5:2 | G5:1 B5:1 D6:2 C#6:2 B5:2 | A5:1 F#5:1 A5:2 D6:3 -:1 | C#6:2 B5:1 A5:1 E5:4 | B5:2 D6:2 G6:3 F#6:1 | E6:2 C#6:2 A5:2 C#6:2 | D6:6 A5:1 F#5:1 | D5:6 -:2"
+          "instrument": "strings",
+          "volume": 0.852,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "A4:2 D5:2 F#5:3 E5:1 | E5:2 A5:4 G5:1 F#5:1 | F#5:2 B5:4 A5:1 G5:1 | G5:1 F#5:1 E5:2 D5:2 B4:2 | A4:2 D5:2 F#5:3 A5:1 | B5:2 D6:4 C#6:1 B5:1 | A5:3 G5:1 F#5:2 E5:2 | E5:6 -:2 | D5:1 F#5:1 B5:2 A5:2 F#5:2 | G5:1 B5:1 D6:2 C#6:2 B5:2 | A5:1 F#5:1 A5:2 D6:3 -:1 | C#6:2 B5:1 A5:1 E5:4 | B5:2 D6:2 G6:3 F#6:1 | E6:2 C#6:2 A5:2 C#6:2 | D6:6 A5:1 F#5:1 | D5:6 -:2 | -:128"
         },
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.05,
-          "notes": "F#4:4 A4:4 | E4:4 C#4:4 | D4:4 F#4:4 | D4:4 B3:4 | F#4:4 A4:4 | D4:4 B3:4 | E4:4 C#4:4 | E4:4 C#4:4 | D4:4 F#4:4 | D4:4 B3:4 | F#4:4 A4:4 | E4:4 C#4:4 | D4:4 B3:4 | E4:4 C#4:4 | F#4:4 A4:4 | F#4:4 -:4"
+          "instrument": "flute",
+          "volume": 0.425,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:128 | A4:2 D5:2 F#5:3 E5:1 | E5:2 A5:4 G5:1 F#5:1 | F#5:2 B5:4 A5:1 G5:1 | G5:1 F#5:1 E5:2 D5:2 B4:2 | A4:2 D5:2 F#5:3 A5:1 | B5:2 D6:4 C#6:1 B5:1 | A5:3 G5:1 F#5:2 E5:2 | E5:6 -:2 | D5:1 F#5:1 B5:2 A5:2 F#5:2 | G5:1 B5:1 D6:2 C#6:2 B5:2 | A5:1 F#5:1 A5:2 D6:3 -:1 | C#6:2 B5:1 A5:1 E5:4 | B5:2 D6:2 G6:3 F#6:1 | E6:2 C#6:2 A5:2 C#6:2 | D6:6 A5:1 F#5:1 | D5:6 -:2"
         },
         {
-          "wave": "triangle",
-          "volume": 0.34,
-          "notes": "D2:2 D3:1 D3:1 A2:2 D3:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | B1:2 B2:1 B2:1 F#2:2 B2:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | D2:2 D3:1 D3:1 A2:2 D3:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | B1:2 B2:1 B2:1 F#2:2 B2:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | D2:2 D3:1 D3:1 A2:2 D3:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | D2:2 D3:1 D3:1 A2:2 D3:2 | D2:2 D3:1 D3:1 D2:4"
+          "instrument": "harp",
+          "volume": 0.162,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "F#4:4 A4:4 | E4:4 C#4:4 | D4:4 F#4:4 | D4:4 B3:4 | F#4:4 A4:4 | D4:4 B3:4 | E4:4 C#4:4 | E4:4 C#4:4 | D4:4 F#4:4 | D4:4 B3:4 | F#4:4 A4:4 | E4:4 C#4:4 | D4:4 B3:4 | E4:4 C#4:4 | F#4:4 A4:4 | F#4:4 -:4 | F#4:4 A4:4 | E4:4 C#4:4 | D4:4 F#4:4 | D4:4 B3:4 | F#4:4 A4:4 | D4:4 B3:4 | E4:4 C#4:4 | E4:4 C#4:4 | D4:4 F#4:4 | D4:4 B3:4 | F#4:4 A4:4 | E4:4 C#4:4 | D4:4 B3:4 | E4:4 C#4:4 | F#4:4 A4:4 | F#4:4 -:4"
         },
         {
-          "wave": "noise",
-          "volume": 0.05,
-          "notes": "N:1 -:1 N:1 -:1 N:1 -:1 N:1 N:1"
+          "instrument": "bass",
+          "volume": 0.193,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "D2:2 D3:1 D3:1 A2:2 D3:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | B1:2 B2:1 B2:1 F#2:2 B2:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | D2:2 D3:1 D3:1 A2:2 D3:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | B1:2 B2:1 B2:1 F#2:2 B2:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | D2:2 D3:1 D3:1 A2:2 D3:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | D2:2 D3:1 D3:1 A2:2 D3:2 | D2:2 D3:1 D3:1 D2:4 | D2:2 D3:1 D3:1 A2:2 D3:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | B1:2 B2:1 B2:1 F#2:2 B2:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | D2:2 D3:1 D3:1 A2:2 D3:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | B1:2 B2:1 B2:1 F#2:2 B2:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | D2:2 D3:1 D3:1 A2:2 D3:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | G1:2 G2:1 G2:1 D2:2 G2:2 | A1:2 A2:1 A2:1 E2:2 A2:2 | D2:2 D3:1 D3:1 A2:2 D3:2 | D2:2 D3:1 D3:1 D2:4"
+        },
+        {
+          "instrument": "pad",
+          "volume": 0.157,
+          "pan": 0.35,
+          "reverb": 1.0,
+          "notes": "D4+F#4+A4:8 | A3+C#4+E4:8 | B3+D4+F#4:8 | G4+B4+D5:8 | D4+F#4+A4:8 | G4+B4+D5:8 | A3+C#4+E4:8 | A3+C#4+E4:8 | B3+D4+F#4:8 | G4+B4+D5:8 | D4+F#4+A4:8 | A3+C#4+E4:8 | G4+B4+D5:8 | A3+C#4+E4:8 | D4+F#4+A4:8 | D4+F#4+A4:8 | D4+F#4+A4:8 | A3+C#4+E4:8 | B3+D4+F#4:8 | G4+B4+D5:8 | D4+F#4+A4:8 | G4+B4+D5:8 | A3+C#4+E4:8 | A3+C#4+E4:8 | B3+D4+F#4:8 | G4+B4+D5:8 | D4+F#4+A4:8 | A3+C#4+E4:8 | G4+B4+D5:8 | A3+C#4+E4:8 | D4+F#4+A4:8 | D4+F#4+A4:8"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.164,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2 | K:2 H:2 S:2 H:2"
         }
       ]
     },
@@ -445,28 +733,42 @@
       "id": "boss",
       "title": "Clash with the Tyrant",
       "tempo": 172,
+      "reverb": 0.16,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.15,
-          "notes": "E5:1 E5:1 G5:1 E5:1 A5:1 E5:1 B5:1 A5:1 | G5:1 F#5:1 E5:1 D5:1 E5:2 B4:2 | E5:1 E5:1 G5:1 E5:1 C6:2 B5:2 | A5:1 G5:1 F#5:1 D5:1 A5:2 F#5:2 | E5:1 E5:1 G5:1 E5:1 A5:1 E5:1 B5:1 A5:1 | B5:1 C6:1 D6:1 B5:1 E6:2 D6:2 | C6:1 B5:1 A5:1 G5:1 E5:2 G5:2 | F#5:1 G5:1 A5:1 B5:1 D#6:2 B5:2 | C6:2 B5:1 A5:1 E6:3 C6:1 | A5:1 B5:1 C6:1 E6:1 G6:2 E6:2 | G6:1 F#6:1 E6:1 B5:1 G5:2 B5:2 | E6:3 D6:1 B5:2 G5:2 | E6:1 D6:1 C6:1 G5:1 E5:2 C6:2 | D6:1 C6:1 A5:1 F#5:1 D5:2 A5:2 | B5:1 A5:1 F#5:1 D#5:1 B4:2 D#5:2 | F#5:2 A5:2 B5:3 -:1"
+          "instrument": "strings",
+          "volume": 0.917,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "E5:1 E5:1 G5:1 E5:1 A5:1 E5:1 B5:1 A5:1 | G5:1 F#5:1 E5:1 D5:1 E5:2 B4:2 | E5:1 E5:1 G5:1 E5:1 C6:2 B5:2 | A5:1 G5:1 F#5:1 D5:1 A5:2 F#5:2 | E5:1 E5:1 G5:1 E5:1 A5:1 E5:1 B5:1 A5:1 | B5:1 C6:1 D6:1 B5:1 E6:2 D6:2 | C6:1 B5:1 A5:1 G5:1 E5:2 G5:2 | F#5:1 G5:1 A5:1 B5:1 D#6:2 B5:2 | C6:2 B5:1 A5:1 E6:3 C6:1 | A5:1 B5:1 C6:1 E6:1 G6:2 E6:2 | G6:1 F#6:1 E6:1 B5:1 G5:2 B5:2 | E6:3 D6:1 B5:2 G5:2 | E6:1 D6:1 C6:1 G5:1 E5:2 C6:2 | D6:1 C6:1 A5:1 F#5:1 D5:2 A5:2 | B5:1 A5:1 F#5:1 D#5:1 B4:2 D#5:2 | F#5:2 A5:2 B5:3 -:1 | -:128"
         },
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.05,
-          "notes": "G4:4 B4:4 | G4:4 B4:4 | G4:4 E4:4 | F#4:4 A4:4 | G4:4 B4:4 | G4:4 B4:4 | G4:4 E4:4 | F#4:4 D#4:4 | A4:4 C5:4 | A4:4 C5:4 | G4:4 B4:4 | G4:4 B4:4 | G4:4 E4:4 | F#4:4 A4:4 | F#4:4 D#4:4 | F#4:4 D#4:4"
+          "instrument": "horn",
+          "volume": 0.698,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:128 | E4:1 E4:1 G4:1 E4:1 A4:1 E4:1 B4:1 A4:1 | G4:1 F#4:1 E4:1 D4:1 E4:2 B3:2 | E4:1 E4:1 G4:1 E4:1 C5:2 B4:2 | A4:1 G4:1 F#4:1 D4:1 A4:2 F#4:2 | E4:1 E4:1 G4:1 E4:1 A4:1 E4:1 B4:1 A4:1 | B4:1 C5:1 D5:1 B4:1 E5:2 D5:2 | C5:1 B4:1 A4:1 G4:1 E4:2 G4:2 | F#4:1 G4:1 A4:1 B4:1 Eb5:2 B4:2 | C5:2 B4:1 A4:1 E5:3 C5:1 | A4:1 B4:1 C5:1 E5:1 G5:2 E5:2 | G5:1 F#5:1 E5:1 B4:1 G4:2 B4:2 | E5:3 D5:1 B4:2 G4:2 | E5:1 D5:1 C5:1 G4:1 E4:2 C5:2 | D5:1 C5:1 A4:1 F#4:1 D4:2 A4:2 | B4:1 A4:1 F#4:1 Eb4:1 B3:2 Eb4:2 | F#4:2 A4:2 B4:3 -:1"
         },
         {
-          "wave": "triangle",
-          "volume": 0.36,
-          "notes": "E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | C2:1 C2:1 C3:1 C2:1 G2:1 C2:1 C3:1 G2:1 | D2:1 D2:1 D3:1 D2:1 A2:1 D2:1 D3:1 A2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | C2:1 C2:1 C3:1 C2:1 G2:1 C2:1 C3:1 G2:1 | B1:1 B1:1 B2:1 B1:1 F#2:1 B1:1 B2:1 F#2:1 | A1:1 A1:1 A2:1 A1:1 E2:1 A1:1 A2:1 E2:1 | A1:1 A1:1 A2:1 A1:1 E2:1 A1:1 A2:1 E2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | C2:1 C2:1 C3:1 C2:1 G2:1 C2:1 C3:1 G2:1 | D2:1 D2:1 D3:1 D2:1 A2:1 D2:1 D3:1 A2:1 | B1:1 B1:1 B2:1 B1:1 F#2:1 B1:1 B2:1 F#2:1 | B1:1 B1:1 B2:1 B1:1 F#2:1 B1:1 B2:1 F#2:1"
+          "instrument": "pizzicato",
+          "volume": 0.265,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "G4:4 B4:4 | G4:4 B4:4 | G4:4 E4:4 | F#4:4 A4:4 | G4:4 B4:4 | G4:4 B4:4 | G4:4 E4:4 | F#4:4 D#4:4 | A4:4 C5:4 | A4:4 C5:4 | G4:4 B4:4 | G4:4 B4:4 | G4:4 E4:4 | F#4:4 A4:4 | F#4:4 D#4:4 | F#4:4 D#4:4 | G4:4 B4:4 | G4:4 B4:4 | G4:4 E4:4 | F#4:4 A4:4 | G4:4 B4:4 | G4:4 B4:4 | G4:4 E4:4 | F#4:4 D#4:4 | A4:4 C5:4 | A4:4 C5:4 | G4:4 B4:4 | G4:4 B4:4 | G4:4 E4:4 | F#4:4 A4:4 | F#4:4 D#4:4 | F#4:4 D#4:4"
         },
         {
-          "wave": "noise",
-          "volume": 0.06,
-          "notes": "N:1 -:1 N:1 N:1 N:1 -:1 N:1 -:1 | N:1 -:1 N:1 N:1 N:1 N:1 N:1 N:1"
+          "instrument": "bass",
+          "volume": 0.184,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | C2:1 C2:1 C3:1 C2:1 G2:1 C2:1 C3:1 G2:1 | D2:1 D2:1 D3:1 D2:1 A2:1 D2:1 D3:1 A2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | C2:1 C2:1 C3:1 C2:1 G2:1 C2:1 C3:1 G2:1 | B1:1 B1:1 B2:1 B1:1 F#2:1 B1:1 B2:1 F#2:1 | A1:1 A1:1 A2:1 A1:1 E2:1 A1:1 A2:1 E2:1 | A1:1 A1:1 A2:1 A1:1 E2:1 A1:1 A2:1 E2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | C2:1 C2:1 C3:1 C2:1 G2:1 C2:1 C3:1 G2:1 | D2:1 D2:1 D3:1 D2:1 A2:1 D2:1 D3:1 A2:1 | B1:1 B1:1 B2:1 B1:1 F#2:1 B1:1 B2:1 F#2:1 | B1:1 B1:1 B2:1 B1:1 F#2:1 B1:1 B2:1 F#2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | C2:1 C2:1 C3:1 C2:1 G2:1 C2:1 C3:1 G2:1 | D2:1 D2:1 D3:1 D2:1 A2:1 D2:1 D3:1 A2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | C2:1 C2:1 C3:1 C2:1 G2:1 C2:1 C3:1 G2:1 | B1:1 B1:1 B2:1 B1:1 F#2:1 B1:1 B2:1 F#2:1 | A1:1 A1:1 A2:1 A1:1 E2:1 A1:1 A2:1 E2:1 | A1:1 A1:1 A2:1 A1:1 E2:1 A1:1 A2:1 E2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | E2:1 E2:1 E3:1 E2:1 B2:1 E2:1 E3:1 B2:1 | C2:1 C2:1 C3:1 C2:1 G2:1 C2:1 C3:1 G2:1 | D2:1 D2:1 D3:1 D2:1 A2:1 D2:1 D3:1 A2:1 | B1:1 B1:1 B2:1 B1:1 F#2:1 B1:1 B2:1 F#2:1 | B1:1 B1:1 B2:1 B1:1 F#2:1 B1:1 B2:1 F#2:1"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.098,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1"
         }
       ]
     },
@@ -474,28 +776,42 @@
       "id": "battle_dark",
       "title": "Shadow Skirmish",
       "tempo": 156,
+      "reverb": 0.18,
       "tracks": [
         {
-          "wave": "square",
-          "duty": 0.25,
-          "volume": 0.14,
-          "notes": "F#5:2 B5:2 D6:1 C#6:1 B5:2 | C#6:1 D6:1 E6:1 D6:1 C#6:1 B5:1 A#5:2 | B5:3 G5:1 D5:2 G5:2 | A#5:2 C#6:2 F#6:3 -:1 | F#5:2 B5:2 D6:1 C#6:1 B5:2 | D6:1 E6:1 F#6:2 E6:1 D6:1 C#6:2 | B5:1 E6:1 G6:2 F#6:1 E6:1 B5:2 | A#5:1 C#6:1 E6:2 C#6:2 A#5:2 | B5:2 D6:2 G6:2 F#6:1 E6:1 | E6:2 C#6:2 A5:2 C#6:1 E6:1 | F#6:3 E6:1 D6:2 B5:2 | D6:1 C#6:1 B5:1 A5:1 F#5:4 | G5:1 A5:1 B5:1 D6:1 G6:2 F#6:2 | E6:1 D6:1 B5:1 G5:1 E5:2 G5:2 | F#5:1 A#5:1 C#6:1 E6:1 F#6:2 E6:2 | C#6:2 A#5:2 F#5:3 -:1"
+          "instrument": "strings",
+          "volume": 0.892,
+          "pan": 0.0,
+          "reverb": 0.9,
+          "notes": "F#5:2 B5:2 D6:1 C#6:1 B5:2 | C#6:1 D6:1 E6:1 D6:1 C#6:1 B5:1 A#5:2 | B5:3 G5:1 D5:2 G5:2 | A#5:2 C#6:2 F#6:3 -:1 | F#5:2 B5:2 D6:1 C#6:1 B5:2 | D6:1 E6:1 F#6:2 E6:1 D6:1 C#6:2 | B5:1 E6:1 G6:2 F#6:1 E6:1 B5:2 | A#5:1 C#6:1 E6:2 C#6:2 A#5:2 | B5:2 D6:2 G6:2 F#6:1 E6:1 | E6:2 C#6:2 A5:2 C#6:1 E6:1 | F#6:3 E6:1 D6:2 B5:2 | D6:1 C#6:1 B5:1 A5:1 F#5:4 | G5:1 A5:1 B5:1 D6:1 G6:2 F#6:2 | E6:1 D6:1 B5:1 G5:1 E5:2 G5:2 | F#5:1 A#5:1 C#6:1 E6:1 F#6:2 E6:2 | C#6:2 A#5:2 F#5:3 -:1 | -:128"
         },
         {
-          "wave": "square",
-          "duty": 0.5,
-          "volume": 0.04,
-          "notes": "B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 G4:1 D4:1 B3:1 D4:1 G4:1 D4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 E4:1 G4:1 E4:1 B3:1 E4:1 G4:1 E4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1 | B3:1 D4:1 G4:1 D4:1 B3:1 D4:1 G4:1 D4:1 | A3:1 C#4:1 E4:1 C#4:1 A3:1 C#4:1 E4:1 C#4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 G4:1 D4:1 B3:1 D4:1 G4:1 D4:1 | B3:1 E4:1 G4:1 E4:1 B3:1 E4:1 G4:1 E4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1"
+          "instrument": "reed",
+          "volume": 0.615,
+          "pan": 0.1,
+          "reverb": 0.9,
+          "notes": "-:128 | F#5:2 B5:2 D6:1 C#6:1 B5:2 | C#6:1 D6:1 E6:1 D6:1 C#6:1 B5:1 A#5:2 | B5:3 G5:1 D5:2 G5:2 | A#5:2 C#6:2 F#6:3 -:1 | F#5:2 B5:2 D6:1 C#6:1 B5:2 | D6:1 E6:1 F#6:2 E6:1 D6:1 C#6:2 | B5:1 E6:1 G6:2 F#6:1 E6:1 B5:2 | A#5:1 C#6:1 E6:2 C#6:2 A#5:2 | B5:2 D6:2 G6:2 F#6:1 E6:1 | E6:2 C#6:2 A5:2 C#6:1 E6:1 | F#6:3 E6:1 D6:2 B5:2 | D6:1 C#6:1 B5:1 A5:1 F#5:4 | G5:1 A5:1 B5:1 D6:1 G6:2 F#6:2 | E6:1 D6:1 B5:1 G5:1 E5:2 G5:2 | F#5:1 A#5:1 C#6:1 E6:1 F#6:2 E6:2 | C#6:2 A#5:2 F#5:3 -:1"
         },
         {
-          "wave": "triangle",
-          "volume": 0.36,
-          "notes": "B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | G1:1 G2:1 -:1 G1:1 G2:1 -:1 G1:1 G2:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | E2:1 E3:1 -:1 E2:1 E3:1 -:1 E2:1 E3:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1 | G1:1 G2:1 -:1 G1:1 G2:1 -:1 G1:1 G2:1 | A1:1 A2:1 -:1 A1:1 A2:1 -:1 A1:1 A2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | G1:1 G2:1 -:1 G1:1 G2:1 -:1 G1:1 G2:1 | E2:1 E3:1 -:1 E2:1 E3:1 -:1 E2:1 E3:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1"
+          "instrument": "pizzicato",
+          "volume": 0.182,
+          "pan": -0.35,
+          "reverb": 1.0,
+          "notes": "B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 G4:1 D4:1 B3:1 D4:1 G4:1 D4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 E4:1 G4:1 E4:1 B3:1 E4:1 G4:1 E4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1 | B3:1 D4:1 G4:1 D4:1 B3:1 D4:1 G4:1 D4:1 | A3:1 C#4:1 E4:1 C#4:1 A3:1 C#4:1 E4:1 C#4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 G4:1 D4:1 B3:1 D4:1 G4:1 D4:1 | B3:1 E4:1 G4:1 E4:1 B3:1 E4:1 G4:1 E4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 G4:1 D4:1 B3:1 D4:1 G4:1 D4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 E4:1 G4:1 E4:1 B3:1 E4:1 G4:1 E4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1 | B3:1 D4:1 G4:1 D4:1 B3:1 D4:1 G4:1 D4:1 | A3:1 C#4:1 E4:1 C#4:1 A3:1 C#4:1 E4:1 C#4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 F#4:1 D4:1 B3:1 D4:1 F#4:1 D4:1 | B3:1 D4:1 G4:1 D4:1 B3:1 D4:1 G4:1 D4:1 | B3:1 E4:1 G4:1 E4:1 B3:1 E4:1 G4:1 E4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1 | A#3:1 C#4:1 F#4:1 C#4:1 A#3:1 C#4:1 F#4:1 C#4:1"
         },
         {
-          "wave": "noise",
-          "volume": 0.06,
-          "notes": "N:1 -:1 -:1 N:1 -:1 -:1 N:1 N:1"
+          "instrument": "bass",
+          "volume": 0.187,
+          "pan": 0.0,
+          "reverb": 0.25,
+          "notes": "B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | G1:1 G2:1 -:1 G1:1 G2:1 -:1 G1:1 G2:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | E2:1 E3:1 -:1 E2:1 E3:1 -:1 E2:1 E3:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1 | G1:1 G2:1 -:1 G1:1 G2:1 -:1 G1:1 G2:1 | A1:1 A2:1 -:1 A1:1 A2:1 -:1 A1:1 A2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | G1:1 G2:1 -:1 G1:1 G2:1 -:1 G1:1 G2:1 | E2:1 E3:1 -:1 E2:1 E3:1 -:1 E2:1 E3:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | G1:1 G2:1 -:1 G1:1 G2:1 -:1 G1:1 G2:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | E2:1 E3:1 -:1 E2:1 E3:1 -:1 E2:1 E3:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1 | G1:1 G2:1 -:1 G1:1 G2:1 -:1 G1:1 G2:1 | A1:1 A2:1 -:1 A1:1 A2:1 -:1 A1:1 A2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | B1:1 B2:1 -:1 B1:1 B2:1 -:1 B1:1 B2:1 | G1:1 G2:1 -:1 G1:1 G2:1 -:1 G1:1 G2:1 | E2:1 E3:1 -:1 E2:1 E3:1 -:1 E2:1 E3:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1 | F#1:1 F#2:1 -:1 F#1:1 F#2:1 -:1 F#1:1 F#2:1"
+        },
+        {
+          "instrument": "drums",
+          "volume": 0.095,
+          "pan": 0.15,
+          "reverb": 0.4,
+          "notes": "K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1 | K:1 H:1 S:1 H:1 K:1 K:1 S:1 H:1"
         }
       ]
     }
