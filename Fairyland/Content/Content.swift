@@ -276,6 +276,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let ponds: Int?
         let fairyRings: FairyRings?
         let props: [PropPlacement]
+        /// The map's colour mood for ground, scenery and buildings.
+        let palette: MapPalette?
     }
 
     nonisolated struct PropPlacement: Decodable, Sendable {
@@ -284,8 +286,19 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let blocking: Bool
         /// Grow in groups of about this many (groves, rock piles) instead of evenly.
         let cluster: Int?
+        /// How far (in cells) a group spreads from its centre; smaller packs a grove tighter.
+        let spread: Int?
+        /// Each one is drawn at a random size in this range ([0.8, 1.25] = 80% to 125%).
+        let size: [Double]?
+        /// A soft glow around each one (crystals, glowing mushrooms, lanterns), e.g. "#9FE8FF".
+        let glow: String?
+        /// A soft shadow on the ground under each one (trees, big rocks).
+        let shadow: Bool?
         /// Sways gently in the breeze.
         let sway: Bool?
+        /// Plant only within this many cells of the map's centre, inside a town's fence too
+        /// (flower beds around the square). Otherwise props go anywhere free (in towns: the border).
+        let within: Int?
     }
 
     nonisolated struct FairyRings: Decodable, Sendable {
@@ -310,6 +323,35 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let tint: String?
         let tintAlpha: Double?
         let vignette: Double?
+        /// Soft pools of light on the ground (dappled sunlight, moonlight). See `Lighting`.
+        let lightPatches: Lights?
+        /// Long soft sunbeams slanting across the map.
+        let sunbeams: Lights?
+        /// A big soft glow in the top corner of the screen, as if the sun were just out of view.
+        let sun: String?
+        /// Distance haze: the top of the screen fades toward this colour, by `hazeAlpha`.
+        let haze: String?
+        let hazeAlpha: Double?
+        /// Out-of-focus scenery drifting past in front of the camera.
+        let foreground: Foreground?
+
+        nonisolated struct Lights: Decodable, Sendable {
+            let color: String
+            let count: Int
+            /// Width range in points.
+            let size: [Double]?
+            let alpha: Double?
+        }
+
+        nonisolated struct Foreground: Decodable, Sendable {
+            /// Sprites to blur, picked at random.
+            let art: [String]
+            let count: Int
+            let alpha: Double?
+            /// Blur radius in texture pixels, and how many times bigger than the sprite.
+            let blur: Double?
+            let scale: Double?
+        }
     }
 
     nonisolated struct Exit: Decodable, Sendable {

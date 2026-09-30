@@ -1,0 +1,10 @@
+# Scenes for tools/screenshots.sh (and the Screenshots GitHub Action).
+# name | FAIRYLAND_DEBUG flags (see Fairyland/App/DebugLaunch.swift) | seconds to wait before the shot
+title        |                                   | 6
+meadowbrook  | newgame                           | 8
+sunny_meadow | newgame,map=sunny_meadow          | 8
+smiling_forest | newgame,map=smiling_forest       | 8
+battle       | newgame,map=sunny_meadow,battle   | 10
+character    | newgame,menu=character            | 8
+companions   | newgame,level=5,menu=companions   | 8
+landscape    | newgame,map=rainbow_city,landscape | 8

@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "blue ice crystal rock",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 32,
+    "height": 32,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790784472,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 51.131,
+    "request_id": "e362eedd-f5d2-4ef3-83a8-ad97eafe9325",
+    "outputs_retained_until": 1790870863
+  }
+}
