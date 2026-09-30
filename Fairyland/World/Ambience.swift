@@ -99,8 +99,8 @@ final class Ambience {
         emitter.emissionAngle = -.pi / 2 - 0.15
         emitter.emissionAngleRange = 0.35
         emitter.xAcceleration = 6
-        emitter.particleScale = 0.7
-        emitter.particleScaleRange = 0.25
+        emitter.particleScale = 0.35
+        emitter.particleScaleRange = 0.12
         emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.8, 0.8, 0], times: [0, 0.1, 0.85, 1])
         return emitter
     }
@@ -160,8 +160,8 @@ final class Ambience {
             emitter.emissionAngle = -.pi / 2
             emitter.emissionAngleRange = 0.5
             emitter.xAcceleration = 3
-            emitter.particleScale = 0.28
-            emitter.particleScaleRange = 0.14
+            emitter.particleScale = 0.16
+            emitter.particleScaleRange = 0.07
             emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.95, 0.95, 0], times: [0, 0.1, 0.85, 1])
         case "dust":
             emitter.particleTexture = SoftTextures.glow
