@@ -8,3 +8,7 @@ battle       | newgame,map=sunny_meadow,battle   | 10
 character    | newgame,menu=character            | 8
 companions   | newgame,level=5,menu=companions   | 8
 landscape    | newgame,map=rainbow_city,landscape | 8
+intro_story  | intro                             | 6
+intro_play   | intro=2                           | 6
+intro_world  | intro=3                           | 6
+coach        | newgame,coach                     | 9

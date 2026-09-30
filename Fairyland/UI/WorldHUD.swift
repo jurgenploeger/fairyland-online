@@ -12,6 +12,7 @@ struct WorldHUD: View {
         ZStack {
             VStack(alignment: .leading, spacing: 6) {
                 StatusCluster(session: session)
+                    .coachTarget(.status)
                 CalendarPlate(session: session)
                 SystemLog(lines: session.log)
             }
@@ -27,14 +28,17 @@ struct WorldHUD: View {
                     rows: coordinator.world.def.height,
                     onOpen: { coordinator.open(.worldMap) }
                 )
+                .coachTarget(.minimap)
                 FLIconButton(icon: .talk, label: "Chat", size: 40, badge: session.unreadChat > 0) {
                     coordinator.open(.chat)
                 }
+                .coachTarget(.chat)
                 SavedBadge(lastSaved: session.lastSaved)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
 
             JoystickView(input: coordinator.input)
+                .coachTarget(.joystick)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                 .padding(.leading, 8)
                 .padding(.bottom, 10)
@@ -59,6 +63,7 @@ struct WorldHUD: View {
                         }
                     }
                 }
+                .coachTarget(.toolbar)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             .padding(.bottom, 14)
