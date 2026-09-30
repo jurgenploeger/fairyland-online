@@ -40,7 +40,7 @@ struct TitleView: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .onAppear { MusicPlayer.shared.play("town") }
+        .onAppear { MusicPlayer.shared.play("title") }
         .alert("Start a new game?", isPresented: $confirmNewGame) {
             Button("New game", role: .destructive) { creating = true }
             Button("Cancel", role: .cancel) {}

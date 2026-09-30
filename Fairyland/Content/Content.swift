@@ -332,6 +332,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
     let width: Int
     let height: Int
     let music: String?
+    /// Song for random battles here (content/music.json); "battle" when unset.
+    let battleMusic: String?
     let theme: Theme
     let fence: Bool?
     let exits: [Exit]

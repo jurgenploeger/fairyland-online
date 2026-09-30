@@ -92,6 +92,8 @@ for map_def in maps.values():
         check(monster in monsters, f"map {map_def['id']} → unknown monster {monster}")
     if map_def.get("music"):
         check(map_def["music"] in songs, f"map {map_def['id']} → unknown song {map_def['music']}")
+    if map_def.get("battleMusic"):
+        check(map_def["battleMusic"] in songs, f"map {map_def['id']} → unknown battle song {map_def['battleMusic']}")
     theme = map_def["theme"]
     town = map_def.get("town") or {}
     tiles = [theme["ground"], theme["path"]] + [theme[k] for k in ("accent", "border", "water") if theme.get(k)]

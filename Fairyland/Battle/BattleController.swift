@@ -29,6 +29,8 @@ final class BattleController {
     private(set) var result: BattleResult?
 
     let session: GameSession
+    /// What plays during the fight: the map's battle theme, or the boss theme.
+    @ObservationIgnored var music: String
     @ObservationIgnored weak var scene: BattleScene?
     @ObservationIgnored var onFinish: (@MainActor (BattleOutcome) -> Void)?
     private let engine: BattleEngine
@@ -37,6 +39,11 @@ final class BattleController {
     init(engine: BattleEngine, session: GameSession, intro: String? = nil) {
         self.engine = engine
         self.session = session
+        // Like Fairyland Online, a foe 5+ levels above you gets the tougher battle theme.
+        let toughest = engine.alive(on: .enemies).map(\.level).max() ?? 0
+        music = toughest >= session.data.hero.level + 5
+            ? "battle_dark"
+            : session.content.map(session.data.mapID)?.battleMusic ?? "battle"
         combatants = engine.combatants
         let names = engine.alive(on: .enemies).map(\.name)
         message = intro ?? (names.count == 1 ? "A wild \(names[0]) appears!" : "\(names.count) monsters appear!")
@@ -107,7 +114,9 @@ final class BattleController {
                              level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp,
                              skills: species.skills, captureRate: 0)
         let engine = BattleEngine(party: party(for: session), enemies: [boss], content: session.content)
-        return BattleController(engine: engine, session: session, intro: "\(species.name) blocks your way!")
+        let controller = BattleController(engine: engine, session: session, intro: "\(species.name) blocks your way!")
+        controller.music = "boss"
+        return controller
     }
 
     /// Builds a random encounter for the current map.

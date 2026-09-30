@@ -51,6 +51,9 @@ struct ContentTests {
             if let music = map.music {
                 #expect(content.song(music) != nil, "map \(map.id) → unknown song \(music)")
             }
+            if let music = map.battleMusic {
+                #expect(content.song(music) != nil, "map \(map.id) → unknown battle song \(music)")
+            }
             for npc in map.npcs ?? [] {
                 #expect(ArtLibrary.shared.asset(npc.art) != nil, "npc \(npc.id) → unknown art \(npc.art)")
                 for item in npc.stock ?? [] {
