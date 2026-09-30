@@ -88,3 +88,4 @@
 {"date": "2026-09-29T16:55:22", "asset": "stone_stairs", "style": "rd_tile__tile_object", "size": "64x64", "images": 1, "cost": 0.03, "balance": 52.977, "prompt": "short stone stairs going up, isometric"}
 {"date": "2026-09-29T16:55:38", "asset": "wall_pillar", "style": "rd_tile__tile_object", "size": "32x64", "images": 1, "cost": 0.026, "balance": 52.951, "prompt": "carved stone pillar with a round top"}
 {"date": "2026-09-29T16:56:08", "asset": "dwarf_walk", "style": "rd_animation__four_angle_walking", "size": "48x48", "images": 1, "cost": 0.07, "balance": 52.881, "prompt": "cute chibi dwarf adventurer, short and stocky, big bushy ginger beard, ginger hair, green tunic, brown belt and boots"}
+{"date": "2026-09-30T13:13:20", "asset": "style_test_potion", "style": "rd_pro__fantasy", "size": "64x64", "images": 1, "cost": 0.18, "balance": 52.701, "prompt": "round red healing potion bottle with a cork, cute fairytale game item icon, soft 3D shading"}
