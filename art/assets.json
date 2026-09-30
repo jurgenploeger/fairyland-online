@@ -1618,6 +1618,575 @@
       }
     },
     {
+      "id": "bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 112,
+            "value": 0.88
+          }
+        ]
+      }
+    },
+    {
+      "id": "flowering_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "blossom_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "autumn_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "autumn_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dry_bush",
+      "kind": "prop",
+      "scale": 0.45,
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 48,
+            "saturation": 0.55,
+            "value": 0.85
+          }
+        ]
+      }
+    },
+    {
+      "id": "moss_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 85,
+            "saturation": 0.7,
+            "value": 0.62
+          }
+        ]
+      }
+    },
+    {
+      "id": "dark_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "dark_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "snow_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "snow_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "daisy",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "giant_flower",
+        "recolor": []
+      }
+    },
+    {
+      "id": "daisy_yellow",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "giant_flower",
+        "recolor": [
+          {
+            "hue": [
+              280,
+              20
+            ],
+            "minSaturation": 0.2,
+            "to": 48,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "daisy_blue",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "giant_flower",
+        "recolor": [
+          {
+            "hue": [
+              280,
+              20
+            ],
+            "minSaturation": 0.2,
+            "to": 212
+          }
+        ]
+      }
+    },
+    {
+      "id": "pink_crystal",
+      "kind": "prop",
+      "derive": {
+        "from": "crystal",
+        "recolor": [
+          {
+            "hue": [
+              140,
+              210
+            ],
+            "to": 322,
+            "saturation": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "amber_crystal",
+      "kind": "prop",
+      "derive": {
+        "from": "crystal",
+        "recolor": [
+          {
+            "hue": [
+              140,
+              210
+            ],
+            "to": 40,
+            "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "violet_crystal",
+      "kind": "prop",
+      "derive": {
+        "from": "crystal",
+        "recolor": [
+          {
+            "hue": [
+              140,
+              210
+            ],
+            "to": 272
+          }
+        ]
+      }
+    },
+    {
+      "id": "crystal_shard",
+      "kind": "prop",
+      "scale": 0.55,
+      "derive": {
+        "from": "crystal",
+        "recolor": []
+      }
+    },
+    {
+      "id": "pink_shard",
+      "kind": "prop",
+      "scale": 0.55,
+      "derive": {
+        "from": "pink_crystal",
+        "recolor": []
+      }
+    },
+    {
+      "id": "purple_mushroom",
+      "kind": "prop",
+      "derive": {
+        "from": "mushroom",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.3,
+            "to": 282
+          }
+        ]
+      }
+    },
+    {
+      "id": "blue_mushroom",
+      "kind": "prop",
+      "derive": {
+        "from": "mushroom",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.3,
+            "to": 205
+          }
+        ]
+      }
+    },
+    {
+      "id": "blue_giant_mushroom",
+      "kind": "prop",
+      "derive": {
+        "from": "giant_mushroom",
+        "recolor": [
+          {
+            "hue": [
+              325,
+              20
+            ],
+            "minSaturation": 0.3,
+            "to": 208
+          }
+        ]
+      }
+    },
+    {
+      "id": "toadstool",
+      "kind": "prop",
+      "scale": 0.45,
+      "derive": {
+        "from": "giant_mushroom",
+        "recolor": []
+      }
+    },
+    {
+      "id": "pebbles",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "rock",
+        "recolor": []
+      }
+    },
+    {
+      "id": "small_boulder",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "boulder",
+        "recolor": []
+      }
+    },
+    {
+      "id": "sandstone_boulder",
+      "kind": "prop",
+      "derive": {
+        "from": "boulder",
+        "recolor": [
+          {
+            "hue": [
+              60,
+              145
+            ],
+            "minSaturation": 0.1,
+            "to": 38,
+            "saturation": 0.9,
+            "value": 1.05
+          },
+          {
+            "hue": [
+              145,
+              230
+            ],
+            "minSaturation": 0.05,
+            "to": 28,
+            "saturation": 2.2,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "red_rock",
+      "kind": "prop",
+      "scale": 0.8,
+      "derive": {
+        "from": "rock",
+        "recolor": [
+          {
+            "hue": [
+              60,
+              145
+            ],
+            "minSaturation": 0.1,
+            "to": 20,
+            "saturation": 1.1
+          },
+          {
+            "hue": [
+              145,
+              230
+            ],
+            "minSaturation": 0.05,
+            "to": 12,
+            "saturation": 2.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "yellow_cactus",
+      "kind": "prop",
+      "derive": {
+        "from": "cactus",
+        "recolor": [
+          {
+            "hue": [
+              290,
+              355
+            ],
+            "to": 50,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "small_cactus",
+      "kind": "prop",
+      "scale": 0.6,
+      "derive": {
+        "from": "cactus",
+        "recolor": []
+      }
+    },
+    {
+      "id": "palm_sapling",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "palm_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "pine_sapling",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "snow_pine",
+        "recolor": []
+      }
+    },
+    {
+      "id": "frost_pine",
+      "kind": "prop",
+      "derive": {
+        "from": "snow_pine",
+        "recolor": [
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "to": 188,
+            "saturation": 0.55,
+            "value": 1.12
+          }
+        ]
+      }
+    },
+    {
+      "id": "autumn_reeds",
+      "kind": "prop",
+      "derive": {
+        "from": "reeds",
+        "recolor": [
+          {
+            "hue": [
+              70,
+              145
+            ],
+            "to": 38,
+            "value": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "small_stalagmite",
+      "kind": "prop",
+      "scale": 0.55,
+      "derive": {
+        "from": "stalagmite",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dead_bush",
+      "kind": "prop",
+      "scale": 0.42,
+      "derive": {
+        "from": "dead_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "golden_tree",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 46,
+            "saturation": 1.05,
+            "value": 1.12
+          }
+        ]
+      }
+    },
+    {
+      "id": "red_maple",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 356,
+            "saturation": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "golden_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "golden_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "frost_tree",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 192,
+            "saturation": 0.4,
+            "value": 1.15
+          }
+        ]
+      }
+    },
+    {
+      "id": "swamp_tree",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 150,
+            "saturation": 0.8,
+            "value": 0.72
+          }
+        ]
+      }
+    },
+    {
+      "id": "small_skull",
+      "kind": "prop",
+      "scale": 0.6,
+      "derive": {
+        "from": "skull_bones",
+        "recolor": []
+      }
+    },
+    {
+      "id": "lilac_tree",
+      "kind": "prop",
+      "derive": {
+        "from": "blossom_tree",
+        "recolor": [
+          {
+            "hue": [
+              290,
+              355
+            ],
+            "to": 272,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "lilac_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "lilac_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "sapling",
+      "kind": "prop",
+      "scale": 0.4,
+      "derive": {
+        "from": "tree",
+        "recolor": []
+      }
+    },
+    {
       "id": "monster_golden_hamster_azure",
       "kind": "monster",
       "derive": {
@@ -2219,6 +2788,581 @@
             ],
             "minSaturation": 0.3,
             "to": 358
+          }
+        ]
+      }
+    },
+    {
+      "id": "tree_stump",
+      "kind": "prop",
+      "request": {
+        "prompt": "mossy tree stump with a tiny mushroom",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "fallen_log",
+      "kind": "prop",
+      "request": {
+        "prompt": "fallen mossy log with ferns",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "fern",
+      "kind": "prop",
+      "request": {
+        "prompt": "lush green fern plant",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "berry_bush",
+      "kind": "prop",
+      "request": {
+        "prompt": "round bush with red berries",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "sunflower",
+      "kind": "prop",
+      "request": {
+        "prompt": "tall cheerful sunflower",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "tulip_patch",
+      "kind": "prop",
+      "request": {
+        "prompt": "small patch of red and yellow tulips",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "clover_patch",
+      "kind": "prop",
+      "request": {
+        "prompt": "patch of clover with tiny white flowers",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "haystack",
+      "kind": "prop",
+      "request": {
+        "prompt": "round golden haystack",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "pumpkin_patch",
+      "kind": "prop",
+      "request": {
+        "prompt": "cute orange pumpkins with leaves",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "beehive_tree",
+      "kind": "prop",
+      "request": {
+        "prompt": "fairytale tree with a hanging beehive",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "fairy_ring",
+      "kind": "prop",
+      "request": {
+        "prompt": "ring of tiny glowing toadstools",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "wisp_lantern",
+      "kind": "prop",
+      "request": {
+        "prompt": "floating magic lantern flower glowing blue",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "hollow_tree",
+      "kind": "prop",
+      "request": {
+        "prompt": "hollow old tree with a round door, whimsical",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "seashells",
+      "kind": "prop",
+      "request": {
+        "prompt": "pink and white seashells and a starfish on sand",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "driftwood",
+      "kind": "prop",
+      "request": {
+        "prompt": "bleached driftwood branch",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "beach_umbrella",
+      "kind": "prop",
+      "request": {
+        "prompt": "striped beach umbrella",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "coral",
+      "kind": "prop",
+      "request": {
+        "prompt": "pink and orange coral",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "ice_rock",
+      "kind": "prop",
+      "request": {
+        "prompt": "blue ice crystal rock",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "frozen_bush",
+      "kind": "prop",
+      "request": {
+        "prompt": "frost-covered bush with icicles",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "snowman_prop",
+      "kind": "prop",
+      "request": {
+        "prompt": "little snowman with a carrot nose and scarf",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "lotus",
+      "kind": "prop",
+      "request": {
+        "prompt": "pink lotus flower on a lily pad",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "swamp_stump",
+      "kind": "prop",
+      "request": {
+        "prompt": "rotten stump with glowing fungus",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "cattail_log",
+      "kind": "prop",
+      "request": {
+        "prompt": "half-sunken log in murky water with cattails",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "tombstone",
+      "kind": "prop",
+      "request": {
+        "prompt": "crooked old stone tombstone",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "spooky_lantern",
+      "kind": "prop",
+      "request": {
+        "prompt": "carved jack-o-lantern",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "thorn_bush",
+      "kind": "prop",
+      "request": {
+        "prompt": "dark thorny bramble",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "ore_vein",
+      "kind": "prop",
+      "request": {
+        "prompt": "rock with glittering gold ore",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "mine_beam",
+      "kind": "prop",
+      "request": {
+        "prompt": "wooden mine support beams",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "glow_moss_rock",
+      "kind": "prop",
+      "request": {
+        "prompt": "cave rock covered in glowing green moss",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "desert_pot",
+      "kind": "prop",
+      "request": {
+        "prompt": "cracked clay pot",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "sand_ruin",
+      "kind": "prop",
+      "request": {
+        "prompt": "broken sandstone pillar ruin",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "oasis_palm",
+      "kind": "prop",
+      "request": {
+        "prompt": "lush palm tree by a tiny oasis pond",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "tumbleweed",
+      "kind": "prop",
+      "request": {
+        "prompt": "dry tumbleweed",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "wooden_crates",
+      "kind": "prop",
+      "request": {
+        "prompt": "stack of wooden crates",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "barrels",
+      "kind": "prop",
+      "request": {
+        "prompt": "two wooden barrels",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "water_well",
+      "kind": "prop",
+      "request": {
+        "prompt": "stone water well with a little roof",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "signpost",
+      "kind": "prop",
+      "request": {
+        "prompt": "wooden signpost with arrows",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "statue",
+      "kind": "prop",
+      "request": {
+        "prompt": "small stone fairy statue on a plinth",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "moon_flower",
+      "kind": "prop",
+      "request": {
+        "prompt": "glowing white moon flower",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "star_crystal",
+      "kind": "prop",
+      "request": {
+        "prompt": "star-shaped glowing crystal",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "big_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_red_maple",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "red_maple",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_golden_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "golden_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_blossom_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "blossom_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_hollow_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "hollow_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_dark_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "dark_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_lilac_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "lilac_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_snow_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "snow_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_snow_pine",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "snow_pine",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_frost_pine",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "frost_pine",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_frost_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "frost_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_swamp_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "swamp_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_dead_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "dead_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "frost_fern",
+      "kind": "prop",
+      "derive": {
+        "from": "fern",
+        "recolor": [
+          {
+            "hue": [
+              40,
+              180
+            ],
+            "to": 195,
+            "saturation": 0.35,
+            "value": 1.25
           }
         ]
       }

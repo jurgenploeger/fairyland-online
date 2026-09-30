@@ -1,0 +1,89 @@
+# Builds the app for the iOS Simulator, launches it once per scene in tools/screenshots.txt and
+# saves the screenshots to the `screenshots` branch under <branch>/, so they can be viewed from a
+# phone (or fetched by a Claude cloud session, which can't run Xcode).
+name: Screenshots
+
+on:
+  push:
+    branches: ["claude/**"]
+    paths: ["Fairyland/**", "content/**", "art/**", "project.yml", "tools/screenshots.*", ".github/workflows/screenshots.yml"]
+  workflow_dispatch:
+    inputs:
+      scenes:
+        description: "Only these scenes (comma-separated names from tools/screenshots.txt). Empty = all."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build for the simulator
+        run: |
+          xcodebuild -version
+          xcodebuild -project Fairyland.xcodeproj -scheme Fairyland -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO -quiet build
+
+      - name: Boot a simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available | grep -m1 -E 'iPhone 1[6-9] Pro \(' | grep -oE '[0-9A-F-]{36}')
+          test -n "$UDID" || { xcrun simctl list devices available; exit 1; }
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Take screenshots
+        run: |
+          tools/screenshots.sh "${{ steps.sim.outputs.udid }}" \
+            build/DerivedData/Build/Products/Debug-iphonesimulator/Fairyland.app \
+            shots tools/screenshots.txt "${{ inputs.scenes }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: shots
+
+      - name: Publish to the screenshots branch
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin screenshots || true
+          git worktree add -B screenshots ../pub origin/screenshots 2>/dev/null \
+            || { git worktree add --detach ../pub && cd ../pub && git checkout --orphan screenshots && git rm -rfq . && cd -; }
+          mkdir -p "../pub/$BRANCH"
+          cp shots/*.png "../pub/$BRANCH/"
+          echo "${GITHUB_SHA}" > "../pub/$BRANCH/COMMIT"
+          cd ../pub
+          git add -A
+          git commit -qm "Screenshots of $BRANCH at ${GITHUB_SHA::7}" || exit 0
+          git push -q origin screenshots
+
+      - name: Summary
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          echo "## Screenshots of \`${BRANCH}\` at \`${GITHUB_SHA::7}\`" >> "$GITHUB_STEP_SUMMARY"
+          for f in shots/*.png; do
+            n=$(basename "$f")
+            echo "**${n%.png}**<br><img src=\"https://github.com/${GITHUB_REPOSITORY}/blob/screenshots/${BRANCH}/${n}?raw=true\" width=\"260\">" >> "$GITHUB_STEP_SUMMARY"
+            echo >> "$GITHUB_STEP_SUMMARY"
+          done
