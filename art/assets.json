@@ -51,7 +51,7 @@
         "left"
       ],
       "request": {
-        "prompt": "cute chibi dwarf adventurer, short and stocky, big bushy ginger beard, ginger hair, green tunic, brown belt and boots",
+        "prompt": "cute chibi dwarf adventurer kid, short and stocky, round rosy cheeks, clean-shaven with no beard and no moustache, ginger hair, green tunic, brown belt and boots",
         "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
@@ -60,6 +60,24 @@
       "derive": {
         "from": "player_walk",
         "recolor": []
+      }
+    },
+    {
+      "id": "dwarf_npc_walk",
+      "kind": "walk_sheet",
+      "frame": 48,
+      "directions": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "request": {
+        "prompt": "cute chibi dwarf, short and stocky, big bushy ginger beard, ginger hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
       }
     },
     {
@@ -520,7 +538,7 @@
       "id": "npc_trader",
       "kind": "walk_sheet",
       "derive": {
-        "from": "dwarf_walk",
+        "from": "dwarf_npc_walk",
         "recolor": [
           {
             "hue": [
@@ -594,7 +612,7 @@
       "id": "npc_warrior",
       "kind": "walk_sheet",
       "derive": {
-        "from": "dwarf_walk",
+        "from": "dwarf_npc_walk",
         "recolor": [
           {
             "hue": [
@@ -2162,7 +2180,7 @@
         "left"
       ],
       "derive": {
-        "from": "dwarf_walk",
+        "from": "dwarf_npc_walk",
         "recolor": [
           {
             "hue": [
