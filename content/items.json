@@ -85,7 +85,7 @@
       "classes": [
         "fighter"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Heavy and honest."
     },
     {
@@ -100,7 +100,7 @@
       "classes": [
         "mage"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Focuses elemental power."
     },
     {
@@ -116,7 +116,7 @@
       "classes": [
         "tamer"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Cracks, but never hurts a friend."
     },
     {
@@ -178,7 +178,7 @@
       "classes": [
         "fighter"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Clinks when you walk."
     },
     {
@@ -207,7 +207,7 @@
       "classes": [
         "mage"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Woven with starlight."
     },
     {
@@ -235,7 +235,7 @@
       "classes": [
         "tamer"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Smells like pine."
     },
     {
@@ -302,7 +302,7 @@
       "classes": [
         "fighter"
       ],
-      "level": 10,
+      "level": 31,
       "description": "A proper knight's blade."
     },
     {
@@ -317,7 +317,7 @@
       "classes": [
         "fighter"
       ],
-      "level": 18,
+      "level": 58,
       "description": "Dwarven steel, twice your weight."
     },
     {
@@ -332,7 +332,7 @@
       "classes": [
         "mage"
       ],
-      "level": 10,
+      "level": 31,
       "description": "Carved from the Smiling Forest's oldest oak."
     },
     {
@@ -347,7 +347,7 @@
       "classes": [
         "mage"
       ],
-      "level": 18,
+      "level": 58,
       "description": "A shooting star, caught and polished."
     },
     {
@@ -363,7 +363,7 @@
       "classes": [
         "tamer"
       ],
-      "level": 10,
+      "level": 31,
       "description": "Every monster listens to this one."
     },
     {
@@ -379,7 +379,7 @@
       "classes": [
         "tamer"
       ],
-      "level": 18,
+      "level": 58,
       "description": "Its call echoes through every forest."
     },
     {
@@ -395,7 +395,7 @@
       "classes": [
         "fighter"
       ],
-      "level": 12,
+      "level": 38,
       "recolor": [
         {
           "hue": [
@@ -424,7 +424,7 @@
       "classes": [
         "mage"
       ],
-      "level": 12,
+      "level": 38,
       "recolor": [
         {
           "hue": [
@@ -452,7 +452,7 @@
       "classes": [
         "tamer"
       ],
-      "level": 12,
+      "level": 38,
       "recolor": [
         {
           "hue": [
@@ -477,7 +477,7 @@
         "defense": 28,
         "hp": 50
       },
-      "level": 20,
+      "level": 65,
       "recolor": [
         {
           "hue": [
@@ -502,7 +502,7 @@
         "defense": 30,
         "magic": 10
       },
-      "level": 24,
+      "level": 78,
       "recolor": [
         {
           "hue": [
@@ -526,7 +526,7 @@
       "stats": {
         "magic": 10
       },
-      "level": 15,
+      "level": 48,
       "description": "Twinkles when you cast."
     },
     {
@@ -538,7 +538,7 @@
       "stats": {
         "attack": 10
       },
-      "level": 15,
+      "level": 48,
       "description": "Makes you feel mighty."
     },
     {
@@ -550,7 +550,7 @@
       "stats": {
         "speed": 8
       },
-      "level": 18,
+      "level": 58,
       "description": "Zoom!"
     }
   ]

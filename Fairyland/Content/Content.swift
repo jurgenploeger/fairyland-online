@@ -254,6 +254,8 @@ nonisolated struct NPCDef: Decodable, Identifiable, Sendable {
     /// Bosses: which monster, at what level.
     let monster: String?
     let level: Int?
+    /// Offers rebirth once you're strong enough (Elder Oak).
+    let rebirth: Bool?
 }
 
 nonisolated struct MapDef: Decodable, Identifiable, Sendable {

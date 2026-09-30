@@ -38,6 +38,9 @@ struct NPCDialogView: View {
                             case .chest: ChestPanel(session: session, chest: npc, reply: $reply)
                             case .boss: BossPanel(session: session, boss: npc, onFight: onFight)
                             }
+                            if npc.rebirth == true {
+                                RebirthPanel(session: session, reply: $reply)
+                            }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -50,6 +53,50 @@ struct NPCDialogView: View {
             .background(HUDStyle.panel)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .padding(10)
+        }
+    }
+}
+
+/// Fairyland Online's rebirth: from level 101 (5 more each time), for gold.
+private struct RebirthPanel: View {
+    let session: GameSession
+    @Binding var reply: String?
+    @State private var confirming = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Divider().overlay(HUDStyle.cream.opacity(0.3))
+            Text("Rebirth").font(HUDStyle.font(13)).foregroundStyle(HUDStyle.gold)
+            if session.data.hero.level < session.rebirthLevel {
+                Text("Reach level \(session.rebirthLevel) and I can help you be reborn: back to level 1, keeping your skills and some of your strength.")
+                    .font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else if confirming {
+                Text("Start again at level 1? You keep your skills, pets and items.")
+                    .font(HUDStyle.font(11))
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack {
+                    Button("Be reborn (\(session.rebirthCost)g)") {
+                        session.rebirth()
+                        confirming = false
+                        reply = "Welcome back, little one. You'll grow even stronger this time."
+                    }
+                    .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+                    Button("Not yet") { confirming = false }
+                        .buttonStyle(PixelButtonStyle(compact: true))
+                }
+            } else {
+                Button {
+                    if session.canRebirth {
+                        confirming = true
+                    } else {
+                        reply = "Rebirth costs \(session.rebirthCost) gold. Come back when you have it."
+                    }
+                } label: {
+                    Label("Be reborn (\(session.rebirthCost)g)", icon: .sparkles)
+                }
+                .buttonStyle(PixelButtonStyle(tint: session.canRebirth ? HUDStyle.gold : HUDStyle.dim, compact: true))
+            }
         }
     }
 }

@@ -184,7 +184,7 @@ private struct CharacterTab: View {
                 Text("\(session.heroRace.name) · \(session.heroClass.name)")
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.gold)
-                Text("Level \(hero.level)").font(HUDStyle.font(12))
+                Text(session.rebirths > 0 ? "Level \(hero.level) · Reborn ×\(session.rebirths)" : "Level \(hero.level)").font(HUDStyle.font(12))
                 StatBar(label: "EXP", value: hero.exp, maximum: GameSession.expToNext(level: hero.level), color: HUDStyle.exp)
                     .frame(width: 170)
                 if session.canChooseClass {

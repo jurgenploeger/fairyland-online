@@ -163,7 +163,58 @@ final class GameSession {
     var heroClass: ClassDef { content.classDef(data.hero.classID) }
 
     var heroStats: Stats {
-        heroRace.base + heroClass.growth * (data.hero.level - 1) + equipmentBonus
+        heroRace.base + heroClass.growth * (data.hero.level - 1 + Self.rebirthLevelBonus * rebirths) + equipmentBonus
+    }
+
+    // MARK: - Levels & rebirth
+    //
+    // Like Fairyland Online: levels go to 200, and from level 101 you can be reborn at level 1,
+    // keeping your skills and carrying some strength over. Each rebirth after the first needs
+    // 5 more levels (and more gold).
+
+    static let levelCap = 200
+    /// Each rebirth keeps the stat growth of this many levels.
+    static let rebirthLevelBonus = 8
+
+    var rebirths: Int { data.hero.rebirths ?? 0 }
+    var rebirthLevel: Int { 101 + 5 * rebirths }
+    var rebirthCost: Int { 20_000 * (rebirths + 1) }
+    var canRebirth: Bool { data.hero.level >= rebirthLevel && data.gold >= rebirthCost }
+
+    /// Maps a level from before the stretch (monsters topped out at 32) onto today's 1–105.
+    static func stretchedLevel(_ old: Int) -> Int {
+        max(1, Int((1 + Double(old - 1) * 104 / 31).rounded()))
+    }
+
+    func rescaleLevelsIfNeeded() {
+        guard data.levelsRescaled != true else { return }
+        data.levelsRescaled = true
+        guard data.hero.level > 1 || data.pets.contains(where: { $0.level > 1 }) else { return }
+        data.hero.level = Self.stretchedLevel(data.hero.level)
+        data.hero.exp = 0
+        for index in data.pets.indices {
+            data.pets[index].level = Self.stretchedLevel(data.pets[index].level)
+            data.pets[index].exp = 0
+            let stats = stats(of: data.pets[index])
+            data.pets[index].hp = stats.hp
+            data.pets[index].mp = stats.mp
+        }
+        for index in (data.friends ?? []).indices {
+            data.friends?[index].level = Self.stretchedLevel(data.friends?[index].level ?? 1)
+        }
+        restoreHero()
+        post("The world grew bigger! You're now level \(data.hero.level).", .reward)
+    }
+
+    func rebirth() {
+        guard canRebirth else { return }
+        data.gold -= rebirthCost
+        data.hero.rebirths = rebirths + 1
+        data.hero.level = 1
+        data.hero.exp = 0
+        restoreHero()
+        post("You were reborn! Rebirth \(rebirths): back to level 1, a little stronger than before.", .reward)
+        save()
     }
 
     var equipmentBonus: Stats {
@@ -181,7 +232,8 @@ final class GameSession {
     /// Skills you've learned that your current class uses.
     var heroSkills: [SkillDef] {
         let learned = Set(data.hero.learnedSkills ?? [])
-        return classSkills(upTo: data.hero.level).filter { learned.contains($0.id) }
+        // Reborn heroes keep every skill they learned, whatever their level now.
+        return classSkills(upTo: rebirths > 0 ? Int.max : data.hero.level).filter { learned.contains($0.id) }
     }
 
     /// Skills your class offers at your level that you haven't learned yet.
@@ -255,9 +307,10 @@ final class GameSession {
     @discardableResult
     func gainHeroEXP(_ amount: Int) -> Int {
         guard amount > 0 else { return 0 }
+        guard data.hero.level < Self.levelCap else { return 0 }
         data.hero.exp += amount
         var levels = 0
-        while data.hero.exp >= Self.expToNext(level: data.hero.level) {
+        while data.hero.level < Self.levelCap, data.hero.exp >= Self.expToNext(level: data.hero.level) {
             data.hero.exp -= Self.expToNext(level: data.hero.level)
             data.hero.level += 1
             levels += 1
@@ -408,9 +461,10 @@ final class GameSession {
     @discardableResult
     func gainPetEXP(_ id: UUID, _ amount: Int) -> Int {
         guard amount > 0, let index = data.pets.firstIndex(where: { $0.id == id }) else { return 0 }
+        guard data.pets[index].level < Self.levelCap else { return 0 }
         data.pets[index].exp += amount
         var levels = 0
-        while data.pets[index].exp >= Self.expToNext(level: data.pets[index].level) {
+        while data.pets[index].level < Self.levelCap, data.pets[index].exp >= Self.expToNext(level: data.pets[index].level) {
             data.pets[index].exp -= Self.expToNext(level: data.pets[index].level)
             data.pets[index].level += 1
             levels += 1

@@ -41,6 +41,8 @@ nonisolated struct Hero: Codable, Equatable, Sendable {
     var learnedSkills: [String]?
     /// Extra points, e.g. for skills older saves got for free.
     var bonusSkillPoints: Int?
+    /// Times reborn (Fairyland Online's 轉生): back to level 1, keeping skills and some strength.
+    var rebirths: Int?
 }
 
 /// The hero's chosen colours (preset ids from content/appearance.json).
@@ -98,6 +100,9 @@ nonisolated struct SaveData: Codable, Sendable {
     var partyIDs: [UUID]?
     /// Bosses you've beaten (their NPC ids); they don't come back.
     var defeatedBosses: [String]?
+    /// Levels were stretched from 1–33 to 1–105 (Fairyland Online's long climb); older saves are
+    /// scaled up once so the hero still matches the zones they were in.
+    var levelsRescaled: Bool?
 }
 
 /// Another adventurer (Fairyland's other players): met on the map, befriended, and maybe

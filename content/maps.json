@@ -188,7 +188,8 @@
           "art": "npc_elder",
           "x": 2,
           "y": 3,
-          "greeting": "Ah, a new face! Meadowbrook could use a helping hand."
+          "greeting": "Ah, a new face! Meadowbrook could use a helping hand.",
+          "rebirth": true
         },
         {
           "id": "guild_warrior",
@@ -441,7 +442,7 @@
         "graceSteps": 8,
         "levels": [
           1,
-          3
+          8
         ],
         "groupSize": [
           1,
@@ -516,8 +517,8 @@
         "rate": 0.07,
         "graceSteps": 7,
         "levels": [
-          3,
-          6
+          8,
+          18
         ],
         "groupSize": [
           1,
@@ -599,8 +600,8 @@
         "rate": 0.08,
         "graceSteps": 6,
         "levels": [
-          5,
-          9
+          14,
+          28
         ],
         "groupSize": [
           2,
@@ -694,8 +695,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          5,
-          9
+          14,
+          28
         ],
         "groupSize": [
           1,
@@ -949,15 +950,15 @@
           "y": 18,
           "greeting": "Grrr… what big eyes you have. All the better to FIGHT you with!",
           "monster": "big_bad_wolf",
-          "level": 28
+          "level": 92
         }
       ],
       "encounters": {
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          22,
-          28
+          71,
+          92
         ],
         "groupSize": [
           1,
@@ -1035,8 +1036,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          7,
-          11
+          21,
+          35
         ],
         "groupSize": [
           1,
@@ -1131,8 +1132,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          10,
-          15
+          31,
+          48
         ],
         "groupSize": [
           1,
@@ -1221,15 +1222,15 @@
           "y": 16,
           "greeting": "Squeak! Who dares enter MY cavern? Bow to the king!",
           "monster": "rat_king",
-          "level": 18
+          "level": 58
         }
       ],
       "encounters": {
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          13,
-          18
+          41,
+          58
         ],
         "groupSize": [
           1,
@@ -1487,15 +1488,15 @@
           "y": 12,
           "greeting": "*hic* Heyyy… you wanna piece of this? *hic*",
           "monster": "drunk_dragon",
-          "level": 24
+          "level": 78
         }
       ],
       "encounters": {
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          17,
-          23
+          55,
+          75
         ],
         "groupSize": [
           1,
@@ -1579,8 +1580,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          21,
-          27
+          68,
+          88
         ],
         "groupSize": [
           1,
@@ -1655,8 +1656,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          26,
-          32
+          85,
+          105
         ],
         "groupSize": [
           1,
