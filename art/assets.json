@@ -2593,6 +2593,248 @@
         "height": 32,
         "remove_bg": true
       }
+    },
+    {
+      "id": "item_bamboo_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "green bamboo staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_rattan_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "rattan staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_heavy_rattan_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "heavy rattan staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_lightwood_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "lightwood staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_brownwood_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "brownwood staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_blossom_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "blossom staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_teak_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "teak staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_heavywood_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "heavywood staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_red_cypress_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "red cypress staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_blood_cypress_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "blood cypress staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_yew_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "yew staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_purple_star_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "purple star staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_armorbreaker_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "armorbreaker staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ironcrusher_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "ironcrusher staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_red_cloud_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "red cloud staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_titanium_sceptre",
+      "kind": "item",
+      "request": {
+        "prompt": "titanium sceptre, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_emperor_sceptre",
+      "kind": "item",
+      "request": {
+        "prompt": "emperor's sceptre, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_aurora_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "aurora staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ghost_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "ghost staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_sky_ending_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "sky-ending staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_luna_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "luna staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_dragon_god_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "dragon god staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
     }
   ]
 }

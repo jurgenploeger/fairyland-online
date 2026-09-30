@@ -508,6 +508,157 @@ def draw_speed_boots(c):
     c.set(21, 25, GOLD[1])
 
 
+
+# ---------------------------------------------------------------- the staff line
+# Fairyland Online's 棒類 (staffs): one every 5 levels. Each is a shaft plus a head.
+
+def staff_line(c, shaft, head, band=None):
+    c.line(7, 28, 20, 10, shaft[1], width=3)
+    c.line(8, 28, 21, 11, shaft[0])
+    c.line(6, 27, 19, 9, shaft[2])
+    if band:
+        c.line(9, 23, 11, 25, band, width=2)
+        c.line(16, 14, 18, 16, band, width=2)
+    head(c)
+
+
+def knob(color):
+    def draw(c):
+        c.disc(21.5, 8.5, 3.4, color[1])
+        c.disc(20.5, 7.5, 1.4, color[2])
+    return draw
+
+
+def gem_head(cap, gem):
+    def draw(c):
+        c.disc(21.5, 8.5, 4, cap[1])
+        c.disc(21.5, 8.5, 2.6, gem[1])
+        c.disc(20.8, 7.8, 1, gem[2])
+    return draw
+
+
+def star_head(color):
+    def draw(c):
+        star_shape(c, 22, 8, 6.5, color[1], inner=0.5)
+        star_shape(c, 21.5, 7.5, 3, color[2], inner=0.5)
+    return draw
+
+
+def bamboo(c):
+    for t in (0.3, 0.55, 0.8):   # the joints
+        x, y = 7 + 13 * t, 28 - 18 * t
+        c.line(x - 1.5, y - 1, x + 1.5, y + 1, GREEN[0], width=1)
+    c.disc(21, 9, 2.2, GREEN[1])
+    c.line(20, 8, 24, 5, GREEN[2])                         # a leaf
+
+
+def blossom(c):
+    for (x, y, col) in ((20, 9, hexc("f06292")), (23.5, 7, hexc("f48fb1")), (23, 11.5, hexc("f8bbd0"))):
+        for dx, dy in ((0, -1.6), (1.6, 0), (0, 1.6), (-1.6, 0)):   # four petals
+            c.disc(x + dx, y + dy, 1.2, col)
+        c.set(x, y, GOLD[1])
+
+
+def mace(color):
+    def draw(c):
+        c.disc(21.5, 8.5, 4.2, color[1])
+        c.disc(20.5, 7.5, 1.6, color[2])
+        for (x, y) in ((21.5, 3.5), (26.5, 8.5), (21.5, 13.5), (16.5, 8.5)):   # studs
+            c.disc(x, y, 1.1, color[0])
+    return draw
+
+
+def cloud(c):
+    puff = hexc("f4f8ff")
+    for (x, y, r) in ((19.5, 9.5, 2.6), (22.5, 7.5, 3.2), (25, 10, 2.4), (22, 10.5, 2.6)):
+        c.disc(x, y, r, puff)
+    c.shade(lambda x, y, col: col == puff and y >= 11, hexc("b8d0ec"))    # shaded underside
+    c.shade(lambda x, y, col: col == puff and y <= 5, WHITE)
+
+
+def crown(c):
+    c.poly([(16, 11), (17, 4), (19.5, 8), (21.5, 3), (23.5, 8), (26, 4), (27, 11)], GOLD[1])
+    c.rect(16, 10, 27, 12, GOLD[0])
+    c.disc(21.5, 9, 1.4, RED[1])
+
+
+def aurora(c):
+    c.disc(21.5, 8.5, 4.2, hexc("7af0ff"))
+    c.shade(lambda x, y, col: col == hexc("7af0ff") and x > 22, hexc("b48cff"))
+    c.shade(lambda x, y, col: col == hexc("7af0ff") and y > 10, hexc("8af0a0"))
+    c.disc(20, 7, 1.2, WHITE)
+
+
+def wisp(c):
+    c.disc(21.5, 9.5, 3.4, hexc("b48cff"))
+    c.poly([(19, 8), (22, 1), (25, 8)], hexc("b48cff"))
+    c.disc(20.5, 9.5, 0.8, WHITE); c.disc(23, 9.5, 0.8, WHITE)
+
+
+def lightning(c):
+    c.disc(21.5, 8.5, 4, NAVY[1])
+    c.poly([(22, 3), (19, 9), (22, 9), (20, 14), (25, 7), (22, 7)], hexc("ffd84a"))
+
+
+def crescent(c):
+    moon = hexc("fff4b0")
+    c.disc(21, 9, 5.5, moon)
+    for y in range(SIZE):          # bite out a second circle to leave a crescent
+        for x in range(SIZE):
+            if c.px[y][x] == moon and (x - 23.8) ** 2 + (y - 6.8) ** 2 <= 4.4 ** 2:
+                c.px[y][x] = None
+    c.shade(lambda x, y, col: col == moon and x + y > 30, hexc("e8c860"))
+    c.set(26, 13, WHITE); c.set(27, 4, WHITE)
+
+
+def dragon(c):
+    c.disc(21.5, 8.5, 3.6, hexc("ff6a3a"))
+    c.disc(20.5, 7.5, 1.3, hexc("ffd84a"))
+    for (x0, y0, x1, y1) in ((17, 5, 15, 1), (26, 5, 28, 1)):   # horns
+        c.line(x0, y0, x1, y1, GOLD[1], width=2)
+    c.line(17, 12, 15, 15, GOLD[1], width=2); c.line(26, 12, 28, 15, GOLD[1], width=2)   # claws
+
+
+BAMBOO = [hexc("3a8a3e"), hexc("6ac25a"), hexc("b8f08a")]
+RATTAN = [hexc("9a7040"), hexc("d0a468"), hexc("f0d09a")]
+PALE = [hexc("b09060"), hexc("e8cc9a"), hexc("fff0cc")]
+BROWN = [hexc("5a3a1a"), hexc("8a5a2b"), hexc("b07a44")]
+TEAK = [hexc("8a4a1a"), hexc("c0702a"), hexc("e8a050")]
+DARKWOOD = [hexc("3a2616"), hexc("5e3e22"), hexc("86603a")]
+REDWOOD = [hexc("8a2a1a"), hexc("c0482a"), hexc("e87a50")]
+BLOODWOOD = [hexc("5a1010"), hexc("8e1f22"), hexc("c0443a")]
+YEW = [hexc("4a2a5a"), hexc("7a4a8a"), hexc("aa7ac0")]
+IRON = [hexc("4a5260"), hexc("7b8798"), hexc("b9c4d2")]
+BRONZE = hexc("b0782a")
+
+STAFFS = [  # id, level, name, shaft, head, band, description
+    ("bamboo_staff", 1, "Green Bamboo Staff", BAMBOO, bamboo, None, "Cut fresh from the grove behind the village."),
+    ("rattan_staff", 5, "Rattan Staff", RATTAN, knob(RATTAN), None, "Bends, but never breaks."),
+    ("heavy_rattan_staff", 10, "Heavy Rattan Staff", RATTAN, knob(RATTAN), BRONZE, "Bound with bronze for a proper swing."),
+    ("lightwood_staff", 15, "Lightwood Staff", PALE, knob(PALE), None, "Light as a feather, quick as a thought."),
+    ("brownwood_staff", 20, "Brownwood Staff", BROWN, knob(BROWN), BRONZE, "Old wood that remembers every spell."),
+    ("blossom_staff", 25, "Blossom Staff", BROWN, blossom, None, "Scatters petals with every cast."),
+    ("teak_staff", 30, "Teak Staff", TEAK, gem_head(COPPER, TEAL), None, "Polished teak with a sea-green stone."),
+    ("heavywood_staff", 35, "Heavywood Staff", DARKWOOD, mace(IRON), None, "Capped in iron. Mages don't only cast."),
+    ("red_cypress_staff", 40, "Red Cypress Staff", REDWOOD, knob(REDWOOD), GOLD[1], "Smells of warm forests."),
+    ("blood_cypress_staff", 45, "Blood Cypress Staff", BLOODWOOD, gem_head(GOLD, RED), None, "Its ruby glows before a fight."),
+    ("yew_staff", 50, "Yew Staff", YEW, gem_head(STEEL, VIOLET), None, "Purple yew, hard as stone."),
+    ("purple_star_staff", 55, "Purple Star Staff", YEW, star_head(LILAC), None, "A little star is caught at the tip."),
+    ("armorbreaker_staff", 60, "Armorbreaker Staff", DARKWOOD, mace(STEEL), None, "Cracks shells and spells alike."),
+    ("ironcrusher_staff", 65, "Ironcrusher Staff", IRON, mace(IRON), None, "Heavy iron through and through."),
+    ("red_cloud_staff", 70, "Red Cloud Staff", REDWOOD, cloud, GOLD[1], "A cloud rests on it like a hat."),
+    ("titanium_sceptre", 75, "Titanium Sceptre", STEEL, gem_head(STEEL, BLUE), None, "Cold, bright and nearly weightless."),
+    ("emperor_sceptre", 80, "Emperor's Sceptre", GOLD, crown, None, "Once held by a fairy-tale king."),
+    ("aurora_staff", 85, "Aurora Staff", SNOW, aurora, None, "Holds the northern lights."),
+    ("ghost_staff", 90, "Ghost Staff", YEW, wisp, None, "Something friendly lives inside. Probably."),
+    ("sky_ending_staff", 95, "Sky-Ending Staff", NAVY, lightning, GOLD[1], "Said to split the sky in two."),
+    ("luna_staff", 100, "Luna Staff", STEEL, crescent, None, "Brightest under a full moon."),
+    ("dragon_god_staff", 105, "Dragon God Staff", BLOODWOOD, dragon, GOLD[1], "The staff of the Dragon God himself."),
+]
+
+for _id, _level, _name, _shaft, _head, _band, _desc in STAFFS:
+    globals()["draw_" + _id] = (lambda shaft, head, band: lambda c: staff_line(c, shaft, head, band))(_shaft, _head, _band)
+
 DRAWINGS = {name[5:]: fn for name, fn in globals().items() if name.startswith("draw_")}
 # Not drawn here: the Potion is a Retro Diffusion sprite (rd_pro__fantasy) and the Hi-Potion,
 # Ether and Hi-Ether are palette swaps of it (`derive` in art/assets.json).
@@ -547,6 +698,10 @@ PROMPTS = {  # for a later Retro Diffusion upgrade (python3 tools/rd.py generate
     "power_band": "red wristband with steel studs",
     "speed_boots": "blue winged speed boots",
 }
+
+
+for _id, _level, _name, *_rest in STAFFS:
+    PROMPTS[_id] = f"{_name.lower()}, a magic staff"
 
 
 def render(item_id):

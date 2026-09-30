@@ -585,6 +585,359 @@
       },
       "level": 58,
       "description": "Zoom!"
+    },
+    {
+      "id": "bamboo_staff",
+      "icon": "wand",
+      "art": "item_bamboo_staff",
+      "name": "Green Bamboo Staff",
+      "type": "weapon",
+      "price": 40,
+      "stats": {
+        "magic": 4
+      },
+      "classes": [
+        "novice",
+        "mage"
+      ],
+      "description": "Cut fresh from the grove behind the village."
+    },
+    {
+      "id": "rattan_staff",
+      "icon": "wand",
+      "art": "item_rattan_staff",
+      "name": "Rattan Staff",
+      "type": "weapon",
+      "price": 65,
+      "stats": {
+        "magic": 6
+      },
+      "classes": [
+        "novice",
+        "mage"
+      ],
+      "description": "Bends, but never breaks.",
+      "level": 5
+    },
+    {
+      "id": "heavy_rattan_staff",
+      "icon": "wand",
+      "art": "item_heavy_rattan_staff",
+      "name": "Heavy Rattan Staff",
+      "type": "weapon",
+      "price": 140,
+      "stats": {
+        "magic": 8
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Bound with bronze for a proper swing.",
+      "level": 10
+    },
+    {
+      "id": "lightwood_staff",
+      "icon": "wand",
+      "art": "item_lightwood_staff",
+      "name": "Lightwood Staff",
+      "type": "weapon",
+      "price": 265,
+      "stats": {
+        "magic": 11
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Light as a feather, quick as a thought.",
+      "level": 15
+    },
+    {
+      "id": "brownwood_staff",
+      "icon": "wand",
+      "art": "item_brownwood_staff",
+      "name": "Brownwood Staff",
+      "type": "weapon",
+      "price": 440,
+      "stats": {
+        "magic": 13
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Old wood that remembers every spell.",
+      "level": 20
+    },
+    {
+      "id": "blossom_staff",
+      "icon": "wand",
+      "art": "item_blossom_staff",
+      "name": "Blossom Staff",
+      "type": "weapon",
+      "price": 665,
+      "stats": {
+        "magic": 15
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Scatters petals with every cast.",
+      "level": 25
+    },
+    {
+      "id": "teak_staff",
+      "icon": "wand",
+      "art": "item_teak_staff",
+      "name": "Teak Staff",
+      "type": "weapon",
+      "price": 940,
+      "stats": {
+        "magic": 18
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Polished teak with a sea-green stone.",
+      "level": 30
+    },
+    {
+      "id": "heavywood_staff",
+      "icon": "wand",
+      "art": "item_heavywood_staff",
+      "name": "Heavywood Staff",
+      "type": "weapon",
+      "price": 1265,
+      "stats": {
+        "magic": 20
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Capped in iron. Mages don't only cast.",
+      "level": 35
+    },
+    {
+      "id": "red_cypress_staff",
+      "icon": "wand",
+      "art": "item_red_cypress_staff",
+      "name": "Red Cypress Staff",
+      "type": "weapon",
+      "price": 1640,
+      "stats": {
+        "magic": 22
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Smells of warm forests.",
+      "level": 40
+    },
+    {
+      "id": "blood_cypress_staff",
+      "icon": "wand",
+      "art": "item_blood_cypress_staff",
+      "name": "Blood Cypress Staff",
+      "type": "weapon",
+      "price": 2065,
+      "stats": {
+        "magic": 24
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Its ruby glows before a fight.",
+      "level": 45
+    },
+    {
+      "id": "yew_staff",
+      "icon": "wand",
+      "art": "item_yew_staff",
+      "name": "Yew Staff",
+      "type": "weapon",
+      "price": 2540,
+      "stats": {
+        "magic": 26
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Purple yew, hard as stone.",
+      "level": 50
+    },
+    {
+      "id": "purple_star_staff",
+      "icon": "wand",
+      "art": "item_purple_star_staff",
+      "name": "Purple Star Staff",
+      "type": "weapon",
+      "price": 3065,
+      "stats": {
+        "magic": 29
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "A little star is caught at the tip.",
+      "level": 55
+    },
+    {
+      "id": "armorbreaker_staff",
+      "icon": "wand",
+      "art": "item_armorbreaker_staff",
+      "name": "Armorbreaker Staff",
+      "type": "weapon",
+      "price": 3640,
+      "stats": {
+        "magic": 31
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Cracks shells and spells alike.",
+      "level": 60
+    },
+    {
+      "id": "ironcrusher_staff",
+      "icon": "wand",
+      "art": "item_ironcrusher_staff",
+      "name": "Ironcrusher Staff",
+      "type": "weapon",
+      "price": 4265,
+      "stats": {
+        "magic": 33
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Heavy iron through and through.",
+      "level": 65
+    },
+    {
+      "id": "red_cloud_staff",
+      "icon": "wand",
+      "art": "item_red_cloud_staff",
+      "name": "Red Cloud Staff",
+      "type": "weapon",
+      "price": 4940,
+      "stats": {
+        "magic": 36
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "A cloud rests on it like a hat.",
+      "level": 70
+    },
+    {
+      "id": "titanium_sceptre",
+      "icon": "wand",
+      "art": "item_titanium_sceptre",
+      "name": "Titanium Sceptre",
+      "type": "weapon",
+      "price": 5665,
+      "stats": {
+        "magic": 38
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Cold, bright and nearly weightless.",
+      "level": 75
+    },
+    {
+      "id": "emperor_sceptre",
+      "icon": "wand",
+      "art": "item_emperor_sceptre",
+      "name": "Emperor's Sceptre",
+      "type": "weapon",
+      "price": 6440,
+      "stats": {
+        "magic": 40
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Once held by a fairy-tale king.",
+      "level": 80
+    },
+    {
+      "id": "aurora_staff",
+      "icon": "wand",
+      "art": "item_aurora_staff",
+      "name": "Aurora Staff",
+      "type": "weapon",
+      "price": 7265,
+      "stats": {
+        "magic": 42
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Holds the northern lights.",
+      "level": 85
+    },
+    {
+      "id": "ghost_staff",
+      "icon": "wand",
+      "art": "item_ghost_staff",
+      "name": "Ghost Staff",
+      "type": "weapon",
+      "price": 8140,
+      "stats": {
+        "magic": 44
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Something friendly lives inside. Probably.",
+      "level": 90
+    },
+    {
+      "id": "sky_ending_staff",
+      "icon": "wand",
+      "art": "item_sky_ending_staff",
+      "name": "Sky-Ending Staff",
+      "type": "weapon",
+      "price": 9065,
+      "stats": {
+        "magic": 47
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Said to split the sky in two.",
+      "level": 95
+    },
+    {
+      "id": "luna_staff",
+      "icon": "wand",
+      "art": "item_luna_staff",
+      "name": "Luna Staff",
+      "type": "weapon",
+      "price": 10040,
+      "stats": {
+        "magic": 49
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Brightest under a full moon.",
+      "level": 100
+    },
+    {
+      "id": "dragon_god_staff",
+      "icon": "wand",
+      "art": "item_dragon_god_staff",
+      "name": "Dragon God Staff",
+      "type": "weapon",
+      "price": 11065,
+      "stats": {
+        "magic": 51
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "The staff of the Dragon God himself.",
+      "level": 105
     }
   ]
 }
