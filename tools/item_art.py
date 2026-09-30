@@ -659,6 +659,315 @@ STAFFS = [  # id, level, name, shaft, head, band, description
 for _id, _level, _name, _shaft, _head, _band, _desc in STAFFS:
     globals()["draw_" + _id] = (lambda shaft, head, band: lambda c: staff_line(c, shaft, head, band))(_shaft, _head, _band)
 
+# ---------------------------------------------------------------- the sword, axe and whip lines
+# Also one every 5 levels, named after the original's 劍類, 斧類 and 鞭類 crafting tables where the
+# names are known. Recipes live in content/items.json.
+
+def sword_line(c, blade, guard, grip, length=13, width=4, wavy=False, gem=None, wings=False):
+    bx, by = 11, 20
+    tx, ty = bx + length, by - length
+    if wavy:
+        for i in range(0, 41):
+            t = i / 40
+            wobble = math.sin(t * math.pi * 3) * 1.3 * (1 - t * 0.6)
+            c.disc(bx + (tx - bx) * t + wobble * 0.7, by + (ty - by) * t + wobble * 0.7, width / 2, blade[1])
+    else:
+        c.line(bx, by, tx, ty, blade[1], width=width)
+    c.line(bx + 1, by - 1, tx - 1, ty + 1, blade[2])                  # edge shine
+    c.line(bx + 1, by + 1, tx, ty + 2, blade[0])                      # shadow side
+    if width >= 5:
+        c.line(bx + 2, by, tx - 1, ty + 3, blade[0])
+    c.line(7, 17, 14, 24, guard[1], width=3)                          # crossguard
+    c.line(7, 16, 13, 22, guard[2])
+    if wings:
+        c.poly([(7, 17), (3, 12), (9, 15)], guard[1])
+        c.poly([(14, 24), (19, 28), (16, 22)], guard[1])
+    c.line(9, 22, 5, 26, grip[1], width=3)                            # grip
+    c.line(9, 23, 5, 27, grip[0])
+    c.disc(4.5, 27.5, 1.8, guard[1])                                  # pommel
+    if gem:
+        c.disc(10.5, 20.5, 1.4, gem[1])
+        c.set(10, 20, gem[2])
+
+
+def axe_line(c, head, handle, style="axe", gem=None):
+    top = (23, 4) if style == "halberd" else (21, 7)
+    c.line(8, 28, top[0], top[1], handle[1], width=3)
+    c.line(9, 28, top[0] + 1, top[1] + 1, handle[0])
+    if style == "hatchet":
+        c.poly([(19, 6), (24, 2), (30, 6), (29, 14), (22, 12)], head[1])
+        c.line(25, 3, 29, 7, head[2]); c.line(29, 8, 29, 13, head[2])
+    elif style == "crescent":
+        c.poly([(17, 6), (25, 1), (30, 6), (30, 13), (26, 18), (20, 14)], head[1])
+        c.line(26, 2, 30, 7, head[2]); c.line(30, 8, 29, 13, head[2])
+    else:
+        c.poly([(18, 6), (27, 3), (29, 13), (22, 15)], head[1])
+        c.line(27, 4, 29, 12, head[2])
+    if style in ("double", "crescent"):
+        c.poly([(19, 7), (10, 3), (8, 12), (16, 14)], head[1])
+        c.line(10, 4, 8, 11, head[2])
+    if style == "halberd":
+        c.line(23, 4, 26, 0, head[2], width=2)                        # the spike
+    edge = 39 if style == "hatchet" else 36
+    c.shade(lambda x, y, col: col == head[1] and x + y > edge, head[0])
+    c.shade(lambda x, y, col: col == head[1] and x < 13 and y > 9, head[0])
+    c.rect(19, 7, 22, 12, handle[0])
+    if gem:
+        c.disc(20.5, 9.5, 1.5, gem[1])
+        c.set(20, 9, gem[2])
+
+
+def whip_line(c, leather, grip, turns=3.2, tip=None, gem=None, studs=None):
+    points = 60
+    for i in range(points):
+        t = i / points * math.pi * turns
+        r = 3 + i * 0.13
+        x, y = 17 + r * math.cos(t), 14 + r * math.sin(t) * 0.8
+        c.disc(x, y, 1.1, leather[1])
+        if studs and i % 9 == 4:
+            c.set(x, y, studs)
+    c.shade(lambda x, y, col: col == leather[1] and x + y > 34, leather[0])
+    c.shade(lambda x, y, col: col == leather[1] and x + y < 22, leather[2])
+    if tip:
+        c.disc(17 + 3, 14, 1.8, tip)
+    c.line(6, 28, 11, 21, grip[1], width=3)
+    c.line(7, 28, 12, 22, grip[0])
+    c.rect(10, 20, 13, 22, GOLD[1])
+    if gem:
+        c.disc(5.5, 28.5, 1.7, gem[1])
+        c.set(5, 28, gem[2])
+
+
+# Metals, from the bronze of a first sword to the tungsten of the level-80 dragonslayer.
+BRONZE3 = [hexc("7a4a1a"), hexc("b0782a"), hexc("e8b060")]
+SILVER = [hexc("8a92a8"), hexc("d0d6e4"), hexc("ffffff")]
+ALLOY = [hexc("4e6a66"), hexc("88aaa4"), hexc("d0eee8")]
+PLATINUM = [hexc("8a84a8"), hexc("dcd8f0"), hexc("ffffff")]
+TITANIUM = [hexc("3e5a84"), hexc("7c9cc8"), hexc("d4e6ff")]
+TUNGSTEN = [hexc("3a3448"), hexc("6a6480"), hexc("b0aac8")]
+DRAGONSTEEL = [hexc("5a1418"), hexc("a02a2a"), hexc("ff9a6a")]
+ICE = [hexc("4a8ab0"), hexc("9ad8f0"), hexc("f0ffff")]
+SHADOW = [hexc("2a1e3a"), hexc("4a3a6a"), hexc("9a8ac8")]
+AMBER = [hexc("a0600a"), hexc("e8a020"), hexc("ffe08a")]
+EMERALD = [hexc("0e6a3a"), hexc("22b060"), hexc("9af0b8")]
+DIAMOND = [hexc("7ab0d0"), hexc("d8f4ff"), WHITE]
+SHEEP = [hexc("c8b890"), hexc("f0e6cc"), WHITE]
+COWHIDE = [hexc("5a3a22"), hexc("8a5a36"), hexc("c09068")]
+DEER = [hexc("8a5a2a"), hexc("c08a4a"), hexc("ecc088")]
+MARTEN = [hexc("4a3020"), hexc("6e4a30"), hexc("a07a5a")]
+CROC = [hexc("2e4a22"), hexc("4e7a36"), hexc("9ac068")]
+
+SWORDS = [  # id, level, name, drawing, description
+    ("novice_bronze_sword", 1, "Novice Bronze Sword", dict(blade=BRONZE3, guard=BRONZE3, grip=LEATHER, length=11), "Every hero's first real blade."),
+    ("bronze_sword", 5, "Bronze Sword", dict(blade=BRONZE3, guard=BRONZE3, grip=LEATHER, length=12), "Warm-coloured and dependable."),
+    ("bronze_broadsword", 10, "Bronze Broadsword", dict(blade=BRONZE3, guard=BRONZE3, grip=LEATHER, width=5), "Wide enough to hide behind. Almost."),
+    ("bronze_longsword", 15, "Bronze Longsword", dict(blade=BRONZE3, guard=GOLD, grip=LEATHER, length=15), "A longer reach for a braver fighter."),
+    ("copper_sword", 20, "Copper Sword", dict(blade=COPPER, guard=COPPER, grip=LEATHER, length=13), "Polished until it glows like sunset."),
+    ("iron_longsword", 25, "Iron Longsword", dict(blade=IRON, guard=IRON, grip=LEATHER, length=15), "Plain iron, honestly forged."),
+    ("silver_inlaid_longsword", 30, "Silver-Inlaid Longsword", dict(blade=IRON, guard=SILVER, grip=NAVY, length=15, gem=SILVER), "Iron with a silver thread down the fuller."),
+    ("silver_sword", 35, "Silver Sword", dict(blade=SILVER, guard=SILVER, grip=NAVY, length=14), "Ghosts don't like it one bit."),
+    ("blue_frost_sword", 40, "Blue Frost Sword", dict(blade=ICE, guard=SILVER, grip=NAVY, length=15, gem=BLUE), "Cold to the touch, even in the desert."),
+    ("tempered_steel_sword", 45, "Tempered Steel Sword", dict(blade=STEEL, guard=STEEL, grip=LEATHER, length=15, width=5), "Folded steel, quenched in snowmelt."),
+    ("golden_sword", 50, "Golden Sword", dict(blade=GOLD, guard=GOLD, grip=RED, length=14, gem=RED), "Heavy, gaudy and surprisingly sharp."),
+    ("silver_steel_sword", 55, "Silver Steel Sword", dict(blade=SILVER, guard=STEEL, grip=NAVY, length=15, width=5, gem=TEAL), "Steel for strength, silver for shine."),
+    ("serpent_sword", 60, "Serpent Sword", dict(blade=STEEL, guard=GREEN, grip=GREEN, length=15, wavy=True, gem=EMERALD), "The blade winds like a snake."),
+    ("alloy_shortsword", 65, "Alloy Shortsword", dict(blade=ALLOY, guard=ALLOY, grip=LEATHER, length=11, width=5), "Short, light and very quick."),
+    ("platinum_longsword", 70, "Platinum Longsword", dict(blade=PLATINUM, guard=GOLD, grip=VIOLET, length=15, gem=VIOLET), "Never rusts, never dulls."),
+    ("ironcleaver_sword", 75, "Ironcleaver", dict(blade=TITANIUM, guard=STEEL, grip=NAVY, length=15, width=5, wings=True), "Cuts through iron like bread."),
+    ("tungsten_dragonslayer", 80, "Tungsten Dragonslayer", dict(blade=TUNGSTEN, guard=DRAGON, grip=DRAGON, length=15, width=5, wings=True, gem=RED), "Forged for one purpose."),
+    ("aurora_blade", 85, "Aurora Blade", dict(blade=ICE, guard=LILAC, grip=VIOLET, length=15, gem=TEAL, wings=True), "Shimmers green and violet when swung."),
+    ("phantom_blade", 90, "Phantom Blade", dict(blade=SHADOW, guard=LILAC, grip=SHADOW, length=15, wavy=True, gem=LILAC), "Hard to see, harder to dodge."),
+    ("sky_splitter", 95, "Sky Splitter", dict(blade=SNOW, guard=GOLD, grip=NAVY, length=15, width=5, wings=True, gem=BLUE), "Leaves a line of clear sky behind it."),
+    ("moonlight_sword", 100, "Moonlight Sword", dict(blade=PLATINUM, guard=SILVER, grip=NAVY, length=15, wings=True, gem=SNOW), "Brightest under a full moon."),
+    ("dragon_god_sword", 105, "Dragon God Sword", dict(blade=DRAGONSTEEL, guard=GOLD, grip=DRAGON, length=15, width=5, wings=True, gem=AMBER), "The sword of the Dragon God himself."),
+]
+
+AXES = [
+    ("novice_axe", 1, "Novice Axe", dict(head=BRONZE3, handle=WOOD, style="hatchet"), "Small, but it bites."),
+    ("small_hatchet", 5, "Small Hatchet", dict(head=IRON, handle=WOOD, style="hatchet"), "Good for kindling and for goblins."),
+    ("wood_axe", 10, "Woodcutter's Axe", dict(head=IRON, handle=WOOD), "Borrowed from the mill. Please return it."),
+    ("hand_axe", 15, "Hand Axe", dict(head=BRONZE3, handle=TEAK), "Balanced for one hand."),
+    ("copper_plate_axe", 20, "Copper Plate Axe", dict(head=COPPER, handle=TEAK), "A broad copper head riveted on tight."),
+    ("light_war_axe", 25, "Light War Axe", dict(head=COPPER, handle=REDWOOD, style="double"), "Two edges, half the weight."),
+    ("windchaser_axe", 30, "Windchaser Axe", dict(head=SILVER, handle=REDWOOD, gem=TEAL), "Whistles as it flies."),
+    ("iron_bead_axe", 35, "Iron Bead Axe", dict(head=IRON, handle=REDWOOD, gem=IRON), "An iron bead weights the blow."),
+    ("curved_war_axe", 40, "Curved War Axe", dict(head=IRON, handle=YEW, style="crescent"), "The long curve bites deep."),
+    ("steel_axe", 45, "Steel Axe", dict(head=STEEL, handle=YEW), "Plain, hard and heavy."),
+    ("twin_blade_axe", 50, "Twin-Blade Axe", dict(head=STEEL, handle=DARKWOOD, style="double"), "Dwarves swear by it."),
+    ("long_war_axe", 55, "Long War Axe", dict(head=GOLD, handle=DARKWOOD, style="halberd"), "Keeps big monsters at arm's length."),
+    ("grey_dragon_axe", 60, "Grey Dragon Axe", dict(head=ALLOY, handle=DARKWOOD, style="crescent", gem=RED), "Carved with a sleeping grey dragon."),
+    ("overlord_axe", 65, "Overlord Axe", dict(head=ALLOY, handle=IRON, style="double", gem=GOLD), "Made for someone who gives orders."),
+    ("alloy_twin_war_axe", 70, "Alloy Twin War Axe", dict(head=PLATINUM, handle=IRON, style="double", gem=VIOLET), "Two alloy heads, both hungry."),
+    ("titanium_dwarf_axe", 75, "Titanium Dwarf Axe", dict(head=TITANIUM, handle=BLOODWOOD, style="crescent"), "Dwarf-made. It says so on the handle."),
+    ("tungsten_skybreaker", 80, "Tungsten Skybreaker", dict(head=TUNGSTEN, handle=BLOODWOOD, style="halberd", gem=BLUE), "Said to crack the sky itself."),
+    ("aurora_axe", 85, "Aurora Axe", dict(head=ICE, handle=SNOW, style="crescent", gem=TEAL), "Holds the northern lights in its edge."),
+    ("phantom_axe", 90, "Phantom Axe", dict(head=SHADOW, handle=YEW, style="double", gem=LILAC), "It swings a moment before you do."),
+    ("thunder_god_axe", 95, "Thunder God Axe", dict(head=GOLD, handle=NAVY, style="crescent", gem=BLUE), "Every blow comes with a rumble."),
+    ("luna_axe", 100, "Luna Axe", dict(head=PLATINUM, handle=STEEL, style="crescent", gem=SNOW), "Its edge is a slice of the moon."),
+    ("dragon_god_axe", 105, "Dragon God Axe", dict(head=DRAGONSTEEL, handle=BLOODWOOD, style="double", gem=AMBER), "The axe of the Dragon God himself."),
+]
+
+WHIPS = [
+    ("sheepskin_whip", 1, "Sheepskin Whip", dict(leather=SHEEP, grip=WOOD, turns=2.4), "Soft enough to tickle."),
+    ("handy_whip", 5, "Handy Whip", dict(leather=SHEEP, grip=LEATHER, turns=2.8), "Just the right length."),
+    ("cowhide_whip", 10, "Cowhide Whip", dict(leather=COWHIDE, grip=WOOD), "Cracks loud enough to startle birds."),
+    ("strong_ox_whip", 15, "Strong Ox Whip", dict(leather=COWHIDE, grip=LEATHER, studs=STEEL[1]), "Braided from the toughest hide."),
+    ("whitewood_whip", 20, "Whitewood Whip", dict(leather=COWHIDE, grip=PALE, tip=CLOTH[1]), "A pale poplar handle, well worn."),
+    ("cactus_whip", 25, "Cactus Whip", dict(leather=GREEN, grip=PALE, studs=GREEN[2]), "Prickly. Hold it by the handle."),
+    ("teak_whip", 30, "Teak Whip", dict(leather=DEER, grip=TEAK), "A teak handle and a deerskin lash."),
+    ("golden_deer_whip", 35, "Golden Deer Whip", dict(leather=DEER, grip=TEAK, tip=GOLD[1]), "Tipped in gold, like a deer's antler."),
+    ("red_cypress_whip", 40, "Red Cypress Whip", dict(leather=DEER, grip=REDWOOD, tip=RED[1]), "Smells of warm forests."),
+    ("deerhide_lash", 45, "Deerhide Lash", dict(leather=DEER, grip=YEW, turns=3.6, studs=GOLD[1]), "Long enough to reach the back row."),
+    ("blue_sky_whip", 50, "Blue Sky Whip", dict(leather=BLUE, grip=PALE, gem=BLUE), "The colour of a clear morning."),
+    ("amber_whip", 55, "Amber Whip", dict(leather=MARTEN, grip=RATTAN, gem=AMBER), "An amber stone set in the pommel."),
+    ("power_whip", 60, "Power Whip", dict(leather=MARTEN, grip=TEAK, gem=RED, studs=GOLD[1]), "Hits harder than it has any right to."),
+    ("hardened_whip", 65, "Hardened Whip", dict(leather=CROC, grip=DARKWOOD, gem=DIAMOND, studs=STEEL[1]), "Crocodile hide, hard as armour."),
+    ("crocodile_whip", 70, "Crocodile Whip", dict(leather=CROC, grip=DARKWOOD, turns=3.6, tip=CROC[2], gem=EMERALD), "Snaps shut like jaws."),
+    ("thorn_whip", 75, "Thorn Whip", dict(leather=GREEN, grip=BLOODWOOD, studs=RED[1], gem=RED), "Grown, not braided."),
+    ("azure_dragon_whip", 80, "Azure Dragon Whip", dict(leather=TEAL, grip=BLOODWOOD, tip=TEAL[2], gem=BLUE, studs=SNOW[2]), "Scaled like the Azure Dragon of the east."),
+    ("aurora_whip", 85, "Aurora Whip", dict(leather=ICE, grip=SNOW, tip=LILAC[2], gem=TEAL), "Trails light when it cracks."),
+    ("phantom_whip", 90, "Phantom Whip", dict(leather=SHADOW, grip=YEW, tip=LILAC[1], gem=LILAC), "It cracks without a sound."),
+    ("storm_whip", 95, "Storm Whip", dict(leather=NAVY, grip=NAVY, tip=hexc("ffd84a"), gem=GOLD, studs=hexc("ffd84a")), "Lightning follows the lash."),
+    ("luna_whip", 100, "Luna Whip", dict(leather=SILVER, grip=STEEL, turns=3.6, tip=hexc("fff4b0"), gem=SNOW), "Silver as moonlight on water."),
+    ("dragon_god_whip", 105, "Dragon God Whip", dict(leather=DRAGON, grip=BLOODWOOD, turns=3.6, tip=GOLD[1], gem=AMBER, studs=GOLD[1]), "The whip of the Dragon God himself."),
+]
+
+for _id, _level, _name, _args, _desc in SWORDS:
+    globals()["draw_" + _id] = (lambda a: lambda c: sword_line(c, **a))(_args)
+for _id, _level, _name, _args, _desc in AXES:
+    globals()["draw_" + _id] = (lambda a: lambda c: axe_line(c, **a))(_args)
+for _id, _level, _name, _args, _desc in WHIPS:
+    globals()["draw_" + _id] = (lambda a: lambda c: whip_line(c, **a))(_args)
+
+
+# ---------------------------------------------------------------- crafting materials
+# The original's woodcutting (伐木), mining and smelting (挖礦, 冶煉) and hides, dropped by monsters here.
+
+def log(c, bark, core):
+    c.line(7, 23, 22, 12, bark[1], width=9)
+    c.shade(lambda x, y, col: col == bark[1] and x + y > 32, bark[0])
+    c.shade(lambda x, y, col: col == bark[1] and x + y < 26, bark[2])
+    for (x0, y0, x1, y1) in ((6, 20, 11, 17), (10, 25, 15, 22), (14, 17, 18, 14)):   # bark grain
+        c.line(x0, y0, x1, y1, bark[0])
+    c.disc(23, 11.5, 4.3, core[1])                                                     # cut end
+    c.ring(23, 11.5, 3, 2.2, core[0])
+    c.set(23, 11, core[0])
+    c.shade(lambda x, y, col: col == core[1] and x + y < 32, core[2])
+
+
+def bamboo_bundle(c):
+    for dx in (0, 5, 10):
+        c.line(6 + dx, 28, 12 + dx, 4, BAMBOO[1], width=3)
+        c.line(7 + dx, 28, 13 + dx, 4, BAMBOO[0])
+        for t in (0.3, 0.6, 0.85):
+            c.line(5 + dx + 6 * t, 28 - 24 * t, 8 + dx + 6 * t, 28 - 24 * t, BAMBOO[0])
+    c.line(20, 6, 26, 3, BAMBOO[2], width=2)
+
+
+def rattan_coil(c):
+    c.ring(16, 17, 10, 6.5, RATTAN[1], ry_scale=0.8)
+    c.ring(16, 17, 8.2, 7.4, RATTAN[0], ry_scale=0.8)
+    c.shade(lambda x, y, col: col == RATTAN[1] and y < 13, RATTAN[2])
+    c.line(24, 14, 29, 9, RATTAN[1], width=2)
+
+
+def ingot(c, metal):
+    dark, mid, light = metal
+    c.poly([(10, 10), (22, 10), (25, 15), (7, 15)], light)         # top
+    c.poly([(7, 15), (25, 15), (28, 25), (4, 25)], mid)           # sloped front
+    c.shade(lambda x, y, col: col == mid and x > 22, dark)
+    c.rect(4, 24, 28, 25, dark)
+    c.line(11, 12, 17, 12, WHITE)
+    c.line(8, 17, 7, 22, light)
+
+
+def gem(c, color):
+    dark, mid, light = color
+    c.poly([(10, 8), (22, 8), (28, 14), (16, 28), (4, 14)], mid)
+    c.poly([(10, 8), (22, 8), (28, 14), (4, 14)], light)
+    c.shade(lambda x, y, col: col == mid and x > 17, dark)
+    c.line(4, 14, 28, 14, dark)
+    c.line(13, 8, 11, 14, mid); c.line(19, 8, 21, 14, mid)
+    c.set(11, 10, WHITE); c.set(12, 10, WHITE)
+
+
+def banded(c, color):
+    """A tumbled stone with curved stripes (agate)."""
+    dark, mid, light = color
+    for y in range(SIZE):
+        for x in range(SIZE):
+            if ((x - 16) / 11) ** 2 + ((y - 17) / 9) ** 2 <= 1:
+                band = int(math.hypot(x - 8, y - 27) / 2.6) % 3
+                c.px[y][x] = (mid, light, mid)[band] if x + y < 38 else (dark, mid, dark)[band]
+    c.set(11, 11, WHITE); c.set(12, 11, WHITE)
+
+
+def pearl(c):
+    pearl_c = [hexc("c07a3a"), hexc("ffb070"), hexc("fff0d0")]
+    c.disc(16, 17, 9, pearl_c[1])
+    light_top_left(c, pearl_c, 16, 17, 9)
+    c.disc(12.5, 13.5, 2, WHITE)
+    for (x0, y0, x1, y1) in ((6, 27, 9, 22), (26, 27, 23, 22)):   # a dragon's claws hold it
+        c.line(x0, y0, x1, y1, GOLD[1], width=2)
+
+
+def hide(c, color, spots=None, scales=False):
+    dark, mid, light = color
+    c.poly([(9, 5), (23, 5), (26, 9), (24, 15), (28, 23), (22, 28), (16, 25), (10, 28), (4, 23), (8, 15), (6, 9)], mid)
+    c.shade(lambda x, y, col: col == mid and x > 20, dark)
+    c.shade(lambda x, y, col: col == mid and x < 11 and y < 14, light)
+    if spots:
+        for (x, y, r) in ((12, 11, 2.2), (19, 17, 2.8), (13, 21, 1.8), (21, 9, 1.4)):
+            c.disc(x, y, r, spots)
+    if scales:
+        for y in range(8, 25, 4):
+            for x in range(8 + (y // 4 % 2) * 2, 25, 4):
+                if c.get(x, y) in (mid, dark, light):
+                    c.set(x, y, dark); c.set(x + 1, y + 1, light)
+
+
+MATERIALS = [  # id, kind, level, name, drawing, description
+    ("bamboo", "wood", 1, "Bamboo", bamboo_bundle, "Green bamboo canes. Wood for beginner weapons."),
+    ("rattan", "wood", 5, "Rattan", rattan_coil, "Bendy rattan, good for handles."),
+    ("poplar", "wood", 10, "White Poplar", lambda c: log(c, PALE, CLOTH), "Pale, light wood."),
+    ("teak", "wood", 20, "Teak", lambda c: log(c, TEAK, RATTAN), "Oily wood that never warps."),
+    ("red_cypress", "wood", 30, "Red Cypress", lambda c: log(c, REDWOOD, ORANGE), "Warm red wood with a forest smell."),
+    ("yew", "wood", 40, "Yew", lambda c: log(c, YEW, LILAC), "Purple-hearted and hard as stone."),
+    ("ebony", "wood", 50, "Ebony", lambda c: log(c, DARKWOOD, BROWN), "Almost black, and very heavy."),
+    ("hemlock", "wood", 60, "Iron Hemlock", lambda c: log(c, IRON, PALE), "Grey bark, iron-hard core."),
+    ("red_yew", "wood", 70, "Red Yew", lambda c: log(c, BLOODWOOD, REDWOOD), "The rarest wood in the kingdom."),
+    ("bronze_ingot", "metal", 1, "Bronze Ingot", lambda c: ingot(c, BRONZE3), "Smelted from copper and tin."),
+    ("copper_ingot", "metal", 15, "Copper Ingot", lambda c: ingot(c, COPPER), "Soft and shiny."),
+    ("iron_ingot", "metal", 25, "Iron Ingot", lambda c: ingot(c, IRON), "The blacksmith's bread and butter."),
+    ("silver_ingot", "metal", 30, "Silver Ingot", lambda c: ingot(c, SILVER), "Bright, and hated by ghosts."),
+    ("gold_ingot", "metal", 40, "Gold Ingot", lambda c: ingot(c, GOLD), "Heavy and handsome."),
+    ("steel_ingot", "metal", 45, "Steel Ingot", lambda c: ingot(c, STEEL), "Iron, made much tougher."),
+    ("alloy_steel", "metal", 60, "Alloy Steel", lambda c: ingot(c, ALLOY), "Steel mixed with something secret."),
+    ("platinum_ingot", "metal", 70, "Platinum Ingot", lambda c: ingot(c, PLATINUM), "Never tarnishes."),
+    ("titanium_alloy", "metal", 75, "Titanium Alloy", lambda c: ingot(c, TITANIUM), "Light as wood, strong as steel."),
+    ("tungsten_alloy", "metal", 80, "Tungsten Alloy", lambda c: ingot(c, TUNGSTEN), "Dense enough to dent an anvil."),
+    ("dragon_steel", "metal", 90, "Dragon Steel", lambda c: ingot(c, DRAGONSTEEL), "Forged in dragon fire. Still warm."),
+    ("amber", "gem", 10, "Amber", lambda c: gem(c, AMBER), "Honey-coloured and warm."),
+    ("cats_eye", "gem", 25, "Cat's Eye", lambda c: gem(c, [hexc("6a7a1a"), hexc("b8c83a"), hexc("f0ff9a")]), "Seems to follow you around the room."),
+    ("emerald", "gem", 35, "Emerald", lambda c: gem(c, EMERALD), "Deep forest green."),
+    ("azurite", "gem", 45, "Azurite", lambda c: gem(c, BLUE), "The blue of a clear sky."),
+    ("topaz", "gem", 50, "Topaz", lambda c: gem(c, [hexc("c0a010"), hexc("ffe84a"), hexc("fffac0")]), "A little piece of sunshine."),
+    ("agate", "gem", 55, "Agate", lambda c: banded(c, [hexc("a0304a"), hexc("e06a7a"), hexc("ffc0c8")]), "Banded in orange and cream."),
+    ("diamond", "gem", 65, "Diamond", lambda c: gem(c, DIAMOND), "The hardest thing there is."),
+    ("chalcedony", "gem", 75, "Chalcedony", lambda c: gem(c, TEAL), "Milky blue-green jade."),
+    ("dragon_pearl", "gem", 90, "Dragon Pearl", pearl, "A dragon guarded this for a thousand years."),
+    ("sheepskin", "hide", 1, "Sheepskin", lambda c: hide(c, SHEEP), "Soft and woolly."),
+    ("cowhide", "hide", 10, "Cowhide", lambda c: hide(c, CLOTH, spots=COWHIDE[1]), "Tough, patchy leather."),
+    ("deer_hide", "hide", 30, "Deer Hide", lambda c: hide(c, DEER, spots=CLOTH[2]), "Supple and strong."),
+    ("marten_fur", "hide", 50, "Marten Fur", lambda c: hide(c, MARTEN), "Glossy dark fur."),
+    ("crocodile_hide", "hide", 60, "Crocodile Hide", lambda c: hide(c, CROC, scales=True), "Hard and scaly."),
+    ("dragon_scale", "hide", 75, "Dragon Scale", lambda c: hide(c, DRAGON, scales=True), "Fireproof, and very rare."),
+]
+
+for _id, _kind, _level, _name, _draw, _desc in MATERIALS:
+    globals()["draw_" + _id] = _draw
+
+
 DRAWINGS = {name[5:]: fn for name, fn in globals().items() if name.startswith("draw_")}
 # Not drawn here: the Potion is a Retro Diffusion sprite (rd_pro__fantasy) and the Hi-Potion,
 # Ether and Hi-Ether are palette swaps of it (`derive` in art/assets.json).
@@ -702,6 +1011,13 @@ PROMPTS = {  # for a later Retro Diffusion upgrade (python3 tools/rd.py generate
 
 for _id, _level, _name, *_rest in STAFFS:
     PROMPTS[_id] = f"{_name.lower()}, a magic staff"
+
+
+for _table, _what in ((SWORDS, "a sword"), (AXES, "an axe"), (WHIPS, "a whip")):
+    for _id, _level, _name, *_rest in _table:
+        PROMPTS[_id] = f"{_name.lower()}, {_what}"
+for _id, _kind, _level, _name, *_rest in MATERIALS:
+    PROMPTS[_id] = f"{_name.lower()}, a crafting material"
 
 
 def render(item_id):
