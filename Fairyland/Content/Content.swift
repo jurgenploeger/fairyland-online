@@ -181,7 +181,7 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
 
 nonisolated struct QuestDef: Decodable, Identifiable, Sendable {
     nonisolated enum ObjectiveType: String, Decodable, Sendable {
-        case defeat, capture, reachLevel, chooseClass, collect
+        case defeat, capture, reachLevel, chooseClass, collect, hatch
     }
 
     /// Asked when accepting; the answer decides which companion hatches from the egg.

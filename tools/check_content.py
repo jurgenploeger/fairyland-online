@@ -66,6 +66,8 @@ for item in items.values():
 for quest in quests.values():
     check(quest["giver"] in npcs, f"quest {quest['id']} → unknown giver {quest['giver']}")
     objective = quest["objective"]
+    check(objective["type"] in ("defeat", "capture", "reachLevel", "chooseClass", "collect", "hatch"),
+          f"quest {quest['id']} → unknown objective type {objective['type']}")
     if objective["type"] == "defeat" and objective.get("target"):
         check(objective["target"] in monsters, f"quest {quest['id']} → unknown monster {objective['target']}")
     for answer in (quest.get("question") or {}).get("answers", []):

@@ -1,11 +1,11 @@
 {
-  "_about": "Quests. objective.type: defeat (target = monster id, omit for any) | capture | collect (gift boxes) | reachLevel (count = level) | chooseClass. `requires` lists quests that must be completed first. `question` is asked on accepting; each answer's `egg` decides what hatches from the Pet Egg. `giver` is an NPC id from maps.json.",
+  "_about": "Quests. objective.type: defeat (target = monster id, omit for any) | capture | hatch (a pet egg) | reachLevel (count = level) | chooseClass. `requires` lists quests that must be completed first. `question` is asked on accepting; each answer's `egg` decides what hatches from the Pet Egg. `giver` is an NPC id from maps.json.",
   "quests": [
     {
       "id": "hope_of_meadowbrook",
       "title": "Hope of Meadowbrook",
       "giver": "elder",
-      "description": "Every new adventurer gets three gifts from the village. Find the three gift boxes hidden around Meadowbrook, then come back to me.",
+      "description": "Elder Oak gives every new adventurer three gifts: a wooden sword, a novice ring and a pet egg. Hatch your egg from the Bag, then come back to me.",
       "question": {
         "text": "Before you go, tell me: what do you treasure most?",
         "answers": [
@@ -23,10 +23,14 @@
           }
         ]
       },
+      "starterItems": [
+        "wooden_sword",
+        "novice_ring",
+        "pet_egg"
+      ],
       "objective": {
-        "type": "collect",
-        "target": "gift_box",
-        "count": 3
+        "type": "hatch",
+        "count": 1
       },
       "reward": {
         "gold": 20,

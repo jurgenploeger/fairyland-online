@@ -46,6 +46,7 @@ final class GameCoordinator {
         let map = Content.shared.map(session.data.mapID) ?? Content.shared.maps[0]
         self.session = session
         self.input = input
+        session.handOutMissingStarterGifts()
         world = WorldScene(map: map, session: session, input: input, entry: nil)
         wire(world)
         startAutosave()
@@ -188,13 +189,28 @@ final class GameCoordinator {
     // MARK: Menus & dialogs
 
     func open(_ overlay: Overlay) {
+        // Gift boxes aren't people: walking up and tapping opens them, no conversation.
+        if case .npc(let id) = overlay, let npc = Content.shared.npc(id), npc.role == .chest {
+            openChest(npc)
+            return
+        }
         self.overlay = overlay
-        if case .npc(let id) = overlay, let npc = Content.shared.npc(id), npc.role != .chest {
+        if case .npc(let id) = overlay, let npc = Content.shared.npc(id) {
             session.postChat(npc.greeting, from: npc.name, kind: .npc)
             session.unreadChat = max(0, session.unreadChat - 1)
         }
         world.isInputLocked = true
         input.move = .zero
+    }
+
+    private func openChest(_ chest: NPCDef) {
+        if session.isOpened(chest.id) {
+            session.post("The \(chest.name.lowercased()) is empty.")
+        } else if session.openChest(chest) != nil {
+            session.save()
+        } else {
+            session.post("The ribbon is tied tight. Maybe someone in town knows who it's for.")
+        }
     }
 
     func closeOverlay() {

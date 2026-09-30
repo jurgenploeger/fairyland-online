@@ -44,7 +44,11 @@ struct WorldHUD: View {
                     Button {
                         coordinator.talkToNearby()
                     } label: {
-                        Label("Talk to \(npc.name)", icon: .talk)
+                        if npc.role == .chest {
+                            Label("Open \(npc.name)", icon: .gift)
+                        } else {
+                            Label("Talk to \(npc.name)", icon: .talk)
+                        }
                     }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
                     .transition(.scale(scale: 0.7, anchor: .bottomTrailing).combined(with: .opacity))

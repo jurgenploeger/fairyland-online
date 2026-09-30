@@ -76,7 +76,8 @@ nonisolated struct QuestProgress: Codable, Equatable, Sendable {
 
 /// Everything that's written to disk.
 nonisolated struct SaveData: Codable, Sendable {
-    var version = 1
+    /// 2: the elder hands out the starter gifts (1: they were gift boxes around Meadowbrook).
+    var version = 2
     var hero: Hero
     var pets: [Pet]
     var activePetID: UUID?

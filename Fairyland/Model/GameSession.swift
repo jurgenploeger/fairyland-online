@@ -495,6 +495,7 @@ final class GameSession {
         addPet(pet, countsForQuests: false)
         data.activePetID = pet.id
         post("\(pet.name) hatched and joined you!", .reward)
+        record(.hatch, target: nil)
         return pet
     }
 
@@ -608,7 +609,7 @@ final class GameSession {
             if progress.state == .completed { return .completed }
             let goal = goal(of: quest)
             let current: Int = switch quest.objective.type {
-            case .defeat, .capture, .collect: progress.count
+            case .defeat, .capture, .collect, .hatch: progress.count
             case .reachLevel: data.hero.level
             case .chooseClass: data.hero.classID == "novice" ? 0 : 1
             }
@@ -641,15 +642,38 @@ final class GameSession {
         return nil
     }
 
+    /// The elder's three gifts used to be gift boxes hidden around Meadowbrook. A save from then
+    /// that took his quest without finding every box gets the missing gifts now, once.
+    func handOutMissingStarterGifts() {
+        guard data.version < 2 else { return }
+        data.version = 2
+        guard data.quests["hope_of_meadowbrook"]?.state == .active else { return }
+        let boxes = [("gift_box_1", "wooden_sword"), ("gift_box_2", "novice_ring"), ("gift_box_3", "pet_egg")]
+        for (box, item) in boxes where data.openedChests?.contains(box) != true {
+            addItem(item)
+            data.openedChests = (data.openedChests ?? []) + [box]
+            if let name = content.item(item)?.name { post("Elder Oak left you a \(name).", .reward) }
+        }
+    }
+
     func acceptQuest(_ id: String, answer: QuestDef.Question.Answer? = nil) {
         guard let quest = content.quest(id), status(of: quest) == .available else { return }
         data.quests[id] = QuestProgress(state: .active, count: 0)
         if let answer { data.eggSpecies = answer.egg }
         post("Quest accepted: \(quest.title)", .quest)
-        for item in quest.starterItems ?? [] { addItem(item) }
-        if let first = quest.starterItems?.first, let item = content.item(first) {
-            let count = quest.starterItems?.count ?? 1
-            post("Received \(count > 1 ? "\(count) " : "")\(item.name)\(count > 1 ? "s" : "").", .reward)
+        let starters = quest.starterItems ?? []
+        for item in starters { addItem(item) }
+        // "Received 3 Seal Stones." / "Received Wooden Sword, Novice Ring and Pet Egg."
+        var unique: [String] = []
+        for id in starters where !unique.contains(id) { unique.append(id) }
+        let names = unique.map { id -> String in
+            let name = content.item(id)?.name ?? id
+            let count = starters.filter { $0 == id }.count
+            return count > 1 ? "\(count) \(name)s" : name
+        }
+        if !names.isEmpty {
+            let list = names.count > 1 ? names.dropLast().joined(separator: ", ") + " and " + names.last! : names[0]
+            post("Received \(list).", .reward)
         }
     }
 

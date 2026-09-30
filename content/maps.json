@@ -219,39 +219,6 @@
           "x": -5,
           "y": -6,
           "greeting": "The Journeyman Guild! We befriend beasts, not beat them. Well, mostly."
-        },
-        {
-          "id": "gift_box_1",
-          "name": "Gift Box",
-          "role": "chest",
-          "art": "gift_box",
-          "x": -16,
-          "y": 4,
-          "quest": "hope_of_meadowbrook",
-          "gives": "wooden_sword",
-          "greeting": "A gift box tied with a red ribbon."
-        },
-        {
-          "id": "gift_box_2",
-          "name": "Gift Box",
-          "role": "chest",
-          "art": "gift_box",
-          "x": 16,
-          "y": -5,
-          "quest": "hope_of_meadowbrook",
-          "gives": "novice_ring",
-          "greeting": "A gift box tied with a blue ribbon."
-        },
-        {
-          "id": "gift_box_3",
-          "name": "Gift Box",
-          "role": "chest",
-          "art": "gift_box",
-          "x": 0,
-          "y": -11,
-          "quest": "hope_of_meadowbrook",
-          "gives": "pet_egg",
-          "greeting": "A gift box that seems to... wiggle?"
         }
       ],
       "ambience": {
