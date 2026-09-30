@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import UIKit
 @testable import Fairyland
 
 /// Catches broken references when editing content/*.json or art/assets.json.
@@ -109,6 +110,16 @@ struct ContentTests {
             for exit in def.exits {
                 #expect(map.isWalkable(map.entryCell(from: exit.edge)), "map \(def.id) entry from \(exit.edge) is blocked")
             }
+        }
+    }
+
+    @Test func everyMapHasAPaletteThatGrades() throws {
+        let url = try #require(Bundle.main.url(forResource: "tile_grass", withExtension: "png", subdirectory: "art/sprites"))
+        let image = try #require(UIImage(contentsOfFile: url.path)?.cgImage)
+        for def in content.maps {
+            let palette = try #require(def.theme.palette, "map \(def.id) has no palette")
+            let graded = try #require(Recolor.grade(palette, image: image), "map \(def.id) palette didn't grade")
+            #expect(graded.width == image.width && graded.height == image.height)
         }
     }
 }

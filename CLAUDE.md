@@ -10,6 +10,8 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 - `Fairyland/`: Swift code (World = maps and walking, Battle = combat, UI = SwiftUI HUD and menus).
 - `tools/rd.py`: Retro Diffusion client. `tools/icons.py`: vendors Iconaut icons (MIT).
   `tools/check_content.py`: validates the game data.
+- `theme.palette` in `content/maps.json` colour-grades each map's ground, scenery and buildings at load time.
+  `tools/palette_preview.py` (needs pillow + numpy) renders every map with and without it, to tune without a Mac.
 
 ## Rules
 - **Cloud sessions (Linux) can't build or run the app.** After editing `content/` or `art/assets.json`, run
@@ -20,5 +22,8 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
   API key (`RETRO_DIFFUSION_API_KEY`).
 - **Versions:** `MARKETING_VERSION` in `project.yml` and the top entry of `content/changelog.json` move together
   (the checker enforces it). Add a changelog entry when shipping a user-visible change. 1.0.0 = App Store launch.
+- **Screenshots:** pushes to `claude/**` branches run `.github/workflows/screenshots.yml` (macOS runner):
+  it builds for the simulator and shoots the scenes in `tools/screenshots.txt` (FAIRYLAND_DEBUG flags). Results
+  land on the `screenshots` branch under `<branch>/`: `git fetch origin screenshots` and read the PNGs.
 - On a Mac: `make open` or `make sim`; tests with `xcodebuild test` (see README). Tests and debug launches use
   separate save files, so they never touch the player's save.
