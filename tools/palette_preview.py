@@ -109,69 +109,127 @@ def sprite(i, palette):
 T = 44; C = math.sqrt(0.5)
 def project(gx, gy): return ((gx - gy) * C, (gx + gy) * C * 0.5)
 
-def render(mid, palette, W=420, H=300, seed=3, tint=True):
-    m = maps[mid]; th = m['theme']; rng = random.Random(seed)
-    N = 16
-    ground = [[th.get('border') if (m.get('town') and False) else th['ground'] for _ in range(N)] for _ in range(N)]
-    kinds = [['g'] * N for _ in range(N)]
-    # a winding path, an accent patch, a pond
-    col = N // 2
+# ---------- ground (mirrors ArtLibrary.organicTile and WorldScene.makeGround) ----------
+_S = 32
+_py, _px = np.mgrid[0:_S, 0:_S]
+_X = (_px + 0.5) / _S - 0.5; _Y = 0.5 - (_py + 0.5) / _S
+_WOBBLE = 0.045 * np.sin(2 * np.pi * (2 * _X + _Y)) + 0.03 * np.sin(2 * np.pi * (3 * _Y - _X) + 1.3)
+RADIUS = {'road': 0.36, 'patch': 0.42, 'water': 0.5}
+
+def strokes(mask):
+    pts = [(b % 3 - 1, 1 - b // 3) for b in range(9) if mask & (1 << b)]
+    segs = []
+    for i, p in enumerate(pts):
+        segs.append((*p, *p))
+        for q in pts[i + 1:]:
+            if abs(p[0] - q[0]) <= 1 and abs(p[1] - q[1]) <= 1: segs.append((*p, *q))
+    return segs
+
+def seg_distance(x0, y0, x1, y1):
+    dx, dy = x1 - x0, y1 - y0; L = dx * dx + dy * dy
+    t = np.zeros_like(_X) if L == 0 else np.clip(((_X - x0) * dx + (_Y - y0) * dy) / L, 0, 1)
+    return np.hypot(x0 + t * dx - _X, y0 + t * dy - _Y)
+
+def organic_tile(base, layers, col=0, row=0):
+    out = base.copy(); rim = 1.2 / _S
+    for tex, mask, style in layers:
+        d = np.min([seg_distance(*sg) for sg in strokes(mask)], axis=0)
+        if style == 'water':
+            gx, gy = col + _X, row + _Y
+            wobble = 0.08 * np.sin(1.7 * gx + 0.9 * gy) + 0.05 * np.sin(2.3 * gy - 1.1 * gx + 1.7) + 0.03 * np.sin(3.1 * gx + 2.9 * gy + 0.4)
+        else:
+            wobble = _WOBBLE
+        depth = RADIUS[style] + wobble - d
+        on = depth > 0
+        if style in ('road', 'patch'):
+            shade = np.where((style == 'road') & (depth < rim), 0.72, 1.0)[..., None]
+            out[on, :3] = (tex[..., :3] * shade)[on]
+        else:
+            foam = np.where(depth < 0.05, 0.35, 0.0)[..., None]
+            out[on, :3] = (tex[..., :3] * (1 - foam) + foam)[on]
+            bank = (depth <= 0) & (depth > -0.06)
+            out[bank, :3] *= 0.8
+        out[on, 3] = 1
+    return out
+
+def ground_tiles(m, kinds, palette, col0=0, row0=0):
+    """kinds[row][col] in 'g' ground, 'p' path, 'a' accent, 'w' water, 'b' border; row 0 south."""
+    th = m['theme']; N = len(kinds); Wd = len(kinds[0])
+    tex = {k: grade(raw(v), palette) for k, v in (('g', th['ground']), ('p', th['path']), ('a', th.get('accent')),
+                                                   ('w', th.get('water') or 'tile_water'), ('b', th.get('border'))) if v}
+    patch_accent = (th.get('accentPatches') or 0) > 0 and th.get('accent') and th.get('accent') != th['ground']
+    def mask(r, c, k):
+        own = kinds[r][c] == k; bits = 0
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                rr, cc = r + dy, c + dx
+                hit = kinds[rr][cc] == k if 0 <= rr < N and 0 <= cc < Wd else (own and k != 'w')
+                if hit: bits |= 1 << ((1 - dy) * 3 + dx + 1)
+        return bits
+    cache = {}; out = np.zeros((N, Wd, _S, _S, 4))
     for r in range(N):
-        kinds[r][col] = 'p'
-        if rng.random() < 0.3: col = max(2, min(N - 3, col + rng.choice([-1, 1]))); kinds[r][col] = 'p'
-    if th.get('accent'):
-        cx, cy = rng.randrange(2, 6), rng.randrange(8, 13)
-        for r in range(N):
-            for c in range(N):
-                if (c - cx) ** 2 + (r - cy) ** 2 < 6 and kinds[r][c] == 'g': kinds[r][c] = 'a'
-    if th.get('water'):
-        cx, cy = rng.randrange(10, 13), rng.randrange(2, 6)
-        for r in range(N):
-            for c in range(N):
-                if (c - cx) ** 2 + (r - cy) ** 2 < 5 and kinds[r][c] == 'g': kinds[r][c] = 'w'
-    tex = {'g': th['ground'], 'p': th['path'], 'a': th.get('accent'), 'w': th.get('water')}
-    tiles = {k: grade(raw(v), palette) for k, v in tex.items() if v}
+        for c in range(Wd):
+            k = kinds[r][c]
+            road, pond = mask(r, c, 'p'), mask(r, c, 'w'); patch = mask(r, c, 'a') if patch_accent else 0
+            if k == 'g': base = 'g'
+            elif k == 'b': base = 'b' if 'b' in tex else 'g'
+            elif k == 'a' and not patch_accent: base = 'a'
+            else: base = 'b' if ('b' in tex and mask(r, c, 'b') & 0b010101010) else 'g'
+            layers = []
+            if patch: layers.append(('a', patch, 'patch'))
+            if road: layers.append(('p', road, 'road'))
+            if pond: layers.append(('w', pond, 'water'))
+            if pond == 511: key = ('w',)
+            elif road == 511 and pond == 0: key = ('p',)
+            elif not layers: key = (base,)
+            elif patch == 511 and road == 0 and pond == 0: key = ('a',)
+            else: key = (base, tuple(layers), (c, r) if pond else None)
+            if key not in cache:
+                cache[key] = tex[key[0]] if len(key) == 1 else organic_tile(tex[base], [(tex[t], mk, st) for t, mk, st in layers], c + col0, r + row0)
+            out[r, c] = cache[key]
+    return out
+
+def blend_light(s, m):
+    """Mirrors Walker.lit: SpriteKit multiplies the texture by the colour, mixed in by the strength."""
+    p = m['theme'].get('palette') or {}
+    if not p.get('light'): return s
+    k = p.get('lightStrength', 0.4); s = s.copy()
+    s[..., :3] = s[..., :3] * (1 - k) + s[..., :3] * hexrgb(p['light']) * k
+    return s
+
+def draw_scene(mid, palette, kinds, items, W=420, H=300, seed=3, tint=True, organic=True, light=True, origin=(0, 0)):
+    """items: (art, col, row, scale). Walkers (walk sheets) keep their colours, lit by the map's light."""
+    m = maps[mid]; rng = random.Random(seed); N = len(kinds); Wd = len(kinds[0])
+    if organic:
+        tiles = ground_tiles(m, kinds, palette, *origin)
+    else:
+        th = m['theme']
+        plain = {k: grade(raw(v), palette) for k, v in (('g', th['ground']), ('p', th['path']), ('a', th.get('accent')), ('w', th.get('water') or 'tile_water')) if v}
+        tiles = np.array([[plain.get(k, plain['g']) for k in row] for row in kinds])
     img = np.zeros((H, W, 4)); img[..., 3] = 1; img[..., :3] = 0.1
-    # world origin: centre of grid at screen centre
-    ox, oy = project(N * T / 2, N * T / 2)
+    ox, oy = project(Wd * T / 2, N * T / 2)
     ys, xs = np.mgrid[0:H, 0:W]
-    px = xs - W / 2 + ox; py = (H / 2 - ys) + oy       # y up
+    px = xs - W / 2 + ox; py = (H / 2 - ys) + oy
     diff = px / C; summ = py / (C * 0.5)
     gx = (summ + diff) / 2; gy = (summ - diff) / 2
     cc = np.floor(gx / T).astype(int); rr = np.floor(gy / T).astype(int)
-    inside = (cc >= 0) & (cc < N) & (rr >= 0) & (rr < N)
-    u = ((gx / T) % 1 * 32).astype(int).clip(0, 31); v = ((1 - (gy / T) % 1) * 32).astype(int).clip(0, 31)
-    kind_arr = np.array(kinds)
-    for k, t in tiles.items():
-        sel = inside & (kind_arr[rr.clip(0, N - 1), cc.clip(0, N - 1)] == k)
-        img[sel] = t[v[sel], u[sel]]
+    inside = (cc >= 0) & (cc < Wd) & (rr >= 0) & (rr < N)
+    u = ((gx / T) % 1 * _S).astype(int).clip(0, _S - 1); v = ((1 - (gy / T) % 1) * _S).astype(int).clip(0, _S - 1)
+    img[inside] = tiles[rr[inside], cc[inside], v[inside], u[inside]]
     img[..., 3] = 1
-    # props
-    placed = []
-    occupied = set()
-    props = [p for p in th['props'] if not p.get('within')]
-    pool = []
-    for p in props:
-        pool += [p['art']] * max(1, min(6, p['count'] // 6))
-    rng.shuffle(pool)
-    for art in pool[:34]:
-        for _ in range(20):
-            c, r = rng.randrange(N), rng.randrange(N)
-            if kinds[r][c] == 'g' and (c, r) not in occupied and abs(c - N / 2) + abs(r - N / 2) > 2: break
-        else: continue
-        occupied.add((c, r))
-        placed.append((art, c, r))
-    placed.append(('player_walk', N // 2 - 1, N // 2))
     def screen(c, r):
         x, y = project((c + 0.5) * T, (r + 0.5) * T)
-        x -= 0; y -= T * C * 0.5 * 0   # base of cell ~ centre
-        return x - ox + W / 2, H / 2 - (y - oy)
-    placed.sort(key=lambda t: screen(t[1], t[2])[1])  # back (higher up the screen) first
-    for art, c, r in placed:
-        s = sprite(art, None if assets[art]['kind'] == 'walk_sheet' else palette)
+        return x - ox + W / 2, H / 2 - (y - 4 - oy)
+    for art, c, r, scale in sorted(items, key=lambda t: screen(t[1], t[2])[1]):   # back first, like the game
+        walker = assets[art]['kind'] == 'walk_sheet'
+        s = sprite(art, None if walker else palette)
+        if walker and light: s = blend_light(s, m)
+        if scale != 1:
+            h, w = s.shape[:2]
+            s = np.asarray(Image.fromarray((s * 255).astype(np.uint8)).resize((max(1, round(w * scale)), max(1, round(h * scale))), Image.NEAREST)).astype(float) / 255
         h, w = s.shape[:2]
         sx, sy = screen(c, r)
-        x0 = int(sx - w / 2 + rng.randint(-5, 5)); y0 = int(sy - h * 0.95)
+        x0 = int(sx - w / 2 + (0 if walker else rng.randint(-7, 7))); y0 = int(sy - h * 0.95)
         xa, ya = max(0, x0), max(0, y0); xb, yb = min(W, x0 + w), min(H, y0 + h)
         if xa >= xb or ya >= yb: continue
         part = s[ya - y0:yb - y0, xa - x0:xb - x0]
@@ -187,6 +245,40 @@ def render(mid, palette, W=420, H=300, seed=3, tint=True):
             f = (np.clip(d - 0.35, 0, 1) / 0.65) ** 1.6 * vg
             img[..., :3] *= (1 - f)[..., None]
     return Image.fromarray((img[..., :3].clip(0, 1) * 255).astype(np.uint8))
+
+def render(mid, palette, W=420, H=300, seed=3, tint=True, organic=True, light=True, sizes=True):
+    """A small made-up patch of the map: a winding path, an accent patch, a pond, props and the hero."""
+    m = maps[mid]; th = m['theme']; rng = random.Random(seed)
+    N = 16
+    kinds = [['g'] * N for _ in range(N)]
+    col = N // 2
+    for r in range(N):
+        kinds[r][col] = 'p'
+        if rng.random() < 0.3: col = max(2, min(N - 3, col + rng.choice([-1, 1]))); kinds[r][col] = 'p'
+    if th.get('accent'):
+        cx, cy = rng.randrange(2, 6), rng.randrange(8, 13)
+        for r in range(N):
+            for c in range(N):
+                if (c - cx) ** 2 + (r - cy) ** 2 < 6 and kinds[r][c] == 'g': kinds[r][c] = 'a'
+    if th.get('water'):
+        cx, cy = rng.randrange(10, 13), rng.randrange(2, 6)
+        for r in range(N):
+            for c in range(N):
+                if (c - cx) ** 2 + (r - cy) ** 2 < 5 and kinds[r][c] == 'g': kinds[r][c] = 'w'
+    items, occupied, pool = [], set(), []
+    for p in th['props']:
+        if not p.get('within'): pool += [p] * max(1, min(6, p['count'] // 6))
+    rng.shuffle(pool)
+    for p in pool[:34]:
+        for _ in range(20):
+            c, r = rng.randrange(N), rng.randrange(N)
+            if kinds[r][c] == 'g' and (c, r) not in occupied and abs(c - N / 2) + abs(r - N / 2) > 2: break
+        else: continue
+        occupied.add((c, r))
+        lo, hi = p.get('size', [1, 1]) if sizes else (1, 1)
+        items.append((p['art'], c, r, rng.uniform(lo, hi)))
+    items.append(('player_walk', N // 2 - 1, N // 2, 1))
+    return draw_scene(mid, palette, kinds, items, W, H, seed, tint, organic, light)
 
 if __name__ == '__main__':
     import argparse

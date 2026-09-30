@@ -113,6 +113,9 @@ for map_def in maps.values():
         check(prop["art"] in art, f"map {map_def['id']} prop → unknown art {prop['art']}")
         within = prop.get("within", 1)
         check(isinstance(within, int) and within > 0, f"map {map_def['id']} prop {prop['art']} → within must be a positive whole number")
+        size = prop.get("size", [1, 1])
+        check(isinstance(size, list) and len(size) == 2 and all(isinstance(v, (int, float)) and 0.2 <= v <= 3 for v in size) and size[0] <= size[1],
+              f"map {map_def['id']} prop {prop['art']} → size must be [smallest, biggest] between 0.2 and 3")
         spread = prop.get("spread", 1)
         check(isinstance(spread, int) and spread > 0, f"map {map_def['id']} prop {prop['art']} → spread must be a positive whole number")
 
@@ -123,13 +126,16 @@ for map_def in maps.values():
     if not palette:
         continue
     where = f"map {map_def['id']} palette"
-    check(set(palette) <= {"recolor", "saturation", "shadow", "highlight", "tone", "glow"}, f"{where} → unknown keys {set(palette) - {'recolor', 'saturation', 'shadow', 'highlight', 'tone', 'glow'}}")
-    for key in ("shadow", "highlight"):
+    palette_keys = {"recolor", "saturation", "shadow", "highlight", "tone", "glow", "light", "lightStrength"}
+    check(set(palette) <= palette_keys, f"{where} → unknown keys {set(palette) - palette_keys}")
+    for key in ("shadow", "highlight", "light"):
         if key in palette:
             check(bool(hex_colour.match(palette[key])), f"{where} → {key} must be a #RRGGBB colour")
     for key in ("saturation", "tone", "glow"):
         if key in palette:
             check(isinstance(palette[key], (int, float)) and 0 <= palette[key] <= 2, f"{where} → {key} must be between 0 and 2")
+    if "lightStrength" in palette:
+        check(isinstance(palette["lightStrength"], (int, float)) and 0 <= palette["lightStrength"] <= 1, f"{where} → lightStrength must be between 0 and 1")
     for rule in palette.get("recolor", []):
         check(set(rule) <= rule_keys, f"{where} → unknown recolor keys {set(rule) - rule_keys}")
 

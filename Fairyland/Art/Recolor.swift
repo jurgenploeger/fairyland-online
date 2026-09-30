@@ -46,6 +46,10 @@ nonisolated struct MapPalette: Decodable, Sendable {
     /// How strongly shadows lean (default 0.35) and highlights lean (defaults to `tone`).
     let tone: Double?
     let glow: Double?
+    /// The light characters stand in: their sprites are tinted toward it by `lightStrength`
+    /// (0...1, default 0.4), so they blend with the map instead of looking pasted on.
+    let light: String?
+    let lightStrength: Double?
 }
 
 enum Recolor {

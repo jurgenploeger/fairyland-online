@@ -50,8 +50,20 @@ final class WorldScene: SKScene {
     private let walkSpeed: CGFloat = 88
     private let talkRange: CGFloat = 50
 
+    /// Pinch to zoom in on the ground around you, or out for a wider view. Kept from map to map.
+    private static var zoom: CGFloat = 1
+    private static let zoomRange: ClosedRange<CGFloat> = 0.85...2.2
+    private var pinchStartZoom: CGFloat = 1
+    private lazy var pinch = UIPinchGestureRecognizer(target: self, action: #selector(pinched(_:)))
+
     /// `entry` is the edge the player walked in through, or nil to use the saved position.
     init(map def: MapDef, session: GameSession, input: InputState, entry: Edge?) {
+        // Characters made for this map pick up its light.
+        if let palette = def.theme.palette, let hex = palette.light, let color = UIColor(hex: hex) {
+            Walker.light = (color, CGFloat(palette.lightStrength ?? 0.4))
+        } else {
+            Walker.light = nil
+        }
         let map = WorldMap(def: def)
         let player = Walker(cycle: ArtLibrary.shared.walkCycle(GameSession.heroArt), label: session.data.hero.name)
         player.fidgets = true
@@ -86,6 +98,8 @@ final class WorldScene: SKScene {
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
 
     override func didMove(to view: SKView) {
+        view.addGestureRecognizer(pinch)
+        cam.setScale(1 / Self.zoom)
         if session.mapName != def.name {
             session.post("You arrive at \(def.name).")
             if def.danger == true {
@@ -97,6 +111,16 @@ final class WorldScene: SKScene {
         session.mapCell = lastCell
         MusicPlayer.shared.play(def.music)
         lastUpdate = 0
+    }
+
+    override func willMove(from view: SKView) {
+        view.removeGestureRecognizer(pinch)
+    }
+
+    @objc private func pinched(_ gesture: UIPinchGestureRecognizer) {
+        if gesture.state == .began { pinchStartZoom = Self.zoom }
+        Self.zoom = min(Self.zoomRange.upperBound, max(Self.zoomRange.lowerBound, pinchStartZoom * gesture.scale))
+        cam.setScale(1 / Self.zoom)
     }
 
     // MARK: - Building the map
@@ -146,48 +170,74 @@ final class WorldScene: SKScene {
     private func makeGround() -> SKNode {
         let tileSize = CGSize(width: WorldMap.tileSize, height: WorldMap.tileSize)
         let theme = def.theme
-        func group(_ id: String) -> SKTileGroup {
-            SKTileGroup(tileDefinition: SKTileDefinition(texture: art.tileTexture(id), size: tileSize))
+        let waterID = theme.water ?? "tile_water"
+        let water = SKTileGroup(tileDefinition: SKTileDefinition(textures: art.waterFrames(waterID), size: tileSize, timePerFrame: 0.9))
+        var groups: [String: SKTileGroup] = ["water": water]
+        func group(_ key: String, _ texture: () -> SKTexture) -> SKTileGroup {
+            if let known = groups[key] { return known }
+            let made = SKTileGroup(tileDefinition: SKTileDefinition(texture: texture(), size: tileSize))
+            groups[key] = made
+            return made
         }
-        let water = SKTileGroup(tileDefinition: SKTileDefinition(textures: art.waterFrames(theme.water ?? "tile_water"), size: tileSize, timePerFrame: 0.9))
-        let groups: [Ground: SKTileGroup] = [
-            .ground: group(theme.ground),
-            .path: group(theme.path),
-            .accent: group(theme.accent ?? theme.ground),
-            .border: group(theme.border ?? theme.ground),
-            .water: water,
-        ]
-        // Road tiles blend into the ground at their edges (one variant per edge mask).
-        var roadEdges: [Int: SKTileGroup] = [0: groups[.path]!]
-        for mask in 1..<16 {
-            roadEdges[mask] = SKTileGroup(tileDefinition: SKTileDefinition(texture: art.roadTile(theme.path, on: theme.ground, mask: mask), size: tileSize))
-        }
-        // Accent patches (flower meadows, moss) blend the same way, so they read as soft blobs
-        // rather than square tiles. Not in towns, where the accent is terrace paving.
-        var accentEdges: [Int: SKTileGroup] = [:]
-        if (theme.accentPatches ?? 0) > 0, let accent = theme.accent, accent != theme.ground {
-            for mask in 1..<16 {
-                accentEdges[mask] = SKTileGroup(tileDefinition: SKTileDefinition(texture: art.roadTile(accent, on: theme.ground, mask: mask, shadeRim: false), size: tileSize))
+        // Accent patches (flower meadows, moss) blend in as soft blobs. Not in towns, where the
+        // accent is terrace paving and stays square.
+        let patchAccent = (theme.accentPatches ?? 0) > 0 && theme.accent != nil && theme.accent != theme.ground
+        /// Which cells of the 3×3 around `cell` are `kind` (bit row * 3 + col, row 0 north).
+        func mask(_ cell: GridPoint, _ kind: Ground) -> Int {
+            let own = map.ground[cell.row][cell.col] == kind
+            var bits = 0
+            for dy in -1...1 {
+                for dx in -1...1 {
+                    let next = GridPoint(col: cell.col + dx, row: cell.row + dy)
+                    // Off the map a road or patch carries on; water doesn't.
+                    let hit = map.contains(next) ? map.ground[next.row][next.col] == kind : own && kind != .water
+                    if hit { bits |= 1 << ((1 - dy) * 3 + dx + 1) }
+                }
             }
+            return bits
         }
-        let tileMap = SKTileMapNode(
-            tileSet: SKTileSet(tileGroups: Array(groups.values) + roadEdges.filter { $0.key != 0 }.map(\.value) + Array(accentEdges.values)),
-            columns: map.columns,
-            rows: map.rows,
-            tileSize: tileSize
-        )
-        tileMap.anchorPoint = .zero
+        let full = 0b111_111_111, sides = 0b010_101_010
+        var picks: [(col: Int, row: Int, group: SKTileGroup)] = []
         for row in 0..<map.rows {
             for col in 0..<map.columns {
-                let kind = map.ground[row][col]
                 let cell = GridPoint(col: col, row: row)
-                let group: SKTileGroup? = switch kind {
-                case .path: roadEdges[map.roadEdgeMask(cell)]
-                case .accent: accentEdges[map.edgeMask(cell, of: .accent)] ?? groups[kind]
-                default: groups[kind]
+                let kind = map.ground[row][col]
+                let road = mask(cell, .path), pond = mask(cell, .water)
+                let patch = patchAccent ? mask(cell, .accent) : 0
+                // What shows between the soft shapes: the cell's own ground, or for a road, pond or
+                // patch cell the ground around it.
+                let base: String = switch kind {
+                case .ground: theme.ground
+                case .border: theme.border ?? theme.ground
+                case .accent where !patchAccent: theme.accent ?? theme.ground
+                default: mask(cell, .border) & sides != 0 ? (theme.border ?? theme.ground) : theme.ground
                 }
-                tileMap.setTileGroup(group, forColumn: col, row: row)
+                var layers: [ArtLibrary.GroundLayer] = []
+                if patch != 0, let accent = theme.accent { layers.append(.init(tile: accent, mask: patch, style: .patch)) }
+                if road != 0 { layers.append(.init(tile: theme.path, mask: road, style: .road)) }
+                if pond != 0 { layers.append(.init(tile: waterID, mask: pond, style: .water)) }
+                let chosen: SKTileGroup
+                if pond == full {
+                    chosen = water
+                } else if road == full, pond == 0 {
+                    chosen = group(theme.path) { art.tileTexture(theme.path) }
+                } else if layers.isEmpty {
+                    chosen = group(base) { art.tileTexture(base) }
+                } else if let accent = theme.accent, patch == full, road == 0, pond == 0 {
+                    chosen = group(accent) { art.tileTexture(accent) }
+                } else {
+                    // Shorelines depend on where they are (see organicTile), so each gets its own tile.
+                    let place = pond != 0 ? "@\(col),\(row)" : ""
+                    let key = base + "|" + layers.map { "\($0.style)\($0.mask)" }.joined(separator: "|") + place
+                    chosen = group(key) { art.organicTile(base: base, layers: layers, cell: cell) }
+                }
+                picks.append((col, row, chosen))
             }
+        }
+        let tileMap = SKTileMapNode(tileSet: SKTileSet(tileGroups: Array(groups.values)), columns: map.columns, rows: map.rows, tileSize: tileSize)
+        tileMap.anchorPoint = .zero
+        for pick in picks {
+            tileMap.setTileGroup(pick.group, forColumn: pick.col, row: pick.row)
         }
         let ground = projected(tileMap)
         ground.zPosition = -100_000
@@ -414,7 +464,11 @@ final class WorldScene: SKScene {
                     )
                     guard map.isFreeForScenery(cell, insideFence: placement.within != nil) else { continue }
                     map.occupy(cell, blocking: placement.blocking)
-                    addScenery(sprite, at: cell, sway: placement.sway == true, jitter: true)
+                    var scale: CGFloat = 1
+                    if let range = placement.size, range.count == 2, range[0] <= range[1] {
+                        scale = CGFloat(Double.random(in: range[0]...range[1], using: &rng))
+                    }
+                    addScenery(sprite, at: cell, sway: placement.sway == true, jitter: true, scale: scale)
                     inGroup += 1
                 }
                 placed += inGroup
@@ -540,8 +594,8 @@ final class WorldScene: SKScene {
         }
     }
 
-    private func addScenery(_ sprite: SpriteArt, at cell: GridPoint, sway: Bool = false, jitter: Bool = false) {
-        let node = SKSpriteNode(texture: sprite.texture, size: sprite.size)
+    private func addScenery(_ sprite: SpriteArt, at cell: GridPoint, sway: Bool = false, jitter: Bool = false, scale: CGFloat = 1) {
+        let node = SKSpriteNode(texture: sprite.texture, size: CGSize(width: sprite.size.width * scale, height: sprite.size.height * scale))
         node.anchorPoint = CGPoint(x: 0.5, y: 0.05)
         var position = map.base(of: cell)
         if jitter {
@@ -902,8 +956,8 @@ final class WorldScene: SKScene {
         let goal = player.position
         let t = dt == 0 ? 1 : min(1, CGFloat(dt) * 10)
         let eased = CGPoint(x: cam.position.x + (goal.x - cam.position.x) * t, y: cam.position.y + (goal.y - cam.position.y) * t)
-        // Snap to whole screen pixels so pixel art doesn't shimmer.
-        let scale = view?.contentScaleFactor ?? 1
+        // Snap to whole screen pixels so pixel art doesn't shimmer (zooming changes their size).
+        let scale = (view?.contentScaleFactor ?? 1) / cam.xScale
         cam.position = CGPoint(x: (eased.x * scale).rounded() / scale, y: (eased.y * scale).rounded() / scale)
     }
 }

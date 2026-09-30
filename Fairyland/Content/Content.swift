@@ -282,6 +282,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let cluster: Int?
         /// How far (in cells) a group spreads from its centre; smaller packs a grove tighter.
         let spread: Int?
+        /// Each one is drawn at a random size in this range ([0.8, 1.25] = 80% to 125%).
+        let size: [Double]?
         /// Sways gently in the breeze.
         let sway: Bool?
         /// Plant only within this many cells of the map's centre, inside a town's fence too
