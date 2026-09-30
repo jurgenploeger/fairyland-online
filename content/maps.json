@@ -226,6 +226,81 @@
             "blocking": true,
             "within": 11,
             "shadow": true
+          },
+          {
+            "art": "blossom_tree",
+            "count": 40,
+            "within": 30,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.15
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "tree",
+            "count": 30,
+            "within": 30,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.8,
+              1.15
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "big_blossom_tree",
+            "count": 6,
+            "within": 30,
+            "blocking": true,
+            "size": [
+              0.9,
+              1.1
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "flowering_bush",
+            "count": 40,
+            "within": 30,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "tulip_patch",
+            "count": 30,
+            "within": 30,
+            "cluster": 4
+          },
+          {
+            "art": "daisy",
+            "count": 60,
+            "within": 30,
+            "cluster": 6
+          },
+          {
+            "art": "daisy_blue",
+            "count": 40,
+            "within": 30,
+            "cluster": 5
+          },
+          {
+            "art": "sunflower",
+            "count": 20,
+            "within": 30,
+            "cluster": 4
+          },
+          {
+            "art": "clover_patch",
+            "count": 20,
+            "within": 30,
+            "cluster": 3
           }
         ],
         "accent": "tile_scree",
@@ -308,6 +383,126 @@
           "art": "magic_tower",
           "x": -14,
           "y": -19
+        },
+        {
+          "art": "house",
+          "x": -25,
+          "y": 18
+        },
+        {
+          "art": "house_green",
+          "x": -18,
+          "y": 18
+        },
+        {
+          "art": "house_purple",
+          "x": -13,
+          "y": 18
+        },
+        {
+          "art": "mushroom_house",
+          "x": 11,
+          "y": 18
+        },
+        {
+          "art": "mushroom_house_blue",
+          "x": 16,
+          "y": 18
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": 21,
+          "y": 18
+        },
+        {
+          "art": "bakery",
+          "x": 26,
+          "y": 18
+        },
+        {
+          "art": "inn_red",
+          "x": -27,
+          "y": 8
+        },
+        {
+          "art": "house",
+          "x": -18,
+          "y": 8
+        },
+        {
+          "art": "house_green",
+          "x": -5,
+          "y": 8
+        },
+        {
+          "art": "house_purple",
+          "x": 6,
+          "y": 8
+        },
+        {
+          "art": "mushroom_house",
+          "x": 18,
+          "y": 6
+        },
+        {
+          "art": "mushroom_house_blue",
+          "x": 20,
+          "y": -2
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": -15,
+          "y": -5
+        },
+        {
+          "art": "bakery",
+          "x": 4,
+          "y": -8
+        },
+        {
+          "art": "inn_red",
+          "x": 18,
+          "y": -8
+        },
+        {
+          "art": "house",
+          "x": -27,
+          "y": -10
+        },
+        {
+          "art": "house_green",
+          "x": 24,
+          "y": -17
+        },
+        {
+          "art": "house_purple",
+          "x": -4,
+          "y": -18
+        },
+        {
+          "art": "mushroom_house",
+          "x": 12,
+          "y": -18
+        },
+        {
+          "art": "mushroom_house_blue",
+          "x": 19,
+          "y": -18
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": -26,
+          "y": -19
+        },
+        {
+          "art": "bakery",
+          "x": 1,
+          "y": -20
+        },
+        {
+          "art": "inn_red",
+          "x": 7,
+          "y": -20
         }
       ],
       "decor": [
@@ -544,20 +739,40 @@
         "lots": [
           "blacksmith",
           "bakery",
+          "inn_red",
+          "item_shop_red",
+          "bakery",
+          "magic_tower",
+          "house",
+          "house_green",
+          "house_purple",
           "mushroom_house",
+          "mushroom_house_blue",
+          "mushroom_house_gold",
+          "house",
+          "house_green",
+          "house_purple",
           "mushroom_house",
+          "mushroom_house_blue",
+          "mushroom_house_gold",
           "house",
+          "house_green",
+          "house_purple",
+          "mushroom_house",
+          "mushroom_house_blue",
+          "mushroom_house_gold",
           "house",
-          "house",
-          "inn",
-          "item_shop",
-          "mushroom_house"
+          "house_green",
+          "house_purple",
+          "mushroom_house",
+          "mushroom_house_blue",
+          "mushroom_house_gold"
         ],
         "streetDecor": {
-          "street_lamp": 16,
-          "flower_planter": 10,
-          "bench": 6,
-          "market_stall": 5
+          "street_lamp": 22,
+          "flower_planter": 22,
+          "bench": 10,
+          "market_stall": 9
         },
         "terraces": [
           {
@@ -2223,6 +2438,82 @@
             "blocking": true,
             "within": 13,
             "shadow": true
+          },
+          {
+            "art": "blossom_tree",
+            "count": 46,
+            "within": 32,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.8,
+              1.15
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "lilac_tree",
+            "count": 30,
+            "within": 32,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.8,
+              1.15
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "big_lilac_tree",
+            "count": 6,
+            "within": 32,
+            "blocking": true,
+            "size": [
+              0.9,
+              1.1
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "flowering_bush",
+            "count": 44,
+            "within": 32,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "lilac_bush",
+            "count": 30,
+            "within": 32,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "tulip_patch",
+            "count": 36,
+            "within": 32,
+            "cluster": 4
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 60,
+            "within": 32,
+            "cluster": 6
+          },
+          {
+            "art": "daisy_blue",
+            "count": 50,
+            "within": 32,
+            "cluster": 5
+          },
+          {
+            "art": "sunflower",
+            "count": 24,
+            "within": 32,
+            "cluster": 4
           }
         ],
         "accentPatches": 0,
@@ -2300,19 +2591,47 @@
           "blacksmith",
           "bakery",
           "magic_tower",
-          "mushroom_house",
-          "house",
-          "house",
-          "house",
-          "house",
+          "item_shop_red",
+          "inn_teal",
+          "bakery",
           "windmill",
-          "mushroom_house"
+          "magic_tower",
+          "house",
+          "house_green",
+          "house_purple",
+          "mushroom_house",
+          "mushroom_house_blue",
+          "mushroom_house_gold",
+          "house",
+          "house_green",
+          "house_purple",
+          "mushroom_house",
+          "mushroom_house_blue",
+          "mushroom_house_gold",
+          "house",
+          "house_green",
+          "house_purple",
+          "mushroom_house",
+          "mushroom_house_blue",
+          "mushroom_house_gold",
+          "house",
+          "house_green",
+          "house_purple",
+          "mushroom_house",
+          "mushroom_house_blue",
+          "mushroom_house_gold",
+          "house",
+          "house_green",
+          "house_purple",
+          "mushroom_house",
+          "mushroom_house_blue",
+          "mushroom_house_gold"
         ],
         "streetDecor": {
-          "street_lamp": 20,
-          "flower_planter": 12,
-          "bench": 8,
-          "market_stall": 8
+          "street_lamp": 26,
+          "flower_planter": 26,
+          "bench": 12,
+          "market_stall": 14
         },
         "terraces": [
           {
@@ -2328,6 +2647,176 @@
           "art": "guild_hall",
           "x": 0,
           "y": 17
+        },
+        {
+          "art": "house",
+          "x": -16,
+          "y": 20
+        },
+        {
+          "art": "house_green",
+          "x": 27,
+          "y": 19
+        },
+        {
+          "art": "house_purple",
+          "x": -29,
+          "y": 18
+        },
+        {
+          "art": "mushroom_house",
+          "x": -21,
+          "y": 18
+        },
+        {
+          "art": "mushroom_house_blue",
+          "x": 16,
+          "y": 18
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": 11,
+          "y": 17
+        },
+        {
+          "art": "item_shop_red",
+          "x": 21,
+          "y": 17
+        },
+        {
+          "art": "inn_teal",
+          "x": 29,
+          "y": 14
+        },
+        {
+          "art": "bakery",
+          "x": -30,
+          "y": 11
+        },
+        {
+          "art": "house",
+          "x": -5,
+          "y": 8
+        },
+        {
+          "art": "house_green",
+          "x": 29,
+          "y": 7
+        },
+        {
+          "art": "house_purple",
+          "x": -18,
+          "y": 6
+        },
+        {
+          "art": "mushroom_house",
+          "x": 4,
+          "y": 6
+        },
+        {
+          "art": "mushroom_house_blue",
+          "x": 23,
+          "y": 6
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": -10,
+          "y": -5
+        },
+        {
+          "art": "item_shop_red",
+          "x": 21,
+          "y": -5
+        },
+        {
+          "art": "inn_teal",
+          "x": -18,
+          "y": -6
+        },
+        {
+          "art": "bakery",
+          "x": 8,
+          "y": -6
+        },
+        {
+          "art": "house",
+          "x": 29,
+          "y": -6
+        },
+        {
+          "art": "house_green",
+          "x": -15,
+          "y": -14
+        },
+        {
+          "art": "house_purple",
+          "x": -29,
+          "y": -15
+        },
+        {
+          "art": "mushroom_house",
+          "x": 23,
+          "y": -16
+        },
+        {
+          "art": "mushroom_house_blue",
+          "x": 28,
+          "y": -16
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": 12,
+          "y": -17
+        },
+        {
+          "art": "item_shop_red",
+          "x": 17,
+          "y": -18
+        },
+        {
+          "art": "inn_teal",
+          "x": -22,
+          "y": -19
+        },
+        {
+          "art": "bakery",
+          "x": 7,
+          "y": -19
+        },
+        {
+          "art": "house",
+          "x": -12,
+          "y": -21
+        },
+        {
+          "art": "house_green",
+          "x": -6,
+          "y": -22
+        },
+        {
+          "art": "house_purple",
+          "x": 29,
+          "y": -22
+        },
+        {
+          "art": "mushroom_house",
+          "x": -27,
+          "y": -23
+        },
+        {
+          "art": "mushroom_house_blue",
+          "x": -17,
+          "y": -23
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": 16,
+          "y": -23
+        },
+        {
+          "art": "item_shop_red",
+          "x": 21,
+          "y": -23
         }
       ],
       "decor": [
@@ -3553,6 +4042,71 @@
             "blocking": true,
             "within": 11,
             "shadow": true
+          },
+          {
+            "art": "tree",
+            "count": 24,
+            "within": 30,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.8,
+              1.1
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "red_maple",
+            "count": 16,
+            "within": 30,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.8,
+              1.1
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "dry_bush",
+            "count": 30,
+            "within": 30,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "wooden_crates",
+            "count": 16,
+            "within": 30,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "barrels",
+            "count": 16,
+            "within": 30,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "mine_cart",
+            "count": 6,
+            "within": 30,
+            "blocking": true
+          },
+          {
+            "art": "sunflower",
+            "count": 14,
+            "within": 30,
+            "cluster": 3
+          },
+          {
+            "art": "daisy_yellow",
+            "count": 30,
+            "within": 30,
+            "cluster": 5
           }
         ],
         "accentPatches": 0,
@@ -3621,16 +4175,32 @@
           "blacksmith",
           "inn",
           "item_shop",
+          "blacksmith",
+          "inn_red",
+          "item_shop_red",
+          "windmill",
           "house",
+          "house_purple",
+          "mushroom_house",
+          "mushroom_house_gold",
           "house",
+          "house_purple",
+          "mushroom_house",
+          "mushroom_house_gold",
           "house",
-          "mushroom_house"
+          "house_purple",
+          "mushroom_house",
+          "mushroom_house_gold",
+          "house",
+          "house_purple",
+          "mushroom_house",
+          "mushroom_house_gold"
         ],
         "streetDecor": {
-          "street_lamp": 12,
-          "mine_cart": 6,
-          "market_stall": 4,
-          "bench": 4
+          "street_lamp": 18,
+          "mine_cart": 10,
+          "market_stall": 8,
+          "bench": 8
         },
         "terraces": [
           {
@@ -3732,7 +4302,129 @@
         "sun": "#FFD090",
         "haze": "#FFE0B0",
         "hazeAlpha": 0.18
-      }
+      },
+      "buildings": [
+        {
+          "art": "house",
+          "x": -26,
+          "y": 17
+        },
+        {
+          "art": "house_purple",
+          "x": -6,
+          "y": 17
+        },
+        {
+          "art": "mushroom_house",
+          "x": 3,
+          "y": 17
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": 26,
+          "y": 17
+        },
+        {
+          "art": "blacksmith",
+          "x": -27,
+          "y": 11
+        },
+        {
+          "art": "house",
+          "x": -8,
+          "y": 9
+        },
+        {
+          "art": "house_purple",
+          "x": -3,
+          "y": 9
+        },
+        {
+          "art": "mushroom_house",
+          "x": 18,
+          "y": 7
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": 7,
+          "y": 6
+        },
+        {
+          "art": "blacksmith",
+          "x": -17,
+          "y": 5
+        },
+        {
+          "art": "house",
+          "x": 13,
+          "y": 5
+        },
+        {
+          "art": "house_purple",
+          "x": -15,
+          "y": -4
+        },
+        {
+          "art": "mushroom_house",
+          "x": 12,
+          "y": -4
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": -20,
+          "y": -5
+        },
+        {
+          "art": "blacksmith",
+          "x": 7,
+          "y": -5
+        },
+        {
+          "art": "house",
+          "x": 21,
+          "y": -5
+        },
+        {
+          "art": "house_purple",
+          "x": -6,
+          "y": -7
+        },
+        {
+          "art": "mushroom_house",
+          "x": -27,
+          "y": -10
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": -25,
+          "y": -15
+        },
+        {
+          "art": "blacksmith",
+          "x": -4,
+          "y": -15
+        },
+        {
+          "art": "house",
+          "x": 25,
+          "y": -16
+        },
+        {
+          "art": "house_purple",
+          "x": -25,
+          "y": -20
+        },
+        {
+          "art": "mushroom_house",
+          "x": -5,
+          "y": -20
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": 26,
+          "y": -21
+        }
+      ]
     },
     {
       "id": "genie_desert",

@@ -1537,6 +1537,134 @@
       }
     },
     {
+      "id": "house_green",
+      "kind": "building",
+      "derive": {
+        "from": "house",
+        "recolor": [
+          {
+            "hue": [
+              340,
+              30
+            ],
+            "minSaturation": 0.3,
+            "to": 140,
+            "saturation": 0.8,
+            "value": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "house_purple",
+      "kind": "building",
+      "derive": {
+        "from": "house",
+        "recolor": [
+          {
+            "hue": [
+              340,
+              30
+            ],
+            "minSaturation": 0.3,
+            "to": 280,
+            "saturation": 0.85
+          }
+        ]
+      }
+    },
+    {
+      "id": "mushroom_house_blue",
+      "kind": "building",
+      "derive": {
+        "from": "mushroom_house",
+        "recolor": [
+          {
+            "hue": [
+              340,
+              30
+            ],
+            "minSaturation": 0.3,
+            "to": 205,
+            "saturation": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "mushroom_house_gold",
+      "kind": "building",
+      "derive": {
+        "from": "mushroom_house",
+        "recolor": [
+          {
+            "hue": [
+              340,
+              30
+            ],
+            "minSaturation": 0.3,
+            "to": 42,
+            "saturation": 1.1,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "inn_red",
+      "kind": "building",
+      "derive": {
+        "from": "inn",
+        "recolor": [
+          {
+            "hue": [
+              250,
+              320
+            ],
+            "minSaturation": 0.25,
+            "to": 2,
+            "saturation": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "inn_teal",
+      "kind": "building",
+      "derive": {
+        "from": "inn",
+        "recolor": [
+          {
+            "hue": [
+              250,
+              320
+            ],
+            "minSaturation": 0.25,
+            "to": 175,
+            "saturation": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_shop_red",
+      "kind": "building",
+      "derive": {
+        "from": "item_shop",
+        "recolor": [
+          {
+            "hue": [
+              90,
+              170
+            ],
+            "minSaturation": 0.25,
+            "to": 355,
+            "saturation": 1.0
+          }
+        ]
+      }
+    },
+    {
       "id": "stone_balustrade",
       "kind": "prop",
       "request": {
