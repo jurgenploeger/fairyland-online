@@ -2754,6 +2754,446 @@
           }
         ]
       }
+    },
+    {
+      "id": "tree_stump",
+      "kind": "prop",
+      "request": {
+        "prompt": "mossy tree stump with a tiny mushroom",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "fallen_log",
+      "kind": "prop",
+      "request": {
+        "prompt": "fallen mossy log with ferns",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "fern",
+      "kind": "prop",
+      "request": {
+        "prompt": "lush green fern plant",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "berry_bush",
+      "kind": "prop",
+      "request": {
+        "prompt": "round bush with red berries",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "sunflower",
+      "kind": "prop",
+      "request": {
+        "prompt": "tall cheerful sunflower",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "tulip_patch",
+      "kind": "prop",
+      "request": {
+        "prompt": "small patch of red and yellow tulips",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "clover_patch",
+      "kind": "prop",
+      "request": {
+        "prompt": "patch of clover with tiny white flowers",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "haystack",
+      "kind": "prop",
+      "request": {
+        "prompt": "round golden haystack",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "pumpkin_patch",
+      "kind": "prop",
+      "request": {
+        "prompt": "cute orange pumpkins with leaves",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "beehive_tree",
+      "kind": "prop",
+      "request": {
+        "prompt": "fairytale tree with a hanging beehive",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "fairy_ring",
+      "kind": "prop",
+      "request": {
+        "prompt": "ring of tiny glowing toadstools",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "wisp_lantern",
+      "kind": "prop",
+      "request": {
+        "prompt": "floating magic lantern flower glowing blue",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "hollow_tree",
+      "kind": "prop",
+      "request": {
+        "prompt": "hollow old tree with a round door, whimsical",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "seashells",
+      "kind": "prop",
+      "request": {
+        "prompt": "pink and white seashells and a starfish on sand",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "driftwood",
+      "kind": "prop",
+      "request": {
+        "prompt": "bleached driftwood branch",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "beach_umbrella",
+      "kind": "prop",
+      "request": {
+        "prompt": "striped beach umbrella",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "coral",
+      "kind": "prop",
+      "request": {
+        "prompt": "pink and orange coral",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "ice_rock",
+      "kind": "prop",
+      "request": {
+        "prompt": "blue ice crystal rock",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "frozen_bush",
+      "kind": "prop",
+      "request": {
+        "prompt": "frost-covered bush with icicles",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "snowman_prop",
+      "kind": "prop",
+      "request": {
+        "prompt": "little snowman with a carrot nose and scarf",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "lotus",
+      "kind": "prop",
+      "request": {
+        "prompt": "pink lotus flower on a lily pad",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "swamp_stump",
+      "kind": "prop",
+      "request": {
+        "prompt": "rotten stump with glowing fungus",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "cattail_log",
+      "kind": "prop",
+      "request": {
+        "prompt": "half-sunken log in murky water with cattails",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "tombstone",
+      "kind": "prop",
+      "request": {
+        "prompt": "crooked old stone tombstone",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "spooky_lantern",
+      "kind": "prop",
+      "request": {
+        "prompt": "carved jack-o-lantern",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "thorn_bush",
+      "kind": "prop",
+      "request": {
+        "prompt": "dark thorny bramble",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "ore_vein",
+      "kind": "prop",
+      "request": {
+        "prompt": "rock with glittering gold ore",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "mine_beam",
+      "kind": "prop",
+      "request": {
+        "prompt": "wooden mine support beams",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "glow_moss_rock",
+      "kind": "prop",
+      "request": {
+        "prompt": "cave rock covered in glowing green moss",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "desert_pot",
+      "kind": "prop",
+      "request": {
+        "prompt": "cracked clay pot",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "sand_ruin",
+      "kind": "prop",
+      "request": {
+        "prompt": "broken sandstone pillar ruin",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "oasis_palm",
+      "kind": "prop",
+      "request": {
+        "prompt": "lush palm tree by a tiny oasis pond",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "tumbleweed",
+      "kind": "prop",
+      "request": {
+        "prompt": "dry tumbleweed",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "wooden_crates",
+      "kind": "prop",
+      "request": {
+        "prompt": "stack of wooden crates",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "barrels",
+      "kind": "prop",
+      "request": {
+        "prompt": "two wooden barrels",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "water_well",
+      "kind": "prop",
+      "request": {
+        "prompt": "stone water well with a little roof",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "signpost",
+      "kind": "prop",
+      "request": {
+        "prompt": "wooden signpost with arrows",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "statue",
+      "kind": "prop",
+      "request": {
+        "prompt": "small stone fairy statue on a plinth",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "moon_flower",
+      "kind": "prop",
+      "request": {
+        "prompt": "glowing white moon flower",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "star_crystal",
+      "kind": "prop",
+      "request": {
+        "prompt": "star-shaped glowing crystal",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
     }
   ]
 }
