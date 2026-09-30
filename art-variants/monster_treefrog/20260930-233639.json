@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "green tree frog fighter wearing a hero mask over its eyes, fists raised in a fighting stance, big round eyes, sticky toes, chibi, cute monster",
+    "prompt_style": "rd_plus__low_res",
+    "width": 40,
+    "height": 40,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790811397,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 49.511,
+    "request_id": "5c3d6a07-a441-4f57-86d9-ef75fdd2a157",
+    "outputs_retained_until": 1790897758
+  }
+}

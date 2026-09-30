@@ -1021,6 +1021,7 @@
       "gold": 14,
       "captureRate": 0.4,
       "skills": [
+        "bash",
         "vine_whip",
         "bubble"
       ],
@@ -1051,6 +1052,7 @@
       "gold": 22,
       "captureRate": 0.24,
       "skills": [
+        "bash",
         "vine_whip",
         "bubble"
       ],
@@ -1059,132 +1061,69 @@
       "variantOf": "treefrog"
     },
     {
-      "id": "masked_frog",
-      "name": "Masked Frog",
-      "art": "monster_masked_frog",
-      "element": "wood",
-      "base": {
-        "hp": 62,
-        "mp": 16,
-        "attack": 27,
-        "defense": 14,
-        "magic": 8,
-        "speed": 24
-      },
-      "growth": {
-        "hp": 8,
-        "mp": 2,
-        "attack": 3,
-        "defense": 2,
-        "magic": 1,
-        "speed": 2
-      },
-      "exp": 36,
-      "gold": 20,
-      "captureRate": 0.3,
-      "skills": [
-        "power_strike",
-        "bash",
-        "vine_whip"
-      ],
-      "motion": "hop"
-    },
-    {
-      "id": "red_masked_frog",
-      "name": "Red Masked Frog",
-      "art": "monster_masked_frog_red",
-      "element": "fire",
-      "base": {
-        "hp": 62,
-        "mp": 16,
-        "attack": 27,
-        "defense": 14,
-        "magic": 8,
-        "speed": 24
-      },
-      "growth": {
-        "hp": 8,
-        "mp": 2,
-        "attack": 3,
-        "defense": 2,
-        "magic": 1,
-        "speed": 2
-      },
-      "exp": 36,
-      "gold": 20,
-      "captureRate": 0.3,
-      "skills": [
-        "power_strike",
-        "bash",
-        "ember"
-      ],
-      "motion": "hop",
-      "variantOf": "masked_frog"
-    },
-    {
-      "id": "blue_masked_frog",
-      "name": "Blue Masked Frog",
-      "art": "monster_masked_frog_blue",
+      "id": "blue_treefrog",
+      "name": "Blue Treefrog",
+      "art": "monster_treefrog_blue",
       "element": "water",
       "base": {
-        "hp": 62,
-        "mp": 16,
-        "attack": 27,
-        "defense": 14,
-        "magic": 8,
-        "speed": 24
+        "hp": 46,
+        "mp": 18,
+        "attack": 18,
+        "defense": 9,
+        "magic": 9,
+        "speed": 23
       },
       "growth": {
-        "hp": 8,
+        "hp": 7,
         "mp": 2,
-        "attack": 3,
-        "defense": 2,
+        "attack": 2,
+        "defense": 1,
         "magic": 1,
         "speed": 2
       },
-      "exp": 36,
-      "gold": 20,
-      "captureRate": 0.3,
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.4,
       "skills": [
-        "power_strike",
         "bash",
-        "bubble"
+        "bubble",
+        "jelly_splash"
       ],
       "motion": "hop",
-      "variantOf": "masked_frog"
+      "variantOf": "treefrog"
     },
     {
-      "id": "golden_masked_frog",
-      "name": "Golden Masked Frog",
-      "art": "monster_masked_frog_gold",
+      "id": "golden_treefrog",
+      "name": "Golden Treefrog",
+      "art": "monster_treefrog_gold",
       "element": "metal",
       "base": {
-        "hp": 78,
-        "mp": 20,
-        "attack": 34,
-        "defense": 18,
-        "magic": 10,
-        "speed": 30
+        "hp": 65,
+        "mp": 25,
+        "attack": 25,
+        "defense": 12,
+        "magic": 12,
+        "speed": 33
       },
       "growth": {
-        "hp": 9,
-        "mp": 2,
-        "attack": 4,
-        "defense": 2,
+        "hp": 8,
+        "mp": 3,
+        "attack": 3,
+        "defense": 1,
         "magic": 1,
         "speed": 3
       },
-      "exp": 58,
+      "exp": 46,
       "gold": 40,
       "captureRate": 0.18,
       "skills": [
-        "power_strike",
         "bash",
+        "vine_whip",
         "golden_spin"
       ],
       "motion": "hop",
-      "variantOf": "masked_frog",
-      "rare": true
+      "rare": true,
+      "variantOf": "treefrog"
     },
     {
       "id": "water_slug",
