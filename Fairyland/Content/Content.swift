@@ -171,7 +171,9 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     let description: String?
     /// For eggs: the species that can hatch from it.
     let hatches: [String]?
-    /// A GameIcon name for the bag and shops.
+    /// Its sprite in art/assets.json (item_<id>, drawn by tools/item_art.py).
+    let art: String?
+    /// A GameIcon name for the bag and shops when there's no sprite.
     let icon: String?
     /// Seal Stones: thrown in battle to befriend a weakened monster.
     let capture: Bool?
