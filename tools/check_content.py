@@ -113,6 +113,8 @@ for map_def in maps.values():
         check(prop["art"] in art, f"map {map_def['id']} prop → unknown art {prop['art']}")
         within = prop.get("within", 1)
         check(isinstance(within, int) and within > 0, f"map {map_def['id']} prop {prop['art']} → within must be a positive whole number")
+        spread = prop.get("spread", 1)
+        check(isinstance(spread, int) and spread > 0, f"map {map_def['id']} prop {prop['art']} → spread must be a positive whole number")
 
 hex_colour = re.compile(r"^#[0-9A-Fa-f]{6}$")
 rule_keys = {"hue", "minSaturation", "maxSaturation", "minValue", "maxValue", "to", "shift", "saturation", "value"}

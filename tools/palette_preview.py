@@ -166,7 +166,7 @@ def render(mid, palette, W=420, H=300, seed=3, tint=True):
         x, y = project((c + 0.5) * T, (r + 0.5) * T)
         x -= 0; y -= T * C * 0.5 * 0   # base of cell ~ centre
         return x - ox + W / 2, H / 2 - (y - oy)
-    placed.sort(key=lambda t: -screen(t[1], t[2])[1])
+    placed.sort(key=lambda t: screen(t[1], t[2])[1])  # back (higher up the screen) first
     for art, c, r in placed:
         s = sprite(art, None if assets[art]['kind'] == 'walk_sheet' else palette)
         h, w = s.shape[:2]

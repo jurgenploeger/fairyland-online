@@ -496,6 +496,21 @@
         },
         "props": [
           {
+            "art": "big_tree",
+            "count": 120,
+            "blocking": true,
+            "cluster": 10,
+            "sway": true,
+            "spread": 3
+          },
+          {
+            "art": "big_blossom_tree",
+            "count": 25,
+            "blocking": true,
+            "cluster": 3,
+            "sway": true
+          },
+          {
             "art": "tree",
             "count": 600,
             "blocking": true,
@@ -921,11 +936,38 @@
         },
         "props": [
           {
-            "art": "dark_tree",
-            "count": 1000,
+            "art": "big_dark_tree",
+            "count": 300,
             "blocking": true,
-            "cluster": 20,
+            "cluster": 6,
+            "sway": true,
+            "spread": 3
+          },
+          {
+            "art": "big_lilac_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 5,
             "sway": true
+          },
+          {
+            "art": "big_hollow_tree",
+            "count": 5,
+            "blocking": true
+          },
+          {
+            "art": "big_dead_tree",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "dark_tree",
+            "count": 1100,
+            "blocking": true,
+            "cluster": 24,
+            "sway": true,
+            "spread": 4
           },
           {
             "art": "crystal",
@@ -935,15 +977,16 @@
           },
           {
             "art": "glow_mushroom",
-            "count": 180,
+            "count": 360,
             "blocking": false,
-            "cluster": 5
+            "cluster": 6
           },
           {
             "art": "dark_bush",
-            "count": 320,
+            "count": 400,
             "blocking": true,
-            "cluster": 6
+            "cluster": 8,
+            "spread": 3
           },
           {
             "art": "violet_crystal",
@@ -953,21 +996,21 @@
           },
           {
             "art": "pink_shard",
-            "count": 40,
+            "count": 90,
             "blocking": false,
-            "cluster": 3
+            "cluster": 4
           },
           {
             "art": "purple_mushroom",
-            "count": 70,
+            "count": 160,
             "blocking": false,
-            "cluster": 4
+            "cluster": 5
           },
           {
             "art": "blue_mushroom",
-            "count": 70,
+            "count": 160,
             "blocking": false,
-            "cluster": 4
+            "cluster": 5
           },
           {
             "art": "lilac_tree",
@@ -978,9 +1021,9 @@
           },
           {
             "art": "lilac_bush",
-            "count": 60,
+            "count": 120,
             "blocking": true,
-            "cluster": 4
+            "cluster": 5
           },
           {
             "art": "fairy_ring",
@@ -994,9 +1037,9 @@
           },
           {
             "art": "fern",
-            "count": 12,
+            "count": 600,
             "blocking": false,
-            "cluster": 3,
+            "cluster": 8,
             "sway": true
           },
           {
@@ -1006,7 +1049,7 @@
           },
           {
             "art": "fallen_log",
-            "count": 5,
+            "count": 25,
             "blocking": true
           }
         ],
@@ -1107,11 +1150,46 @@
         },
         "props": [
           {
-            "art": "tree",
-            "count": 900,
+            "art": "big_tree",
+            "count": 360,
             "blocking": true,
-            "cluster": 20,
+            "cluster": 6,
+            "sway": true,
+            "spread": 3
+          },
+          {
+            "art": "big_red_maple",
+            "count": 60,
+            "blocking": true,
+            "cluster": 6,
             "sway": true
+          },
+          {
+            "art": "big_golden_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true
+          },
+          {
+            "art": "big_blossom_tree",
+            "count": 40,
+            "blocking": true,
+            "cluster": 4,
+            "sway": true
+          },
+          {
+            "art": "big_hollow_tree",
+            "count": 6,
+            "blocking": true
+          },
+          {
+            "art": "tree",
+            "count": 1100,
+            "blocking": true,
+            "cluster": 24,
+            "sway": true,
+            "spread": 4
           },
           {
             "art": "blossom_tree",
@@ -1128,15 +1206,16 @@
           },
           {
             "art": "mushroom",
-            "count": 120,
+            "count": 260,
             "blocking": false,
-            "cluster": 5
+            "cluster": 6
           },
           {
             "art": "bush",
-            "count": 360,
+            "count": 420,
             "blocking": true,
-            "cluster": 7
+            "cluster": 8,
+            "spread": 3
           },
           {
             "art": "flowering_bush",
@@ -1146,23 +1225,23 @@
           },
           {
             "art": "daisy",
-            "count": 60,
+            "count": 150,
             "blocking": false,
-            "cluster": 5,
+            "cluster": 6,
             "sway": true
           },
           {
             "art": "daisy_yellow",
-            "count": 60,
+            "count": 150,
             "blocking": false,
-            "cluster": 5,
+            "cluster": 6,
             "sway": true
           },
           {
             "art": "daisy_blue",
-            "count": 30,
+            "count": 90,
             "blocking": false,
-            "cluster": 4,
+            "cluster": 5,
             "sway": true
           },
           {
@@ -1187,9 +1266,9 @@
           },
           {
             "art": "toadstool",
-            "count": 60,
+            "count": 140,
             "blocking": false,
-            "cluster": 4
+            "cluster": 5
           },
           {
             "art": "blue_giant_mushroom",
@@ -1199,37 +1278,37 @@
           },
           {
             "art": "sapling",
-            "count": 70,
+            "count": 150,
             "blocking": true,
-            "cluster": 4,
+            "cluster": 5,
             "sway": true
           },
           {
             "art": "pebbles",
-            "count": 40,
+            "count": 110,
             "blocking": false,
-            "cluster": 3
+            "cluster": 4
           },
           {
             "art": "tree_stump",
-            "count": 14,
+            "count": 60,
             "blocking": true
           },
           {
             "art": "fallen_log",
-            "count": 8,
+            "count": 30,
             "blocking": true
           },
           {
             "art": "fern",
-            "count": 20,
+            "count": 700,
             "blocking": false,
-            "cluster": 4,
+            "cluster": 8,
             "sway": true
           },
           {
             "art": "berry_bush",
-            "count": 10,
+            "count": 60,
             "blocking": true,
             "cluster": 3
           },
@@ -1243,6 +1322,18 @@
             "art": "hollow_tree",
             "count": 5,
             "blocking": true
+          },
+          {
+            "art": "clover_patch",
+            "count": 260,
+            "blocking": false,
+            "cluster": 6
+          },
+          {
+            "art": "tulip_patch",
+            "count": 60,
+            "blocking": false,
+            "cluster": 4
           }
         ],
         "palette": {
@@ -1635,17 +1726,48 @@
         "ponds": 4,
         "props": [
           {
-            "art": "snow_tree",
-            "count": 650,
+            "art": "big_snow_tree",
+            "count": 120,
             "blocking": true,
-            "cluster": 16,
+            "cluster": 4,
+            "sway": true,
+            "spread": 3
+          },
+          {
+            "art": "big_snow_pine",
+            "count": 340,
+            "blocking": true,
+            "cluster": 6,
+            "spread": 3
+          },
+          {
+            "art": "big_frost_pine",
+            "count": 80,
+            "blocking": true,
+            "cluster": 6,
             "sway": true
           },
           {
-            "art": "snow_pine",
-            "count": 500,
+            "art": "big_frost_tree",
+            "count": 50,
             "blocking": true,
-            "cluster": 16
+            "cluster": 5,
+            "sway": true
+          },
+          {
+            "art": "snow_tree",
+            "count": 560,
+            "blocking": true,
+            "cluster": 20,
+            "sway": true,
+            "spread": 4
+          },
+          {
+            "art": "snow_pine",
+            "count": 560,
+            "blocking": true,
+            "cluster": 20,
+            "spread": 4
           },
           {
             "art": "boulder",
@@ -1655,9 +1777,10 @@
           },
           {
             "art": "snow_bush",
-            "count": 180,
+            "count": 300,
             "blocking": true,
-            "cluster": 6
+            "cluster": 8,
+            "spread": 3
           },
           {
             "art": "frost_pine",
@@ -1668,9 +1791,9 @@
           },
           {
             "art": "pine_sapling",
-            "count": 120,
+            "count": 250,
             "blocking": true,
-            "cluster": 4,
+            "cluster": 6,
             "sway": true
           },
           {
@@ -1688,20 +1811,27 @@
           },
           {
             "art": "ice_rock",
-            "count": 12,
+            "count": 40,
             "blocking": true,
             "cluster": 3
           },
           {
             "art": "frozen_bush",
-            "count": 14,
+            "count": 60,
             "blocking": true,
-            "cluster": 3
+            "cluster": 5
           },
           {
             "art": "snowman_prop",
             "count": 5,
             "blocking": true
+          },
+          {
+            "art": "frost_fern",
+            "count": 500,
+            "blocking": false,
+            "cluster": 8,
+            "sway": true
           }
         ],
         "palette": {
@@ -1796,10 +1926,24 @@
         "ponds": 14,
         "props": [
           {
+            "art": "big_swamp_tree",
+            "count": 200,
+            "blocking": true,
+            "cluster": 6,
+            "sway": true,
+            "spread": 3
+          },
+          {
+            "art": "big_dead_tree",
+            "count": 60,
+            "blocking": true,
+            "cluster": 4
+          },
+          {
             "art": "reeds",
-            "count": 320,
+            "count": 700,
             "blocking": false,
-            "cluster": 8,
+            "cluster": 10,
             "sway": true
           },
           {
@@ -1810,15 +1954,15 @@
           },
           {
             "art": "glow_mushroom",
-            "count": 60,
+            "count": 140,
             "blocking": false,
-            "cluster": 4
+            "cluster": 5
           },
           {
             "art": "moss_bush",
-            "count": 160,
+            "count": 320,
             "blocking": true,
-            "cluster": 6
+            "cluster": 8
           },
           {
             "art": "autumn_reeds",
@@ -1829,10 +1973,11 @@
           },
           {
             "art": "swamp_tree",
-            "count": 90,
+            "count": 400,
             "blocking": true,
-            "cluster": 4,
-            "sway": true
+            "cluster": 12,
+            "sway": true,
+            "spread": 3
           },
           {
             "art": "dead_bush",
@@ -1871,9 +2016,9 @@
           },
           {
             "art": "fern",
-            "count": 12,
+            "count": 400,
             "blocking": false,
-            "cluster": 3,
+            "cluster": 8,
             "sway": true
           }
         ],

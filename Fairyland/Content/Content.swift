@@ -280,6 +280,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let blocking: Bool
         /// Grow in groups of about this many (groves, rock piles) instead of evenly.
         let cluster: Int?
+        /// How far (in cells) a group spreads from its centre; smaller packs a grove tighter.
+        let spread: Int?
         /// Sways gently in the breeze.
         let sway: Bool?
         /// Plant only within this many cells of the map's centre, inside a town's fence too

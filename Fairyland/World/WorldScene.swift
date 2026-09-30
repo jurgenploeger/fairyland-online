@@ -394,7 +394,7 @@ final class WorldScene: SKScene {
         for placement in def.theme.props {
             let sprite = art.sprite(placement.art)
             let groupSize = max(1, placement.cluster ?? 1)
-            let spread = max(1, Int(Double(groupSize).squareRoot().rounded()) + 1)
+            let spread = max(1, placement.spread ?? Int(Double(groupSize).squareRoot().rounded()) + 1)
             var placed = 0
             var attempts = 0
             while placed < placement.count, attempts < placement.count * 3 {

@@ -3194,6 +3194,141 @@
         "height": 32,
         "remove_bg": true
       }
+    },
+    {
+      "id": "big_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_red_maple",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "red_maple",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_golden_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "golden_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_blossom_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "blossom_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_hollow_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "hollow_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_dark_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "dark_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_lilac_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "lilac_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_snow_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "snow_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_snow_pine",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "snow_pine",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_frost_pine",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "frost_pine",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_frost_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "frost_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_swamp_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "swamp_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "big_dead_tree",
+      "kind": "prop",
+      "scale": 1.7,
+      "derive": {
+        "from": "dead_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "frost_fern",
+      "kind": "prop",
+      "derive": {
+        "from": "fern",
+        "recolor": [
+          {
+            "hue": [
+              40,
+              180
+            ],
+            "to": 195,
+            "saturation": 0.35,
+            "value": 1.25
+          }
+        ]
+      }
     }
   ]
 }
