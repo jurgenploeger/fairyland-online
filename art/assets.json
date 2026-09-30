@@ -2185,6 +2185,414 @@
           }
         ]
       }
+    },
+    {
+      "id": "item_potion",
+      "kind": "item",
+      "request": {
+        "prompt": "round red healing potion bottle with a cork, cute fairytale game item icon, soft 3D shading",
+        "prompt_style": "rd_pro__fantasy",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ether",
+      "kind": "item",
+      "request": {
+        "prompt": "blue mana potion in a cone flask with a cork, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      },
+      "derive": {
+        "from": "item_potion",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              9
+            ],
+            "minSaturation": 0.1,
+            "to": 212,
+            "saturation": 1.0,
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_seal_stone",
+      "kind": "item",
+      "request": {
+        "prompt": "teal crystal sealing stone with a white spiral rune, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_pet_egg",
+      "kind": "item",
+      "request": {
+        "prompt": "cream pet egg with colourful spots, wiggling, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_wooden_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "small wooden practice sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_oak_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "oak staff topped with green leaves, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_iron_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "iron axe with a wooden handle, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_crystal_wand",
+      "kind": "item",
+      "request": {
+        "prompt": "short wand with a cyan crystal tip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_tamer_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "coiled leather whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_cloth_tunic",
+      "kind": "item",
+      "request": {
+        "prompt": "simple beige cloth tunic with a belt, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_leather_vest",
+      "kind": "item",
+      "request": {
+        "prompt": "brown leather vest, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_chain_mail",
+      "kind": "item",
+      "request": {
+        "prompt": "chain mail shirt, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_silk_robe",
+      "kind": "item",
+      "request": {
+        "prompt": "lilac silk robe with a gold star, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ranger_cloak",
+      "kind": "item",
+      "request": {
+        "prompt": "green hooded ranger cloak, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_lucky_clover",
+      "kind": "item",
+      "request": {
+        "prompt": "four-leaf lucky clover, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ruby_ring",
+      "kind": "item",
+      "request": {
+        "prompt": "gold ring with a red ruby, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_novice_ring",
+      "kind": "item",
+      "request": {
+        "prompt": "simple copper ring with a small blue stone, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_hi_potion",
+      "kind": "item",
+      "request": {
+        "prompt": "big pink healing potion bottle with a gold star label, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      },
+      "derive": {
+        "from": "item_potion",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              9
+            ],
+            "minSaturation": 0.1,
+            "to": 328,
+            "saturation": 0.9,
+            "value": 1.12
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_hi_ether",
+      "kind": "item",
+      "request": {
+        "prompt": "violet mana potion in a cone flask with a gold star, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      },
+      "derive": {
+        "from": "item_potion",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              9
+            ],
+            "minSaturation": 0.1,
+            "to": 272,
+            "saturation": 0.9,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_steel_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "steel sword with a gold crossguard and a red gem, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_battle_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "double-headed dwarven battle axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_elder_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "gnarled elder staff holding a glowing cyan orb, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_star_wand",
+      "kind": "item",
+      "request": {
+        "prompt": "golden wand with a big shining star, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_beast_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "red coiled whip with a paw-shaped tassel, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_wild_horn",
+      "kind": "item",
+      "request": {
+        "prompt": "curved hunting horn with a leather strap, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_iron_plate",
+      "kind": "item",
+      "request": {
+        "prompt": "shiny iron breastplate, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_mage_robe",
+      "kind": "item",
+      "request": {
+        "prompt": "navy mage robe with gold trim, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_tamer_jacket",
+      "kind": "item",
+      "request": {
+        "prompt": "orange jacket with big pockets, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_dragon_mail",
+      "kind": "item",
+      "request": {
+        "prompt": "red dragon scale armor, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_snow_cloak",
+      "kind": "item",
+      "request": {
+        "prompt": "white snow cloak with a fur collar, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_star_charm",
+      "kind": "item",
+      "request": {
+        "prompt": "gold star charm on a necklace, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_power_band",
+      "kind": "item",
+      "request": {
+        "prompt": "red wristband with steel studs, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_speed_boots",
+      "kind": "item",
+      "request": {
+        "prompt": "blue winged speed boots, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
     }
   ]
 }

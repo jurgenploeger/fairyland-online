@@ -108,6 +108,12 @@ for map_def in maps.values():
         if npc["role"] == "boss":
             check(monsters.get(npc.get("monster"), {}).get("boss") is True, f"boss {npc['id']} → unknown boss {npc.get('monster')}")
 
+for item in items.values():
+    if item.get("art"):
+        check(item["art"] in art, f"item {item['id']} → unknown art {item['art']}")
+        check((ROOT / "art" / "sprites" / f"{item['art']}.png").exists() or "derive" in art.get(item["art"], {}),
+              f"item {item['id']} → art/sprites/{item['art']}.png is missing (python3 tools/item_art.py)")
+
 for kind in ("hair", "outfits", "skin"):
     for preset in appearance[kind]:
         if "unlock" in preset:

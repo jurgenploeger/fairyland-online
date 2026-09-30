@@ -1,9 +1,10 @@
 {
-  "_about": "Items. `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift); weapons are drawn in the hero's hand by their icon. Armour `recolor` changes the outfit colours while worn. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
+  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand by their icon. Armour `recolor` changes the outfit colours while worn. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
   "items": [
     {
       "id": "potion",
       "icon": "potion",
+      "art": "item_potion",
       "name": "Potion",
       "type": "consumable",
       "price": 15,
@@ -13,6 +14,7 @@
     {
       "id": "ether",
       "icon": "flask",
+      "art": "item_ether",
       "name": "Ether",
       "type": "consumable",
       "price": 30,
@@ -22,6 +24,7 @@
     {
       "id": "seal_stone",
       "icon": "gem",
+      "art": "item_seal_stone",
       "name": "Seal Stone",
       "type": "consumable",
       "price": 60,
@@ -31,6 +34,7 @@
     {
       "id": "pet_egg",
       "icon": "egg",
+      "art": "item_pet_egg",
       "name": "Pet Egg",
       "type": "consumable",
       "price": 0,
@@ -44,6 +48,7 @@
     {
       "id": "wooden_sword",
       "icon": "sword",
+      "art": "item_wooden_sword",
       "name": "Wooden Sword",
       "type": "weapon",
       "price": 40,
@@ -60,6 +65,7 @@
     {
       "id": "oak_staff",
       "icon": "wand",
+      "art": "item_oak_staff",
       "name": "Oak Staff",
       "type": "weapon",
       "price": 45,
@@ -76,6 +82,7 @@
     {
       "id": "iron_axe",
       "icon": "axe",
+      "art": "item_iron_axe",
       "name": "Iron Axe",
       "type": "weapon",
       "price": 160,
@@ -91,6 +98,7 @@
     {
       "id": "crystal_wand",
       "icon": "diamond",
+      "art": "item_crystal_wand",
       "name": "Crystal Wand",
       "type": "weapon",
       "price": 170,
@@ -106,6 +114,7 @@
     {
       "id": "tamer_whip",
       "icon": "paw",
+      "art": "item_tamer_whip",
       "name": "Tamer's Whip",
       "type": "weapon",
       "price": 150,
@@ -122,6 +131,7 @@
     {
       "id": "cloth_tunic",
       "icon": "shield",
+      "art": "item_cloth_tunic",
       "name": "Cloth Tunic",
       "type": "armor",
       "price": 30,
@@ -145,6 +155,7 @@
         }
       ],
       "icon": "shield-check",
+      "art": "item_leather_vest",
       "name": "Leather Vest",
       "type": "armor",
       "price": 90,
@@ -169,6 +180,7 @@
         }
       ],
       "icon": "shield-plus",
+      "art": "item_chain_mail",
       "name": "Chain Mail",
       "type": "armor",
       "price": 220,
@@ -196,6 +208,7 @@
         }
       ],
       "icon": "shield-star",
+      "art": "item_silk_robe",
       "name": "Silk Robe",
       "type": "armor",
       "price": 180,
@@ -225,6 +238,7 @@
         }
       ],
       "icon": "shield-heart",
+      "art": "item_ranger_cloak",
       "name": "Ranger Cloak",
       "type": "armor",
       "price": 170,
@@ -241,6 +255,7 @@
     {
       "id": "lucky_clover",
       "icon": "clover",
+      "art": "item_lucky_clover",
       "name": "Lucky Clover",
       "type": "accessory",
       "price": 120,
@@ -252,6 +267,7 @@
     {
       "id": "ruby_ring",
       "icon": "gem",
+      "art": "item_ruby_ring",
       "name": "Ruby Ring",
       "type": "accessory",
       "price": 150,
@@ -263,6 +279,7 @@
     {
       "id": "novice_ring",
       "icon": "ring",
+      "art": "item_novice_ring",
       "name": "Novice Ring",
       "type": "accessory",
       "price": 25,
@@ -275,6 +292,7 @@
     {
       "id": "hi_potion",
       "icon": "potion",
+      "art": "item_hi_potion",
       "name": "Hi-Potion",
       "type": "consumable",
       "price": 60,
@@ -284,6 +302,7 @@
     {
       "id": "hi_ether",
       "icon": "flask",
+      "art": "item_hi_ether",
       "name": "Hi-Ether",
       "type": "consumable",
       "price": 90,
@@ -293,6 +312,7 @@
     {
       "id": "steel_sword",
       "icon": "sword",
+      "art": "item_steel_sword",
       "name": "Steel Sword",
       "type": "weapon",
       "price": 400,
@@ -308,6 +328,7 @@
     {
       "id": "battle_axe",
       "icon": "axe",
+      "art": "item_battle_axe",
       "name": "Battle Axe",
       "type": "weapon",
       "price": 1100,
@@ -323,6 +344,7 @@
     {
       "id": "elder_staff",
       "icon": "wand",
+      "art": "item_elder_staff",
       "name": "Elder Staff",
       "type": "weapon",
       "price": 420,
@@ -338,6 +360,7 @@
     {
       "id": "star_wand",
       "icon": "diamond",
+      "art": "item_star_wand",
       "name": "Star Wand",
       "type": "weapon",
       "price": 1150,
@@ -353,6 +376,7 @@
     {
       "id": "beast_whip",
       "icon": "paw",
+      "art": "item_beast_whip",
       "name": "Beast Whip",
       "type": "weapon",
       "price": 400,
@@ -369,6 +393,7 @@
     {
       "id": "wild_horn",
       "icon": "paw",
+      "art": "item_wild_horn",
       "name": "Wild Horn",
       "type": "weapon",
       "price": 1100,
@@ -385,6 +410,7 @@
     {
       "id": "iron_plate",
       "icon": "shield-plus",
+      "art": "item_iron_plate",
       "name": "Iron Plate",
       "type": "armor",
       "price": 450,
@@ -413,6 +439,7 @@
     {
       "id": "mage_robe",
       "icon": "shield-star",
+      "art": "item_mage_robe",
       "name": "Mage Robe",
       "type": "armor",
       "price": 450,
@@ -442,6 +469,7 @@
     {
       "id": "tamer_jacket",
       "icon": "shield-heart",
+      "art": "item_tamer_jacket",
       "name": "Tamer Jacket",
       "type": "armor",
       "price": 450,
@@ -470,6 +498,7 @@
     {
       "id": "dragon_mail",
       "icon": "shield-plus",
+      "art": "item_dragon_mail",
       "name": "Dragon Mail",
       "type": "armor",
       "price": 1400,
@@ -495,6 +524,7 @@
     {
       "id": "snow_cloak",
       "icon": "shield-star",
+      "art": "item_snow_cloak",
       "name": "Snow Cloak",
       "type": "armor",
       "price": 1500,
@@ -520,6 +550,7 @@
     {
       "id": "star_charm",
       "icon": "gem",
+      "art": "item_star_charm",
       "name": "Star Charm",
       "type": "accessory",
       "price": 500,
@@ -532,6 +563,7 @@
     {
       "id": "power_band",
       "icon": "ring",
+      "art": "item_power_band",
       "name": "Power Band",
       "type": "accessory",
       "price": 500,
@@ -544,6 +576,7 @@
     {
       "id": "speed_boots",
       "icon": "clover",
+      "art": "item_speed_boots",
       "name": "Speed Boots",
       "type": "accessory",
       "price": 900,
