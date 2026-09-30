@@ -14,8 +14,11 @@ Built with SwiftUI + SpriteKit. Art is generated with [Retro Diffusion](https://
 - **81 monsters** across seven elements, including rare, tougher colour variants.
 - **Capture like Fairyland Online:** throw a Seal Stone at the last monster standing once it's below 20% HP.
   It may break free or run away. Keep up to 5 companions; your first hatches from the starter quest's egg.
-- **Classes and skills:** start as a Novice, join a guild at level 5. Each level gives a skill point to learn
+- **Classes and skills:** start as a Novice, join a guild at level 10. Each level gives a skill point to learn
   a new skill or power one up (levels 1–5), each with its own animation.
+- **The long climb, like Fairyland Online:** zones run from level 1 to 105 and levels go up to 200. From
+  level 101 Elder Oak can help you be reborn at level 1, keeping your skills and some strength; each rebirth
+  needs 5 more levels. Roughly 16 hours of battling to the first rebirth, about 100 hours with five.
 - **A living world:** villagers and other adventurers wander and chat (see the chat window), you can befriend
   adventurers and bring two along in your party, and danger zones allow duels.
 - **Customisation:** hair, outfit and skin (more unlock through quests); armour recolours your outfit and your

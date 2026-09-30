@@ -46,6 +46,7 @@ final class GameCoordinator {
         let map = Content.shared.map(session.data.mapID) ?? Content.shared.maps[0]
         self.session = session
         self.input = input
+        session.rescaleLevelsIfNeeded()
         session.handOutMissingStarterGifts()
         world = WorldScene(map: map, session: session, input: input, entry: nil)
         wire(world)

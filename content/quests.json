@@ -91,7 +91,7 @@
       "id": "choose_path",
       "title": "Choose Your Path",
       "giver": "elder",
-      "description": "Reach level 5, then speak to a guild master in town to choose your path: Fighter, Mage or Beast Tamer.",
+      "description": "Reach level 10, then speak to a guild master in town to choose your path: Fighter, Mage or Beast Tamer.",
       "objective": {
         "type": "chooseClass"
       },
@@ -127,7 +127,7 @@
       "requires": [
         "pineapple_harvest"
       ],
-      "minLevel": 5,
+      "minLevel": 14,
       "description": "Something bounces in the dark of Twilight Woods, east of Sunny Meadow. Defeat 3 Bouncy Buns.",
       "objective": {
         "type": "defeat",
@@ -162,7 +162,7 @@
           "ether"
         ]
       },
-      "minLevel": 6
+      "minLevel": 18
     },
     {
       "id": "forest_friends",
@@ -185,7 +185,7 @@
           "hi_potion"
         ]
       },
-      "minLevel": 5
+      "minLevel": 14
     },
     {
       "id": "city_errands",
@@ -207,7 +207,7 @@
           "star_charm"
         ]
       },
-      "minLevel": 7
+      "minLevel": 21
     },
     {
       "id": "valley_lights",
@@ -230,7 +230,7 @@
           "seal_stone"
         ]
       },
-      "minLevel": 10
+      "minLevel": 31
     },
     {
       "id": "rat_king",
@@ -252,7 +252,7 @@
           "power_band"
         ]
       },
-      "minLevel": 14
+      "minLevel": 45
     },
     {
       "id": "dragon_hangover",
@@ -274,7 +274,7 @@
           "dragon_mail"
         ]
       },
-      "minLevel": 20
+      "minLevel": 65
     },
     {
       "id": "crystal_hearts",
@@ -296,7 +296,7 @@
           "speed_boots"
         ]
       },
-      "minLevel": 22
+      "minLevel": 71
     },
     {
       "id": "wolf_hunt",
@@ -318,7 +318,7 @@
           "snow_cloak"
         ]
       },
-      "minLevel": 25
+      "minLevel": 82
     }
   ]
 }

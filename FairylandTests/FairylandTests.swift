@@ -172,12 +172,17 @@ struct RulesTests {
         #expect(session.data.hero.level == 2)
         #expect(session.heroStats.hp > before.hp)
         #expect(session.data.hero.hp == session.heroStats.hp)
-        // Reaching level 2 unlocks Bash; learning it takes the new skill point.
+        // Reaching Bash's level unlocks it; learning it takes one skill point.
+        let bashLevel = Content.shared.classDef("novice").skills.first { $0.skill == "bash" }!.level
+        while session.data.hero.level < bashLevel {
+            session.gainHeroEXP(GameSession.expToNext(level: session.data.hero.level))
+        }
         #expect(session.heroSkills.isEmpty)
         #expect(session.learnableSkills.contains { $0.id == "bash" })
+        let points = session.unspentSkillPoints
         session.learnSkill("bash")
         #expect(session.heroSkills.contains { $0.id == "bash" })
-        #expect(session.unspentSkillPoints == 0)
+        #expect(session.unspentSkillPoints == points - 1)
     }
 
     @Test func classChoiceNeedsLevel() {
@@ -229,16 +234,89 @@ struct RulesTests {
 
     @Test func skillPointsRaiseSkills() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
-        session.gainHeroEXP(GameSession.expToNext(level: 1) + GameSession.expToNext(level: 2))
-        #expect(session.data.hero.level == 3)
-        #expect(session.unspentSkillPoints == 2)
+        let novice = Content.shared.classDef("novice").skills
+        let bashLevel = novice.first { $0.skill == "bash" }!.level
+        let aidLevel = novice.first { $0.skill == "first_aid" }!.level
+        session.data.hero.level = bashLevel
+        let points = bashLevel - 1
+        #expect(session.unspentSkillPoints == points)
         session.upgradeSkill("bash")   // not learned yet
-        #expect(session.unspentSkillPoints == 2)
+        #expect(session.unspentSkillPoints == points)
         session.learnSkill("bash")
         session.upgradeSkill("bash")
         #expect(session.skillLevel("bash") == 2)
-        #expect(session.unspentSkillPoints == 0)
+        #expect(session.unspentSkillPoints == points - 2)
+        session.data.hero.level = aidLevel
         #expect(session.learnableSkills.map(\.id) == ["first_aid"])
+    }
+
+    @Test func rebirthKeepsSkillsAndStrength() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let bashLevel = Content.shared.classDef("novice").skills.first { $0.skill == "bash" }!.level
+        session.data.hero.level = bashLevel
+        session.learnSkill("bash")
+        session.data.hero.level = session.rebirthLevel
+        #expect(!session.canRebirth)   // not enough gold yet
+        session.data.gold = session.rebirthCost
+        let strengthAtOne = GameSession.newGame(name: "Fresh", raceID: "human").heroStats.attack
+        session.rebirth()
+        #expect(session.data.hero.level == 1)
+        #expect(session.rebirths == 1)
+        #expect(session.data.gold == 0)
+        #expect(session.heroSkills.contains { $0.id == "bash" })
+        #expect(session.heroStats.attack > strengthAtOne)
+        #expect(session.rebirthLevel == 106)
+    }
+
+    @Test func smithForgesFromMaterials() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let sword = try #require(Content.shared.item("novice_bronze_sword"))
+        #expect(!session.canCraft(sword))
+        #expect(!session.craft(sword.id))
+        for (material, needed) in sword.recipe ?? [:] {
+            session.addItem(material, needed + 1)
+        }
+        #expect(session.canCraft(sword))
+        #expect(session.craft(sword.id))
+        #expect(session.count(of: sword.id) == 1)
+        for (material, _) in sword.recipe ?? [:] {
+            #expect(session.count(of: material) == 1)   // one of each left over
+        }
+        #expect(!session.bagMaterials.isEmpty)
+        #expect(!session.bagEquipment.contains { $0.type == .material })
+    }
+
+    @Test func recipesUseMaterialsMonstersDrop() {
+        for item in Content.shared.items {
+            for (id, _) in item.recipe ?? [:] {
+                let material = Content.shared.item(id)
+                #expect(material?.type == .material, "recipe for \(item.id) → \(id) isn't a material")
+                #expect((material?.level ?? 1) <= max(item.level ?? 1, 1), "recipe for \(item.id) → \(id) drops too late")
+            }
+        }
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        for _ in 0..<50 {
+            let drop = session.materialDrop(level: 1)
+            #expect(drop == nil || (drop?.level ?? 1) <= 1)
+        }
+    }
+
+    @Test func levelsStopAtTheCap() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.data.hero.level = GameSession.levelCap
+        #expect(session.gainHeroEXP(1_000_000_000) == 0)
+        #expect(session.data.hero.level == GameSession.levelCap)
+    }
+
+    @Test func oldSavesGetStretchedLevels() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.data.levelsRescaled = nil
+        session.data.hero.level = 10
+        session.rescaleLevelsIfNeeded()
+        #expect(session.data.hero.level == GameSession.stretchedLevel(10))
+        #expect(session.data.hero.level == 31)
+        session.rescaleLevelsIfNeeded()   // only once
+        #expect(session.data.hero.level == 31)
     }
 
     @Test func questFlow() {

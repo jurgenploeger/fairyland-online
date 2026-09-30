@@ -466,6 +466,21 @@ final class BattleController {
             session.addItem("potion")
             lines.append("Found a Potion!")
         }
+
+        // Materials for the blacksmith: about one wild monster in three drops something, bosses three.
+        var found: [String: Int] = [:]
+        for foe in engine.combatants where foe.side == .enemies && !foe.isCaptured && !foe.hasFled {
+            guard case .wild = foe.source, let id = foe.speciesID else { continue }
+            let isBoss = content.monster(id)?.boss == true
+            for _ in 0..<(isBoss ? 3 : 1) where isBoss || Double.random(in: 0..<1) < 0.35 {
+                guard let material = session.materialDrop(level: foe.level) else { continue }
+                session.addItem(material.id)
+                found[material.name, default: 0] += 1
+            }
+        }
+        for (name, count) in found.sorted(by: { $0.key < $1.key }) {
+            lines.append(count > 1 ? "Found \(name) ×\(count)!" : "Found \(name)!")
+        }
         session.save()
         return lines
     }
