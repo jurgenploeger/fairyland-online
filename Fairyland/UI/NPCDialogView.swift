@@ -78,7 +78,7 @@ struct NPCDialogView: View {
 }
 
 /// A small triangle pointing right, for the speech bubble.
-private struct BubbleTail: Shape {
+private nonisolated struct BubbleTail: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         path.move(to: CGPoint(x: rect.minX, y: rect.minY))
