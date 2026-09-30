@@ -326,7 +326,11 @@ def draw_scene(mid, palette, kinds, items, W=420, H=300, seed=3, tint=True, orga
             s = np.asarray(Image.fromarray((s * 255).astype(np.uint8)).resize((max(1, round(w * scale)), max(1, round(h * scale))), Image.NEAREST)).astype(float) / 255
         h, w = s.shape[:2]
         sx, sy = screen(c, r)
-        x0 = int(sx - w / 2 + (0 if walker else rng.randint(-7, 7))); y0 = int(sy - h * 0.95)
+        if walker: foot = 0
+        else:   # WorldScene.foot(of:): scenery stands on its lowest opaque row
+            rows = np.where((s[..., 3] > 0.5).any(1))[0]
+            foot = (h - 1 - rows[-1]) / h if len(rows) else 0
+        x0 = int(sx - w / 2 + (0 if walker else rng.randint(-7, 7))); y0 = int(sy - h * (0.95 - min(0.45, foot)))
         drawn.append((art, s, x0, y0, w, h, walker))
     if lighting:
         for art, s, x0, y0, w, h, walker in drawn:   # shadows lie under everything that stands

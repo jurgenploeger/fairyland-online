@@ -430,13 +430,16 @@ final class WorldScene: SKScene {
                 face.fillColor = UIColor(white: 0.78, alpha: 1)
                 face.strokeColor = UIColor(white: 0.25, alpha: 0.9)
                 face.lineWidth = 1.5
-                face.zPosition = -min(a.y, b.y) + 1
+                // Behind everything standing in front of any part of the wall: its far (top) end. Taking
+                // the near end drew the wall over trees, lamps and walkers along the rest of it.
+                // Nothing behind the wall overlaps it on screen, since the face hangs below its top edge.
+                face.zPosition = -max(a.y, b.y) - 0.5
                 world.addChild(face)
                 // A lighter lip along the top edge.
                 let lip = SKShapeNode(path: { let p = CGMutablePath(); p.move(to: a); p.addLine(to: b); return p }())
                 lip.strokeColor = UIColor(white: 1, alpha: 0.55)
                 lip.lineWidth = 2
-                lip.zPosition = face.zPosition + 0.5
+                lip.zPosition = face.zPosition + 0.25
                 world.addChild(lip)
             }
             // Railings, pillars and stairs on the border ring.
@@ -640,7 +643,7 @@ final class WorldScene: SKScene {
     @discardableResult
     private func addScenery(_ sprite: SpriteArt, at cell: GridPoint, sway: Bool = false, jitter: Bool = false, scale: CGFloat = 1) -> SKSpriteNode {
         let node = SKSpriteNode(texture: sprite.texture, size: CGSize(width: sprite.size.width * scale, height: sprite.size.height * scale))
-        node.anchorPoint = CGPoint(x: 0.5, y: 0.05)
+        node.anchorPoint = CGPoint(x: 0.5, y: min(0.5, 0.05 + foot(of: sprite.texture)))
         var position = map.base(of: cell)
         if jitter {
             // Nudge off the grid so groves look planted by nature, not a spreadsheet.
@@ -661,6 +664,35 @@ final class WorldScene: SKScene {
         }
         world.addChild(node)
         return node
+    }
+
+    private var feet: [ObjectIdentifier: CGFloat] = [:]
+
+    /// How far up its image a sprite's lowest opaque pixel sits (0...1). Scenery is anchored there,
+    /// so a log or cactus drawn with empty rows under it stands on its cell instead of floating
+    /// above it, where it looked like it was behind the ground in front of it.
+    private func foot(of texture: SKTexture) -> CGFloat {
+        let key = ObjectIdentifier(texture)
+        if let known = feet[key] { return known }
+        let image = texture.cgImage()
+        let width = image.width, height = image.height
+        var foot: CGFloat = 0
+        if width > 0, height > 0,
+           let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                                   space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue),
+           let data = context.data {
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            let pixels = data.bindMemory(to: UInt8.self, capacity: width * height * 4)
+            // The bitmap's rows run top to bottom, so search up from the last one.
+            search: for row in stride(from: height - 1, through: 0, by: -1) {
+                for col in 0..<width where pixels[(row * width + col) * 4 + 3] > 127 {
+                    foot = CGFloat(height - 1 - row) / CGFloat(height)
+                    break search
+                }
+            }
+        }
+        feet[key] = foot
+        return foot
     }
 
     /// One pixel per tile, for the HUD minimap.
