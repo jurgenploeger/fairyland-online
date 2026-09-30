@@ -108,6 +108,12 @@ for map_def in maps.values():
         if npc["role"] == "boss":
             check(monsters.get(npc.get("monster"), {}).get("boss") is True, f"boss {npc['id']} → unknown boss {npc.get('monster')}")
 
+for map_def in maps.values():
+    for prop in map_def["theme"].get("props", []):
+        check(prop["art"] in art, f"map {map_def['id']} prop → unknown art {prop['art']}")
+        within = prop.get("within", 1)
+        check(isinstance(within, int) and within > 0, f"map {map_def['id']} prop {prop['art']} → within must be a positive whole number")
+
 for kind in ("hair", "outfits", "skin"):
     for preset in appearance[kind]:
         if "unlock" in preset:

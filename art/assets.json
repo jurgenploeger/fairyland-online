@@ -1581,6 +1581,147 @@
       }
     },
     {
+      "id": "bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 112,
+            "value": 0.88
+          }
+        ]
+      }
+    },
+    {
+      "id": "flowering_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "blossom_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "autumn_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "autumn_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dry_bush",
+      "kind": "prop",
+      "scale": 0.45,
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 48,
+            "saturation": 0.55,
+            "value": 0.85
+          }
+        ]
+      }
+    },
+    {
+      "id": "moss_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 85,
+            "saturation": 0.7,
+            "value": 0.62
+          }
+        ]
+      }
+    },
+    {
+      "id": "dark_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "dark_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "snow_bush",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "snow_tree",
+        "recolor": []
+      }
+    },
+    {
+      "id": "daisy",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "giant_flower",
+        "recolor": []
+      }
+    },
+    {
+      "id": "daisy_yellow",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "giant_flower",
+        "recolor": [
+          {
+            "hue": [
+              280,
+              20
+            ],
+            "minSaturation": 0.2,
+            "to": 48,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "daisy_blue",
+      "kind": "prop",
+      "scale": 0.5,
+      "derive": {
+        "from": "giant_flower",
+        "recolor": [
+          {
+            "hue": [
+              280,
+              20
+            ],
+            "minSaturation": 0.2,
+            "to": 212
+          }
+        ]
+      }
+    },
+    {
       "id": "monster_golden_hamster_azure",
       "kind": "monster",
       "derive": {

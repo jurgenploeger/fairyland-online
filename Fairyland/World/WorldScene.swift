@@ -161,8 +161,16 @@ final class WorldScene: SKScene {
         for mask in 1..<16 {
             roadEdges[mask] = SKTileGroup(tileDefinition: SKTileDefinition(texture: art.roadTile(theme.path, on: theme.ground, mask: mask), size: tileSize))
         }
+        // Accent patches (flower meadows, moss) blend the same way, so they read as soft blobs
+        // rather than square tiles. Not in towns, where the accent is terrace paving.
+        var accentEdges: [Int: SKTileGroup] = [:]
+        if (theme.accentPatches ?? 0) > 0, let accent = theme.accent, accent != theme.ground {
+            for mask in 1..<16 {
+                accentEdges[mask] = SKTileGroup(tileDefinition: SKTileDefinition(texture: art.roadTile(accent, on: theme.ground, mask: mask, shadeRim: false), size: tileSize))
+            }
+        }
         let tileMap = SKTileMapNode(
-            tileSet: SKTileSet(tileGroups: Array(groups.values) + roadEdges.filter { $0.key != 0 }.map(\.value)),
+            tileSet: SKTileSet(tileGroups: Array(groups.values) + roadEdges.filter { $0.key != 0 }.map(\.value) + Array(accentEdges.values)),
             columns: map.columns,
             rows: map.rows,
             tileSize: tileSize
@@ -171,7 +179,12 @@ final class WorldScene: SKScene {
         for row in 0..<map.rows {
             for col in 0..<map.columns {
                 let kind = map.ground[row][col]
-                let group = kind == .path ? roadEdges[map.roadEdgeMask(GridPoint(col: col, row: row))] : groups[kind]
+                let cell = GridPoint(col: col, row: row)
+                let group: SKTileGroup? = switch kind {
+                case .path: roadEdges[map.roadEdgeMask(cell)]
+                case .accent: accentEdges[map.edgeMask(cell, of: .accent)] ?? groups[kind]
+                default: groups[kind]
+                }
                 tileMap.setTileGroup(group, forColumn: col, row: row)
             }
         }
@@ -385,7 +398,12 @@ final class WorldScene: SKScene {
             var attempts = 0
             while placed < placement.count, attempts < placement.count * 3 {
                 attempts += 1
-                guard let middle = map.randomFreeCell(using: &rng) else { break }
+                let found: GridPoint? = if let radius = placement.within {
+                    map.randomFreeCell(within: radius, using: &rng)
+                } else {
+                    map.randomFreeCell(using: &rng)
+                }
+                guard let middle = found else { break }
                 let wanted = min(groupSize, placement.count - placed)
                 var inGroup = 0
                 for index in 0..<(wanted * 5) where inGroup < wanted {
@@ -393,7 +411,7 @@ final class WorldScene: SKScene {
                         col: middle.col + Int.random(in: -spread...spread, using: &rng),
                         row: middle.row + Int.random(in: -spread...spread, using: &rng)
                     )
-                    guard map.isFreeForScenery(cell) else { continue }
+                    guard map.isFreeForScenery(cell, insideFence: placement.within != nil) else { continue }
                     map.occupy(cell, blocking: placement.blocking)
                     addScenery(sprite, at: cell, sway: placement.sway == true, jitter: true)
                     inGroup += 1
@@ -428,7 +446,7 @@ final class WorldScene: SKScene {
             for _ in 0..<30 {
                 guard let middle = map.randomFreeCell(using: &rng) else { break }
                 let area = (-2...2).flatMap { dr in (-2...2).map { dc in GridPoint(col: middle.col + dc, row: middle.row + dr) } }
-                guard area.allSatisfy(map.isFreeForScenery) else { continue }
+                guard area.allSatisfy({ map.isFreeForScenery($0) }) else { continue }
                 area.forEach { map.occupy($0, blocking: false) }
                 let origin = map.center(of: middle)
                 for index in 0..<9 {
