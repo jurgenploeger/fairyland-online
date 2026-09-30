@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Makes a stockier, shorter copy of a 4×4 walk sheet (48 px frames): a free stand-in for dwarf
-art until Retro Diffusion draws the real thing.
+"""Makes a stockier, shorter copy of a 4×4 walk sheet (48 px frames). Retro Diffusion draws dwarves
+at human height, so each generated dwarf sheet is run through this afterwards (in place):
 
-    python3 tools/dwarfify.py player_walk dwarf_walk
+    python3 tools/dwarfify.py dwarf_walk dwarf_walk
 
 Each frame is squashed from the feet up (shorter) and widened around its middle (chubbier),
 with nearest-neighbour sampling so the pixels stay crisp.
