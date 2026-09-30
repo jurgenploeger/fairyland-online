@@ -48,10 +48,13 @@ nonisolated struct Look: Codable, Equatable, Sendable {
     var hair: String
     var outfit: String
     var skin: String
+    /// male | female | other (content/appearance.json `genders`); nil in older saves, which
+    /// keep their race's original sheet.
+    var gender: String? = nil
 
     static let standard = Look(hair: "ginger", outfit: "green", skin: "fair")
 
-    var key: String { "\(hair)/\(outfit)/\(skin)" }
+    var key: String { "\(hair)/\(outfit)/\(skin)" + (gender.map { "/" + $0 } ?? "") }
 }
 
 /// A captured monster travelling with the hero.

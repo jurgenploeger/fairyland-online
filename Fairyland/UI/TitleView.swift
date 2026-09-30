@@ -6,7 +6,7 @@ struct TitleView: View {
 
     @State private var creating = false
     @State private var name = "Hero"
-    @State private var look = Look.standard
+    @State private var look = Look(hair: Look.standard.hair, outfit: Look.standard.outfit, skin: Look.standard.skin, gender: "male")
     @State private var raceID = "human"
     @State private var confirmNewGame = false
     private let savedGame = SaveStore.load()

@@ -15,12 +15,13 @@ struct LookEditor: View {
     var body: some View {
         AdaptiveStack(spacing: 16) {
             VStack(spacing: 6) {
-                TurntablePreview(look: look, sheet: Content.shared.race(raceID).sheet)
+                TurntablePreview(look: look, sheet: Content.shared.race(raceID).sheet(for: look.gender))
                 Button {
                     look = Look(
                         hair: options.hair.filter(isUnlocked).randomElement()?.id ?? look.hair,
                         outfit: options.outfits.filter(isUnlocked).randomElement()?.id ?? look.outfit,
-                        skin: options.skin.filter(isUnlocked).randomElement()?.id ?? look.skin
+                        skin: options.skin.filter(isUnlocked).randomElement()?.id ?? look.skin,
+                        gender: look.gender
                     )
                 } label: {
                     Label("Surprise me", icon: .dice)
@@ -43,6 +44,7 @@ struct LookEditor: View {
                             if value.count > 12 { name = String(value.prefix(12)) }
                         }
                 }
+                GenderPicker(genders: options.genders, selection: $look.gender)
                 SwatchPicker(title: "Hair", presets: options.hair, selection: $look.hair, isUnlocked: isUnlocked)
                 SwatchPicker(title: "Outfit", presets: options.outfits, selection: $look.outfit, isUnlocked: isUnlocked)
                 SwatchPicker(title: "Skin", presets: options.skin, selection: $look.skin, isUnlocked: isUnlocked)
@@ -72,6 +74,26 @@ private struct TurntablePreview: View {
                 }
         }
         .accessibilityLabel("Preview of your hero")
+    }
+}
+
+/// Male, female or other: which of the race's walk sheets the hero uses.
+private struct GenderPicker: View {
+    let genders: [GenderOption]
+    @Binding var selection: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("Gender").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+            HStack(spacing: 8) {
+                ForEach(genders) { gender in
+                    let selected = gender.id == (selection ?? genders.first?.id)
+                    Button(gender.name) { selection = gender.id }
+                        .buttonStyle(PixelButtonStyle(tint: selected ? HUDStyle.gold : HUDStyle.dim, compact: true))
+                        .accessibilityAddTraits(selected ? .isSelected : [])
+                }
+            }
+        }
     }
 }
 

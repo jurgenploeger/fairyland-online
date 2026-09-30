@@ -81,6 +81,96 @@
       }
     },
     {
+      "id": "human_female_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi adventurer girl with long orange hair in a ponytail, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "player_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "human_other_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi androgynous adventurer kid with a short fluffy orange bob haircut, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "player_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "elf_male_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi elf adventurer boy with long pointy ears, short golden blonde hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "elf_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "elf_other_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi androgynous elf adventurer with long pointy ears, shoulder-length golden blonde hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "elf_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dwarf_female_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi dwarf adventurer girl, short and stocky, round rosy cheeks, two thick ginger braids, no beard, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "dwarf_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dwarf_other_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi androgynous dwarf adventurer, short and stocky, round rosy cheeks, messy short ginger hair, no beard, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "dwarf_walk",
+        "recolor": []
+      }
+    },
+    {
       "id": "pet_walk",
       "kind": "walk_sheet",
       "frame": 48,

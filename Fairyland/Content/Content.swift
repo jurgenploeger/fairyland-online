@@ -79,8 +79,14 @@ nonisolated struct RaceDef: Decodable, Identifiable, Sendable {
     let base: Stats
     /// This race's walk sheet in art/assets.json.
     let art: String?
+    /// Gender id → its own walk sheet; genders without one use `art`.
+    let sheets: [String: String]?
 
     var sheet: String { art ?? "player_walk" }
+
+    func sheet(for gender: String?) -> String {
+        gender.flatMap { sheets?[$0] } ?? sheet
+    }
 }
 
 nonisolated struct ClassDef: Decodable, Identifiable, Sendable {
@@ -409,7 +415,13 @@ nonisolated struct CrowdOptions: Decodable, Sendable {
     let companions: [String]
 }
 
+nonisolated struct GenderOption: Decodable, Identifiable, Sendable {
+    let id: String
+    let name: String
+}
+
 nonisolated struct AppearanceOptions: Decodable, Sendable {
+    let genders: [GenderOption]
     let hair: [LookPreset]
     let outfits: [LookPreset]
     let skin: [LookPreset]
