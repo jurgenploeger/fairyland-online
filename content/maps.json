@@ -2955,7 +2955,10 @@
           "ember_puff": 1,
           "crimson_treefrog": 1,
           "starry_water_slug": 1,
-          "frog_warrior": 2
+          "masked_frog": 2,
+          "red_masked_frog": 1,
+          "blue_masked_frog": 1,
+          "golden_masked_frog": 1
         }
       },
       "ambience": {

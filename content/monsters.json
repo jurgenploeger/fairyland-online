@@ -1059,9 +1059,72 @@
       "variantOf": "treefrog"
     },
     {
-      "id": "frog_warrior",
-      "name": "Frog Warrior",
-      "art": "monster_frog_warrior",
+      "id": "masked_frog",
+      "name": "Masked Frog",
+      "art": "monster_masked_frog",
+      "element": "wood",
+      "base": {
+        "hp": 62,
+        "mp": 16,
+        "attack": 27,
+        "defense": 14,
+        "magic": 8,
+        "speed": 24
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 2,
+        "attack": 3,
+        "defense": 2,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 36,
+      "gold": 20,
+      "captureRate": 0.3,
+      "skills": [
+        "power_strike",
+        "bash",
+        "vine_whip"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "red_masked_frog",
+      "name": "Red Masked Frog",
+      "art": "monster_masked_frog_red",
+      "element": "fire",
+      "base": {
+        "hp": 62,
+        "mp": 16,
+        "attack": 27,
+        "defense": 14,
+        "magic": 8,
+        "speed": 24
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 2,
+        "attack": 3,
+        "defense": 2,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 36,
+      "gold": 20,
+      "captureRate": 0.3,
+      "skills": [
+        "power_strike",
+        "bash",
+        "ember"
+      ],
+      "motion": "hop",
+      "variantOf": "masked_frog"
+    },
+    {
+      "id": "blue_masked_frog",
+      "name": "Blue Masked Frog",
+      "art": "monster_masked_frog_blue",
       "element": "water",
       "base": {
         "hp": 62,
@@ -1087,7 +1150,41 @@
         "bash",
         "bubble"
       ],
-      "motion": "hop"
+      "motion": "hop",
+      "variantOf": "masked_frog"
+    },
+    {
+      "id": "golden_masked_frog",
+      "name": "Golden Masked Frog",
+      "art": "monster_masked_frog_gold",
+      "element": "metal",
+      "base": {
+        "hp": 78,
+        "mp": 20,
+        "attack": 34,
+        "defense": 18,
+        "magic": 10,
+        "speed": 30
+      },
+      "growth": {
+        "hp": 9,
+        "mp": 2,
+        "attack": 4,
+        "defense": 2,
+        "magic": 1,
+        "speed": 3
+      },
+      "exp": 58,
+      "gold": 40,
+      "captureRate": 0.18,
+      "skills": [
+        "power_strike",
+        "bash",
+        "golden_spin"
+      ],
+      "motion": "hop",
+      "variantOf": "masked_frog",
+      "rare": true
     },
     {
       "id": "water_slug",
