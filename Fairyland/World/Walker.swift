@@ -52,15 +52,11 @@ final class Walker: SKNode {
         animate()
     }
 
-    /// Shows the weapon in hand and an accessory's sparkle.
-    func setGear(weapon: ItemDef?, accessory: ItemDef?) {
+    /// Shows the weapon in hand.
+    func setGear(weapon: ItemDef?) {
         sprite.childNode(withName: "weapon")?.removeFromParent()
-        childNode(withName: "aura")?.removeFromParent()
         if let weapon, let node = GearArt.weapon(weapon, height: cycle.size.height) {
             sprite.addChild(node)
-        }
-        if let accessory, let aura = GearArt.aura(accessory, height: cycle.size.height) {
-            addChild(aura)
         }
         poseGear()
     }

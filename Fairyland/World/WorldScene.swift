@@ -587,7 +587,7 @@ final class WorldScene: SKScene {
             player.setCycle(art.walkCycle(GameSession.heroArt))
             player.setLabel(session.data.hero.name)
         }
-        player.setGear(weapon: session.equipped(.weapon), accessory: session.equipped(.accessory))
+        player.setGear(weapon: session.equipped(.weapon))
         heroKey = key
     }
 

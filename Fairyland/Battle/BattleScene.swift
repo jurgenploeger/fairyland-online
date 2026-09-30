@@ -26,7 +26,7 @@ final class BattleScene: SKScene {
         for fighter in controller.combatants {
             let actor = BattleActor(fighter: fighter, art: art)
             if fighter.isHero {
-                actor.setGear(weapon: controller.session.equipped(.weapon), accessory: controller.session.equipped(.accessory))
+                actor.setGear(weapon: controller.session.equipped(.weapon))
             }
             actors[fighter.id] = actor
             stage.addChild(actor)
@@ -558,14 +558,11 @@ final class BattleActor: SKNode {
 
     private var facing: Direction = .down
 
-    /// The hero's weapon in hand and accessory sparkle (drawn at the sprite's own scale).
-    func setGear(weapon: ItemDef?, accessory: ItemDef?) {
+    /// The hero's weapon in hand (drawn at the sprite's own scale).
+    func setGear(weapon: ItemDef?) {
         if let weapon, let node = GearArt.weapon(weapon, height: sprite.size.height) {
             sprite.addChild(node)
             GearArt.pose(node, facing: facing, height: sprite.size.height)
-        }
-        if let accessory, let aura = GearArt.aura(accessory, height: sprite.size.height) {
-            addChild(aura)
         }
     }
 
