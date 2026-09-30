@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "small stone fairy statue on a plinth",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 64,
+    "height": 64,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790788726,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 49.691,
+    "request_id": "4cc6fc95-8cee-4d81-91b3-a6a4c03373ad",
+    "outputs_retained_until": 1790875114
+  }
+}
