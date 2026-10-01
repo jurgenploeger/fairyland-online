@@ -275,30 +275,35 @@
           {
             "art": "tulip_patch",
             "count": 60,
+            "blocking": false,
             "within": 38,
             "cluster": 4
           },
           {
             "art": "daisy",
             "count": 120,
+            "blocking": false,
             "within": 38,
             "cluster": 6
           },
           {
             "art": "daisy_blue",
             "count": 80,
+            "blocking": false,
             "within": 38,
             "cluster": 5
           },
           {
             "art": "sunflower",
             "count": 40,
+            "blocking": false,
             "within": 38,
             "cluster": 4
           },
           {
             "art": "clover_patch",
             "count": 40,
+            "blocking": false,
             "within": 38,
             "cluster": 3
           }
@@ -2686,24 +2691,28 @@
           {
             "art": "tulip_patch",
             "count": 72,
+            "blocking": false,
             "within": 40,
             "cluster": 4
           },
           {
             "art": "daisy_yellow",
             "count": 120,
+            "blocking": false,
             "within": 40,
             "cluster": 6
           },
           {
             "art": "daisy_blue",
             "count": 100,
+            "blocking": false,
             "within": 40,
             "cluster": 5
           },
           {
             "art": "sunflower",
             "count": 48,
+            "blocking": false,
             "within": 40,
             "cluster": 4
           }
@@ -4483,12 +4492,14 @@
           {
             "art": "sunflower",
             "count": 28,
+            "blocking": false,
             "within": 38,
             "cluster": 3
           },
           {
             "art": "daisy_yellow",
             "count": 60,
+            "blocking": false,
             "within": 38,
             "cluster": 5
           },

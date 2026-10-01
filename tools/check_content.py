@@ -112,6 +112,9 @@ hex_colour = re.compile(r"^#[0-9A-Fa-f]{6}$")
 for map_def in maps.values():
     for prop in map_def["theme"].get("props", []):
         check(prop["art"] in art, f"map {map_def['id']} prop → unknown art {prop['art']}")
+        # Required by the app's PropPlacement: a missing one stops maps.json loading and crashes at launch.
+        check(isinstance(prop.get("count"), int) and not isinstance(prop.get("count"), bool), f"map {map_def['id']} prop {prop['art']} → needs a whole-number count")
+        check(isinstance(prop.get("blocking"), bool), f"map {map_def['id']} prop {prop['art']} → needs blocking: true or false")
         within = prop.get("within", 1)
         check(isinstance(within, int) and within > 0, f"map {map_def['id']} prop {prop['art']} → within must be a positive whole number")
         size = prop.get("size", [1, 1])
