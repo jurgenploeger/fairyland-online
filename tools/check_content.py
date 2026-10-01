@@ -164,6 +164,22 @@ for kind in ("hair", "outfits", "skin"):
         if "unlock" in preset:
             check(preset["unlock"] in quests, f"look {preset['id']} → unknown quest {preset['unlock']}")
 
+# Road routes: hubs, exit waypoints and trails stay inside the map (offsets from the centre, y north).
+for map_def in maps.values():
+    half_w, half_h = map_def["width"] // 2, map_def["height"] // 2
+    def inside(point, what):
+        ok = isinstance(point, list) and len(point) == 2 and abs(point[0]) <= half_w - 5 and abs(point[1]) <= half_h - 5
+        check(ok, f"map {map_def['id']} {what} {point} should be [x, y] within {half_w - 5}×{half_h - 5} of the centre")
+    if "hub" in map_def: inside(map_def["hub"], "hub")
+    for exit in map_def["exits"]:
+        for point in exit.get("via", []): inside(point, f"road to {exit['to']} waypoint")
+        if "at" in exit:
+            limit = (half_h if exit["edge"] in ("east", "west") else half_w) - 5
+            check(abs(exit["at"]) <= limit, f"map {map_def['id']} exit to {exit['to']}: at {exit['at']} is off the edge")
+    for trail in map_def.get("trails", []):
+        inside(trail.get("to"), "trail end")
+        for point in trail.get("via", []) + ([trail["from"]] if "from" in trail else []): inside(point, "trail waypoint")
+
 for asset in art.values():
     if "derive" in asset:
         check(asset["derive"]["from"] in art, f"art {asset['id']} → unknown base {asset['derive']['from']}")
