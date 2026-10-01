@@ -502,7 +502,7 @@ final class WorldScene: SKScene {
                 let found: GridPoint? = if let radius = placement.within {
                     map.randomFreeCell(within: radius, using: &rng)
                 } else {
-                    map.randomFreeCell(using: &rng)
+                    map.randomFreeCell(blocking: placement.blocking, using: &rng)
                 }
                 guard let middle = found else { break }
                 let wanted = min(groupSize, placement.count - placed)
@@ -512,7 +512,7 @@ final class WorldScene: SKScene {
                         col: middle.col + Int.random(in: -spread...spread, using: &rng),
                         row: middle.row + Int.random(in: -spread...spread, using: &rng)
                     )
-                    guard map.isFreeForScenery(cell, insideFence: placement.within != nil) else { continue }
+                    guard map.isFreeForScenery(cell, insideFence: placement.within != nil, blocking: placement.blocking) else { continue }
                     map.occupy(cell, blocking: placement.blocking)
                     var scale: CGFloat = 1
                     if let range = placement.size, range.count == 2, range[0] <= range[1] {

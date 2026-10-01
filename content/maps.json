@@ -3468,8 +3468,8 @@
         "accent": "tile_cave_rock",
         "accentPatches": 40,
         "water": "tile_water",
-        "ponds": 5,
-        "cave": { "rock": "tile_cave_rock", "width": 1.6, "chambers": 7, "branches": 12, "zigzags": 8 },
+        "ponds": 0,
+        "cave": { "rock": "tile_cave_rock", "height": 32, "width": 0.6, "maze": 7 },
         "props": [
           {
             "art": "stalagmite",

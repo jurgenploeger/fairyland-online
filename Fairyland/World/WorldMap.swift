@@ -215,10 +215,11 @@ final class WorldMap {
     /// Whether scenery may go in `cell`: free, off roads and water, clear of the centre and
     /// the arrival spots, and (in fenced towns) outside the fence.
     /// `insideFence` lets town-square planting use the town's ground, not just its border.
-    func isFreeForScenery(_ cell: GridPoint, insideFence: Bool = false) -> Bool {
+    /// Things you can walk through (`blocking` false) may sit in a cave's passages.
+    func isFreeForScenery(_ cell: GridPoint, insideFence: Bool = false, blocking: Bool = true) -> Bool {
         guard cell.col >= 1, cell.row >= 1, cell.col < columns - 1, cell.row < rows - 1 else { return false }
         guard !occupied.contains(cell) else { return false }
-        if !passages.isEmpty, (-1...1).contains(where: { dc in (-1...1).contains { dr in passages.contains(GridPoint(col: cell.col + dc, row: cell.row + dr)) } }) {
+        if blocking, !passages.isEmpty, (-1...1).contains(where: { dc in (-1...1).contains { dr in passages.contains(GridPoint(col: cell.col + dc, row: cell.row + dr)) } }) {
             return false
         }
         let tile = ground[cell.row][cell.col]
@@ -241,10 +242,10 @@ final class WorldMap {
     }
 
     /// A random free cell for scenery.
-    func randomFreeCell(using rng: inout SeededRandom) -> GridPoint? {
+    func randomFreeCell(blocking: Bool = true, using rng: inout SeededRandom) -> GridPoint? {
         for _ in 0..<400 {
             let cell = GridPoint(col: Int.random(in: 1..<(columns - 1), using: &rng), row: Int.random(in: 1..<(rows - 1), using: &rng))
-            if isFreeForScenery(cell) { return cell }
+            if isFreeForScenery(cell, blocking: blocking) { return cell }
         }
         return nil
     }
@@ -478,7 +479,7 @@ final class WorldMap {
             }
         }
         let hub = point(def.hub ?? [0, 0])
-        dig(hub, wide + 3)
+        dig(hub, wide * 2 + 1)
         for npc in def.npcs ?? [] { dig(point([npc.x, npc.y]), 3.5) }
         // Underground lakes, each in a chamber of its own joined on by a tunnel.
         for pond in ponds where !pond.isEmpty {
@@ -543,9 +544,76 @@ final class WorldMap {
                 }
             }
         }
-        // Narrow zigzag passages between two open spots, for a maze of side ways: one or two cells
-        // wide, dug after the smoothing so they stay narrow.
+        // Narrow passages, one or two cells wide, dug after the smoothing so they stay narrow.
         var narrow: Set<GridPoint> = []
+        func carveNarrow(_ points: [CGPoint]) {
+            for (a, b) in zip(points, points.dropFirst()) {
+                let steps = max(1, Int(a.distance(to: b) * 2))
+                for step in 0...steps {
+                    let t = CGFloat(step) / CGFloat(steps)
+                    let p = CGPoint(x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t)
+                    for dr in -1...1 {
+                        for dc in -1...1 {
+                            let cell = GridPoint(col: Int(p.x) + dc, row: Int(p.y) + dr)
+                            guard contains(cell), CGPoint(x: CGFloat(cell.col) + 0.5, y: CGFloat(cell.row) + 0.5).distance(to: p) <= 0.8 else { continue }
+                            open[cell.row][cell.col] = true
+                            narrow.insert(cell)
+                        }
+                    }
+                }
+            }
+        }
+
+        // A maze over the whole cave: a grid of junctions joined along a random spanning tree, so
+        // every part can be reached and there are dead ends, plus a few loops. Each link kinks
+        // sideways halfway.
+        if let spacing = cave.maze, spacing >= 4 {
+            let across = max(2, (columns - 6) / spacing + 1), down = max(2, (rows - 6) / spacing + 1)
+            var nodes: [CGPoint] = []
+            for j in 0..<down {
+                for i in 0..<across {
+                    let x = 3 + CGFloat(i) * CGFloat(columns - 7) / CGFloat(across - 1) + CGFloat(Double.random(in: -1.5...1.5, using: &rng))
+                    let y = 3 + CGFloat(j) * CGFloat(rows - 7) / CGFloat(down - 1) + CGFloat(Double.random(in: -1.5...1.5, using: &rng))
+                    nodes.append(clamped(CGPoint(x: x.rounded(.down) + 0.5, y: y.rounded(.down) + 0.5)))
+                }
+            }
+            var visited = Array(repeating: false, count: nodes.count)
+            var stack = [Int.random(in: 0..<nodes.count, using: &rng)]
+            visited[stack[0]] = true
+            var links: [(Int, Int)] = []
+            while let current = stack.last {
+                let i = current % across, j = current / across
+                let options = [(i + 1, j), (i - 1, j), (i, j + 1), (i, j - 1)].filter { option in
+                    option.0 >= 0 && option.0 < across && option.1 >= 0 && option.1 < down && !visited[option.1 * across + option.0]
+                }
+                guard !options.isEmpty else { stack.removeLast(); continue }
+                let pick = options[Int.random(in: 0..<options.count, using: &rng)]
+                let next = pick.1 * across + pick.0
+                visited[next] = true
+                links.append((current, next))
+                stack.append(next)
+            }
+            for j in 0..<down {
+                for i in 0..<across {
+                    let here = j * across + i
+                    for (di, dj) in [(1, 0), (0, 1)] where i + di < across && j + dj < down {
+                        let there = (j + dj) * across + i + di
+                        let linked = links.contains { ($0.0 == here && $0.1 == there) || ($0.0 == there && $0.1 == here) }
+                        if !linked, Double.random(in: 0..<1, using: &rng) < 0.15 { links.append((here, there)) }
+                    }
+                }
+            }
+            for (a, b) in links {
+                let from = nodes[a], to = nodes[b]
+                let length = max(from.distance(to: to), 0.001)
+                let swing = CGFloat(Double.random(in: -2...2, using: &rng))
+                let middle = clamped(CGPoint(x: (from.x + to.x) / 2 - (to.y - from.y) / length * swing,
+                                             y: (from.y + to.y) / 2 + (to.x - from.x) / length * swing))
+                carveNarrow([from, middle, to])
+            }
+        }
+
+        // Zigzag passages between two open spots.
         for _ in 0..<(cave.zigzags ?? 0) {
             var cells: [CGPoint] = []
             for row in 3..<(rows - 3) {
@@ -569,21 +637,7 @@ final class WorldMap {
                 points.append(clamped(start + ahead * (length * CGFloat(leg) / CGFloat(legs)) + side * swing))
             }
             points.append(target)
-            for (a, b) in zip(points, points.dropFirst()) {
-                let steps = max(1, Int(a.distance(to: b) * 2))
-                for step in 0...steps {
-                    let t = CGFloat(step) / CGFloat(steps)
-                    let p = CGPoint(x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t)
-                    for dr in -1...1 {
-                        for dc in -1...1 {
-                            let cell = GridPoint(col: Int(p.x) + dc, row: Int(p.y) + dr)
-                            guard contains(cell), CGPoint(x: CGFloat(cell.col) + 0.5, y: CGFloat(cell.row) + 0.5).distance(to: p) <= 0.8 else { continue }
-                            open[cell.row][cell.col] = true
-                            narrow.insert(cell)
-                        }
-                    }
-                }
-            }
+            carveNarrow(points)
         }
 
         passages.formUnion(narrow)

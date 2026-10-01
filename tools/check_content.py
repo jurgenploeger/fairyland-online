@@ -98,13 +98,14 @@ for map_def in maps.values():
     if "cave" in theme:
         cave = theme["cave"]
         where = f"map {map_def['id']} cave"
-        check(set(cave) <= {"rock", "height", "width", "chambers", "branches", "zigzags"}, f"{where} → unknown keys {set(cave) - {'rock', 'height', 'width', 'chambers', 'branches', 'zigzags'}}")
+        check(set(cave) <= {"rock", "height", "width", "chambers", "branches", "zigzags", "maze"}, f"{where} → unknown keys {set(cave) - {'rock', 'height', 'width', 'chambers', 'branches', 'zigzags', 'maze'}}")
         check("rock" in cave, f"{where} → needs a rock tile")
         tiles.append(cave.get("rock", ""))
         check(isinstance(cave.get("height", 40), (int, float)) and 10 <= cave.get("height", 40) <= 120, f"{where} → height must be 10 to 120")
-        check(isinstance(cave.get("width", 3), (int, float)) and 1 <= cave.get("width", 3) <= 8, f"{where} → width must be 1 to 8")
+        check(isinstance(cave.get("width", 3), (int, float)) and 0.5 <= cave.get("width", 3) <= 8, f"{where} → width must be 0.5 to 8")
         for key in ("chambers", "branches", "zigzags"):
             check(isinstance(cave.get(key, 0), int) and 0 <= cave.get(key, 0) <= 40, f"{where} → {key} must be a whole number from 0 to 40")
+        check(isinstance(cave.get("maze", 8), int) and 4 <= cave.get("maze", 8) <= 30, f"{where} → maze must be a junction spacing from 4 to 30")
         check(map_def["width"] >= 24 and map_def["height"] >= 24, f"{where} → cave maps must be at least 24×24")
     props = [p["art"] for p in theme["props"]] + town.get("lots", []) + list(town.get("streetDecor", {}))
     props += [b["art"] for b in map_def.get("buildings", [])] + [d["art"] for d in map_def.get("decor", [])]
