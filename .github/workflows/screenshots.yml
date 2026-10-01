@@ -54,6 +54,13 @@ jobs:
           tools/screenshots.sh "${{ steps.sim.outputs.udid }}" \
             build/DerivedData/Build/Products/Debug-iphonesimulator/Fairyland.app \
             shots tools/screenshots.txt "${{ inputs.scenes }}"
+          # Diagnostics: keep any crash reports and the simulator log next to the screenshots.
+          mkdir -p shots
+          for d in ~/Library/Logs/DiagnosticReports "$HOME/Library/Developer/CoreSimulator/Devices/${{ steps.sim.outputs.udid }}/data/Library/Logs/CrashReporter"; do
+            find "$d" -iname '*Fairyland*' -newer tools/screenshots.txt -exec cp {} shots/ \; 2>/dev/null || true
+          done
+          ls -la shots
+          for f in shots/*.ips shots/*.crash; do [ -f "$f" ] && { echo "== $f"; head -c 6000 "$f"; echo; }; done || true
 
       - uses: actions/upload-artifact@v4
         with:
