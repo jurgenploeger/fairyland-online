@@ -472,7 +472,7 @@ final class WorldMap {
         let wide = CGFloat(cave.width ?? 3)
         for row in 0..<rows {
             for col in 0..<columns where ground[row][col] == .path {
-                let swell = 1.2 * sin(CGFloat(col) * 0.31 + CGFloat(row) * 0.17)
+                let swell = wide * 0.35 * sin(CGFloat(col) * 0.31 + CGFloat(row) * 0.17)
                 dig(CGPoint(x: CGFloat(col) + 0.5, y: CGFloat(row) + 0.5), wide + swell)
                 passages.insert(GridPoint(col: col, row: row))
             }

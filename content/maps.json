@@ -3469,7 +3469,7 @@
         "accentPatches": 40,
         "water": "tile_water",
         "ponds": 5,
-        "cave": { "rock": "tile_cave_rock", "chambers": 7, "branches": 10 },
+        "cave": { "rock": "tile_cave_rock", "width": 1.6, "chambers": 7, "branches": 12 },
         "props": [
           {
             "art": "stalagmite",
