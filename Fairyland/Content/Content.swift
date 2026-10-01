@@ -289,6 +289,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let chambers: Int?
         /// Dead-end tunnels branching off, for a bit of a maze.
         let branches: Int?
+        /// Narrow zigzag passages linking parts of the cave.
+        let zigzags: Int?
     }
 
     nonisolated struct PropPlacement: Decodable, Sendable {

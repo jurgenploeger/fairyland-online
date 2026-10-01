@@ -543,6 +543,50 @@ final class WorldMap {
                 }
             }
         }
+        // Narrow zigzag passages between two open spots, for a maze of side ways: one or two cells
+        // wide, dug after the smoothing so they stay narrow.
+        var narrow: Set<GridPoint> = []
+        for _ in 0..<(cave.zigzags ?? 0) {
+            var cells: [CGPoint] = []
+            for row in 3..<(rows - 3) {
+                for col in 3..<(columns - 3) where open[row][col] { cells.append(CGPoint(x: CGFloat(col) + 0.5, y: CGFloat(row) + 0.5)) }
+            }
+            guard cells.count > 1 else { break }
+            let start = cells[Int.random(in: 0..<cells.count, using: &rng)]
+            var target: CGPoint?
+            for _ in 0..<20 {
+                let candidate = cells[Int.random(in: 0..<cells.count, using: &rng)]
+                if (CGFloat(12)...CGFloat(30)).contains(candidate.distance(to: start)) { target = candidate; break }
+            }
+            guard let target else { continue }
+            let length = start.distance(to: target)
+            let ahead = CGVector(dx: (target.x - start.x) / length, dy: (target.y - start.y) / length)
+            let side = CGVector(dx: -ahead.dy, dy: ahead.dx)
+            let legs = max(3, Int(length / 4))
+            var points = [start]
+            for leg in 1..<legs {
+                let swing = CGFloat(leg % 2 == 0 ? 1 : -1) * CGFloat(Double.random(in: 1.5...3, using: &rng))
+                points.append(clamped(start + ahead * (length * CGFloat(leg) / CGFloat(legs)) + side * swing))
+            }
+            points.append(target)
+            for (a, b) in zip(points, points.dropFirst()) {
+                let steps = max(1, Int(a.distance(to: b) * 2))
+                for step in 0...steps {
+                    let t = CGFloat(step) / CGFloat(steps)
+                    let p = CGPoint(x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t)
+                    for dr in -1...1 {
+                        for dc in -1...1 {
+                            let cell = GridPoint(col: Int(p.x) + dc, row: Int(p.y) + dr)
+                            guard contains(cell), CGPoint(x: CGFloat(cell.col) + 0.5, y: CGFloat(cell.row) + 0.5).distance(to: p) <= 0.8 else { continue }
+                            open[cell.row][cell.col] = true
+                            narrow.insert(cell)
+                        }
+                    }
+                }
+            }
+        }
+
+        passages.formUnion(narrow)
         for cell in passages where contains(cell) { open[cell.row][cell.col] = true }
 
         // The map's edge is solid, except the mouths where roads leave.

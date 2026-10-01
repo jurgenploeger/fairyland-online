@@ -15,6 +15,8 @@ final class CaveWalls {
     private static let fadeAlpha: CGFloat = 0.35
     /// The tops of the walls are in shadow, so they stand apart from the lit floor.
     private static let topShade: CGFloat = 0.45
+    /// Straight pieces per rounded corner.
+    private static let arcSteps = 6
 
     init(map: WorldMap, cave: MapDef.Cave, world: SKNode, art: ArtLibrary, margin: Int) {
         let tile = WorldMap.tileSize
@@ -135,7 +137,8 @@ final class CaveWalls {
     /// and the outline pieces with their normals pointing from the rock out to the floor.
     private struct Shape {
         var tops: [[CGPoint]] = []
-        var edges: [(a: CGPoint, b: CGPoint, normal: CGVector)] = []
+        /// `along`: how far along the wall (grid units) the piece starts, so the face texture runs on.
+        var edges: [(a: CGPoint, b: CGPoint, normal: CGVector, along: CGFloat)] = []
     }
 
     /// Whether `mask` (bit `(dy + 1) * 3 + dx + 1` set for each rock cell around this one) is
@@ -150,8 +153,11 @@ final class CaveWalls {
         return !rock(mask, 0, 0) && rock(mask, x, 0) && rock(mask, 0, y) && rock(mask, x, y)
     }
 
-    /// Marching squares over the cell middles, one quarter of the cell at a time. Key: the 3×3
-    /// rock mask, plus (for a floor cell's corner sliver) `(corner + 1) << 9`.
+    /// Marching squares over the cell middles, one quarter of the cell at a time, with every
+    /// corner rounded: a quarter circle around the cell's middle, bulging out where the rock
+    /// sticks out and hollowed where it goes in. Neighbouring arcs and straight walls meet
+    /// without a kink, so walls that would zig-zag become gentle waves. Key: the 3×3 rock mask,
+    /// plus (for a floor cell's corner sliver) `(corner + 1) << 9`.
     private static func shape(for key: Int) -> Shape {
         let mask = key & 511
         let only = (key >> 9) - 1
@@ -162,20 +168,29 @@ final class CaveWalls {
             // (p, q) runs from the cell's middle (0, 0) out to its corner (0.5, 0.5).
             func at(_ p: CGFloat, _ q: CGFloat) -> CGPoint { CGPoint(x: 0.5 + sx * p, y: 0.5 + sy * q) }
             let here = rock(mask, 0, 0), across = rock(mask, x, 0), above = rock(mask, 0, y), diagonal = rock(mask, x, y)
+            let angles = (0...arcSteps).map { CGFloat($0) / CGFloat(arcSteps) * .pi / 2 }
+            let arc = angles.map { at(0.5 * cos($0), 0.5 * sin($0)) }
+            let step = 0.5 * .pi / 2 / CGFloat(arcSteps)
             if here {
                 if !across && !above {
-                    // A corner sticking out: cut off.
-                    result.tops.append([at(0, 0), at(0.5, 0), at(0, 0.5)])
-                    result.edges.append((at(0.5, 0), at(0, 0.5), CGVector(dx: sx, dy: sy)))
+                    // A corner sticking out: rounded off.
+                    result.tops.append([at(0, 0)] + arc)
+                    for i in 0..<arcSteps {
+                        let middle = (angles[i] + angles[i + 1]) / 2
+                        result.edges.append((arc[i], arc[i + 1], CGVector(dx: sx * cos(middle), dy: sy * sin(middle)), CGFloat(i) * step))
+                    }
                 } else {
                     result.tops.append([at(0, 0), at(0.5, 0), at(0.5, 0.5), at(0, 0.5)])
-                    if !across && !diagonal { result.edges.append((at(0.5, 0), at(0.5, 0.5), CGVector(dx: sx, dy: 0))) }
-                    if !above && !diagonal { result.edges.append((at(0, 0.5), at(0.5, 0.5), CGVector(dx: 0, dy: sy))) }
+                    if !across && !diagonal { result.edges.append((at(0.5, 0), at(0.5, 0.5), CGVector(dx: sx, dy: 0), 0)) }
+                    if !above && !diagonal { result.edges.append((at(0, 0.5), at(0.5, 0.5), CGVector(dx: 0, dy: sy), 0)) }
                 }
             } else if across && above && diagonal {
-                // A corner going in: filled.
-                result.tops.append([at(0.5, 0), at(0.5, 0.5), at(0, 0.5)])
-                result.edges.append((at(0.5, 0), at(0, 0.5), CGVector(dx: -sx, dy: -sy)))
+                // A corner going in: a rounded hollow.
+                result.tops.append(arc + [at(0.5, 0.5)])
+                for i in 0..<arcSteps {
+                    let middle = (angles[i] + angles[i + 1]) / 2
+                    result.edges.append((arc[i], arc[i + 1], CGVector(dx: -sx * cos(middle), dy: -sy * sin(middle)), CGFloat(i) * step))
+                }
             }
         }
         return result
@@ -224,7 +239,7 @@ final class CaveWalls {
         /// A wall face from `a` to `b` along the floor (`length` in grid points), up to the top:
         /// the rock texture sheared onto it, shaded darker toward the floor, with light rounding
         /// over the lip.
-        func face(_ a: CGPoint, _ b: CGPoint, length: CGFloat, shade: CGFloat) {
+        func face(_ a: CGPoint, _ b: CGPoint, length: CGFloat, start: CGFloat, shade: CGFloat) {
             guard length > 0 else { return }
             context.saveGState()
             context.concatenate(CGAffineTransform(a: (b.x - a.x) / length, b: (b.y - a.y) / length, c: 0, d: 1, tx: a.x, ty: a.y))
@@ -232,7 +247,7 @@ final class CaveWalls {
             context.clip(to: rect)
             var y: CGFloat = 0
             while y < height {
-                var x: CGFloat = 0
+                var x = -start.truncatingRemainder(dividingBy: tile)
                 while x < length {
                     context.draw(side, in: CGRect(x: x, y: y, width: tile, height: tile))
                     x += tile
@@ -279,7 +294,7 @@ final class CaveWalls {
                 let n = edge.normal, length = (n.dx * n.dx + n.dy * n.dy).squareRoot()
                 // Lit from the left: faces turned west are brightest, faces turned south darkest.
                 let shade = 0.22 + 0.1 * (n.dx - n.dy) / length
-                face(floor(edge.a), floor(edge.b), length: edge.a.distance(to: edge.b) * tile, shade: shade)
+                face(floor(edge.a), floor(edge.b), length: edge.a.distance(to: edge.b) * tile, start: edge.along * tile, shade: shade)
             }
 
             // The top: the rock tile laid over the lifted outline, a hair bigger than the cell so
