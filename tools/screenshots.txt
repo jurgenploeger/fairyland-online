@@ -3,7 +3,7 @@
 title        |                                   | 6
 meadowbrook  | newgame                           | 8
 sunny_meadow | newgame,map=sunny_meadow          | 8
-smiling_forest | newgame,map=smiling_forest       | 8
+smiling_forest | newgame,map=smiling_forest       | 16
 battle       | newgame,map=sunny_meadow,battle   | 10
 character    | newgame,menu=character            | 8
 companions   | newgame,level=5,menu=companions   | 8
