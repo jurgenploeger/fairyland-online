@@ -4974,7 +4974,7 @@
         "accent": "tile_cave_rock",
         "accentPatches": 40,
         "water": "tile_water",
-        "ponds": 5,
+        "ponds": 0,
         "props": [
           {
             "art": "stalagmite",
@@ -5116,6 +5116,12 @@
           "light": "#C8FF90",
           "lightStrength": 0.55,
           "variation": 0.14
+        },
+        "cave": {
+          "rock": "tile_cave_rock",
+          "height": 32,
+          "width": 0.6,
+          "maze": 7
         }
       },
       "ambience": {
@@ -8769,7 +8775,7 @@
         "accent": "tile_cave_rock",
         "accentPatches": 40,
         "water": "tile_water",
-        "ponds": 5,
+        "ponds": 0,
         "props": [
           {
             "art": "stalagmite",
@@ -8911,6 +8917,12 @@
           "light": "#B8A0FF",
           "lightStrength": 0.55,
           "variation": 0.14
+        },
+        "cave": {
+          "rock": "tile_cave_rock",
+          "height": 36,
+          "width": 0.6,
+          "maze": 6
         }
       },
       "ambience": {
