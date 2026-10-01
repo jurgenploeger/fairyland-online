@@ -3469,10 +3469,11 @@
         "accentPatches": 40,
         "water": "tile_water",
         "ponds": 5,
+        "cave": { "rock": "tile_cave_rock", "chambers": 7, "branches": 10 },
         "props": [
           {
             "art": "stalagmite",
-            "count": 300,
+            "count": 150,
             "blocking": true,
             "cluster": 6,
             "size": [
@@ -3483,7 +3484,7 @@
           },
           {
             "art": "boulder",
-            "count": 80,
+            "count": 40,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -3515,7 +3516,7 @@
           },
           {
             "art": "small_stalagmite",
-            "count": 150,
+            "count": 90,
             "blocking": false,
             "cluster": 4,
             "size": [
@@ -3548,7 +3549,7 @@
           },
           {
             "art": "pebbles",
-            "count": 60,
+            "count": 40,
             "blocking": false,
             "cluster": 3,
             "size": [

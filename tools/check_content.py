@@ -95,6 +95,17 @@ for map_def in maps.values():
     theme = map_def["theme"]
     town = map_def.get("town") or {}
     tiles = [theme["ground"], theme["path"]] + [theme[k] for k in ("accent", "border", "water") if theme.get(k)]
+    if "cave" in theme:
+        cave = theme["cave"]
+        where = f"map {map_def['id']} cave"
+        check(set(cave) <= {"rock", "height", "width", "chambers", "branches"}, f"{where} → unknown keys {set(cave) - {'rock', 'height', 'width', 'chambers', 'branches'}}")
+        check("rock" in cave, f"{where} → needs a rock tile")
+        tiles.append(cave.get("rock", ""))
+        check(isinstance(cave.get("height", 40), (int, float)) and 10 <= cave.get("height", 40) <= 120, f"{where} → height must be 10 to 120")
+        check(isinstance(cave.get("width", 3), (int, float)) and 1 <= cave.get("width", 3) <= 8, f"{where} → width must be 1 to 8")
+        for key in ("chambers", "branches"):
+            check(isinstance(cave.get(key, 0), int) and 0 <= cave.get(key, 0) <= 40, f"{where} → {key} must be a whole number from 0 to 40")
+        check(map_def["width"] >= 24 and map_def["height"] >= 24, f"{where} → cave maps must be at least 24×24")
     props = [p["art"] for p in theme["props"]] + town.get("lots", []) + list(town.get("streetDecor", {}))
     props += [b["art"] for b in map_def.get("buildings", [])] + [d["art"] for d in map_def.get("decor", [])]
     for art_id in tiles + props:

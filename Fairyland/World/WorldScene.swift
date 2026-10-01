@@ -40,6 +40,7 @@ final class WorldScene: SKScene {
     private var ambience: Ambience?
     private var lighting: Lighting?
     private var crowd: Crowd?
+    private var caveWalls: CaveWalls?
     /// Friends in your party walk behind you in a little line.
     private var allies: [(id: UUID, node: Walker)] = []
     /// Roads that stay closed until a quest is done: the barricade nodes and the cells they block.
@@ -89,7 +90,9 @@ final class WorldScene: SKScene {
         backgroundColor = .black
         build()
         // Don't start on top of scenery (e.g. an old save).
-        if !map.isWalkable(lastCell), let open = map.nearestWalkable(to: lastCell) {
+        // (A save from before a cave's walls went up can even be deep inside the rock.)
+        if !map.isWalkable(lastCell),
+           let open = map.nearestWalkable(to: lastCell) ?? map.nearestWalkable(to: map.entryCell(from: def.exits.first?.edge ?? .south)) {
             player.position = map.center(of: open)
             lastCell = open
         }
@@ -134,6 +137,9 @@ final class WorldScene: SKScene {
 
         world.addChild(makeGround())
         placeSurroundings()
+        if let cave = def.theme.cave {
+            caveWalls = CaveWalls(map: map, cave: cave, world: world, art: art, margin: Self.surroundingsMargin)
+        }
         placeLilyPads()
         placeFence()
         placeBuildings()
@@ -151,6 +157,7 @@ final class WorldScene: SKScene {
         placeBarricades()
 
         world.addChild(player)
+        caveWalls?.reveal(around: lastCell)
         refreshHero()
         refreshFollower()
         refreshAllies()
@@ -275,7 +282,7 @@ final class WorldScene: SKScene {
     }
 
     /// Which of a tile's four versions a cell shows: a hash, so neighbours differ without a pattern.
-    private static func variant(of cell: GridPoint) -> Int {
+    static func variant(of cell: GridPoint) -> Int {
         var hash = UInt64(bitPattern: Int64(cell.col)) &* 0x9E37_79B9_7F4A_7C15
         hash ^= UInt64(bitPattern: Int64(cell.row)) &* 0xC2B2_AE3D_27D4_EB4F
         hash ^= hash >> 29
@@ -296,10 +303,12 @@ final class WorldScene: SKScene {
         return squash
     }
 
+    private static let surroundingsMargin = 14
+
     /// Scenery beyond the map's edge, so small maps never show black bars (e.g. in portrait).
     /// Roads carry on out through the exits.
     private func placeSurroundings() {
-        let margin = 14
+        let margin = Self.surroundingsMargin
         let tile = WorldMap.tileSize
         let tileSize = CGSize(width: tile, height: tile)
         let theme = def.theme
@@ -336,8 +345,8 @@ final class WorldScene: SKScene {
             surroundings.setTileGroup(road, forColumn: cell.col + margin, row: cell.row + margin)
         }
 
-        // A loose treeline, keeping the roads clear.
-        guard let decor = theme.props.first(where: \.blocking)?.art else { return }
+        // A loose treeline, keeping the roads clear (caves have rock walls instead).
+        guard def.theme.cave == nil, let decor = theme.props.first(where: \.blocking)?.art else { return }
         let sprite = art.sprite(decor)
         var decorRNG = SeededRandom(text: def.id + "/surroundings")
         for row in -margin..<(map.rows + margin) {
@@ -888,6 +897,7 @@ final class WorldScene: SKScene {
             return
         }
         lastCell = cell
+        caveWalls?.reveal(around: cell)
         session.playerPosition = player.position
         session.mapCell = cell
 

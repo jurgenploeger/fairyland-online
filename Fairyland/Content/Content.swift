@@ -272,6 +272,23 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let props: [PropPlacement]
         /// The map's colour mood for ground, scenery and buildings.
         let palette: MapPalette?
+        /// Caves are solid rock with tunnels and chambers dug out of it.
+        let cave: Cave?
+    }
+
+    /// Solid rock everywhere except galleries along the roads and trails, chambers off them and
+    /// dead-end tunnels, drawn as raised walls you walk between (and behind).
+    nonisolated struct Cave: Decodable, Sendable {
+        /// Tile for the tops and faces of the walls.
+        let rock: String
+        /// How tall the walls stand, in points (40 by default).
+        let height: Double?
+        /// Half-width of the galleries around roads and trails, in cells (3 by default).
+        let width: Double?
+        /// Extra chambers dug off the galleries.
+        let chambers: Int?
+        /// Dead-end tunnels branching off, for a bit of a maze.
+        let branches: Int?
     }
 
     nonisolated struct PropPlacement: Decodable, Sendable {
