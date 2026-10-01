@@ -353,11 +353,8 @@ final class WorldScene: SKScene {
 
     private func placeFence() {
         guard !map.fenceCells.isEmpty else { return }
-        let fence = art.sprite("fence")
-        for cell in map.fenceCells {
-            map.occupy(cell, blocking: true)
-            addScenery(fence, at: cell)
-        }
+        for cell in map.fenceCells { map.occupy(cell, blocking: true) }
+        TownFence.place(cells: map.fenceCells, map: map, world: world, art: art)
     }
 
     /// Houses take a 3×2 footprint above their anchor tile.
