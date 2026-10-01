@@ -19,7 +19,14 @@ grep -vE '^\s*(#|$)' "$SCENES" | while IFS='|' read -r name flags wait; do
   xcrun simctl terminate "$SIM" "$BUNDLE" 2>/dev/null || true
   # Fresh data for every scene, so the title screen never shows a leftover save.
   xcrun simctl uninstall "$SIM" "$BUNDLE" && xcrun simctl install "$SIM" "$APP"
-  SIMCTL_CHILD_FAIRYLAND_DEBUG="$flags" xcrun simctl launch "$SIM" "$BUNDLE" >/dev/null
+  # Right after a reinstall the simulator sometimes doesn't know the app yet ("unknown to
+  # FrontBoard"), so give the launch a few tries.
+  for attempt in 1 2 3 4; do
+    if SIMCTL_CHILD_FAIRYLAND_DEBUG="$flags" xcrun simctl launch "$SIM" "$BUNDLE" >/dev/null; then break; fi
+    if [ "$attempt" = 4 ]; then echo "✗ couldn't launch for $name" >&2; exit 1; fi
+    echo "  launch failed, retrying ($attempt)…"
+    sleep 3
+  done
   sleep "${wait:-8}"
   xcrun simctl io "$SIM" screenshot --type=png "$OUT/$name.png"
   # The simulator stays in portrait, so a landscape-locked app comes out sideways; turn it upright.
