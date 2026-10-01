@@ -659,17 +659,40 @@ final class WorldMap {
             }
         }
 
-        // Fill in whatever can't be reached from the hub.
-        var reached = Array(repeating: Array(repeating: false, count: columns), count: rows)
-        var queue = [GridPoint(col: Int(hub.x), row: Int(hub.y))]
-        if contains(queue[0]), open[queue[0].row][queue[0].col] { reached[queue[0].row][queue[0].col] = true } else { queue = [] }
-        while let cell = queue.popLast() {
-            for d in [(0, 1), (1, 0), (0, -1), (-1, 0)] {
-                let next = GridPoint(col: cell.col + d.0, row: cell.row + d.1)
-                guard contains(next), open[next.row][next.col], !reached[next.row][next.col], ground[next.row][next.col] != .water else { continue }
-                reached[next.row][next.col] = true
-                queue.append(next)
+        // Fill in whatever can't be reached from the hub, after making sure every character's
+        // chamber is joined on (a narrow passage to the nearest reachable spot if it isn't).
+        func flood() -> [[Bool]] {
+            var reached = Array(repeating: Array(repeating: false, count: columns), count: rows)
+            var queue = [GridPoint(col: Int(hub.x), row: Int(hub.y))]
+            if contains(queue[0]), open[queue[0].row][queue[0].col] { reached[queue[0].row][queue[0].col] = true } else { queue = [] }
+            while let cell = queue.popLast() {
+                for d in [(0, 1), (1, 0), (0, -1), (-1, 0)] {
+                    let next = GridPoint(col: cell.col + d.0, row: cell.row + d.1)
+                    guard contains(next), open[next.row][next.col], !reached[next.row][next.col], ground[next.row][next.col] != .water else { continue }
+                    reached[next.row][next.col] = true
+                    queue.append(next)
+                }
             }
+            return reached
+        }
+        var reached = flood()
+        for npc in def.npcs ?? [] {
+            let spot = point([npc.x, npc.y])
+            let cell = GridPoint(col: Int(spot.x), row: Int(spot.y))
+            guard contains(cell), !reached[cell.row][cell.col] else { continue }
+            var best: (CGPoint, CGFloat)?
+            for row in 0..<rows {
+                for col in 0..<columns where reached[row][col] {
+                    let q = CGPoint(x: CGFloat(col) + 0.5, y: CGFloat(row) + 0.5)
+                    let d = q.distance(to: spot)
+                    if best == nil || d < best!.1 { best = (q, d) }
+                }
+            }
+            guard let target = best?.0 else { continue }
+            narrow.removeAll()
+            carveNarrow([spot, target])
+            passages.formUnion(narrow)
+            reached = flood()
         }
         for row in 0..<rows {
             for col in 0..<columns where !reached[row][col] && ground[row][col] != .water {

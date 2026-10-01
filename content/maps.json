@@ -3626,8 +3626,8 @@
           "name": "Rat King",
           "role": "boss",
           "art": "boss_rat_king",
-          "x": 0,
-          "y": 16,
+          "x": 32,
+          "y": 20,
           "greeting": "Squeak! Who dares enter MY cavern? Bow to the king!",
           "monster": "rat_king",
           "level": 18
@@ -3677,21 +3677,13 @@
       "trails": [
         {
           "to": [
-            0,
-            14
+            24,
+            -22
           ],
           "via": [
             [
-              4,
-              -18
-            ],
-            [
-              22,
-              -4
-            ],
-            [
-              12,
-              10
+              2,
+              -20
             ]
           ]
         }
