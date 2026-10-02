@@ -585,8 +585,8 @@
       "crowd": {
         "adventurers": 5
       },
-      "width": 110,
-      "height": 80,
+      "width": 165,
+      "height": 120,
       "world": [
         1,
         0
@@ -596,17 +596,17 @@
         "ground": "tile_grass",
         "path": "tile_path",
         "accent": "tile_flowers",
-        "accentPatches": 70,
+        "accentPatches": 158,
         "water": "tile_water",
-        "ponds": 9,
+        "ponds": 20,
         "fairyRings": {
-          "count": 4,
+          "count": 9,
           "art": "mushroom"
         },
         "props": [
           {
             "art": "big_tree",
-            "count": 120,
+            "count": 270,
             "blocking": true,
             "cluster": 10,
             "sway": true,
@@ -619,7 +619,7 @@
           },
           {
             "art": "big_blossom_tree",
-            "count": 25,
+            "count": 56,
             "blocking": true,
             "cluster": 3,
             "sway": true,
@@ -631,7 +631,7 @@
           },
           {
             "art": "tree",
-            "count": 600,
+            "count": 1350,
             "blocking": true,
             "cluster": 16,
             "sway": true,
@@ -643,7 +643,7 @@
           },
           {
             "art": "blossom_tree",
-            "count": 100,
+            "count": 225,
             "blocking": true,
             "cluster": 5,
             "sway": true,
@@ -655,7 +655,7 @@
           },
           {
             "art": "autumn_tree",
-            "count": 50,
+            "count": 112,
             "blocking": true,
             "cluster": 6,
             "sway": true,
@@ -667,7 +667,7 @@
           },
           {
             "art": "rock",
-            "count": 55,
+            "count": 124,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -678,7 +678,7 @@
           },
           {
             "art": "giant_flower",
-            "count": 60,
+            "count": 135,
             "blocking": true,
             "cluster": 4,
             "sway": true,
@@ -689,7 +689,7 @@
           },
           {
             "art": "mushroom",
-            "count": 60,
+            "count": 135,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -699,7 +699,7 @@
           },
           {
             "art": "bush",
-            "count": 220,
+            "count": 495,
             "blocking": true,
             "cluster": 6,
             "size": [
@@ -710,7 +710,7 @@
           },
           {
             "art": "flowering_bush",
-            "count": 60,
+            "count": 135,
             "blocking": true,
             "cluster": 4,
             "size": [
@@ -721,7 +721,7 @@
           },
           {
             "art": "daisy",
-            "count": 90,
+            "count": 202,
             "blocking": false,
             "cluster": 5,
             "sway": true,
@@ -732,7 +732,7 @@
           },
           {
             "art": "daisy_yellow",
-            "count": 90,
+            "count": 202,
             "blocking": false,
             "cluster": 5,
             "sway": true,
@@ -743,7 +743,7 @@
           },
           {
             "art": "daisy_blue",
-            "count": 45,
+            "count": 101,
             "blocking": false,
             "cluster": 4,
             "sway": true,
@@ -754,7 +754,7 @@
           },
           {
             "art": "golden_tree",
-            "count": 40,
+            "count": 90,
             "blocking": true,
             "cluster": 5,
             "sway": true,
@@ -766,7 +766,7 @@
           },
           {
             "art": "red_maple",
-            "count": 30,
+            "count": 68,
             "blocking": true,
             "cluster": 4,
             "sway": true,
@@ -778,7 +778,7 @@
           },
           {
             "art": "sapling",
-            "count": 50,
+            "count": 112,
             "blocking": true,
             "cluster": 3,
             "sway": true,
@@ -789,7 +789,7 @@
           },
           {
             "art": "pebbles",
-            "count": 70,
+            "count": 158,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -799,7 +799,7 @@
           },
           {
             "art": "small_boulder",
-            "count": 25,
+            "count": 56,
             "blocking": true,
             "cluster": 2,
             "size": [
@@ -810,7 +810,7 @@
           },
           {
             "art": "purple_mushroom",
-            "count": 30,
+            "count": 68,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -820,7 +820,7 @@
           },
           {
             "art": "toadstool",
-            "count": 20,
+            "count": 45,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -830,7 +830,7 @@
           },
           {
             "art": "tree_stump",
-            "count": 10,
+            "count": 22,
             "blocking": true,
             "size": [
               0.7,
@@ -840,7 +840,7 @@
           },
           {
             "art": "berry_bush",
-            "count": 12,
+            "count": 27,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -851,7 +851,7 @@
           },
           {
             "art": "sunflower",
-            "count": 14,
+            "count": 32,
             "blocking": false,
             "cluster": 3,
             "sway": true,
@@ -862,7 +862,7 @@
           },
           {
             "art": "tulip_patch",
-            "count": 12,
+            "count": 27,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -872,7 +872,7 @@
           },
           {
             "art": "clover_patch",
-            "count": 16,
+            "count": 36,
             "blocking": false,
             "cluster": 4,
             "size": [
@@ -882,14 +882,14 @@
           },
           {
             "art": "haystack",
-            "count": 6,
+            "count": 14,
             "blocking": true,
             "cluster": 2,
             "shadow": true
           },
           {
             "art": "pumpkin_patch",
-            "count": 8,
+            "count": 18,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -899,7 +899,7 @@
           },
           {
             "art": "beehive_tree",
-            "count": 4,
+            "count": 9,
             "blocking": true,
             "sway": true,
             "size": [
@@ -910,7 +910,7 @@
           },
           {
             "art": "signpost",
-            "count": 6,
+            "count": 14,
             "blocking": true
           }
         ],
@@ -946,21 +946,21 @@
         {
           "edge": "west",
           "to": "meadowbrook",
-          "at": -10
+          "at": -15
         },
         {
           "edge": "north",
           "to": "pineapple_shore",
           "requires": "jelly_trouble",
-          "at": 18,
+          "at": 27,
           "via": [
             [
-              -4,
-              10
+              -6,
+              15
             ],
             [
-              12,
-              20
+              18,
+              30
             ]
           ]
         },
@@ -968,15 +968,15 @@
           "edge": "east",
           "to": "twilight_woods",
           "requires": "pineapple_harvest",
-          "at": 8,
+          "at": 12,
           "via": [
             [
-              14,
-              -14
+              21,
+              -21
             ],
             [
-              34,
-              -6
+              51,
+              -9
             ]
           ]
         },
@@ -984,11 +984,11 @@
           "edge": "south",
           "to": "frog_swamp",
           "requires": "new_friend",
-          "at": -20,
+          "at": -30,
           "via": [
             [
-              -24,
-              -18
+              -36,
+              -27
             ]
           ]
         }
@@ -1021,7 +1021,7 @@
         "vignette": 0.15,
         "lightPatches": {
           "color": "#FFE9A0",
-          "count": 90,
+          "count": 202,
           "size": [
             80,
             170
@@ -1042,8 +1042,8 @@
         "hazeAlpha": 0.2
       },
       "hub": [
-        -12,
-        -6
+        -18,
+        -9
       ]
     },
     {
@@ -1052,8 +1052,8 @@
       "crowd": {
         "adventurers": 4
       },
-      "width": 100,
-      "height": 72,
+      "width": 150,
+      "height": 108,
       "world": [
         1,
         1
@@ -1063,13 +1063,13 @@
         "ground": "tile_sand",
         "path": "tile_path",
         "accent": "tile_shells",
-        "accentPatches": 40,
+        "accentPatches": 90,
         "water": "tile_water",
-        "ponds": 14,
+        "ponds": 32,
         "props": [
           {
             "art": "palm_tree",
-            "count": 250,
+            "count": 562,
             "blocking": true,
             "cluster": 7,
             "sway": true,
@@ -1081,7 +1081,7 @@
           },
           {
             "art": "rock",
-            "count": 60,
+            "count": 135,
             "blocking": true,
             "cluster": 4,
             "size": [
@@ -1092,12 +1092,12 @@
           },
           {
             "art": "sandcastle",
-            "count": 14,
+            "count": 32,
             "blocking": true
           },
           {
             "art": "bush",
-            "count": 110,
+            "count": 248,
             "blocking": true,
             "cluster": 5,
             "size": [
@@ -1108,7 +1108,7 @@
           },
           {
             "art": "daisy_yellow",
-            "count": 60,
+            "count": 135,
             "blocking": false,
             "cluster": 5,
             "sway": true,
@@ -1119,7 +1119,7 @@
           },
           {
             "art": "palm_sapling",
-            "count": 90,
+            "count": 202,
             "blocking": true,
             "cluster": 4,
             "sway": true,
@@ -1130,7 +1130,7 @@
           },
           {
             "art": "pebbles",
-            "count": 60,
+            "count": 135,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -1140,7 +1140,7 @@
           },
           {
             "art": "small_boulder",
-            "count": 20,
+            "count": 45,
             "blocking": true,
             "cluster": 2,
             "size": [
@@ -1151,7 +1151,7 @@
           },
           {
             "art": "seashells",
-            "count": 20,
+            "count": 45,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -1161,7 +1161,7 @@
           },
           {
             "art": "driftwood",
-            "count": 10,
+            "count": 22,
             "blocking": false,
             "size": [
               0.8,
@@ -1170,12 +1170,12 @@
           },
           {
             "art": "beach_umbrella",
-            "count": 5,
+            "count": 11,
             "blocking": true
           },
           {
             "art": "coral",
-            "count": 10,
+            "count": 22,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -1185,7 +1185,7 @@
           },
           {
             "art": "signpost",
-            "count": 4,
+            "count": 9,
             "blocking": true
           }
         ],
@@ -1228,21 +1228,21 @@
         {
           "edge": "south",
           "to": "sunny_meadow",
-          "at": 12
+          "at": 18
         },
         {
           "edge": "north",
           "to": "smiling_forest",
           "requires": "pineapple_harvest",
-          "at": -16,
+          "at": -24,
           "via": [
             [
-              28,
-              12
+              42,
+              18
             ],
             [
-              6,
-              24
+              9,
+              36
             ]
           ]
         }
@@ -1276,7 +1276,7 @@
         "vignette": 0.12,
         "lightPatches": {
           "color": "#FFF4D0",
-          "count": 50,
+          "count": 112,
           "size": [
             80,
             160
@@ -1288,23 +1288,23 @@
         "hazeAlpha": 0.22
       },
       "hub": [
-        20,
-        -6
+        30,
+        -9
       ],
       "trails": [
         {
           "to": [
-            -32,
-            -12
+            -48,
+            -18
           ],
           "via": [
             [
-              2,
-              -16
+              3,
+              -24
             ],
             [
-              -18,
-              -8
+              -27,
+              -12
             ]
           ]
         }
@@ -1317,8 +1317,8 @@
         "adventurers": 5
       },
       "danger": true,
-      "width": 100,
-      "height": 80,
+      "width": 150,
+      "height": 120,
       "world": [
         2,
         0
@@ -1329,17 +1329,17 @@
         "ground": "tile_dark_grass",
         "path": "tile_path",
         "accent": "tile_dark_flowers",
-        "accentPatches": 40,
+        "accentPatches": 90,
         "water": "tile_water",
-        "ponds": 6,
+        "ponds": 14,
         "fairyRings": {
-          "count": 7,
+          "count": 16,
           "art": "glow_mushroom"
         },
         "props": [
           {
             "art": "big_dark_tree",
-            "count": 300,
+            "count": 505,
             "blocking": true,
             "cluster": 6,
             "sway": true,
@@ -1352,7 +1352,7 @@
           },
           {
             "art": "big_lilac_tree",
-            "count": 60,
+            "count": 101,
             "blocking": true,
             "cluster": 5,
             "sway": true,
@@ -1364,7 +1364,7 @@
           },
           {
             "art": "big_hollow_tree",
-            "count": 5,
+            "count": 8,
             "blocking": true,
             "size": [
               0.8,
@@ -1374,7 +1374,7 @@
           },
           {
             "art": "big_dead_tree",
-            "count": 30,
+            "count": 51,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -1385,7 +1385,7 @@
           },
           {
             "art": "dark_tree",
-            "count": 1100,
+            "count": 1853,
             "blocking": true,
             "cluster": 24,
             "sway": true,
@@ -1398,7 +1398,7 @@
           },
           {
             "art": "crystal",
-            "count": 45,
+            "count": 76,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -1409,7 +1409,7 @@
           },
           {
             "art": "glow_mushroom",
-            "count": 360,
+            "count": 606,
             "blocking": false,
             "cluster": 6,
             "size": [
@@ -1420,7 +1420,7 @@
           },
           {
             "art": "dark_bush",
-            "count": 400,
+            "count": 674,
             "blocking": true,
             "cluster": 8,
             "spread": 3,
@@ -1432,7 +1432,7 @@
           },
           {
             "art": "violet_crystal",
-            "count": 25,
+            "count": 42,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -1443,7 +1443,7 @@
           },
           {
             "art": "pink_shard",
-            "count": 90,
+            "count": 152,
             "blocking": false,
             "cluster": 4,
             "size": [
@@ -1454,7 +1454,7 @@
           },
           {
             "art": "purple_mushroom",
-            "count": 160,
+            "count": 270,
             "blocking": false,
             "cluster": 5,
             "size": [
@@ -1464,7 +1464,7 @@
           },
           {
             "art": "blue_mushroom",
-            "count": 160,
+            "count": 270,
             "blocking": false,
             "cluster": 5,
             "size": [
@@ -1474,7 +1474,7 @@
           },
           {
             "art": "lilac_tree",
-            "count": 60,
+            "count": 101,
             "blocking": true,
             "cluster": 4,
             "sway": true,
@@ -1486,7 +1486,7 @@
           },
           {
             "art": "lilac_bush",
-            "count": 120,
+            "count": 202,
             "blocking": true,
             "cluster": 5,
             "size": [
@@ -1497,19 +1497,19 @@
           },
           {
             "art": "fairy_ring",
-            "count": 8,
+            "count": 13,
             "blocking": false,
             "glow": "#FFB8F0"
           },
           {
             "art": "wisp_lantern",
-            "count": 10,
+            "count": 17,
             "blocking": true,
             "glow": "#B8F0FF"
           },
           {
             "art": "fern",
-            "count": 600,
+            "count": 1011,
             "blocking": false,
             "cluster": 8,
             "sway": true,
@@ -1520,7 +1520,7 @@
           },
           {
             "art": "hollow_tree",
-            "count": 4,
+            "count": 7,
             "blocking": true,
             "size": [
               0.7,
@@ -1530,7 +1530,7 @@
           },
           {
             "art": "fallen_log",
-            "count": 25,
+            "count": 42,
             "blocking": true
           }
         ],
@@ -1574,11 +1574,11 @@
         {
           "edge": "west",
           "to": "sunny_meadow",
-          "at": 14,
+          "at": 21,
           "via": [
             [
-              -30,
-              22
+              -45,
+              33
             ]
           ]
         },
@@ -1586,19 +1586,19 @@
           "edge": "south",
           "to": "valley_of_fear",
           "requires": "bouncy_menace",
-          "at": 18,
+          "at": 27,
           "via": [
             [
-              8,
-              -4
+              12,
+              -6
             ],
             [
-              -16,
-              -18
+              -24,
+              -27
             ],
             [
-              10,
-              -28
+              15,
+              -42
             ]
           ]
         }
@@ -1634,7 +1634,7 @@
         "vignette": 0.45,
         "lightPatches": {
           "color": "#9F8CFF",
-          "count": 60,
+          "count": 135,
           "size": [
             60,
             140
@@ -1656,19 +1656,19 @@
         }
       },
       "hub": [
-        -8,
-        10
+        -12,
+        15
       ],
       "trails": [
         {
           "to": [
-            30,
-            22
+            45,
+            33
           ],
           "via": [
             [
-              12,
-              26
+              18,
+              39
             ]
           ]
         }
@@ -1677,8 +1677,9 @@
     {
       "id": "smiling_forest",
       "name": "Smiling Forest",
-      "width": 110,
-      "height": 80,
+      "width": 165,
+      "height": 120,
+      "music": "meadow",
       "world": [
         1,
         2
@@ -1691,17 +1692,17 @@
         "ground": "tile_forest_floor",
         "path": "tile_path",
         "accent": "tile_flowers",
-        "accentPatches": 50,
+        "accentPatches": 112,
         "water": "tile_water",
-        "ponds": 5,
+        "ponds": 11,
         "fairyRings": {
-          "count": 6,
+          "count": 14,
           "art": "mushroom"
         },
         "props": [
           {
             "art": "big_tree",
-            "count": 360,
+            "count": 462,
             "blocking": true,
             "cluster": 6,
             "sway": true,
@@ -1714,7 +1715,7 @@
           },
           {
             "art": "big_red_maple",
-            "count": 60,
+            "count": 77,
             "blocking": true,
             "cluster": 6,
             "sway": true,
@@ -1726,7 +1727,7 @@
           },
           {
             "art": "big_golden_tree",
-            "count": 60,
+            "count": 77,
             "blocking": true,
             "cluster": 6,
             "sway": true,
@@ -1738,7 +1739,7 @@
           },
           {
             "art": "big_blossom_tree",
-            "count": 40,
+            "count": 51,
             "blocking": true,
             "cluster": 4,
             "sway": true,
@@ -1750,7 +1751,7 @@
           },
           {
             "art": "big_hollow_tree",
-            "count": 6,
+            "count": 8,
             "blocking": true,
             "size": [
               0.8,
@@ -1760,7 +1761,7 @@
           },
           {
             "art": "tree",
-            "count": 1100,
+            "count": 1413,
             "blocking": true,
             "cluster": 24,
             "sway": true,
@@ -1773,7 +1774,7 @@
           },
           {
             "art": "blossom_tree",
-            "count": 90,
+            "count": 116,
             "blocking": true,
             "cluster": 4,
             "sway": true,
@@ -1785,7 +1786,7 @@
           },
           {
             "art": "giant_mushroom",
-            "count": 55,
+            "count": 71,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -1796,7 +1797,7 @@
           },
           {
             "art": "mushroom",
-            "count": 260,
+            "count": 334,
             "blocking": false,
             "cluster": 6,
             "size": [
@@ -1806,7 +1807,7 @@
           },
           {
             "art": "bush",
-            "count": 420,
+            "count": 539,
             "blocking": true,
             "cluster": 8,
             "spread": 3,
@@ -1818,7 +1819,7 @@
           },
           {
             "art": "flowering_bush",
-            "count": 60,
+            "count": 77,
             "blocking": true,
             "cluster": 4,
             "size": [
@@ -1829,7 +1830,7 @@
           },
           {
             "art": "daisy",
-            "count": 150,
+            "count": 193,
             "blocking": false,
             "cluster": 6,
             "sway": true,
@@ -1840,7 +1841,7 @@
           },
           {
             "art": "daisy_yellow",
-            "count": 150,
+            "count": 193,
             "blocking": false,
             "cluster": 6,
             "sway": true,
@@ -1851,7 +1852,7 @@
           },
           {
             "art": "daisy_blue",
-            "count": 90,
+            "count": 116,
             "blocking": false,
             "cluster": 5,
             "sway": true,
@@ -1862,7 +1863,7 @@
           },
           {
             "art": "red_maple",
-            "count": 60,
+            "count": 77,
             "blocking": true,
             "cluster": 5,
             "sway": true,
@@ -1874,7 +1875,7 @@
           },
           {
             "art": "golden_tree",
-            "count": 50,
+            "count": 64,
             "blocking": true,
             "cluster": 5,
             "sway": true,
@@ -1886,7 +1887,7 @@
           },
           {
             "art": "golden_bush",
-            "count": 60,
+            "count": 77,
             "blocking": true,
             "cluster": 4,
             "size": [
@@ -1897,7 +1898,7 @@
           },
           {
             "art": "toadstool",
-            "count": 140,
+            "count": 180,
             "blocking": false,
             "cluster": 5,
             "size": [
@@ -1907,7 +1908,7 @@
           },
           {
             "art": "blue_giant_mushroom",
-            "count": 15,
+            "count": 19,
             "blocking": true,
             "cluster": 2,
             "size": [
@@ -1918,7 +1919,7 @@
           },
           {
             "art": "sapling",
-            "count": 150,
+            "count": 193,
             "blocking": true,
             "cluster": 5,
             "sway": true,
@@ -1929,7 +1930,7 @@
           },
           {
             "art": "pebbles",
-            "count": 110,
+            "count": 141,
             "blocking": false,
             "cluster": 4,
             "size": [
@@ -1939,7 +1940,7 @@
           },
           {
             "art": "tree_stump",
-            "count": 60,
+            "count": 77,
             "blocking": true,
             "size": [
               0.7,
@@ -1949,12 +1950,12 @@
           },
           {
             "art": "fallen_log",
-            "count": 30,
+            "count": 39,
             "blocking": true
           },
           {
             "art": "fern",
-            "count": 700,
+            "count": 899,
             "blocking": false,
             "cluster": 8,
             "sway": true,
@@ -1965,7 +1966,7 @@
           },
           {
             "art": "berry_bush",
-            "count": 60,
+            "count": 77,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -1976,7 +1977,7 @@
           },
           {
             "art": "pumpkin_patch",
-            "count": 6,
+            "count": 8,
             "blocking": false,
             "cluster": 2,
             "size": [
@@ -1986,7 +1987,7 @@
           },
           {
             "art": "hollow_tree",
-            "count": 5,
+            "count": 6,
             "blocking": true,
             "size": [
               0.7,
@@ -1996,7 +1997,7 @@
           },
           {
             "art": "clover_patch",
-            "count": 260,
+            "count": 334,
             "blocking": false,
             "cluster": 6,
             "size": [
@@ -2006,7 +2007,7 @@
           },
           {
             "art": "tulip_patch",
-            "count": 60,
+            "count": 77,
             "blocking": false,
             "cluster": 4,
             "size": [
@@ -2016,7 +2017,7 @@
           },
           {
             "art": "signpost",
-            "count": 4,
+            "count": 5,
             "blocking": true
           }
         ],
@@ -2052,26 +2053,26 @@
         {
           "edge": "south",
           "to": "pineapple_shore",
-          "at": -18,
+          "at": -27,
           "via": [
             [
-              -22,
-              -22
+              -33,
+              -33
             ]
           ]
         },
         {
           "edge": "north",
           "to": "rainbow_city",
-          "at": 8,
+          "at": 12,
           "via": [
             [
-              -26,
-              10
+              -39,
+              15
             ],
             [
-              -8,
-              26
+              -12,
+              39
             ]
           ]
         },
@@ -2079,15 +2080,15 @@
           "edge": "east",
           "to": "snow_white_forest",
           "requires": "dragon_hangover",
-          "at": -12,
+          "at": -18,
           "via": [
             [
-              14,
-              -18
+              21,
+              -27
             ],
             [
-              34,
-              -8
+              51,
+              -12
             ]
           ]
         }
@@ -2123,7 +2124,7 @@
         "vignette": 0.2,
         "lightPatches": {
           "color": "#F8FFB0",
-          "count": 140,
+          "count": 315,
           "size": [
             60,
             150
@@ -2156,8 +2157,8 @@
         }
       },
       "hub": [
-        -10,
-        -4
+        -15,
+        -6
       ]
     },
     {
@@ -2571,8 +2572,8 @@
     {
       "id": "snow_white_forest",
       "name": "Snow White Forest",
-      "width": 100,
-      "height": 80,
+      "width": 150,
+      "height": 120,
       "world": [
         2,
         2
@@ -2585,13 +2586,13 @@
         "ground": "tile_snow",
         "path": "tile_snow_path",
         "accent": "tile_grass",
-        "accentPatches": 20,
+        "accentPatches": 45,
         "water": "tile_water",
-        "ponds": 4,
+        "ponds": 9,
         "props": [
           {
             "art": "big_snow_tree",
-            "count": 120,
+            "count": 226,
             "blocking": true,
             "cluster": 4,
             "sway": true,
@@ -2604,7 +2605,7 @@
           },
           {
             "art": "big_snow_pine",
-            "count": 340,
+            "count": 641,
             "blocking": true,
             "cluster": 6,
             "spread": 3,
@@ -2616,7 +2617,7 @@
           },
           {
             "art": "big_frost_pine",
-            "count": 80,
+            "count": 151,
             "blocking": true,
             "cluster": 6,
             "sway": true,
@@ -2628,7 +2629,7 @@
           },
           {
             "art": "big_frost_tree",
-            "count": 50,
+            "count": 94,
             "blocking": true,
             "cluster": 5,
             "sway": true,
@@ -2640,7 +2641,7 @@
           },
           {
             "art": "snow_tree",
-            "count": 560,
+            "count": 1055,
             "blocking": true,
             "cluster": 20,
             "sway": true,
@@ -2653,7 +2654,7 @@
           },
           {
             "art": "snow_pine",
-            "count": 560,
+            "count": 1055,
             "blocking": true,
             "cluster": 20,
             "spread": 4,
@@ -2665,7 +2666,7 @@
           },
           {
             "art": "boulder",
-            "count": 30,
+            "count": 57,
             "blocking": true,
             "cluster": 2,
             "size": [
@@ -2676,7 +2677,7 @@
           },
           {
             "art": "snow_bush",
-            "count": 300,
+            "count": 565,
             "blocking": true,
             "cluster": 8,
             "spread": 3,
@@ -2688,7 +2689,7 @@
           },
           {
             "art": "frost_pine",
-            "count": 160,
+            "count": 301,
             "blocking": true,
             "cluster": 6,
             "sway": true,
@@ -2700,7 +2701,7 @@
           },
           {
             "art": "pine_sapling",
-            "count": 250,
+            "count": 471,
             "blocking": true,
             "cluster": 6,
             "sway": true,
@@ -2711,7 +2712,7 @@
           },
           {
             "art": "frost_tree",
-            "count": 100,
+            "count": 188,
             "blocking": true,
             "cluster": 5,
             "sway": true,
@@ -2723,7 +2724,7 @@
           },
           {
             "art": "small_boulder",
-            "count": 30,
+            "count": 57,
             "blocking": true,
             "cluster": 2,
             "size": [
@@ -2734,7 +2735,7 @@
           },
           {
             "art": "ice_rock",
-            "count": 40,
+            "count": 75,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -2744,7 +2745,7 @@
           },
           {
             "art": "frozen_bush",
-            "count": 60,
+            "count": 113,
             "blocking": true,
             "cluster": 5,
             "size": [
@@ -2755,12 +2756,12 @@
           },
           {
             "art": "snowman_prop",
-            "count": 5,
+            "count": 9,
             "blocking": true
           },
           {
             "art": "frost_fern",
-            "count": 500,
+            "count": 942,
             "blocking": false,
             "cluster": 8,
             "sway": true,
@@ -2802,7 +2803,7 @@
         {
           "edge": "west",
           "to": "smiling_forest",
-          "at": -10
+          "at": -15
         }
       ],
       "npcs": [
@@ -2811,8 +2812,8 @@
           "name": "Big Bad Wolf",
           "role": "boss",
           "art": "boss_big_bad_wolf",
-          "x": 12,
-          "y": 18,
+          "x": 18,
+          "y": 27,
           "greeting": "Grrr… what big eyes you have. All the better to FIGHT you with!",
           "monster": "big_bad_wolf",
           "level": 28
@@ -2848,7 +2849,7 @@
         "vignette": 0.2,
         "lightPatches": {
           "color": "#FFFFFF",
-          "count": 50,
+          "count": 112,
           "size": [
             70,
             150
@@ -2880,27 +2881,27 @@
         }
       },
       "hub": [
-        -18,
-        -6
+        -27,
+        -9
       ],
       "trails": [
         {
           "to": [
-            12,
-            16
+            18,
+            24
           ],
           "via": [
             [
-              -4,
-              -20
+              -6,
+              -30
             ],
             [
-              20,
-              -10
+              30,
+              -15
             ],
             [
-              24,
-              6
+              36,
+              9
             ]
           ]
         }
@@ -2909,8 +2910,9 @@
     {
       "id": "frog_swamp",
       "name": "Frog Swamp",
-      "width": 100,
-      "height": 72,
+      "width": 150,
+      "height": 108,
+      "music": "woods",
       "world": [
         1,
         -1
@@ -2923,13 +2925,13 @@
         "ground": "tile_swamp",
         "path": "tile_path",
         "accent": "tile_dark_grass",
-        "accentPatches": 30,
+        "accentPatches": 68,
         "water": "tile_water",
-        "ponds": 14,
+        "ponds": 32,
         "props": [
           {
             "art": "big_swamp_tree",
-            "count": 200,
+            "count": 438,
             "blocking": true,
             "cluster": 6,
             "sway": true,
@@ -2942,7 +2944,7 @@
           },
           {
             "art": "big_dead_tree",
-            "count": 60,
+            "count": 131,
             "blocking": true,
             "cluster": 4,
             "size": [
@@ -2953,7 +2955,7 @@
           },
           {
             "art": "reeds",
-            "count": 700,
+            "count": 1532,
             "blocking": false,
             "cluster": 10,
             "sway": true,
@@ -2964,7 +2966,7 @@
           },
           {
             "art": "dead_tree",
-            "count": 240,
+            "count": 525,
             "blocking": true,
             "cluster": 6,
             "size": [
@@ -2975,7 +2977,7 @@
           },
           {
             "art": "glow_mushroom",
-            "count": 140,
+            "count": 306,
             "blocking": false,
             "cluster": 5,
             "size": [
@@ -2986,7 +2988,7 @@
           },
           {
             "art": "moss_bush",
-            "count": 320,
+            "count": 700,
             "blocking": true,
             "cluster": 8,
             "size": [
@@ -2997,7 +2999,7 @@
           },
           {
             "art": "autumn_reeds",
-            "count": 120,
+            "count": 263,
             "blocking": false,
             "cluster": 5,
             "sway": true,
@@ -3008,7 +3010,7 @@
           },
           {
             "art": "swamp_tree",
-            "count": 400,
+            "count": 875,
             "blocking": true,
             "cluster": 12,
             "sway": true,
@@ -3021,7 +3023,7 @@
           },
           {
             "art": "dead_bush",
-            "count": 80,
+            "count": 175,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -3032,7 +3034,7 @@
           },
           {
             "art": "blue_mushroom",
-            "count": 30,
+            "count": 66,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -3042,7 +3044,7 @@
           },
           {
             "art": "toadstool",
-            "count": 20,
+            "count": 44,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -3052,7 +3054,7 @@
           },
           {
             "art": "lotus",
-            "count": 16,
+            "count": 35,
             "blocking": false,
             "cluster": 4,
             "size": [
@@ -3062,7 +3064,7 @@
           },
           {
             "art": "swamp_stump",
-            "count": 10,
+            "count": 22,
             "blocking": true,
             "cluster": 2,
             "size": [
@@ -3073,12 +3075,12 @@
           },
           {
             "art": "cattail_log",
-            "count": 6,
+            "count": 13,
             "blocking": true
           },
           {
             "art": "fern",
-            "count": 400,
+            "count": 875,
             "blocking": false,
             "cluster": 8,
             "sway": true,
@@ -3130,15 +3132,15 @@
         {
           "edge": "north",
           "to": "sunny_meadow",
-          "at": -20,
+          "at": -30,
           "via": [
             [
-              -10,
-              -2
+              -15,
+              -3
             ],
             [
-              -26,
-              14
+              -39,
+              21
             ]
           ]
         },
@@ -3146,15 +3148,15 @@
           "edge": "east",
           "to": "valley_of_fear",
           "requires": "swamp_song",
-          "at": 14,
+          "at": 21,
           "via": [
             [
-              22,
-              -22
+              33,
+              -33
             ],
             [
-              38,
-              2
+              57,
+              3
             ]
           ]
         }
@@ -3188,7 +3190,7 @@
         "vignette": 0.3,
         "lightPatches": {
           "color": "#C8FF90",
-          "count": 50,
+          "count": 112,
           "size": [
             70,
             150
@@ -3210,15 +3212,16 @@
         }
       },
       "hub": [
-        6,
-        -10
+        9,
+        -15
       ]
     },
     {
       "id": "valley_of_fear",
       "name": "Valley of Fear",
-      "width": 100,
-      "height": 80,
+      "width": 150,
+      "height": 120,
+      "music": "woods",
       "world": [
         2,
         -1
@@ -3233,11 +3236,11 @@
         "ground": "tile_dark_grass",
         "path": "tile_path",
         "accent": "tile_scree",
-        "accentPatches": 30,
+        "accentPatches": 68,
         "props": [
           {
             "art": "dead_tree",
-            "count": 420,
+            "count": 945,
             "blocking": true,
             "cluster": 12,
             "size": [
@@ -3248,7 +3251,7 @@
           },
           {
             "art": "dark_tree",
-            "count": 420,
+            "count": 945,
             "blocking": true,
             "cluster": 14,
             "sway": true,
@@ -3260,7 +3263,7 @@
           },
           {
             "art": "boulder",
-            "count": 60,
+            "count": 135,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -3271,12 +3274,12 @@
           },
           {
             "art": "skull_bones",
-            "count": 30,
+            "count": 68,
             "blocking": false
           },
           {
             "art": "glow_mushroom",
-            "count": 40,
+            "count": 90,
             "blocking": false,
             "cluster": 4,
             "size": [
@@ -3287,7 +3290,7 @@
           },
           {
             "art": "dark_bush",
-            "count": 150,
+            "count": 338,
             "blocking": true,
             "cluster": 5,
             "size": [
@@ -3298,7 +3301,7 @@
           },
           {
             "art": "dead_bush",
-            "count": 120,
+            "count": 270,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -3309,12 +3312,12 @@
           },
           {
             "art": "small_skull",
-            "count": 30,
+            "count": 68,
             "blocking": false
           },
           {
             "art": "violet_crystal",
-            "count": 15,
+            "count": 34,
             "blocking": true,
             "cluster": 2,
             "size": [
@@ -3325,7 +3328,7 @@
           },
           {
             "art": "small_boulder",
-            "count": 40,
+            "count": 90,
             "blocking": true,
             "cluster": 2,
             "size": [
@@ -3336,7 +3339,7 @@
           },
           {
             "art": "small_stalagmite",
-            "count": 30,
+            "count": 68,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -3347,20 +3350,20 @@
           },
           {
             "art": "tombstone",
-            "count": 16,
+            "count": 36,
             "blocking": true,
             "cluster": 4
           },
           {
             "art": "spooky_lantern",
-            "count": 8,
+            "count": 18,
             "blocking": true,
             "cluster": 2,
             "glow": "#FFA040"
           },
           {
             "art": "thorn_bush",
-            "count": 14,
+            "count": 32,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -3402,33 +3405,33 @@
         {
           "edge": "north",
           "to": "twilight_woods",
-          "at": -14,
+          "at": -21,
           "via": [
             [
-              -8,
-              20
+              -12,
+              30
             ]
           ]
         },
         {
           "edge": "west",
           "to": "frog_swamp",
-          "at": 12,
+          "at": 18,
           "via": [
             [
-              -22,
-              8
+              -33,
+              12
             ]
           ]
         },
         {
           "edge": "east",
           "to": "rat_cavern",
-          "at": -16,
+          "at": -24,
           "via": [
             [
-              24,
-              -12
+              36,
+              -18
             ]
           ]
         },
@@ -3436,11 +3439,11 @@
           "edge": "south",
           "to": "goldburg",
           "requires": "rat_king",
-          "at": 18,
+          "at": 27,
           "via": [
             [
-              14,
-              -22
+              21,
+              -33
             ]
           ]
         }
@@ -3476,7 +3479,7 @@
         "vignette": 0.4,
         "lightPatches": {
           "color": "#FF9040",
-          "count": 40,
+          "count": 90,
           "size": [
             60,
             130
@@ -3487,7 +3490,7 @@
         "hazeAlpha": 0.28
       },
       "hub": [
-        4,
+        6,
         0
       ]
     },
@@ -4030,8 +4033,8 @@
     {
       "id": "genie_desert",
       "name": "Genie Desert",
-      "width": 110,
-      "height": 80,
+      "width": 165,
+      "height": 120,
       "world": [
         3,
         -2
@@ -4044,13 +4047,13 @@
         "ground": "tile_desert",
         "path": "tile_path",
         "accent": "tile_sand",
-        "accentPatches": 30,
+        "accentPatches": 68,
         "water": "tile_water",
-        "ponds": 4,
+        "ponds": 9,
         "props": [
           {
             "art": "cactus",
-            "count": 220,
+            "count": 495,
             "blocking": true,
             "cluster": 4,
             "size": [
@@ -4061,7 +4064,7 @@
           },
           {
             "art": "palm_tree",
-            "count": 90,
+            "count": 202,
             "blocking": true,
             "cluster": 5,
             "sway": true,
@@ -4073,7 +4076,7 @@
           },
           {
             "art": "boulder",
-            "count": 60,
+            "count": 135,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4084,12 +4087,12 @@
           },
           {
             "art": "skull_bones",
-            "count": 40,
+            "count": 90,
             "blocking": false
           },
           {
             "art": "dry_bush",
-            "count": 110,
+            "count": 248,
             "blocking": true,
             "cluster": 4,
             "size": [
@@ -4100,7 +4103,7 @@
           },
           {
             "art": "small_cactus",
-            "count": 120,
+            "count": 270,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4111,7 +4114,7 @@
           },
           {
             "art": "yellow_cactus",
-            "count": 60,
+            "count": 135,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4122,7 +4125,7 @@
           },
           {
             "art": "sandstone_boulder",
-            "count": 50,
+            "count": 112,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4133,7 +4136,7 @@
           },
           {
             "art": "red_rock",
-            "count": 80,
+            "count": 180,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4144,7 +4147,7 @@
           },
           {
             "art": "dead_bush",
-            "count": 50,
+            "count": 112,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4155,12 +4158,12 @@
           },
           {
             "art": "small_skull",
-            "count": 20,
+            "count": 45,
             "blocking": false
           },
           {
             "art": "palm_sapling",
-            "count": 40,
+            "count": 90,
             "blocking": true,
             "cluster": 3,
             "sway": true,
@@ -4171,18 +4174,18 @@
           },
           {
             "art": "desert_pot",
-            "count": 10,
+            "count": 22,
             "blocking": true,
             "cluster": 3
           },
           {
             "art": "sand_ruin",
-            "count": 5,
+            "count": 11,
             "blocking": true
           },
           {
             "art": "oasis_palm",
-            "count": 4,
+            "count": 9,
             "blocking": true,
             "sway": true,
             "size": [
@@ -4193,7 +4196,7 @@
           },
           {
             "art": "tumbleweed",
-            "count": 10,
+            "count": 22,
             "blocking": false,
             "size": [
               0.8,
@@ -4202,7 +4205,7 @@
           },
           {
             "art": "signpost",
-            "count": 4,
+            "count": 9,
             "blocking": true
           }
         ],
@@ -4238,7 +4241,7 @@
         {
           "edge": "west",
           "to": "goldburg",
-          "at": 2
+          "at": 3
         }
       ],
       "npcs": [
@@ -4247,8 +4250,8 @@
           "name": "Drunk Dragon",
           "role": "boss",
           "art": "boss_drunk_dragon",
-          "x": 18,
-          "y": 12,
+          "x": 27,
+          "y": 18,
           "greeting": "*hic* Heyyy… you wanna piece of this? *hic*",
           "monster": "drunk_dragon",
           "level": 24
@@ -4282,7 +4285,7 @@
         "vignette": 0.2,
         "lightPatches": {
           "color": "#FFD8A0",
-          "count": 40,
+          "count": 90,
           "size": [
             80,
             170
@@ -4303,35 +4306,35 @@
         "hazeAlpha": 0.22
       },
       "hub": [
-        -16,
-        4
+        -24,
+        6
       ],
       "trails": [
         {
           "to": [
-            18,
-            10
+            27,
+            15
           ],
           "via": [
             [
               0,
-              -10
+              -15
             ],
             [
-              28,
-              -4
+              42,
+              -6
             ]
           ]
         },
         {
           "to": [
-            -30,
-            -26
+            -45,
+            -39
           ],
           "via": [
             [
-              -12,
-              -18
+              -18,
+              -27
             ]
           ]
         }
@@ -4340,8 +4343,9 @@
     {
       "id": "crystal_mountain",
       "name": "Crystal Mountain",
-      "width": 100,
-      "height": 80,
+      "width": 150,
+      "height": 120,
+      "music": "cave",
       "world": [
         2,
         -3
@@ -4355,11 +4359,11 @@
         "ground": "tile_scree",
         "path": "tile_path",
         "accent": "tile_cave_floor",
-        "accentPatches": 30,
+        "accentPatches": 68,
         "props": [
           {
             "art": "boulder",
-            "count": 220,
+            "count": 495,
             "blocking": true,
             "cluster": 8,
             "size": [
@@ -4370,7 +4374,7 @@
           },
           {
             "art": "crystal",
-            "count": 160,
+            "count": 360,
             "blocking": true,
             "cluster": 5,
             "size": [
@@ -4381,7 +4385,7 @@
           },
           {
             "art": "stalagmite",
-            "count": 80,
+            "count": 180,
             "blocking": true,
             "cluster": 4,
             "size": [
@@ -4392,12 +4396,12 @@
           },
           {
             "art": "mine_cart",
-            "count": 12,
+            "count": 27,
             "blocking": true
           },
           {
             "art": "snow_pine",
-            "count": 120,
+            "count": 270,
             "blocking": true,
             "cluster": 5,
             "size": [
@@ -4408,7 +4412,7 @@
           },
           {
             "art": "snow_bush",
-            "count": 60,
+            "count": 135,
             "blocking": true,
             "cluster": 4,
             "size": [
@@ -4419,7 +4423,7 @@
           },
           {
             "art": "pink_crystal",
-            "count": 60,
+            "count": 135,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4430,7 +4434,7 @@
           },
           {
             "art": "amber_crystal",
-            "count": 40,
+            "count": 90,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4441,7 +4445,7 @@
           },
           {
             "art": "crystal_shard",
-            "count": 80,
+            "count": 180,
             "blocking": false,
             "cluster": 4,
             "size": [
@@ -4452,7 +4456,7 @@
           },
           {
             "art": "small_boulder",
-            "count": 80,
+            "count": 180,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4463,7 +4467,7 @@
           },
           {
             "art": "pine_sapling",
-            "count": 50,
+            "count": 112,
             "blocking": true,
             "cluster": 3,
             "sway": true,
@@ -4474,7 +4478,7 @@
           },
           {
             "art": "ore_vein",
-            "count": 8,
+            "count": 18,
             "blocking": true,
             "cluster": 2,
             "size": [
@@ -4485,7 +4489,7 @@
           },
           {
             "art": "star_crystal",
-            "count": 30,
+            "count": 68,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4527,15 +4531,15 @@
         {
           "edge": "north",
           "to": "goldburg",
-          "at": 10,
+          "at": 15,
           "via": [
             [
-              -26,
-              12
+              -39,
+              18
             ],
             [
-              22,
-              22
+              33,
+              33
             ]
           ]
         },
@@ -4543,15 +4547,15 @@
           "edge": "south",
           "to": "moonglow",
           "requires": "crystal_hearts",
-          "at": -8,
+          "at": -12,
           "via": [
             [
-              26,
-              -10
+              39,
+              -15
             ],
             [
-              -24,
-              -22
+              -36,
+              -33
             ]
           ]
         }
@@ -4585,7 +4589,7 @@
         "vignette": 0.3,
         "lightPatches": {
           "color": "#D0C8FF",
-          "count": 50,
+          "count": 112,
           "size": [
             70,
             150
@@ -4604,8 +4608,9 @@
     {
       "id": "moonglow",
       "name": "Moonglow",
-      "width": 90,
-      "height": 70,
+      "width": 135,
+      "height": 105,
+      "music": "snow",
       "world": [
         2,
         -4
@@ -4619,11 +4624,11 @@
         "ground": "tile_scree",
         "path": "tile_snow_path",
         "accent": "tile_snow",
-        "accentPatches": 40,
+        "accentPatches": 90,
         "props": [
           {
             "art": "crystal",
-            "count": 200,
+            "count": 450,
             "blocking": true,
             "cluster": 6,
             "size": [
@@ -4634,7 +4639,7 @@
           },
           {
             "art": "boulder",
-            "count": 100,
+            "count": 225,
             "blocking": true,
             "cluster": 4,
             "size": [
@@ -4645,7 +4650,7 @@
           },
           {
             "art": "snow_pine",
-            "count": 160,
+            "count": 360,
             "blocking": true,
             "cluster": 5,
             "size": [
@@ -4656,7 +4661,7 @@
           },
           {
             "art": "stalagmite",
-            "count": 50,
+            "count": 112,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4667,7 +4672,7 @@
           },
           {
             "art": "snow_bush",
-            "count": 80,
+            "count": 180,
             "blocking": true,
             "cluster": 4,
             "size": [
@@ -4678,7 +4683,7 @@
           },
           {
             "art": "violet_crystal",
-            "count": 70,
+            "count": 158,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4689,7 +4694,7 @@
           },
           {
             "art": "pink_shard",
-            "count": 60,
+            "count": 135,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -4700,7 +4705,7 @@
           },
           {
             "art": "frost_pine",
-            "count": 60,
+            "count": 135,
             "blocking": true,
             "cluster": 4,
             "sway": true,
@@ -4712,7 +4717,7 @@
           },
           {
             "art": "frost_tree",
-            "count": 40,
+            "count": 90,
             "blocking": true,
             "cluster": 4,
             "sway": true,
@@ -4724,7 +4729,7 @@
           },
           {
             "art": "crystal_shard",
-            "count": 40,
+            "count": 90,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -4735,7 +4740,7 @@
           },
           {
             "art": "ice_rock",
-            "count": 6,
+            "count": 14,
             "blocking": true,
             "cluster": 2,
             "size": [
@@ -4745,7 +4750,7 @@
           },
           {
             "art": "moon_flower",
-            "count": 60,
+            "count": 135,
             "blocking": false,
             "cluster": 5,
             "sway": true,
@@ -4757,7 +4762,7 @@
           },
           {
             "art": "star_crystal",
-            "count": 30,
+            "count": 68,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -4791,11 +4796,11 @@
         {
           "edge": "north",
           "to": "crystal_mountain",
-          "at": -10,
+          "at": -15,
           "via": [
             [
-              -16,
-              14
+              -24,
+              21
             ]
           ]
         }
@@ -4828,7 +4833,7 @@
         "vignette": 0.4,
         "lightPatches": {
           "color": "#B8C8FF",
-          "count": 50,
+          "count": 112,
           "size": [
             70,
             150
@@ -4839,23 +4844,23 @@
         "hazeAlpha": 0.28
       },
       "hub": [
-        6,
-        -4
+        9,
+        -6
       ],
       "trails": [
         {
           "to": [
-            26,
-            -20
+            39,
+            -30
           ],
           "via": [
             [
-              -10,
-              -18
+              -15,
+              -27
             ],
             [
-              10,
-              -26
+              15,
+              -39
             ]
           ]
         }
