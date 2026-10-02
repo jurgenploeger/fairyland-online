@@ -113,6 +113,20 @@ struct ContentTests {
         #expect(abs((Tune.frequency(of: "C4") ?? 0) - 261.63) < 0.01)
     }
 
+    @Test func theLateGameClimbsSlower() {
+        #expect(GameSession.expToNext(level: 100) == 10 + 100 * 100 * 5)
+        #expect(GameSession.expToNext(level: 140) == 2 * (10 + 140 * 140 * 5))
+        #expect(GameSession.expToNext(level: 199) > 3 * (10 + 199 * 199 * 5))
+    }
+
+    @Test func everyZoneLevelHasSomewhereToFight() {
+        // From level 1 to 200 there is always a zone whose monsters are within 10 levels of you.
+        let bands = content.maps.compactMap(\.encounters).map { ($0.levels.first ?? 1, $0.levels.last ?? 1) }
+        for level in 1...200 {
+            #expect(bands.contains { $0.0 <= level + 10 && $0.1 >= level - 10 }, "nowhere to fight at level \(level)")
+        }
+    }
+
     @Test func everyMapHasRoomToWalk() {
         for def in content.maps {
             let map = WorldMap(def: def)
