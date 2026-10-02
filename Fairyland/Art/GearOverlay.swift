@@ -15,17 +15,24 @@ nonisolated struct GearLook: Sendable, Hashable {
 
 /// Draws worn gear onto a walk sheet, frame by frame. It finds the outfit (the green tunic) on the
 /// original sheet, then on the recoloured sheet adds what that kind of armour looks like: chain
-/// links, an open vest, pauldrons, a robe's long hem, a cape. tools/gear_preview.py is the same
-/// algorithm in Python, to tune it without a Mac.
+/// links, an open vest, pauldrons and a helmet, a robe's long hem, a cape and hood. Helmets and hoods
+/// cover all the hair (a beard stays). tools/gear_preview.py is the same algorithm in Python, to tune
+/// it without a Mac.
 enum GearOverlay {
     nonisolated static func apply(_ gear: GearLook, original: CGImage, dressed: CGImage, frame: Int = 48,
                                   directions: [String] = ["up", "right", "down", "left"]) -> CGImage? {
         guard !gear.isPlain, original.width == dressed.width, original.height == dressed.height,
               let base = Bitmap(original), var out = Bitmap(dressed) else { return dressed }
         let accent = color(hex: gear.accent) ?? RGB(0.95, 0.78, 0.25)
+        // How this body's head is built, measured once on the first facing-down frame.
+        var head: Head?
+        if gear.wear == "plate" || gear.wear == "cloak", let down = directions.firstIndex(of: "down") {
+            head = Head(measuring: base, origin: (0, down * frame), size: frame)
+        }
         for (row, facing) in directions.enumerated() {
             for column in 0..<(base.width / frame) {
-                dress(&out, base: base, origin: (column * frame, row * frame), size: frame, facing: facing, gear: gear, accent: accent)
+                dress(&out, base: base, origin: (column * frame, row * frame), size: frame, facing: facing, gear: gear,
+                      accent: accent, head: head)
             }
         }
         return out.image()
@@ -34,7 +41,7 @@ enum GearOverlay {
     // MARK: One frame
 
     nonisolated private static func dress(_ out: inout Bitmap, base: Bitmap, origin: (x: Int, y: Int), size: Int,
-                                          facing: String, gear: GearLook, accent: RGB) {
+                                          facing: String, gear: GearLook, accent: RGB, head: Head?) {
         // Frame-local helpers. `opaque` and `outfit` read the original sheet.
         func opaque(_ x: Int, _ y: Int) -> Bool {
             x >= 0 && y >= 0 && x < size && y < size && base.alpha(origin.x + x, origin.y + y) > 0.5
@@ -163,6 +170,10 @@ enum GearOverlay {
         default:
             break
         }
+        if let head {
+            coverHead(&out, base: base, origin: origin, size: size, facing: facing, head: head,
+                      hood: gear.wear == "cloak", mid: mid, accent: accent)
+        }
 
         if gear.boots {
             // Brown boots near the feet turn sky blue.
@@ -171,6 +182,192 @@ enum GearOverlay {
                     let (h, s, v) = hsv(out.rgb(origin.x + x, origin.y + y))
                     guard h >= 7, h <= 43, s > 0.35, v < 0.75 else { continue }
                     out.set(origin.x + x, origin.y + y, rgb(209, min(1, s * 0.9), min(1, v * 1.5)))
+                }
+            }
+        }
+    }
+
+    // MARK: Helmets and hoods
+
+    /// Hair on the original sheet: the same rule content/appearance.json recolours (hue 12-58, bright).
+    nonisolated private static func isHair(_ base: Bitmap, _ x: Int, _ y: Int) -> Bool {
+        guard base.alpha(x, y) >= 0.5 else { return false }
+        let (h, s, v) = hsv(base.rgb(x, y))
+        return h >= 12 && h <= 58 && s >= 0.55 && v >= 0.55
+    }
+
+    nonisolated private static func isSkin(_ base: Bitmap, _ x: Int, _ y: Int) -> Bool {
+        guard base.alpha(x, y) >= 0.5 else { return false }
+        let (h, s, v) = hsv(base.rgb(x, y))
+        return h <= 40 && s > 0.15 && s < 0.55 && v > 0.6
+    }
+
+    /// A darker hair strand: the same hues, dimmer. Only counts when it touches the bright hair.
+    nonisolated private static func isHairish(_ base: Bitmap, _ x: Int, _ y: Int) -> Bool {
+        guard base.alpha(x, y) >= 0.5, !isSkin(base, x, y) else { return false }
+        let (h, s, v) = hsv(base.rgb(x, y))
+        return h >= 5 && h <= 62 && s >= 0.3 && v >= 0.2
+    }
+
+    /// Top of the head: the first row with at least four hair pixels (skips a lone spike's tip).
+    nonisolated private static func crown(_ base: Bitmap, origin: (x: Int, y: Int), size: Int) -> Int? {
+        (0..<size).first { y in (0..<size).filter { isHair(base, origin.x + $0, origin.y + y) }.count >= 4 }
+    }
+
+    /// Every hair pixel of the head (frame-local, row by row): bright hair on the scalp, flooded out
+    /// through darker strands (long hair, sideburns, a beard). A belt buckle or boots don't touch it.
+    nonisolated private static func hairMask(_ base: Bitmap, origin: (x: Int, y: Int), size: Int, top: Int, brow: Int) -> [Bool] {
+        var mask = [Bool](repeating: false, count: size * size)
+        var stack: [(x: Int, y: Int)] = []
+        for y in max(0, top)..<min(size, max(top, brow)) {
+            for x in 0..<size where isHair(base, origin.x + x, origin.y + y) {
+                mask[y * size + x] = true
+                stack.append((x, y))
+            }
+        }
+        while let cell = stack.popLast() {
+            for (dx, dy) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
+                let x = cell.x + dx, y = cell.y + dy
+                guard x >= 0, y >= 0, x < size, y < size, !mask[y * size + x],
+                      isHairish(base, origin.x + x, origin.y + y) else { continue }
+                mask[y * size + x] = true
+                stack.append((x, y))
+            }
+        }
+        return mask
+    }
+
+    /// The scalp's hair, columns `x0...x1`, over rows `top..<brow`.
+    nonisolated private static func scalp(_ base: Bitmap, origin: (x: Int, y: Int), size: Int, top: Int, brow: Int) -> (x0: Int, x1: Int)? {
+        var x0 = Int.max, x1 = Int.min
+        for y in max(0, top)..<min(size, max(top, brow)) {
+            for x in 0..<size where isHair(base, origin.x + x, origin.y + y) {
+                x0 = min(x0, x); x1 = max(x1, x)
+            }
+        }
+        return x0 <= x1 ? (x0, x1) : nil
+    }
+
+    /// How a body's head is built: rows from the crown down to the face, and whether it has a beard.
+    nonisolated private struct Head: Sendable {
+        var drop = 10
+        var bearded = false
+
+        init(measuring base: Bitmap, origin: (x: Int, y: Int), size: Int) {
+            guard let top = GearOverlay.crown(base, origin: origin, size: size) else { return }
+            // The face starts at the first row with three skin pixels side by side (the forehead, not an ear).
+            for y in top..<size {
+                var run = 0
+                if (0..<size).contains(where: { x in
+                    run = GearOverlay.isSkin(base, origin.x + x, origin.y + y) ? run + 1 : 0
+                    return run >= 3
+                }) {
+                    drop = y - top
+                    break
+                }
+            }
+            // A beard: plenty of hair under the chin.
+            let brow = top + drop, chin = brow + 5
+            guard chin < size, let span = GearOverlay.scalp(base, origin: origin, size: size, top: top, brow: brow) else { return }
+            let hair = GearOverlay.hairMask(base, origin: origin, size: size, top: top, brow: brow)
+            let cx = Double(span.x0 + span.x1) / 2
+            var count = 0
+            for y in chin..<min(size, chin + 6) {
+                for x in 0..<size where abs(Double(x) - cx) < 4 && hair[y * size + x] { count += 1 }
+            }
+            bearded = count >= 12
+        }
+    }
+
+    /// A helmet (plate) or hood (cloak) over the hair: a smooth dome from the crown down to the chin that
+    /// leaves the face open. Tufts outside the dome are erased, and long hair below it is covered too (a
+    /// mail neck guard, or the hood's cloth); a beard in front of the face stays.
+    nonisolated private static func coverHead(_ out: inout Bitmap, base: Bitmap, origin: (x: Int, y: Int), size: Int,
+                                              facing: String, head: Head, hood: Bool, mid: RGB, accent: RGB) {
+        guard let top = crown(base, origin: origin, size: size) else { return }
+        let brow = top + head.drop, chin = brow + 5
+        guard brow < size, let span = scalp(base, origin: origin, size: size, top: top, brow: brow) else { return }
+        let hair = hairMask(base, origin: origin, size: size, top: top, brow: brow)
+        let cx = Double(span.x0 + span.x1) / 2
+        let half = Double(span.x1 - span.x0) / 2 + (hood ? 1 : 0.5)
+        let lid = top - (hood ? 1 : 0)
+        let reach = Double(brow - lid)
+        let side = facing == "right" ? 1.0 : facing == "left" ? -1.0 : 0
+        let dark = mid.scaled(0.55), light = mid.mixed(with: RGB(1, 1, 1), 0.4)
+        let outline = RGB(0.16, 0.12, 0.18)
+
+        func inside(_ x: Int, _ y: Int) -> Bool {
+            guard y >= lid, y <= chin else { return false }
+            let dy = Double(max(0, brow - y)) / reach
+            return pow((Double(x) - cx) / half, 2) + dy * dy <= 1
+        }
+        func beard(_ x: Int, _ y: Int) -> Bool {
+            guard head.bearded, y >= brow + 3, facing != "up" else { return false }
+            return side != 0 ? (Double(x) - cx) * side > -1 : abs(Double(x) - cx) < half - 3
+        }
+        func filled(_ x: Int, _ y: Int) -> Bool { out.alpha(origin.x + x, origin.y + y) >= 0.5 }
+
+        var painted = [Bool](repeating: false, count: size * size)
+        func paint(_ x: Int, _ y: Int, _ c: RGB) {
+            out.set(origin.x + x, origin.y + y, c)
+            painted[y * size + x] = true
+        }
+        for y in 0..<min(size, chin + 1) {
+            for x in 0..<size {
+                let bx = origin.x + x, by = origin.y + y
+                if inside(x, y) {
+                    if y >= brow && facing != "up" {
+                        // The face stays open: only hair, and empty pixels beside or behind it, get covered.
+                        let empty = base.alpha(bx, by) < 0.5
+                        let behind = side != 0 ? (Double(x) - cx) * side < 0 : abs(Double(x) - cx) >= half - 2
+                        guard (hair[y * size + x] && !beard(x, y)) || (empty && behind) else { continue }
+                    }
+                    let lit = (Double(x) - cx) / half - Double(brow - y) / reach * 0.8
+                    paint(x, y, lit < -0.55 ? light : lit > 0.55 ? dark : mid)
+                } else if y < brow && base.alpha(bx, by) >= 0.5 && !isSkin(base, bx, by) {
+                    out.clear(bx, by)          // a tuft poking out of the helmet
+                }
+            }
+        }
+        // Long hair below the dome or behind the head: a mail neck guard, or the hood's cloth.
+        for y in brow..<size {
+            for x in 0..<size where !painted[y * size + x] && hair[y * size + x] && !beard(x, y) {
+                if hood {
+                    paint(x, y, (x + 2 * y) % 7 == 0 ? dark : mid)
+                } else {
+                    paint(x, y, (x + y) % 2 == 0 ? mid : dark)
+                }
+            }
+        }
+        // Dark outline round the outside, and an inner rim where it meets the face.
+        var rim: [(x: Int, y: Int, color: RGB)] = []
+        for y in 0..<size {
+            for x in 0..<size {
+                let near = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)].filter { $0.0 >= 0 && $0.1 >= 0 && $0.0 < size && $0.1 < size }
+                let isPainted = painted[y * size + x]
+                if !isPainted && !filled(x, y) && near.contains(where: { painted[$0.1 * size + $0.0] }) {
+                    rim.append((x, y, outline))
+                } else if isPainted && y >= brow - 1 && facing != "up" && near.contains(where: {
+                    !painted[$0.1 * size + $0.0] && filled($0.0, $0.1) && !hair[$0.1 * size + $0.0]
+                }) {
+                    rim.append((x, y, hood ? dark : accent))
+                }
+            }
+        }
+        for cell in rim { out.set(origin.x + cell.x, origin.y + cell.y, cell.color) }
+        if hood {
+            // A soft point at the top of the hood, falling back behind the head.
+            let tip = Int((cx - 2 * side + 0.5).rounded(.down))
+            if lid >= 1, tip >= 0, tip < size {
+                out.set(origin.x + tip, origin.y + lid - 1, outline)
+                out.set(origin.x + tip, origin.y + lid, mid)
+            }
+        } else {
+            // A crest over the top, from the brow back.
+            let ridge = Int((cx - side + 0.5).rounded(.down))
+            if ridge >= 0, ridge < size, lid < brow - 1 {
+                for y in max(0, lid)..<(brow - 1) where painted[y * size + ridge] {
+                    out.set(origin.x + ridge, origin.y + y, accent)
                 }
             }
         }
@@ -255,6 +452,12 @@ enum GearOverlay {
             let i = (y * width + x) * 4
             let a = max(1, Double(pixels[i + 3]))
             return RGB(Double(pixels[i]) / a, Double(pixels[i + 1]) / a, Double(pixels[i + 2]) / a)
+        }
+
+        /// Makes a pixel fully transparent.
+        mutating func clear(_ x: Int, _ y: Int) {
+            let i = (y * width + x) * 4
+            pixels[i] = 0; pixels[i + 1] = 0; pixels[i + 2] = 0; pixels[i + 3] = 0
         }
 
         /// Paints a fully opaque pixel.

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Previews worn armour on the hero's walk sheet: the same algorithm as Fairyland/Art/GearOverlay.swift
-(chain links, open vests, pauldrons, robe hems, capes, blue speed boots), to tune it without a Mac.
+(chain links, open vests, pauldrons and a helmet, robe hems, a cape and hood, blue speed boots), to
+tune it without a Mac.
 
-    python3 tools/gear_preview.py /tmp/gear.png      # every armour in items.json, four facings each
+    python3 tools/gear_preview.py /tmp/gear.png      # every armour in items.json on every race, four facings each
 
 Needs pillow + numpy.
 """
@@ -44,10 +45,179 @@ def hexc(s):
     return np.array([(v >> 16) & 255, (v >> 8) & 255, v & 255]) / 255
 
 
+def is_hair(p):
+    """Hair on the original sheet: the same rule content/appearance.json recolours (hue 12-58, bright)."""
+    if p[3] < 0.5:
+        return False
+    hh, s, v = hsv(tuple(p[:3]))
+    return 12 <= hh * 360 <= 58 and s >= 0.55 and v >= 0.55
+
+
+def is_skin(p):
+    if p[3] < 0.5:
+        return False
+    hh, s, v = hsv(tuple(p[:3]))
+    return hh * 360 <= 40 and 0.15 < s < 0.55 and v > 0.6
+
+
+def crown(f):
+    """Top of the head: the first row with at least four hair pixels (skips a lone spike's tip)."""
+    for y in range(FRAME):
+        if sum(is_hair(f[y, x]) for x in range(FRAME)) >= 4:
+            return y
+    return None
+
+
+def face_drop(base):
+    """Rows from the crown to the top of the face, measured on the first facing-down frame."""
+    f = base[2 * FRAME:3 * FRAME, 0:FRAME]
+    top = crown(f)
+    for y in range(top or 0, FRAME):
+        run = 0
+        for x in range(FRAME):
+            run = run + 1 if is_skin(f[y, x]) else 0
+            if run >= 3:                     # three skin pixels side by side: the forehead, not an ear
+                return y - top
+    return 10
+
+
+def hairish(p):
+    """A darker hair strand: the same hues, dimmer. Only counts when it touches the bright hair."""
+    if p[3] < 0.5 or is_skin(p):
+        return False
+    hh, s, v = hsv(tuple(p[:3]))
+    return 5 <= hh * 360 <= 62 and s >= 0.3 and v >= 0.2
+
+
+def hair_mask(b, top, brow):
+    """Every hair pixel of the head: bright hair on the scalp, flooded out through darker strands
+    (long hair, sideburns, a beard). A belt buckle or boots don't touch it, so they stay out."""
+    m = np.zeros((FRAME, FRAME), bool)
+    stack = [(y, x) for y in range(top, brow) for x in range(FRAME) if is_hair(b[y, x])]
+    for y, x in stack:
+        m[y, x] = True
+    while stack:
+        y, x = stack.pop()
+        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            yy, xx = y + dy, x + dx
+            if 0 <= yy < FRAME and 0 <= xx < FRAME and not m[yy, xx] and hairish(b[yy, xx]):
+                m[yy, xx] = True
+                stack.append((yy, xx))
+    return m
+
+
+def bearded(base, drop):
+    """Whether the hero has a beard: plenty of hair under the chin on the first facing-down frame."""
+    f = base[2 * FRAME:3 * FRAME, 0:FRAME]
+    top = crown(f)
+    if top is None:
+        return False
+    hair = hair_mask(f, top, top + drop)
+    xs = [x for y in range(top, top + drop) for x in range(FRAME) if is_hair(f[y, x])]
+    cx = (min(xs) + max(xs)) / 2
+    chin = top + drop + 5
+    return sum(hair[y, x] for y in range(chin, min(FRAME, chin + 6)) for x in range(FRAME) if abs(x - cx) < 4) >= 12
+
+
+def cover_head(f, b, facing, drop, wear, mid, acc, has_beard=False):
+    """A helmet (plate) or hood (cloak) over the hair: a smooth dome from the crown down to the chin
+    that leaves the face open. Tufts outside the dome are erased, and long hair below it is covered
+    too (a mail neck guard, or the hood's cloth); a beard in front of the face stays."""
+    top = crown(b)
+    if top is None:
+        return
+    brow = top + drop                        # first row of the face
+    chin = brow + 5
+    hood = wear == 'cloak'
+    hair = hair_mask(b, top, brow)
+    xs = [x for y in range(top, brow) for x in range(FRAME) if is_hair(b[y, x])]
+    x0, x1 = min(xs), max(xs)
+    cx = (x0 + x1) / 2
+    half = (x1 - x0) / 2 + (1.0 if hood else 0.5)
+    lid = top - (1 if hood else 0)
+    reach = brow - lid                       # the dome's height above the brow
+    side = {'right': 1, 'left': -1}.get(facing, 0)   # which way the face looks
+
+    def inside(x, y):
+        if y < lid or y > chin:
+            return False
+        dy = max(0, brow - y) / reach
+        return ((x - cx) / half) ** 2 + dy ** 2 <= 1
+
+    def beard(x, y):
+        """Hair in front of the face, below the eyes: a beard or moustache, which stays."""
+        if not has_beard or y < brow + 3 or facing == 'up':
+            return False
+        if side:
+            return (x - cx) * side > -1
+        return abs(x - cx) < half - 3
+
+    dark, light = shade(mid, 0.55), mix(mid, (1, 1, 1), 0.4)
+    outline = np.array([0.16, 0.12, 0.18])
+    painted = np.zeros((FRAME, FRAME), bool)
+    for y in range(0, min(FRAME, chin + 1)):
+        for x in range(FRAME):
+            p = b[y, x]
+            if inside(x, y):
+                if y >= brow and facing != 'up':
+                    # The face stays open: only hair, and empty pixels beside or behind it, get covered.
+                    empty = p[3] < 0.5
+                    behind = (x - cx) * side < 0 if side else abs(x - cx) >= half - 2
+                    if not ((hair[y, x] and not beard(x, y)) or (empty and behind)):
+                        continue
+                lit = (x - cx) / half - (brow - y) / reach * 0.8
+                c = light if lit < -0.55 else (dark if lit > 0.55 else mid)
+                f[y, x, :3] = c
+                f[y, x, 3] = 1
+                painted[y, x] = True
+            elif y < brow and p[3] >= 0.5 and not is_skin(p):
+                f[y, x, 3] = 0                # a tuft poking out of the helmet
+    # Long hair below the dome or behind the head: a mail neck guard, or the hood's cloth.
+    for y in range(brow, FRAME):
+        for x in range(FRAME):
+            if painted[y, x] or not hair[y, x] or beard(x, y):
+                continue
+            if hood:
+                f[y, x, :3] = mid if (x + 2 * y) % 7 else dark
+            else:
+                f[y, x, :3] = mid if (x + y) % 2 == 0 else dark
+            painted[y, x] = True
+    # Dark outline round the outside, and an inner fold where it meets the face.
+    rim = []
+    for y in range(FRAME):
+        for x in range(FRAME):
+            near = [(yy, xx) for yy, xx in ((y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1))
+                    if 0 <= yy < FRAME and 0 <= xx < FRAME]
+            if not painted[y, x] and f[y, x, 3] < 0.5 and any(painted[q] for q in near):
+                rim.append((y, x, outline))
+            elif painted[y, x] and y >= brow - 1 and facing != 'up' and any(
+                    not painted[q] and f[q][3] >= 0.5 and not hair[q] for q in near):
+                rim.append((y, x, dark if hood else acc))
+    for y, x, c in rim:
+        f[y, x, :3] = c
+        f[y, x, 3] = 1
+    if hood:
+        # A soft point at the top of the hood, falling back behind the head.
+        tip = int(np.floor(cx - 2 * side + 0.5))
+        if lid >= 1 and 0 <= tip < FRAME:
+            f[lid - 1, tip, :3] = outline
+            f[lid - 1, tip, 3] = 1
+            f[lid, tip, :3] = mid
+            f[lid, tip, 3] = 1
+    else:
+        # A crest over the top, from the brow back.
+        ridge = int(np.floor(cx - side + 0.5))
+        for y in range(lid, brow - 1):
+            if painted[y, ridge]:
+                f[y, ridge, :3] = acc
+
+
 def apply(base, recolored, wear=None, accent=None, boots=False):
     out = recolored.copy()
     mask = outfit_mask(base)
     acc = hexc(accent) if accent else np.array([0.95, 0.78, 0.25])
+    drop = face_drop(base)
+    beard = bearded(base, drop)
     for row, facing in enumerate(DIRS):
         for col in range(base.shape[1] // FRAME):
             oy, ox = row * FRAME, col * FRAME
@@ -150,6 +320,8 @@ def apply(base, recolored, wear=None, accent=None, boots=False):
                             put(x, y, outline if outer else mid, only_empty=True)
                     if facing == 'down':
                         put(cx, top, acc); put(cx - 1, top, acc); put(cx, top + 1, shade(acc, 0.7))
+            if wear in ('plate', 'cloak'):
+                cover_head(f, base[oy:oy + FRAME, ox:ox + FRAME], facing, drop, wear, mid, acc, beard)
             if boots:
                 for y in range(max(0, yb - 5), yb + 1):
                     for x in range(FRAME):
@@ -171,16 +343,18 @@ def main(out):
     import palette_preview as pp
     root = pathlib.Path(__file__).resolve().parent.parent
     items = [i for i in json.load(open(root / "content" / "items.json"))["items"] if i["type"] == "armor"]
-    base = pp.raw("player_walk")
+    bodies = ["player_walk", "elf_walk", "dwarf_walk"]
     zoom = 3
-    sheet = Image.new("RGB", (4 * 48 * zoom, len(items) * 48 * zoom), (80, 130, 80))
-    for r, item in enumerate(items):
-        dressed = pp.recolor(base, item["recolor"]) if item.get("recolor") else base.copy()
-        dressed = apply(base, dressed, item.get("wear"), item.get("accent"))
-        image = Image.fromarray((np.clip(dressed, 0, 1) * 255).astype(np.uint8), "RGBA")
-        for c, row in enumerate((2, 1, 0, 3)):   # down, right, up, left
-            frame = image.crop((0, row * 48, 48, row * 48 + 48)).resize((48 * zoom, 48 * zoom), Image.NEAREST)
-            sheet.paste(frame, (c * 48 * zoom, r * 48 * zoom), frame)
+    sheet = Image.new("RGB", (len(bodies) * 4 * 48 * zoom, len(items) * 48 * zoom), (80, 130, 80))
+    for k, body in enumerate(bodies):
+        base = pp.raw(body)
+        for r, item in enumerate(items):
+            dressed = pp.recolor(base, item["recolor"]) if item.get("recolor") else base.copy()
+            dressed = apply(base, dressed, item.get("wear"), item.get("accent"))
+            image = Image.fromarray((np.clip(dressed, 0, 1) * 255).astype(np.uint8), "RGBA")
+            for c, row in enumerate((2, 1, 0, 3)):   # down, right, up, left
+                frame = image.crop((0, row * 48, 48, row * 48 + 48)).resize((48 * zoom, 48 * zoom), Image.NEAREST)
+                sheet.paste(frame, ((k * 4 + c) * 48 * zoom, r * 48 * zoom), frame)
     sheet.save(out)
     print(f"wrote {out}: {', '.join(i['id'] for i in items)}")
 
