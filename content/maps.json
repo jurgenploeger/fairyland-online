@@ -11,6 +11,10 @@
       },
       "width": 64,
       "height": 48,
+      "world": [
+        0,
+        0
+      ],
       "music": "town",
       "theme": {
         "ground": "tile_grass",
@@ -583,6 +587,10 @@
       },
       "width": 110,
       "height": 80,
+      "world": [
+        1,
+        0
+      ],
       "music": "meadow",
       "theme": {
         "ground": "tile_grass",
@@ -1012,6 +1020,10 @@
       },
       "width": 100,
       "height": 72,
+      "world": [
+        1,
+        1
+      ],
       "music": "shore",
       "theme": {
         "ground": "tile_sand",
@@ -1239,6 +1251,10 @@
       "danger": true,
       "width": 100,
       "height": 80,
+      "world": [
+        2,
+        0
+      ],
       "music": "woods",
       "battleMusic": "battle_dark",
       "theme": {
@@ -1555,6 +1571,10 @@
       "name": "Smiling Forest",
       "width": 110,
       "height": 80,
+      "world": [
+        1,
+        2
+      ],
       "music": "forest",
       "crowd": {
         "adventurers": 5
@@ -2004,6 +2024,10 @@
       "name": "Rainbow City",
       "width": 70,
       "height": 54,
+      "world": [
+        1,
+        3
+      ],
       "music": "rainbow",
       "fence": true,
       "crowd": {
@@ -2408,6 +2432,10 @@
       "name": "Snow White Forest",
       "width": 100,
       "height": 80,
+      "world": [
+        2,
+        2
+      ],
       "music": "snow",
       "crowd": {
         "adventurers": 3
@@ -2715,6 +2743,10 @@
       "name": "Frog Swamp",
       "width": 100,
       "height": 72,
+      "world": [
+        1,
+        -1
+      ],
       "music": "swamp",
       "crowd": {
         "adventurers": 3
@@ -2993,6 +3025,10 @@
       "name": "Valley of Fear",
       "width": 100,
       "height": 80,
+      "world": [
+        2,
+        -1
+      ],
       "music": "fear",
       "battleMusic": "battle_dark",
       "crowd": {
@@ -3234,6 +3270,10 @@
       "name": "Rat Cavern",
       "width": 80,
       "height": 60,
+      "world": [
+        3,
+        -1
+      ],
       "music": "cave",
       "battleMusic": "battle_dark",
       "crowd": {
@@ -3451,6 +3491,10 @@
       "name": "Goldburg",
       "width": 64,
       "height": 50,
+      "world": [
+        2,
+        -2
+      ],
       "music": "goldburg",
       "fence": true,
       "crowd": {
@@ -3742,6 +3786,10 @@
       "name": "Genie Desert",
       "width": 110,
       "height": 80,
+      "world": [
+        3,
+        -2
+      ],
       "music": "desert",
       "crowd": {
         "adventurers": 3
@@ -4013,6 +4061,10 @@
       "name": "Crystal Mountain",
       "width": 100,
       "height": 80,
+      "world": [
+        2,
+        -3
+      ],
       "music": "crystal",
       "battleMusic": "battle_dark",
       "crowd": {
@@ -4247,6 +4299,10 @@
       "name": "Moonglow",
       "width": 90,
       "height": 70,
+      "world": [
+        2,
+        -4
+      ],
       "music": "moonglow",
       "battleMusic": "battle_dark",
       "crowd": {

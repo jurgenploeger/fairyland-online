@@ -3,8 +3,10 @@ import SwiftUI
 /// The whole current map at a glance: where you are, your companion, and where the roads lead.
 struct MapOverlay: View {
     let overview: (image: UIImage, player: CGPoint, companion: CGPoint?, name: String, exits: [MapDef.Exit])
+    let session: GameSession
     let onClose: () -> Void
     @State private var pulse = false
+    @AppStorage("mapShowsWorld") private var showsWorld = false
 
     var body: some View {
         ZStack {
@@ -13,50 +15,20 @@ struct MapOverlay: View {
                 .onTapGesture(perform: onClose)
 
             VStack(spacing: 10) {
-                FLTitleBar(title: overview.name, icon: .map, onClose: onClose)
+                FLTitleBar(title: showsWorld ? "World map" : overview.name, icon: .map, onClose: onClose)
 
-                // Turned and squashed like the world and the minimap, so north (up-left), east
-                // (up-right) and the roads point the same way here as on screen while walking.
-                GeometryReader { proxy in
-                    let layout = DiamondLayout(size: proxy.size, tiles: overview.image.size)
-                    ZStack {
-                        Image(uiImage: overview.image)
-                            .interpolation(.none)
-                            .resizable()
-                            .frame(width: layout.imageSize.width, height: layout.imageSize.height)
-                            .rotationEffect(.degrees(-45))
-                            .scaleEffect(x: 1, y: 0.5)
-                            .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
-                        ForEach(overview.exits, id: \.to) { exit in
-                            ExitTag(exit: exit)
-                                .position(layout.point(Self.unit(of: exit.edge)))
-                        }
-                        if let companion = overview.companion {
-                            Circle()
-                                .fill(HUDStyle.green)
-                                .frame(width: 8, height: 8)
-                                .position(layout.point(companion))
-                        }
-                        ZStack {
-                            Circle().fill(HUDStyle.gold.opacity(0.35)).frame(width: pulse ? 30 : 14, height: pulse ? 30 : 14)
-                            Circle().fill(HUDStyle.gold).frame(width: 12, height: 12)
-                                .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 2))
-                        }
-                        .position(layout.point(overview.player))
-                    }
+                HStack(spacing: 8) {
+                    Button("This area") { showsWorld = false }
+                        .buttonStyle(PixelButtonStyle(tint: showsWorld ? HUDStyle.cream : HUDStyle.gold, compact: true))
+                    Button("World") { showsWorld = true }
+                        .buttonStyle(PixelButtonStyle(tint: showsWorld ? HUDStyle.gold : HUDStyle.cream, compact: true))
                 }
-                .aspectRatio(2, contentMode: .fit)
-                .background(Color(red: 0.05, green: 0.12, blue: 0.22))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(HUDStyle.cream.opacity(0.6), lineWidth: 2))
 
-                HStack(spacing: 14) {
-                    Label { Text("You") } icon: { Circle().frame(width: 9, height: 9) }.foregroundStyle(HUDStyle.gold)
-                    Label { Text("Companion") } icon: { Circle().frame(width: 9, height: 9) }.foregroundStyle(HUDStyle.green)
-                    Label { Text("Water") } icon: { Circle().frame(width: 9, height: 9) }.foregroundStyle(Color(red: 0.31, green: 0.64, blue: 0.88))
+                if showsWorld {
+                    WorldAtlas(session: session)
+                } else {
+                    areaMap
                 }
-                .font(HUDStyle.font(11))
-                .labelStyle(CompactLabelStyle())
             }
             .padding(16)
             .frame(maxWidth: 720, maxHeight: .infinity)
@@ -70,6 +42,54 @@ struct MapOverlay: View {
         }
         .onAppear {
             withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { pulse = true }
+        }
+    }
+
+    /// The map you're on, with you, your companion and where its roads lead.
+    private var areaMap: some View {
+        VStack(spacing: 10) {
+            // Turned and squashed like the world and the minimap, so north (up-left), east
+            // (up-right) and the roads point the same way here as on screen while walking.
+            GeometryReader { proxy in
+                let layout = DiamondLayout(size: proxy.size, tiles: overview.image.size)
+                ZStack {
+                    Image(uiImage: overview.image)
+                        .interpolation(.none)
+                        .resizable()
+                        .frame(width: layout.imageSize.width, height: layout.imageSize.height)
+                        .rotationEffect(.degrees(-45))
+                        .scaleEffect(x: 1, y: 0.5)
+                        .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                    ForEach(overview.exits, id: \.to) { exit in
+                        ExitTag(exit: exit)
+                            .position(layout.point(Self.unit(of: exit.edge)))
+                    }
+                    if let companion = overview.companion {
+                        Circle()
+                            .fill(HUDStyle.green)
+                            .frame(width: 8, height: 8)
+                            .position(layout.point(companion))
+                    }
+                    ZStack {
+                        Circle().fill(HUDStyle.gold.opacity(0.35)).frame(width: pulse ? 30 : 14, height: pulse ? 30 : 14)
+                        Circle().fill(HUDStyle.gold).frame(width: 12, height: 12)
+                            .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 2))
+                    }
+                    .position(layout.point(overview.player))
+                }
+            }
+            .aspectRatio(2, contentMode: .fit)
+            .background(Color(red: 0.05, green: 0.12, blue: 0.22))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(HUDStyle.cream.opacity(0.6), lineWidth: 2))
+
+            HStack(spacing: 14) {
+                Label { Text("You") } icon: { Circle().frame(width: 9, height: 9) }.foregroundStyle(HUDStyle.gold)
+                Label { Text("Companion") } icon: { Circle().frame(width: 9, height: 9) }.foregroundStyle(HUDStyle.green)
+                Label { Text("Water") } icon: { Circle().frame(width: 9, height: 9) }.foregroundStyle(Color(red: 0.31, green: 0.64, blue: 0.88))
+            }
+            .font(HUDStyle.font(11))
+            .labelStyle(CompactLabelStyle())
         }
     }
 

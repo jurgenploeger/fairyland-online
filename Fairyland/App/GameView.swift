@@ -17,7 +17,7 @@ struct GameView: View {
                 case .menu(let tab):
                     MenuView(session: coordinator.session, initialTab: tab, onClose: coordinator.closeOverlay)
                 case .worldMap:
-                    MapOverlay(overview: coordinator.world.overview(), onClose: coordinator.closeOverlay)
+                    MapOverlay(overview: coordinator.world.overview(), session: coordinator.session, onClose: coordinator.closeOverlay)
                 case .chat:
                     ChatView(session: coordinator.session, onSay: coordinator.say, onClose: coordinator.closeOverlay)
                 case .npc(let id):

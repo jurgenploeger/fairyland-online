@@ -46,6 +46,7 @@ final class GameCoordinator {
         let map = Content.shared.map(session.data.mapID) ?? Content.shared.maps[0]
         self.session = session
         self.input = input
+        session.markVisited(map.id)
         world = WorldScene(map: map, session: session, input: input, entry: nil)
         wire(world)
         startAutosave()
@@ -106,6 +107,7 @@ final class GameCoordinator {
 
     private func loadMap(_ map: MapDef, entry: Edge?) {
         session.data.mapID = map.id
+        session.markVisited(map.id)
         if entry == nil { session.playerPosition = nil }
         if entry != nil || map.fence == true { session.reachCheckpoint(map, entry: entry) }
         let scene = WorldScene(map: map, session: session, input: input, entry: entry)
