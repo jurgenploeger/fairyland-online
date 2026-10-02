@@ -269,20 +269,22 @@ private struct MinimapWindow: View {
                 ZStack {
                     Color(red: 0.05, green: 0.12, blue: 0.22)
                     // Turned and squashed like the world, so "up" on the minimap is "up" on screen.
-                    ZStack(alignment: .topLeading) {
-                        Color.clear
-                        Image(uiImage: image)
-                            .interpolation(.none)
-                            .resizable()
-                            .frame(width: CGFloat(columns) * zoom, height: CGFloat(rows) * zoom)
-                            .offset(
-                                x: layer / 2 - (CGFloat(cell.col) + 0.5) * zoom,
-                                y: layer / 2 - (CGFloat(rows - 1 - cell.row) + 0.5) * zoom
-                            )
-                    }
-                    .frame(width: layer, height: layer)
-                    .rotationEffect(.degrees(-45))
-                    .scaleEffect(x: 1, y: 0.5)
+                    // The map rides in an overlay: an image bigger than the layer (maps over 84 tiles
+                    // wide) must not resize or re-centre it, or the hero's cell drifts off the marker.
+                    Color.clear
+                        .frame(width: layer, height: layer)
+                        .overlay(alignment: .topLeading) {
+                            Image(uiImage: image)
+                                .interpolation(.none)
+                                .resizable()
+                                .frame(width: CGFloat(columns) * zoom, height: CGFloat(rows) * zoom)
+                                .offset(
+                                    x: layer / 2 - (CGFloat(cell.col) + 0.5) * zoom,
+                                    y: layer / 2 - (CGFloat(rows - 1 - cell.row) + 0.5) * zoom
+                                )
+                        }
+                        .rotationEffect(.degrees(-45))
+                        .scaleEffect(x: 1, y: 0.5)
                     Circle()
                         .fill(HUDStyle.gold)
                         .frame(width: 8, height: 8)
