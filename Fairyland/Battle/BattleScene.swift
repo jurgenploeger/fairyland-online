@@ -97,6 +97,9 @@ final class BattleScene: SKScene {
         if isPortrait, group.count > 1 {
             let half = spacing * CGFloat(group.count - 1) / 2
             center.x = min(max(center.x, 50 + half), size.width - 50 - half)
+            // The line steps down to the right; lift it so its lowest fighter stands where one alone
+            // would, clear of the command wheel.
+            center.y += 13 * CGFloat(group.count - 1)
         }
         for (index, fighter) in group.enumerated() {
             let offset = CGFloat(index) - CGFloat(group.count - 1) / 2
