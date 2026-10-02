@@ -121,7 +121,9 @@ final class GameSession {
 
     /// The hero as paper-doll layers (art/sprites, made by tools/hero_layers.py): the bald body, then
     /// the hairstyle, or a helmet or hood instead (so no hair pokes through).
+    /// Armour with its own walk sheet for the race (items.json `sheets`) replaces the lot.
     static func layers(race: RaceDef, look: Look, armor: ItemDef? = nil) -> [String] {
+        if let sheet = armor?.sheets?[race.id] { return [sheet] }
         let headgear: String? = switch armor?.wear ?? "" {
         case "plate": "helmet"
         case "cloak": "hood"
@@ -144,9 +146,15 @@ final class GameSession {
     func applyLook() {
         let look = data.hero.look ?? .standard
         let armor = equipped(.armor)
-        let gear = GearLook(wear: armor?.wear, accent: armor?.accent, boots: equipped(.accessory)?.wear == "boots",
-                            pattern: armor?.pattern)
-        ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet, recolor: Self.rules(for: look, armor: armor), key: heroLookKey,
+        let boots = equipped(.accessory)?.wear == "boots"
+        var gear = GearLook(wear: armor?.wear, accent: armor?.accent, boots: boots, pattern: armor?.pattern)
+        var rules = Self.rules(for: look, armor: armor)
+        if armor?.sheets?[heroRace.id] != nil {
+            // The armour's own sheet is already drawn and coloured: only the skin tone still applies.
+            gear = GearLook(wear: nil, accent: nil, boots: boots)
+            rules = content.appearance.skin.first { $0.id == look.skin }?.recolor ?? []
+        }
+        ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet, recolor: rules, key: heroLookKey,
                                    gear: gear, layers: Self.layers(race: heroRace, look: look, armor: armor))
     }
 

@@ -131,6 +131,10 @@ for item in items.values():
     if "wear" in item:
         check(item["wear"] in WEARS.get(item["type"], set()),
               f"item {item['id']} → wear {item['wear']!r} doesn't fit a {item['type']} ({sorted(WEARS.get(item['type'], []))})")
+    for race_id, sheet in item.get("sheets", {}).items():
+        check(item["type"] == "armor" and race_id in {r["id"] for r in classes["races"]},
+              f"item {item['id']} → sheets: {race_id!r} isn't a race (or the item isn't armour)")
+        check((ROOT / "art" / "sprites" / f"{sheet}.png").exists(), f"item {item['id']} → art/sprites/{sheet}.png is missing")
     if "pattern" in item:
         check(item["type"] == "armor" and item["pattern"] in {"engraved", "scales", "fur", "runes", "pockets"},
               f"item {item['id']} → pattern {item['pattern']!r} must be engraved | scales | fur | runes | pockets, on armour")

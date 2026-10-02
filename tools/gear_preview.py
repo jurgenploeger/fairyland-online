@@ -317,7 +317,14 @@ def main(out):
     sheet = Image.new("RGB", (len(races) * 4 * 48 * zoom, len(items) * 48 * zoom), (80, 130, 80))
     for k, race in enumerate(races):
         for r, item in enumerate(items):
-            # The layers the game stacks (GameSession.layers): body, then hair or headgear.
+            # The layers the game stacks (GameSession.layers): body, then hair or headgear; or the
+            # armour's own sheet, which is drawn as it is.
+            if race["id"] in item.get("sheets", {}):
+                image = Image.open(root / "art" / "sprites" / f"{item['sheets'][race['id']]}.png").convert("RGBA")
+                for c, row in enumerate((2, 1, 0, 3)):
+                    frame = image.crop((0, row * 48, 48, row * 48 + 48)).resize((48 * zoom, 48 * zoom), Image.NEAREST)
+                    sheet.paste(frame, ((k * 4 + c) * 48 * zoom, r * 48 * zoom), frame)
+                continue
             head = {"plate": "helmet", "cloak": "hood"}.get(item.get("wear"))
             top = f"{head}_{race['id']}" if head else f"hair_{race['hair']}_{race['id']}"
             base = Image.open(root / "art" / "sprites" / f"body_{race['id']}.png").convert("RGBA")

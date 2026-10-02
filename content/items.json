@@ -1,5 +1,5 @@
 {
-  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
+  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `sheets` (per race) swaps in a whole walk sheet while it's worn (Retro Diffusion art in art/sprites; only the skin colour applies). Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
   "items": [
     {
       "id": "potion",
@@ -267,6 +267,7 @@
       "level": 5,
       "description": "Smells like pine.",
       "wear": "cloak",
+      "sheets": { "human": "armor_ranger_cloak_human", "elf": "armor_ranger_cloak_elf", "dwarf": "armor_ranger_cloak_dwarf" },
       "accent": "#C9A040"
     },
     {
@@ -466,6 +467,7 @@
       ],
       "description": "Heavy, shiny, and very safe.",
       "wear": "plate",
+      "sheets": { "human": "armor_iron_plate_human", "elf": "armor_iron_plate_elf", "dwarf": "armor_iron_plate_dwarf" },
       "pattern": "engraved",
       "accent": "#E8C04A"
     },
@@ -560,6 +562,7 @@
       ],
       "description": "Scales from a very sleepy dragon.",
       "wear": "plate",
+      "sheets": { "human": "armor_dragon_mail_human", "elf": "armor_dragon_mail_elf", "dwarf": "armor_dragon_mail_dwarf" },
       "pattern": "scales",
       "accent": "#F2C230"
     },
@@ -589,6 +592,7 @@
       ],
       "description": "Woven from the first snow of winter.",
       "wear": "cloak",
+      "sheets": { "human": "armor_snow_cloak_human", "elf": "armor_snow_cloak_elf", "dwarf": "armor_snow_cloak_dwarf" },
       "pattern": "fur",
       "accent": "#9AD8FF"
     },
