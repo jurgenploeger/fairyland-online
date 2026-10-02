@@ -1,6 +1,6 @@
 {
   "_about": "Races (chosen at character creation) and classes. Everyone starts as a Novice; at classChoiceLevel you join a guild and pick a path. Stats = race base + class growth × (level − 1) + equipment. Each race has its own walk sheet (`art`); your hair/outfit/skin choices recolour it.",
-  "classChoiceLevel": 5,
+  "classChoiceLevel": 10,
   "races": [
     {
       "id": "human",
@@ -61,11 +61,11 @@
       "skills": [
         {
           "skill": "bash",
-          "level": 2
+          "level": 4
         },
         {
           "skill": "first_aid",
-          "level": 3
+          "level": 8
         }
       ]
     },
@@ -93,11 +93,11 @@
         },
         {
           "skill": "power_strike",
-          "level": 5
+          "level": 14
         },
         {
           "skill": "whirlwind",
-          "level": 7
+          "level": 21
         }
       ]
     },
@@ -121,19 +121,19 @@
         },
         {
           "skill": "fire_bolt",
-          "level": 5
+          "level": 14
         },
         {
           "skill": "stone_spike",
-          "level": 6
+          "level": 18
         },
         {
           "skill": "leaf_storm",
-          "level": 8
+          "level": 24
         },
         {
           "skill": "blessing",
-          "level": 9
+          "level": 28
         }
       ]
     },
@@ -163,11 +163,11 @@
         },
         {
           "skill": "wild_call",
-          "level": 5
+          "level": 14
         },
         {
           "skill": "mend_beast",
-          "level": 6
+          "level": 18
         }
       ]
     }

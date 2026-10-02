@@ -151,7 +151,8 @@ nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {
 }
 
 nonisolated enum ItemType: String, Decodable, Sendable {
-    case consumable, weapon, armor, accessory
+    /// `material`: wood, metal, gems and hides that monsters drop, for the blacksmith.
+    case consumable, weapon, armor, accessory, material
 
     static let equipmentSlots: [ItemType] = [.weapon, .armor, .accessory]
 
@@ -171,17 +172,23 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     let description: String?
     /// For eggs: the species that can hatch from it.
     let hatches: [String]?
-    /// A GameIcon name for the bag and shops.
+    /// Its sprite in art/assets.json (item_<id>, drawn by tools/item_art.py).
+    let art: String?
+    /// A GameIcon name for the bag and shops when there's no sprite.
     let icon: String?
     /// Seal Stones: thrown in battle to befriend a weakened monster.
     let capture: Bool?
     /// Armour: how it recolours the hero's outfit while worn (same rules as looks).
     let recolor: [RecolorRule]?
+    /// Materials: wood | metal | gem | hide. Monsters of at least `level` drop them.
+    let material: String?
+    /// What a blacksmith needs to forge it: material id → how many.
+    let recipe: [String: Int]?
 }
 
 nonisolated struct QuestDef: Decodable, Identifiable, Sendable {
     nonisolated enum ObjectiveType: String, Decodable, Sendable {
-        case defeat, capture, reachLevel, chooseClass, collect
+        case defeat, capture, reachLevel, chooseClass, collect, hatch
     }
 
     /// Asked when accepting; the answer decides which companion hatches from the egg.
@@ -235,7 +242,8 @@ nonisolated enum Edge: String, Codable, Sendable {
 
 nonisolated enum NPCRole: String, Decodable, Sendable {
     /// `boss`: a mighty monster waiting on the map; talk to it to fight.
-    case healer, shop, quests, guild, chest, boss
+    /// `smith`: forges weapons from materials (the item's `recipe`).
+    case healer, shop, quests, guild, chest, boss, smith
 }
 
 nonisolated struct NPCDef: Decodable, Identifiable, Sendable {
@@ -254,6 +262,8 @@ nonisolated struct NPCDef: Decodable, Identifiable, Sendable {
     /// Bosses: which monster, at what level.
     let monster: String?
     let level: Int?
+    /// Offers rebirth once you're strong enough (Elder Oak).
+    let rebirth: Bool?
 }
 
 nonisolated struct MapDef: Decodable, Identifiable, Sendable {

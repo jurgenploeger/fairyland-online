@@ -96,6 +96,16 @@ final class ArtLibrary {
         images = images.filter { $0.key != id && !$0.key.hasPrefix(id + "#") }
     }
 
+    /// The sprite's own art as an image, or nil when it has none yet (no placeholder).
+    func artImage(_ id: String) -> UIImage? {
+        let cacheKey = "art:" + id
+        if let cached = images[cacheKey] { return cached }
+        guard let cgImage = sourceImage(id) else { return nil }
+        let image = UIImage(cgImage: cgImage)
+        images[cacheKey] = image
+        return image
+    }
+
     /// A one-off recoloured portrait for pickers and previews (cached by `key`).
     func preview(from base: String, recolor rules: [RecolorRule], key: String, facing direction: Direction = .down) -> UIImage {
         let id = "preview:" + base + ":" + key

@@ -1,9 +1,10 @@
 {
-  "_about": "Items. `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift); weapons are drawn in the hero's hand by their icon. Armour `recolor` changes the outfit colours while worn. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
+  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand by their icon. Armour `recolor` changes the outfit colours while worn. type: consumable | weapon | armor | accessory | material. `classes` limits who can equip it (omit = everyone); `level` is the level needed. Materials (type material; `material` is wood | metal | gem | hide) drop from monsters of at least their `level`. `recipe` is what a blacksmith needs to forge the item.",
   "items": [
     {
       "id": "potion",
       "icon": "potion",
+      "art": "item_potion",
       "name": "Potion",
       "type": "consumable",
       "price": 15,
@@ -13,6 +14,7 @@
     {
       "id": "ether",
       "icon": "flask",
+      "art": "item_ether",
       "name": "Ether",
       "type": "consumable",
       "price": 30,
@@ -22,6 +24,7 @@
     {
       "id": "seal_stone",
       "icon": "gem",
+      "art": "item_seal_stone",
       "name": "Seal Stone",
       "type": "consumable",
       "price": 60,
@@ -31,6 +34,7 @@
     {
       "id": "pet_egg",
       "icon": "egg",
+      "art": "item_pet_egg",
       "name": "Pet Egg",
       "type": "consumable",
       "price": 0,
@@ -44,6 +48,7 @@
     {
       "id": "wooden_sword",
       "icon": "sword",
+      "art": "item_wooden_sword",
       "name": "Wooden Sword",
       "type": "weapon",
       "price": 40,
@@ -60,6 +65,7 @@
     {
       "id": "oak_staff",
       "icon": "wand",
+      "art": "item_oak_staff",
       "name": "Oak Staff",
       "type": "weapon",
       "price": 45,
@@ -76,6 +82,7 @@
     {
       "id": "iron_axe",
       "icon": "axe",
+      "art": "item_iron_axe",
       "name": "Iron Axe",
       "type": "weapon",
       "price": 160,
@@ -85,12 +92,13 @@
       "classes": [
         "fighter"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Heavy and honest."
     },
     {
       "id": "crystal_wand",
       "icon": "diamond",
+      "art": "item_crystal_wand",
       "name": "Crystal Wand",
       "type": "weapon",
       "price": 170,
@@ -100,12 +108,13 @@
       "classes": [
         "mage"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Focuses elemental power."
     },
     {
       "id": "tamer_whip",
       "icon": "paw",
+      "art": "item_tamer_whip",
       "name": "Tamer's Whip",
       "type": "weapon",
       "price": 150,
@@ -116,12 +125,13 @@
       "classes": [
         "tamer"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Cracks, but never hurts a friend."
     },
     {
       "id": "cloth_tunic",
       "icon": "shield",
+      "art": "item_cloth_tunic",
       "name": "Cloth Tunic",
       "type": "armor",
       "price": 30,
@@ -145,6 +155,7 @@
         }
       ],
       "icon": "shield-check",
+      "art": "item_leather_vest",
       "name": "Leather Vest",
       "type": "armor",
       "price": 90,
@@ -169,6 +180,7 @@
         }
       ],
       "icon": "shield-plus",
+      "art": "item_chain_mail",
       "name": "Chain Mail",
       "type": "armor",
       "price": 220,
@@ -178,7 +190,7 @@
       "classes": [
         "fighter"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Clinks when you walk."
     },
     {
@@ -196,6 +208,7 @@
         }
       ],
       "icon": "shield-star",
+      "art": "item_silk_robe",
       "name": "Silk Robe",
       "type": "armor",
       "price": 180,
@@ -207,7 +220,7 @@
       "classes": [
         "mage"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Woven with starlight."
     },
     {
@@ -225,6 +238,7 @@
         }
       ],
       "icon": "shield-heart",
+      "art": "item_ranger_cloak",
       "name": "Ranger Cloak",
       "type": "armor",
       "price": 170,
@@ -235,12 +249,13 @@
       "classes": [
         "tamer"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Smells like pine."
     },
     {
       "id": "lucky_clover",
       "icon": "clover",
+      "art": "item_lucky_clover",
       "name": "Lucky Clover",
       "type": "accessory",
       "price": 120,
@@ -252,6 +267,7 @@
     {
       "id": "ruby_ring",
       "icon": "gem",
+      "art": "item_ruby_ring",
       "name": "Ruby Ring",
       "type": "accessory",
       "price": 150,
@@ -263,6 +279,7 @@
     {
       "id": "novice_ring",
       "icon": "ring",
+      "art": "item_novice_ring",
       "name": "Novice Ring",
       "type": "accessory",
       "price": 25,
@@ -275,6 +292,7 @@
     {
       "id": "hi_potion",
       "icon": "potion",
+      "art": "item_hi_potion",
       "name": "Hi-Potion",
       "type": "consumable",
       "price": 60,
@@ -284,6 +302,7 @@
     {
       "id": "hi_ether",
       "icon": "flask",
+      "art": "item_hi_ether",
       "name": "Hi-Ether",
       "type": "consumable",
       "price": 90,
@@ -293,6 +312,7 @@
     {
       "id": "steel_sword",
       "icon": "sword",
+      "art": "item_steel_sword",
       "name": "Steel Sword",
       "type": "weapon",
       "price": 400,
@@ -302,12 +322,13 @@
       "classes": [
         "fighter"
       ],
-      "level": 10,
+      "level": 31,
       "description": "A proper knight's blade."
     },
     {
       "id": "battle_axe",
       "icon": "axe",
+      "art": "item_battle_axe",
       "name": "Battle Axe",
       "type": "weapon",
       "price": 1100,
@@ -317,12 +338,13 @@
       "classes": [
         "fighter"
       ],
-      "level": 18,
+      "level": 58,
       "description": "Dwarven steel, twice your weight."
     },
     {
       "id": "elder_staff",
       "icon": "wand",
+      "art": "item_elder_staff",
       "name": "Elder Staff",
       "type": "weapon",
       "price": 420,
@@ -332,12 +354,13 @@
       "classes": [
         "mage"
       ],
-      "level": 10,
+      "level": 31,
       "description": "Carved from the Smiling Forest's oldest oak."
     },
     {
       "id": "star_wand",
       "icon": "diamond",
+      "art": "item_star_wand",
       "name": "Star Wand",
       "type": "weapon",
       "price": 1150,
@@ -347,12 +370,13 @@
       "classes": [
         "mage"
       ],
-      "level": 18,
+      "level": 58,
       "description": "A shooting star, caught and polished."
     },
     {
       "id": "beast_whip",
       "icon": "paw",
+      "art": "item_beast_whip",
       "name": "Beast Whip",
       "type": "weapon",
       "price": 400,
@@ -363,12 +387,13 @@
       "classes": [
         "tamer"
       ],
-      "level": 10,
+      "level": 31,
       "description": "Every monster listens to this one."
     },
     {
       "id": "wild_horn",
       "icon": "paw",
+      "art": "item_wild_horn",
       "name": "Wild Horn",
       "type": "weapon",
       "price": 1100,
@@ -379,12 +404,13 @@
       "classes": [
         "tamer"
       ],
-      "level": 18,
+      "level": 58,
       "description": "Its call echoes through every forest."
     },
     {
       "id": "iron_plate",
       "icon": "shield-plus",
+      "art": "item_iron_plate",
       "name": "Iron Plate",
       "type": "armor",
       "price": 450,
@@ -395,7 +421,7 @@
       "classes": [
         "fighter"
       ],
-      "level": 12,
+      "level": 38,
       "recolor": [
         {
           "hue": [
@@ -413,6 +439,7 @@
     {
       "id": "mage_robe",
       "icon": "shield-star",
+      "art": "item_mage_robe",
       "name": "Mage Robe",
       "type": "armor",
       "price": 450,
@@ -424,7 +451,7 @@
       "classes": [
         "mage"
       ],
-      "level": 12,
+      "level": 38,
       "recolor": [
         {
           "hue": [
@@ -442,6 +469,7 @@
     {
       "id": "tamer_jacket",
       "icon": "shield-heart",
+      "art": "item_tamer_jacket",
       "name": "Tamer Jacket",
       "type": "armor",
       "price": 450,
@@ -452,7 +480,7 @@
       "classes": [
         "tamer"
       ],
-      "level": 12,
+      "level": 38,
       "recolor": [
         {
           "hue": [
@@ -470,6 +498,7 @@
     {
       "id": "dragon_mail",
       "icon": "shield-plus",
+      "art": "item_dragon_mail",
       "name": "Dragon Mail",
       "type": "armor",
       "price": 1400,
@@ -477,7 +506,7 @@
         "defense": 28,
         "hp": 50
       },
-      "level": 20,
+      "level": 65,
       "recolor": [
         {
           "hue": [
@@ -495,6 +524,7 @@
     {
       "id": "snow_cloak",
       "icon": "shield-star",
+      "art": "item_snow_cloak",
       "name": "Snow Cloak",
       "type": "armor",
       "price": 1500,
@@ -502,7 +532,7 @@
         "defense": 30,
         "magic": 10
       },
-      "level": 24,
+      "level": 78,
       "recolor": [
         {
           "hue": [
@@ -520,38 +550,2300 @@
     {
       "id": "star_charm",
       "icon": "gem",
+      "art": "item_star_charm",
       "name": "Star Charm",
       "type": "accessory",
       "price": 500,
       "stats": {
         "magic": 10
       },
-      "level": 15,
+      "level": 48,
       "description": "Twinkles when you cast."
     },
     {
       "id": "power_band",
       "icon": "ring",
+      "art": "item_power_band",
       "name": "Power Band",
       "type": "accessory",
       "price": 500,
       "stats": {
         "attack": 10
       },
-      "level": 15,
+      "level": 48,
       "description": "Makes you feel mighty."
     },
     {
       "id": "speed_boots",
       "icon": "clover",
+      "art": "item_speed_boots",
       "name": "Speed Boots",
       "type": "accessory",
       "price": 900,
       "stats": {
         "speed": 8
       },
-      "level": 18,
+      "level": 58,
       "description": "Zoom!"
+    },
+    {
+      "id": "bamboo_staff",
+      "icon": "wand",
+      "art": "item_bamboo_staff",
+      "name": "Green Bamboo Staff",
+      "type": "weapon",
+      "price": 40,
+      "stats": {
+        "magic": 4
+      },
+      "classes": [
+        "novice",
+        "mage"
+      ],
+      "description": "Cut fresh from the grove behind the village.",
+      "recipe": {
+        "bamboo": 4,
+        "bronze_ingot": 1
+      }
+    },
+    {
+      "id": "rattan_staff",
+      "icon": "wand",
+      "art": "item_rattan_staff",
+      "name": "Rattan Staff",
+      "type": "weapon",
+      "price": 65,
+      "stats": {
+        "magic": 6
+      },
+      "classes": [
+        "novice",
+        "mage"
+      ],
+      "description": "Bends, but never breaks.",
+      "level": 5,
+      "recipe": {
+        "rattan": 4,
+        "bronze_ingot": 1
+      }
+    },
+    {
+      "id": "heavy_rattan_staff",
+      "icon": "wand",
+      "art": "item_heavy_rattan_staff",
+      "name": "Heavy Rattan Staff",
+      "type": "weapon",
+      "price": 140,
+      "stats": {
+        "magic": 8
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Bound with bronze for a proper swing.",
+      "level": 10,
+      "recipe": {
+        "poplar": 6,
+        "bronze_ingot": 2,
+        "amber": 1
+      }
+    },
+    {
+      "id": "lightwood_staff",
+      "icon": "wand",
+      "art": "item_lightwood_staff",
+      "name": "Lightwood Staff",
+      "type": "weapon",
+      "price": 265,
+      "stats": {
+        "magic": 11
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Light as a feather, quick as a thought.",
+      "level": 15,
+      "recipe": {
+        "poplar": 6,
+        "copper_ingot": 2,
+        "amber": 1
+      }
+    },
+    {
+      "id": "brownwood_staff",
+      "icon": "wand",
+      "art": "item_brownwood_staff",
+      "name": "Brownwood Staff",
+      "type": "weapon",
+      "price": 440,
+      "stats": {
+        "magic": 13
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Old wood that remembers every spell.",
+      "level": 20,
+      "recipe": {
+        "teak": 8,
+        "copper_ingot": 2,
+        "amber": 1
+      }
+    },
+    {
+      "id": "blossom_staff",
+      "icon": "wand",
+      "art": "item_blossom_staff",
+      "name": "Blossom Staff",
+      "type": "weapon",
+      "price": 665,
+      "stats": {
+        "magic": 15
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Scatters petals with every cast.",
+      "level": 25,
+      "recipe": {
+        "teak": 8,
+        "iron_ingot": 2,
+        "cats_eye": 1
+      }
+    },
+    {
+      "id": "teak_staff",
+      "icon": "wand",
+      "art": "item_teak_staff",
+      "name": "Teak Staff",
+      "type": "weapon",
+      "price": 940,
+      "stats": {
+        "magic": 18
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Polished teak with a sea-green stone.",
+      "level": 30,
+      "recipe": {
+        "red_cypress": 8,
+        "silver_ingot": 2,
+        "cats_eye": 1
+      }
+    },
+    {
+      "id": "heavywood_staff",
+      "icon": "wand",
+      "art": "item_heavywood_staff",
+      "name": "Heavywood Staff",
+      "type": "weapon",
+      "price": 1265,
+      "stats": {
+        "magic": 20
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Capped in iron. Mages don't only cast.",
+      "level": 35,
+      "recipe": {
+        "red_cypress": 8,
+        "silver_ingot": 2,
+        "emerald": 1
+      }
+    },
+    {
+      "id": "red_cypress_staff",
+      "icon": "wand",
+      "art": "item_red_cypress_staff",
+      "name": "Red Cypress Staff",
+      "type": "weapon",
+      "price": 1640,
+      "stats": {
+        "magic": 22
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Smells of warm forests.",
+      "level": 40,
+      "recipe": {
+        "yew": 8,
+        "gold_ingot": 2,
+        "emerald": 1
+      }
+    },
+    {
+      "id": "blood_cypress_staff",
+      "icon": "wand",
+      "art": "item_blood_cypress_staff",
+      "name": "Blood Cypress Staff",
+      "type": "weapon",
+      "price": 2065,
+      "stats": {
+        "magic": 24
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Its ruby glows before a fight.",
+      "level": 45,
+      "recipe": {
+        "yew": 8,
+        "steel_ingot": 2,
+        "azurite": 1
+      }
+    },
+    {
+      "id": "yew_staff",
+      "icon": "wand",
+      "art": "item_yew_staff",
+      "name": "Yew Staff",
+      "type": "weapon",
+      "price": 2540,
+      "stats": {
+        "magic": 26
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Purple yew, hard as stone.",
+      "level": 50,
+      "recipe": {
+        "ebony": 8,
+        "steel_ingot": 3,
+        "topaz": 1
+      }
+    },
+    {
+      "id": "purple_star_staff",
+      "icon": "wand",
+      "art": "item_purple_star_staff",
+      "name": "Purple Star Staff",
+      "type": "weapon",
+      "price": 3065,
+      "stats": {
+        "magic": 29
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "A little star is caught at the tip.",
+      "level": 55,
+      "recipe": {
+        "ebony": 8,
+        "steel_ingot": 3,
+        "agate": 1
+      }
+    },
+    {
+      "id": "armorbreaker_staff",
+      "icon": "wand",
+      "art": "item_armorbreaker_staff",
+      "name": "Armorbreaker Staff",
+      "type": "weapon",
+      "price": 3640,
+      "stats": {
+        "magic": 31
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Cracks shells and spells alike.",
+      "level": 60,
+      "recipe": {
+        "hemlock": 8,
+        "alloy_steel": 3,
+        "agate": 1
+      }
+    },
+    {
+      "id": "ironcrusher_staff",
+      "icon": "wand",
+      "art": "item_ironcrusher_staff",
+      "name": "Ironcrusher Staff",
+      "type": "weapon",
+      "price": 4265,
+      "stats": {
+        "magic": 33
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Heavy iron through and through.",
+      "level": 65,
+      "recipe": {
+        "hemlock": 8,
+        "alloy_steel": 3,
+        "diamond": 1
+      }
+    },
+    {
+      "id": "red_cloud_staff",
+      "icon": "wand",
+      "art": "item_red_cloud_staff",
+      "name": "Red Cloud Staff",
+      "type": "weapon",
+      "price": 4940,
+      "stats": {
+        "magic": 36
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "A cloud rests on it like a hat.",
+      "level": 70,
+      "recipe": {
+        "red_yew": 8,
+        "platinum_ingot": 3,
+        "diamond": 1
+      }
+    },
+    {
+      "id": "titanium_sceptre",
+      "icon": "wand",
+      "art": "item_titanium_sceptre",
+      "name": "Titanium Sceptre",
+      "type": "weapon",
+      "price": 5665,
+      "stats": {
+        "magic": 38
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Cold, bright and nearly weightless.",
+      "level": 75,
+      "recipe": {
+        "red_yew": 8,
+        "titanium_alloy": 3,
+        "chalcedony": 1
+      }
+    },
+    {
+      "id": "emperor_sceptre",
+      "icon": "wand",
+      "art": "item_emperor_sceptre",
+      "name": "Emperor's Sceptre",
+      "type": "weapon",
+      "price": 6440,
+      "stats": {
+        "magic": 40
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Once held by a fairy-tale king.",
+      "level": 80,
+      "recipe": {
+        "red_yew": 8,
+        "tungsten_alloy": 3,
+        "chalcedony": 1
+      }
+    },
+    {
+      "id": "aurora_staff",
+      "icon": "wand",
+      "art": "item_aurora_staff",
+      "name": "Aurora Staff",
+      "type": "weapon",
+      "price": 7265,
+      "stats": {
+        "magic": 42
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Holds the northern lights.",
+      "level": 85,
+      "recipe": {
+        "red_yew": 8,
+        "tungsten_alloy": 3,
+        "chalcedony": 2
+      }
+    },
+    {
+      "id": "ghost_staff",
+      "icon": "wand",
+      "art": "item_ghost_staff",
+      "name": "Ghost Staff",
+      "type": "weapon",
+      "price": 8140,
+      "stats": {
+        "magic": 44
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Something friendly lives inside. Probably.",
+      "level": 90,
+      "recipe": {
+        "red_yew": 8,
+        "dragon_steel": 3,
+        "dragon_pearl": 2
+      }
+    },
+    {
+      "id": "sky_ending_staff",
+      "icon": "wand",
+      "art": "item_sky_ending_staff",
+      "name": "Sky-Ending Staff",
+      "type": "weapon",
+      "price": 9065,
+      "stats": {
+        "magic": 47
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Said to split the sky in two.",
+      "level": 95,
+      "recipe": {
+        "red_yew": 8,
+        "dragon_steel": 3,
+        "dragon_pearl": 2
+      }
+    },
+    {
+      "id": "luna_staff",
+      "icon": "wand",
+      "art": "item_luna_staff",
+      "name": "Luna Staff",
+      "type": "weapon",
+      "price": 10040,
+      "stats": {
+        "magic": 49
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "Brightest under a full moon.",
+      "level": 100,
+      "recipe": {
+        "red_yew": 8,
+        "dragon_steel": 3,
+        "dragon_pearl": 2
+      }
+    },
+    {
+      "id": "dragon_god_staff",
+      "icon": "wand",
+      "art": "item_dragon_god_staff",
+      "name": "Dragon God Staff",
+      "type": "weapon",
+      "price": 11065,
+      "stats": {
+        "magic": 51
+      },
+      "classes": [
+        "mage"
+      ],
+      "description": "The staff of the Dragon God himself.",
+      "level": 105,
+      "recipe": {
+        "red_yew": 8,
+        "dragon_steel": 3,
+        "dragon_pearl": 2
+      }
+    },
+    {
+      "id": "novice_bronze_sword",
+      "icon": "sword",
+      "art": "item_novice_bronze_sword",
+      "name": "Novice Bronze Sword",
+      "type": "weapon",
+      "price": 40,
+      "stats": {
+        "attack": 4
+      },
+      "classes": [
+        "novice",
+        "fighter"
+      ],
+      "recipe": {
+        "bamboo": 4,
+        "bronze_ingot": 2
+      },
+      "description": "Every hero's first real blade."
+    },
+    {
+      "id": "bronze_sword",
+      "icon": "sword",
+      "art": "item_bronze_sword",
+      "name": "Bronze Sword",
+      "type": "weapon",
+      "price": 65,
+      "stats": {
+        "attack": 6
+      },
+      "classes": [
+        "novice",
+        "fighter"
+      ],
+      "level": 5,
+      "recipe": {
+        "rattan": 4,
+        "bronze_ingot": 2
+      },
+      "description": "Warm-coloured and dependable."
+    },
+    {
+      "id": "bronze_broadsword",
+      "icon": "sword",
+      "art": "item_bronze_broadsword",
+      "name": "Bronze Broadsword",
+      "type": "weapon",
+      "price": 140,
+      "stats": {
+        "attack": 8
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 10,
+      "recipe": {
+        "poplar": 4,
+        "bronze_ingot": 2
+      },
+      "description": "Wide enough to hide behind. Almost."
+    },
+    {
+      "id": "bronze_longsword",
+      "icon": "sword",
+      "art": "item_bronze_longsword",
+      "name": "Bronze Longsword",
+      "type": "weapon",
+      "price": 265,
+      "stats": {
+        "attack": 11
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 15,
+      "recipe": {
+        "poplar": 4,
+        "copper_ingot": 2
+      },
+      "description": "A longer reach for a braver fighter."
+    },
+    {
+      "id": "copper_sword",
+      "icon": "sword",
+      "art": "item_copper_sword",
+      "name": "Copper Sword",
+      "type": "weapon",
+      "price": 440,
+      "stats": {
+        "attack": 13
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 20,
+      "recipe": {
+        "teak": 4,
+        "copper_ingot": 2
+      },
+      "description": "Polished until it glows like sunset."
+    },
+    {
+      "id": "iron_longsword",
+      "icon": "sword",
+      "art": "item_iron_longsword",
+      "name": "Iron Longsword",
+      "type": "weapon",
+      "price": 665,
+      "stats": {
+        "attack": 15,
+        "speed": 1
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 25,
+      "recipe": {
+        "teak": 4,
+        "iron_ingot": 2
+      },
+      "description": "Plain iron, honestly forged."
+    },
+    {
+      "id": "silver_inlaid_longsword",
+      "icon": "sword",
+      "art": "item_silver_inlaid_longsword",
+      "name": "Silver-Inlaid Longsword",
+      "type": "weapon",
+      "price": 940,
+      "stats": {
+        "attack": 18,
+        "speed": 1
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 30,
+      "recipe": {
+        "red_cypress": 4,
+        "silver_ingot": 3
+      },
+      "description": "Iron with a silver thread down the fuller."
+    },
+    {
+      "id": "silver_sword",
+      "icon": "sword",
+      "art": "item_silver_sword",
+      "name": "Silver Sword",
+      "type": "weapon",
+      "price": 1265,
+      "stats": {
+        "attack": 20,
+        "speed": 1
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 35,
+      "recipe": {
+        "red_cypress": 4,
+        "silver_ingot": 3
+      },
+      "description": "Ghosts don't like it one bit."
+    },
+    {
+      "id": "blue_frost_sword",
+      "icon": "sword",
+      "art": "item_blue_frost_sword",
+      "name": "Blue Frost Sword",
+      "type": "weapon",
+      "price": 1640,
+      "stats": {
+        "attack": 22,
+        "speed": 2
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 40,
+      "recipe": {
+        "yew": 4,
+        "gold_ingot": 3,
+        "silver_ingot": 1
+      },
+      "description": "Cold to the touch, even in the desert."
+    },
+    {
+      "id": "tempered_steel_sword",
+      "icon": "sword",
+      "art": "item_tempered_steel_sword",
+      "name": "Tempered Steel Sword",
+      "type": "weapon",
+      "price": 2065,
+      "stats": {
+        "attack": 24,
+        "speed": 2
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 45,
+      "recipe": {
+        "yew": 4,
+        "steel_ingot": 3,
+        "gold_ingot": 1
+      },
+      "description": "Folded steel, quenched in snowmelt."
+    },
+    {
+      "id": "golden_sword",
+      "icon": "sword",
+      "art": "item_golden_sword",
+      "name": "Golden Sword",
+      "type": "weapon",
+      "price": 2540,
+      "stats": {
+        "attack": 26,
+        "speed": 2
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 50,
+      "recipe": {
+        "ebony": 4,
+        "steel_ingot": 3,
+        "gold_ingot": 1
+      },
+      "description": "Heavy, gaudy and surprisingly sharp."
+    },
+    {
+      "id": "silver_steel_sword",
+      "icon": "sword",
+      "art": "item_silver_steel_sword",
+      "name": "Silver Steel Sword",
+      "type": "weapon",
+      "price": 3065,
+      "stats": {
+        "attack": 29,
+        "speed": 2
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 55,
+      "recipe": {
+        "ebony": 4,
+        "steel_ingot": 3,
+        "gold_ingot": 1
+      },
+      "description": "Steel for strength, silver for shine."
+    },
+    {
+      "id": "serpent_sword",
+      "icon": "sword",
+      "art": "item_serpent_sword",
+      "name": "Serpent Sword",
+      "type": "weapon",
+      "price": 3640,
+      "stats": {
+        "attack": 31,
+        "speed": 2
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 60,
+      "recipe": {
+        "hemlock": 4,
+        "alloy_steel": 3,
+        "steel_ingot": 1
+      },
+      "description": "The blade winds like a snake."
+    },
+    {
+      "id": "alloy_shortsword",
+      "icon": "sword",
+      "art": "item_alloy_shortsword",
+      "name": "Alloy Shortsword",
+      "type": "weapon",
+      "price": 4265,
+      "stats": {
+        "attack": 33,
+        "speed": 3
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 65,
+      "recipe": {
+        "hemlock": 4,
+        "alloy_steel": 3,
+        "steel_ingot": 1
+      },
+      "description": "Short, light and very quick."
+    },
+    {
+      "id": "platinum_longsword",
+      "icon": "sword",
+      "art": "item_platinum_longsword",
+      "name": "Platinum Longsword",
+      "type": "weapon",
+      "price": 4940,
+      "stats": {
+        "attack": 36,
+        "speed": 3
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 70,
+      "recipe": {
+        "red_yew": 4,
+        "platinum_ingot": 3,
+        "alloy_steel": 1
+      },
+      "description": "Never rusts, never dulls."
+    },
+    {
+      "id": "ironcleaver_sword",
+      "icon": "sword",
+      "art": "item_ironcleaver_sword",
+      "name": "Ironcleaver",
+      "type": "weapon",
+      "price": 5665,
+      "stats": {
+        "attack": 38,
+        "speed": 3
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 75,
+      "recipe": {
+        "red_yew": 4,
+        "titanium_alloy": 3,
+        "platinum_ingot": 1
+      },
+      "description": "Cuts through iron like bread."
+    },
+    {
+      "id": "tungsten_dragonslayer",
+      "icon": "sword",
+      "art": "item_tungsten_dragonslayer",
+      "name": "Tungsten Dragonslayer",
+      "type": "weapon",
+      "price": 6440,
+      "stats": {
+        "attack": 40,
+        "speed": 3
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 80,
+      "recipe": {
+        "red_yew": 4,
+        "tungsten_alloy": 3,
+        "titanium_alloy": 1
+      },
+      "description": "Forged for one purpose."
+    },
+    {
+      "id": "aurora_blade",
+      "icon": "sword",
+      "art": "item_aurora_blade",
+      "name": "Aurora Blade",
+      "type": "weapon",
+      "price": 7265,
+      "stats": {
+        "attack": 42,
+        "speed": 3
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 85,
+      "recipe": {
+        "red_yew": 4,
+        "tungsten_alloy": 3,
+        "titanium_alloy": 1,
+        "chalcedony": 1
+      },
+      "description": "Shimmers green and violet when swung."
+    },
+    {
+      "id": "phantom_blade",
+      "icon": "sword",
+      "art": "item_phantom_blade",
+      "name": "Phantom Blade",
+      "type": "weapon",
+      "price": 8140,
+      "stats": {
+        "attack": 44,
+        "speed": 4
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 90,
+      "recipe": {
+        "red_yew": 4,
+        "dragon_steel": 3,
+        "tungsten_alloy": 1,
+        "dragon_pearl": 1
+      },
+      "description": "Hard to see, harder to dodge."
+    },
+    {
+      "id": "sky_splitter",
+      "icon": "sword",
+      "art": "item_sky_splitter",
+      "name": "Sky Splitter",
+      "type": "weapon",
+      "price": 9065,
+      "stats": {
+        "attack": 47,
+        "speed": 4
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 95,
+      "recipe": {
+        "red_yew": 4,
+        "dragon_steel": 3,
+        "tungsten_alloy": 1,
+        "dragon_pearl": 1
+      },
+      "description": "Leaves a line of clear sky behind it."
+    },
+    {
+      "id": "moonlight_sword",
+      "icon": "sword",
+      "art": "item_moonlight_sword",
+      "name": "Moonlight Sword",
+      "type": "weapon",
+      "price": 10040,
+      "stats": {
+        "attack": 49,
+        "speed": 4
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 100,
+      "recipe": {
+        "red_yew": 4,
+        "dragon_steel": 3,
+        "tungsten_alloy": 1,
+        "dragon_pearl": 1
+      },
+      "description": "Brightest under a full moon."
+    },
+    {
+      "id": "dragon_god_sword",
+      "icon": "sword",
+      "art": "item_dragon_god_sword",
+      "name": "Dragon God Sword",
+      "type": "weapon",
+      "price": 11065,
+      "stats": {
+        "attack": 51,
+        "speed": 4
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 105,
+      "recipe": {
+        "red_yew": 4,
+        "dragon_steel": 3,
+        "tungsten_alloy": 1,
+        "dragon_pearl": 1
+      },
+      "description": "The sword of the Dragon God himself."
+    },
+    {
+      "id": "novice_axe",
+      "icon": "axe",
+      "art": "item_novice_axe",
+      "name": "Novice Axe",
+      "type": "weapon",
+      "price": 40,
+      "stats": {
+        "attack": 6
+      },
+      "classes": [
+        "novice",
+        "fighter"
+      ],
+      "recipe": {
+        "bamboo": 6,
+        "bronze_ingot": 2
+      },
+      "description": "Small, but it bites."
+    },
+    {
+      "id": "small_hatchet",
+      "icon": "axe",
+      "art": "item_small_hatchet",
+      "name": "Small Hatchet",
+      "type": "weapon",
+      "price": 65,
+      "stats": {
+        "attack": 8
+      },
+      "classes": [
+        "novice",
+        "fighter"
+      ],
+      "level": 5,
+      "recipe": {
+        "rattan": 6,
+        "bronze_ingot": 3
+      },
+      "description": "Good for kindling and for goblins."
+    },
+    {
+      "id": "wood_axe",
+      "icon": "axe",
+      "art": "item_wood_axe",
+      "name": "Woodcutter's Axe",
+      "type": "weapon",
+      "price": 140,
+      "stats": {
+        "attack": 10
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 10,
+      "recipe": {
+        "poplar": 6,
+        "bronze_ingot": 3
+      },
+      "description": "Borrowed from the mill. Please return it."
+    },
+    {
+      "id": "hand_axe",
+      "icon": "axe",
+      "art": "item_hand_axe",
+      "name": "Hand Axe",
+      "type": "weapon",
+      "price": 265,
+      "stats": {
+        "attack": 12
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 15,
+      "recipe": {
+        "poplar": 6,
+        "copper_ingot": 3
+      },
+      "description": "Balanced for one hand."
+    },
+    {
+      "id": "copper_plate_axe",
+      "icon": "axe",
+      "art": "item_copper_plate_axe",
+      "name": "Copper Plate Axe",
+      "type": "weapon",
+      "price": 440,
+      "stats": {
+        "attack": 15
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 20,
+      "recipe": {
+        "teak": 6,
+        "copper_ingot": 3
+      },
+      "description": "A broad copper head riveted on tight."
+    },
+    {
+      "id": "light_war_axe",
+      "icon": "axe",
+      "art": "item_light_war_axe",
+      "name": "Light War Axe",
+      "type": "weapon",
+      "price": 665,
+      "stats": {
+        "attack": 18
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 25,
+      "recipe": {
+        "teak": 6,
+        "iron_ingot": 3
+      },
+      "description": "Two edges, half the weight."
+    },
+    {
+      "id": "windchaser_axe",
+      "icon": "axe",
+      "art": "item_windchaser_axe",
+      "name": "Windchaser Axe",
+      "type": "weapon",
+      "price": 940,
+      "stats": {
+        "attack": 20
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 30,
+      "recipe": {
+        "red_cypress": 6,
+        "silver_ingot": 3
+      },
+      "description": "Whistles as it flies."
+    },
+    {
+      "id": "iron_bead_axe",
+      "icon": "axe",
+      "art": "item_iron_bead_axe",
+      "name": "Iron Bead Axe",
+      "type": "weapon",
+      "price": 1265,
+      "stats": {
+        "attack": 22
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 35,
+      "recipe": {
+        "red_cypress": 8,
+        "silver_ingot": 3,
+        "iron_ingot": 2
+      },
+      "description": "An iron bead weights the blow."
+    },
+    {
+      "id": "curved_war_axe",
+      "icon": "axe",
+      "art": "item_curved_war_axe",
+      "name": "Curved War Axe",
+      "type": "weapon",
+      "price": 1640,
+      "stats": {
+        "attack": 25
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 40,
+      "recipe": {
+        "yew": 8,
+        "gold_ingot": 4,
+        "silver_ingot": 2
+      },
+      "description": "The long curve bites deep."
+    },
+    {
+      "id": "steel_axe",
+      "icon": "axe",
+      "art": "item_steel_axe",
+      "name": "Steel Axe",
+      "type": "weapon",
+      "price": 2065,
+      "stats": {
+        "attack": 28
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 45,
+      "recipe": {
+        "yew": 8,
+        "steel_ingot": 4,
+        "gold_ingot": 2
+      },
+      "description": "Plain, hard and heavy."
+    },
+    {
+      "id": "twin_blade_axe",
+      "icon": "axe",
+      "art": "item_twin_blade_axe",
+      "name": "Twin-Blade Axe",
+      "type": "weapon",
+      "price": 2540,
+      "stats": {
+        "attack": 30
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 50,
+      "recipe": {
+        "ebony": 8,
+        "steel_ingot": 4,
+        "gold_ingot": 2
+      },
+      "description": "Dwarves swear by it."
+    },
+    {
+      "id": "long_war_axe",
+      "icon": "axe",
+      "art": "item_long_war_axe",
+      "name": "Long War Axe",
+      "type": "weapon",
+      "price": 3065,
+      "stats": {
+        "attack": 32
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 55,
+      "recipe": {
+        "ebony": 8,
+        "steel_ingot": 4,
+        "gold_ingot": 2
+      },
+      "description": "Keeps big monsters at arm's length."
+    },
+    {
+      "id": "grey_dragon_axe",
+      "icon": "axe",
+      "art": "item_grey_dragon_axe",
+      "name": "Grey Dragon Axe",
+      "type": "weapon",
+      "price": 3640,
+      "stats": {
+        "attack": 35
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 60,
+      "recipe": {
+        "hemlock": 8,
+        "alloy_steel": 4,
+        "steel_ingot": 2
+      },
+      "description": "Carved with a sleeping grey dragon."
+    },
+    {
+      "id": "overlord_axe",
+      "icon": "axe",
+      "art": "item_overlord_axe",
+      "name": "Overlord Axe",
+      "type": "weapon",
+      "price": 4265,
+      "stats": {
+        "attack": 38
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 65,
+      "recipe": {
+        "hemlock": 8,
+        "alloy_steel": 4,
+        "steel_ingot": 2
+      },
+      "description": "Made for someone who gives orders."
+    },
+    {
+      "id": "alloy_twin_war_axe",
+      "icon": "axe",
+      "art": "item_alloy_twin_war_axe",
+      "name": "Alloy Twin War Axe",
+      "type": "weapon",
+      "price": 4940,
+      "stats": {
+        "attack": 40
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 70,
+      "recipe": {
+        "red_yew": 8,
+        "platinum_ingot": 4,
+        "alloy_steel": 2
+      },
+      "description": "Two alloy heads, both hungry."
+    },
+    {
+      "id": "titanium_dwarf_axe",
+      "icon": "axe",
+      "art": "item_titanium_dwarf_axe",
+      "name": "Titanium Dwarf Axe",
+      "type": "weapon",
+      "price": 5665,
+      "stats": {
+        "attack": 42
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 75,
+      "recipe": {
+        "red_yew": 8,
+        "titanium_alloy": 4,
+        "platinum_ingot": 2
+      },
+      "description": "Dwarf-made. It says so on the handle."
+    },
+    {
+      "id": "tungsten_skybreaker",
+      "icon": "axe",
+      "art": "item_tungsten_skybreaker",
+      "name": "Tungsten Skybreaker",
+      "type": "weapon",
+      "price": 6440,
+      "stats": {
+        "attack": 45
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 80,
+      "recipe": {
+        "red_yew": 8,
+        "tungsten_alloy": 4,
+        "titanium_alloy": 2
+      },
+      "description": "Said to crack the sky itself."
+    },
+    {
+      "id": "aurora_axe",
+      "icon": "axe",
+      "art": "item_aurora_axe",
+      "name": "Aurora Axe",
+      "type": "weapon",
+      "price": 7265,
+      "stats": {
+        "attack": 48
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 85,
+      "recipe": {
+        "red_yew": 8,
+        "tungsten_alloy": 4,
+        "titanium_alloy": 2,
+        "chalcedony": 1
+      },
+      "description": "Holds the northern lights in its edge."
+    },
+    {
+      "id": "phantom_axe",
+      "icon": "axe",
+      "art": "item_phantom_axe",
+      "name": "Phantom Axe",
+      "type": "weapon",
+      "price": 8140,
+      "stats": {
+        "attack": 50
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 90,
+      "recipe": {
+        "red_yew": 8,
+        "dragon_steel": 4,
+        "tungsten_alloy": 2,
+        "dragon_pearl": 1
+      },
+      "description": "It swings a moment before you do."
+    },
+    {
+      "id": "thunder_god_axe",
+      "icon": "axe",
+      "art": "item_thunder_god_axe",
+      "name": "Thunder God Axe",
+      "type": "weapon",
+      "price": 9065,
+      "stats": {
+        "attack": 52
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 95,
+      "recipe": {
+        "red_yew": 8,
+        "dragon_steel": 4,
+        "tungsten_alloy": 2,
+        "dragon_pearl": 1
+      },
+      "description": "Every blow comes with a rumble."
+    },
+    {
+      "id": "luna_axe",
+      "icon": "axe",
+      "art": "item_luna_axe",
+      "name": "Luna Axe",
+      "type": "weapon",
+      "price": 10040,
+      "stats": {
+        "attack": 55
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 100,
+      "recipe": {
+        "red_yew": 8,
+        "dragon_steel": 4,
+        "tungsten_alloy": 2,
+        "dragon_pearl": 1
+      },
+      "description": "Its edge is a slice of the moon."
+    },
+    {
+      "id": "dragon_god_axe",
+      "icon": "axe",
+      "art": "item_dragon_god_axe",
+      "name": "Dragon God Axe",
+      "type": "weapon",
+      "price": 11065,
+      "stats": {
+        "attack": 58
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 105,
+      "recipe": {
+        "red_yew": 8,
+        "dragon_steel": 4,
+        "tungsten_alloy": 2,
+        "dragon_pearl": 1
+      },
+      "description": "The axe of the Dragon God himself."
+    },
+    {
+      "id": "sheepskin_whip",
+      "icon": "paw",
+      "art": "item_sheepskin_whip",
+      "name": "Sheepskin Whip",
+      "type": "weapon",
+      "price": 40,
+      "stats": {
+        "attack": 3,
+        "speed": 1
+      },
+      "classes": [
+        "novice",
+        "tamer"
+      ],
+      "recipe": {
+        "sheepskin": 2,
+        "bamboo": 2
+      },
+      "description": "Soft enough to tickle."
+    },
+    {
+      "id": "handy_whip",
+      "icon": "paw",
+      "art": "item_handy_whip",
+      "name": "Handy Whip",
+      "type": "weapon",
+      "price": 65,
+      "stats": {
+        "attack": 4,
+        "speed": 1
+      },
+      "classes": [
+        "novice",
+        "tamer"
+      ],
+      "level": 5,
+      "recipe": {
+        "sheepskin": 2,
+        "rattan": 2
+      },
+      "description": "Just the right length."
+    },
+    {
+      "id": "cowhide_whip",
+      "icon": "paw",
+      "art": "item_cowhide_whip",
+      "name": "Cowhide Whip",
+      "type": "weapon",
+      "price": 140,
+      "stats": {
+        "attack": 6,
+        "speed": 1
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 10,
+      "recipe": {
+        "cowhide": 4,
+        "poplar": 2
+      },
+      "description": "Cracks loud enough to startle birds."
+    },
+    {
+      "id": "strong_ox_whip",
+      "icon": "paw",
+      "art": "item_strong_ox_whip",
+      "name": "Strong Ox Whip",
+      "type": "weapon",
+      "price": 265,
+      "stats": {
+        "attack": 7,
+        "speed": 2
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 15,
+      "recipe": {
+        "cowhide": 4,
+        "poplar": 2
+      },
+      "description": "Braided from the toughest hide."
+    },
+    {
+      "id": "whitewood_whip",
+      "icon": "paw",
+      "art": "item_whitewood_whip",
+      "name": "Whitewood Whip",
+      "type": "weapon",
+      "price": 440,
+      "stats": {
+        "attack": 9,
+        "speed": 2
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 20,
+      "recipe": {
+        "cowhide": 4,
+        "teak": 4
+      },
+      "description": "A pale poplar handle, well worn."
+    },
+    {
+      "id": "cactus_whip",
+      "icon": "paw",
+      "art": "item_cactus_whip",
+      "name": "Cactus Whip",
+      "type": "weapon",
+      "price": 665,
+      "stats": {
+        "attack": 10,
+        "speed": 3
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 25,
+      "recipe": {
+        "cowhide": 4,
+        "teak": 4
+      },
+      "description": "Prickly. Hold it by the handle."
+    },
+    {
+      "id": "teak_whip",
+      "icon": "paw",
+      "art": "item_teak_whip",
+      "name": "Teak Whip",
+      "type": "weapon",
+      "price": 940,
+      "stats": {
+        "attack": 12,
+        "speed": 4
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 30,
+      "recipe": {
+        "deer_hide": 6,
+        "red_cypress": 4
+      },
+      "description": "A teak handle and a deerskin lash."
+    },
+    {
+      "id": "golden_deer_whip",
+      "icon": "paw",
+      "art": "item_golden_deer_whip",
+      "name": "Golden Deer Whip",
+      "type": "weapon",
+      "price": 1265,
+      "stats": {
+        "attack": 14,
+        "speed": 4
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 35,
+      "recipe": {
+        "deer_hide": 6,
+        "red_cypress": 4
+      },
+      "description": "Tipped in gold, like a deer's antler."
+    },
+    {
+      "id": "red_cypress_whip",
+      "icon": "paw",
+      "art": "item_red_cypress_whip",
+      "name": "Red Cypress Whip",
+      "type": "weapon",
+      "price": 1640,
+      "stats": {
+        "attack": 15,
+        "speed": 5
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 40,
+      "recipe": {
+        "deer_hide": 6,
+        "yew": 6
+      },
+      "description": "Smells of warm forests."
+    },
+    {
+      "id": "deerhide_lash",
+      "icon": "paw",
+      "art": "item_deerhide_lash",
+      "name": "Deerhide Lash",
+      "type": "weapon",
+      "price": 2065,
+      "stats": {
+        "attack": 17,
+        "speed": 6
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 45,
+      "recipe": {
+        "deer_hide": 6,
+        "yew": 6
+      },
+      "description": "Long enough to reach the back row."
+    },
+    {
+      "id": "blue_sky_whip",
+      "icon": "paw",
+      "art": "item_blue_sky_whip",
+      "name": "Blue Sky Whip",
+      "type": "weapon",
+      "price": 2540,
+      "stats": {
+        "attack": 18,
+        "speed": 6
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 50,
+      "recipe": {
+        "marten_fur": 8,
+        "ebony": 8,
+        "topaz": 1
+      },
+      "description": "The colour of a clear morning."
+    },
+    {
+      "id": "amber_whip",
+      "icon": "paw",
+      "art": "item_amber_whip",
+      "name": "Amber Whip",
+      "type": "weapon",
+      "price": 3065,
+      "stats": {
+        "attack": 20,
+        "speed": 7
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 55,
+      "recipe": {
+        "marten_fur": 8,
+        "ebony": 8,
+        "agate": 1
+      },
+      "description": "An amber stone set in the pommel."
+    },
+    {
+      "id": "power_whip",
+      "icon": "paw",
+      "art": "item_power_whip",
+      "name": "Power Whip",
+      "type": "weapon",
+      "price": 3640,
+      "stats": {
+        "attack": 22,
+        "speed": 8
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 60,
+      "recipe": {
+        "crocodile_hide": 8,
+        "hemlock": 8,
+        "agate": 1
+      },
+      "description": "Hits harder than it has any right to."
+    },
+    {
+      "id": "hardened_whip",
+      "icon": "paw",
+      "art": "item_hardened_whip",
+      "name": "Hardened Whip",
+      "type": "weapon",
+      "price": 4265,
+      "stats": {
+        "attack": 23,
+        "speed": 8
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 65,
+      "recipe": {
+        "crocodile_hide": 8,
+        "hemlock": 8,
+        "diamond": 1
+      },
+      "description": "Crocodile hide, hard as armour."
+    },
+    {
+      "id": "crocodile_whip",
+      "icon": "paw",
+      "art": "item_crocodile_whip",
+      "name": "Crocodile Whip",
+      "type": "weapon",
+      "price": 4940,
+      "stats": {
+        "attack": 25,
+        "speed": 9
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 70,
+      "recipe": {
+        "crocodile_hide": 8,
+        "red_yew": 8,
+        "diamond": 1
+      },
+      "description": "Snaps shut like jaws."
+    },
+    {
+      "id": "thorn_whip",
+      "icon": "paw",
+      "art": "item_thorn_whip",
+      "name": "Thorn Whip",
+      "type": "weapon",
+      "price": 5665,
+      "stats": {
+        "attack": 26,
+        "speed": 9
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 75,
+      "recipe": {
+        "dragon_scale": 8,
+        "red_yew": 8,
+        "chalcedony": 1
+      },
+      "description": "Grown, not braided."
+    },
+    {
+      "id": "azure_dragon_whip",
+      "icon": "paw",
+      "art": "item_azure_dragon_whip",
+      "name": "Azure Dragon Whip",
+      "type": "weapon",
+      "price": 6440,
+      "stats": {
+        "attack": 28,
+        "speed": 10
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 80,
+      "recipe": {
+        "dragon_scale": 8,
+        "red_yew": 8,
+        "chalcedony": 2
+      },
+      "description": "Scaled like the Azure Dragon of the east."
+    },
+    {
+      "id": "aurora_whip",
+      "icon": "paw",
+      "art": "item_aurora_whip",
+      "name": "Aurora Whip",
+      "type": "weapon",
+      "price": 7265,
+      "stats": {
+        "attack": 30,
+        "speed": 11
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 85,
+      "recipe": {
+        "dragon_scale": 8,
+        "red_yew": 8,
+        "chalcedony": 2
+      },
+      "description": "Trails light when it cracks."
+    },
+    {
+      "id": "phantom_whip",
+      "icon": "paw",
+      "art": "item_phantom_whip",
+      "name": "Phantom Whip",
+      "type": "weapon",
+      "price": 8140,
+      "stats": {
+        "attack": 31,
+        "speed": 11
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 90,
+      "recipe": {
+        "dragon_scale": 8,
+        "red_yew": 8,
+        "dragon_pearl": 2
+      },
+      "description": "It cracks without a sound."
+    },
+    {
+      "id": "storm_whip",
+      "icon": "paw",
+      "art": "item_storm_whip",
+      "name": "Storm Whip",
+      "type": "weapon",
+      "price": 9065,
+      "stats": {
+        "attack": 33,
+        "speed": 12
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 95,
+      "recipe": {
+        "dragon_scale": 8,
+        "red_yew": 8,
+        "dragon_pearl": 2
+      },
+      "description": "Lightning follows the lash."
+    },
+    {
+      "id": "luna_whip",
+      "icon": "paw",
+      "art": "item_luna_whip",
+      "name": "Luna Whip",
+      "type": "weapon",
+      "price": 10040,
+      "stats": {
+        "attack": 34,
+        "speed": 12
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 100,
+      "recipe": {
+        "dragon_scale": 8,
+        "red_yew": 8,
+        "dragon_pearl": 2
+      },
+      "description": "Silver as moonlight on water."
+    },
+    {
+      "id": "dragon_god_whip",
+      "icon": "paw",
+      "art": "item_dragon_god_whip",
+      "name": "Dragon God Whip",
+      "type": "weapon",
+      "price": 11065,
+      "stats": {
+        "attack": 36,
+        "speed": 13
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 105,
+      "recipe": {
+        "dragon_scale": 8,
+        "red_yew": 8,
+        "dragon_pearl": 2
+      },
+      "description": "The whip of the Dragon God himself."
+    },
+    {
+      "id": "bamboo",
+      "icon": "pine-tree",
+      "art": "item_bamboo",
+      "name": "Bamboo",
+      "type": "material",
+      "material": "wood",
+      "price": 3,
+      "level": 1,
+      "description": "Green bamboo canes. Wood for beginner weapons."
+    },
+    {
+      "id": "rattan",
+      "icon": "pine-tree",
+      "art": "item_rattan",
+      "name": "Rattan",
+      "type": "material",
+      "material": "wood",
+      "price": 7,
+      "level": 5,
+      "description": "Bendy rattan, good for handles."
+    },
+    {
+      "id": "poplar",
+      "icon": "pine-tree",
+      "art": "item_poplar",
+      "name": "White Poplar",
+      "type": "material",
+      "material": "wood",
+      "price": 12,
+      "level": 10,
+      "description": "Pale, light wood."
+    },
+    {
+      "id": "teak",
+      "icon": "pine-tree",
+      "art": "item_teak",
+      "name": "Teak",
+      "type": "material",
+      "material": "wood",
+      "price": 22,
+      "level": 20,
+      "description": "Oily wood that never warps."
+    },
+    {
+      "id": "red_cypress",
+      "icon": "pine-tree",
+      "art": "item_red_cypress",
+      "name": "Red Cypress",
+      "type": "material",
+      "material": "wood",
+      "price": 32,
+      "level": 30,
+      "description": "Warm red wood with a forest smell."
+    },
+    {
+      "id": "yew",
+      "icon": "pine-tree",
+      "art": "item_yew",
+      "name": "Yew",
+      "type": "material",
+      "material": "wood",
+      "price": 42,
+      "level": 40,
+      "description": "Purple-hearted and hard as stone."
+    },
+    {
+      "id": "ebony",
+      "icon": "pine-tree",
+      "art": "item_ebony",
+      "name": "Ebony",
+      "type": "material",
+      "material": "wood",
+      "price": 52,
+      "level": 50,
+      "description": "Almost black, and very heavy."
+    },
+    {
+      "id": "hemlock",
+      "icon": "pine-tree",
+      "art": "item_hemlock",
+      "name": "Iron Hemlock",
+      "type": "material",
+      "material": "wood",
+      "price": 62,
+      "level": 60,
+      "description": "Grey bark, iron-hard core."
+    },
+    {
+      "id": "red_yew",
+      "icon": "pine-tree",
+      "art": "item_red_yew",
+      "name": "Red Yew",
+      "type": "material",
+      "material": "wood",
+      "price": 72,
+      "level": 70,
+      "description": "The rarest wood in the kingdom."
+    },
+    {
+      "id": "bronze_ingot",
+      "icon": "mountain",
+      "art": "item_bronze_ingot",
+      "name": "Bronze Ingot",
+      "type": "material",
+      "material": "metal",
+      "price": 3,
+      "level": 1,
+      "description": "Smelted from copper and tin."
+    },
+    {
+      "id": "copper_ingot",
+      "icon": "mountain",
+      "art": "item_copper_ingot",
+      "name": "Copper Ingot",
+      "type": "material",
+      "material": "metal",
+      "price": 17,
+      "level": 15,
+      "description": "Soft and shiny."
+    },
+    {
+      "id": "iron_ingot",
+      "icon": "mountain",
+      "art": "item_iron_ingot",
+      "name": "Iron Ingot",
+      "type": "material",
+      "material": "metal",
+      "price": 27,
+      "level": 25,
+      "description": "The blacksmith's bread and butter."
+    },
+    {
+      "id": "silver_ingot",
+      "icon": "mountain",
+      "art": "item_silver_ingot",
+      "name": "Silver Ingot",
+      "type": "material",
+      "material": "metal",
+      "price": 32,
+      "level": 30,
+      "description": "Bright, and hated by ghosts."
+    },
+    {
+      "id": "gold_ingot",
+      "icon": "mountain",
+      "art": "item_gold_ingot",
+      "name": "Gold Ingot",
+      "type": "material",
+      "material": "metal",
+      "price": 42,
+      "level": 40,
+      "description": "Heavy and handsome."
+    },
+    {
+      "id": "steel_ingot",
+      "icon": "mountain",
+      "art": "item_steel_ingot",
+      "name": "Steel Ingot",
+      "type": "material",
+      "material": "metal",
+      "price": 47,
+      "level": 45,
+      "description": "Iron, made much tougher."
+    },
+    {
+      "id": "alloy_steel",
+      "icon": "mountain",
+      "art": "item_alloy_steel",
+      "name": "Alloy Steel",
+      "type": "material",
+      "material": "metal",
+      "price": 62,
+      "level": 60,
+      "description": "Steel mixed with something secret."
+    },
+    {
+      "id": "platinum_ingot",
+      "icon": "mountain",
+      "art": "item_platinum_ingot",
+      "name": "Platinum Ingot",
+      "type": "material",
+      "material": "metal",
+      "price": 72,
+      "level": 70,
+      "description": "Never tarnishes."
+    },
+    {
+      "id": "titanium_alloy",
+      "icon": "mountain",
+      "art": "item_titanium_alloy",
+      "name": "Titanium Alloy",
+      "type": "material",
+      "material": "metal",
+      "price": 77,
+      "level": 75,
+      "description": "Light as wood, strong as steel."
+    },
+    {
+      "id": "tungsten_alloy",
+      "icon": "mountain",
+      "art": "item_tungsten_alloy",
+      "name": "Tungsten Alloy",
+      "type": "material",
+      "material": "metal",
+      "price": 82,
+      "level": 80,
+      "description": "Dense enough to dent an anvil."
+    },
+    {
+      "id": "dragon_steel",
+      "icon": "mountain",
+      "art": "item_dragon_steel",
+      "name": "Dragon Steel",
+      "type": "material",
+      "material": "metal",
+      "price": 92,
+      "level": 90,
+      "description": "Forged in dragon fire. Still warm."
+    },
+    {
+      "id": "amber",
+      "icon": "gem",
+      "art": "item_amber",
+      "name": "Amber",
+      "type": "material",
+      "material": "gem",
+      "price": 12,
+      "level": 10,
+      "description": "Honey-coloured and warm."
+    },
+    {
+      "id": "cats_eye",
+      "icon": "gem",
+      "art": "item_cats_eye",
+      "name": "Cat's Eye",
+      "type": "material",
+      "material": "gem",
+      "price": 27,
+      "level": 25,
+      "description": "Seems to follow you around the room."
+    },
+    {
+      "id": "emerald",
+      "icon": "gem",
+      "art": "item_emerald",
+      "name": "Emerald",
+      "type": "material",
+      "material": "gem",
+      "price": 37,
+      "level": 35,
+      "description": "Deep forest green."
+    },
+    {
+      "id": "azurite",
+      "icon": "gem",
+      "art": "item_azurite",
+      "name": "Azurite",
+      "type": "material",
+      "material": "gem",
+      "price": 47,
+      "level": 45,
+      "description": "The blue of a clear sky."
+    },
+    {
+      "id": "topaz",
+      "icon": "gem",
+      "art": "item_topaz",
+      "name": "Topaz",
+      "type": "material",
+      "material": "gem",
+      "price": 52,
+      "level": 50,
+      "description": "A little piece of sunshine."
+    },
+    {
+      "id": "agate",
+      "icon": "gem",
+      "art": "item_agate",
+      "name": "Agate",
+      "type": "material",
+      "material": "gem",
+      "price": 57,
+      "level": 55,
+      "description": "Banded in orange and cream."
+    },
+    {
+      "id": "diamond",
+      "icon": "gem",
+      "art": "item_diamond",
+      "name": "Diamond",
+      "type": "material",
+      "material": "gem",
+      "price": 67,
+      "level": 65,
+      "description": "The hardest thing there is."
+    },
+    {
+      "id": "chalcedony",
+      "icon": "gem",
+      "art": "item_chalcedony",
+      "name": "Chalcedony",
+      "type": "material",
+      "material": "gem",
+      "price": 77,
+      "level": 75,
+      "description": "Milky blue-green jade."
+    },
+    {
+      "id": "dragon_pearl",
+      "icon": "gem",
+      "art": "item_dragon_pearl",
+      "name": "Dragon Pearl",
+      "type": "material",
+      "material": "gem",
+      "price": 92,
+      "level": 90,
+      "description": "A dragon guarded this for a thousand years."
+    },
+    {
+      "id": "sheepskin",
+      "icon": "paw",
+      "art": "item_sheepskin",
+      "name": "Sheepskin",
+      "type": "material",
+      "material": "hide",
+      "price": 3,
+      "level": 1,
+      "description": "Soft and woolly."
+    },
+    {
+      "id": "cowhide",
+      "icon": "paw",
+      "art": "item_cowhide",
+      "name": "Cowhide",
+      "type": "material",
+      "material": "hide",
+      "price": 12,
+      "level": 10,
+      "description": "Tough, patchy leather."
+    },
+    {
+      "id": "deer_hide",
+      "icon": "paw",
+      "art": "item_deer_hide",
+      "name": "Deer Hide",
+      "type": "material",
+      "material": "hide",
+      "price": 32,
+      "level": 30,
+      "description": "Supple and strong."
+    },
+    {
+      "id": "marten_fur",
+      "icon": "paw",
+      "art": "item_marten_fur",
+      "name": "Marten Fur",
+      "type": "material",
+      "material": "hide",
+      "price": 52,
+      "level": 50,
+      "description": "Glossy dark fur."
+    },
+    {
+      "id": "crocodile_hide",
+      "icon": "paw",
+      "art": "item_crocodile_hide",
+      "name": "Crocodile Hide",
+      "type": "material",
+      "material": "hide",
+      "price": 62,
+      "level": 60,
+      "description": "Hard and scaly."
+    },
+    {
+      "id": "dragon_scale",
+      "icon": "paw",
+      "art": "item_dragon_scale",
+      "name": "Dragon Scale",
+      "type": "material",
+      "material": "hide",
+      "price": 77,
+      "level": 75,
+      "description": "Fireproof, and very rare."
     }
   ]
 }

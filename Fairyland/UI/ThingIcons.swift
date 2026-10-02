@@ -5,6 +5,8 @@ struct IconTile: View {
     let icon: GameIcon
     let tint: Color
     var size: CGFloat = 32
+    /// Pixel art shown instead of the icon when there is some.
+    var picture: UIImage? = nil
 
     var body: some View {
         RoundedRectangle(cornerRadius: size * 0.26)
@@ -17,9 +19,17 @@ struct IconTile: View {
                 Capsule().fill(.white.opacity(0.28)).frame(height: size * 0.22).padding(.horizontal, size * 0.14).padding(.top, size * 0.08)
             }
             .overlay {
-                IconImage(icon, size: size * 0.6)
-                    .foregroundStyle(.white)
-                    .shadow(color: HUDStyle.ink.opacity(0.7), radius: 0, x: 0, y: 1)
+                if let picture {
+                    Image(uiImage: picture)
+                        .interpolation(.none)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: size * 0.84, height: size * 0.84)
+                } else {
+                    IconImage(icon, size: size * 0.6)
+                        .foregroundStyle(.white)
+                        .shadow(color: HUDStyle.ink.opacity(0.7), radius: 0, x: 0, y: 1)
+                }
             }
             .frame(width: size, height: size)
             .accessibilityHidden(true)
@@ -31,7 +41,8 @@ struct ItemIcon: View {
     var size: CGFloat = 32
 
     var body: some View {
-        IconTile(icon: item.icon.flatMap(GameIcon.init) ?? .gift, tint: tint, size: size)
+        IconTile(icon: item.icon.flatMap(GameIcon.init) ?? .gift, tint: tint, size: size,
+                 picture: item.art.flatMap(ArtLibrary.shared.artImage))
     }
 
     private var tint: Color {
@@ -40,6 +51,7 @@ struct ItemIcon: View {
         case .weapon: Color(red: 0.5, green: 0.56, blue: 0.68)
         case .armor: Color(red: 0.62, green: 0.45, blue: 0.3)
         case .accessory: Color(red: 0.62, green: 0.4, blue: 0.85)
+        case .material: Color(red: 0.55, green: 0.6, blue: 0.4)
         }
     }
 }

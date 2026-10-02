@@ -359,7 +359,7 @@
           "y": -4
         },
         {
-          "art": "house",
+          "art": "blacksmith",
           "x": 7,
           "y": -4
         },
@@ -713,7 +713,11 @@
             "silk_robe",
             "ranger_cloak",
             "lucky_clover",
-            "ruby_ring"
+            "ruby_ring",
+            "bamboo_staff",
+            "rattan_staff",
+            "heavy_rattan_staff",
+            "lightwood_staff"
           ]
         },
         {
@@ -723,7 +727,8 @@
           "art": "npc_elder",
           "x": 2,
           "y": 3,
-          "greeting": "Ah, a new face! Meadowbrook could use a helping hand."
+          "greeting": "Ah, a new face! Meadowbrook could use a helping hand.",
+          "rebirth": true
         },
         {
           "id": "guild_warrior",
@@ -756,37 +761,13 @@
           "greeting": "The Journeyman Guild! We befriend beasts, not beat them. Well, mostly."
         },
         {
-          "id": "gift_box_1",
-          "name": "Gift Box",
-          "role": "chest",
-          "art": "gift_box",
-          "x": -16,
-          "y": 4,
-          "quest": "hope_of_meadowbrook",
-          "gives": "wooden_sword",
-          "greeting": "A gift box tied with a red ribbon."
-        },
-        {
-          "id": "gift_box_2",
-          "name": "Gift Box",
-          "role": "chest",
-          "art": "gift_box",
-          "x": 16,
-          "y": -5,
-          "quest": "hope_of_meadowbrook",
-          "gives": "novice_ring",
-          "greeting": "A gift box tied with a blue ribbon."
-        },
-        {
-          "id": "gift_box_3",
-          "name": "Gift Box",
-          "role": "chest",
-          "art": "gift_box",
-          "x": 0,
-          "y": -11,
-          "quest": "hope_of_meadowbrook",
-          "gives": "pet_egg",
-          "greeting": "A gift box that seems to... wiggle?"
+          "id": "smith",
+          "name": "Smith Tobin",
+          "role": "smith",
+          "art": "npc_smith",
+          "x": 7,
+          "y": -6,
+          "greeting": "Clang! Bring me wood and metal from the wilds and I'll forge you something fine."
         }
       ],
       "ambience": {
@@ -917,7 +898,7 @@
         ],
         "plaza": 3,
         "lots": [
-          "blacksmith",
+          "house",
           "bakery",
           "inn_red",
           "item_shop_red",
@@ -1413,7 +1394,7 @@
         "graceSteps": 8,
         "levels": [
           1,
-          3
+          8
         ],
         "groupSize": [
           1,
@@ -1677,8 +1658,8 @@
         "rate": 0.07,
         "graceSteps": 7,
         "levels": [
-          3,
-          6
+          8,
+          18
         ],
         "groupSize": [
           1,
@@ -2044,8 +2025,8 @@
         "rate": 0.08,
         "graceSteps": 6,
         "levels": [
-          5,
-          9
+          14,
+          28
         ],
         "groupSize": [
           2,
@@ -2547,8 +2528,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          5,
-          9
+          14,
+          28
         ],
         "groupSize": [
           1,
@@ -3475,7 +3456,13 @@
             "mage_robe",
             "tamer_jacket",
             "star_charm",
-            "power_band"
+            "power_band",
+            "brownwood_staff",
+            "blossom_staff",
+            "teak_staff",
+            "heavywood_staff",
+            "red_cypress_staff",
+            "blood_cypress_staff"
           ]
         },
         {
@@ -3486,6 +3473,15 @@
           "x": 3,
           "y": -4,
           "greeting": "Oh! You came all the way through the Smiling Forest? Splendid!"
+        },
+        {
+          "id": "rainbow_smith",
+          "name": "Smith Iris",
+          "role": "smith",
+          "art": "npc_smith",
+          "x": -3,
+          "y": -3,
+          "greeting": "Monsters drop the best materials. Bring them here and we'll make something sharp."
         }
       ],
       "ambience": {
@@ -3787,7 +3783,7 @@
           "y": 27,
           "greeting": "Grrr… what big eyes you have. All the better to FIGHT you with!",
           "monster": "big_bad_wolf",
-          "level": 28
+          "level": 92
         },
         {
           "id": "mister_frost",
@@ -3803,8 +3799,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          22,
-          28
+          71,
+          92
         ],
         "groupSize": [
           1,
@@ -4147,8 +4143,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          7,
-          11
+          21,
+          35
         ],
         "groupSize": [
           1,
@@ -4458,8 +4454,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          10,
-          15
+          31,
+          48
         ],
         "groupSize": [
           1,
@@ -4698,15 +4694,15 @@
           "y": 20,
           "greeting": "Squeak! Who dares enter MY cavern? Bow to the king!",
           "monster": "rat_king",
-          "level": 18
+          "level": 58
         }
       ],
       "encounters": {
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          13,
-          18
+          41,
+          58
         ],
         "groupSize": [
           1,
@@ -5169,7 +5165,19 @@
             "wild_horn",
             "dragon_mail",
             "snow_cloak",
-            "speed_boots"
+            "speed_boots",
+            "yew_staff",
+            "purple_star_staff",
+            "armorbreaker_staff",
+            "ironcrusher_staff",
+            "red_cloud_staff",
+            "titanium_sceptre",
+            "emperor_sceptre",
+            "aurora_staff",
+            "ghost_staff",
+            "sky_ending_staff",
+            "luna_staff",
+            "dragon_god_staff"
           ]
         },
         {
@@ -5180,6 +5188,15 @@
           "x": 3,
           "y": -4,
           "greeting": "You cleared the cavern? Then Goldburg owes you one, friend."
+        },
+        {
+          "id": "goldburg_smith",
+          "name": "Smith Ingot",
+          "role": "smith",
+          "art": "npc_smith",
+          "x": -2,
+          "y": -2,
+          "greeting": "Goldburg steel is the finest there is. Show me what you've gathered."
         }
       ],
       "ambience": {
@@ -5638,7 +5655,7 @@
           "y": 18,
           "greeting": "*hic* Heyyy… you wanna piece of this? *hic*",
           "monster": "drunk_dragon",
-          "level": 24
+          "level": 78
         },
         {
           "id": "puss_in_boots",
@@ -5654,8 +5671,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          17,
-          23
+          55,
+          75
         ],
         "groupSize": [
           1,
@@ -5989,8 +6006,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          21,
-          27
+          68,
+          88
         ],
         "groupSize": [
           1,
@@ -6266,8 +6283,8 @@
         "rate": 0.075,
         "graceSteps": 6,
         "levels": [
-          26,
-          32
+          85,
+          105
         ],
         "groupSize": [
           1,

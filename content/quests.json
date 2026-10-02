@@ -1,11 +1,11 @@
 {
-  "_about": "Quests. objective.type: defeat (target = monster id, omit for any) | capture | collect (gift boxes) | reachLevel (count = level) | chooseClass. `requires` lists quests that must be completed first. `question` is asked on accepting; each answer's `egg` decides what hatches from the Pet Egg. `giver` is an NPC id from maps.json.",
+  "_about": "Quests. objective.type: defeat (target = monster id, omit for any) | capture | hatch (a pet egg) | reachLevel (count = level) | chooseClass. `requires` lists quests that must be completed first. `question` is asked on accepting; each answer's `egg` decides what hatches from the Pet Egg. `giver` is an NPC id from maps.json.",
   "quests": [
     {
       "id": "hope_of_meadowbrook",
       "title": "Hope of Meadowbrook",
       "giver": "elder",
-      "description": "Every new adventurer gets three gifts from the village. Find the three gift boxes hidden around Meadowbrook, then come back to me.",
+      "description": "Elder Oak gives every new adventurer three gifts: a wooden sword, a novice ring and a pet egg. Hatch your egg from the Bag, then come back to me.",
       "question": {
         "text": "Before you go, tell me: what do you treasure most?",
         "answers": [
@@ -23,10 +23,14 @@
           }
         ]
       },
+      "starterItems": [
+        "wooden_sword",
+        "novice_ring",
+        "pet_egg"
+      ],
       "objective": {
-        "type": "collect",
-        "target": "gift_box",
-        "count": 3
+        "type": "hatch",
+        "count": 1
       },
       "reward": {
         "gold": 20,
@@ -87,7 +91,7 @@
       "id": "choose_path",
       "title": "Choose Your Path",
       "giver": "elder",
-      "description": "Reach level 5, then speak to a guild master in town to choose your path: Fighter, Mage or Beast Tamer.",
+      "description": "Reach level 10, then speak to a guild master in town to choose your path: Fighter, Mage or Beast Tamer.",
       "objective": {
         "type": "chooseClass"
       },
@@ -123,7 +127,7 @@
       "requires": [
         "pineapple_harvest"
       ],
-      "minLevel": 5,
+      "minLevel": 14,
       "description": "Something bounces in the dark of Twilight Woods, east of Sunny Meadow. Defeat 3 Bouncy Buns.",
       "objective": {
         "type": "defeat",
@@ -158,7 +162,7 @@
           "ether"
         ]
       },
-      "minLevel": 6
+      "minLevel": 18
     },
     {
       "id": "forest_friends",
@@ -181,7 +185,7 @@
           "hi_potion"
         ]
       },
-      "minLevel": 5
+      "minLevel": 14
     },
     {
       "id": "city_errands",
@@ -203,7 +207,7 @@
           "star_charm"
         ]
       },
-      "minLevel": 7
+      "minLevel": 21
     },
     {
       "id": "valley_lights",
@@ -226,7 +230,7 @@
           "seal_stone"
         ]
       },
-      "minLevel": 10
+      "minLevel": 31
     },
     {
       "id": "rat_king",
@@ -248,7 +252,7 @@
           "power_band"
         ]
       },
-      "minLevel": 14
+      "minLevel": 45
     },
     {
       "id": "dragon_hangover",
@@ -270,7 +274,7 @@
           "dragon_mail"
         ]
       },
-      "minLevel": 20
+      "minLevel": 65
     },
     {
       "id": "crystal_hearts",
@@ -292,7 +296,7 @@
           "speed_boots"
         ]
       },
-      "minLevel": 22
+      "minLevel": 71
     },
     {
       "id": "wolf_hunt",
@@ -314,7 +318,7 @@
           "snow_cloak"
         ]
       },
-      "minLevel": 25
+      "minLevel": 82
     },
     {
       "id": "lost_lambs",

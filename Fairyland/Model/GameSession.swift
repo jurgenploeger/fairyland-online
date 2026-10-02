@@ -163,7 +163,58 @@ final class GameSession {
     var heroClass: ClassDef { content.classDef(data.hero.classID) }
 
     var heroStats: Stats {
-        heroRace.base + heroClass.growth * (data.hero.level - 1) + equipmentBonus
+        heroRace.base + heroClass.growth * (data.hero.level - 1 + Self.rebirthLevelBonus * rebirths) + equipmentBonus
+    }
+
+    // MARK: - Levels & rebirth
+    //
+    // Like Fairyland Online: levels go to 200, and from level 101 you can be reborn at level 1,
+    // keeping your skills and carrying some strength over. Each rebirth after the first needs
+    // 5 more levels (and more gold).
+
+    static let levelCap = 200
+    /// Each rebirth keeps the stat growth of this many levels.
+    static let rebirthLevelBonus = 8
+
+    var rebirths: Int { data.hero.rebirths ?? 0 }
+    var rebirthLevel: Int { 101 + 5 * rebirths }
+    var rebirthCost: Int { 20_000 * (rebirths + 1) }
+    var canRebirth: Bool { data.hero.level >= rebirthLevel && data.gold >= rebirthCost }
+
+    /// Maps a level from before the stretch (monsters topped out at 32) onto today's 1–105.
+    static func stretchedLevel(_ old: Int) -> Int {
+        max(1, Int((1 + Double(old - 1) * 104 / 31).rounded()))
+    }
+
+    func rescaleLevelsIfNeeded() {
+        guard data.levelsRescaled != true else { return }
+        data.levelsRescaled = true
+        guard data.hero.level > 1 || data.pets.contains(where: { $0.level > 1 }) else { return }
+        data.hero.level = Self.stretchedLevel(data.hero.level)
+        data.hero.exp = 0
+        for index in data.pets.indices {
+            data.pets[index].level = Self.stretchedLevel(data.pets[index].level)
+            data.pets[index].exp = 0
+            let stats = stats(of: data.pets[index])
+            data.pets[index].hp = stats.hp
+            data.pets[index].mp = stats.mp
+        }
+        for index in (data.friends ?? []).indices {
+            data.friends?[index].level = Self.stretchedLevel(data.friends?[index].level ?? 1)
+        }
+        restoreHero()
+        post("The world grew bigger! You're now level \(data.hero.level).", .reward)
+    }
+
+    func rebirth() {
+        guard canRebirth else { return }
+        data.gold -= rebirthCost
+        data.hero.rebirths = rebirths + 1
+        data.hero.level = 1
+        data.hero.exp = 0
+        restoreHero()
+        post("You were reborn! Rebirth \(rebirths): back to level 1, a little stronger than before.", .reward)
+        save()
     }
 
     var equipmentBonus: Stats {
@@ -181,7 +232,8 @@ final class GameSession {
     /// Skills you've learned that your current class uses.
     var heroSkills: [SkillDef] {
         let learned = Set(data.hero.learnedSkills ?? [])
-        return classSkills(upTo: data.hero.level).filter { learned.contains($0.id) }
+        // Reborn heroes keep every skill they learned, whatever their level now.
+        return classSkills(upTo: rebirths > 0 ? Int.max : data.hero.level).filter { learned.contains($0.id) }
     }
 
     /// Skills your class offers at your level that you haven't learned yet.
@@ -256,9 +308,10 @@ final class GameSession {
     @discardableResult
     func gainHeroEXP(_ amount: Int) -> Int {
         guard amount > 0 else { return 0 }
+        guard data.hero.level < Self.levelCap else { return 0 }
         data.hero.exp += amount
         var levels = 0
-        while data.hero.exp >= Self.expToNext(level: data.hero.level) {
+        while data.hero.level < Self.levelCap, data.hero.exp >= Self.expToNext(level: data.hero.level) {
             data.hero.exp -= Self.expToNext(level: data.hero.level)
             data.hero.level += 1
             levels += 1
@@ -411,9 +464,10 @@ final class GameSession {
     @discardableResult
     func gainPetEXP(_ id: UUID, _ amount: Int) -> Int {
         guard amount > 0, let index = data.pets.firstIndex(where: { $0.id == id }) else { return 0 }
+        guard data.pets[index].level < Self.levelCap else { return 0 }
         data.pets[index].exp += amount
         var levels = 0
-        while data.pets[index].exp >= Self.expToNext(level: data.pets[index].level) {
+        while data.pets[index].level < Self.levelCap, data.pets[index].exp >= Self.expToNext(level: data.pets[index].level) {
             data.pets[index].exp -= Self.expToNext(level: data.pets[index].level)
             data.pets[index].level += 1
             levels += 1
@@ -502,6 +556,7 @@ final class GameSession {
         addPet(pet, countsForQuests: false)
         data.activePetID = pet.id
         post("\(pet.name) hatched and joined you!", .reward)
+        record(.hatch, target: nil)
         return pet
     }
 
@@ -535,7 +590,11 @@ final class GameSession {
     }
 
     var bagEquipment: [ItemDef] {
-        content.items.filter { $0.type != .consumable && count(of: $0.id) > 0 }
+        content.items.filter { ItemType.equipmentSlots.contains($0.type) && count(of: $0.id) > 0 }
+    }
+
+    var bagMaterials: [ItemDef] {
+        content.items.filter { $0.type == .material && count(of: $0.id) > 0 }
     }
 
     /// Why the hero can't equip `item`, or nil if they can.
@@ -551,7 +610,7 @@ final class GameSession {
     }
 
     func equip(_ id: String) {
-        guard let item = content.item(id), item.type != .consumable, equipIssue(item) == nil, removeItem(id) else { return }
+        guard let item = content.item(id), ItemType.equipmentSlots.contains(item.type), equipIssue(item) == nil, removeItem(id) else { return }
         SoundEffects.shared.play(.equip)
         if let old = data.hero.equipment[item.type] { addItem(old) }
         data.hero.equipment[item.type] = id
@@ -574,6 +633,60 @@ final class GameSession {
         SoundEffects.shared.play(.coins)
         addItem(id)
         return true
+    }
+
+    // MARK: - Crafting
+    // Fairyland Online's blacksmiths forged weapons from gathered wood, metal and gems. Here
+    // monsters drop the materials, and a smith in each town turns a recipe into the weapon.
+
+    /// Everything a smith can forge, lowest level first.
+    var recipes: [ItemDef] {
+        content.items.filter { $0.recipe != nil }.sorted { ($0.level ?? 1) < ($1.level ?? 1) }
+    }
+
+    struct Ingredient: Identifiable {
+        let material: ItemDef
+        let needed: Int
+        let owned: Int
+        var id: String { material.id }
+    }
+
+    /// The ingredients of `item`, in a stable order, with how many you have.
+    func ingredients(of item: ItemDef) -> [Ingredient] {
+        var parts: [Ingredient] = []
+        for (id, needed) in (item.recipe ?? [:]).sorted(by: { $0.key < $1.key }) {
+            guard let material = content.item(id) else { continue }
+            parts.append(Ingredient(material: material, needed: needed, owned: count(of: id)))
+        }
+        return parts
+    }
+
+    func canCraft(_ item: ItemDef) -> Bool {
+        guard let recipe = item.recipe, !recipe.isEmpty else { return false }
+        return recipe.allSatisfy { count(of: $0.key) >= $0.value }
+    }
+
+    @discardableResult
+    func craft(_ id: String) -> Bool {
+        guard let item = content.item(id), canCraft(item), let recipe = item.recipe else { return false }
+        for (material, needed) in recipe {
+            data.inventory[material, default: 0] -= needed
+            if data.inventory[material] == 0 { data.inventory[material] = nil }
+        }
+        addItem(id)
+        return true
+    }
+
+    /// A material a monster of `level` might drop: mostly the newest kind it can carry, now and
+    /// then the one before. Gems are the rarest.
+    func materialDrop(level: Int) -> ItemDef? {
+        let kinds = ["wood", "wood", "wood", "metal", "metal", "metal", "hide", "hide", "gem"]
+        guard let kind = kinds.randomElement() else { return nil }
+        let options = content.items
+            .filter { $0.type == .material && $0.material == kind && ($0.level ?? 1) <= level }
+            .sorted { ($0.level ?? 1) > ($1.level ?? 1) }
+        guard !options.isEmpty else { return nil }
+        return Double.random(in: 0..<1) < 0.3 && options.count > 1 ? options[1] : options[0]
     }
 
     /// Uses a potion or ether outside battle, on the hero or a companion. Returns a message.
@@ -617,7 +730,7 @@ final class GameSession {
             if progress.state == .completed { return .completed }
             let goal = goal(of: quest)
             let current: Int = switch quest.objective.type {
-            case .defeat, .capture, .collect: progress.count
+            case .defeat, .capture, .collect, .hatch: progress.count
             case .reachLevel: data.hero.level
             case .chooseClass: data.hero.classID == "novice" ? 0 : 1
             }
@@ -650,16 +763,39 @@ final class GameSession {
         return nil
     }
 
+    /// The elder's three gifts used to be gift boxes hidden around Meadowbrook. A save from then
+    /// that took his quest without finding every box gets the missing gifts now, once.
+    func handOutMissingStarterGifts() {
+        guard data.version < 2 else { return }
+        data.version = 2
+        guard data.quests["hope_of_meadowbrook"]?.state == .active else { return }
+        let boxes = [("gift_box_1", "wooden_sword"), ("gift_box_2", "novice_ring"), ("gift_box_3", "pet_egg")]
+        for (box, item) in boxes where data.openedChests?.contains(box) != true {
+            addItem(item)
+            data.openedChests = (data.openedChests ?? []) + [box]
+            if let name = content.item(item)?.name { post("Elder Oak left you a \(name).", .reward) }
+        }
+    }
+
     func acceptQuest(_ id: String, answer: QuestDef.Question.Answer? = nil) {
         guard let quest = content.quest(id), status(of: quest) == .available else { return }
         data.quests[id] = QuestProgress(state: .active, count: 0)
         SoundEffects.shared.play(.questAccept)
         if let answer { data.eggSpecies = answer.egg }
         post("Quest accepted: \(quest.title)", .quest)
-        for item in quest.starterItems ?? [] { addItem(item) }
-        if let first = quest.starterItems?.first, let item = content.item(first) {
-            let count = quest.starterItems?.count ?? 1
-            post("Received \(count > 1 ? "\(count) " : "")\(item.name)\(count > 1 ? "s" : "").", .reward)
+        let starters = quest.starterItems ?? []
+        for item in starters { addItem(item) }
+        // "Received 3 Seal Stones." / "Received Wooden Sword, Novice Ring and Pet Egg."
+        var unique: [String] = []
+        for id in starters where !unique.contains(id) { unique.append(id) }
+        let names = unique.map { id -> String in
+            let name = content.item(id)?.name ?? id
+            let count = starters.filter { $0 == id }.count
+            return count > 1 ? "\(count) \(name)s" : name
+        }
+        if !names.isEmpty {
+            let list = names.count > 1 ? names.dropLast().joined(separator: ", ") + " and " + names.last! : names[0]
+            post("Received \(list).", .reward)
         }
     }
 

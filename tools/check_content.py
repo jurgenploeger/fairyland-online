@@ -68,12 +68,25 @@ for monster in monsters.values():
     if "variantOf" in monster:
         check(monster["variantOf"] in monsters, f"monster {monster['id']} → unknown base {monster['variantOf']}")
 
+materials = {i["id"]: i for i in items.values() if i["type"] == "material"}
 for item in items.values():
     check(item.get("icon") in icon_names, f"item {item['id']} → unknown icon {item.get('icon')}")
+    if item["type"] == "material":
+        check(item.get("material") in ("wood", "metal", "gem", "hide"), f"material {item['id']} → unknown kind {item.get('material')}")
+        check(isinstance(item.get("level"), int), f"material {item['id']} needs a level (when monsters start dropping it)")
+    for material, count in (item.get("recipe") or {}).items():
+        check(material in materials, f"recipe for {item['id']} → {material} isn't a material")
+        check(isinstance(count, int) and count > 0, f"recipe for {item['id']} → bad count {count} of {material}")
+        if material in materials:
+            # Every ingredient has to be droppable by monsters no stronger than the item's own level.
+            check(materials[material]["level"] <= max(item.get("level", 1), 1),
+                  f"recipe for {item['id']} (Lv {item.get('level', 1)}) → {material} only drops from Lv {materials[material]['level']}")
 
 for quest in quests.values():
     check(quest["giver"] in npcs, f"quest {quest['id']} → unknown giver {quest['giver']}")
     objective = quest["objective"]
+    check(objective["type"] in ("defeat", "capture", "reachLevel", "chooseClass", "collect", "hatch"),
+          f"quest {quest['id']} → unknown objective type {objective['type']}")
     if objective["type"] == "defeat" and objective.get("target"):
         check(objective["target"] in monsters, f"quest {quest['id']} → unknown monster {objective['target']}")
     for answer in (quest.get("question") or {}).get("answers", []):
@@ -123,12 +136,19 @@ for map_def in maps.values():
         check(art_id in art, f"map {map_def['id']} → unknown art {art_id}")
     for npc in map_def.get("npcs", []):
         check(npc["art"] in art, f"npc {npc['id']} → unknown art {npc['art']}")
+        check(npc["role"] in ("healer", "shop", "quests", "guild", "chest", "boss", "smith"), f"npc {npc['id']} → unknown role {npc['role']}")
         for item in npc.get("stock", []):
             check(item in items, f"shop {npc['id']} → unknown item {item}")
         if npc["role"] == "chest":
             check(npc.get("gives") in items, f"chest {npc['id']} → unknown item {npc.get('gives')}")
         if npc["role"] == "boss":
             check(monsters.get(npc.get("monster"), {}).get("boss") is True, f"boss {npc['id']} → unknown boss {npc.get('monster')}")
+
+for item in items.values():
+    if item.get("art"):
+        check(item["art"] in art, f"item {item['id']} → unknown art {item['art']}")
+        check((ROOT / "art" / "sprites" / f"{item['art']}.png").exists() or "derive" in art.get(item["art"], {}),
+              f"item {item['id']} → art/sprites/{item['art']}.png is missing (python3 tools/item_art.py)")
 
 hex_colour = re.compile(r"^#[0-9A-Fa-f]{6}$")
 for map_def in maps.values():

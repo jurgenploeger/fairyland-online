@@ -188,7 +188,7 @@ private struct CharacterTab: View {
                 Text("\(session.heroRace.name) · \(session.heroClass.name)")
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.gold)
-                Text("Level \(hero.level)").font(HUDStyle.font(12))
+                Text(session.rebirths > 0 ? "Level \(hero.level) · Reborn ×\(session.rebirths)" : "Level \(hero.level)").font(HUDStyle.font(12))
                 StatBar(label: "EXP", value: hero.exp, maximum: GameSession.expToNext(level: hero.level), color: HUDStyle.exp)
                     .frame(width: 170)
                 if session.canChooseClass {
@@ -546,6 +546,23 @@ private struct BagTab: View {
                         Button("Equip") { session.equip(item.id) }
                             .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                     }
+                }
+                .font(HUDStyle.font(12))
+            }
+
+            SectionTitle(text: "Materials")
+            if session.bagMaterials.isEmpty {
+                Text("Monsters drop wood, metal, gems and hides. A town smith forges them into weapons.")
+                    .font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+            }
+            ForEach(session.bagMaterials) { item in
+                HStack(spacing: 10) {
+                    ItemIcon(item: item, size: 28)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("\(item.name) ×\(session.count(of: item.id))")
+                        Text(item.description ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                    }
+                    Spacer()
                 }
                 .font(HUDStyle.font(12))
             }
