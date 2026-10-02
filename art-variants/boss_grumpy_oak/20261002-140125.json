@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "grumpy old oak tree monster with a frowning bark face, bushy eyebrows and leafy crown, waving branch arms, boss monster, chibi, cute monster",
+    "prompt_style": "rd_plus__low_res",
+    "width": 64,
+    "height": 64,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790949685,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 48.051,
+    "request_id": "b5c9c57f-a608-4624-a281-52863e29184f",
+    "outputs_retained_until": 1791036071
+  }
+}
