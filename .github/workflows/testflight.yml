@@ -6,6 +6,7 @@
 #   ASC_ISSUER_ID   the Issuer ID shown above the keys list on that page
 #   ASC_KEY_P8      the full contents of the downloaded AuthKey_<id>.p8 file
 #   APPLE_TEAM_ID   your 10-character team ID (developer.apple.com → Account → Membership details)
+# The three IDs aren't sensitive, so they may be repository variables instead; the .p8 must be a secret.
 # The key needs the Admin role: cloud signing creates the distribution certificate on first use.
 name: TestFlight
 
@@ -28,20 +29,20 @@ jobs:
 
       - name: Check the secrets are set
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID || vars.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID || vars.ASC_ISSUER_ID }}
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID || vars.APPLE_TEAM_ID }}
         run: |
           missing=""
           for s in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID; do
             [ -n "$(printenv $s)" ] || missing="$missing $s"
           done
-          [ -z "$missing" ] || { echo "::error::Missing repository secrets:$missing"; exit 1; }
+          [ -z "$missing" ] || { echo "::error::Missing repository secrets (or variables for the IDs):$missing"; exit 1; }
 
       - name: Install the API key
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID || vars.ASC_KEY_ID }}
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
         run: |
           mkdir -p "$RUNNER_TEMP/keys"
@@ -49,7 +50,7 @@ jobs:
 
       - name: Generate the Xcode project
         env:
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID || vars.APPLE_TEAM_ID }}
           # Unique and increasing for every upload; a re-run gets a new attempt number.
           BUILD_NUMBER: ${{ github.run_number }}.${{ github.run_attempt }}
         run: |
@@ -62,8 +63,8 @@ jobs:
 
       - name: Archive
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID || vars.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID || vars.ASC_ISSUER_ID }}
         run: |
           xcodebuild -version
           xcodebuild -project Fairyland.xcodeproj -scheme Fairyland -configuration Release \
@@ -75,9 +76,9 @@ jobs:
 
       - name: Upload to TestFlight
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID || vars.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID || vars.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID || vars.APPLE_TEAM_ID }}
         run: |
           cat > build/ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
