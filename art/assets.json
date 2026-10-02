@@ -962,6 +962,88 @@
       }
     },
     {
+      "id": "npc_mother_sheep",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_flame_sheep",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              60
+            ],
+            "minSaturation": 0.3,
+            "minValue": 0.45,
+            "to": 40,
+            "saturation": 0.1,
+            "value": 1.3
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_little_pig",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_wood_hog",
+        "recolor": [
+          {
+            "hue": [
+              60,
+              170
+            ],
+            "minSaturation": 0.2,
+            "to": 345,
+            "saturation": 0.45,
+            "value": 1.25
+          },
+          {
+            "hue": [
+              10,
+              50
+            ],
+            "minSaturation": 0.25,
+            "to": 350,
+            "saturation": 0.5,
+            "value": 1.3
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_ugly_duckling",
+      "kind": "monster",
+      "request": {
+        "prompt": "shy scruffy grey ugly duckling with big sad eyes, fluffy messy feathers, chibi, cute",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "npc_frog_prince",
+      "kind": "monster",
+      "request": {
+        "prompt": "cute green frog prince wearing a tiny golden crown and a red cape, chibi, cute",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "npc_puss_in_boots",
+      "kind": "monster",
+      "request": {
+        "prompt": "orange tabby cat standing upright in tall brown boots and a feathered hat, chibi, cute",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
       "id": "monster_wood_hog",
       "kind": "monster",
       "request": {

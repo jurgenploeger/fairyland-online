@@ -1459,6 +1459,17 @@
       "hub": [
         -18,
         -9
+      ],
+      "npcs": [
+        {
+          "id": "mother_sheep",
+          "name": "Mother Sheep",
+          "role": "quests",
+          "art": "npc_mother_sheep",
+          "x": 4,
+          "y": 3,
+          "greeting": "Baa! Oh, a kind face at last."
+        }
       ]
     },
     {
@@ -1722,6 +1733,17 @@
               -12
             ]
           ]
+        }
+      ],
+      "npcs": [
+        {
+          "id": "old_shelly",
+          "name": "Old Shelly",
+          "role": "quests",
+          "art": "monster_wood_crab",
+          "x": -4,
+          "y": 3,
+          "greeting": "Click-clack! Mind the tide pools, youngster."
         }
       ]
     },
@@ -2090,6 +2112,17 @@
             ]
           ]
         }
+      ],
+      "npcs": [
+        {
+          "id": "willow_wisp",
+          "name": "Willow the Wisp",
+          "role": "quests",
+          "art": "monster_wisp",
+          "x": -4,
+          "y": -3,
+          "greeting": "Shh... the woods are listening."
+        }
       ]
     },
     {
@@ -2097,12 +2130,11 @@
       "name": "Smiling Forest",
       "width": 165,
       "height": 120,
-      "music": "meadow",
+      "music": "forest",
       "world": [
         1,
         2
       ],
-      "music": "forest",
       "crowd": {
         "adventurers": 5
       },
@@ -2580,6 +2612,17 @@
       "hub": [
         -15,
         -6
+      ],
+      "npcs": [
+        {
+          "id": "little_pig",
+          "name": "Little Pig",
+          "role": "quests",
+          "art": "npc_little_pig",
+          "x": 4,
+          "y": -3,
+          "greeting": "Oink! Have you seen a wolf around here?"
+        }
       ]
     },
     {
@@ -3745,6 +3788,15 @@
           "greeting": "Grrr… what big eyes you have. All the better to FIGHT you with!",
           "monster": "big_bad_wolf",
           "level": 28
+        },
+        {
+          "id": "mister_frost",
+          "name": "Mister Frost",
+          "role": "quests",
+          "art": "monster_snowman",
+          "x": -4,
+          "y": 3,
+          "greeting": "Brrr-illiant to see you!"
         }
       ],
       "encounters": {
@@ -3843,12 +3895,11 @@
       "name": "Frog Swamp",
       "width": 150,
       "height": 108,
-      "music": "woods",
+      "music": "swamp",
       "world": [
         1,
         -1
       ],
-      "music": "swamp",
       "crowd": {
         "adventurers": 3
       },
@@ -4148,6 +4199,26 @@
       "hub": [
         9,
         -15
+      ],
+      "npcs": [
+        {
+          "id": "frog_prince",
+          "name": "Frog Prince",
+          "role": "quests",
+          "art": "npc_frog_prince",
+          "x": 4,
+          "y": 3,
+          "greeting": "Ribbit. I am a prince, you know. Truly."
+        },
+        {
+          "id": "ugly_duckling",
+          "name": "Ugly Duckling",
+          "role": "quests",
+          "art": "npc_ugly_duckling",
+          "x": -4,
+          "y": -3,
+          "greeting": "Oh... hello. You don't think I'm ugly, do you?"
+        }
       ]
     },
     {
@@ -4155,12 +4226,11 @@
       "name": "Valley of Fear",
       "width": 150,
       "height": 120,
-      "music": "woods",
+      "music": "fear",
       "world": [
         2,
         -1
       ],
-      "music": "fear",
       "battleMusic": "battle_dark",
       "crowd": {
         "adventurers": 4
@@ -4426,6 +4496,17 @@
       "hub": [
         6,
         0
+      ],
+      "npcs": [
+        {
+          "id": "brave_mouse",
+          "name": "Brave Mouse",
+          "role": "quests",
+          "art": "monster_golden_hamster_light",
+          "x": 3,
+          "y": -3,
+          "greeting": "Squeak! Small, but brave!"
+        }
       ]
     },
     {
@@ -4449,7 +4530,12 @@
         "accentPatches": 40,
         "water": "tile_water",
         "ponds": 0,
-        "cave": { "rock": "tile_cave_rock", "height": 32, "width": 0.6, "maze": 7 },
+        "cave": {
+          "rock": "tile_cave_rock",
+          "height": 32,
+          "width": 0.6,
+          "maze": 7
+        },
         "props": [
           {
             "art": "stalagmite",
@@ -5551,6 +5637,15 @@
           "greeting": "*hic* Heyyy… you wanna piece of this? *hic*",
           "monster": "drunk_dragon",
           "level": 24
+        },
+        {
+          "id": "puss_in_boots",
+          "name": "Puss in Boots",
+          "role": "quests",
+          "art": "npc_puss_in_boots",
+          "x": -4,
+          "y": 3,
+          "greeting": "Good day! A fine pair of boots you have."
         }
       ],
       "encounters": {
@@ -5641,12 +5736,11 @@
       "name": "Crystal Mountain",
       "width": 150,
       "height": 120,
-      "music": "cave",
+      "music": "crystal",
       "world": [
         2,
         -3
       ],
-      "music": "crystal",
       "battleMusic": "battle_dark",
       "crowd": {
         "adventurers": 3
@@ -5932,6 +6026,17 @@
       "hub": [
         0,
         0
+      ],
+      "npcs": [
+        {
+          "id": "pebble",
+          "name": "Pebble",
+          "role": "quests",
+          "art": "monster_floating_stone_amber",
+          "x": 4,
+          "y": -3,
+          "greeting": "...rumble. Oh! Sorry, I was napping."
+        }
       ]
     },
     {
@@ -5939,12 +6044,11 @@
       "name": "Moonglow",
       "width": 135,
       "height": 105,
-      "music": "snow",
+      "music": "moonglow",
       "world": [
         2,
         -4
       ],
-      "music": "moonglow",
       "battleMusic": "battle_dark",
       "crowd": {
         "adventurers": 3
@@ -6214,6 +6318,17 @@
               -39
             ]
           ]
+        }
+      ],
+      "npcs": [
+        {
+          "id": "stardust",
+          "name": "Stardust",
+          "role": "quests",
+          "art": "monster_pegasus_rosy",
+          "x": -3,
+          "y": 4,
+          "greeting": "Neigh... the stars are restless tonight."
         }
       ]
     }

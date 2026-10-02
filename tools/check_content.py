@@ -18,8 +18,14 @@ errors: list[str] = []
 
 
 def load(path: str) -> dict:
+    def no_duplicates(pairs):
+        # A key twice in one object is easy to miss after a merge, and only one of them counts.
+        keys = [key for key, _ in pairs]
+        for key in {key for key in keys if keys.count(key) > 1}:
+            errors.append(f"{path}: \"{key}\" appears twice in one object ({dict(pairs).get('id', '?')})")
+        return dict(pairs)
     try:
-        return json.loads((ROOT / path).read_text())
+        return json.loads((ROOT / path).read_text(), object_pairs_hook=no_duplicates)
     except json.JSONDecodeError as error:
         sys.exit(f"{path}: invalid JSON ({error})")
 

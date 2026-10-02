@@ -315,6 +315,222 @@
         ]
       },
       "minLevel": 25
+    },
+    {
+      "id": "lost_lambs",
+      "title": "Lost Little Lambs",
+      "giver": "mother_sheep",
+      "description": "Baa! Golden Hamsters keep stuffing their cheeks with the clover my little lambs need. Shoo away 3 of them and my lambs can graze again.",
+      "objective": {
+        "type": "defeat",
+        "target": "golden_hamster",
+        "count": 3
+      },
+      "reward": {
+        "gold": 40,
+        "exp": 40,
+        "items": [
+          "potion",
+          "potion"
+        ]
+      },
+      "minLevel": 2
+    },
+    {
+      "id": "shell_snatchers",
+      "title": "Shell Snatchers",
+      "giver": "old_shelly",
+      "description": "Click-clack! Those Mud Eagles swoop down and snatch the prettiest shells off my beach. Chase off 3 of them for an old crab, will you?",
+      "objective": {
+        "type": "defeat",
+        "target": "mud_eagle",
+        "count": 3
+      },
+      "reward": {
+        "gold": 70,
+        "exp": 80,
+        "items": [
+          "hi_potion"
+        ]
+      },
+      "minLevel": 3
+    },
+    {
+      "id": "three_little_pigs",
+      "title": "Straw, Sticks and Bricks",
+      "giver": "little_pig",
+      "description": "My brothers built houses of straw and sticks, and now Tree Snakes keep coiling round them! Chase off 5 Tree Snakes so we can finish the house of bricks before the wolf comes.",
+      "objective": {
+        "type": "defeat",
+        "target": "tree_snake",
+        "count": 5
+      },
+      "reward": {
+        "gold": 110,
+        "exp": 160,
+        "items": [
+          "ether"
+        ]
+      },
+      "minLevel": 5
+    },
+    {
+      "id": "moonlight_thieves",
+      "title": "Moonlight Thieves",
+      "giver": "willow_wisp",
+      "description": "The Shade Puffs are drinking up the moonlight, and without it I fade away. Pop 4 Shade Puffs and let the light come back to Twilight Woods.",
+      "objective": {
+        "type": "defeat",
+        "target": "shade_puff",
+        "count": 4
+      },
+      "reward": {
+        "gold": 120,
+        "exp": 180,
+        "items": [
+          "hi_ether"
+        ]
+      },
+      "minLevel": 6
+    },
+    {
+      "id": "frog_prince",
+      "title": "The Frog Prince",
+      "giver": "frog_prince",
+      "description": "A kiss? Goodness, no. What I need is my golden ball back from the pond, and the Water Slugs are guarding it. Defeat 4 Water Slugs and a prince's reward is yours.",
+      "objective": {
+        "type": "defeat",
+        "target": "water_slug",
+        "count": 4
+      },
+      "reward": {
+        "gold": 150,
+        "exp": 230,
+        "items": [
+          "ruby_ring"
+        ]
+      },
+      "minLevel": 7
+    },
+    {
+      "id": "ugly_duckling",
+      "title": "The Ugly Duckling",
+      "giver": "ugly_duckling",
+      "description": "The Mud Slimes splash mud on my feathers and laugh at me. Would you make them stop? Defeat 4 Mud Slimes. One day I'll be a swan, you'll see!",
+      "objective": {
+        "type": "defeat",
+        "target": "mud_slime",
+        "count": 4
+      },
+      "reward": {
+        "gold": 160,
+        "exp": 250,
+        "items": [
+          "hi_potion",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 8
+    },
+    {
+      "id": "lion_and_mouse",
+      "title": "The Lion and the Mouse",
+      "giver": "brave_mouse",
+      "description": "An Earth Lion once spared my life, so now I look out for him. The Red Bulls keep stampeding through his den! Defeat 3 Red Bulls and we'll both owe you one.",
+      "objective": {
+        "type": "defeat",
+        "target": "red_bull",
+        "count": 3
+      },
+      "reward": {
+        "gold": 240,
+        "exp": 420,
+        "items": [
+          "seal_stone",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 11
+    },
+    {
+      "id": "puss_in_boots",
+      "title": "Puss in Boots",
+      "giver": "puss_in_boots",
+      "description": "My master the Marquis needs a clear road to his castle, but Black Widows keep spinning webs across it. Clear away 4 Black Widows and I'll tip my hat to you.",
+      "objective": {
+        "type": "defeat",
+        "target": "black_widow",
+        "count": 4
+      },
+      "reward": {
+        "gold": 600,
+        "exp": 1400,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 17
+    },
+    {
+      "id": "stormy_crystals",
+      "title": "Stormy Crystals",
+      "giver": "pebble",
+      "description": "Golden Clouds keep raining on my crystals until they go dull. Chase off 4 Golden Clouds so the mountain can sparkle again.",
+      "objective": {
+        "type": "defeat",
+        "target": "golden_cloud",
+        "count": 4
+      },
+      "reward": {
+        "gold": 750,
+        "exp": 1800,
+        "items": [
+          "hi_ether",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 21
+    },
+    {
+      "id": "melting_friends",
+      "title": "Melting Friends",
+      "giver": "mister_frost",
+      "description": "The Fire Bears keep hugging my snowman friends, and you can guess how that ends. Defeat 3 Fire Bears before we all turn into puddles!",
+      "objective": {
+        "type": "defeat",
+        "target": "fire_bear",
+        "count": 3
+      },
+      "reward": {
+        "gold": 800,
+        "exp": 2000,
+        "items": [
+          "hi_potion",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 22
+    },
+    {
+      "id": "night_flight",
+      "title": "Stardust's Night Flight",
+      "giver": "stardust",
+      "description": "I can't fly under the moon while Poison Skeletons haunt Moonglow. Defeat 4 of them and I'll carry your name across the stars.",
+      "objective": {
+        "type": "defeat",
+        "target": "poison_skeleton",
+        "count": 4
+      },
+      "reward": {
+        "gold": 1000,
+        "exp": 2600,
+        "items": [
+          "star_charm"
+        ]
+      },
+      "minLevel": 26
     }
   ]
 }
