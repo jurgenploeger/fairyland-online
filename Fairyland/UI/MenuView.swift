@@ -232,9 +232,22 @@ private struct CharacterTab: View {
                 let upcoming = session.heroClass.skills.filter { $0.level > hero.level }
                 ForEach(upcoming, id: \.skill) { unlock in
                     if let skill = session.content.skill(unlock.skill) {
-                        Text("Lv \(unlock.level): \(skill.name)")
-                            .font(HUDStyle.font(11))
-                            .foregroundStyle(HUDStyle.dim)
+                        // Still locked: a faded tile, with the level it unlocks at.
+                        HStack(spacing: 8) {
+                            SkillIcon(skill: skill, size: 28)
+                                .saturation(0.2)
+                                .opacity(0.55)
+                            Text(skill.name)
+                                .foregroundStyle(HUDStyle.dim)
+                            Spacer()
+                            Text("Lv \(unlock.level)")
+                                .font(HUDStyle.font(10))
+                                .foregroundStyle(HUDStyle.ink)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(HUDStyle.dim))
+                        }
+                        .font(HUDStyle.font(11))
                     }
                 }
             }
@@ -441,6 +454,19 @@ private struct CompanionCard: View {
                 Text("ATK \(stats.attack) · DEF \(stats.defense) · MAG \(stats.magic) · SPD \(stats.speed)")
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
+                if let skills = species?.skills.compactMap({ session.content.skill($0) }), !skills.isEmpty {
+                    // What it can do in a fight.
+                    HStack(spacing: 6) {
+                        ForEach(skills) { skill in
+                            HStack(spacing: 3) {
+                                SkillIcon(skill: skill, size: 22)
+                                Text(skill.name)
+                                    .font(HUDStyle.font(10))
+                                    .foregroundStyle(HUDStyle.cream)
+                            }
+                        }
+                    }
+                }
                 HStack(spacing: 8) {
                     if isActive {
                         Label("Following you", icon: .checkCircle)

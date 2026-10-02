@@ -64,12 +64,17 @@ struct SkillIcon: View {
                  picture: skill.art.flatMap(ArtLibrary.shared.artImage))
     }
 
-    private var tint: Color {
-        if let element = skill.element { return Color(uiColor: element.color) }
-        return switch skill.kind {
-        case .heal: Color(red: 0.3, green: 0.72, blue: 0.45)
-        case .magic: Color(red: 0.55, green: 0.42, blue: 0.9)
-        case .physical: Color(red: 0.85, green: 0.42, blue: 0.32)
+    private var tint: Color { Color(uiColor: skill.tileColor) }
+}
+
+extension SkillDef {
+    /// The colour behind a skill's icon: its element's, else its kind's.
+    var tileColor: UIColor {
+        if let element { return element.color }
+        return switch kind {
+        case .heal: UIColor(red: 0.3, green: 0.72, blue: 0.45, alpha: 1)
+        case .magic: UIColor(red: 0.55, green: 0.42, blue: 0.9, alpha: 1)
+        case .physical: UIColor(red: 0.85, green: 0.42, blue: 0.32, alpha: 1)
         }
     }
 }

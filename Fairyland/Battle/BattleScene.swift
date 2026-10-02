@@ -197,7 +197,7 @@ final class BattleScene: SKScene {
 
         case .skill(let actorID, let skill, let level, let hits):
             controller.apply(event)
-            shout(skill.name + (level > 1 ? " Lv\(level)" : "") + "!", over: actorID, color: skill.element?.color)
+            shout(skill.name + (level > 1 ? " Lv\(level)" : "") + "!", over: actorID, color: skill.element?.color, skill: skill)
             await castSkill(skill, level: level, from: actorID, hits: hits)
             await pause(0.35)
 
@@ -363,19 +363,45 @@ final class BattleScene: SKScene {
         await actor.run(.move(to: actor.home, duration: 0.25))
     }
 
-    private func shout(_ text: String, over actorID: Int, color: UIColor?) {
+    /// The move's name over whoever made it, with the skill's icon tile in front when there is one,
+    /// so every cast (yours, a companion's, a monster's) shows what it was.
+    private func shout(_ text: String, over actorID: Int, color: UIColor?, skill: SkillDef? = nil) {
         guard let actor = actors[actorID] else { return }
         let label = SKLabelNode()
         label.attributedText = Nodes.outlined(text, size: 15, color: Nodes.gold)
-        label.position = actor.top + CGVector(dx: 0, dy: 26)
-        label.zPosition = 22_000
-        label.setScale(0.4)
-        stage.addChild(label)
-        label.run(.sequence([
+        label.verticalAlignmentMode = .center
+        let group = SKNode()
+        group.position = actor.top + CGVector(dx: 0, dy: 36)
+        group.zPosition = 22_000
+        group.addChild(label)
+        if let skill, let tile = Self.skillTile(skill, size: 24) {
+            let gap: CGFloat = 4
+            let total = tile.frame.width + gap + label.frame.width
+            tile.position = CGPoint(x: -total / 2 + tile.frame.width / 2, y: 0)
+            label.position.x = tile.position.x + tile.frame.width / 2 + gap + label.frame.width / 2
+            group.addChild(tile)
+        }
+        group.setScale(0.4)
+        stage.addChild(group)
+        group.run(.sequence([
             .scale(to: 1.1, duration: 0.12), .scale(to: 1, duration: 0.08),
             .wait(forDuration: 0.7), .group([.fadeOut(withDuration: 0.3), .moveBy(x: 0, y: 12, duration: 0.3)]),
             .removeFromParent(),
         ]))
+    }
+
+    /// A skill's icon on its coloured tile, like `SkillIcon` in the menus.
+    private static func skillTile(_ skill: SkillDef, size: CGFloat) -> SKNode? {
+        guard let id = skill.art, let image = ArtLibrary.shared.artImage(id) else { return nil }
+        let tile = SKShapeNode(rectOf: CGSize(width: size, height: size), cornerRadius: size * 0.26)
+        tile.fillColor = skill.tileColor
+        tile.strokeColor = UIColor(white: 1, alpha: 0.75)
+        tile.lineWidth = 1.5
+        let texture = SKTexture(image: image)
+        texture.filteringMode = .nearest
+        let picture = SKSpriteNode(texture: texture, size: CGSize(width: size * 0.84, height: size * 0.84))
+        tile.addChild(picture)
+        return tile
     }
 
     private func impactAll(_ hits: [Hit], heal: Bool) {
