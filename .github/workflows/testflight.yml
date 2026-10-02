@@ -11,7 +11,7 @@ name: TestFlight
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/testflight]  # claude/testflight: first test run; drop before merging
     paths: ["Fairyland/**", "content/**", "art/**", "sound/**", "project.yml", "Config/**", ".github/workflows/testflight.yml"]
   workflow_dispatch:
 
