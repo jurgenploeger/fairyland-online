@@ -46,7 +46,13 @@ jobs:
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
         run: |
           mkdir -p "$RUNNER_TEMP/keys"
-          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8"
+          key="$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8"
+          # Pasting on a phone can drop the BEGIN/END lines or the line breaks, so keep only the
+          # base64 body and rebuild the PEM around it.
+          body=$(printf '%s' "$ASC_KEY_P8" | sed -e 's/-----[A-Z ]*-----//g' | tr -d ' \t\r\n')
+          { echo "-----BEGIN PRIVATE KEY-----"; printf '%s\n' "$body" | fold -w 64; echo "-----END PRIVATE KEY-----"; } > "$key"
+          openssl pkey -in "$key" -noout 2>/dev/null \
+            || { echo "::error::ASC_KEY_P8 isn't a valid private key: paste the whole contents of AuthKey_$ASC_KEY_ID.p8 and nothing else."; exit 1; }
 
       - name: Generate the Xcode project
         env:
