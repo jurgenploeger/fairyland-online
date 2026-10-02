@@ -93,9 +93,9 @@ enum GearArt {
         texture.filteringMode = .nearest
         // Hold it a little up the handle, not by the very tip.
         let anchor = CGPoint(x: (Double(grip.x) + 3) / Double(width), y: (Double(height - grip.y) + 2) / Double(height))
-        let pixels = CGSize(width: width, height: height)
-        heldCache[art] = (texture, anchor, pixels)
-        return (texture, anchor, pixels)
+        let artSize = CGSize(width: width, height: height)
+        heldCache[art] = (texture, anchor, artSize)
+        return (texture, anchor, artSize)
     }
 
     /// Holds the weapon in the right hand for the way the character faces.

@@ -185,7 +185,8 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     /// cloak), or "boots" for footwear.
     let wear: String?
     /// Trim colour on the sprite (buttons, clasps, hems) and an accessory's sparkle, "#RRGGBB".
-    let accent: String?    /// Magic weapons: a soft light while held, "#RRGGBB", centred on `glowAt` ([x, y] in the 32×32 art).
+    let accent: String?
+    /// Magic weapons: a soft light while held, "#RRGGBB", centred on `glowAt` ([x, y] in the 32×32 art).
     let glow: String?
     let glowAt: [Double]?
 }
