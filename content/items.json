@@ -1,5 +1,5 @@
 {
-  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
+  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
   "items": [
     {
       "id": "potion",
@@ -77,7 +77,12 @@
         "novice",
         "mage"
       ],
-      "description": "Hums faintly with magic."
+      "description": "Hums faintly with magic.",
+      "glow": "#B8FF9A",
+      "glowAt": [
+        22.5,
+        7.5
+      ]
     },
     {
       "id": "iron_axe",
@@ -109,7 +114,12 @@
         "mage"
       ],
       "level": 5,
-      "description": "Focuses elemental power."
+      "description": "Focuses elemental power.",
+      "glow": "#9AF4FF",
+      "glowAt": [
+        21,
+        9
+      ]
     },
     {
       "id": "tamer_whip",
@@ -365,7 +375,12 @@
         "mage"
       ],
       "level": 10,
-      "description": "Carved from the Smiling Forest's oldest oak."
+      "description": "Carved from the Smiling Forest's oldest oak.",
+      "glow": "#7AF0FF",
+      "glowAt": [
+        22.5,
+        7.5
+      ]
     },
     {
       "id": "star_wand",
@@ -381,7 +396,12 @@
         "mage"
       ],
       "level": 18,
-      "description": "A shooting star, caught and polished."
+      "description": "A shooting star, caught and polished.",
+      "glow": "#FFE880",
+      "glowAt": [
+        20.5,
+        10.5
+      ]
     },
     {
       "id": "beast_whip",

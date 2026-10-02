@@ -123,6 +123,12 @@ for item in items.values():
     if "wear" in item:
         check(item["wear"] in WEARS.get(item["type"], set()),
               f"item {item['id']} → wear {item['wear']!r} doesn't fit a {item['type']} ({sorted(WEARS.get(item['type'], []))})")
+    if "glow" in item:
+        check(item["type"] == "weapon" and re.fullmatch(r"#[0-9A-Fa-f]{6}", str(item["glow"])) is not None,
+              f"item {item['id']} → glow must be a #RRGGBB colour on a weapon")
+        at = item.get("glowAt")
+        check(isinstance(at, list) and len(at) == 2 and all(isinstance(v, (int, float)) and 0 <= v <= 32 for v in at),
+              f"item {item['id']} → glow needs glowAt: [x, y] inside its 32×32 art")
     if "accent" in item:
         check(isinstance(item["accent"], str) and re.fullmatch(r"#[0-9A-Fa-f]{6}", item["accent"]) is not None,
               f"item {item['id']} → accent must be #RRGGBB")

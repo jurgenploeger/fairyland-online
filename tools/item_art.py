@@ -9,6 +9,7 @@ outline as the game's other sprites. No image libraries needed. Edit a drawing b
     python3 tools/item_art.py --sheet out.png   # also a 4× contact sheet to look at
 """
 
+import json
 import math
 import pathlib
 import struct
@@ -249,13 +250,17 @@ def ring(c, band, gem=None, gem_color=None):
 
 
 def whip(c, leather, grip, tassel=None):
+    # A braided lash: the coil alternates light and dark every few steps.
     for i in range(0, 60):
         t = i / 60 * math.pi * 3.2
         r = 3 + i * 0.13
-        c.disc(17 + r * math.cos(t), 14 + r * math.sin(t) * 0.8, 1.1, leather[1])
+        c.disc(17 + r * math.cos(t), 14 + r * math.sin(t) * 0.8, 1.1, leather[2] if i % 6 < 2 else leather[1])
     c.line(6, 28, 11, 21, grip[1], width=3)
     c.line(7, 28, 12, 22, grip[0], width=1)
+    for (x, y) in ((7, 26), (9, 24)):                       # wrapped handle
+        c.line(x - 1, y - 1, x + 1, y + 1, grip[2])
     c.rect(10, 20, 13, 22, GOLD[1])
+    c.set(10, 20, GOLD[2])
     if tassel:
         tassel(c)
 
@@ -314,27 +319,37 @@ def draw_wooden_sword(c):
 
 def draw_steel_sword(c):
     sword(c, STEEL, GOLD, [hexc("4a2a6a"), hexc("6a44a0"), hexc("9a7ad0")], gem=hexc("e0384a"))
+    c.line(13, 17, 23, 7, STEEL[0])                        # the fuller, a groove down the blade
+    c.set(24, 6, STEEL[2]); c.set(25, 5, WHITE)             # glint at the tip
+    for (x, y) in ((7, 24), (6, 25)):                       # wrapped grip
+        c.set(x, y, hexc("c0a8f0"))
 
 
 def draw_oak_staff(c):
     def top(c):
-        # A leafy crown around a knot, three leaves catching the light.
+        # A leafy crown cradling a small green spirit orb.
         for (cx, cy, r) in ((22, 5.5, 3.2), (25.5, 8.5, 3), (19.5, 8.5, 2.8)):
             c.disc(cx, cy, r, GREEN[1])
         c.shade(lambda x, y, col: col == GREEN[1] and x + y > 31, GREEN[0])
         c.disc(21, 4.5, 1.3, GREEN[2]); c.disc(25, 7.5, 1, GREEN[2])
-        c.disc(22, 9.5, 1.7, WOOD[0])
-        c.set(21, 9, WOOD[2])
+        c.disc(22.5, 7.5, 1.6, hexc("d8ffb0"))
+        c.set(22, 7, WHITE)
     staff(c, WOOD, top)
     c.disc(13.5, 19.5, 1.2, WOOD[0])                       # a knot in the shaft
+    for (x, y) in ((17, 15), (15, 18), (11, 22), (9, 25)):  # a vine curling down the shaft
+        c.set(x, y, GREEN[1]); c.set(x + 1, y, GREEN[0])
 
 
 def draw_elder_staff(c):
     def top(c):
         c.ring(22.5, 7.5, 5.2, 3.2, WOOD[1])
+        c.shade(lambda x, y, col: col == WOOD[1] and x + y > 31, WOOD[0])
         c.disc(22.5, 7.5, 3, hexc("7af0ff"))
+        c.shade(lambda x, y, col: col == hexc("7af0ff") and x + y > 31, hexc("2cb8d8"))
         c.disc(21.5, 6.5, 1.2, WHITE)
     staff(c, [hexc("5a3a1a"), hexc("7a4e24"), hexc("a07040")], top)
+    for (x, y) in ((14, 18), (11, 22)):                     # carved bands
+        c.line(x - 1, y - 1, x + 1, y + 1, GOLD[1])
     c.set(13, 19, GREEN[1]); c.set(12, 19, GREEN[2]); c.set(16, 15, GREEN[1])
 
 
@@ -350,8 +365,14 @@ def draw_iron_axe(c):
 
 
 def draw_battle_axe(c):
-    axe(c, [hexc("5a6474"), hexc("8e9aac"), hexc("dde6f0")], [hexc("4a2a1a"), hexc("6a3e22"), hexc("8a5a34")], double=True)
-    c.disc(20.5, 9.5, 1.4, GOLD[1])
+    steel = [hexc("5a6474"), hexc("8e9aac"), hexc("dde6f0")]
+    axe(c, steel, [hexc("4a2a1a"), hexc("6a3e22"), hexc("8a5a34")], double=True)
+    # Gold rims along both blades, an engraved line, and a gold cap.
+    c.line(27, 3, 29, 13, GOLD[1]); c.line(10, 3, 8, 12, GOLD[1])
+    c.line(26, 5, 27, 11, steel[2]); c.line(11, 5, 10, 10, steel[2])
+    c.line(23, 8, 26, 11, steel[0]); c.line(15, 8, 12, 11, steel[0])
+    c.disc(20.5, 9.5, 1.6, GOLD[1]); c.set(20, 9, GOLD[2])
+    c.disc(8.5, 28.5, 1.3, GOLD[1])
 
 
 def draw_crystal_wand(c):
@@ -582,10 +603,37 @@ PROMPTS = {  # for a later Retro Diffusion upgrade (python3 tools/rd.py generate
 }
 
 
+# Magic weapons (items.json `glow` + `glowAt`): a small soft halo around the tip, added after the
+# outline. The game adds the same glow, gently pulsing, when the weapon is held.
+def _glows():
+    items = json.loads((pathlib.Path(__file__).resolve().parent.parent / "content" / "items.json").read_text())["items"]
+    return {i["id"]: (i["glowAt"][0], i["glowAt"][1], 10, hexc(i["glow"].lstrip("#")))
+            for i in items if i.get("glow") and i.get("glowAt")}
+
+
+GLOWS = _glows()
+
+
+def halo(c, cx, cy, radius, color):
+    """Fills empty pixels near the tip with the glow colour, fading out with distance."""
+    r, g, b = color[:3]
+    for y in range(SIZE):
+        for x in range(SIZE):
+            if c.px[y][x] is not None:
+                continue
+            d = math.hypot(x - cx, y - cy) / radius
+            if d < 1:
+                alpha = int(185 * (1 - d) ** 1.3)
+                if alpha > 12:
+                    c.px[y][x] = (r, g, b, alpha)
+
+
 def render(item_id):
     canvas = Canvas()
     DRAWINGS[item_id](canvas)
     canvas.outline()
+    if item_id in GLOWS:
+        halo(canvas, *GLOWS[item_id])
     return canvas
 
 
@@ -611,8 +659,10 @@ def main(argv):
             for y in range(SIZE * scale):
                 for x in range(SIZE * scale):
                     c = art.px[y // scale][x // scale]
-                    if c:
-                        pixels[oy + y][ox + x] = c
+                    if c:   # blend, so soft glows show as they will in the game
+                        a = c[3] / 255
+                        bg = pixels[oy + y][ox + x]
+                        pixels[oy + y][ox + x] = tuple(int(c[i] * a + bg[i] * (1 - a)) for i in range(3)) + (255,)
         raw = b"".join(b"\x00" + b"".join(bytes(p) for p in row) for row in pixels)
         pathlib.Path(sheet_path).write_bytes(encode_png(width, height, raw))
         print(f"contact sheet: {sheet_path} (order: {', '.join(ids)})")
