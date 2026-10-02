@@ -144,7 +144,8 @@ final class GameSession {
     func applyLook() {
         let look = data.hero.look ?? .standard
         let armor = equipped(.armor)
-        let gear = GearLook(wear: armor?.wear, accent: armor?.accent, boots: equipped(.accessory)?.wear == "boots")
+        let gear = GearLook(wear: armor?.wear, accent: armor?.accent, boots: equipped(.accessory)?.wear == "boots",
+                            pattern: armor?.pattern)
         ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet, recolor: Self.rules(for: look, armor: armor), key: heroLookKey,
                                    gear: gear, layers: Self.layers(race: heroRace, look: look, armor: armor))
     }

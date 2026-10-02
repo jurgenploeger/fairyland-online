@@ -186,6 +186,8 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     /// How it changes the hero's sprite (see GearOverlay): armour's cut (vest | mail | plate | robe |
     /// cloak), or "boots" for footwear.
     let wear: String?
+    /// Finer work drawn on stronger armour: engraved | scales | fur | runes | pockets.
+    let pattern: String?
     /// Trim colour on the sprite (buttons, clasps, hems) and an accessory's sparkle, "#RRGGBB".
     let accent: String?
     /// Magic weapons: a soft light while held, "#RRGGBB", centred on `glowAt` ([x, y] in the 32×32 art).

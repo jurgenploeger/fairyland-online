@@ -131,6 +131,9 @@ for item in items.values():
     if "wear" in item:
         check(item["wear"] in WEARS.get(item["type"], set()),
               f"item {item['id']} → wear {item['wear']!r} doesn't fit a {item['type']} ({sorted(WEARS.get(item['type'], []))})")
+    if "pattern" in item:
+        check(item["type"] == "armor" and item["pattern"] in {"engraved", "scales", "fur", "runes", "pockets"},
+              f"item {item['id']} → pattern {item['pattern']!r} must be engraved | scales | fur | runes | pockets, on armour")
     if "glow" in item:
         check(item["type"] == "weapon" and re.fullmatch(r"#[0-9A-Fa-f]{6}", str(item["glow"])) is not None,
               f"item {item['id']} → glow must be a #RRGGBB colour on a weapon")

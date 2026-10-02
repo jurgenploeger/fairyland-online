@@ -9,6 +9,8 @@ nonisolated struct GearLook: Sendable, Hashable {
     var accent: String?
     /// Speed boots: the boots turn sky blue.
     var boots = false
+    /// Finer work on stronger armour (`pattern`): engraved | scales | fur | runes | pockets.
+    var pattern: String? = nil
 
     var isPlain: Bool { wear == nil && !boots }
 }
@@ -131,7 +133,8 @@ enum GearOverlay {
                     let w = (y - top) / 3
                     for x in (x0 - w)...(x1 + w) {
                         let edge = x == x0 - w || x == x1 + w || y == hem
-                        put(x, y, edge ? outline : (x == cx - 2 ? light : mid))
+                        let furred = gear.pattern == "fur" && !edge && y >= hem - 2
+                        put(x, y, furred ? fur(x, y) : edge ? outline : (x == cx - 2 ? light : mid))
                     }
                 }
             } else {
@@ -153,7 +156,10 @@ enum GearOverlay {
                         spots = [(right + 1 + flare, true)]
                         for k in 0...flare { spots.append((right + k, false)) }
                     }
-                    for (x, outer) in spots { put(x, y, outer ? outline : mid, onlyEmpty: true) }
+                    for (x, outer) in spots {
+                        let furred = gear.pattern == "fur" && !outer && y >= hem - 2
+                        put(x, y, furred ? fur(x, y) : outer ? outline : mid, onlyEmpty: true)
+                    }
                 }
                 if facing == "down" {
                     put(cx, top, accent)
@@ -166,13 +172,131 @@ enum GearOverlay {
         }
         // A helmet or hood (art/sprites/helmet_*, hood_*, stacked under the recolour) comes in magenta:
         // soft magenta takes the armour's colour, keeping its shade, and full magenta the trim.
+        func isMark(_ x: Int, _ y: Int) -> Bool {
+            guard opaque(x, y) else { return false }
+            let (h, s, _) = hsv(base.rgb(origin.x + x, origin.y + y))
+            return abs(h - 300) < 12 && s > 0.3
+        }
         for y in 0..<size {
-            for x in 0..<size where opaque(x, y) {
-                let (h, s, v) = hsv(base.rgb(origin.x + x, origin.y + y))
-                guard abs(h - 300) < 12, s > 0.3 else { continue }
+            for x in 0..<size where isMark(x, y) {
+                let (_, s, v) = hsv(base.rgb(origin.x + x, origin.y + y))
                 let c = s > 0.85 ? accent : v > 0.82 ? light : v < 0.55 ? dark : mid
                 out.set(origin.x + x, origin.y + y, c)
             }
+        }
+
+        // Finer work on stronger armour (items.json `pattern`), drawn over the cut.
+        let shine = mid.mixed(with: RGB(1, 1, 1), 0.45)
+        let outfitCells = Set(cells.map { $0.y * size + $0.x })
+        func inOutfit(_ x: Int, _ y: Int) -> Bool {
+            x >= 0 && y >= 0 && x < size && y < size && outfitCells.contains(y * size + x)
+        }
+        func atEdge(_ x: Int, _ y: Int) -> Bool {
+            !inOutfit(x + 1, y) || !inOutfit(x - 1, y) || !inOutfit(x, y + 1) || !inOutfit(x, y - 1)
+        }
+        func metalBoots(_ tint: RGB) {
+            // Brown boots turn to armoured boots, keeping their shading.
+            for y in max(0, feet - 5)...feet {
+                for x in 0..<size where opaque(x, y) {
+                    let (h, s, v) = hsv(base.rgb(origin.x + x, origin.y + y))
+                    guard h >= 7, h <= 43, s > 0.35, v < 0.75 else { continue }
+                    put(x, y, tint.scaled(0.55 + v * 0.9))
+                }
+            }
+        }
+        switch gear.pattern {
+        case "engraved":
+            // Overlapping plates (a dark seam every few rows, a rivet at each end) and a bright shine.
+            for cell in cells where !atEdge(cell.x, cell.y) {
+                if cell.y > y0 + 3 && (cell.y - y0) % 4 == 3 {
+                    put(cell.x, cell.y, dark)
+                } else if (facing == "down" || facing == "up") && cell.x == x0 + 2 {
+                    put(cell.x, cell.y, shine)
+                }
+            }
+            for y in stride(from: y0 + 7, to: y1, by: 4) {
+                for x in [x0 + 1, x1 - 1] where inOutfit(x, y) { put(x, y, shine) }
+            }
+            metalBoots(RGB(0.62, 0.66, 0.74))
+        case "scales":
+            // Dragon scales: staggered rows of little arches, gold along the collar and hem, and horns.
+            for cell in cells where !atEdge(cell.x, cell.y) {
+                let row = (cell.y - y0) / 2
+                let sx = (cell.x + 2 * (row % 2)) % 4
+                if sx == 0 {
+                    put(cell.x, cell.y, dark)
+                } else if (cell.y - y0) % 2 == 0 && sx == 2 {
+                    put(cell.x, cell.y, shine)
+                }
+            }
+            var bottom: [Int: Int] = [:]
+            for cell in cells { bottom[cell.x] = max(bottom[cell.x] ?? 0, cell.y) }
+            for (x, y) in bottom { put(x, y, accent) }
+            for cell in cells where cell.y == y0 { put(cell.x, cell.y, accent) }
+            metalBoots(RGB(0.55, 0.16, 0.14))
+            var marks: [(x: Int, y: Int)] = []
+            for y in 0..<size { for x in 0..<size where isMark(x, y) { marks.append((x, y)) } }
+            if let top = marks.map { $0.y }.min() {
+                let row = marks.filter { $0.y == top + 2 }.map { $0.x }
+                let xs = row.isEmpty ? marks.map { $0.x } : row
+                if let left = xs.min(), let right = xs.max() {
+                    let ivory = RGB(0.96, 0.91, 0.78), tip = RGB(0.72, 0.64, 0.5)
+                    var horn: [(x: Int, y: Int)] = []
+                    for (side, x) in [(-1, left), (1, right)] {
+                        let points = [(x + side, top + 2, ivory), (x + side, top + 1, ivory),
+                                      (x + 2 * side, top, ivory), (x + 2 * side, top - 1, tip)]
+                        for (px, py, c) in points {
+                            put(px, py, c)
+                            horn.append((px, py))
+                        }
+                    }
+                    for point in horn {
+                        for (dx, dy) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
+                            let x = point.x + dx, y = point.y + dy
+                            if x >= 0, y >= 0, x < size, y < size, out.alpha(origin.x + x, origin.y + y) < 0.5 {
+                                put(x, y, outline)
+                            }
+                        }
+                    }
+                }
+            }
+        case "fur":
+            // White fur round the hood's opening (and the cape's hem, drawn with the cape).
+            for y in 0..<size {
+                for x in 0..<size where isMark(x, y) && hsv(base.rgb(origin.x + x, origin.y + y)).2 < 0.5 {
+                    put(x, y, fur(x, y))
+                }
+            }
+        case "runes":
+            // Glowing runes: a stitched band down the front, and marks along the hem.
+            let glow = accent.mixed(with: RGB(1, 1, 1), 0.3), mark = accent.mixed(with: RGB(1, 1, 1), 0.45)
+            if facing == "down", y0 + 2 < feet - 2 {
+                for y in (y0 + 2)..<(feet - 2) where opaque(cx, y) && y % 2 == 0 { put(cx, y, glow) }
+            }
+            let hem = feet - 4
+            if hem >= 0 {
+                for x in 0..<size where x % 3 == 0 && out.alpha(origin.x + x, origin.y + hem) > 0.5 {
+                    let c = out.rgb(origin.x + x, origin.y + hem)
+                    if abs(c.r - outline.r) > 0.05 || abs(c.g - outline.g) > 0.05 || abs(c.b - outline.b) > 0.05 {
+                        put(x, hem, mark)
+                    }
+                }
+            }
+        case "pockets":
+            // Two patch pockets with buttons, and a light collar.
+            guard facing == "down" else { break }
+            for px in [x0 + 1, x1 - 3] {
+                for y in (y1 - 4)..<(y1 - 1) {
+                    for x in px..<(px + 3) where inOutfit(x, y) {
+                        let side = x == px || x == px + 2 || y == y1 - 2
+                        put(x, y, y == y1 - 4 ? shine : side ? dark : mid.mixed(with: dark, 0.4))
+                    }
+                }
+                put(px + 1, y1 - 4, accent)
+            }
+            for x in (cx - 2)...(cx + 2) where inOutfit(x, y0) { put(x, y0, shine) }
+        default:
+            break
         }
 
         if gear.boots {
@@ -185,6 +309,11 @@ enum GearOverlay {
                 }
             }
         }
+    }
+
+    /// Snowy fur: white with grey flecks.
+    nonisolated private static func fur(_ x: Int, _ y: Int) -> RGB {
+        (x * 7 + y * 3) % 5 == 0 ? RGB(0.78, 0.82, 0.88) : RGB(0.97, 0.98, 1.0)
     }
 
     // MARK: Colour helpers

@@ -45,7 +45,130 @@ def hexc(s):
     return np.array([(v >> 16) & 255, (v >> 8) & 255, v & 255]) / 255
 
 
-def apply(base, recolored, wear=None, accent=None, boots=False):
+def fur(x, y):
+    """Snowy fur: white with grey flecks."""
+    return np.array([0.78, 0.82, 0.88]) if (x * 7 + y * 3) % 5 == 0 else np.array([0.97, 0.98, 1.0])
+
+
+def is_mark(p):
+    """A helmet or hood pixel (hero_layers.py draws them in magenta)."""
+    if p[3] < 0.5:
+        return False
+    hh, s, _ = hsv(tuple(p[:3]))
+    return abs(hh * 360 - 300) < 12 and s > 0.3
+
+
+def detail(f, b, m, a, facing, pattern, wear, mid, acc, box):
+    """The finer work on stronger armour (items.json `pattern`), drawn over the cut."""
+    y0, y1, x0, x1, yb = box
+    dark, light = shade(mid, 0.55), mix(mid, (1, 1, 1), 0.45)
+    cells = list(zip(*np.nonzero(m)))
+
+    def edge(y, x):
+        return any(not (0 <= y + dy < FRAME and 0 <= x + dx < FRAME) or not m[y + dy, x + dx]
+                   for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+
+    def put(x, y, c):
+        if 0 <= x < FRAME and 0 <= y < FRAME:
+            f[y, x, :3] = c
+            f[y, x, 3] = 1
+
+    def metal_boots(tint):
+        # Brown boots turn to armoured boots, keeping their shading.
+        for y in range(max(0, yb - 5), yb + 1):
+            for x in range(FRAME):
+                if not a[y, x]:
+                    continue
+                hh, s, v = hsv(tuple(b[y, x, :3]))
+                if 0.02 <= hh <= 0.12 and s > 0.35 and v < 0.75:
+                    f[y, x, :3] = np.clip(np.array(tint) * (0.55 + v * 0.9), 0, 1)
+
+    if pattern == 'engraved':
+        # Overlapping plates (a dark seam every few rows, a rivet at each end) and a bright shine.
+        for y, x in cells:
+            if edge(y, x):
+                continue
+            if y > y0 + 3 and (y - y0) % 4 == 3:
+                f[y, x, :3] = dark
+            elif facing in ('down', 'up') and x == x0 + 2:
+                f[y, x, :3] = light
+        for y in range(y0 + 7, y1, 4):
+            for x in (x0 + 1, x1 - 1):
+                if m[y, x]:
+                    f[y, x, :3] = light
+        metal_boots((0.62, 0.66, 0.74))
+    elif pattern == 'scales':
+        # Dragon scales: staggered rows of little arches, gold along the collar and hem.
+        for y, x in cells:
+            if edge(y, x):
+                continue
+            row = (y - y0) // 2
+            sx = (x + 2 * (row % 2)) % 4
+            if sx == 0:
+                f[y, x, :3] = dark
+            elif (y - y0) % 2 == 0 and sx == 2:
+                f[y, x, :3] = light
+        bottom = {}
+        for y, x in cells:
+            bottom[x] = max(bottom.get(x, 0), y)
+        for x, y in bottom.items():
+            f[y, x, :3] = acc
+        for y, x in cells:
+            if y == y0:
+                f[y, x, :3] = acc
+        metal_boots((0.55, 0.16, 0.14))
+        # Horns on the helmet.
+        marks = [(y, x) for y in range(FRAME) for x in range(FRAME) if is_mark(b[y, x])]
+        if marks:
+            hy = min(y for y, _ in marks)
+            row = [x for y, x in marks if y == hy + 2] or [x for _, x in marks]
+            hl, hr = min(row), max(row)
+            ivory, tip = np.array([0.96, 0.91, 0.78]), np.array([0.72, 0.64, 0.5])
+            horn = []
+            for side, x in ((-1, hl), (1, hr)):
+                pts = [(x + side, hy + 2, ivory), (x + side, hy + 1, ivory), (x + 2 * side, hy, ivory), (x + 2 * side, hy - 1, tip)]
+                for px, py, c in pts:
+                    put(px, py, c)
+                    horn.append((py, px))
+            for py, px in horn:
+                for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    yy, xx = py + dy, px + dx
+                    if 0 <= yy < FRAME and 0 <= xx < FRAME and f[yy, xx, 3] < 0.5:
+                        f[yy, xx, :3] = (0.16, 0.12, 0.18)
+                        f[yy, xx, 3] = 1
+    elif pattern == 'fur':
+        # White fur round the hood's opening (and the cape's hem, drawn with the cape).
+        for y in range(FRAME):
+            for x in range(FRAME):
+                if is_mark(b[y, x]) and hsv(tuple(b[y, x, :3]))[2] < 0.5:
+                    f[y, x, :3] = fur(x, y)
+    elif pattern == 'runes':
+        # Glowing runes: a stitched band down the front, and marks along the hem.
+        if facing == 'down':
+            cx = (x0 + x1) // 2
+            for y in range(y0 + 2, yb - 2):
+                if a[y, cx] and (y % 2 == 0):
+                    put(cx, y, mix(acc, (1, 1, 1), 0.3))
+        hem = yb - 4
+        for x in range(FRAME):
+            if f[hem, x, 3] > 0.5 and (x % 3 == 0) and not np.allclose(f[hem, x, :3], (0.16, 0.12, 0.18), atol=0.05):
+                put(x, hem, mix(acc, (1, 1, 1), 0.45))
+    elif pattern == 'pockets':
+        # Two patch pockets with buttons, and a light collar.
+        if facing == 'down':
+            for px in (x0 + 1, x1 - 3):
+                for y in range(y1 - 4, y1 - 1):
+                    for x in range(px, px + 3):
+                        if m[y, x]:
+                            f[y, x, :3] = light if y == y1 - 4 else (dark if x in (px, px + 2) or y == y1 - 2 else mix(mid, dark, 0.4))
+                put(px + 1, y1 - 4, acc)
+            cx = (x0 + x1) // 2
+            for x in range(cx - 2, cx + 3):
+                if m[y0, x]:
+                    f[y0, x, :3] = light
+
+
+def apply(base, recolored, wear=None, accent=None, boots=False, pattern=None):
     out = recolored.copy()
     mask = outfit_mask(base)
     acc = hexc(accent) if accent else np.array([0.95, 0.78, 0.25])
@@ -130,7 +253,10 @@ def apply(base, recolored, wear=None, accent=None, boots=False):
                         w = (y - top) // 3
                         for x in range(x0 - w, x1 + w + 1):
                             edge = x in (x0 - w, x1 + w) or y == bot
-                            put(x, y, outline if edge else (light if x == cx - 2 else mid))
+                            c = outline if edge else (light if x == cx - 2 else mid)
+                            if pattern == 'fur' and not edge and y >= bot - 2:
+                                c = fur(x, y)
+                            put(x, y, c)
                 else:
                     # From the front or side: the cape shows just outside the body's outline.
                     for y in range(top + 1, bot + 1):
@@ -148,7 +274,10 @@ def apply(base, recolored, wear=None, accent=None, boots=False):
                         else:
                             spots = [(right + 1 + flare, True)] + [(right + k, False) for k in range(0, flare + 1)]
                         for x, outer in spots:
-                            put(x, y, outline if outer else mid, only_empty=True)
+                            c = outline if outer else mid
+                            if pattern == 'fur' and not outer and y >= bot - 2:
+                                c = fur(x, y)
+                            put(x, y, c, only_empty=True)
                     if facing == 'down':
                         put(cx, top, acc); put(cx - 1, top, acc); put(cx, top + 1, shade(acc, 0.7))
             # A helmet or hood (hero_layers.py) comes in magenta: soft magenta takes the armour's
@@ -160,6 +289,8 @@ def apply(base, recolored, wear=None, accent=None, boots=False):
                     hh, s, v = hsv(tuple(base[oy + y, ox + x, :3]))
                     if abs(hh * 360 - 300) < 12 and s > 0.3:
                         f[y, x, :3] = acc if s > 0.85 else (light if v > 0.82 else (dark if v < 0.55 else mid))
+            if pattern:
+                detail(f, base[oy:oy + FRAME, ox:ox + FRAME], m, a, facing, pattern, wear, mid, acc, (y0, y1, x0, x1, yb))
             if boots:
                 for y in range(max(0, yb - 5), yb + 1):
                     for x in range(FRAME):
@@ -193,7 +324,7 @@ def main(out):
             base.alpha_composite(Image.open(root / "art" / "sprites" / f"{top}.png").convert("RGBA"))
             base = np.asarray(base).astype(float) / 255
             dressed = pp.recolor(base, item["recolor"]) if item.get("recolor") else base.copy()
-            dressed = apply(base, dressed, item.get("wear"), item.get("accent"))
+            dressed = apply(base, dressed, item.get("wear"), item.get("accent"), pattern=item.get("pattern"))
             image = Image.fromarray((np.clip(dressed, 0, 1) * 255).astype(np.uint8), "RGBA")
             for c, row in enumerate((2, 1, 0, 3)):   # down, right, up, left
                 frame = image.crop((0, row * 48, 48, row * 48 + 48)).resize((48 * zoom, 48 * zoom), Image.NEAREST)

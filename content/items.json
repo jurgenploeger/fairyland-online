@@ -1,5 +1,5 @@
 {
-  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
+  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
   "items": [
     {
       "id": "potion",
@@ -460,13 +460,14 @@
           ],
           "minSaturation": 0.3,
           "to": 220,
-          "saturation": 0.2,
-          "value": 0.75
+          "saturation": 0.14,
+          "value": 1.0
         }
       ],
       "description": "Heavy, shiny, and very safe.",
       "wear": "plate",
-      "accent": "#D8DEE8"
+      "pattern": "engraved",
+      "accent": "#E8C04A"
     },
     {
       "id": "mage_robe",
@@ -498,6 +499,7 @@
       ],
       "description": "Embroidered with glowing runes.",
       "wear": "robe",
+      "pattern": "runes",
       "accent": "#F2C230"
     },
     {
@@ -529,6 +531,7 @@
       ],
       "description": "Lots of pockets for treats.",
       "wear": "vest",
+      "pattern": "pockets",
       "accent": "#F2C230"
     },
     {
@@ -557,6 +560,7 @@
       ],
       "description": "Scales from a very sleepy dragon.",
       "wear": "plate",
+      "pattern": "scales",
       "accent": "#F2C230"
     },
     {
@@ -585,6 +589,7 @@
       ],
       "description": "Woven from the first snow of winter.",
       "wear": "cloak",
+      "pattern": "fur",
       "accent": "#9AD8FF"
     },
     {
