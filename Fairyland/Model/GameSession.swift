@@ -133,18 +133,6 @@ final class GameSession {
         return ["body_\(race.id)", headgear.map { "\($0)_\(race.id)" } ?? "hair_\(style)_\(race.id)"]
     }
 
-    /// An outfit colour moved onto armour with its own sheet: each outfit rule's colour change,
-    /// applied to the armour's dye ranges instead of the green tunic.
-    static func dyed(_ dye: [RecolorRule], with outfit: [RecolorRule]) -> [RecolorRule] {
-        outfit.flatMap { rule in
-            dye.map { part in
-                RecolorRule(hue: part.hue, minSaturation: part.minSaturation, maxSaturation: part.maxSaturation,
-                            minValue: part.minValue, maxValue: part.maxValue, to: rule.to, shift: rule.shift,
-                            saturation: (rule.saturation ?? 1) * (part.saturation ?? 1), value: rule.value)
-            }
-        }
-    }
-
     func equipped(_ slot: ItemType) -> ItemDef? {
         data.hero.equipment[slot].flatMap(content.item)
     }
@@ -161,13 +149,10 @@ final class GameSession {
         let boots = equipped(.accessory)?.wear == "boots"
         var gear = GearLook(wear: armor?.wear, accent: armor?.accent, boots: boots, pattern: armor?.pattern)
         var rules = Self.rules(for: look, armor: armor)
-        if let armor, armor.sheets?[heroRace.id] != nil {
-            // The armour's own sheet is already drawn: your skin tone applies, and your outfit colour
-            // dyes the armour's fabric or metal (hair colour would tint its gold trim too, so it doesn't).
+        if armor?.sheets?[heroRace.id] != nil {
+            // The armour's own sheet is already drawn and coloured: only the skin tone still applies.
             gear = GearLook(wear: nil, accent: nil, boots: boots)
-            let outfit = content.appearance.outfits.first { $0.id == look.outfit }?.recolor ?? []
-            rules = (content.appearance.skin.first { $0.id == look.skin }?.recolor ?? [])
-                + Self.dyed(armor.dye ?? [], with: outfit)
+            rules = content.appearance.skin.first { $0.id == look.skin }?.recolor ?? []
         }
         ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet, recolor: rules, key: heroLookKey,
                                    gear: gear, layers: Self.layers(race: heroRace, look: look, armor: armor))

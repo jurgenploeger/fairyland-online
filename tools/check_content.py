@@ -135,9 +135,6 @@ for item in items.values():
         check(item["type"] == "armor" and race_id in {r["id"] for r in classes["races"]},
               f"item {item['id']} → sheets: {race_id!r} isn't a race (or the item isn't armour)")
         check((ROOT / "art" / "sprites" / f"{sheet}.png").exists(), f"item {item['id']} → art/sprites/{sheet}.png is missing")
-    for part in item.get("dye", []):
-        check("sheets" in item and isinstance(part.get("hue"), list) and len(part["hue"]) == 2,
-              f"item {item['id']} → each dye needs a hue: [from, to] (and the item needs sheets)")
     if "pattern" in item:
         check(item["type"] == "armor" and item["pattern"] in {"engraved", "scales", "fur", "runes", "pockets"},
               f"item {item['id']} → pattern {item['pattern']!r} must be engraved | scales | fur | runes | pockets, on armour")
