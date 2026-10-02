@@ -12,6 +12,8 @@ final class GameSession {
     var pendingPet: Pet?
     /// The adventurer you're standing next to (the HUD shows their card).
     var nearbyAdventurer: Adventurer?
+    /// Adventurers walking around near you on this map: only they can be invited along.
+    var adventurersAround: Set<UUID> = []
     /// Up to two friends can travel with you.
     static let maxAllies = 2
 
@@ -332,7 +334,8 @@ final class GameSession {
     }
 
     func invite(_ id: UUID) {
-        guard let friend = friends.first(where: { $0.id == id }), !isInParty(friend), partyMembers.count < Self.maxAllies else { return }
+        guard let friend = friends.first(where: { $0.id == id }), !isInParty(friend), partyMembers.count < Self.maxAllies,
+              adventurersAround.contains(id) else { return }
         // Friends keep up with you.
         let level = max(friend.level, data.hero.level - 1)
         if let index = data.friends?.firstIndex(where: { $0.id == id }) {

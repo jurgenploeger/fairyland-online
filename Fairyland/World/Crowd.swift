@@ -194,6 +194,13 @@ final class Crowd {
             .profile
     }
 
+    /// Every adventurer within reach of `point`.
+    func adventurers(near point: CGPoint, within reach: CGFloat) -> Set<UUID> {
+        Set(members.compactMap { member in
+            member.walker.position.distance(to: point) < reach ? member.profile?.id : nil
+        })
+    }
+
     func position(of id: UUID) -> CGPoint? {
         members.first { $0.profile?.id == id }?.walker.position
     }

@@ -821,6 +821,8 @@ final class WorldScene: SKScene {
             refreshAllies()
             let nearby = crowd?.adventurer(near: player.position, within: 80)
             if session.nearbyAdventurer?.id != nearby?.id { session.nearbyAdventurer = nearby }
+            let around = crowd?.adventurers(near: player.position, within: 320) ?? []
+            if session.adventurersAround != around { session.adventurersAround = around }
         }
 
         player.zPosition = -player.position.y
