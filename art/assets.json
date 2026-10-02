@@ -3457,6 +3457,63 @@
           }
         ]
       }
+    },
+    {
+      "id": "ice_cluster",
+      "kind": "prop",
+      "derive": {
+        "from": "crystal",
+        "recolor": [
+          {
+            "to": 195,
+            "saturation": 0.5,
+            "value": 1.25
+          }
+        ]
+      }
+    },
+    {
+      "id": "big_ice_cluster",
+      "kind": "prop",
+      "scale": 1.6,
+      "derive": {
+        "from": "crystal",
+        "recolor": [
+          {
+            "to": 195,
+            "saturation": 0.5,
+            "value": 1.25
+          }
+        ]
+      }
+    },
+    {
+      "id": "ice_boulder",
+      "kind": "prop",
+      "derive": {
+        "from": "ice_rock",
+        "recolor": [
+          {
+            "to": 195,
+            "saturation": 0.5,
+            "value": 1.25
+          }
+        ]
+      }
+    },
+    {
+      "id": "tile_ice",
+      "kind": "tile",
+      "derive": {
+        "from": "tile_water",
+        "recolor": [
+          {
+            "to": 200,
+            "saturation": 0.45,
+            "value": 1.3
+          }
+        ]
+      }
     }
   ]
 }

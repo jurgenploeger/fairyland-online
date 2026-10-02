@@ -3469,7 +3469,7 @@
         "path": "tile_snow_path",
         "accent": "tile_grass",
         "accentPatches": 45,
-        "water": "tile_water",
+        "water": "tile_ice",
         "ponds": 9,
         "props": [
           {
@@ -3651,6 +3651,39 @@
               0.8,
               1.2
             ]
+          },
+          {
+            "art": "ice_cluster",
+            "count": 50,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_ice_cluster",
+            "count": 16,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.85,
+              1.15
+            ],
+            "shadow": true
+          },
+          {
+            "art": "ice_boulder",
+            "count": 30,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
           }
         ],
         "palette": {
@@ -5741,6 +5774,39 @@
               1.25
             ],
             "glow": "#FFF3A0"
+          },
+          {
+            "art": "ice_cluster",
+            "count": 50,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
+          },
+          {
+            "art": "big_ice_cluster",
+            "count": 14,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.85,
+              1.15
+            ],
+            "shadow": true
+          },
+          {
+            "art": "ice_boulder",
+            "count": 20,
+            "blocking": true,
+            "cluster": 3,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "shadow": true
           }
         ],
         "palette": {
@@ -6014,6 +6080,28 @@
               1.25
             ],
             "glow": "#FFF3A0"
+          },
+          {
+            "art": "ice_cluster",
+            "count": 40,
+            "blocking": true,
+            "cluster": 4,
+            "size": [
+              0.75,
+              1.25
+            ],
+            "glow": "#CFEFFF"
+          },
+          {
+            "art": "big_ice_cluster",
+            "count": 10,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.85,
+              1.15
+            ],
+            "glow": "#CFEFFF"
           }
         ],
         "palette": {
