@@ -46,6 +46,7 @@ struct Combatant: Identifiable {
     var isAlive: Bool { hp > 0 && !isCaptured && !hasFled }
     var isHero: Bool { source == .hero }
     var hpFraction: Double { stats.hp > 0 ? Double(hp) / Double(stats.hp) : 0 }
+    var mpFraction: Double { stats.mp > 0 ? Double(mp) / Double(stats.mp) : 0 }
 
     var speciesID: String? {
         switch source {

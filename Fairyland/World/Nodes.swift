@@ -161,6 +161,7 @@ final class NameTag: SKNode {
 
 final class HealthBar: SKNode {
     private let fill: SKSpriteNode
+    private var manaFill: SKSpriteNode?
     private let width: CGFloat
 
     var fraction: CGFloat = 1 {
@@ -170,29 +171,46 @@ final class HealthBar: SKNode {
         }
     }
 
+    var manaFraction: CGFloat = 1 {
+        didSet { manaFill?.size.width = max(0, width * min(manaFraction, 1)) }
+    }
+
     /// With a `level`, a small "Lv12" badge caps the bar's left end, so one compact plate shows both.
-    init(width: CGFloat, level: Int? = nil) {
+    /// With `mana`, a thin MP bar hangs under the HP bar.
+    init(width: CGFloat, level: Int? = nil, mana: Bool = false) {
         self.width = width
         let thick: CGFloat = level == nil ? 3 : 4
         fill = SKSpriteNode(color: .green, size: CGSize(width: width, height: thick))
         super.init()
+        var parts: [SKNode] = []
         let background = SKSpriteNode(color: UIColor(white: 0, alpha: 0.6), size: CGSize(width: width + 2, height: thick + 2))
         fill.anchorPoint = CGPoint(x: 0, y: 0.5)
         fill.position.x = -width / 2
         fill.zPosition = 1
-        addChild(background)
-        addChild(fill)
+        parts += [background, fill]
+        if mana {
+            let y = -(thick + 2) / 2 - 2
+            let back = SKSpriteNode(color: UIColor(white: 0, alpha: 0.6), size: CGSize(width: width + 2, height: 4))
+            back.position.y = y
+            let blue = SKSpriteNode(color: UIColor(red: 0.24, green: 0.52, blue: 0.95, alpha: 1), size: CGSize(width: width, height: 2))
+            blue.anchorPoint = CGPoint(x: 0, y: 0.5)
+            blue.position = CGPoint(x: -width / 2, y: y)
+            blue.zPosition = 1
+            manaFill = blue
+            parts += [back, blue]
+        }
+        for part in parts { addChild(part) }
         if let level {
             let texture = SKTexture(image: Self.badge(level))
             let badge = SKSpriteNode(texture: texture)
-            // Tucked over the bar's end; everything shifts so the whole plate stays centred.
+            // Tucked over the bars' left end; everything shifts so the whole plate stays centred.
             let overlap: CGFloat = 3
             let shift = (badge.size.width - overlap) / 2
             badge.position.x = -width / 2 - badge.size.width / 2 + overlap + shift
+            badge.position.y = mana ? -1 : 0
             badge.zPosition = 2
             addChild(badge)
-            background.position.x += shift
-            fill.position.x += shift
+            parts.forEach { $0.position.x += shift }
         }
         zPosition = 5_000
         fraction = 1

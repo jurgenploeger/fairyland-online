@@ -76,8 +76,8 @@ final class BattleScene: SKScene {
     private func layout() {
         guard size.width > 1, size.height > 1 else { return }
         buildGround()
-        // Leave room for the HUD: log + party panel on top, the command wheel bottom-right.
-        let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (190, 240) : (70, 40)
+        // Leave room for the HUD: the log line on top, the command wheel bottom-right.
+        let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (130, 240) : (70, 40)
         let area = CGRect(x: 0, y: insets.bottom, width: size.width, height: max(120, size.height - insets.top - insets.bottom))
         if isPortrait {
             arrange(controller.enemies, around: CGPoint(x: area.midX - 20, y: area.minY + area.height * 0.66), facing: .down)
@@ -91,11 +91,18 @@ final class BattleScene: SKScene {
 
     /// Fighters stand in a diagonal line, like Fairyland's battle formation.
     private func arrange(_ group: [Combatant], around center: CGPoint, facing: Direction) {
+        // In portrait a long line closes up and slides over so everyone stays on screen.
+        let spacing = isPortrait ? min(108, (size.width - 100) / CGFloat(max(1, group.count - 1))) : 56
+        var center = center
+        if isPortrait, group.count > 1 {
+            let half = spacing * CGFloat(group.count - 1) / 2
+            center.x = min(max(center.x, 50 + half), size.width - 50 - half)
+        }
         for (index, fighter) in group.enumerated() {
             let offset = CGFloat(index) - CGFloat(group.count - 1) / 2
             let point = isPortrait
-                ? CGPoint(x: center.x + offset * 108, y: center.y - offset * 26)
-                : CGPoint(x: center.x + offset * 56, y: center.y - offset * 76)
+                ? CGPoint(x: center.x + offset * spacing, y: center.y - offset * 26)
+                : CGPoint(x: center.x + offset * spacing, y: center.y - offset * 76)
             actors[fighter.id]?.place(at: point, facing: facing)
         }
     }
@@ -497,7 +504,7 @@ final class BattleScene: SKScene {
 
     private func refreshBars() {
         for fighter in controller.combatants {
-            actors[fighter.id]?.setHealth(fighter.hpFraction)
+            actors[fighter.id]?.setHealth(fighter.hpFraction, mana: fighter.mpFraction)
         }
     }
 
@@ -521,7 +528,7 @@ final class BattleActor: SKNode {
         let size = cycle.size * 2
         sprite = SKSpriteNode(texture: cycle.frames(.down).first, size: size)
         sprite.anchorPoint = CGPoint(x: 0.5, y: 0.05)
-        bar = HealthBar(width: 44, level: fighter.level)
+        bar = HealthBar(width: 44, level: fighter.level, mana: fighter.isHero)
         ring = SKShapeNode(ellipseOf: CGSize(width: max(64, size.width * 0.85), height: 26))
         super.init()
         ring.strokeColor = UIColor(white: 1, alpha: 0.55)
@@ -533,6 +540,7 @@ final class BattleActor: SKNode {
         // HP and level on one plate under the feet, the name over the head.
         bar.position = CGPoint(x: 0, y: -17)
         bar.fraction = CGFloat(fighter.hpFraction)
+        bar.manaFraction = CGFloat(fighter.mpFraction)
         addChild(bar)
         // The same small gap over every head, wherever the art's top edge sits in its frame.
         nameHeight = size.height * (1 - sprite.anchorPoint.y - Self.emptyTop(of: sprite.texture)) + Self.nameGap
@@ -594,8 +602,9 @@ final class BattleActor: SKNode {
         }
     }
 
-    func setHealth(_ fraction: Double) {
+    func setHealth(_ fraction: Double, mana: Double) {
         bar.fraction = CGFloat(fraction)
+        bar.manaFraction = CGFloat(mana)
     }
 
     func setHighlighted(_ highlighted: Bool) {
