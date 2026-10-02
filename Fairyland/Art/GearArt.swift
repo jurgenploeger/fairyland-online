@@ -1,19 +1,59 @@
 import SpriteKit
 
-/// What your equipment looks like on the hero: the weapon in hand (drawn as a little pixel
-/// sprite, in front of or behind the body depending on facing) and a sparkle for accessories.
-/// Armour recolours the outfit instead (see `GameSession.rules(for:armor:)`).
+/// What your equipment looks like on the hero: the weapon in hand (the item's own pixel art, in
+/// front of or behind the body depending on facing) and a sparkle in an accessory's colour.
+/// Armour and boots change the sprite itself (`GameSession.rules(for:armor:)` and GearOverlay).
 enum GearArt {
     // MARK: Weapon
 
     /// A weapon sprite for `item`, sized for a character `height` points tall.
     static func weapon(_ item: ItemDef, height: CGFloat) -> SKSpriteNode? {
         guard item.type == .weapon else { return nil }
+        if let art = item.art, let held = held(art) {
+            // The item's own art (drawn diagonally, grip bottom-left), so every weapon looks like itself.
+            let node = SKSpriteNode(texture: held.texture, size: CGSize(width: height * 0.48, height: height * 0.48))
+            node.anchorPoint = held.grip
+            node.name = "weapon"
+            return node
+        }
         let texture = texture(for: item.icon ?? "sword")
         let node = SKSpriteNode(texture: texture, size: CGSize(width: height * 0.42, height: height * 0.42))
         node.anchorPoint = CGPoint(x: 0.2, y: 0.2)   // the grip
         node.name = "weapon"
         return node
+    }
+
+    private static var heldCache: [String: (texture: SKTexture, grip: CGPoint)] = [:]
+
+    /// An item sprite as a held weapon: its texture, and the grip (the lowest, leftmost bit of art)
+    /// as an anchor point.
+    private static func held(_ art: String) -> (texture: SKTexture, grip: CGPoint)? {
+        if let cached = heldCache[art] { return cached }
+        guard let image = ArtLibrary.shared.artImage(art)?.cgImage else { return nil }
+        let width = image.width, height = image.height
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let drawn: Bool = pixels.withUnsafeMutableBytes { buffer in
+            guard let context = CGContext(data: buffer.baseAddress, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                                          space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        guard drawn else { return nil }
+        // Rows run top to bottom. The grip is the opaque pixel nearest the bottom-left corner.
+        var best: (x: Int, y: Int)?
+        for y in 0..<height {
+            for x in 0..<width where pixels[(y * width + x) * 4 + 3] > 40 {
+                // Distance from the bottom-left corner, along both edges.
+                if best == nil || x + (height - y) < best!.x + (height - best!.y) { best = (x, y) }
+            }
+        }
+        guard let grip = best else { return nil }
+        let texture = SKTexture(cgImage: image)
+        texture.filteringMode = .nearest
+        // Hold it a little up the handle, not by the very tip.
+        let anchor = CGPoint(x: (Double(grip.x) + 3) / Double(width), y: (Double(height - grip.y) + 2) / Double(height))
+        heldCache[art] = (texture, anchor)
+        return (texture, anchor)
     }
 
     /// Holds the weapon in the right hand for the way the character faces.
@@ -101,11 +141,12 @@ enum GearArt {
     /// A few twinkles around the wearer, in the accessory's colour.
     static func aura(_ item: ItemDef, height: CGFloat) -> SKNode? {
         guard item.type == .accessory else { return nil }
-        let color: UIColor = switch item.icon {
+        let fallback: UIColor = switch item.icon {
         case "clover": UIColor(red: 0.55, green: 1, blue: 0.5, alpha: 1)
         case "gem": UIColor(red: 1, green: 0.45, blue: 0.5, alpha: 1)
         default: UIColor(red: 1, green: 0.88, blue: 0.45, alpha: 1)
         }
+        let color = item.accent.flatMap { UIColor(hex: $0) } ?? fallback
         let aura = SKNode()
         aura.name = "aura"
         aura.zPosition = 2

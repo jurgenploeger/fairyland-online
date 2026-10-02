@@ -118,6 +118,15 @@ for item in items.values():
         check((ROOT / "art" / "sprites" / f"{item['art']}.png").exists() or "derive" in art.get(item["art"], {}),
               f"item {item['id']} → art/sprites/{item['art']}.png is missing (python3 tools/item_art.py)")
 
+WEARS = {"armor": {"vest", "mail", "plate", "robe", "cloak"}, "accessory": {"boots"}}
+for item in items.values():
+    if "wear" in item:
+        check(item["wear"] in WEARS.get(item["type"], set()),
+              f"item {item['id']} → wear {item['wear']!r} doesn't fit a {item['type']} ({sorted(WEARS.get(item['type'], []))})")
+    if "accent" in item:
+        check(isinstance(item["accent"], str) and re.fullmatch(r"#[0-9A-Fa-f]{6}", item["accent"]) is not None,
+              f"item {item['id']} → accent must be #RRGGBB")
+
 hex_colour = re.compile(r"^#[0-9A-Fa-f]{6}$")
 for map_def in maps.values():
     for prop in map_def["theme"].get("props", []):

@@ -181,6 +181,11 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     let capture: Bool?
     /// Armour: how it recolours the hero's outfit while worn (same rules as looks).
     let recolor: [RecolorRule]?
+    /// How it changes the hero's sprite (see GearOverlay): armour's cut (vest | mail | plate | robe |
+    /// cloak), or "boots" for footwear.
+    let wear: String?
+    /// Trim colour on the sprite (buttons, clasps, hems) and an accessory's sparkle, "#RRGGBB".
+    let accent: String?
 }
 
 nonisolated struct QuestDef: Decodable, Identifiable, Sendable {

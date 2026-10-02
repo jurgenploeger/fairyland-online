@@ -47,6 +47,8 @@ final class ArtLibrary {
     private var images: [String: UIImage] = [:]
     /// Sprites made at runtime (the customised hero, recoloured companions), keyed by id.
     private var runtime: [String: (asset: ArtAsset, key: String)] = [:]
+    /// Gear drawn onto runtime sprites after their recolour (the hero's armour and boots).
+    private var gearLooks: [String: GearLook] = [:]
 
     init() {
         do {
@@ -87,10 +89,11 @@ final class ArtLibrary {
 
     /// Registers (or updates) a recoloured copy of `base` under `id`, e.g. the customised hero.
     /// `key` identifies the look, so re-registering the same look is free.
-    func register(_ id: String, from base: String, recolor rules: [RecolorRule], key: String) {
+    func register(_ id: String, from base: String, recolor rules: [RecolorRule], key: String, gear: GearLook? = nil) {
         guard runtime[id]?.key != key else { return }
         let kind = asset(base)?.kind ?? "monster"
         runtime[id] = (ArtAsset(id: id, kind: kind, frame: nil, directions: nil, scale: nil, derive: Derivation(from: base, recolor: rules)), key)
+        gearLooks[id] = gear
         textures[id] = nil
         cycles[id] = nil
         images = images.filter { $0.key != id && !$0.key.hasPrefix(id + "#") }
@@ -142,7 +145,12 @@ final class ArtLibrary {
     private func sourceImage(_ id: String, depth: Int = 0) -> CGImage? {
         if let url = pngURL(id), let image = UIImage(contentsOfFile: url.path)?.cgImage { return image }
         guard depth < 3, let derive = asset(id)?.derive, let base = sourceImage(derive.from, depth: depth + 1) else { return nil }
-        return Recolor.apply(derive.recolor, to: base)
+        let recolored = Recolor.apply(derive.recolor, to: base)
+        if let gear = gearLooks[id], let recolored, let from = asset(derive.from) {
+            let directions = from.directions ?? ["up", "right", "down", "left"]
+            return GearOverlay.apply(gear, original: base, dressed: recolored, frame: from.frame ?? 48, directions: directions)
+        }
+        return recolored
     }
 
     func tileTexture(_ id: String) -> SKTexture {

@@ -303,7 +303,13 @@ def draw_pet_egg(c):
 
 
 def draw_wooden_sword(c):
-    sword(c, WOOD, WOOD, [hexc("5a3a1a"), hexc("7a4e24"), hexc("9a6a34")], long=False)
+    # A practice sword: pale ash blade with grain, a dark guard and a leather-wrapped grip.
+    blade = [hexc("a8743c"), hexc("deb070"), hexc("f6dca4")]
+    sword(c, blade, [hexc("4a2a14"), hexc("6a3e1e"), hexc("8a5a30")], [hexc("3a2410"), hexc("5a3a1a"), hexc("7a5228")], long=True)
+    for (x, y) in ((16, 15), (19, 12), (22, 9)):          # wood grain
+        c.set(x, y, blade[0])
+    for (x, y) in ((8, 24), (6, 26)):                      # leather wraps
+        c.set(x, y, hexc("c89a5a"))
 
 
 def draw_steel_sword(c):
@@ -312,10 +318,15 @@ def draw_steel_sword(c):
 
 def draw_oak_staff(c):
     def top(c):
-        c.disc(22, 7, 3.6, GREEN[1])
-        c.disc(21, 6, 1.6, GREEN[2])
-        c.set(25, 9, GREEN[0])
+        # A leafy crown around a knot, three leaves catching the light.
+        for (cx, cy, r) in ((22, 5.5, 3.2), (25.5, 8.5, 3), (19.5, 8.5, 2.8)):
+            c.disc(cx, cy, r, GREEN[1])
+        c.shade(lambda x, y, col: col == GREEN[1] and x + y > 31, GREEN[0])
+        c.disc(21, 4.5, 1.3, GREEN[2]); c.disc(25, 7.5, 1, GREEN[2])
+        c.disc(22, 9.5, 1.7, WOOD[0])
+        c.set(21, 9, WOOD[2])
     staff(c, WOOD, top)
+    c.disc(13.5, 19.5, 1.2, WOOD[0])                       # a knot in the shaft
 
 
 def draw_elder_staff(c):
@@ -329,6 +340,13 @@ def draw_elder_staff(c):
 
 def draw_iron_axe(c):
     axe(c, STEEL, WOOD)
+    # A broader blade, with a bright cutting edge and a rivet.
+    c.poly([(18, 5), (28, 1), (30, 15), (21, 16)], STEEL[1])
+    c.shade(lambda x, y, col: col == STEEL[1] and x + y > 37, STEEL[0])
+    c.line(28, 2, 30, 14, STEEL[2])
+    c.line(27, 3, 29, 13, WHITE)
+    c.rect(19, 7, 22, 13, WOOD[0])
+    c.disc(20.5, 10, 1, GOLD[1])
 
 
 def draw_battle_axe(c):
@@ -337,12 +355,16 @@ def draw_battle_axe(c):
 
 
 def draw_crystal_wand(c):
-    c.line(7, 27, 18, 13, WOOD[1], width=2)
-    c.line(8, 27, 19, 14, WOOD[0])
-    c.poly([(20, 4), (26, 10), (21, 17), (15, 11)], hexc("7af0ff"))
-    c.shade(lambda x, y, col: col == hexc("7af0ff") and x > 21, hexc("2cb8d8"))
-    c.poly([(20, 6), (17, 10), (19, 11), (21, 7)], WHITE)
-    c.rect(16, 14, 18, 15, GOLD[1])
+    c.line(6, 28, 17, 14, WOOD[1], width=3)
+    c.line(7, 28, 18, 15, WOOD[0])
+    c.line(5, 27, 16, 13, WOOD[2])
+    crystal = [hexc("1e98c0"), hexc("62dcf4"), hexc("d4fbff")]
+    c.poly([(21, 1), (28, 9), (22, 18), (14, 10)], crystal[1])
+    c.shade(lambda x, y, col: col == crystal[1] and x > 21, crystal[0])
+    c.poly([(20, 4), (16, 10), (19, 11), (22, 5)], crystal[2])
+    c.set(18, 7, WHITE); c.set(26, 2, WHITE); c.set(29, 15, WHITE)
+    c.rect(15, 13, 19, 15, GOLD[1])
+    c.line(15, 13, 19, 13, GOLD[2])
 
 
 def draw_star_wand(c):
@@ -396,15 +418,26 @@ def draw_wild_horn(c):
 
 def draw_cloth_tunic(c):
     shirt(c, CLOTH, collar=hexc("8a7a52"))
-    c.rect(8, 21, 24, 22, WOOD[1])      # belt
-    c.rect(15, 21, 17, 22, GOLD[1])
+    c.line(16, 8, 16, 14, CLOTH[0])                        # laced neck
+    for y in (9, 11, 13):
+        c.set(15, y, WOOD[0]); c.set(17, y, WOOD[0])
+    c.rect(8, 21, 24, 22, WOOD[1])                         # belt
+    c.rect(15, 20, 17, 23, GOLD[1])
+    c.set(15, 20, GOLD[2])
+    for x in range(9, 24, 3):                              # stitched hem
+        c.set(x, 26, CLOTH[0])
 
 
 def draw_leather_vest(c):
     shirt(c, LEATHER, sleeves=False, collar=hexc("4a2a14"))
-    c.line(16, 9, 16, 28, LEATHER[0])
-    for y in (13, 18, 23):
-        c.set(17, y, GOLD[1])
+    c.poly([(14, 8), (18, 8), (17, 27), (15, 27)], CLOTH[2])   # the shirt underneath
+    c.line(14, 8, 15, 27, LEATHER[0]); c.line(18, 8, 17, 27, LEATHER[0])
+    for y in (12, 17, 22):                                 # buttons
+        c.set(13, y, GOLD[1]); c.set(19, y, GOLD[1])
+    c.rect(9, 18, 12, 21, LEATHER[0]); c.rect(20, 18, 23, 21, LEATHER[0])   # pockets
+    c.line(9, 18, 12, 18, LEATHER[2]); c.line(20, 18, 23, 18, LEATHER[2])
+    for y in range(9, 27, 3):                              # stitching
+        c.set(9, y, LEATHER[2])
 
 
 def draw_chain_mail(c):

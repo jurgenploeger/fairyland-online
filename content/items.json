@@ -1,5 +1,5 @@
 {
-  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand by their icon. Armour `recolor` changes the outfit colours while worn. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
+  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
   "items": [
     {
       "id": "potion",
@@ -163,7 +163,9 @@
         "defense": 6,
         "hp": 10
       },
-      "description": "Sturdy leather."
+      "description": "Sturdy leather.",
+      "wear": "vest",
+      "accent": "#D9B060"
     },
     {
       "id": "chain_mail",
@@ -191,7 +193,8 @@
         "fighter"
       ],
       "level": 5,
-      "description": "Clinks when you walk."
+      "description": "Clinks when you walk.",
+      "wear": "mail"
     },
     {
       "id": "silk_robe",
@@ -221,7 +224,9 @@
         "mage"
       ],
       "level": 5,
-      "description": "Woven with starlight."
+      "description": "Woven with starlight.",
+      "wear": "robe",
+      "accent": "#F2C230"
     },
     {
       "id": "ranger_cloak",
@@ -250,7 +255,9 @@
         "tamer"
       ],
       "level": 5,
-      "description": "Smells like pine."
+      "description": "Smells like pine.",
+      "wear": "cloak",
+      "accent": "#C9A040"
     },
     {
       "id": "lucky_clover",
@@ -262,7 +269,8 @@
       "stats": {
         "speed": 4
       },
-      "description": "Four leaves, twice the luck."
+      "description": "Four leaves, twice the luck.",
+      "accent": "#8CFF80"
     },
     {
       "id": "ruby_ring",
@@ -274,7 +282,8 @@
       "stats": {
         "magic": 5
       },
-      "description": "Warm to the touch."
+      "description": "Warm to the touch.",
+      "accent": "#FF6070"
     },
     {
       "id": "novice_ring",
@@ -287,7 +296,8 @@
         "hp": 8,
         "mp": 4
       },
-      "description": "A small ring for new adventurers."
+      "description": "A small ring for new adventurers.",
+      "accent": "#E0A060"
     },
     {
       "id": "hi_potion",
@@ -434,7 +444,9 @@
           "value": 0.75
         }
       ],
-      "description": "Heavy, shiny, and very safe."
+      "description": "Heavy, shiny, and very safe.",
+      "wear": "plate",
+      "accent": "#D8DEE8"
     },
     {
       "id": "mage_robe",
@@ -464,7 +476,9 @@
           "value": 0.9
         }
       ],
-      "description": "Embroidered with glowing runes."
+      "description": "Embroidered with glowing runes.",
+      "wear": "robe",
+      "accent": "#F2C230"
     },
     {
       "id": "tamer_jacket",
@@ -493,7 +507,9 @@
           "value": 0.85
         }
       ],
-      "description": "Lots of pockets for treats."
+      "description": "Lots of pockets for treats.",
+      "wear": "vest",
+      "accent": "#F2C230"
     },
     {
       "id": "dragon_mail",
@@ -519,7 +535,9 @@
           "value": 0.8
         }
       ],
-      "description": "Scales from a very sleepy dragon."
+      "description": "Scales from a very sleepy dragon.",
+      "wear": "plate",
+      "accent": "#F2C230"
     },
     {
       "id": "snow_cloak",
@@ -545,7 +563,9 @@
           "value": 1.25
         }
       ],
-      "description": "Woven from the first snow of winter."
+      "description": "Woven from the first snow of winter.",
+      "wear": "cloak",
+      "accent": "#9AD8FF"
     },
     {
       "id": "star_charm",
@@ -558,7 +578,8 @@
         "magic": 10
       },
       "level": 15,
-      "description": "Twinkles when you cast."
+      "description": "Twinkles when you cast.",
+      "accent": "#FFE070"
     },
     {
       "id": "power_band",
@@ -571,7 +592,8 @@
         "attack": 10
       },
       "level": 15,
-      "description": "Makes you feel mighty."
+      "description": "Makes you feel mighty.",
+      "accent": "#FF5050"
     },
     {
       "id": "speed_boots",
@@ -584,7 +606,9 @@
         "speed": 8
       },
       "level": 18,
-      "description": "Zoom!"
+      "description": "Zoom!",
+      "wear": "boots",
+      "accent": "#6FB8FF"
     }
   ]
 }
