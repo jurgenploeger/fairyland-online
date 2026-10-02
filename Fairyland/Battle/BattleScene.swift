@@ -154,8 +154,8 @@ final class BattleScene: SKScene {
             guard let actor = actors[id] else { continue }
             let arrow = SKLabelNode()
             arrow.attributedText = Nodes.outlined("▼", size: 20, color: UIColor(red: 1, green: 0.55, blue: 0.15, alpha: 1))
-            // Right above the head (name tags sit under the fighters, so nothing's in the way).
-            arrow.position = CGPoint(x: actor.position.x, y: actor.position.y + actor.height + 2)
+            // Above the name over the fighter's head.
+            arrow.position = CGPoint(x: actor.position.x, y: actor.position.y + actor.nameHeight + 18)
             arrow.zPosition = 20_000
             arrow.run(.repeatForever(.sequence([.moveBy(x: 0, y: 5, duration: 0.3), .moveBy(x: 0, y: -5, duration: 0.3)])))
             stage.addChild(arrow)
@@ -367,7 +367,7 @@ final class BattleScene: SKScene {
         guard let actor = actors[actorID] else { return }
         let label = SKLabelNode()
         label.attributedText = Nodes.outlined(text, size: 15, color: Nodes.gold)
-        label.position = actor.top + CGVector(dx: 0, dy: 26)
+        label.position = actor.top + CGVector(dx: 0, dy: 36)
         label.zPosition = 22_000
         label.setScale(0.4)
         stage.addChild(label)
@@ -521,7 +521,7 @@ final class BattleActor: SKNode {
         let size = cycle.size * 2
         sprite = SKSpriteNode(texture: cycle.frames(.down).first, size: size)
         sprite.anchorPoint = CGPoint(x: 0.5, y: 0.05)
-        bar = HealthBar(width: 50)
+        bar = HealthBar(width: 44, level: fighter.level)
         ring = SKShapeNode(ellipseOf: CGSize(width: max(64, size.width * 0.85), height: 26))
         super.init()
         ring.strokeColor = UIColor(white: 1, alpha: 0.55)
@@ -530,11 +530,12 @@ final class BattleActor: SKNode {
         ring.zPosition = -2
         addChild(ring)
         addChild(sprite)
-        bar.position = CGPoint(x: 0, y: -18)
+        // HP and level on one plate under the feet, the name over the head.
+        bar.position = CGPoint(x: 0, y: -17)
         bar.fraction = CGFloat(fighter.hpFraction)
         addChild(bar)
-        let label = NameTag(fighter.name, level: fighter.level, size: 14, alignment: .top)
-        label.position = CGPoint(x: 0, y: -26)
+        let label = NameTag(fighter.name, size: 12)
+        label.position = CGPoint(x: 0, y: size.height * Self.nameRise)
         addChild(label)
         sprite.run(IdleMotion.of(art: fighter.art).action(height: size.height, delay: .random(in: 0..<0.8)), withKey: "idle")
     }
@@ -544,6 +545,9 @@ final class BattleActor: SKNode {
     var height: CGFloat { sprite.size.height }
     var center: CGPoint { position + CGVector(dx: 0, dy: sprite.size.height * 0.45) }
     var top: CGPoint { position + CGVector(dx: 0, dy: sprite.size.height * 0.85) }
+    /// Where the name sits, just over the head (sprites leave a little room above it).
+    private static let nameRise: CGFloat = 0.88
+    var nameHeight: CGFloat { sprite.size.height * Self.nameRise }
 
     func place(at point: CGPoint, facing direction: Direction) {
         home = point

@@ -170,21 +170,54 @@ final class HealthBar: SKNode {
         }
     }
 
-    init(width: CGFloat) {
+    /// With a `level`, a small "Lv12" badge caps the bar's left end, so one compact plate shows both.
+    init(width: CGFloat, level: Int? = nil) {
         self.width = width
-        fill = SKSpriteNode(color: .green, size: CGSize(width: width, height: 3))
+        let thick: CGFloat = level == nil ? 3 : 4
+        fill = SKSpriteNode(color: .green, size: CGSize(width: width, height: thick))
         super.init()
-        let background = SKSpriteNode(color: UIColor(white: 0, alpha: 0.6), size: CGSize(width: width + 2, height: 5))
+        let background = SKSpriteNode(color: UIColor(white: 0, alpha: 0.6), size: CGSize(width: width + 2, height: thick + 2))
         fill.anchorPoint = CGPoint(x: 0, y: 0.5)
         fill.position.x = -width / 2
         fill.zPosition = 1
         addChild(background)
         addChild(fill)
+        if let level {
+            let texture = SKTexture(image: Self.badge(level))
+            let badge = SKSpriteNode(texture: texture)
+            // Tucked over the bar's end; everything shifts so the whole plate stays centred.
+            let overlap: CGFloat = 3
+            let shift = (badge.size.width - overlap) / 2
+            badge.position.x = -width / 2 - badge.size.width / 2 + overlap + shift
+            badge.zPosition = 2
+            addChild(badge)
+            background.position.x += shift
+            fill.position.x += shift
+        }
         zPosition = 5_000
         fraction = 1
     }
 
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
+
+    /// "Lv12" in cream on a dark rounded chip with a thin cream rim.
+    private static func badge(_ level: Int) -> UIImage {
+        let base = UIFont.systemFont(ofSize: 8.5, weight: .heavy)
+        let font = base.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: 8.5) } ?? base
+        let cream = UIColor(red: 1, green: 0.97, blue: 0.86, alpha: 1)
+        let text = NSAttributedString(string: "Lv\(level)", attributes: [.font: font, .foregroundColor: cream])
+        let textSize = text.size()
+        let canvas = CGSize(width: ceil(textSize.width) + 8, height: 12)
+        return UIGraphicsImageRenderer(size: canvas).image { _ in
+            let chip = UIBezierPath(roundedRect: CGRect(origin: .zero, size: canvas).insetBy(dx: 0.5, dy: 0.5), cornerRadius: 4)
+            Nodes.ink.withAlphaComponent(0.9).setFill()
+            chip.fill()
+            cream.withAlphaComponent(0.7).setStroke()
+            chip.lineWidth = 1
+            chip.stroke()
+            text.draw(at: CGPoint(x: (canvas.width - textSize.width) / 2, y: (canvas.height - textSize.height) / 2))
+        }
+    }
 }
 
 extension SKSpriteNode {
