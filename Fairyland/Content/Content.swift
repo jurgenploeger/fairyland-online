@@ -374,6 +374,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
     let width: Int
     let height: Int
     let music: String?
+    /// Song for random battles here (content/music.json); "battle" when unset.
+    let battleMusic: String?
     let theme: Theme
     let fence: Bool?
     let exits: [Exit]
@@ -417,9 +419,16 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
 
 nonisolated struct SongDef: Decodable, Identifiable, Sendable {
     nonisolated struct Track: Decodable, Sendable {
-        let wave: String
+        /// An instrument from music.json "instruments" (or "drums").
+        let instrument: String?
+        /// Old chiptune tracks: square, triangle or noise.
+        let wave: String?
         let duty: Double?
         let volume: Double
+        /// -1 left ... 1 right.
+        let pan: Double?
+        /// How much of this track goes to the reverb (0...1, default 1).
+        let reverb: Double?
         let notes: String
     }
 
@@ -427,7 +436,28 @@ nonisolated struct SongDef: Decodable, Identifiable, Sendable {
     let title: String
     let tempo: Double
     let loops: Bool?
+    /// The hall reverb's level for the whole song.
+    let reverb: Double?
     let tracks: [Track]
+}
+
+/// An additive instrument (content/music.json "instruments"): sine partials, each
+/// [frequency ratio, level, decay per second], plus envelope and colour.
+nonisolated struct InstrumentDef: Decodable, Sendable {
+    let id: String
+    let partials: [[Double]]?
+    /// Held notes (winds, strings) don't decay; struck ones do.
+    let held: Bool?
+    let attack: Double?
+    let release: Double?
+    /// [depth in semitones, rate in Hz, delay in seconds]
+    let vibrato: [Double]?
+    let voices: Int?
+    /// Cents between the chorus voices.
+    let detune: Double?
+    let breath: Double?
+    let click: Double?
+    let gain: Double?
 }
 
 /// A colour choice in the look customiser (content/appearance.json).
@@ -479,7 +509,7 @@ private nonisolated struct MonstersFile: Decodable { let monsters: [MonsterDef] 
 private nonisolated struct ItemsFile: Decodable { let items: [ItemDef] }
 private nonisolated struct QuestsFile: Decodable { let quests: [QuestDef] }
 private nonisolated struct MapsFile: Decodable { let start: String; let maps: [MapDef] }
-private nonisolated struct MusicFile: Decodable { let songs: [SongDef] }
+private nonisolated struct MusicFile: Decodable { let songs: [SongDef]; let instruments: [InstrumentDef]? }
 private nonisolated struct ChangelogFile: Decodable { let releases: [ReleaseNote] }
 
 /// All game data from the bundled content/ folder. Edit the JSON, rebuild, done.
@@ -496,6 +526,7 @@ final class Content {
     let maps: [MapDef]
     let startMap: String
     let songs: [SongDef]
+    let instruments: [InstrumentDef]
     let appearance: AppearanceOptions
     let crowd: CrowdOptions
     /// Newest first.
@@ -513,7 +544,9 @@ final class Content {
         let mapFile: MapsFile = Self.load("maps", from: bundle)
         maps = mapFile.maps
         startMap = mapFile.start
-        songs = (Self.load("music", from: bundle) as MusicFile).songs
+        let musicFile: MusicFile = Self.load("music", from: bundle)
+        songs = musicFile.songs
+        instruments = musicFile.instruments ?? []
         appearance = Self.load("appearance", from: bundle)
         crowd = Self.load("crowd", from: bundle)
         releases = (Self.load("changelog", from: bundle) as ChangelogFile).releases

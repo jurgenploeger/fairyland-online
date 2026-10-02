@@ -38,7 +38,7 @@ final class BattleScene: SKScene {
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
 
     override func didMove(to view: SKView) {
-        MusicPlayer.shared.play("battle")
+        MusicPlayer.shared.play(controller.music)
         layout()
         enter()
     }

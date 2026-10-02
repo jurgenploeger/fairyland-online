@@ -20,7 +20,7 @@ Built with SwiftUI + SpriteKit. Art is generated with [Retro Diffusion](https://
   adventurers and bring two along in your party, and danger zones allow duels.
 - **Customisation:** hair, outfit and skin (more unlock through quests); armour recolours your outfit and your
   weapon shows in hand.
-- Quests, shops, healers, checkpoints, an in-game calendar and an original chiptune soundtrack.
+- Quests, shops, healers, checkpoints, an in-game calendar and an original storybook soundtrack (flutes, harp, music box, strings and more, synthesized on the device).
 
 ## Run it
 
@@ -52,7 +52,7 @@ With a free Apple ID the app expires after 7 days. Press ⌘R again to reinstall
 | `content/items.json` | potions, eggs, equipment |
 | `content/quests.json` | quests, objectives, rewards, the elder's question |
 | `content/changelog.json` | release notes shown under "What's new" on the title screen (newest first) |
-| `content/music.json` | the songs, in a tracker-style note format |
+| `content/music.json` | the songs and their instruments, in a tracker-style note format (`tools/music_preview.py` renders them to WAV) |
 | `art/assets.json` | every sprite and its Retro Diffusion prompt |
 
 Rebuild after editing. The unit tests (⌘U) check that every reference between these files resolves.
@@ -95,7 +95,7 @@ Fairyland/App/         app, coordinator, SpriteKit host, debug launch
 Fairyland/Model/       save data, session rules (levels, quests, items), calendar
 Fairyland/World/       isometric maps, walking, NPCs, ambience
 Fairyland/Battle/      battle engine, controller, scene, skill effects
-Fairyland/Audio/       chiptune synth + music player
+Fairyland/Audio/       storybook synth (additive instruments, drums, reverb) + music player
 Fairyland/Art/         sprite loading and placeholder art
 Fairyland/UI/          SwiftUI HUD, menus, dialogs, battle UI
 FairylandTests/        rules and content tests
