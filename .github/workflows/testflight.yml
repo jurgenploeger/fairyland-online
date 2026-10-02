@@ -67,12 +67,13 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID || vars.ASC_ISSUER_ID }}
         run: |
           xcodebuild -version
+          mkdir -p build
           xcodebuild -project Fairyland.xcodeproj -scheme Fairyland -configuration Release \
             -destination 'generic/platform=iOS' -archivePath build/Fairyland.xcarchive \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" \
             -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-            -quiet archive
+            archive > build/archive.log 2>&1 || { tools/ci_errors.sh build/archive.log; exit 1; }
 
       - name: Upload to TestFlight
         env:
@@ -97,7 +98,16 @@ jobs:
             -exportOptionsPlist build/ExportOptions.plist -exportPath build/export \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" \
-            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            > build/export.log 2>&1 || { tools/ci_errors.sh build/export.log; exit 1; }
+
+      - name: Keep the build logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-logs
+          path: build/*.log
+          if-no-files-found: ignore
 
       - name: Summary
         run: |
