@@ -309,7 +309,7 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
 
     /// Whimsy: floating particles, butterflies, cloud shadows and a colour mood.
     nonisolated struct Ambience: Decodable, Sendable {
-        /// petals | leaves | fireflies | sparkles
+        /// petals | leaves | fireflies | sparkles | snow | dust | motes, or several joined with "+".
         let particles: String?
         let butterflies: Int?
         let clouds: Bool?
