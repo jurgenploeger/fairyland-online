@@ -945,22 +945,52 @@
       "exits": [
         {
           "edge": "west",
-          "to": "meadowbrook"
+          "to": "meadowbrook",
+          "at": -10
         },
         {
           "edge": "north",
           "to": "pineapple_shore",
-          "requires": "jelly_trouble"
+          "requires": "jelly_trouble",
+          "at": 18,
+          "via": [
+            [
+              -4,
+              10
+            ],
+            [
+              12,
+              20
+            ]
+          ]
         },
         {
           "edge": "east",
           "to": "twilight_woods",
-          "requires": "pineapple_harvest"
+          "requires": "pineapple_harvest",
+          "at": 8,
+          "via": [
+            [
+              14,
+              -14
+            ],
+            [
+              34,
+              -6
+            ]
+          ]
         },
         {
           "edge": "south",
           "to": "frog_swamp",
-          "requires": "new_friend"
+          "requires": "new_friend",
+          "at": -20,
+          "via": [
+            [
+              -24,
+              -18
+            ]
+          ]
         }
       ],
       "encounters": {
@@ -1010,7 +1040,11 @@
         "sun": "#FFE0A0",
         "haze": "#CFE8FF",
         "hazeAlpha": 0.2
-      }
+      },
+      "hub": [
+        -12,
+        -6
+      ]
     },
     {
       "id": "pineapple_shore",
@@ -1193,12 +1227,24 @@
       "exits": [
         {
           "edge": "south",
-          "to": "sunny_meadow"
+          "to": "sunny_meadow",
+          "at": 12
         },
         {
           "edge": "north",
           "to": "smiling_forest",
-          "requires": "pineapple_harvest"
+          "requires": "pineapple_harvest",
+          "at": -16,
+          "via": [
+            [
+              28,
+              12
+            ],
+            [
+              6,
+              24
+            ]
+          ]
         }
       ],
       "encounters": {
@@ -1240,7 +1286,29 @@
         "sun": "#FFE8C0",
         "haze": "#D0F0FF",
         "hazeAlpha": 0.22
-      }
+      },
+      "hub": [
+        20,
+        -6
+      ],
+      "trails": [
+        {
+          "to": [
+            -32,
+            -12
+          ],
+          "via": [
+            [
+              2,
+              -16
+            ],
+            [
+              -18,
+              -8
+            ]
+          ]
+        }
+      ]
     },
     {
       "id": "twilight_woods",
@@ -1505,12 +1573,34 @@
       "exits": [
         {
           "edge": "west",
-          "to": "sunny_meadow"
+          "to": "sunny_meadow",
+          "at": 14,
+          "via": [
+            [
+              -30,
+              22
+            ]
+          ]
         },
         {
           "edge": "south",
           "to": "valley_of_fear",
-          "requires": "bouncy_menace"
+          "requires": "bouncy_menace",
+          "at": 18,
+          "via": [
+            [
+              8,
+              -4
+            ],
+            [
+              -16,
+              -18
+            ],
+            [
+              10,
+              -28
+            ]
+          ]
         }
       ],
       "encounters": {
@@ -1564,7 +1654,25 @@
           "blur": 3,
           "scale": 3
         }
-      }
+      },
+      "hub": [
+        -8,
+        10
+      ],
+      "trails": [
+        {
+          "to": [
+            30,
+            22
+          ],
+          "via": [
+            [
+              12,
+              26
+            ]
+          ]
+        }
+      ]
     },
     {
       "id": "smiling_forest",
@@ -1943,16 +2051,45 @@
       "exits": [
         {
           "edge": "south",
-          "to": "pineapple_shore"
+          "to": "pineapple_shore",
+          "at": -18,
+          "via": [
+            [
+              -22,
+              -22
+            ]
+          ]
         },
         {
           "edge": "north",
-          "to": "rainbow_city"
+          "to": "rainbow_city",
+          "at": 8,
+          "via": [
+            [
+              -26,
+              10
+            ],
+            [
+              -8,
+              26
+            ]
+          ]
         },
         {
           "edge": "east",
           "to": "snow_white_forest",
-          "requires": "dragon_hangover"
+          "requires": "dragon_hangover",
+          "at": -12,
+          "via": [
+            [
+              14,
+              -18
+            ],
+            [
+              34,
+              -8
+            ]
+          ]
         }
       ],
       "encounters": {
@@ -2017,7 +2154,11 @@
           "blur": 3,
           "scale": 3
         }
-      }
+      },
+      "hub": [
+        -10,
+        -4
+      ]
     },
     {
       "id": "rainbow_city",
@@ -2660,7 +2801,8 @@
       "exits": [
         {
           "edge": "west",
-          "to": "smiling_forest"
+          "to": "smiling_forest",
+          "at": -10
         }
       ],
       "npcs": [
@@ -2736,7 +2878,33 @@
           "blur": 3,
           "scale": 3
         }
-      }
+      },
+      "hub": [
+        -18,
+        -6
+      ],
+      "trails": [
+        {
+          "to": [
+            12,
+            16
+          ],
+          "via": [
+            [
+              -4,
+              -20
+            ],
+            [
+              20,
+              -10
+            ],
+            [
+              24,
+              6
+            ]
+          ]
+        }
+      ]
     },
     {
       "id": "frog_swamp",
@@ -2961,12 +3129,34 @@
       "exits": [
         {
           "edge": "north",
-          "to": "sunny_meadow"
+          "to": "sunny_meadow",
+          "at": -20,
+          "via": [
+            [
+              -10,
+              -2
+            ],
+            [
+              -26,
+              14
+            ]
+          ]
         },
         {
           "edge": "east",
           "to": "valley_of_fear",
-          "requires": "swamp_song"
+          "requires": "swamp_song",
+          "at": 14,
+          "via": [
+            [
+              22,
+              -22
+            ],
+            [
+              38,
+              2
+            ]
+          ]
         }
       ],
       "encounters": {
@@ -3018,7 +3208,11 @@
           "blur": 3,
           "scale": 3
         }
-      }
+      },
+      "hub": [
+        6,
+        -10
+      ]
     },
     {
       "id": "valley_of_fear",
@@ -3207,20 +3401,48 @@
       "exits": [
         {
           "edge": "north",
-          "to": "twilight_woods"
+          "to": "twilight_woods",
+          "at": -14,
+          "via": [
+            [
+              -8,
+              20
+            ]
+          ]
         },
         {
           "edge": "west",
-          "to": "frog_swamp"
+          "to": "frog_swamp",
+          "at": 12,
+          "via": [
+            [
+              -22,
+              8
+            ]
+          ]
         },
         {
           "edge": "east",
-          "to": "rat_cavern"
+          "to": "rat_cavern",
+          "at": -16,
+          "via": [
+            [
+              24,
+              -12
+            ]
+          ]
         },
         {
           "edge": "south",
           "to": "goldburg",
-          "requires": "rat_king"
+          "requires": "rat_king",
+          "at": 18,
+          "via": [
+            [
+              14,
+              -22
+            ]
+          ]
         }
       ],
       "encounters": {
@@ -3263,7 +3485,11 @@
         },
         "haze": "#3A2050",
         "hazeAlpha": 0.28
-      }
+      },
+      "hub": [
+        4,
+        0
+      ]
     },
     {
       "id": "rat_cavern",
@@ -3432,7 +3658,8 @@
       "exits": [
         {
           "edge": "west",
-          "to": "valley_of_fear"
+          "to": "valley_of_fear",
+          "at": -12
         }
       ],
       "npcs": [
@@ -3484,7 +3711,33 @@
         },
         "haze": "#102040",
         "hazeAlpha": 0.3
-      }
+      },
+      "hub": [
+        -14,
+        -10
+      ],
+      "trails": [
+        {
+          "to": [
+            0,
+            14
+          ],
+          "via": [
+            [
+              4,
+              -18
+            ],
+            [
+              22,
+              -4
+            ],
+            [
+              12,
+              10
+            ]
+          ]
+        }
+      ]
     },
     {
       "id": "goldburg",
@@ -3991,7 +4244,8 @@
       "exits": [
         {
           "edge": "west",
-          "to": "goldburg"
+          "to": "goldburg",
+          "at": 2
         }
       ],
       "npcs": [
@@ -4054,7 +4308,41 @@
         "sun": "#FFC880",
         "haze": "#FFD8B0",
         "hazeAlpha": 0.22
-      }
+      },
+      "hub": [
+        -16,
+        4
+      ],
+      "trails": [
+        {
+          "to": [
+            18,
+            10
+          ],
+          "via": [
+            [
+              0,
+              -10
+            ],
+            [
+              28,
+              -4
+            ]
+          ]
+        },
+        {
+          "to": [
+            -30,
+            -26
+          ],
+          "via": [
+            [
+              -12,
+              -18
+            ]
+          ]
+        }
+      ]
     },
     {
       "id": "crystal_mountain",
@@ -4245,12 +4533,34 @@
       "exits": [
         {
           "edge": "north",
-          "to": "goldburg"
+          "to": "goldburg",
+          "at": 10,
+          "via": [
+            [
+              -26,
+              12
+            ],
+            [
+              22,
+              22
+            ]
+          ]
         },
         {
           "edge": "south",
           "to": "moonglow",
-          "requires": "crystal_hearts"
+          "requires": "crystal_hearts",
+          "at": -8,
+          "via": [
+            [
+              26,
+              -10
+            ],
+            [
+              -24,
+              -22
+            ]
+          ]
         }
       ],
       "encounters": {
@@ -4292,7 +4602,11 @@
         "sun": "#F0E8FF",
         "haze": "#C8D0FF",
         "hazeAlpha": 0.25
-      }
+      },
+      "hub": [
+        0,
+        0
+      ]
     },
     {
       "id": "moonglow",
@@ -4483,7 +4797,14 @@
       "exits": [
         {
           "edge": "north",
-          "to": "crystal_mountain"
+          "to": "crystal_mountain",
+          "at": -10,
+          "via": [
+            [
+              -16,
+              14
+            ]
+          ]
         }
       ],
       "encounters": {
@@ -4523,7 +4844,29 @@
         },
         "haze": "#303A80",
         "hazeAlpha": 0.28
-      }
+      },
+      "hub": [
+        6,
+        -4
+      ],
+      "trails": [
+        {
+          "to": [
+            26,
+            -20
+          ],
+          "via": [
+            [
+              -10,
+              -18
+            ],
+            [
+              10,
+              -26
+            ]
+          ]
+        }
+      ]
     }
   ]
 }

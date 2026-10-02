@@ -353,6 +353,18 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let to: String
         /// A quest you must finish before this road opens.
         let requires: String?
+        /// Where along its edge the road leaves, in cells from the middle of the edge (east/north positive).
+        let at: Int?
+        /// Waypoints the road winds through on its way out, as [x, y] cell offsets from the centre.
+        let via: [[Int]]?
+    }
+
+    /// A narrower path off the roads, to somewhere worth visiting (a boss's lair, an oasis).
+    nonisolated struct Trail: Decodable, Sendable {
+        /// [x, y] cell offsets from the centre. Starts at the hub unless `from` is set.
+        let to: [Int]
+        let from: [Int]?
+        let via: [[Int]]?
     }
 
     nonisolated struct Building: Decodable, Sendable {
@@ -381,6 +393,9 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
     let exits: [Exit]
     /// Where this place sits on the world map, in steps [east, north] from the start town.
     let world: [Int]?
+    /// Where the roads meet, as an [x, y] cell offset from the centre (the centre by default).
+    let hub: [Int]?
+    let trails: [Trail]?
     let buildings: [Building]?
     let decor: [Decor]?
     let npcs: [NPCDef]?
