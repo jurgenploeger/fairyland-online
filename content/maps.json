@@ -3511,11 +3511,12 @@
         "accent": "tile_cave_rock",
         "accentPatches": 40,
         "water": "tile_water",
-        "ponds": 5,
+        "ponds": 0,
+        "cave": { "rock": "tile_cave_rock", "height": 32, "width": 0.6, "maze": 7 },
         "props": [
           {
             "art": "stalagmite",
-            "count": 300,
+            "count": 150,
             "blocking": true,
             "cluster": 6,
             "size": [
@@ -3526,7 +3527,7 @@
           },
           {
             "art": "boulder",
-            "count": 80,
+            "count": 40,
             "blocking": true,
             "cluster": 3,
             "size": [
@@ -3558,7 +3559,7 @@
           },
           {
             "art": "small_stalagmite",
-            "count": 150,
+            "count": 90,
             "blocking": false,
             "cluster": 4,
             "size": [
@@ -3591,7 +3592,7 @@
           },
           {
             "art": "pebbles",
-            "count": 60,
+            "count": 40,
             "blocking": false,
             "cluster": 3,
             "size": [
@@ -3668,8 +3669,8 @@
           "name": "Rat King",
           "role": "boss",
           "art": "boss_rat_king",
-          "x": 0,
-          "y": 16,
+          "x": 32,
+          "y": 20,
           "greeting": "Squeak! Who dares enter MY cavern? Bow to the king!",
           "monster": "rat_king",
           "level": 18
@@ -3719,21 +3720,13 @@
       "trails": [
         {
           "to": [
-            0,
-            14
+            24,
+            -22
           ],
           "via": [
             [
-              4,
-              -18
-            ],
-            [
-              22,
-              -4
-            ],
-            [
-              12,
-              10
+              2,
+              -20
             ]
           ]
         }

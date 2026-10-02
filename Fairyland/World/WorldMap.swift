@@ -54,6 +54,10 @@ final class WorldMap {
     private(set) var streetDecor: [(art: String, cell: GridPoint)] = []
     /// Raised terraces: their rectangles in grid cells (min corner inclusive), and stair cells.
     private(set) var terraces: [(origin: GridPoint, width: Int, height: Int, stairs: [GridPoint])] = []
+    /// Cave rock: solid cells drawn as raised walls (only on maps with a `cave` theme).
+    private(set) var rock: Set<GridPoint> = []
+    /// The middles of a cave's galleries and tunnels, kept clear of scenery so they stay open.
+    private var passages: Set<GridPoint> = []
     private var occupied: Set<GridPoint> = []
     private var blocked: Set<GridPoint> = []
     private let graph: GKGridGraph<GKGridGraphNode>
@@ -84,8 +88,14 @@ final class WorldMap {
         if def.fence == true { layOutTownBorder() }
         for exit in def.exits { carveRoad(for: exit, &rng) }
         for trail in def.trails ?? [] { carveTrail(trail, &rng) }
+        // Caves dig their ponds first and then a chamber around each one.
+        let ponds = def.theme.water != nil ? def.theme.ponds : nil
+        if let cave = def.theme.cave {
+            if let ponds { digPonds(ponds, &rng) }
+            digCave(cave, &rng)
+        }
         if let town = def.town { planTown(town, &rng) }
-        if def.theme.water != nil, let count = def.theme.ponds { digPonds(count, &rng) }
+        if def.theme.cave == nil, let ponds { digPonds(ponds, &rng) }
         if def.theme.accent != nil {
             if let patches = def.theme.accentPatches {
                 paintAccentPatches(patches, &rng)
@@ -205,9 +215,13 @@ final class WorldMap {
     /// Whether scenery may go in `cell`: free, off roads and water, clear of the centre and
     /// the arrival spots, and (in fenced towns) outside the fence.
     /// `insideFence` lets town-square planting use the town's ground, not just its border.
-    func isFreeForScenery(_ cell: GridPoint, insideFence: Bool = false) -> Bool {
+    /// Things you can walk through (`blocking` false) may sit in a cave's passages.
+    func isFreeForScenery(_ cell: GridPoint, insideFence: Bool = false, blocking: Bool = true) -> Bool {
         guard cell.col >= 1, cell.row >= 1, cell.col < columns - 1, cell.row < rows - 1 else { return false }
         guard !occupied.contains(cell) else { return false }
+        if blocking, !passages.isEmpty, (-1...1).contains(where: { dc in (-1...1).contains { dr in passages.contains(GridPoint(col: cell.col + dc, row: cell.row + dr)) } }) {
+            return false
+        }
         let tile = ground[cell.row][cell.col]
         guard tile != .path, tile != .water else { return false }
         guard max(abs(cell.col - center.col), abs(cell.row - center.row)) > 2 else { return false }
@@ -228,10 +242,10 @@ final class WorldMap {
     }
 
     /// A random free cell for scenery.
-    func randomFreeCell(using rng: inout SeededRandom) -> GridPoint? {
+    func randomFreeCell(blocking: Bool = true, using rng: inout SeededRandom) -> GridPoint? {
         for _ in 0..<400 {
             let cell = GridPoint(col: Int.random(in: 1..<(columns - 1), using: &rng), row: Int.random(in: 1..<(rows - 1), using: &rng))
-            if isFreeForScenery(cell) { return cell }
+            if isFreeForScenery(cell, blocking: blocking) { return cell }
         }
         return nil
     }
@@ -403,6 +417,293 @@ final class WorldMap {
         return CGPoint(x: blend(p0.x, p1.x, p2.x, p3.x), y: blend(p0.y, p1.y, p2.y, p3.y))
     }
 
+    // MARK: Caves
+
+    /// Fills the map with rock, then digs it out: wide galleries around the roads and trails,
+    /// a chamber where they meet and around each character, more chambers joined on by short
+    /// tunnels, and dead-end tunnels branching off. The edges are roughened, pockets that can't
+    /// be reached are filled back in, and the map's edge stays solid except where roads leave.
+    private func digCave(_ cave: MapDef.Cave, _ rng: inout SeededRandom) {
+        guard columns > 12, rows > 12 else { return }
+        var open = Array(repeating: Array(repeating: false, count: columns), count: rows)
+        func dig(_ p: CGPoint, _ radius: CGFloat) {
+            let reach = Int(radius) + 1
+            let middle = GridPoint(col: Int(p.x), row: Int(p.y))
+            for dr in -reach...reach {
+                for dc in -reach...reach {
+                    let cell = GridPoint(col: middle.col + dc, row: middle.row + dr)
+                    guard contains(cell), CGPoint(x: CGFloat(cell.col) + 0.5, y: CGFloat(cell.row) + 0.5).distance(to: p) <= radius else { continue }
+                    open[cell.row][cell.col] = true
+                }
+            }
+        }
+        func tunnel(_ a: CGPoint, _ b: CGPoint, _ radius: CGFloat) {
+            let steps = max(1, Int(a.distance(to: b) * 2))
+            for step in 0...steps {
+                let t = CGFloat(step) / CGFloat(steps)
+                let p = CGPoint(x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t)
+                dig(p, radius)
+                passages.insert(GridPoint(col: Int(p.x), row: Int(p.y)))
+            }
+        }
+        /// A tunnel with a sideways jog halfway, so it doesn't run dead straight.
+        func bentTunnel(_ a: CGPoint, _ b: CGPoint, _ radius: CGFloat) {
+            let length = max(a.distance(to: b), 0.001)
+            let jog = CGFloat(Double.random(in: -0.35...0.35, using: &rng)) * length
+            let mid = CGPoint(x: (a.x + b.x) / 2 - (b.y - a.y) / length * jog, y: (a.y + b.y) / 2 + (b.x - a.x) / length * jog)
+            tunnel(a, mid, radius)
+            tunnel(mid, b, radius)
+        }
+        func clamped(_ p: CGPoint) -> CGPoint {
+            CGPoint(x: min(max(p.x, 3), CGFloat(columns - 3)), y: min(max(p.y, 3), CGFloat(rows - 3)))
+        }
+        func nearestOpen(to p: CGPoint) -> CGPoint? {
+            var best: (CGPoint, CGFloat)?
+            for row in 0..<rows {
+                for col in 0..<columns where open[row][col] {
+                    let q = CGPoint(x: CGFloat(col) + 0.5, y: CGFloat(row) + 0.5)
+                    let d = q.distance(to: p)
+                    if best == nil || d < best!.1 { best = (q, d) }
+                }
+            }
+            return best?.0
+        }
+
+        // Galleries around the roads and trails, swelling and narrowing as they go.
+        let wide = CGFloat(cave.width ?? 3)
+        for row in 0..<rows {
+            for col in 0..<columns where ground[row][col] == .path {
+                let swell = wide * 0.35 * sin(CGFloat(col) * 0.31 + CGFloat(row) * 0.17)
+                dig(CGPoint(x: CGFloat(col) + 0.5, y: CGFloat(row) + 0.5), wide + swell)
+                passages.insert(GridPoint(col: col, row: row))
+            }
+        }
+        let hub = point(def.hub ?? [0, 0])
+        dig(hub, wide * 2 + 1)
+        for npc in def.npcs ?? [] { dig(point([npc.x, npc.y]), 3.5) }
+        // Underground lakes, each in a chamber of its own joined on by a tunnel.
+        for pond in ponds where !pond.isEmpty {
+            let middle = CGPoint(x: CGFloat(pond.map(\.col).reduce(0, +)) / CGFloat(pond.count) + 0.5,
+                                 y: CGFloat(pond.map(\.row).reduce(0, +)) / CGFloat(pond.count) + 0.5)
+            let target = nearestOpen(to: middle)
+            for cell in pond { dig(CGPoint(x: CGFloat(cell.col) + 0.5, y: CGFloat(cell.row) + 0.5), 2.2) }
+            if let target { bentTunnel(middle, target, 1.4) }
+        }
+
+        for _ in 0..<(cave.chambers ?? 0) {
+            for _ in 0..<30 {
+                let middle = CGPoint(x: CGFloat(Int.random(in: 6..<(columns - 6), using: &rng)) + 0.5,
+                                     y: CGFloat(Int.random(in: 6..<(rows - 6), using: &rng)) + 0.5)
+                let radius = CGFloat(Double.random(in: 2.5..<5, using: &rng))
+                let lobe = CGPoint(x: middle.x + CGFloat(Int.random(in: -3...3, using: &rng)), y: middle.y + CGFloat(Int.random(in: -3...3, using: &rng)))
+                guard !open[Int(middle.y)][Int(middle.x)], let target = nearestOpen(to: middle), target.distance(to: middle) > radius + 3 else { continue }
+                bentTunnel(middle, target, 1.4)
+                dig(middle, radius)
+                dig(clamped(lobe), radius * 0.7)
+                break
+            }
+        }
+
+        for _ in 0..<(cave.branches ?? 0) {
+            var cells: [CGPoint] = []
+            for row in 3..<(rows - 3) {
+                for col in 3..<(columns - 3) where open[row][col] { cells.append(CGPoint(x: CGFloat(col) + 0.5, y: CGFloat(row) + 0.5)) }
+            }
+            guard !cells.isEmpty else { break }
+            let start = cells[Int.random(in: 0..<cells.count, using: &rng)]
+            let angle = CGFloat(Double.random(in: 0..<(2 * Double.pi), using: &rng))
+            let length = CGFloat(Double.random(in: 8..<16, using: &rng))
+            let end = clamped(CGPoint(x: start.x + cos(angle) * length, y: start.y + sin(angle) * length))
+            bentTunnel(start, end, 1.2)
+            dig(end, 2)
+        }
+
+        // Ragged edges: nibble at the walls, then smooth into rounded rock.
+        let before = open
+        for row in 0..<rows {
+            for col in 0..<columns where !before[row][col] {
+                let touches = [(0, 1), (1, 0), (0, -1), (-1, 0)].contains { d in
+                    let c = col + d.0, r = row + d.1
+                    return c >= 0 && r >= 0 && c < columns && r < rows && before[r][c]
+                }
+                if touches, Double.random(in: 0..<1, using: &rng) < 0.3 { open[row][col] = true }
+            }
+        }
+        for _ in 0..<2 {
+            let last = open
+            for row in 0..<rows {
+                for col in 0..<columns {
+                    var count = 0
+                    for dr in -1...1 {
+                        for dc in -1...1 where dr != 0 || dc != 0 {
+                            let c = col + dc, r = row + dr
+                            if c >= 0, r >= 0, c < columns, r < rows, last[r][c] { count += 1 }
+                        }
+                    }
+                    if count >= 5 { open[row][col] = true } else if count <= 2 { open[row][col] = false }
+                }
+            }
+        }
+        // Narrow passages, one or two cells wide, dug after the smoothing so they stay narrow.
+        var narrow: Set<GridPoint> = []
+        func carveNarrow(_ points: [CGPoint]) {
+            for (a, b) in zip(points, points.dropFirst()) {
+                let steps = max(1, Int(a.distance(to: b) * 2))
+                for step in 0...steps {
+                    let t = CGFloat(step) / CGFloat(steps)
+                    let p = CGPoint(x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t)
+                    for dr in -1...1 {
+                        for dc in -1...1 {
+                            let cell = GridPoint(col: Int(p.x) + dc, row: Int(p.y) + dr)
+                            guard contains(cell), CGPoint(x: CGFloat(cell.col) + 0.5, y: CGFloat(cell.row) + 0.5).distance(to: p) <= 0.8 else { continue }
+                            open[cell.row][cell.col] = true
+                            narrow.insert(cell)
+                        }
+                    }
+                }
+            }
+        }
+
+        // A maze over the whole cave: a grid of junctions joined along a random spanning tree, so
+        // every part can be reached and there are dead ends, plus a few loops. Each link kinks
+        // sideways halfway.
+        if let spacing = cave.maze, spacing >= 4 {
+            let across = max(2, (columns - 6) / spacing + 1), down = max(2, (rows - 6) / spacing + 1)
+            var nodes: [CGPoint] = []
+            for j in 0..<down {
+                for i in 0..<across {
+                    let x = 3 + CGFloat(i) * CGFloat(columns - 7) / CGFloat(across - 1) + CGFloat(Double.random(in: -1.5...1.5, using: &rng))
+                    let y = 3 + CGFloat(j) * CGFloat(rows - 7) / CGFloat(down - 1) + CGFloat(Double.random(in: -1.5...1.5, using: &rng))
+                    nodes.append(clamped(CGPoint(x: x.rounded(.down) + 0.5, y: y.rounded(.down) + 0.5)))
+                }
+            }
+            var visited = Array(repeating: false, count: nodes.count)
+            var stack = [Int.random(in: 0..<nodes.count, using: &rng)]
+            visited[stack[0]] = true
+            var links: [(Int, Int)] = []
+            while let current = stack.last {
+                let i = current % across, j = current / across
+                let options = [(i + 1, j), (i - 1, j), (i, j + 1), (i, j - 1)].filter { option in
+                    option.0 >= 0 && option.0 < across && option.1 >= 0 && option.1 < down && !visited[option.1 * across + option.0]
+                }
+                guard !options.isEmpty else { stack.removeLast(); continue }
+                let pick = options[Int.random(in: 0..<options.count, using: &rng)]
+                let next = pick.1 * across + pick.0
+                visited[next] = true
+                links.append((current, next))
+                stack.append(next)
+            }
+            for j in 0..<down {
+                for i in 0..<across {
+                    let here = j * across + i
+                    for (di, dj) in [(1, 0), (0, 1)] where i + di < across && j + dj < down {
+                        let there = (j + dj) * across + i + di
+                        let linked = links.contains { ($0.0 == here && $0.1 == there) || ($0.0 == there && $0.1 == here) }
+                        if !linked, Double.random(in: 0..<1, using: &rng) < 0.15 { links.append((here, there)) }
+                    }
+                }
+            }
+            for (a, b) in links {
+                let from = nodes[a], to = nodes[b]
+                let length = max(from.distance(to: to), 0.001)
+                let swing = CGFloat(Double.random(in: -2...2, using: &rng))
+                let middle = clamped(CGPoint(x: (from.x + to.x) / 2 - (to.y - from.y) / length * swing,
+                                             y: (from.y + to.y) / 2 + (to.x - from.x) / length * swing))
+                carveNarrow([from, middle, to])
+            }
+        }
+
+        // Zigzag passages between two open spots.
+        for _ in 0..<(cave.zigzags ?? 0) {
+            var cells: [CGPoint] = []
+            for row in 3..<(rows - 3) {
+                for col in 3..<(columns - 3) where open[row][col] { cells.append(CGPoint(x: CGFloat(col) + 0.5, y: CGFloat(row) + 0.5)) }
+            }
+            guard cells.count > 1 else { break }
+            let start = cells[Int.random(in: 0..<cells.count, using: &rng)]
+            var target: CGPoint?
+            for _ in 0..<20 {
+                let candidate = cells[Int.random(in: 0..<cells.count, using: &rng)]
+                if (CGFloat(12)...CGFloat(30)).contains(candidate.distance(to: start)) { target = candidate; break }
+            }
+            guard let target else { continue }
+            let length = start.distance(to: target)
+            let ahead = CGVector(dx: (target.x - start.x) / length, dy: (target.y - start.y) / length)
+            let side = CGVector(dx: -ahead.dy, dy: ahead.dx)
+            let legs = max(3, Int(length / 4))
+            var points = [start]
+            for leg in 1..<legs {
+                let swing = CGFloat(leg % 2 == 0 ? 1 : -1) * CGFloat(Double.random(in: 1.5...3, using: &rng))
+                points.append(clamped(start + ahead * (length * CGFloat(leg) / CGFloat(legs)) + side * swing))
+            }
+            points.append(target)
+            carveNarrow(points)
+        }
+
+        passages.formUnion(narrow)
+        for cell in passages where contains(cell) { open[cell.row][cell.col] = true }
+
+        // The map's edge is solid, except the mouths where roads leave.
+        func mouth(_ col: Int, _ row: Int) -> Bool {
+            for d in -2...2 {
+                for (c, r) in [(col + d, row), (col, row + d)] where c >= 0 && r >= 0 && c < columns && r < rows {
+                    let onEdge = c == 0 || r == 0 || c == columns - 1 || r == rows - 1
+                    if onEdge, ground[r][c] == .path { return true }
+                }
+            }
+            return false
+        }
+        for row in 0..<rows {
+            for col in 0..<columns where min(col, row, columns - 1 - col, rows - 1 - row) == 0 && open[row][col] && !mouth(col, row) {
+                open[row][col] = false
+            }
+        }
+
+        // Fill in whatever can't be reached from the hub, after making sure every character's
+        // chamber is joined on (a narrow passage to the nearest reachable spot if it isn't).
+        func flood() -> [[Bool]] {
+            var reached = Array(repeating: Array(repeating: false, count: columns), count: rows)
+            var queue = [GridPoint(col: Int(hub.x), row: Int(hub.y))]
+            if contains(queue[0]), open[queue[0].row][queue[0].col] { reached[queue[0].row][queue[0].col] = true } else { queue = [] }
+            while let cell = queue.popLast() {
+                for d in [(0, 1), (1, 0), (0, -1), (-1, 0)] {
+                    let next = GridPoint(col: cell.col + d.0, row: cell.row + d.1)
+                    guard contains(next), open[next.row][next.col], !reached[next.row][next.col], ground[next.row][next.col] != .water else { continue }
+                    reached[next.row][next.col] = true
+                    queue.append(next)
+                }
+            }
+            return reached
+        }
+        var reached = flood()
+        for npc in def.npcs ?? [] {
+            let spot = point([npc.x, npc.y])
+            let cell = GridPoint(col: Int(spot.x), row: Int(spot.y))
+            guard contains(cell), !reached[cell.row][cell.col] else { continue }
+            var best: (CGPoint, CGFloat)?
+            for row in 0..<rows {
+                for col in 0..<columns where reached[row][col] {
+                    let q = CGPoint(x: CGFloat(col) + 0.5, y: CGFloat(row) + 0.5)
+                    let d = q.distance(to: spot)
+                    if best == nil || d < best!.1 { best = (q, d) }
+                }
+            }
+            guard let target = best?.0 else { continue }
+            narrow.removeAll()
+            carveNarrow([spot, target])
+            passages.formUnion(narrow)
+            reached = flood()
+        }
+        for row in 0..<rows {
+            for col in 0..<columns where !reached[row][col] && ground[row][col] != .water {
+                let cell = GridPoint(col: col, row: row)
+                rock.insert(cell)
+                occupy(cell, blocking: true)
+            }
+        }
+        passages = passages.filter { !rock.contains($0) }
+    }
+
     // MARK: Town planning
 
     private func planTown(_ town: MapDef.Town, _ rng: inout SeededRandom) {
@@ -542,7 +843,7 @@ final class WorldMap {
                     }
                 }
                 let clear = cells.allSatisfy { cell in
-                    contains(cell) && !isNear(cell, within: 2) { $0 == .path || $0 == .water }
+                    contains(cell) && !rock.contains(cell) && !isNear(cell, within: 2) { $0 == .path || $0 == .water }
                 }
                 guard clear, !cells.isEmpty else { continue }
                 for cell in cells {
@@ -590,7 +891,11 @@ final class WorldMap {
                 case .border: color(forTile: theme.border ?? theme.ground)
                 case .water: PixelColor(0x4FA3E0)
                 }
-                if blocked.contains(cell), ground[row][col] != .water { pixel = pixel.shaded(0.55) }
+                if rock.contains(cell) {
+                    pixel = color(forTile: theme.cave?.rock ?? "cave_rock").shaded(0.5)
+                } else if blocked.contains(cell), ground[row][col] != .water {
+                    pixel = pixel.shaded(0.55)
+                }
                 // PixelCanvas is top-down; the map is bottom-up.
                 canvas[col, rows - 1 - row] = pixel
             }
