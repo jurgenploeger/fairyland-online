@@ -3948,6 +3948,148 @@
           }
         ]
       }
+    },
+    {
+      "id": "boss_grumpy_oak",
+      "kind": "monster",
+      "request": {
+        "prompt": "grumpy old oak tree monster with a frowning bark face, bushy eyebrows and leafy crown, waving branch arms, boss monster, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "boss_great_wisp",
+      "kind": "monster",
+      "request": {
+        "prompt": "giant glowing will-o-the-wisp spirit, a big soft ball of pale yellow light with a mischievous face and swirling flame tail, boss monster, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "boss_moon_rabbit_queen",
+      "kind": "monster",
+      "request": {
+        "prompt": "moon rabbit queen, a white rabbit in a flowing lavender gown with a crescent moon crown, holding a mochi mallet, boss monster, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_mossy_leather_vest",
+      "kind": "item",
+      "derive": {
+        "from": "item_leather_vest",
+        "recolor": [
+          {
+            "hue": [
+              5,
+              32
+            ],
+            "minSaturation": 0.2,
+            "to": 95
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_autumn_leather_vest",
+      "kind": "item",
+      "derive": {
+        "from": "item_leather_vest",
+        "recolor": [
+          {
+            "hue": [
+              5,
+              32
+            ],
+            "minSaturation": 0.2,
+            "to": 4,
+            "saturation": 1.2
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_gilded_chain_mail",
+      "kind": "item",
+      "derive": {
+        "from": "item_chain_mail",
+        "recolor": [
+          {
+            "hue": [
+              190,
+              235
+            ],
+            "minSaturation": 0.05,
+            "to": 45,
+            "saturation": 3.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_dawn_silk_robe",
+      "kind": "item",
+      "derive": {
+        "from": "item_silk_robe",
+        "recolor": [
+          {
+            "hue": [
+              255,
+              295
+            ],
+            "minSaturation": 0.08,
+            "minValue": 0.45,
+            "to": 22
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_moonlight_mage_robe",
+      "kind": "item",
+      "derive": {
+        "from": "item_mage_robe",
+        "recolor": [
+          {
+            "hue": [
+              205,
+              240
+            ],
+            "minValue": 0.3,
+            "to": 275,
+            "saturation": 0.45,
+            "value": 1.2
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_bunny_tamer_jacket",
+      "kind": "item",
+      "derive": {
+        "from": "item_tamer_jacket",
+        "recolor": [
+          {
+            "hue": [
+              5,
+              34
+            ],
+            "minSaturation": 0.2,
+            "to": 335,
+            "saturation": 0.8,
+            "value": 1.1
+          }
+        ]
+      }
     }
   ]
 }

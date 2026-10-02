@@ -2457,6 +2457,130 @@
       ],
       "motion": "breathe",
       "boss": true
+    },
+    {
+      "id": "grumpy_oak",
+      "name": "Grumpy Old Oak",
+      "art": "boss_grumpy_oak",
+      "element": "wood",
+      "base": {
+        "hp": 115,
+        "mp": 26,
+        "attack": 50,
+        "defense": 24,
+        "magic": 16,
+        "speed": 28
+      },
+      "growth": {
+        "hp": 15,
+        "mp": 2,
+        "attack": 5,
+        "defense": 2,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 110,
+      "gold": 80,
+      "captureRate": 0,
+      "skills": [
+        "vine_whip",
+        "leaf_storm"
+      ],
+      "motion": "sway",
+      "boss": true,
+      "drops": [
+        {
+          "item": "mossy_leather_vest",
+          "chance": 0.15
+        },
+        {
+          "item": "autumn_leather_vest",
+          "chance": 0.15
+        }
+      ]
+    },
+    {
+      "id": "great_wisp",
+      "name": "Great Wisp",
+      "art": "boss_great_wisp",
+      "element": "light",
+      "base": {
+        "hp": 228,
+        "mp": 64,
+        "attack": 64,
+        "defense": 32,
+        "magic": 86,
+        "speed": 43
+      },
+      "growth": {
+        "hp": 18,
+        "mp": 4,
+        "attack": 4,
+        "defense": 2,
+        "magic": 6,
+        "speed": 3
+      },
+      "exp": 230,
+      "gold": 170,
+      "captureRate": 0,
+      "skills": [
+        "flash",
+        "gust"
+      ],
+      "motion": "sway",
+      "boss": true,
+      "drops": [
+        {
+          "item": "gilded_chain_mail",
+          "chance": 0.15
+        },
+        {
+          "item": "dawn_silk_robe",
+          "chance": 0.15
+        }
+      ]
+    },
+    {
+      "id": "moon_rabbit_queen",
+      "name": "Moon Rabbit Queen",
+      "art": "boss_moon_rabbit_queen",
+      "element": "light",
+      "base": {
+        "hp": 534,
+        "mp": 96,
+        "attack": 160,
+        "defense": 71,
+        "magic": 114,
+        "speed": 86
+      },
+      "growth": {
+        "hp": 26,
+        "mp": 4,
+        "attack": 10,
+        "defense": 4,
+        "magic": 6,
+        "speed": 4
+      },
+      "exp": 640,
+      "gold": 480,
+      "captureRate": 0,
+      "skills": [
+        "flash",
+        "bounce",
+        "roar"
+      ],
+      "motion": "hop",
+      "boss": true,
+      "drops": [
+        {
+          "item": "moonlight_mage_robe",
+          "chance": 0.15
+        },
+        {
+          "item": "bunny_tamer_jacket",
+          "chance": 0.15
+        }
+      ]
     }
   ]
 }

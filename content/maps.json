@@ -1551,6 +1551,7 @@
     },
     {
       "id": "smiling_forest",
+      "npcs": [{"id": "oak_grove", "name": "Grumpy Old Oak", "role": "boss", "art": "boss_grumpy_oak", "x": -7, "y": -13, "greeting": "Hrmph. Stop smiling at me. STOP IT.", "monster": "grumpy_oak", "level": 8}],
       "name": "Smiling Forest",
       "width": 110,
       "height": 80,
@@ -2989,6 +2990,7 @@
     },
     {
       "id": "valley_of_fear",
+      "npcs": [{"id": "wisp_hollow", "name": "Great Wisp", "role": "boss", "art": "boss_great_wisp", "x": -2, "y": 15, "greeting": "Ooooh, follow the pretty light... just a little further... hee hee!", "monster": "great_wisp", "level": 15}],
       "name": "Valley of Fear",
       "width": 100,
       "height": 80,
@@ -4240,6 +4242,7 @@
     },
     {
       "id": "moonglow",
+      "npcs": [{"id": "moon_throne", "name": "Moon Rabbit Queen", "role": "boss", "art": "boss_moon_rabbit_queen", "x": 0, "y": -16, "greeting": "Who stole my moon-mochi? Was it YOU? Hop to it and face me!", "monster": "moon_rabbit_queen", "level": 32}],
       "name": "Moonglow",
       "width": 90,
       "height": 70,
