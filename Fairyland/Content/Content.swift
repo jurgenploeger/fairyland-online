@@ -190,6 +190,9 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     let pattern: String?
     /// Whole walk sheets (art/sprites) per race id, worn instead of the paper-doll layers.
     let sheets: [String: String]?
+    /// The hue ranges of those sheets' fabric or metal, which take the hero's outfit colour
+    /// (`saturation` here boosts it, for grey steel).
+    let dye: [RecolorRule]?
     /// Trim colour on the sprite (buttons, clasps, hems) and an accessory's sparkle, "#RRGGBB".
     let accent: String?
     /// Magic weapons: a soft light while held, "#RRGGBB", centred on `glowAt` ([x, y] in the 32×32 art).
