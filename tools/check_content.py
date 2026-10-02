@@ -162,7 +162,7 @@ for map_def in maps.values():
     for rule in palette.get("recolor", []):
         check(set(rule) <= rule_keys, f"{where} → unknown recolor keys {set(rule) - rule_keys}")
 
-ambience_keys = {"particles", "butterflies", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground"}
+ambience_keys = {"particles", "butterflies", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground", "focus"}
 for map_def in maps.values():
     ambience = map_def.get("ambience") or {}
     where = f"map {map_def['id']} ambience"
@@ -176,6 +176,12 @@ for map_def in maps.values():
             check(bool(hex_colour.match(lights.get("color", ""))) and isinstance(lights.get("count"), int), f"{where} → {key} needs a colour and a count")
     for kind in (ambience.get("particles") or "").split("+") if ambience.get("particles") else []:
         check(kind in {"petals", "leaves", "fireflies", "sparkles", "snow", "dust", "motes"}, f"{where} → unknown particles {kind}")
+    if "focus" in ambience:
+        focus = ambience["focus"]
+        check(set(focus) <= {"blur", "band", "near"}, f"{where} focus → unknown keys {set(focus) - {'blur', 'band', 'near'}}")
+        check(0 <= focus.get("blur", 1.5) <= 6, f"{where} focus → blur should be 0...6 points")
+        check(0 <= focus.get("band", 0.4) <= 0.9, f"{where} focus → band should be 0...0.9")
+        check(0 <= focus.get("near", 0.5) <= 1, f"{where} focus → near should be 0...1")
     if "foreground" in ambience:
         for art_id in ambience["foreground"].get("art", []):
             check(art_id in art, f"{where} foreground → unknown art {art_id}")

@@ -39,6 +39,8 @@ final class WorldScene: SKScene {
     private var hasLeft = false
     private var ambience: Ambience?
     private var lighting: Lighting?
+    /// Scenery softens toward the top and bottom of the screen.
+    private let focus: DepthOfField
     private var crowd: Crowd?
     private var caveWalls: CaveWalls?
     /// Friends in your party walk behind you in a little line.
@@ -75,6 +77,7 @@ final class WorldScene: SKScene {
         self.map = map
         self.player = player
         rng = SeededRandom(text: def.id + "/props")
+        focus = DepthOfField(def.ambience?.focus)
 
         var start = map.center(of: map.center)
         if let entry {
@@ -673,6 +676,7 @@ final class WorldScene: SKScene {
             node.run(.repeatForever(.sequence([left, right])))
         }
         world.addChild(node)
+        focus.add(node)
         return node
     }
 
@@ -1047,5 +1051,6 @@ final class WorldScene: SKScene {
         let scale = (view?.contentScaleFactor ?? 1) / cam.xScale
         cam.position = CGPoint(x: (eased.x * scale).rounded() / scale, y: (eased.y * scale).rounded() / scale)
         lighting?.follow(cam.position)
+        focus.update(camera: cam.position, halfHeight: size.height / 2 * cam.yScale)
     }
 }
