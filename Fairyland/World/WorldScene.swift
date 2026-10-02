@@ -157,7 +157,6 @@ final class WorldScene: SKScene {
         placeBarricades()
 
         world.addChild(player)
-        caveWalls?.reveal(around: lastCell)
         refreshHero()
         refreshFollower()
         refreshAllies()
@@ -897,7 +896,6 @@ final class WorldScene: SKScene {
             return
         }
         lastCell = cell
-        caveWalls?.reveal(around: cell)
         session.playerPosition = player.position
         session.mapCell = cell
 

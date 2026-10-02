@@ -4,15 +4,11 @@ import SpriteKit
 /// near the floor gets a depth-sorted block: a shaded stone top and lit faces where the rock
 /// drops to the floor. The outline runs through the middles of the cells (marching squares),
 /// so corners are cut at 45° instead of stepping in sharp right angles: on screen, walls that
-/// would zig-zag run straight. Rock deeper in is one flat raised layer underneath. Walls
-/// standing between you and the camera turn see-through.
+/// would zig-zag run straight. Rock deeper in is one flat raised layer underneath. Walls stay
+/// solid: whoever walks behind one is hidden, and their name tag shows where they are.
 final class CaveWalls {
-    private var blocks: [GridPoint: [SKSpriteNode]] = [:]
-    private var faded: [GridPoint] = []
-
     /// Faces, edges and soft shadows (in points) around each block's texture.
     private static let pad: CGFloat = 10
-    private static let fadeAlpha: CGFloat = 0.35
     /// The tops of the walls are in shadow, so they stand apart from the lit floor.
     private static let topShade: CGFloat = 0.45
     /// Straight pieces per rounded corner.
@@ -99,7 +95,6 @@ final class CaveWalls {
             node.position = center + CGVector(dx: 0, dy: -half)
             node.zPosition = block.z
             world.addChild(node)
-            blocks[block.cell, default: []].append(node)
         }
 
         let squash = SKNode()
@@ -111,24 +106,6 @@ final class CaveWalls {
         squash.position.y = height
         squash.zPosition = -99_000
         world.addChild(squash)
-    }
-
-    /// Walls in front of `cell` (the ones that could hide whoever stands there) turn see-through.
-    func reveal(around cell: GridPoint) {
-        var hiding: [GridPoint] = []
-        for dr in -2...0 {
-            for dc in -2...0 where dr != 0 || dc != 0 {
-                let near = GridPoint(col: cell.col + dc, row: cell.row + dr)
-                if blocks[near] != nil { hiding.append(near) }
-            }
-        }
-        for old in faded where !hiding.contains(old) {
-            blocks[old]?.forEach { $0.run(.fadeAlpha(to: 1, duration: 0.25), withKey: "fade") }
-        }
-        for new in hiding where !faded.contains(new) {
-            blocks[new]?.forEach { $0.run(.fadeAlpha(to: Self.fadeAlpha, duration: 0.25), withKey: "fade") }
-        }
-        faded = hiding
     }
 
     // MARK: Shapes

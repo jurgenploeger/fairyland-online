@@ -9,3 +9,5 @@ character    | newgame,menu=character            | 8
 companions   | newgame,level=5,menu=companions   | 8
 landscape    | newgame,map=rainbow_city,landscape | 8
 rat_cavern   | newgame,map=rat_cavern            | 8
+behind_wall  | newgame,map=rat_cavern,at=-3_3        | 30
+behind_tree  | newgame,map=smiling_forest,at=0_-14   | 40
