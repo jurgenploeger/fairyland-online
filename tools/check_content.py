@@ -47,8 +47,16 @@ icon_names = set(re.findall(r'^\s+"([a-z0-9-]+)": \(', (ROOT / "tools/icons.py")
 for cls in classes["classes"]:
     for unlock in cls["skills"]:
         check(unlock["skill"] in skills, f"class {cls['id']} → unknown skill {unlock['skill']}")
+styles = {style["id"] for style in appearance["styles"]}
 for race in classes["races"]:
     check(race.get("art", "player_walk") in art, f"race {race['id']} → unknown art {race.get('art')}")
+    check(race.get("hair") in styles, f"race {race['id']} → unknown hairstyle {race.get('hair')}")
+    # The paper-doll layers the hero is stacked from (GameSession.layers).
+    layers = [f"body_{race['id']}", f"hood_{race['id']}", f"helmet_{race['id']}"]
+    layers += [f"hair_{style}_{race['id']}" for style in styles]
+    for layer in layers:
+        check((ROOT / "art" / "sprites" / f"{layer}.png").exists(),
+              f"race {race['id']} → art/sprites/{layer}.png is missing (python3 tools/hero_layers.py)")
 
 for skill in skills.values():
     check(skill.get("icon") in icon_names, f"skill {skill['id']} → unknown icon {skill.get('icon')}")

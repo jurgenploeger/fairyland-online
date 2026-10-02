@@ -119,6 +119,18 @@ final class GameSession {
             + outfit
     }
 
+    /// The hero as paper-doll layers (art/sprites, made by tools/hero_layers.py): the bald body, then
+    /// the hairstyle, or a helmet or hood instead (so no hair pokes through).
+    static func layers(race: RaceDef, look: Look, armor: ItemDef? = nil) -> [String] {
+        let headgear: String? = switch armor?.wear ?? "" {
+        case "plate": "helmet"
+        case "cloak": "hood"
+        default: nil
+        }
+        let style = look.style ?? race.hair ?? Content.shared.appearance.styles.first?.id ?? "spiky"
+        return ["body_\(race.id)", headgear.map { "\($0)_\(race.id)" } ?? "hair_\(style)_\(race.id)"]
+    }
+
     func equipped(_ slot: ItemType) -> ItemDef? {
         data.hero.equipment[slot].flatMap(content.item)
     }
@@ -133,7 +145,8 @@ final class GameSession {
         let look = data.hero.look ?? .standard
         let armor = equipped(.armor)
         let gear = GearLook(wear: armor?.wear, accent: armor?.accent, boots: equipped(.accessory)?.wear == "boots")
-        ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet, recolor: Self.rules(for: look, armor: armor), key: heroLookKey, gear: gear)
+        ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet, recolor: Self.rules(for: look, armor: armor), key: heroLookKey,
+                                   gear: gear, layers: Self.layers(race: heroRace, look: look, armor: armor))
     }
 
     func customizeHero(name: String, look: Look) {

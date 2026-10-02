@@ -10,3 +10,5 @@ companions   | newgame,level=5,menu=companions   | 8
 landscape    | newgame,map=rainbow_city,landscape | 8
 gear_plate   | newgame,level=30,equip=dragon_mail+wooden_sword+ruby_ring      | 8
 gear_cloak   | newgame,level=30,equip=snow_cloak+oak_staff+speed_boots        | 8
+hair_elf     | newgame,race=elf,style=spiky,menu=character                    | 8
+hood_dwarf   | newgame,race=dwarf,level=30,equip=ranger_cloak                 | 8

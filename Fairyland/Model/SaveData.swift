@@ -43,15 +43,17 @@ nonisolated struct Hero: Codable, Equatable, Sendable {
     var bonusSkillPoints: Int?
 }
 
-/// The hero's chosen colours (preset ids from content/appearance.json).
+/// The hero's chosen colours and hairstyle (ids from content/appearance.json).
 nonisolated struct Look: Codable, Equatable, Sendable {
     var hair: String
     var outfit: String
     var skin: String
+    /// Hairstyle; nil means the race's own (saves from before styles were a choice).
+    var style: String? = nil
 
     static let standard = Look(hair: "ginger", outfit: "green", skin: "fair")
 
-    var key: String { "\(hair)/\(outfit)/\(skin)" }
+    var key: String { "\(hair)/\(outfit)/\(skin)/\(style ?? "-")" }
 }
 
 /// A captured monster travelling with the hero.

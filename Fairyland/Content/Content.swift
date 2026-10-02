@@ -79,6 +79,8 @@ nonisolated struct RaceDef: Decodable, Identifiable, Sendable {
     let base: Stats
     /// This race's walk sheet in art/assets.json.
     let art: String?
+    /// The hairstyle a hero of this race starts with (an AppearanceOptions `styles` id).
+    let hair: String?
 
     var sheet: String { art ?? "player_walk" }
 }
@@ -463,7 +465,14 @@ nonisolated struct CrowdOptions: Decodable, Sendable {
     let companions: [String]
 }
 
+/// A hairstyle: art/sprites/hair_<id>_<race>.png, drawn over the bald body_<race>.png.
+nonisolated struct HairStyle: Decodable, Identifiable, Sendable {
+    let id: String
+    let name: String
+}
+
 nonisolated struct AppearanceOptions: Decodable, Sendable {
+    let styles: [HairStyle]
     let hair: [LookPreset]
     let outfits: [LookPreset]
     let skin: [LookPreset]
