@@ -534,8 +534,10 @@ final class BattleActor: SKNode {
         bar.position = CGPoint(x: 0, y: -17)
         bar.fraction = CGFloat(fighter.hpFraction)
         addChild(bar)
+        // The same small gap over every head, wherever the art's top edge sits in its frame.
+        nameHeight = size.height * (1 - sprite.anchorPoint.y - Self.emptyTop(of: sprite.texture)) + Self.nameGap
         let label = NameTag(fighter.name, size: 12)
-        label.position = CGPoint(x: 0, y: size.height * Self.nameRise)
+        label.position = CGPoint(x: 0, y: nameHeight)
         addChild(label)
         sprite.run(IdleMotion.of(art: fighter.art).action(height: size.height, delay: .random(in: 0..<0.8)), withKey: "idle")
     }
@@ -545,9 +547,28 @@ final class BattleActor: SKNode {
     var height: CGFloat { sprite.size.height }
     var center: CGPoint { position + CGVector(dx: 0, dy: sprite.size.height * 0.45) }
     var top: CGPoint { position + CGVector(dx: 0, dy: sprite.size.height * 0.85) }
-    /// Where the name sits, just over the head (sprites leave a little room above it).
-    private static let nameRise: CGFloat = 0.88
-    var nameHeight: CGFloat { sprite.size.height * Self.nameRise }
+    /// Where the name sits: just over the head.
+    private(set) var nameHeight: CGFloat = 0
+    private static let nameGap: CGFloat = 4
+
+    /// The share of `texture`'s height that's empty above the art.
+    private static func emptyTop(of texture: SKTexture?) -> CGFloat {
+        guard let image = texture?.cgImage(), image.width > 0, image.height > 0 else { return 0 }
+        let width = image.width, height = image.height
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                                      space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue),
+              let data = context.data
+        else { return 0 }
+        context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        let pixels = data.bindMemory(to: UInt8.self, capacity: width * height * 4)
+        // The bitmap's rows run top to bottom, like the image's.
+        for y in 0..<height {
+            for x in 0..<width where pixels[(y * width + x) * 4 + 3] > 8 {
+                return CGFloat(y) / CGFloat(height)
+            }
+        }
+        return 0
+    }
 
     func place(at point: CGPoint, facing direction: Direction) {
         home = point
