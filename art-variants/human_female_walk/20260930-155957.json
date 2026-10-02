@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "cute chibi adventurer girl with long orange hair in a ponytail, green tunic, brown belt and boots",
+    "prompt_style": "rd_animation__four_angle_walking",
+    "width": 48,
+    "height": 48,
+    "return_spritesheet": true
+  },
+  "result": {
+    "created_at": 1790783995,
+    "credit_cost": 10,
+    "balance_cost": 0.07,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 52.421,
+    "request_id": "4034b3da-229e-4db3-b928-ac439a5fedf7",
+    "outputs_retained_until": 1790870359
+  }
+}

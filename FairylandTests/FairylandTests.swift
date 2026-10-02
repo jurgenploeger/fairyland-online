@@ -185,6 +185,21 @@ struct LookTests {
         // Companions keep their species' colours.
         #expect(session.artID(for: updated) == "monster_jelly")
     }
+
+    @Test func everyGenderHasASheetForEveryRace() {
+        let content = Content.shared
+        #expect(content.appearance.genders.map(\.id) == ["male", "female", "other"])
+        for race in content.races {
+            #expect(race.sheet(for: nil) == race.sheet)   // older saves keep their sheet
+            for gender in content.appearance.genders {
+                let sheet = race.sheet(for: gender.id)
+                #expect(ArtLibrary.shared.asset(sheet) != nil, "\(race.id) \(gender.id) → unknown art \(sheet)")
+            }
+        }
+        #expect(content.race("dwarf").sheet(for: "female") != content.race("dwarf").sheet(for: "male"))
+        let look = Look(hair: "pink", outfit: "blue", skin: "tan", gender: "other")
+        #expect(look.key != Look(hair: "pink", outfit: "blue", skin: "tan").key)
+    }
 }
 
 @MainActor

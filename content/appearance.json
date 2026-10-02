@@ -1,5 +1,10 @@
 {
-  "_about": "Look customisation for the hero. Each preset is a palette swap (recolor rules, same format as `derive` in art/assets.json) applied to the hero's walk sheet. Companions keep their species' colours. `swatch` is the colour shown in the picker. The first preset in each list is the default. `unlock` names a quest that has to be finished before the look can be picked.",
+  "_about": "Look customisation for the hero. Each preset is a palette swap (recolor rules, same format as `derive` in art/assets.json) applied to the hero's walk sheet. Companions keep their species' colours. `swatch` is the colour shown in the picker. The first preset in each list is the default. `unlock` names a quest that has to be finished before the look can be picked. `genders` pick which of a race's walk sheets you use (classes.json `sheets`).",
+  "genders": [
+    { "id": "male", "name": "Male" },
+    { "id": "female", "name": "Female" },
+    { "id": "other", "name": "Other" }
+  ],
   "hair": [
     { "id": "ginger", "name": "Ginger", "swatch": "#EB871E", "recolor": [] },
     { "id": "blonde", "name": "Blonde", "swatch": "#F7D774", "recolor": [{ "hue": [12, 58], "minSaturation": 0.55, "minValue": 0.55, "to": 48, "saturation": 0.6, "value": 1.12 }] },

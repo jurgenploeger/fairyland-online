@@ -126,12 +126,13 @@ final class GameSession {
     /// Changes whenever the hero's sprite should be redrawn (look, race or gear).
     var heroLookKey: String {
         let gear = ItemType.equipmentSlots.map { data.hero.equipment[$0] ?? "-" }.joined(separator: ",")
-        return "\(heroRace.sheet)/\((data.hero.look ?? .standard).key)/\(gear)"
+        let look = data.hero.look ?? .standard
+        return "\(heroRace.sheet(for: look.gender))/\(look.key)/\(gear)"
     }
 
     func applyLook() {
         let look = data.hero.look ?? .standard
-        ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet, recolor: Self.rules(for: look, armor: equipped(.armor)), key: heroLookKey)
+        ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet(for: look.gender), recolor: Self.rules(for: look, armor: equipped(.armor)), key: heroLookKey)
     }
 
     func customizeHero(name: String, look: Look) {
@@ -428,7 +429,7 @@ final class GameSession {
 
     /// Their walk sheet in their colours.
     func artID(for adventurer: Adventurer) -> String {
-        let sheet = content.race(adventurer.raceID).sheet
+        let sheet = content.race(adventurer.raceID).sheet(for: adventurer.look.gender)
         let id = "adv:\(adventurer.raceID):\(adventurer.look.key)"
         ArtLibrary.shared.register(id, from: sheet, recolor: Self.rules(for: adventurer.look), key: sheet + "/" + adventurer.look.key)
         return id

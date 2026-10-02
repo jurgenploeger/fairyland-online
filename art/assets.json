@@ -51,7 +51,7 @@
         "left"
       ],
       "request": {
-        "prompt": "cute chibi dwarf adventurer, short and stocky, big bushy ginger beard, ginger hair, green tunic, brown belt and boots",
+        "prompt": "cute chibi dwarf adventurer kid, very short and chubby with a round belly and short legs, round rosy cheeks, clean-shaven with no beard and no moustache, ginger hair, green tunic, brown belt and boots",
         "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
@@ -59,6 +59,114 @@
       },
       "derive": {
         "from": "player_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dwarf_npc_walk",
+      "kind": "walk_sheet",
+      "frame": 48,
+      "directions": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "request": {
+        "prompt": "cute chibi dwarf, short and stocky, big bushy ginger beard, ginger hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      }
+    },
+    {
+      "id": "human_female_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi adventurer girl with long orange hair in a ponytail, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "player_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "human_other_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi androgynous adventurer kid with a short fluffy orange bob haircut, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "player_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "elf_male_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi elf adventurer boy with long pointy ears, short golden blonde hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "elf_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "elf_other_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi androgynous elf adventurer with long pointy ears, shoulder-length golden blonde hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "elf_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dwarf_female_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi dwarf adventurer girl, very short and chubby with a round belly and short legs, round rosy cheeks, two thick ginger braids, no beard, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "dwarf_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dwarf_other_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi androgynous dwarf adventurer, very short and chubby with a round belly and short legs, round rosy cheeks, messy short ginger hair, no beard, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "dwarf_walk",
         "recolor": []
       }
     },
@@ -520,7 +628,7 @@
       "id": "npc_trader",
       "kind": "walk_sheet",
       "derive": {
-        "from": "dwarf_walk",
+        "from": "dwarf_npc_walk",
         "recolor": [
           {
             "hue": [
@@ -594,7 +702,7 @@
       "id": "npc_warrior",
       "kind": "walk_sheet",
       "derive": {
-        "from": "dwarf_walk",
+        "from": "dwarf_npc_walk",
         "recolor": [
           {
             "hue": [
@@ -2970,7 +3078,7 @@
         "left"
       ],
       "derive": {
-        "from": "dwarf_walk",
+        "from": "dwarf_npc_walk",
         "recolor": [
           {
             "hue": [

@@ -55,8 +55,13 @@ icon_names = set(re.findall(r'^\s+"([a-z0-9-]+)": \(', (ROOT / "tools/icons.py")
 for cls in classes["classes"]:
     for unlock in cls["skills"]:
         check(unlock["skill"] in skills, f"class {cls['id']} → unknown skill {unlock['skill']}")
+gender_ids = {g["id"] for g in appearance.get("genders", [])}
+check(bool(gender_ids), "appearance.json needs a genders list")
 for race in classes["races"]:
     check(race.get("art", "player_walk") in art, f"race {race['id']} → unknown art {race.get('art')}")
+    for gender, sheet in (race.get("sheets") or {}).items():
+        check(gender in gender_ids, f"race {race['id']} → unknown gender {gender}")
+        check(sheet in art, f"race {race['id']} ({gender}) → unknown art {sheet}")
 
 for skill in skills.values():
     check(skill.get("icon") in icon_names, f"skill {skill['id']} → unknown icon {skill.get('icon')}")

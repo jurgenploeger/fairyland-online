@@ -98,12 +98,13 @@ final class Crowd {
         let options = Content.shared.appearance
         return Look(hair: options.hair.randomElement()?.id ?? Look.standard.hair,
                     outfit: options.outfits.randomElement()?.id ?? Look.standard.outfit,
-                    skin: options.skin.randomElement()?.id ?? Look.standard.skin)
+                    skin: options.skin.randomElement()?.id ?? Look.standard.skin,
+                    gender: options.genders.randomElement()?.id)
     }
 
     /// Someone of a race and look, recoloured like a customised hero.
     private static func person(_ name: String, race raceID: String, look: Look, color: UIColor) -> Walker {
-        let sheet = Content.shared.race(raceID).sheet
+        let sheet = Content.shared.race(raceID).sheet(for: look.gender)
         let id = "adv:\(raceID):\(look.key)"
         ArtLibrary.shared.register(id, from: sheet, recolor: GameSession.rules(for: look), key: sheet + "/" + look.key)
         return Walker(cycle: ArtLibrary.shared.walkCycle(id), label: name, labelColor: color)
