@@ -30,7 +30,7 @@ final class WorldScene: SKScene {
     private let cam = SKCameraNode()
     private let player: Walker
     private var follower: Walker?
-    private var npcs: [(def: NPCDef, node: Walker, marker: SKLabelNode)] = []
+    private var npcs: [(def: NPCDef, node: Walker, marker: NameTag)] = []
     private var talkTarget: String?
     private var lastCell: GridPoint
     private var stepsSinceBattle = 0
@@ -467,12 +467,14 @@ final class WorldScene: SKScene {
             if npc.role == .boss { node.motion = IdleMotion.of(art: npc.art) }
             node.position = map.center(of: cell)
             node.zPosition = -node.position.y
-            let marker = SKLabelNode()
-            marker.attributedText = Nodes.outlined("!", size: 18, color: Nodes.gold)
+            // Quest "!" / "?" in the same style as the names in battle, big enough to spot from afar.
+            let marker = NameTag("!", size: 28)
             marker.position = CGPoint(x: 0, y: node.sprite.size.height + 18)
             marker.zPosition = 6_000
             marker.isHidden = true
-            marker.run(.repeatForever(.sequence([.moveBy(x: 0, y: 4, duration: 0.4), .moveBy(x: 0, y: -4, duration: 0.4)])))
+            let bob = SKAction.sequence([.moveBy(x: 0, y: 5, duration: 0.4), .moveBy(x: 0, y: -5, duration: 0.4)])
+            let pulse = SKAction.sequence([.scale(to: 1.15, duration: 0.4), .scale(to: 1, duration: 0.4)])
+            marker.run(.repeatForever(.group([bob, pulse])))
             node.addChild(marker)
             world.addChild(node)
             npcs.append((npc, node, marker))
@@ -963,7 +965,7 @@ final class WorldScene: SKScene {
             let notice = session.notice(for: npc.def.id)
             npc.marker.isHidden = notice == nil
             if let notice {
-                npc.marker.attributedText = Nodes.outlined(notice == .ready ? "?" : "!", size: 18, color: Nodes.gold)
+                npc.marker.setText(notice == .ready ? "?" : "!")
             }
             let distance = player.position.distance(to: npc.node.position)
             if distance <= talkRange + 12, distance < (nearest?.distance ?? .infinity) {

@@ -114,6 +114,8 @@ final class NameTag: SKNode {
     private let sprite = SKSpriteNode()
     private let color: UIColor
     private let size: CGFloat
+    /// What's drawn now, so setting the same text again skips re-rendering the texture.
+    private var shown: String?
 
     init(_ text: String, level: Int? = nil, color: UIColor = Nodes.nameYellow, size: CGFloat = 12,
          alignment: SKLabelVerticalAlignmentMode = .bottom) {
@@ -129,6 +131,9 @@ final class NameTag: SKNode {
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
 
     func setText(_ text: String, level: Int? = nil) {
+        let key = "\(level.map(String.init) ?? "")|\(text)"
+        guard key != shown else { return }
+        shown = key
         let image = Self.render(prefix: level.map { "[Lv.\($0)] " } ?? "", text: text, color: color, size: size)
         let texture = SKTexture(image: image)
         texture.filteringMode = .linear
