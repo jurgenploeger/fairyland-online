@@ -32,6 +32,10 @@ targets:
       - path: content
         type: folder
         buildPhase: resources
+      # Sound effects (made by tools/make_sounds.py).
+      - path: sound
+        type: folder
+        buildPhase: resources
     info:
       path: Fairyland/Info.plist
       properties:

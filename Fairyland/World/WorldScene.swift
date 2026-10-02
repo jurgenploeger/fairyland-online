@@ -48,6 +48,7 @@ final class WorldScene: SKScene {
     /// Roads that stay closed until a quest is done: the barricade nodes and the cells they block.
     private var barricades: [(exit: MapDef.Exit, nodes: [SKNode], cells: Set<GridPoint>)] = []
     private var lastBlockedNotice = Date.distantPast
+    private var leftFoot = false
     /// Darkens the screen as you walk toward the edge of the map, so leaving is obvious.
     private let edgeFade = SKSpriteNode(color: .black, size: .zero)
 
@@ -934,6 +935,11 @@ final class WorldScene: SKScene {
             return
         }
         lastCell = cell
+        if GameSettings.footsteps {
+            // Alternate feet, a touch louder and softer.
+            leftFoot.toggle()
+            SoundEffects.shared.play(.step, volume: leftFoot ? 0.6 : 0.45)
+        }
         session.playerPosition = player.position
         session.mapCell = cell
 

@@ -28,8 +28,8 @@ struct JoystickView: View {
         .opacity(isPressed ? 1 : 0.9)
         .contentShape(Circle().inset(by: -30))
         .gesture(drag)
-        .sensoryFeedback(.impact(weight: .light), trigger: isPressed) { _, pressed in pressed }
-        .sensoryFeedback(.selection, trigger: direction) { _, new in new != nil }
+        .sensoryFeedback(.impact(weight: .light), trigger: isPressed) { _, pressed in pressed && GameSettings.haptics }
+        .sensoryFeedback(.selection, trigger: direction) { _, new in new != nil && GameSettings.haptics }
         .accessibilityLabel("Movement joystick")
     }
 

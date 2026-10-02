@@ -222,6 +222,7 @@ final class GameSession {
 
     func learnSkill(_ id: String) {
         guard unspentSkillPoints > 0, let skill = learnableSkills.first(where: { $0.id == id }) else { return }
+        SoundEffects.shared.play(.learn)
         data.hero.learnedSkills = (data.hero.learnedSkills ?? []) + [id]
         var levels = data.hero.skillLevels ?? [:]
         levels[id] = 1
@@ -269,6 +270,8 @@ final class GameSession {
     func chooseClass(_ id: String) {
         guard canChooseClass, content.classes.contains(where: { $0.id == id }) else { return }
         data.hero.classID = id
+        SoundEffects.shared.play(.levelUp)
+        Haptics.success()
         post("You joined the \(content.classDef(id).guild ?? "guild") as a \(content.classDef(id).name)!", .reward)
         // Gear the new class can't use goes back into the bag.
         for slot in ItemType.equipmentSlots {
@@ -425,6 +428,7 @@ final class GameSession {
 
     /// The healer: everyone back to full.
     func restParty() {
+        SoundEffects.shared.play(.heal)
         restoreHero()
         for index in data.pets.indices {
             let stats = stats(of: data.pets[index])
@@ -480,6 +484,7 @@ final class GameSession {
     func openChest(_ chest: NPCDef) -> ItemDef? {
         guard canOpen(chest), let id = chest.gives, let item = content.item(id) else { return nil }
         data.openedChests = (data.openedChests ?? []) + [chest.id]
+        SoundEffects.shared.play(.chest)
         addItem(id)
         record(.collect, target: "gift_box")
         post("Found \(item.name) in the gift box!", .reward)
@@ -491,6 +496,8 @@ final class GameSession {
         guard let egg = content.item(eggID), let pool = egg.hatches, !pool.isEmpty, count(of: eggID) > 0 else { return nil }
         let species = data.eggSpecies.flatMap { pool.contains($0) ? $0 : nil } ?? pool.randomElement()!
         guard let pet = makePet(species: species, level: 1), data.pets.count < Self.maxPets else { return nil }
+        SoundEffects.shared.play(.hatch)
+        Haptics.success()
         removeItem(eggID)
         addPet(pet, countsForQuests: false)
         data.activePetID = pet.id
@@ -545,6 +552,7 @@ final class GameSession {
 
     func equip(_ id: String) {
         guard let item = content.item(id), item.type != .consumable, equipIssue(item) == nil, removeItem(id) else { return }
+        SoundEffects.shared.play(.equip)
         if let old = data.hero.equipment[item.type] { addItem(old) }
         data.hero.equipment[item.type] = id
         clampHero()
@@ -563,6 +571,7 @@ final class GameSession {
     func buy(_ id: String) -> Bool {
         guard let item = content.item(id), data.gold >= item.price else { return false }
         data.gold -= item.price
+        SoundEffects.shared.play(.coins)
         addItem(id)
         return true
     }
@@ -644,6 +653,7 @@ final class GameSession {
     func acceptQuest(_ id: String, answer: QuestDef.Question.Answer? = nil) {
         guard let quest = content.quest(id), status(of: quest) == .available else { return }
         data.quests[id] = QuestProgress(state: .active, count: 0)
+        SoundEffects.shared.play(.questAccept)
         if let answer { data.eggSpecies = answer.egg }
         post("Quest accepted: \(quest.title)", .quest)
         for item in quest.starterItems ?? [] { addItem(item) }
@@ -702,6 +712,8 @@ final class GameSession {
     func turnInQuest(_ id: String) -> [String] {
         guard let quest = content.quest(id), status(of: quest) == .ready else { return [] }
         data.quests[id]?.state = .completed
+        SoundEffects.shared.play(.questDone)
+        Haptics.success()
         post("Quest complete: \(quest.title)", .quest)
         var lines: [String] = []
         if let gold = quest.reward.gold {

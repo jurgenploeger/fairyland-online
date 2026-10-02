@@ -10,6 +10,7 @@ struct TitleView: View {
     @State private var raceID = "human"
     @State private var confirmNewGame = false
     @State private var showingChangelog = false
+    @State private var showingSettings = false
     private let savedGame = SaveStore.load()
 
     var body: some View {
@@ -35,6 +36,19 @@ struct TitleView: View {
                         creation
                     } else if showingChangelog {
                         ChangelogPanel { showingChangelog = false }
+                    } else if showingSettings {
+                        VStack(alignment: .leading, spacing: 12) {
+                            SettingsView()
+                            Button {
+                                showingSettings = false
+                            } label: {
+                                Label("Back", icon: .arrowLeft)
+                            }
+                            .buttonStyle(PixelButtonStyle(compact: true))
+                        }
+                        .padding(16)
+                        .frame(maxWidth: 640)
+                        .background(HUDStyle.panel)
                     } else {
                         menu
                     }
@@ -79,6 +93,12 @@ struct TitleView: View {
             }
             .buttonStyle(PixelButtonStyle(compact: true))
             .padding(.top, 6)
+            Button {
+                showingSettings = true
+            } label: {
+                Label("Settings", icon: .settings)
+            }
+            .buttonStyle(PixelButtonStyle(compact: true))
         }
     }
 

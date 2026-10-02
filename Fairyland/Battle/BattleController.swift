@@ -309,9 +309,12 @@ final class BattleController {
         switch event {
         case .attack(let actor, let hit):
             damage(hit)
+            SoundEffects.shared.play(hit.critical ? .crit : .hit)
+            Haptics.impact(hit.critical ? .medium : .light)
             message = "\(name(actor)) attacks \(name(hit.target))!" + (hit.critical ? " Critical hit!" : "")
         case .skill(let actor, let skill, let level, let hits):
             mutate(actor) { $0.mp = max(0, $0.mp - GameSession.mpCost(of: skill, level: level)) }
+            SoundEffects.shared.play(skill.kind == .heal ? .heal : .magic)
             for hit in hits {
                 if skill.kind == .heal {
                     mutate(hit.target) { $0.hp = min($0.stats.hp, $0.hp + hit.amount) }
@@ -326,14 +329,18 @@ final class BattleController {
         case .item(let actor, let item, let target, let hp, let mp):
             // Only used up once it actually reaches someone.
             session.removeItem(item.id)
+            SoundEffects.shared.play(.potion)
             mutate(target) {
                 $0.hp += hp
                 $0.mp += mp
             }
             message = "\(name(actor)) uses a \(item.name) on \(name(target))."
         case .defend(let actor):
+            SoundEffects.shared.play(.shield)
             message = "\(name(actor)) is on guard."
         case .capture(_, let target, let success, _):
+            SoundEffects.shared.play(success ? .capture : .breakFree)
+            if success { Haptics.success() }
             if success {
                 mutate(target) { $0.isCaptured = true }
                 // Like Fairyland's capsules, a stone is only used up when it works.
@@ -343,12 +350,15 @@ final class BattleController {
             }
             message = success ? "Sealed! \(name(target)) was captured!" : "Oh no! \(name(target)) broke free!"
         case .fled(let id):
+            SoundEffects.shared.play(.run)
             mutate(id) { $0.hasFled = true }
             message = "\(name(id)) ran away!"
         case .escape(_, let success):
+            SoundEffects.shared.play(success ? .run : .breakFree)
             message = success ? "Got away safely!" : "Couldn't get away!"
         case .defeated(let id):
             let fighter = combatants.first { $0.id == id }
+            SoundEffects.shared.play(fighter?.side == .enemies ? .poof : .faint)
             message = fighter?.side == .enemies ? "\(name(id)) is defeated!" : "\(name(id)) fainted!"
         case .message(let text):
             message = text
@@ -397,6 +407,15 @@ final class BattleController {
         for line in lines { session.post(line, won ? .reward : .battle) }
         phase = .finished
         MusicPlayer.shared.play(won ? "victory" : nil)
+        if outcome == .defeat { SoundEffects.shared.play(.lose) }
+        if newLevel != nil {
+            // After the first notes of the victory fanfare.
+            Task {
+                try? await Task.sleep(for: .milliseconds(700))
+                SoundEffects.shared.play(.levelUp)
+                Haptics.success()
+            }
+        }
     }
 
     /// Writes battle damage back to the hero and companion.

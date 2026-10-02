@@ -167,7 +167,10 @@ struct FLIconButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            SoundEffects.shared.play(.tap, volume: 0.7)
+            action()
+        } label: {
             IconImage(icon, size: size * 0.5)
                 .foregroundStyle(.white)
                 .shadow(color: HUDStyle.frameDark, radius: 0, x: 1, y: 1)
@@ -239,6 +242,9 @@ struct PixelButtonStyle: ButtonStyle {
                     .shadow(color: .black.opacity(0.35), radius: 0, x: 0, y: configuration.isPressed ? 0 : 3)
             )
             .offset(y: configuration.isPressed ? 2 : 0)
+            .onChange(of: configuration.isPressed) { _, pressed in
+                if pressed { SoundEffects.shared.play(.tap, volume: 0.7) }
+            }
     }
 }
 
