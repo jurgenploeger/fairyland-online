@@ -6098,6 +6098,110 @@
           }
         ]
       }
+    },
+    {
+      "id": "skill_bash",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_first_aid",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_power_strike",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_whirlwind",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_fire_bolt",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_stone_spike",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_leaf_storm",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_blessing",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_wild_call",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_mend_beast",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_nibble",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_jelly_splash",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_pine_needles",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_bounce",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_golden_spin",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_flash",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_shadow_bite",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_ember",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_mud_shot",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_vine_whip",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_bubble",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_web_shot",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_frost_breath",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_roar",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_gust",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_rock_throw",
+      "kind": "icon"
     }
   ]
 }

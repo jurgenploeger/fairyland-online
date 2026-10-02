@@ -373,6 +373,24 @@ struct RulesTests {
         #expect(session.data.hero.level == 31)
     }
 
+    @Test func skillsPinToTheQuickBar() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let bash = try #require(Content.shared.classDef("novice").skills.first { $0.skill == "bash" })
+        session.data.hero.level = bash.level
+        session.learnSkill("bash")
+        let first = try #require(session.heroSkills.first)
+        #expect(session.pinnedSkills.isEmpty)
+        #expect(session.togglePin(first.id))
+        #expect(session.isPinned(first.id))
+        #expect(session.pinnedSkills.map(\.id) == [first.id])
+        #expect(!session.togglePin("not_a_skill"))
+        #expect(session.togglePin(first.id))   // unpin
+        #expect(session.pinnedSkills.isEmpty)
+        for skill in Content.shared.skills {
+            #expect(skill.art.flatMap(ArtLibrary.shared.asset) != nil, "skill \(skill.id) has no icon art")
+        }
+    }
+
     @Test func questFlow() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.data.quests["hope_of_meadowbrook"] = QuestProgress(state: .completed, count: 3)
