@@ -3841,6 +3841,113 @@
     {
       "id": "skill_rock_throw",
       "kind": "icon"
+    },
+    {
+      "id": "item_crimson_ranger_cloak",
+      "kind": "item",
+      "derive": {
+        "from": "item_ranger_cloak",
+        "recolor": [
+          {
+            "hue": [
+              70,
+              170
+            ],
+            "minSaturation": 0.2,
+            "to": 358
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_golden_plate",
+      "kind": "item",
+      "derive": {
+        "from": "item_iron_plate",
+        "recolor": [
+          {
+            "hue": [
+              170,
+              250
+            ],
+            "minSaturation": 0.05,
+            "to": 44,
+            "saturation": 2.6,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_golden_dragon_mail",
+      "kind": "item",
+      "derive": {
+        "from": "item_dragon_mail",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              20
+            ],
+            "minSaturation": 0.55,
+            "to": 44,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_azure_dragon_mail",
+      "kind": "item",
+      "derive": {
+        "from": "item_dragon_mail",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              20
+            ],
+            "minSaturation": 0.55,
+            "to": 212
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_rose_snow_cloak",
+      "kind": "item",
+      "derive": {
+        "from": "item_snow_cloak",
+        "recolor": [
+          {
+            "hue": [
+              180,
+              250
+            ],
+            "minSaturation": 0.1,
+            "to": 335
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_shadow_snow_cloak",
+      "kind": "item",
+      "derive": {
+        "from": "item_snow_cloak",
+        "recolor": [
+          {
+            "hue": [
+              180,
+              250
+            ],
+            "minSaturation": 0.1,
+            "to": 250,
+            "saturation": 0.5,
+            "value": 0.45
+          }
+        ]
+      }
     }
   ]
 }

@@ -149,10 +149,11 @@ final class GameSession {
         let boots = equipped(.accessory)?.wear == "boots"
         var gear = GearLook(wear: armor?.wear, accent: armor?.accent, boots: boots, pattern: armor?.pattern)
         var rules = Self.rules(for: look, armor: armor)
-        if armor?.sheets?[heroRace.id] != nil {
-            // The armour's own sheet is already drawn and coloured: only the skin tone still applies.
+        if let armor, armor.sheets?[heroRace.id] != nil {
+            // The armour's own sheet is already drawn and coloured: only the skin tone applies, plus a
+            // rare colour variant's tint.
             gear = GearLook(wear: nil, accent: nil, boots: boots)
-            rules = content.appearance.skin.first { $0.id == look.skin }?.recolor ?? []
+            rules = (content.appearance.skin.first { $0.id == look.skin }?.recolor ?? []) + (armor.tint ?? [])
         }
         ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet, recolor: rules, key: heroLookKey,
                                    gear: gear, layers: Self.layers(race: heroRace, look: look, armor: armor))
@@ -717,9 +718,25 @@ final class GameSession {
         data.defeatedBosses?.contains(boss.id) == true
     }
 
+    /// Bosses beaten since arriving on this map. They're back for a rematch next visit.
+    var bossesBeatenHere: Set<String> = []
+
+    func isBeatenHere(_ boss: NPCDef) -> Bool {
+        bossesBeatenHere.contains(boss.id)
+    }
+
+    /// Every win rolls the boss's rare drops (the colour variants of top armour).
     func defeatBoss(_ boss: NPCDef) {
-        guard !isDefeated(boss) else { return }
-        data.defeatedBosses = (data.defeatedBosses ?? []) + [boss.id]
+        bossesBeatenHere.insert(boss.id)
+        if !isDefeated(boss) {
+            data.defeatedBosses = (data.defeatedBosses ?? []) + [boss.id]
+        }
+        let species = boss.monster.flatMap(content.monster)
+        for drop in species?.drops ?? [] where Double.random(in: 0..<1) < drop.chance {
+            guard let item = content.item(drop.item) else { continue }
+            addItem(item.id)
+            post("\(species?.name ?? boss.name) dropped \(item.name)!", .reward)
+        }
         save()
     }
 

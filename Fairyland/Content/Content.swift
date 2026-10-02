@@ -150,6 +150,14 @@ nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {
     let motion: String?
     /// Bosses can't be captured and never run away.
     let boss: Bool?
+    /// Rare spoils, rolled every time it's beaten (bosses come back for rematches).
+    let drops: [Drop]?
+
+    nonisolated struct Drop: Decodable, Sendable {
+        let item: String
+        /// 0...1, rolled on each win.
+        let chance: Double
+    }
 
     func stats(at level: Int) -> Stats { base + growth * (level - 1) }
 }
@@ -190,6 +198,8 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     let pattern: String?
     /// Whole walk sheets (art/sprites) per race id, worn instead of the paper-doll layers.
     let sheets: [String: String]?
+    /// A rare colour variant's recolour of those sheets.
+    let tint: [RecolorRule]?
     /// Trim colour on the sprite (buttons, clasps, hems) and an accessory's sparkle, "#RRGGBB".
     let accent: String?
     /// Magic weapons: a soft light while held, "#RRGGBB", centred on `glowAt` ([x, y] in the 32×32 art).

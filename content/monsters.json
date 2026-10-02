@@ -1,5 +1,5 @@
 {
-  "_about": "Monster species. Wild monsters and companions share these stats: stats = base + growth × (level − 1). captureRate 0 means it can't be captured. `art` is an id from art/assets.json. Variants like Frost Puff reuse a base monster's art with a free palette swap (see art/assets.json). Rare colour variants (`rare`, `variantOf`) are about 30% tougher, give more EXP and gold, and are harder to catch. `motion` is how it fidgets standing still (breathe, squish, hop, sway, bounce). Bosses (`boss`) can't be captured and wait on the map to be challenged.",
+  "_about": "Monster species. Wild monsters and companions share these stats: stats = base + growth × (level − 1). captureRate 0 means it can't be captured. `art` is an id from art/assets.json. Variants like Frost Puff reuse a base monster's art with a free palette swap (see art/assets.json). Rare colour variants (`rare`, `variantOf`) are about 30% tougher, give more EXP and gold, and are harder to catch. `motion` is how it fidgets standing still (breathe, squish, hop, sway, bounce). Bosses (`boss`) can't be captured and wait on the map to be challenged; they're back for a rematch each time you return to their map, and every win rolls each of their `drops` (item, chance 0-1).",
   "monsters": [
     {
       "id": "bunny",
@@ -2364,6 +2364,7 @@
     },
     {
       "id": "rat_king",
+      "drops": [{ "item": "crimson_ranger_cloak", "chance": 0.15 }, { "item": "golden_plate", "chance": 0.15 }],
       "name": "Rat King",
       "art": "boss_rat_king",
       "element": "fire",
@@ -2395,6 +2396,7 @@
     },
     {
       "id": "drunk_dragon",
+      "drops": [{ "item": "golden_dragon_mail", "chance": 0.15 }, { "item": "azure_dragon_mail", "chance": 0.15 }],
       "name": "Drunk Dragon",
       "art": "boss_drunk_dragon",
       "element": "fire",
@@ -2426,6 +2428,7 @@
     },
     {
       "id": "big_bad_wolf",
+      "drops": [{ "item": "rose_snow_cloak", "chance": 0.15 }, { "item": "shadow_snow_cloak", "chance": 0.15 }],
       "name": "Big Bad Wolf",
       "art": "boss_big_bad_wolf",
       "element": "dark",

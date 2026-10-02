@@ -1,5 +1,5 @@
 {
-  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `sheets` (per race) swaps in a whole walk sheet while it's worn (Retro Diffusion art in art/sprites; only the skin colour applies). Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
+  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `sheets` (per race) swaps in a whole walk sheet while it's worn (Retro Diffusion art in art/sprites; only the skin colour applies), recoloured by `tint` for the rare colour variants bosses drop. Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory. `classes` limits who can equip it (omit = everyone); `level` is the level needed.",
   "items": [
     {
       "id": "potion",
@@ -638,6 +638,280 @@
       "description": "Zoom!",
       "wear": "boots",
       "accent": "#6FB8FF"
+    },
+    {
+      "id": "crimson_ranger_cloak",
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 358,
+          "saturation": 0.85,
+          "value": 0.62
+        }
+      ],
+      "icon": "shield-heart",
+      "art": "item_crimson_ranger_cloak",
+      "name": "Crimson Ranger Cloak",
+      "type": "armor",
+      "price": 255,
+      "stats": {
+        "defense": 8,
+        "speed": 2
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 5,
+      "description": "Dyed in wild berries. Rare spoils from the Rat King.",
+      "wear": "cloak",
+      "sheets": {
+        "human": "armor_ranger_cloak_human",
+        "elf": "armor_ranger_cloak_elf",
+        "dwarf": "armor_ranger_cloak_dwarf"
+      },
+      "accent": "#C9A040",
+      "tint": [
+        {
+          "hue": [
+            70,
+            170
+          ],
+          "minSaturation": 0.2,
+          "to": 358
+        }
+      ]
+    },
+    {
+      "id": "golden_plate",
+      "icon": "shield-plus",
+      "art": "item_golden_plate",
+      "name": "Golden Plate",
+      "type": "armor",
+      "price": 675,
+      "stats": {
+        "defense": 20,
+        "hp": 30
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 12,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 44,
+          "saturation": 0.14,
+          "value": 1.0
+        }
+      ],
+      "description": "Gilded by the Rat King's hoard. Very shiny, very rare.",
+      "wear": "plate",
+      "sheets": {
+        "human": "armor_iron_plate_human",
+        "elf": "armor_iron_plate_elf",
+        "dwarf": "armor_iron_plate_dwarf"
+      },
+      "pattern": "engraved",
+      "accent": "#E8C04A",
+      "tint": [
+        {
+          "hue": [
+            170,
+            250
+          ],
+          "minSaturation": 0.05,
+          "to": 44,
+          "saturation": 2.6,
+          "value": 1.05
+        }
+      ]
+    },
+    {
+      "id": "golden_dragon_mail",
+      "icon": "shield-plus",
+      "art": "item_golden_dragon_mail",
+      "name": "Golden Dragon Mail",
+      "type": "armor",
+      "price": 2100,
+      "stats": {
+        "defense": 28,
+        "hp": 50
+      },
+      "level": 20,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 44,
+          "saturation": 0.95,
+          "value": 0.8
+        }
+      ],
+      "description": "Scales from the dragon's best (and rarest) day.",
+      "wear": "plate",
+      "sheets": {
+        "human": "armor_dragon_mail_human",
+        "elf": "armor_dragon_mail_elf",
+        "dwarf": "armor_dragon_mail_dwarf"
+      },
+      "pattern": "scales",
+      "accent": "#F2C230",
+      "tint": [
+        {
+          "hue": [
+            335,
+            20
+          ],
+          "minSaturation": 0.55,
+          "to": 44,
+          "value": 1.1
+        }
+      ]
+    },
+    {
+      "id": "azure_dragon_mail",
+      "icon": "shield-plus",
+      "art": "item_azure_dragon_mail",
+      "name": "Azure Dragon Mail",
+      "type": "armor",
+      "price": 2100,
+      "stats": {
+        "defense": 28,
+        "hp": 50
+      },
+      "level": 20,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 212,
+          "saturation": 0.95,
+          "value": 0.8
+        }
+      ],
+      "description": "Blue as the oasis the dragon naps by. Rare.",
+      "wear": "plate",
+      "sheets": {
+        "human": "armor_dragon_mail_human",
+        "elf": "armor_dragon_mail_elf",
+        "dwarf": "armor_dragon_mail_dwarf"
+      },
+      "pattern": "scales",
+      "accent": "#F2C230",
+      "tint": [
+        {
+          "hue": [
+            335,
+            20
+          ],
+          "minSaturation": 0.55,
+          "to": 212
+        }
+      ]
+    },
+    {
+      "id": "rose_snow_cloak",
+      "icon": "shield-star",
+      "art": "item_rose_snow_cloak",
+      "name": "Rose Snow Cloak",
+      "type": "armor",
+      "price": 2250,
+      "stats": {
+        "defense": 30,
+        "magic": 10
+      },
+      "level": 24,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 335,
+          "saturation": 0.15,
+          "value": 1.25
+        }
+      ],
+      "description": "Snow at sunrise. Rarely left behind by the Big Bad Wolf.",
+      "wear": "cloak",
+      "sheets": {
+        "human": "armor_snow_cloak_human",
+        "elf": "armor_snow_cloak_elf",
+        "dwarf": "armor_snow_cloak_dwarf"
+      },
+      "pattern": "fur",
+      "accent": "#9AD8FF",
+      "tint": [
+        {
+          "hue": [
+            180,
+            250
+          ],
+          "minSaturation": 0.1,
+          "to": 335
+        }
+      ]
+    },
+    {
+      "id": "shadow_snow_cloak",
+      "icon": "shield-star",
+      "art": "item_shadow_snow_cloak",
+      "name": "Shadow Snow Cloak",
+      "type": "armor",
+      "price": 2250,
+      "stats": {
+        "defense": 30,
+        "magic": 10
+      },
+      "level": 24,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 250,
+          "saturation": 0.15,
+          "value": 1.25
+        }
+      ],
+      "description": "Woven from a winter night. The wolf's rarest trophy.",
+      "wear": "cloak",
+      "sheets": {
+        "human": "armor_snow_cloak_human",
+        "elf": "armor_snow_cloak_elf",
+        "dwarf": "armor_snow_cloak_dwarf"
+      },
+      "pattern": "fur",
+      "accent": "#9AD8FF",
+      "tint": [
+        {
+          "hue": [
+            180,
+            250
+          ],
+          "minSaturation": 0.1,
+          "to": 250,
+          "saturation": 0.5,
+          "value": 0.45
+        }
+      ]
     }
   ]
 }

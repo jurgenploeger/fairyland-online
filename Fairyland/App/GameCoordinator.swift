@@ -106,6 +106,7 @@ final class GameCoordinator {
 
     private func loadMap(_ map: MapDef, entry: Edge?) {
         session.data.mapID = map.id
+        session.bossesBeatenHere = []
         if entry == nil { session.playerPosition = nil }
         if entry != nil || map.fence == true { session.reachCheckpoint(map, entry: entry) }
         let scene = WorldScene(map: map, session: session, input: input, entry: entry)

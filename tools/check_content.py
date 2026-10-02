@@ -58,6 +58,11 @@ for race in classes["races"]:
         check((ROOT / "art" / "sprites" / f"{layer}.png").exists(),
               f"race {race['id']} → art/sprites/{layer}.png is missing (python3 tools/hero_layers.py)")
 
+for monster in monsters.values():
+    for drop in monster.get("drops", []):
+        check(drop.get("item") in items and 0 < drop.get("chance", 0) <= 1,
+              f"monster {monster['id']} → drop {drop} needs a known item and a chance in (0, 1]")
+
 for skill in skills.values():
     check(skill.get("icon") in icon_names, f"skill {skill['id']} → unknown icon {skill.get('icon')}")
     if skill.get("art"):
@@ -135,6 +140,9 @@ for item in items.values():
         check(item["type"] == "armor" and race_id in {r["id"] for r in classes["races"]},
               f"item {item['id']} → sheets: {race_id!r} isn't a race (or the item isn't armour)")
         check((ROOT / "art" / "sprites" / f"{sheet}.png").exists(), f"item {item['id']} → art/sprites/{sheet}.png is missing")
+    for rule in item.get("tint", []):
+        check("sheets" in item and isinstance(rule.get("hue"), list) and len(rule["hue"]) == 2,
+              f"item {item['id']} → tint rules need a hue: [from, to] (and the item needs sheets)")
     if "pattern" in item:
         check(item["type"] == "armor" and item["pattern"] in {"engraved", "scales", "fur", "runes", "pockets"},
               f"item {item['id']} → pattern {item['pattern']!r} must be engraved | scales | fur | runes | pockets, on armour")
