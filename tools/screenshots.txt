@@ -11,3 +11,7 @@ landscape    | newgame,map=rainbow_city,landscape | 8
 rat_cavern   | newgame,map=rat_cavern            | 8
 behind_wall  | newgame,map=rat_cavern,at=-3_3        | 30
 behind_tree  | newgame,map=smiling_forest,at=0_-14   | 40
+intro_story  | intro                             | 6
+intro_play   | intro=2                           | 6
+intro_world  | intro=3                           | 6
+coach        | newgame,coach                     | 9

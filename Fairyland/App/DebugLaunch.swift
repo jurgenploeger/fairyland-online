@@ -29,6 +29,12 @@ enum DebugLaunch {
 
     static var forcesLandscape: Bool { flags["landscape"] != nil }
 
+    /// A debug game (tests, screenshots): the first-play tour stays hidden unless `coach` is set.
+    static var isActive: Bool { flags["newgame"] != nil }
+    static var showsCoachMarks: Bool { flags["coach"] != nil }
+    /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).
+    static var introPage: Int? { flags["intro"].map { Int($0).map { $0 - 1 } ?? 0 } }
+
     static func session() -> GameSession? {
         let flags = flags
         guard flags["newgame"] != nil else { return nil }

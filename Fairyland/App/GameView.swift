@@ -3,6 +3,8 @@ import SwiftUI
 /// The game screen: SpriteKit underneath, SwiftUI HUD and menus on top.
 struct GameView: View {
     let coordinator: GameCoordinator
+    /// The first-play tour of the HUD (see CoachMarks).
+    @State private var touring = CoachMarks.shouldShow
 
     var body: some View {
         ZStack {
@@ -27,6 +29,15 @@ struct GameView: View {
                 case nil:
                     EmptyView()
                 }
+            }
+        }
+        .overlayPreferenceValue(CoachAnchors.self) { anchors in
+            if touring, coordinator.isReady, coordinator.battle == nil, coordinator.overlay == nil {
+                CoachMarksView(anchors: anchors) {
+                    CoachMarks.markDone()
+                    withAnimation(.easeOut(duration: 0.3)) { touring = false }
+                }
+                .transition(.opacity)
             }
         }
         .overlay {

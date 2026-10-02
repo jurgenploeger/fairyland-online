@@ -20,6 +20,8 @@ Built with SwiftUI + SpriteKit. Art is generated with [Retro Diffusion](https://
   adventurers and bring two along in your party, and danger zones allow duels.
 - **Customisation:** hair, outfit and skin (more unlock through quests); armour recolours your outfit and your
   weapon shows in hand.
+- **Onboarding:** a new game opens with the story, how to play and a map of the whole world, and the first
+  time you play a spotlight tour walks through the HUD (Previous, Next, Skip).
 - Quests, shops, healers, checkpoints, an in-game calendar and an original storybook soundtrack (flutes, harp, music box, strings and more, synthesized on the device).
 
 ## Run it

@@ -11,6 +11,8 @@ struct TitleView: View {
     @State private var confirmNewGame = false
     @State private var showingChangelog = false
     @State private var showingSettings = false
+    /// The story pages: before a new hero is made, or read from the title menu.
+    @State private var intro: IntroRequest? = DebugLaunch.introPage.map { IntroRequest(startPage: $0, thenCreate: false) }
     private let savedGame = SaveStore.load()
 
     var body: some View {
@@ -23,43 +25,53 @@ struct TitleView: View {
             )
             .ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 18) {
-                    Image("Logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: 440)
-                        .padding(.top, 12)
-                        .accessibilityLabel("Fairyland — a cozy pixel adventure")
-
-                    if creating {
-                        creation
-                    } else if showingChangelog {
-                        ChangelogPanel { showingChangelog = false }
-                    } else if showingSettings {
-                        VStack(alignment: .leading, spacing: 12) {
-                            SettingsView()
-                            Button {
-                                showingSettings = false
-                            } label: {
-                                Label("Back", icon: .arrowLeft)
-                            }
-                            .buttonStyle(PixelButtonStyle(compact: true))
-                        }
-                        .padding(16)
-                        .frame(maxWidth: 640)
-                        .background(HUDStyle.panel)
-                    } else {
-                        menu
+            if let intro {
+                IntroView(finishTitle: intro.thenCreate ? "Create your hero" : "Done", startPage: intro.startPage) {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        self.intro = nil
+                        if intro.thenCreate { creating = true }
                     }
                 }
-                .padding(20)
-                .frame(maxWidth: .infinity)
+                .transition(.opacity)
+            } else {
+                ScrollView {
+                    VStack(spacing: 18) {
+                        Image("Logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: 440)
+                            .padding(.top, 12)
+                            .accessibilityLabel("Fairyland — a cozy pixel adventure")
+
+                        if creating {
+                            creation
+                        } else if showingChangelog {
+                            ChangelogPanel { showingChangelog = false }
+                        } else if showingSettings {
+                            VStack(alignment: .leading, spacing: 12) {
+                                SettingsView()
+                                Button {
+                                    showingSettings = false
+                                } label: {
+                                    Label("Back", icon: .arrowLeft)
+                                }
+                                .buttonStyle(PixelButtonStyle(compact: true))
+                            }
+                            .padding(16)
+                            .frame(maxWidth: 640)
+                            .background(HUDStyle.panel)
+                        } else {
+                            menu
+                        }
+                    }
+                    .padding(20)
+                    .frame(maxWidth: .infinity)
+                }
             }
         }
         .onAppear { MusicPlayer.shared.play("title") }
         .alert("Start a new game?", isPresented: $confirmNewGame) {
-            Button("New game", role: .destructive) { creating = true }
+            Button("New game", role: .destructive) { startNewGame() }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Your saved game will be replaced when you begin.")
@@ -81,7 +93,7 @@ struct TitleView: View {
                     .foregroundStyle(HUDStyle.ink.opacity(0.6))
             }
             Button {
-                if savedGame != nil { confirmNewGame = true } else { creating = true }
+                if savedGame != nil { confirmNewGame = true } else { startNewGame() }
             } label: {
                 Label("New game", icon: .sparkles)
             }
@@ -99,7 +111,18 @@ struct TitleView: View {
                 Label("Settings", icon: .settings)
             }
             .buttonStyle(PixelButtonStyle(compact: true))
+            Button {
+                withAnimation(.easeInOut(duration: 0.25)) { intro = IntroRequest(startPage: 0, thenCreate: false) }
+            } label: {
+                Label("Story & how to play", icon: .book)
+            }
+            .buttonStyle(PixelButtonStyle(compact: true))
         }
+    }
+
+    /// A new game opens with the story pages, then hero creation.
+    private func startNewGame() {
+        withAnimation(.easeInOut(duration: 0.25)) { intro = IntroRequest(startPage: 0, thenCreate: true) }
     }
 
     private var creation: some View {
@@ -177,6 +200,12 @@ private struct ChangelogPanel: View {
         .frame(maxWidth: 640)
         .background(HUDStyle.panel)
     }
+}
+
+private struct IntroRequest {
+    let startPage: Int
+    /// Go on to hero creation afterwards (a new game), rather than back to the menu.
+    let thenCreate: Bool
 }
 
 private struct RaceCard: View {
