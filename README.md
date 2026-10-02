@@ -51,6 +51,7 @@ With a free Apple ID the app expires after 7 days. Press ⌘R again to reinstall
 | `content/skills.json` | skills and spells, power, MP, element, battle animation |
 | `content/items.json` | potions, eggs, equipment |
 | `content/quests.json` | quests, objectives, rewards, the elder's question |
+| `content/changelog.json` | release notes shown under "What's new" on the title screen (newest first) |
 | `content/music.json` | the songs, in a tracker-style note format |
 | `art/assets.json` | every sprite and its Retro Diffusion prompt |
 

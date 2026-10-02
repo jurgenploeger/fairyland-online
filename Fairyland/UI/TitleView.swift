@@ -9,6 +9,7 @@ struct TitleView: View {
     @State private var look = Look.standard
     @State private var raceID = "human"
     @State private var confirmNewGame = false
+    @State private var showingChangelog = false
     private let savedGame = SaveStore.load()
 
     var body: some View {
@@ -32,6 +33,8 @@ struct TitleView: View {
 
                     if creating {
                         creation
+                    } else if showingChangelog {
+                        ChangelogPanel { showingChangelog = false }
                     } else {
                         menu
                     }
@@ -69,6 +72,13 @@ struct TitleView: View {
                 Label("New game", icon: .sparkles)
             }
             .buttonStyle(PixelButtonStyle())
+            Button {
+                showingChangelog = true
+            } label: {
+                Label("What's new · v\(Self.appVersion)", icon: .book)
+            }
+            .buttonStyle(PixelButtonStyle(compact: true))
+            .padding(.top, 6)
         }
     }
 
@@ -102,6 +112,48 @@ struct TitleView: View {
         }
         .foregroundStyle(HUDStyle.cream)
         .padding(16)
+        .frame(maxWidth: 640)
+        .background(HUDStyle.panel)
+    }
+}
+
+extension TitleView {
+    /// The version from project.yml (MARKETING_VERSION), falling back to the newest changelog entry.
+    static var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+            ?? Content.shared.releases.first?.version ?? "?"
+    }
+}
+
+/// Release notes from content/changelog.json, newest first.
+private struct ChangelogPanel: View {
+    let onClose: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            FLTitleBar(title: "What's new", icon: .book, onClose: onClose)
+            VStack(alignment: .leading, spacing: 16) {
+                ForEach(Content.shared.releases) { release in
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text("v\(release.version)").font(HUDStyle.font(16)).foregroundStyle(HUDStyle.gold)
+                            Spacer()
+                            Text(release.date).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                        }
+                        Text(release.title).font(HUDStyle.font(13))
+                        ForEach(release.notes, id: \.self) { note in
+                            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                Text("•").foregroundStyle(HUDStyle.gold)
+                                Text(note).fixedSize(horizontal: false, vertical: true)
+                            }
+                            .font(HUDStyle.font(11))
+                        }
+                    }
+                }
+            }
+            .padding(16)
+        }
+        .foregroundStyle(HUDStyle.cream)
         .frame(maxWidth: 640)
         .background(HUDStyle.panel)
     }

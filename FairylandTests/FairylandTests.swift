@@ -8,6 +8,11 @@ import UIKit
 struct ContentTests {
     let content = Content.shared
 
+    @Test func changelogMatchesAppVersion() {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+        #expect(content.releases.first?.version == version, "bump content/changelog.json with MARKETING_VERSION")
+    }
+
     @Test func everyReferenceResolves() {
         for cls in content.classes {
             for unlock in cls.skills {

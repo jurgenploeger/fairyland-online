@@ -10,7 +10,7 @@ options:
 settings:
   base:
     SWIFT_VERSION: "6.0"
-    MARKETING_VERSION: "0.1.0"
+    MARKETING_VERSION: "0.0.1"
     CURRENT_PROJECT_VERSION: "1"
 
 targets:
@@ -36,6 +36,9 @@ targets:
       path: Fairyland/Info.plist
       properties:
         CFBundleDisplayName: Fairyland
+        # XcodeGen defaults these to 1.0 / 1; point them at the build settings instead.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen: {}
         UIRequiresFullScreen: true
         UIStatusBarHidden: true

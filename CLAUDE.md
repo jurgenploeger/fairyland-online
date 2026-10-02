@@ -20,6 +20,8 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 - **Retro Diffusion costs money.** Always run `python3 tools/rd.py generate <ids> --dry-run` (free) and get
   the user's OK before generating. Paid runs are logged in `art/spend-log.jsonl`. Never commit `.env` or the
   API key (`RETRO_DIFFUSION_API_KEY`).
+- **Versions:** `MARKETING_VERSION` in `project.yml` and the top entry of `content/changelog.json` move together
+  (the checker enforces it). Add a changelog entry when shipping a user-visible change. 1.0.0 = App Store launch.
 - **Screenshots:** pushes to `claude/**` branches run `.github/workflows/screenshots.yml` (macOS runner):
   it builds for the simulator and shoots the scenes in `tools/screenshots.txt` (FAIRYLAND_DEBUG flags). Results
   land on the `screenshots` branch under `<branch>/`: `git fetch origin screenshots` and read the PNGs.

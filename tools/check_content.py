@@ -170,6 +170,19 @@ for asset in art.values():
     if "derive" in asset:
         check(asset["derive"]["from"] in art, f"art {asset['id']} → unknown base {asset['derive']['from']}")
 
+changelog = load("content/changelog.json")["releases"]
+versions = [r["version"] for r in changelog]
+check(len(versions) == len(set(versions)), "changelog → duplicate version")
+for release in changelog:
+    check(re.fullmatch(r"\d+\.\d+\.\d+", release["version"]) is not None, f"changelog {release['version']} → not x.y.z")
+    check(re.fullmatch(r"\d{4}-\d{2}-\d{2}", release["date"]) is not None, f"changelog {release['version']} → date not YYYY-MM-DD")
+    check(bool(release.get("title")) and bool(release.get("notes")), f"changelog {release['version']} → needs a title and notes")
+as_tuple = [tuple(int(n) for n in v.split(".")) for v in versions if re.fullmatch(r"\d+\.\d+\.\d+", v)]
+check(as_tuple == sorted(as_tuple, reverse=True), "changelog → releases must be newest first")
+marketing = re.search(r'MARKETING_VERSION:\s*"([^"]+)"', (ROOT / "project.yml").read_text())
+check(bool(changelog) and marketing is not None and marketing.group(1) == versions[0],
+      f"changelog top version {versions[0] if versions else None} ≠ MARKETING_VERSION {marketing.group(1) if marketing else None} in project.yml")
+
 if errors:
     print(f"✗ {len(errors)} problem(s):")
     for error in errors:
