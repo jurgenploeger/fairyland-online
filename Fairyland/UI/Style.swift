@@ -10,7 +10,6 @@ enum HUDStyle {
     static let hp = Color(red: 0.93, green: 0.22, blue: 0.2)
     static let mp = Color(red: 0.24, green: 0.52, blue: 0.95)
     static let exp = Color(red: 0.55, green: 0.88, blue: 0.3)
-    static let pet = Color(red: 0.98, green: 0.72, blue: 0.2)
     static let green = Color(red: 0.6, green: 0.97, blue: 0.62)
     static let dim = Color(red: 0.86, green: 0.92, blue: 1).opacity(0.7)
     /// Deep navy: window glass and dark text on light buttons.
