@@ -293,6 +293,8 @@ final class BattleScene: SKScene {
         actors[actorID]?.sprite.flash(color)
         // Upgraded skills gather power first; a mastered one is announced in gold.
         if level >= GameSession.maxSkillLevel { SkillEffects.masterBanner(skill.name, level: level, size: size, in: self) }
+        // The effects grow in five tiers: every two skill levels look a step grander.
+        let level = (level + 1) / 2
         if let caster = actors[actorID] {
             let hold = SkillEffects.charge(on: caster, color: color, level: level, in: stage)
             if hold > 0 { await pause(hold) }

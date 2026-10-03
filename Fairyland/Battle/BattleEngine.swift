@@ -49,7 +49,12 @@ struct Combatant: Identifiable {
     var isFallen: Bool { hp <= 0 && !isCaptured && !hasFled }
 
     func skillLevel(_ id: String) -> Int {
-        skillLevels[id] ?? min(GameSession.maxSkillLevel, 1 + level / 4)
+        skillLevels[id] ?? Self.naturalSkillLevel(for: level)
+    }
+
+    /// Monsters and companions grow into their skills with their own level, mastering them at 18.
+    static func naturalSkillLevel(for level: Int) -> Int {
+        min(GameSession.maxSkillLevel, 1 + level / 2)
     }
 
     var isAlive: Bool { hp > 0 && !isCaptured && !hasFled }
@@ -169,11 +174,16 @@ final class BattleEngine {
         return .ready(chance: min(0.75, max(0.03, chance)))
     }
 
+    /// How much stronger a skill is at `level`: ×1 when learned, ×1.8 when mastered (level 10).
+    static func skillBoost(_ level: Int) -> Double {
+        1 + 0.8 * Double(min(level, GameSession.maxSkillLevel) - 1) / Double(GameSession.maxSkillLevel - 1)
+    }
+
     /// Share of a spell's damage that also hits everyone else on the target's side: from
-    /// skill level 3 up, growing to the skill's full `splash` at level 5.
+    /// skill level 5 up (60% of `splash`), growing to the full `splash` when mastered.
     static func splashFraction(of skill: SkillDef, level: Int) -> Double {
-        guard let splash = skill.splash, level >= 3 else { return 0 }
-        return splash * (0.6 + 0.2 * Double(level - 3))
+        guard let splash = skill.splash, level >= 5 else { return 0 }
+        return splash * (0.6 + 0.4 * Double(min(level, GameSession.maxSkillLevel) - 5) / Double(GameSession.maxSkillLevel - 5))
     }
 
     /// A nearly beaten monster on its own may bolt.
@@ -234,8 +244,8 @@ final class BattleEngine {
                 return
             }
             mutate(actor.id) { $0.mp -= GameSession.mpCost(of: skill, level: level) }
-            // Each skill level adds 20% power.
-            let boost = 1 + 0.2 * Double(level - 1)
+            // A mastered skill hits 80% harder than a fresh one, a little more each step.
+            let boost = Self.skillBoost(level)
             let chosen = targets(for: skill, actor: actor, preferring: targetID)
             var hits = chosen.map { target -> Hit in
                 switch skill.kind {

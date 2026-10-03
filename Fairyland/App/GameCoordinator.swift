@@ -56,6 +56,7 @@ final class GameCoordinator {
         self.input = input
         session.markVisited(map.id)
         session.rescaleLevelsIfNeeded()
+        session.rescaleSkillLevelsIfNeeded()
         session.handOutMissingStarterGifts()
         let began = Date()
         world = WorldScene(map: map, session: session, input: input, entry: nil)

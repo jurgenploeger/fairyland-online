@@ -609,10 +609,10 @@ struct RulesTests {
 
     @Test func bigSpellsSplash() {
         let fire = Content.shared.skill("fire_bolt")!
-        #expect(BattleEngine.splashFraction(of: fire, level: 2) == 0)
-        #expect(BattleEngine.splashFraction(of: fire, level: 3) > 0)
-        #expect(BattleEngine.splashFraction(of: fire, level: 5) > BattleEngine.splashFraction(of: fire, level: 3))
-        #expect(BattleEngine.splashFraction(of: Content.shared.skill("bash")!, level: 5) == 0)
+        #expect(BattleEngine.splashFraction(of: fire, level: 4) == 0)
+        #expect(BattleEngine.splashFraction(of: fire, level: 5) > 0)
+        #expect(BattleEngine.splashFraction(of: fire, level: 10) > BattleEngine.splashFraction(of: fire, level: 5))
+        #expect(BattleEngine.splashFraction(of: Content.shared.skill("bash")!, level: 10) == 0)
     }
 }
 

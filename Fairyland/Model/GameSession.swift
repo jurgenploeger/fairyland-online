@@ -99,6 +99,7 @@ final class GameSession {
         )
         var slotted = data
         slotted.slot = UUID().uuidString   // every new game gets its own save
+        slotted.skillLevelsDoubled = true  // already on the 10-step skill scale
         let session = GameSession(data: slotted)
         session.restoreHero()
         // Like Fairyland, your first companion comes from an egg in the first quest.
@@ -241,6 +242,18 @@ final class GameSession {
         max(1, Int((1 + Double(old - 1) * 104 / 31).rounded()))
     }
 
+    /// Skills used to master at level 5; now it takes 10. Older saves keep their progress: a skill
+    /// at level L becomes 2L (level 1 stays 1), so a mastered skill is still mastered.
+    func rescaleSkillLevelsIfNeeded() {
+        guard data.skillLevelsDoubled != true else { return }
+        data.skillLevelsDoubled = true
+        guard var levels = data.hero.skillLevels else { return }
+        for (id, level) in levels where level > 1 {
+            levels[id] = min(Self.maxSkillLevel, level * 2)
+        }
+        data.hero.skillLevels = levels
+    }
+
     func rescaleLevelsIfNeeded() {
         guard data.levelsRescaled != true else { return }
         data.levelsRescaled = true
@@ -365,7 +378,8 @@ final class GameSession {
         return "No skills yet."
     }
 
-    static let maxSkillLevel = 5
+    /// Ten steps from learning a skill to mastering it.
+    static let maxSkillLevel = 10
 
     func skillLevel(_ id: String) -> Int {
         max(1, data.hero.skillLevels?[id] ?? 1)

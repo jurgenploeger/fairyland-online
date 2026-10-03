@@ -70,14 +70,9 @@ struct SkillRow: View {
                         ElementBadge(element: element)
                     }
                 }
-                HStack(spacing: 2) {
-                    ForEach(1...GameSession.maxSkillLevel, id: \.self) { step in
-                        IconImage(step <= level ? .star : .starOutline, size: 11)
-                            .foregroundStyle(step <= level ? HUDStyle.gold : HUDStyle.dim)
-                    }
-                    if let description = skill.description {
-                        Text(description).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim).padding(.leading, 4)
-                    }
+                SkillGauge(level: level)
+                if let description = skill.description {
+                    Text(description).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                 }
             }
             Spacer()
@@ -145,5 +140,56 @@ struct LevelUpCard: View {
                 .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(HUDStyle.gold.opacity(0.9), lineWidth: 2))
         )
         .padding(20)
+    }
+}
+
+/// A skill's progress to mastery: ten segments in a little bar that fill as you raise it, warming
+/// from bronze through silver to gold, and glowing in rainbow colours once mastered.
+struct SkillGauge: View {
+    let level: Int
+
+    private var mastered: Bool { level >= GameSession.maxSkillLevel }
+
+    /// Bronze for the first steps, then silver, then gold.
+    private func color(for step: Int) -> Color {
+        switch step {
+        case ...3: Color(red: 0.85, green: 0.55, blue: 0.3)
+        case 4...6: Color(red: 0.8, green: 0.85, blue: 0.92)
+        default: HUDStyle.gold
+        }
+    }
+
+    private static let rainbow = [Color(red: 1, green: 0.45, blue: 0.45), Color(red: 1, green: 0.8, blue: 0.35),
+                                  Color(red: 0.5, green: 0.9, blue: 0.5), Color(red: 0.45, green: 0.75, blue: 1),
+                                  Color(red: 0.75, green: 0.55, blue: 1)]
+
+    var body: some View {
+        HStack(spacing: 6) {
+            HStack(spacing: 1.5) {
+                ForEach(1...GameSession.maxSkillLevel, id: \.self) { step in
+                    RoundedRectangle(cornerRadius: 1.5)
+                        .fill(step <= level ? color(for: step) : Color.white.opacity(0.12))
+                        .frame(width: 7, height: 8)
+                }
+            }
+            .padding(2)
+            .overlay {
+                if mastered {
+                    // Mastered: the whole bar shimmers in rainbow colours.
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(LinearGradient(colors: Self.rainbow, startPoint: .leading, endPoint: .trailing))
+                        .opacity(0.75)
+                        .blendMode(.screen)
+                }
+            }
+            .background(RoundedRectangle(cornerRadius: 3).fill(HUDStyle.ink.opacity(0.8)))
+            .overlay(RoundedRectangle(cornerRadius: 3).strokeBorder(mastered ? HUDStyle.gold : .white.opacity(0.35), lineWidth: 1))
+            .shadow(color: mastered ? HUDStyle.gold.opacity(0.7) : .clear, radius: 4)
+            Text(mastered ? "Mastered" : "Lv \(level)/\(GameSession.maxSkillLevel)")
+                .font(HUDStyle.font(10))
+                .foregroundStyle(mastered ? HUDStyle.gold : HUDStyle.cream)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(mastered ? "Mastered" : "Level \(level) of \(GameSession.maxSkillLevel)")
     }
 }

@@ -111,6 +111,8 @@ nonisolated struct SaveData: Codable, Sendable {
     /// Levels were stretched from 1–33 to 1–105 (Fairyland Online's long climb); older saves are
     /// scaled up once so the hero still matches the zones they were in.
     var levelsRescaled: Bool?
+    /// Skill levels were doubled when mastering went from 5 steps to 10 (see `rescaleSkillLevelsIfNeeded`).
+    var skillLevelsDoubled: Bool?
     /// Skills pinned to the battle bar for one-tap casting, in order.
     var pinnedSkills: [String]?
     /// Your order of the battle buttons (see `GameSession.battleButtons`).

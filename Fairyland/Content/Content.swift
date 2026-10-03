@@ -139,8 +139,8 @@ nonisolated struct SkillDef: Decodable, Identifiable, Sendable {
     let icon: String?
     /// Its pixel-art icon (art/sprites/skill_<id>.png, drawn by tools/skill_art.py).
     let art: String?
-    /// Spells: the share of damage that also hits the target's neighbours at skill level 5
-    /// (60% of that at level 3, 80% at level 4, none below).
+    /// Spells: the share of damage that also hits the target's neighbours once mastered (level 10);
+    /// 60% of that from level 5, growing each step, none below.
     let splash: Double?
 }
 
