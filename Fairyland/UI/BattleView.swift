@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Battle HUD: the log line on top, a round command wheel bottom-right, results at the end.
+/// Battle HUD: the log line on top, the commands bottom-right, results at the end.
 /// Names, levels, HP and the hero's MP sit on the fighters themselves.
 struct BattleView: View {
     let controller: BattleController
@@ -41,11 +41,9 @@ struct BattleView: View {
     private var commandArea: some View {
         switch controller.phase {
         case .command:
-            HStack(alignment: .bottom, spacing: 10) {
-                QuickSkillBar(controller: controller)
-                CommandWheel(controller: controller)
-            }
-            .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
+            CommandPad(controller: controller)
+                .padding(.top, 64)   // clear of the log line
+                .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
         case .skills:
             ChoiceCard(title: "Skills", icon: .sparkles, onBack: controller.back) {
                 if controller.skills.isEmpty {
@@ -65,7 +63,7 @@ struct BattleView: View {
                             Spacer()
                             Text("\(controller.cost(of: skill)) MP").foregroundStyle(HUDStyle.mp)
                         }
-                        // Pin to the quick bar next to the command wheel.
+                        // Pin it next to Attack.
                         Button { controller.togglePin(skill) } label: {
                             IconImage(pinned ? .star : .starOutline, size: 18)
                                 .foregroundStyle(pinned ? HUDStyle.gold : HUDStyle.cream)
@@ -117,76 +115,112 @@ struct BattleView: View {
     }
 }
 
-// MARK: - Command wheel
+// MARK: - Commands
 
-/// A big Attack button in the corner with a few round buttons curving around it.
-/// Less-used commands hide behind "More". Capture appears when a monster is weak enough, and
-/// Items comes out from under "More" when someone is low on HP.
-private struct CommandWheel: View {
+/// A big Attack button in the corner, and right beside it a column of round buttons built from
+/// the bottom up: More, then Skills, then whatever else turns up (Capture when a monster is weak
+/// enough, Items when someone is low on HP, pinned skills). Less-used commands hide behind More.
+private struct CommandPad: View {
     let controller: BattleController
     @State private var showMore = false
 
-    private struct Command: Identifiable {
-        let id: String
-        let icon: GameIcon
-        let tint: RoundCommandButton.Tint
-        let action: () -> Void
-    }
-
-    private let size: CGFloat = 280
     private let mainSize: CGFloat = 88
-    private let satelliteSize: CGFloat = 56
-    private let orbit: CGFloat = 162
-    /// Room between neighbours on the arc, so each label sits clear of the button below it.
-    private let spacing: Double = 32
-
-    /// Commands on the arc. More/close has its own fixed spot straight above Attack.
-    private var satellites: [Command] {
-        let lowHP = controller.needsHealing
-        if showMore {
-            var commands: [Command] = []
-            if !lowHP {
-                commands.append(Command(id: "Items", icon: .backpack, tint: .normal) { controller.openItems() })
-            }
-            commands.append(Command(id: "Guard", icon: .shield, tint: .normal) { controller.defend() })
-            commands.append(Command(id: "Run", icon: .wind, tint: .normal) { controller.escape() })
-            return commands
-        }
-        var commands = [Command(id: "Skills", icon: .sparkles, tint: .normal) { controller.openSkills() }]
-        if lowHP {
-            commands.append(Command(id: "Items", icon: .heartPlus, tint: .heal) { controller.openItems() })
-        }
-        if controller.canCapture {
-            commands.append(Command(id: "Capture", icon: .heart, tint: .special) { controller.capture() })
-        }
-        return commands
-    }
-
-    private func point(_ degrees: Double, around main: CGPoint) -> CGPoint {
-        let radians = degrees * .pi / 180
-        return CGPoint(x: main.x + orbit * cos(radians), y: main.y + orbit * sin(radians))
-    }
+    private let buttonSize: CGFloat = 56
 
     var body: some View {
-        let main = CGPoint(x: size - mainSize / 2 - 4, y: size - mainSize / 2 - 4)
-        ZStack {
-            // Evenly spaced from straight left, leaving room for labels.
-            ForEach(Array(satellites.enumerated()), id: \.element.id) { index, command in
-                RoundCommandButton(title: command.id, icon: command.icon, size: satelliteSize, tint: command.tint, action: command.action)
-                    .position(point(180 + spacing * Double(index), around: main))
-                    .transition(.scale(scale: 0.2, anchor: .bottomTrailing).combined(with: .opacity))
+        let lowHP = controller.needsHealing
+        HStack(alignment: .bottom, spacing: 14) {
+            // Bottom to top.
+            BottomUpColumns(maxRows: 4) {
+                RoundCommandButton(title: showMore ? "Close" : "More", icon: showMore ? .close : .more, size: buttonSize, tint: .quiet) {
+                    showMore.toggle()
+                }
+                if showMore {
+                    if !lowHP {
+                        command("Items", .backpack) { controller.openItems() }
+                    }
+                    command("Guard", .shield) { controller.defend() }
+                    command("Run", .wind) { controller.escape() }
+                } else {
+                    command("Skills", .sparkles) { controller.openSkills() }
+                    if lowHP {
+                        command("Items", .heartPlus, tint: .heal) { controller.openItems() }
+                    }
+                    if controller.canCapture {
+                        command("Capture", .heart, tint: .special) { controller.capture() }
+                    }
+                    ForEach(controller.pinnedSkills) { skill in
+                        QuickSkillButton(controller: controller, skill: skill)
+                            .transition(.scale(scale: 0.2).combined(with: .opacity))
+                    }
+                }
             }
-            RoundCommandButton(title: showMore ? "Close" : "More", icon: showMore ? .close : .more, size: satelliteSize, tint: .quiet) {
-                showMore.toggle()
-            }
-            .position(point(270, around: main))
             RoundCommandButton(title: "Attack", icon: .sword, size: mainSize, tint: .primary) { controller.attack() }
-                .position(main)
         }
-        .frame(width: size, height: size)
         .animation(.spring(response: 0.38, dampingFraction: 0.72), value: showMore)
         .animation(.spring(response: 0.38, dampingFraction: 0.72), value: controller.canCapture)
-        .animation(.spring(response: 0.38, dampingFraction: 0.72), value: controller.needsHealing)
+        .animation(.spring(response: 0.38, dampingFraction: 0.72), value: lowHP)
+    }
+
+    private func command(_ title: String, _ icon: GameIcon, tint: RoundCommandButton.Tint = .normal,
+                         action: @escaping () -> Void) -> some View {
+        RoundCommandButton(title: title, icon: icon, size: buttonSize, tint: tint, action: action)
+            .transition(.scale(scale: 0.2).combined(with: .opacity))
+    }
+}
+
+/// Stacks its views from the bottom up, centred in a column, and starts a new column to the left
+/// after `maxRows` (or sooner if the next one wouldn't fit the height it's offered).
+private struct BottomUpColumns: Layout {
+    var maxRows: Int
+    /// Room between buttons, so each label sits clear of the button above.
+    var spacing: CGFloat = 26
+    var columnSpacing: CGFloat = 14
+
+    private func columns(_ sizes: [CGSize], maxHeight: CGFloat) -> [[Int]] {
+        var columns: [[Int]] = [[]]
+        var height: CGFloat = 0
+        for (index, size) in sizes.enumerated() {
+            let column = columns[columns.count - 1]
+            let needed = column.isEmpty ? size.height : height + spacing + size.height
+            if !column.isEmpty, column.count >= maxRows || needed > maxHeight {
+                columns.append([index])
+                height = size.height
+            } else {
+                columns[columns.count - 1].append(index)
+                height = needed
+            }
+        }
+        return columns
+    }
+
+    private func measure(_ subviews: Subviews) -> [CGSize] {
+        subviews.map { $0.sizeThatFits(.unspecified) }
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let sizes = measure(subviews)
+        let columns = columns(sizes, maxHeight: proposal.height ?? .infinity)
+        let widths = columns.map { $0.map { sizes[$0].width }.max() ?? 0 }
+        let heights = columns.map { column in
+            column.map { sizes[$0].height }.reduce(0, +) + spacing * CGFloat(max(0, column.count - 1))
+        }
+        return CGSize(width: widths.reduce(0, +) + columnSpacing * CGFloat(max(0, columns.count - 1)),
+                      height: heights.max() ?? 0)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let sizes = measure(subviews)
+        var x = bounds.maxX
+        for column in columns(sizes, maxHeight: proposal.height ?? .infinity) {
+            let width = column.map { sizes[$0].width }.max() ?? 0
+            var y = bounds.maxY
+            for index in column {
+                subviews[index].place(at: CGPoint(x: x - width / 2, y: y), anchor: .bottom, proposal: ProposedViewSize(sizes[index]))
+                y -= sizes[index].height + spacing
+            }
+            x -= width + columnSpacing
+        }
     }
 }
 
@@ -322,31 +356,27 @@ private struct ChoiceCard<Content: View>: View {
     }
 }
 
-/// Pinned skills beside the command wheel: one tap casts (or asks for a target).
-private struct QuickSkillBar: View {
+/// A pinned skill beside Attack: one tap casts (or asks for a target).
+private struct QuickSkillButton: View {
     let controller: BattleController
+    let skill: SkillDef
 
     var body: some View {
-        VStack(spacing: 8) {
-            ForEach(controller.pinnedSkills) { skill in
-                let cost = controller.cost(of: skill)
-                let affordable = (controller.hero?.mp ?? 0) >= cost
-                Button { controller.useSkill(skill) } label: {
-                    VStack(spacing: 2) {
-                        SkillIcon(skill: skill, size: 46)
-                        Text("\(cost) MP")
-                            .font(HUDStyle.mono(10))
-                            .foregroundStyle(affordable ? HUDStyle.cream : HUDStyle.dim)
-                            .padding(.horizontal, 5)
-                            .background(Capsule().fill(HUDStyle.ink.opacity(0.85)))
-                    }
-                    .opacity(affordable ? 1 : 0.5)
-                }
-                .buttonStyle(RoundPressStyle())
-                .accessibilityLabel("\(skill.name), \(cost) MP")
+        let cost = controller.cost(of: skill)
+        let affordable = (controller.hero?.mp ?? 0) >= cost
+        Button { controller.useSkill(skill) } label: {
+            VStack(spacing: 2) {
+                SkillIcon(skill: skill, size: 46)
+                Text("\(cost) MP")
+                    .font(HUDStyle.mono(10))
+                    .foregroundStyle(affordable ? HUDStyle.cream : HUDStyle.dim)
+                    .padding(.horizontal, 5)
+                    .background(Capsule().fill(HUDStyle.ink.opacity(0.85)))
             }
+            .opacity(affordable ? 1 : 0.5)
         }
-        .padding(.bottom, 6)
+        .buttonStyle(RoundPressStyle())
+        .accessibilityLabel("\(skill.name), \(cost) MP")
     }
 }
 

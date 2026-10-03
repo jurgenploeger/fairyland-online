@@ -869,7 +869,9 @@ final class WorldMap {
     // MARK: Map screen
 
     /// One pixel per tile, for the map screen.
-    func overviewImage() -> CGImage {
+    /// `tileColor` gives a tile's colour as the map really shows it (the scene averages its graded
+    /// tiles, so the minimap matches the map's palette); without it, rough colours by tile name.
+    func overviewImage(tileColor: ((String) -> PixelColor)? = nil) -> CGImage {
         // First match wins, so more specific names come first.
         let tileColors: [(String, UInt32)] = [
             ("snow_path", 0xC9D6E8), ("snow", 0xF2F6FA), ("cave_rock", 0x2B2F3A), ("cave", 0x4A4F5C), ("scree", 0x8C9099),
@@ -877,7 +879,7 @@ final class WorldMap {
             ("dark", 0x2E5E5A), ("sand", 0xF2D78F), ("shell", 0xF2D78F), ("town", 0xD8CDBB), ("path", 0xD9B77A),
         ]
         func color(forTile id: String) -> PixelColor {
-            PixelColor(tileColors.first { id.contains($0.0) }?.1 ?? 0x5DBB4C)
+            tileColor?(id) ?? PixelColor(tileColors.first { id.contains($0.0) }?.1 ?? 0x5DBB4C)
         }
         let theme = def.theme
         var canvas = PixelCanvas(width: columns, height: rows)
@@ -887,9 +889,9 @@ final class WorldMap {
                 var pixel: PixelColor = switch ground[row][col] {
                 case .ground: color(forTile: theme.ground)
                 case .accent: color(forTile: theme.accent ?? theme.ground).shaded(1.08)
-                case .path: theme.path == "tile_path" ? PixelColor(0xE8C98C) : color(forTile: theme.path).shaded(1.15)
+                case .path: tileColor == nil && theme.path == "tile_path" ? PixelColor(0xE8C98C) : color(forTile: theme.path).shaded(1.15)
                 case .border: color(forTile: theme.border ?? theme.ground)
-                case .water: PixelColor(0x4FA3E0)
+                case .water: tileColor?(theme.water ?? "tile_water") ?? PixelColor(0x4FA3E0)
                 }
                 if rock.contains(cell) {
                     pixel = color(forTile: theme.cave?.rock ?? "cave_rock").shaded(0.5)

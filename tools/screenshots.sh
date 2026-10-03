@@ -27,6 +27,19 @@ grep -vE '^\s*(#|$)' "$SCENES" | while IFS='|' read -r name flags wait; do
     echo "  launch failed, retrying ($attempt)…"
     sleep 3
   done
+  # Startup can take a long while on a CI simulator, and how long varies from run to run. The
+  # white launch screen makes a tiny PNG (~70 KB) and anything the game draws a far bigger one,
+  # so wait for the first real frame, then give the scene its own seconds to settle.
+  start=$SECONDS
+  sleep 3
+  while :; do
+    xcrun simctl io "$SIM" screenshot --type=png "$OUT/$name.png" >/dev/null 2>&1 || true
+    size=$(stat -f%z "$OUT/$name.png" 2>/dev/null || echo 0)
+    [ "$size" -gt 300000 ] && break
+    if [ $((SECONDS - start)) -gt 150 ]; then echo "  still on the launch screen after 150 s"; break; fi
+    sleep 3
+  done
+  echo "::notice::$name: first frame after $((SECONDS - start)) s"
   sleep "${wait:-8}"
   xcrun simctl io "$SIM" screenshot --type=png "$OUT/$name.png"
   # The simulator stays in portrait, so a landscape-locked app comes out sideways; turn it upright.

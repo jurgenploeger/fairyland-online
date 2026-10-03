@@ -320,7 +320,10 @@ enum SoftTextures {
             let locations: [CGFloat] = colors.indices.map { CGFloat($0) / CGFloat(max(1, colors.count - 1)) }
             guard let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: cgColors, locations: locations) else { return }
             let center = CGPoint(x: size / 2, y: size / 2)
-            context.cgContext.drawRadialGradient(gradient, startCenter: center, startRadius: 0, endCenter: center, endRadius: size / 2, options: [])
+            // Keep the last colour past the edge: otherwise the square's corners stay clear, and the
+            // vignette shows as a dark oval with light corners. (Glows end clear, so they don't change.)
+            context.cgContext.drawRadialGradient(gradient, startCenter: center, startRadius: 0, endCenter: center, endRadius: size / 2,
+                                                 options: [.drawsAfterEndLocation])
         }
         return SKTexture(image: image)
     }

@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Name, hairstyle, and hair, outfit and skin colours, with a turning live preview. Used when creating a
-/// hero and from the Character screen.
+/// Name, gender, hairstyle, and hair, outfit and skin colours, with a turning live preview. Used when
+/// creating a hero and from the Character screen, where name and gender are fixed.
 struct LookEditor: View {
     @Binding var name: String
     @Binding var look: Look
@@ -9,6 +9,8 @@ struct LookEditor: View {
     var raceID = "human"
     /// Looks you've unlocked through quests (new heroes start with the basics).
     var isUnlocked: (LookPreset) -> Bool = { $0.unlock == nil }
+    /// After creation the hero keeps their name and gender: only their looks change.
+    var identityLocked = false
 
     private var options: AppearanceOptions { Content.shared.appearance }
     private var race: RaceDef { Content.shared.race(raceID) }
@@ -34,19 +36,21 @@ struct LookEditor: View {
             .frame(maxWidth: .infinity)
 
             VStack(alignment: .leading, spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Name").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
-                    TextField("Name", text: $name)
-                        .textInputAutocapitalization(.words)
-                        .autocorrectionDisabled()
-                        .font(HUDStyle.font(15))
-                        .padding(10)
-                        .background(RoundedRectangle(cornerRadius: 8).fill(.white.opacity(0.12)))
-                        .onChange(of: name) { _, value in
-                            if value.count > 12 { name = String(value.prefix(12)) }
-                        }
+                if !identityLocked {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Name").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                        TextField("Name", text: $name)
+                            .textInputAutocapitalization(.words)
+                            .autocorrectionDisabled()
+                            .font(HUDStyle.font(15))
+                            .padding(10)
+                            .background(RoundedRectangle(cornerRadius: 8).fill(.white.opacity(0.12)))
+                            .onChange(of: name) { _, value in
+                                if value.count > 12 { name = String(value.prefix(12)) }
+                            }
+                    }
+                    GenderPicker(genders: options.genders, selection: $look.gender)
                 }
-                GenderPicker(genders: options.genders, selection: $look.gender)
                 StylePicker(look: $look, race: race)
                 SwatchPicker(title: "Hair", presets: options.hair, selection: $look.hair, isUnlocked: isUnlocked)
                 SwatchPicker(title: "Outfit", presets: options.outfits, selection: $look.outfit, isUnlocked: isUnlocked)
