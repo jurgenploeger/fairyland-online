@@ -13,6 +13,19 @@ final class Walker: SKNode {
     private var isWalking = false
     private var cycle: WalkCycle
     private var tag: NameTag?
+    /// When the name tag shows: the party's while standing still, everyone else's up close or when tapped.
+    enum TagMode { case always, whenStill, onDemand }
+    var tagMode: TagMode = .always {
+        didSet { refreshTag() }
+    }
+    /// The hero is close by; `.onDemand` tags show then.
+    var isNear = false {
+        didSet { if isNear != oldValue { refreshTag() } }
+    }
+    /// How close the hero gets before someone's name shows.
+    static let nameRange: CGFloat = 120
+    private var revealed = false
+    private var tagShown: Bool?
     private var bubble: SKNode?
     /// Breathing while standing still; off for things that shouldn't, like gift boxes.
     var idles = true {
@@ -86,6 +99,38 @@ final class Walker: SKNode {
         tag?.setText(text)
     }
 
+    /// Shows the name tag for a few seconds, whatever its mode (someone tapped them).
+    func revealTag(for duration: TimeInterval = 4) {
+        revealed = true
+        refreshTag()
+        run(.sequence([.wait(forDuration: duration), .run { [weak self] in
+            self?.revealed = false
+            self?.refreshTag()
+        }]), withKey: "reveal")
+    }
+
+    private func refreshTag() {
+        guard let tag else { return }
+        let show = switch tagMode {
+        case .always: true
+        case .whenStill: !isWalking || revealed
+        case .onDemand: isNear || revealed
+        }
+        guard show != tagShown else { return }
+        let first = tagShown == nil
+        tagShown = show
+        tag.removeAction(forKey: "fade")
+        if first {
+            tag.alpha = show ? 1 : 0
+        } else if show {
+            // A short pause first, so the party's names don't blink on every brief stop.
+            let delay = tagMode == .whenStill && !revealed ? 0.6 : 0
+            tag.run(.sequence([.wait(forDuration: delay), .fadeIn(withDuration: 0.2)]), withKey: "fade")
+        } else {
+            tag.run(.fadeOut(withDuration: 0.2), withKey: "fade")
+        }
+    }
+
     /// A speech bubble above the name tag for a few seconds.
     func say(_ text: String, for duration: TimeInterval = 3.5) {
         bubble?.removeFromParent()
@@ -152,6 +197,7 @@ final class Walker: SKNode {
         guard walking != isWalking else { return }
         isWalking = walking
         animate()
+        refreshTag()
         if walking {
             removeAction(forKey: "fidget")
             removeAction(forKey: "glance")

@@ -71,6 +71,7 @@ final class WorldScene: SKScene {
         }
         let map = WorldMap(def: def)
         let player = Walker(cycle: ArtLibrary.shared.walkCycle(GameSession.heroArt), label: session.data.hero.name)
+        player.tagMode = .whenStill
         player.fidgets = true
         self.def = def
         self.session = session
@@ -551,6 +552,7 @@ final class WorldScene: SKScene {
             map.occupy(cell, blocking: true)
             let node = Walker(cycle: art.walkCycle(npc.art), label: npc.name)
             node.idles = npc.role != .chest
+            node.tagMode = .onDemand
             if npc.role == .boss { node.motion = IdleMotion.of(art: npc.art) }
             node.position = map.center(of: cell)
             node.zPosition = -node.position.y
@@ -823,6 +825,7 @@ final class WorldScene: SKScene {
         guard let pet else { return }
         let node = Walker(cycle: art.walkCycle(session.artID(for: pet)), label: pet.name)
         node.motion = IdleMotion.of(art: session.artID(for: pet))
+        node.tagMode = .whenStill
         node.position = previous ?? player.position + CGVector(dx: -30, dy: 0)
         node.walkSpeed = 110
         world.addChild(node)
@@ -848,6 +851,7 @@ final class WorldScene: SKScene {
         guard !isInputLocked, let point = touches.first?.location(in: world) else { return }
         if let npc = npcs.first(where: { ($0.node.position + CGVector(dx: 0, dy: 24)).distance(to: point) < 34 }) {
             talkTarget = npc.def.id
+            npc.node.revealTag()
             player.path = map.path(from: player.position, to: npc.node.position)
             return
         }
@@ -876,6 +880,7 @@ final class WorldScene: SKScene {
             if let existing = allies.first(where: { $0.id == friend.id }) { return existing }
             let node = Walker(cycle: art.walkCycle(session.artID(for: friend)), label: friend.name, labelColor: HUDStyle.partyGreen)
             node.walkSpeed = 105
+            node.tagMode = .whenStill
             // Recruited on this map: they start where they stood.
             node.position = crowd?.position(of: friend.id) ?? player.position + CGVector(dx: -40, dy: -10)
             crowd?.remove(friend.id, poof: false)
@@ -1094,6 +1099,7 @@ final class WorldScene: SKScene {
     private func updateNotices() {
         var nearest: (id: String, distance: CGFloat)?
         for npc in npcs {
+            npc.node.isNear = npc.node.position.distance(to: player.position) < Walker.nameRange
             if npc.def.role == .chest, session.isOpened(npc.def.id), npc.node.alpha > 0.5 {
                 npc.node.run(.fadeAlpha(to: 0.35, duration: 0.3))
             }

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Battle HUD: the log line on top, the commands bottom-right, results at the end.
 /// Names, levels, HP and the hero's MP sit on the fighters themselves.
@@ -117,55 +118,236 @@ struct BattleView: View {
 
 // MARK: - Commands
 
-/// A big Attack button in the corner, and right beside it a column of round buttons built from
-/// the bottom up: More, then Skills, then whatever else turns up (Capture when a monster is weak
-/// enough, Items when someone is low on HP, pinned skills). Less-used commands hide behind More.
+/// A big button in the corner (Attack unless you change it), and beside it a column of round buttons
+/// built from the bottom up: More, then Skills, then whatever else turns up (Capture when a monster is
+/// weak enough, Items when someone is low on HP, pinned skills). Less-used commands hide behind More.
+/// Holding any button lets you rearrange them all.
 private struct CommandPad: View {
     let controller: BattleController
     @State private var showMore = false
+    /// Holding any button opens the arrange panel.
+    @State private var arranging = false
 
     private let mainSize: CGFloat = 88
     private let buttonSize: CGFloat = 56
 
     var body: some View {
-        let lowHP = controller.needsHealing
-        HStack(alignment: .bottom, spacing: 14) {
-            // Bottom to top.
+        if arranging {
+            ArrangeButtonsCard(controller: controller) { arranging = false }
+                .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
+        } else {
+            pad
+        }
+    }
+
+    /// Your order (`GameSession.battleButtons`), split into the big button, the column beside it
+    /// (bottom up, above More) and the More menu, leaving out what can't be used right now.
+    private var sections: (main: String?, column: [String], more: [String]) {
+        let order = controller.session.battleButtons.filter(isAvailable)
+        let divider = order.firstIndex(of: GameSession.moreDivider) ?? order.endIndex
+        var front = Array(order[..<divider])
+        var more = Array(order[divider...].dropFirst())
+        // Low on HP: Items comes out of More, glowing green.
+        if controller.needsHealing, let index = more.firstIndex(of: "items") {
+            more.remove(at: index)
+            front.insert("items", at: min(1, front.count))
+        }
+        if front.isEmpty, !more.isEmpty { front.append(more.removeFirst()) }
+        return (front.first, Array(front.dropFirst()), more)
+    }
+
+    private func isAvailable(_ id: String) -> Bool {
+        id == "capture" ? controller.canCapture : true
+    }
+
+    private var pad: some View {
+        let (main, column, more) = sections
+        return HStack(alignment: .bottom, spacing: 14) {
             BottomUpColumns(maxRows: 4) {
-                RoundCommandButton(title: showMore ? "Close" : "More", icon: showMore ? .close : .more, size: buttonSize, tint: .quiet) {
-                    showMore.toggle()
+                if !more.isEmpty {
+                    RoundCommandButton(title: showMore ? "Close" : "More", icon: showMore ? .close : .more, size: buttonSize,
+                                       tint: .quiet, onHold: arrange) {
+                        showMore.toggle()
+                    }
                 }
-                if showMore {
-                    if !lowHP {
-                        command("Items", .backpack) { controller.openItems() }
-                    }
-                    command("Guard", .shield) { controller.defend() }
-                    command("Run", .wind) { controller.escape() }
-                } else {
-                    command("Skills", .sparkles) { controller.openSkills() }
-                    if lowHP {
-                        command("Items", .heartPlus, tint: .heal) { controller.openItems() }
-                    }
-                    if controller.canCapture {
-                        command("Capture", .heart, tint: .special) { controller.capture() }
-                    }
-                    ForEach(controller.pinnedSkills) { skill in
-                        QuickSkillButton(controller: controller, skill: skill)
-                            .transition(.scale(scale: 0.2).combined(with: .opacity))
-                    }
+                ForEach(showMore ? more : column, id: \.self) { id in
+                    button(id, size: buttonSize)
+                        .transition(.scale(scale: 0.2).combined(with: .opacity))
                 }
             }
-            RoundCommandButton(title: "Attack", icon: .sword, size: mainSize, tint: .primary) { controller.attack() }
+            if let main {
+                button(main, size: mainSize)
+            }
         }
         .animation(.spring(response: 0.38, dampingFraction: 0.72), value: showMore)
         .animation(.spring(response: 0.38, dampingFraction: 0.72), value: controller.canCapture)
-        .animation(.spring(response: 0.38, dampingFraction: 0.72), value: lowHP)
+        .animation(.spring(response: 0.38, dampingFraction: 0.72), value: controller.needsHealing)
     }
 
-    private func command(_ title: String, _ icon: GameIcon, tint: RoundCommandButton.Tint = .normal,
-                         action: @escaping () -> Void) -> some View {
-        RoundCommandButton(title: title, icon: icon, size: buttonSize, tint: tint, action: action)
-            .transition(.scale(scale: 0.2).combined(with: .opacity))
+    private func arrange() {
+        showMore = false
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { arranging = true }
+    }
+
+    @ViewBuilder
+    private func button(_ id: String, size: CGFloat) -> some View {
+        let big = size == mainSize
+        if id.hasPrefix("skill:"), let skill = controller.pinnedSkills.first(where: { "skill:\($0.id)" == id }) {
+            QuickSkillButton(controller: controller, skill: skill, size: big ? 74 : 46, onHold: arrange)
+        } else {
+            let info = BattleCommand(id)
+            RoundCommandButton(title: info.title, icon: id == "items" && controller.needsHealing ? .heartPlus : info.icon,
+                               size: size, tint: tint(for: id, big: big), onHold: arrange) {
+                perform(id)
+            }
+        }
+    }
+
+    private func tint(for id: String, big: Bool) -> RoundCommandButton.Tint {
+        if id == "capture" { return .special }
+        if id == "items", controller.needsHealing { return .heal }
+        return big ? .primary : .normal
+    }
+
+    private func perform(_ id: String) {
+        switch id {
+        case "attack": controller.attack()
+        case "skills": controller.openSkills()
+        case "items": controller.openItems()
+        case "guard": controller.defend()
+        case "run": controller.escape()
+        case "capture": controller.capture()
+        default: break
+        }
+    }
+}
+
+/// The name and icon of a battle button id (see `GameSession.battleButtons`).
+private struct BattleCommand {
+    let title: String
+    let icon: GameIcon
+
+    init(_ id: String) {
+        switch id {
+        case "attack": title = "Attack"; icon = .sword
+        case "skills": title = "Skills"; icon = .sparkles
+        case "items": title = "Items"; icon = .backpack
+        case "guard": title = "Guard"; icon = .shield
+        case "run": title = "Run"; icon = .wind
+        case "capture": title = "Capture"; icon = .heart
+        default: title = "More"; icon = .more
+        }
+    }
+}
+
+/// Hold any battle button to get here: drag the buttons into any order. The top one becomes the
+/// big button, the ones under "More menu" wait behind More.
+private struct ArrangeButtonsCard: View {
+    let controller: BattleController
+    let onDone: () -> Void
+    @State private var order: [String]
+
+    init(controller: BattleController, onDone: @escaping () -> Void) {
+        self.controller = controller
+        self.onDone = onDone
+        _order = State(initialValue: controller.session.battleButtons)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Arrange buttons")
+                    .font(HUDStyle.font(14))
+                    .foregroundStyle(HUDStyle.gold)
+                Spacer()
+                Button("Reset") { order = resetOrder }
+                    .font(HUDStyle.font(12))
+                    .foregroundStyle(HUDStyle.cream)
+                    .padding(.horizontal, 8)
+                Button {
+                    controller.arrangeButtons(order)
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { onDone() }
+                } label: {
+                    Text("Done")
+                        .font(HUDStyle.font(13))
+                        .foregroundStyle(HUDStyle.ink)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Capsule().fill(HUDStyle.gold))
+                }
+            }
+            Text("Drag to reorder. The top one is the big button.")
+                .font(HUDStyle.font(11))
+                .foregroundStyle(HUDStyle.cream.opacity(0.8))
+            List {
+                ForEach(order, id: \.self) { id in
+                    row(id)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
+                }
+                .onMove { from, to in
+                    order.move(fromOffsets: from, toOffset: to)
+                    // Something always has to be the big button.
+                    if order.first == GameSession.moreDivider { order.swapAt(0, 1) }
+                }
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .environment(\.editMode, .constant(.active))
+            .environment(\.defaultMinListRowHeight, 36)
+            .frame(height: min(CGFloat(order.count) * 40, 300))
+        }
+        .padding(12)
+        .frame(width: 300)
+        .background(
+            RoundedRectangle(cornerRadius: 22)
+                .fill(HUDStyle.ink.opacity(0.92))
+                .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2))
+        )
+    }
+
+    /// The standard order, keeping your pinned skills beside the big button.
+    private var resetOrder: [String] {
+        let pins = order.filter { $0.hasPrefix("skill:") }
+        var standard = GameSession.defaultBattleButtons
+        standard.insert(contentsOf: pins, at: standard.firstIndex(of: GameSession.moreDivider) ?? standard.endIndex)
+        return standard
+    }
+
+    @ViewBuilder
+    private func row(_ id: String) -> some View {
+        if id == GameSession.moreDivider {
+            HStack(spacing: 6) {
+                IconImage(.more, size: 16)
+                Text("More menu")
+                Rectangle().fill(HUDStyle.cream.opacity(0.4)).frame(height: 1)
+            }
+            .font(HUDStyle.font(12))
+            .foregroundStyle(HUDStyle.cream.opacity(0.8))
+        } else {
+            HStack(spacing: 8) {
+                if id.hasPrefix("skill:"), let skill = controller.pinnedSkills.first(where: { "skill:\($0.id)" == id }) {
+                    SkillIcon(skill: skill, size: 24)
+                    Text(skill.name)
+                } else {
+                    let info = BattleCommand(id)
+                    IconImage(info.icon, size: 20)
+                        .frame(width: 24)
+                    Text(id == "capture" ? "Capture (when possible)" : info.title)
+                }
+                Spacer()
+                if id == order.first {
+                    Text("Big button")
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.ink)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(HUDStyle.gold))
+                }
+            }
+            .font(HUDStyle.font(13))
+            .foregroundStyle(HUDStyle.cream)
+        }
     }
 }
 
@@ -234,6 +416,7 @@ struct RoundCommandButton: View {
     let icon: GameIcon
     let size: CGFloat
     let tint: Tint
+    var onHold: (() -> Void)? = nil
     let action: () -> Void
 
     @State private var pulse = false
@@ -265,7 +448,7 @@ struct RoundCommandButton: View {
     }
 
     var body: some View {
-        Button(action: action) {
+        PressButton(action: action, onHold: onHold) {
             VStack(spacing: 1) {
                 IconImage(icon, size: size * 0.4)
                 if size >= 80 {
@@ -287,7 +470,6 @@ struct RoundCommandButton: View {
             .shadow(color: glow?.opacity(pulse ? 0.9 : 0.3) ?? .black.opacity(0.4),
                     radius: glow == nil ? 4 : (pulse ? 12 : 5), x: 0, y: glow == nil ? 4 : 0)
         }
-        .buttonStyle(RoundPressStyle())
         .overlay(alignment: .bottom) {
             if size < 80 {
                 Text(title)
@@ -303,6 +485,39 @@ struct RoundCommandButton: View {
             withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) { pulse = true }
         }
         .accessibilityLabel(title)
+    }
+}
+
+/// A button that shrinks while pressed; holding it calls `onHold` instead of `action`.
+private struct PressButton<Label: View>: View {
+    let action: () -> Void
+    let onHold: (() -> Void)?
+    @ViewBuilder let label: () -> Label
+    @State private var pressed = false
+    /// Set by a hold, so letting go afterwards doesn't also count as a tap.
+    @State private var held = false
+
+    var body: some View {
+        label()
+            .contentShape(Rectangle())
+            .scaleEffect(pressed ? 0.9 : 1)
+            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: pressed)
+            .onTapGesture {
+                if held { held = false } else { action() }
+            }
+            .onLongPressGesture(minimumDuration: 0.45) {
+                guard let onHold else { return }
+                held = true
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                onHold()
+            } onPressingChanged: { pressing in
+                pressed = pressing
+                if pressing { held = false }
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction { action() }
+            .accessibilityAction(named: "Arrange buttons") { onHold?() }
     }
 }
 
@@ -360,13 +575,15 @@ private struct ChoiceCard<Content: View>: View {
 private struct QuickSkillButton: View {
     let controller: BattleController
     let skill: SkillDef
+    var size: CGFloat = 46
+    var onHold: (() -> Void)? = nil
 
     var body: some View {
         let cost = controller.cost(of: skill)
         let affordable = (controller.hero?.mp ?? 0) >= cost
-        Button { controller.useSkill(skill) } label: {
+        PressButton(action: { controller.useSkill(skill) }, onHold: onHold) {
             VStack(spacing: 2) {
-                SkillIcon(skill: skill, size: 46)
+                SkillIcon(skill: skill, size: size)
                 Text("\(cost) MP")
                     .font(HUDStyle.mono(10))
                     .foregroundStyle(affordable ? HUDStyle.cream : HUDStyle.dim)
@@ -375,7 +592,6 @@ private struct QuickSkillButton: View {
             }
             .opacity(affordable ? 1 : 0.5)
         }
-        .buttonStyle(RoundPressStyle())
         .accessibilityLabel("\(skill.name), \(cost) MP")
     }
 }

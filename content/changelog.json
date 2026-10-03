@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.1",
+      "date": "2026-10-03",
+      "title": "Quieter streets",
+      "notes": [
+        "Names step aside: your hero's and companions' names hide while you walk and come back when you stop.",
+        "Everyone else's name shows only when you walk up to them or tap them.",
+        "Arrange your battle buttons: hold any of them, then drag them into the order you like. The top one becomes the big button, so Attack can make way for a skill, and anything can go behind More."
+      ]
+    },
+    {
       "version": "0.3.0",
       "date": "2026-10-03",
       "title": "Glory in numbers",
