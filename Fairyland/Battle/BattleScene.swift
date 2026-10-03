@@ -48,7 +48,7 @@ final class BattleScene: SKScene {
         for (index, actor) in actors.values.sorted(by: { $0.fighterID < $1.fighterID }).enumerated() {
             let isEnemy = controller.enemies.contains { $0.id == actor.fighterID }
             let offset = isPortrait
-                ? CGVector(dx: 0, dy: isEnemy ? 160 : -160)
+                ? CGVector(dx: isEnemy ? -60 : 60, dy: isEnemy ? 160 : -160)
                 : CGVector(dx: isEnemy ? -220 : 220, dy: 0)
             actor.position = actor.home + offset
             actor.alpha = 0
@@ -80,8 +80,10 @@ final class BattleScene: SKScene {
         let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (130, 240) : (70, 40)
         let area = CGRect(x: 0, y: insets.bottom, width: size.width, height: max(120, size.height - insets.top - insets.bottom))
         if isPortrait {
-            arrange(controller.enemies, around: CGPoint(x: area.midX - 20, y: area.minY + area.height * 0.66), facing: .down)
-            arrange(controller.party, around: CGPoint(x: area.midX - 40, y: area.minY + area.height * 0.2), facing: .up)
+            // Monsters up on the left looking down-right at your party, which stands lower on the
+            // right looking back up-left; both lines sit around the middle of the screen.
+            arrange(controller.enemies, around: CGPoint(x: area.midX - 36, y: area.minY + area.height * 0.68), facing: .down)
+            arrange(controller.party, around: CGPoint(x: area.midX + 36, y: area.minY + area.height * 0.2), facing: .up)
         } else {
             arrange(controller.enemies, around: CGPoint(x: area.minX + area.width * 0.28, y: area.midY + 4), facing: .right)
             arrange(controller.party, around: CGPoint(x: area.minX + area.width * 0.6, y: area.midY - 24), facing: .left)
@@ -97,8 +99,9 @@ final class BattleScene: SKScene {
             // The first row stands at the back, away from the other side.
             let depth = CGFloat(index) - CGFloat(rows.count - 1) / 2
             let toward: CGFloat = facing == .right || facing == .down ? 1 : -1
+            // Back rows stand further from the other side: up-left for monsters, down-right for you.
             let shift = isPortrait
-                ? CGVector(dx: depth * 22, dy: depth * 74 * (facing == .down ? -1 : 1))
+                ? CGVector(dx: depth * 36 * (facing == .down ? 1 : -1), dy: depth * 74 * (facing == .down ? -1 : 1))
                 : CGVector(dx: depth * 70 * toward, dy: -depth * 20)
             arrangeLine(row, around: CGPoint(x: center.x + shift.dx, y: center.y + shift.dy), facing: facing)
         }
@@ -111,14 +114,14 @@ final class BattleScene: SKScene {
         if isPortrait, group.count > 1 {
             let half = spacing * CGFloat(group.count - 1) / 2
             center.x = min(max(center.x, 50 + half), size.width - 50 - half)
-            // The line steps down to the right; lift it so its lowest fighter stands where one alone
-            // would, clear of the command wheel.
+            // The line steps up to the right, across the way the sides face; lift it so its lowest
+            // fighter stands where one alone would, clear of the command wheel.
             center.y += 13 * CGFloat(group.count - 1)
         }
         for (index, fighter) in group.enumerated() {
             let offset = CGFloat(index) - CGFloat(group.count - 1) / 2
             let point = isPortrait
-                ? CGPoint(x: center.x + offset * spacing, y: center.y - offset * 26)
+                ? CGPoint(x: center.x + offset * spacing, y: center.y + offset * 26)
                 : CGPoint(x: center.x + offset * spacing, y: center.y - offset * 76)
             actors[fighter.id]?.place(at: point, facing: facing)
         }
