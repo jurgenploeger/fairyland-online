@@ -11,7 +11,8 @@
         "In battle the monsters and your party stand further apart, so the two sides read as lines facing off instead of a crowd.",
         "The items you find after a battle (or get from a quest) sit centred on the card.",
         "The Monster Book no longer says Light and Dark monsters are both strong against and weak to each other: it says they hit each other extra hard.",
-        "You can chat during a fight: the Chat button sits under the battle log on the right."
+        "You can chat during a fight: the Chat button sits under the battle log on the right.",
+        "The world map opens centred on where you are, instead of on the middle of the map with your town cut off at the edge."
       ]
     },
     {

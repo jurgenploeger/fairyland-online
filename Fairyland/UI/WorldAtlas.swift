@@ -77,9 +77,11 @@ struct WorldAtlas: View {
             ForEach(maps) { map in
                 PlaceBadge(map: map, status: status(of: map), selected: selected == map.id, pulse: pulse)
                     .frame(width: cell.width + 12)
-                    .position(center(of: map))
+                    // The id and tap go on the badge itself: after .position they'd cover the whole
+                    // atlas, and "scroll to where you are" would centre the atlas instead of you.
                     .id(map.id)
                     .onTapGesture { selected = map.id }
+                    .position(center(of: map))
             }
         }
         .frame(width: size.width, height: size.height)
