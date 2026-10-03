@@ -12,7 +12,11 @@
         "The items you find after a battle (or get from a quest) sit centred on the card.",
         "The Monster Book no longer says Light and Dark monsters are both strong against and weak to each other: it says they hit each other extra hard.",
         "You can chat during a fight: the Chat button sits under the battle log on the right.",
-        "The world map opens centred on where you are, instead of on the middle of the map with your town cut off at the edge."
+        "The world map opens centred on where you are, instead of on the middle of the map with your town cut off at the edge.",
+        "Mastered skills (yours, your party's and bosses') put on a real show: the battlefield dims, a magic circle and a pillar of light rise under the caster, and the skill ends in a finale in its own element: a meteor rain, a tidal wave, a forest of stone spikes, a leaf hurricane, pillars of holy light, a tornado or giant crossing blades.",
+        "Everyone fights in their own style. Fighters close in with a double slash, mages stay back and fire a bolt of magic from a rune circle, beast tamers pounce with claw marks. Before a skill, a mage draws a rune circle, a fighter flares up in a battle aura and a tamer calls a swirl of wild spirits. Elves dart in quicker and shed leaves, dwarves hit hard enough to shake the ground.",
+        "A friend in your party brings their companion into battle too.",
+        "Skill names in battle no longer show the skill's level (Lv 7): just the name."
       ]
     },
     {

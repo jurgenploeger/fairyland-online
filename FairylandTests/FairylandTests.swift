@@ -607,6 +607,9 @@ struct RulesTests {
         #expect(session.partyMembers[0].level == 5)
         let controller = BattleController.duel(with: grump, session: session)
         #expect(controller.party.contains { $0.name == "Momo" })
+        // Momo's companion comes along.
+        #expect(controller.party.contains { $0.name == "Jelly Puff" && $0.petID != nil })
+        #expect(controller.party.first { $0.name == "Momo" }?.classID == "mage")
         #expect(controller.enemies.map(\.name) == ["Grump"])
         session.leaveParty(momo.id)
         #expect(session.partyMembers.isEmpty)
