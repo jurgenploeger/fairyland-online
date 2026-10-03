@@ -797,7 +797,7 @@ struct LootGrid: View {
     var body: some View {
         VStack(spacing: 6) {
             Text(title).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.gold)
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 78), spacing: 8)], spacing: 8) {
+            CenteredRows(spacing: 8, rowSpacing: 8) {
                 ForEach(Array(loot.enumerated()), id: \.offset) { _, entry in
                     if let item = Content.shared.item(entry.id) {
                         VStack(spacing: 3) {
@@ -818,6 +818,7 @@ struct LootGrid: View {
                                 .lineLimit(2)
                                 .multilineTextAlignment(.center)
                         }
+                        .frame(width: 78)
                         .accessibilityElement(children: .combine)
                     }
                 }
@@ -826,5 +827,57 @@ struct LootGrid: View {
         .padding(10)
         .frame(maxWidth: .infinity)
         .background(RoundedRectangle(cornerRadius: 12).fill(.white.opacity(0.06)))
+    }
+}
+
+/// Wraps its views into rows like text, each row centred.
+private struct CenteredRows: Layout {
+    var spacing: CGFloat = 8
+    var rowSpacing: CGFloat = 8
+
+    private func rows(_ sizes: [CGSize], maxWidth: CGFloat) -> [[Int]] {
+        var rows: [[Int]] = [[]]
+        var width: CGFloat = 0
+        for (index, size) in sizes.enumerated() {
+            let row = rows[rows.count - 1]
+            let needed = row.isEmpty ? size.width : width + spacing + size.width
+            if !row.isEmpty, needed > maxWidth {
+                rows.append([index])
+                width = size.width
+            } else {
+                rows[rows.count - 1].append(index)
+                width = needed
+            }
+        }
+        return rows
+    }
+
+    private func rowWidth(_ row: [Int], _ sizes: [CGSize]) -> CGFloat {
+        row.map { sizes[$0].width }.reduce(0, +) + spacing * CGFloat(max(0, row.count - 1))
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        guard !sizes.isEmpty else { return .zero }
+        let maxWidth = proposal.width.flatMap { $0.isFinite ? $0 : nil } ?? .infinity
+        let rows = rows(sizes, maxWidth: maxWidth)
+        let heights = rows.map { row in row.map { sizes[$0].height }.max() ?? 0 }
+        let widest = rows.map { rowWidth($0, sizes) }.max() ?? 0
+        return CGSize(width: maxWidth.isFinite ? maxWidth : widest,
+                      height: heights.reduce(0, +) + rowSpacing * CGFloat(max(0, rows.count - 1)))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        var y = bounds.minY
+        for row in rows(sizes, maxWidth: bounds.width) {
+            let height = row.map { sizes[$0].height }.max() ?? 0
+            var x = bounds.midX - rowWidth(row, sizes) / 2
+            for index in row {
+                subviews[index].place(at: CGPoint(x: x, y: y), anchor: .topLeading, proposal: ProposedViewSize(sizes[index]))
+                x += sizes[index].width + spacing
+            }
+            y += height + rowSpacing
+        }
     }
 }
