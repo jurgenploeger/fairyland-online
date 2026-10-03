@@ -82,7 +82,7 @@ final class BattleScene: SKScene {
         if isPortrait {
             // Monsters up on the left looking down-right at your party, which stands lower on the
             // right looking back up-left; both lines sit around the middle of the screen.
-            arrange(controller.enemies, around: CGPoint(x: area.midX - 36, y: area.minY + area.height * 0.68), facing: .down)
+            arrange(controller.enemies, around: CGPoint(x: area.midX - 36, y: area.minY + area.height * 0.56), facing: .down)
             arrange(controller.party, around: CGPoint(x: area.midX + 36, y: area.minY + area.height * 0.2), facing: .up)
         } else {
             arrange(controller.enemies, around: CGPoint(x: area.minX + area.width * 0.28, y: area.midY + 4), facing: .right)
@@ -114,6 +114,10 @@ final class BattleScene: SKScene {
         if isPortrait, group.count > 1 {
             let half = spacing * CGFloat(group.count - 1) / 2
             center.x = min(max(center.x, 50 + half), size.width - 50 - half)
+        }
+        // Only your party needs lifting clear of the command wheel; monsters stay where they are
+        // so a long line (and a second row behind it) doesn't climb off the top.
+        if isPortrait, group.count > 1, facing == .up {
             // The line steps up to the right, across the way the sides face; lift it so its lowest
             // fighter stands where one alone would, clear of the command wheel.
             center.y += 13 * CGFloat(group.count - 1)
