@@ -1402,7 +1402,7 @@
         ],
         "groupSize": [
           1,
-          2
+          3
         ],
         "monsters": {
           "jelly": 7,
@@ -2045,8 +2045,8 @@
           28
         ],
         "groupSize": [
-          2,
-          3
+          1,
+          5
         ],
         "monsters": {
           "bun": 5,
@@ -2553,7 +2553,7 @@
         ],
         "groupSize": [
           1,
-          3
+          4
         ],
         "monsters": {
           "wood_monkey": 4,
@@ -3842,8 +3842,8 @@
           92
         ],
         "groupSize": [
-          1,
-          3
+          3,
+          8
         ],
         "monsters": {
           "fire_bear": 3,
@@ -4190,8 +4190,8 @@
           35
         ],
         "groupSize": [
-          1,
-          3
+          2,
+          5
         ],
         "monsters": {
           "treefrog": 4,
@@ -4501,8 +4501,8 @@
           48
         ],
         "groupSize": [
-          1,
-          3
+          2,
+          6
         ],
         "monsters": {
           "wisp": 3,
@@ -4763,8 +4763,8 @@
           58
         ],
         "groupSize": [
-          1,
-          3
+          2,
+          7
         ],
         "monsters": {
           "fire_rat": 4,
@@ -5745,8 +5745,8 @@
           75
         ],
         "groupSize": [
-          1,
-          3
+          2,
+          7
         ],
         "monsters": {
           "black_widow": 3,
@@ -6088,8 +6088,8 @@
           88
         ],
         "groupSize": [
-          1,
-          3
+          2,
+          7
         ],
         "monsters": {
           "floating_stone": 3,
@@ -6377,8 +6377,8 @@
           105
         ],
         "groupSize": [
-          1,
-          3
+          3,
+          8
         ],
         "monsters": {
           "gem_crawler": 3,
@@ -6867,7 +6867,7 @@
         ],
         "groupSize": [
           1,
-          2
+          3
         ],
         "monsters": {
           "jelly": 4,
@@ -7080,7 +7080,7 @@
         ],
         "groupSize": [
           1,
-          2
+          4
         ],
         "monsters": {
           "golden_slime": 5,
@@ -7481,7 +7481,7 @@
         ],
         "groupSize": [
           1,
-          2
+          4
         ],
         "monsters": {
           "candy_puff": 5,
@@ -7786,8 +7786,8 @@
           36
         ],
         "groupSize": [
-          1,
-          3
+          2,
+          6
         ],
         "monsters": {
           "earth_wolf": 5,
@@ -8557,8 +8557,8 @@
           44
         ],
         "groupSize": [
-          1,
-          3
+          2,
+          5
         ],
         "monsters": {
           "water_slug": 3,
@@ -8843,8 +8843,8 @@
           52
         ],
         "groupSize": [
-          1,
-          3
+          2,
+          5
         ],
         "monsters": {
           "lotus_sprite": 5,
@@ -9077,8 +9077,8 @@
           62
         ],
         "groupSize": [
-          1,
-          3
+          2,
+          8
         ],
         "monsters": {
           "wooden_puppet": 6,
@@ -9330,8 +9330,8 @@
           72
         ],
         "groupSize": [
-          1,
-          3
+          2,
+          7
         ],
         "monsters": {
           "ore_golem": 4,
@@ -9639,8 +9639,8 @@
           86
         ],
         "groupSize": [
-          2,
-          3
+          3,
+          9
         ],
         "monsters": {
           "dream_phantom": 5,
@@ -9922,8 +9922,8 @@
           125
         ],
         "groupSize": [
-          2,
-          3
+          3,
+          10
         ],
         "monsters": {
           "earth_lion": 3,
@@ -10156,8 +10156,8 @@
           140
         ],
         "groupSize": [
-          2,
-          3
+          3,
+          10
         ],
         "monsters": {
           "ore_golem": 4,
@@ -10459,8 +10459,8 @@
           155
         ],
         "groupSize": [
-          2,
-          3
+          3,
+          10
         ],
         "monsters": {
           "frost_bear": 3,
@@ -10706,8 +10706,8 @@
           170
         ],
         "groupSize": [
-          2,
-          3
+          3,
+          10
         ],
         "monsters": {
           "temple_jelly": 5,
@@ -10937,8 +10937,8 @@
           185
         ],
         "groupSize": [
-          2,
-          3
+          3,
+          10
         ],
         "monsters": {
           "crystal_widow": 4,
@@ -11384,8 +11384,8 @@
           200
         ],
         "groupSize": [
-          2,
-          3
+          3,
+          10
         ],
         "monsters": {
           "emerald_pegasus": 4,

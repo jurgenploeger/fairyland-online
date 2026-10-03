@@ -251,6 +251,10 @@ struct RulesTests {
         // The wooden sword isn't for mages, so it goes back into the bag.
         #expect(session.data.hero.equipment.weapon == nil)
         #expect(session.count(of: "wooden_sword") == 1)
+        // Mage skills open up as you level.
+        let fireBolt = Content.shared.classDef("mage").skills.first { $0.skill == "fire_bolt" }!
+        #expect(!session.learnableSkills.contains { $0.id == "fire_bolt" } || fireBolt.level <= session.data.hero.level)
+        session.data.hero.level = fireBolt.level
         #expect(session.learnableSkills.contains { $0.id == "fire_bolt" })
     }
 

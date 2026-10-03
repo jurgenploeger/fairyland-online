@@ -11,7 +11,7 @@ import Foundation
 ///   equip=a+b      start wearing these items (ids from content/items.json, joined with +)
 ///   race=<id>      play this race (content/classes.json)
 ///   style=<id>     wear this hairstyle (content/appearance.json `styles`)
-///   battle         start in a random battle on the current map
+///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
 ///   menu=<tab>     open character | companions | bag | quests
 ///   npc=<id>       open an NPC dialog
 ///   landscape      lock the app to landscape
@@ -80,7 +80,14 @@ enum DebugLaunch {
         if flags["battle"] != nil {
             let encounters = Content.shared.map(coordinator.session.data.mapID)?.encounters
                 ?? Content.shared.maps.compactMap(\.encounters).first
-            if let encounters { coordinator.startBattle(encounters) }
+            // battle=8: exactly that many monsters (to check big formations).
+            if let encounters, let count = flags["battle"].flatMap({ Int($0) }) {
+                coordinator.startBattle(MapDef.Encounters(rate: encounters.rate, graceSteps: encounters.graceSteps,
+                                                          levels: encounters.levels, groupSize: [count, count],
+                                                          monsters: encounters.monsters))
+            } else if let encounters {
+                coordinator.startBattle(encounters)
+            }
         }
         if let tab = flags["menu"].flatMap({ MenuTab(rawValue: $0.capitalized) }) {
             coordinator.open(.menu(tab))
