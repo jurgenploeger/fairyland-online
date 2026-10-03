@@ -2,6 +2,21 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.2.0",
+      "date": "2026-10-03",
+      "title": "A bigger Fairyland",
+      "notes": [
+        "The world grows to 30 maps, with a world atlas, winding roads, caves, snowfall, icy ponds and busier towns.",
+        "Levels now run to 105 and beyond, and you join a guild at level 10.",
+        "Three new bosses: Grumpy Old Oak, Great Wisp and the Moon Rabbit Queen. Bosses can be fought again, and six of them may drop a rare colour of their armour.",
+        "Choose male, female or other and a hairstyle. Helmets and hoods now cover your hair, and stronger armour shows finer detail.",
+        "Every item and skill has its own art, magic weapons glow, and blacksmiths forge gear from monster materials.",
+        "Battles show names above each fighter with level and HP below; the map shows faces for you, your companion and your party.",
+        "A storybook soundtrack, new sound effects with volume settings, an intro for new heroes and a What's new list.",
+        "Friends can only join your party when they're nearby."
+      ]
+    },
+    {
       "version": "0.0.1",
       "date": "2026-09-29",
       "title": "First steps into Fairyland",
