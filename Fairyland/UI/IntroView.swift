@@ -99,7 +99,9 @@ private struct PageTitle: View {
 // MARK: - Story
 
 private struct StoryPage: View {
-    private let bosses = Content.shared.monsters.filter { $0.boss == true }
+    /// The three the story names, in its order: one row that fits any screen, and the rest of the
+    /// bosses stay a surprise.
+    private let bosses = ["big_bad_wolf", "rat_king", "drunk_dragon"].compactMap(Content.shared.monster)
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

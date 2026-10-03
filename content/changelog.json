@@ -7,7 +7,8 @@
       "title": "Into the mist",
       "notes": [
         "The land beyond each map's edge now fades into a soft mist (a deep gloom in caves) instead of black.",
-        "A companion that faints stays down after the battle: it sits out fights and stops following you until a potion or a healer wakes it up, and earns no EXP from that fight."
+        "A companion that faints stays down after the battle: it sits out fights and stops following you until a potion or a healer wakes it up, and earns no EXP from that fight.",
+        "Fixed the intro's first page running off the screen."
       ]
     },
     {
