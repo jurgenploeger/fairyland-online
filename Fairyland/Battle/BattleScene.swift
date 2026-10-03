@@ -662,6 +662,41 @@ final class BattleScene: SKScene {
         dim.removeFromParent()
     }
 
+    /// The hero levelled up with the win: light pours down on them in a burst of gold, "LEVEL UP!"
+    /// fills the field, and their bars fill up (a new level restores HP and MP, so a hero who
+    /// fell gets back up for it).
+    func celebrateLevelUp(to level: Int) {
+        guard let id = controller.hero?.id, let hero = actors[id] else { return }
+        let gold = Nodes.gold
+        hero.run(.group([.fadeIn(withDuration: 0.4), .move(to: hero.home, duration: 0.4)]), withKey: "revive")
+        hero.setHealth(1, mana: 1)
+        SkillEffects.screenFlash(color: gold, strength: 0.3, size: size, in: self)
+        SkillEffects.lightPillar(on: hero, level: 5, in: stage)
+        SkillEffects.glory(on: hero, color: gold, level: 5, in: stage)
+        SkillEffects.burst(at: hero.center, color: gold, count: 24, speed: 130, in: stage)
+        hero.sprite.run(.sequence([.moveBy(x: 0, y: 18, duration: 0.16), .moveBy(x: 0, y: -18, duration: 0.2)]), withKey: "cheer")
+
+        let banner = SKNode()
+        banner.position = CGPoint(x: size.width / 2, y: size.height * 0.58)
+        banner.zPosition = 31_000
+        let title = NameTag("LEVEL UP!", color: gold, size: 36, alignment: .center)
+        let subtitle = NameTag("Level \(level)", color: .white, size: 18, alignment: .center)
+        subtitle.position.y = -36
+        banner.addChild(title)
+        banner.addChild(subtitle)
+        banner.setScale(0.3)
+        banner.alpha = 0
+        addChild(banner)
+        SkillEffects.rays(at: banner.position, color: gold, count: 14, length: 150, width: 10, z: 30_900, in: self)
+        banner.run(.sequence([
+            .group([.fadeIn(withDuration: 0.12), .scale(to: 1.2, duration: 0.2)]),
+            .scale(to: 1, duration: 0.12),
+            .wait(forDuration: 1),
+            .group([.fadeOut(withDuration: 0.3), .moveBy(x: 0, y: 24, duration: 0.3)]),
+            .removeFromParent(),
+        ]))
+    }
+
     private func refreshBars() {
         for fighter in controller.combatants {
             actors[fighter.id]?.setHealth(fighter.hpFraction, mana: fighter.mpFraction)

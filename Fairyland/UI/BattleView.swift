@@ -749,43 +749,60 @@ private struct ResultPanel: View {
     }
 
     private var summary: some View {
-        VStack(spacing: 10) {
-                Text(title)
-                    .font(HUDStyle.font(26))
-                    .foregroundStyle(result.outcome == .victory ? HUDStyle.gold : HUDStyle.cream)
-                if result.exp > 0 || result.gold > 0 {
-                    HStack(spacing: 18) {
-                        Label { Text("+\(result.exp) EXP") } icon: {
-                            IconImage(.star, size: 18).foregroundStyle(HUDStyle.exp)
-                        }
-                        Label { Text("+\(result.gold)") } icon: {
-                            IconImage(.coins, size: 18).foregroundStyle(HUDStyle.gold)
-                        }
-                    }
-                    .font(HUDStyle.font(16))
-                    .foregroundStyle(HUDStyle.cream)
-                }
-                if !result.loot.isEmpty {
-                    LootGrid(loot: result.loot)
-                }
-                ForEach(Array(result.lines.enumerated()), id: \.offset) { _, line in
-                    Text(line)
-                        .font(HUDStyle.font(13))
-                        .foregroundStyle(HUDStyle.cream)
-                        .multilineTextAlignment(.center)
-                }
-                Button("Continue", action: advance)
-                    .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
-                    .padding(.top, 6)
+        // A level-up trims the card in gold.
+        let rim = result.newLevel != nil ? HUDStyle.gold : HUDStyle.cream
+        return VStack(spacing: 10) {
+            Text(title)
+                .font(HUDStyle.font(26))
+                .foregroundStyle(result.outcome == .victory ? HUDStyle.gold : HUDStyle.cream)
+            // Scrolls only when it can't all fit (a phone on its side after a big win).
+            ViewThatFits(in: .vertical) {
+                details
+                ScrollView { details }
+                    .scrollBounceBehavior(.basedOnSize)
+            }
+            Button("Continue", action: advance)
+                .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
+                .padding(.top, 6)
         }
         .padding(22)
         .frame(maxWidth: 420)
         .background(
             RoundedRectangle(cornerRadius: 24)
                 .fill(HUDStyle.ink.opacity(0.92))
-                .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(HUDStyle.cream.opacity(0.85), lineWidth: 2))
+                .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(rim.opacity(0.85), lineWidth: 2))
         )
         .padding(20)
+    }
+
+    /// The pay, the level-up, what was found, and what else happened.
+    private var details: some View {
+        VStack(spacing: 10) {
+            if result.exp > 0 || result.gold > 0 {
+                HStack(spacing: 18) {
+                    Label { Text("+\(result.exp) EXP") } icon: {
+                        IconImage(.star, size: 18).foregroundStyle(HUDStyle.exp)
+                    }
+                    Label { Text("+\(result.gold)") } icon: {
+                        IconImage(.coins, size: 18).foregroundStyle(HUDStyle.gold)
+                    }
+                }
+                .font(HUDStyle.font(16))
+                .foregroundStyle(HUDStyle.cream)
+            }
+            if let level = result.newLevel {
+                LevelUpBanner(level: level, gains: session.heroClass.growth * result.levelsGained)
+            }
+            if !result.loot.isEmpty {
+                LootGrid(loot: result.loot)
+            }
+            ForEach(Array(result.lines.enumerated()), id: \.offset) { _, line in
+                Text(line)
+                    .font(HUDStyle.font(13))
+                    .foregroundStyle(HUDStyle.cream)
+                    .multilineTextAlignment(.center)
+            }
+        }
     }
 }
 
@@ -827,6 +844,149 @@ struct LootGrid: View {
         .padding(10)
         .frame(maxWidth: .infinity)
         .background(RoundedRectangle(cornerRadius: 12).fill(.white.opacity(0.06)))
+    }
+}
+
+/// A level-up, made a fuss of on the victory and quest cards: the new level on a gold medal in a
+/// slowly turning sunburst, stars flying off it, "LEVEL UP!", and what the new levels raised.
+struct LevelUpBanner: View {
+    let level: Int
+    /// What the levels raised: the class's growth for each level gained.
+    let gains: Stats
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var shown = false
+    @State private var burst = false
+
+    /// The stats that went up, in the Character tab's order.
+    private var raised: [(label: String, value: Int)] {
+        let all: [(label: String, value: Int)] = [
+            ("HP", gains.hp), ("MP", gains.mp), ("ATK", gains.attack),
+            ("DEF", gains.defense), ("MAG", gains.magic), ("SPD", gains.speed),
+        ]
+        return all.filter { $0.value > 0 }
+    }
+
+    var body: some View {
+        Group {
+            if verticalSizeClass == .compact {
+                // Landscape: the medal beside the words, so the card still fits the screen.
+                HStack(spacing: 16) {
+                    medal(size: 50)
+                    VStack(alignment: .leading, spacing: 4) {
+                        title(size: 22)
+                        Text(gains.bonusSummary)
+                            .font(HUDStyle.font(11))
+                            .foregroundStyle(HUDStyle.green)
+                    }
+                }
+            } else {
+                VStack(spacing: 8) {
+                    medal(size: 66)
+                    title(size: 28)
+                    CenteredRows(spacing: 5, rowSpacing: 5) {
+                        ForEach(Array(raised.enumerated()), id: \.offset) { _, stat in
+                            chip(stat.label, stat.value)
+                        }
+                    }
+                    Text("HP and MP fully restored")
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.dim)
+                }
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity)
+        .background(RoundedRectangle(cornerRadius: 12).fill(HUDStyle.gold.opacity(0.12)))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(HUDStyle.gold.opacity(0.55), lineWidth: 1.5))
+        .scaleEffect(shown ? 1 : 0.6)
+        .opacity(shown ? 1 : 0)
+        .onAppear {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.55).delay(0.15)) { shown = true }
+            withAnimation(.easeOut(duration: 0.9).delay(0.3)) { burst = true }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Level up! You're now level \(level). \(gains.bonusSummary)")
+    }
+
+    private func medal(size: CGFloat) -> some View {
+        ZStack {
+            TimelineView(.animation(minimumInterval: nil, paused: reduceMotion)) { context in
+                let turn = context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 20) / 20
+                Sunburst(rays: 14)
+                    .fill(RadialGradient(colors: [HUDStyle.gold.opacity(0.75), HUDStyle.gold.opacity(0)],
+                                         center: .center, startRadius: size * 0.4, endRadius: size * 1.3))
+                    .frame(width: size * 2.6, height: size * 2.6)
+                    .rotationEffect(.degrees(turn * 360))
+            }
+            // Stars fly off from behind the medal as it lands.
+            ForEach(0..<8, id: \.self) { index in
+                IconImage(.star, size: size * 0.18)
+                    .foregroundStyle(index % 2 == 0 ? HUDStyle.cream : HUDStyle.gold)
+                    .offset(burst ? Self.flight(of: index, radius: size) : .zero)
+                    .opacity(burst ? 0 : 1)
+            }
+            Circle()
+                .fill(RadialGradient(colors: [Color(red: 1, green: 0.97, blue: 0.75), HUDStyle.gold, HUDStyle.orange],
+                                     center: UnitPoint(x: 0.35, y: 0.3), startRadius: 1, endRadius: size * 0.75))
+                .overlay(Circle().strokeBorder(HUDStyle.cream, lineWidth: 2.5))
+                .shadow(color: HUDStyle.gold.opacity(0.9), radius: 10)
+                .frame(width: size, height: size)
+            VStack(spacing: -4) {
+                Text("LV").font(HUDStyle.font(size * 0.19))
+                Text("\(level)")
+                    .font(HUDStyle.font(size * 0.42))
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+            }
+            .foregroundStyle(HUDStyle.ink)
+            .padding(.horizontal, size * 0.1)
+        }
+        .frame(width: size, height: size)
+    }
+
+    /// Where star `index` of eight ends up, all the way round the medal.
+    private static func flight(of index: Int, radius: CGFloat) -> CGSize {
+        let angle = CGFloat(index) / 8 * 2 * .pi
+        return CGSize(width: cos(angle) * radius, height: sin(angle) * radius * 0.8)
+    }
+
+    private func title(size: CGFloat) -> some View {
+        Text("LEVEL UP!")
+            .font(HUDStyle.font(size))
+            .foregroundStyle(HUDStyle.gold)
+            .shadow(color: HUDStyle.orange.opacity(0.9), radius: 0, x: 2, y: 2)
+    }
+
+    /// "HP +12": one raised stat, in a little dark pill.
+    private func chip(_ label: String, _ value: Int) -> some View {
+        let text: Text = Text(label + " ").foregroundStyle(HUDStyle.cream) + Text("+\(value)").foregroundStyle(HUDStyle.green)
+        return text
+            .font(HUDStyle.font(11))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(HUDStyle.ink.opacity(0.7)))
+    }
+}
+
+/// Wedges of light round the middle, like a sunburst.
+private nonisolated struct Sunburst: Shape {
+    var rays = 12
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = max(rect.width, rect.height) / 2
+        let step = 2 * CGFloat.pi / CGFloat(rays)
+        for index in 0..<rays {
+            let angle = step * CGFloat(index)
+            path.move(to: center)
+            path.addArc(center: center, radius: radius, startAngle: Angle(radians: Double(angle - step / 4)),
+                        endAngle: Angle(radians: Double(angle + step / 4)), clockwise: false)
+            path.closeSubpath()
+        }
+        return path
     }
 }
 

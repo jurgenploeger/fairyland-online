@@ -5,6 +5,7 @@ import Foundation
 ///
 ///   newgame        skip the title screen with a fresh hero
 ///   level=5        start at a level
+///   levelup        start one EXP short of the next level
 ///   hp=0.2         start with this fraction of HP left
 ///   map=<id>       start on a map from content/maps.json
 ///   at=x_y         start at this offset from the map's centre (e.g. at=0_14)
@@ -16,6 +17,7 @@ import Foundation
 ///   hair=<id>      dye the hair this colour (content/appearance.json `hair`)
 ///   gender=<id>    male | female | other (picks the race's matching sheet)
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
+///   win            with battle: the monsters fall at once and the victory plays out
 ///   menu=<tab>     open character | companions | bag | quests
 ///   bottom         open the menu scrolled to the end
 ///   npc=<id>       open an NPC dialog
@@ -66,6 +68,9 @@ enum DebugLaunch {
         if let level = flags["level"].flatMap(Int.init), level > 1 {
             session.data.hero.level = level
             session.restoreHero()
+        }
+        if flags["levelup"] != nil {
+            session.data.hero.exp = GameSession.expToNext(level: session.data.hero.level) - 1
         }
         if let fraction = flags["hp"].flatMap(Double.init) {
             session.data.hero.hp = max(1, Int(Double(session.heroStats.hp) * fraction))
@@ -135,6 +140,15 @@ enum DebugLaunch {
             } else if let encounters {
                 coordinator.startBattle(encounters)
             }
+            #if DEBUG
+            // `win`: once everyone has marched in, the monsters fall and the victory plays out.
+            if flags["win"] != nil, let battle = coordinator.battle {
+                Task {
+                    try? await Task.sleep(for: .seconds(2))
+                    battle.winForDebug()
+                }
+            }
+            #endif
         }
         if let tab = flags["menu"].flatMap({ MenuTab(rawValue: $0.capitalized) }) {
             coordinator.open(.menu(tab))
