@@ -51,6 +51,8 @@ struct MenuView: View {
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                // Debug `bottom`: opens at the end of the page (screenshots of the skills).
+                .defaultScrollAnchor(DebugLaunch.opensMenuAtBottom ? .bottom : nil)
             }
             .frame(maxWidth: 760)
             .background(HUDStyle.panel)

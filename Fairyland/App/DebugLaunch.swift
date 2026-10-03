@@ -17,6 +17,7 @@ import Foundation
 ///   gender=<id>    male | female | other (picks the race's matching sheet)
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
 ///   menu=<tab>     open character | companions | bag | quests
+///   bottom         open the menu scrolled to the end
 ///   npc=<id>       open an NPC dialog
 ///   worldmap       open the world map
 ///   book           open the Monster Book, with the first 24 monsters already met
@@ -53,6 +54,7 @@ enum DebugLaunch {
     static var opensMonsterBook: Bool { flags["book"] != nil }
     /// `change=armor`: the Character tab opens with that slot's list of things to wear.
     static var changingSlot: ItemType? { flags["change"].flatMap(ItemType.init(rawValue:)) }
+    static var opensMenuAtBottom: Bool { flags["bottom"] != nil }
     /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).
     static var introPage: Int? { flags["intro"].map { Int($0).map { $0 - 1 } ?? 0 } }
 
