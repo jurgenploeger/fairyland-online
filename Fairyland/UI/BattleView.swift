@@ -396,7 +396,8 @@ private struct Wiggle: ViewModifier {
     let active: Bool
     @State private var speed = Double.random(in: 0.11...0.15)
 
-    func body(content: Content) -> some View {
+    // `Self.Content`: plain `Content` is the game's data store.
+    func body(content: Self.Content) -> some View {
         content.phaseAnimator([false, true]) { view, tilted in
             view.rotationEffect(.degrees(active ? (tilted ? 2.5 : -2.5) : 0))
         } animation: { _ in
