@@ -20,6 +20,13 @@ nonisolated struct ArtAsset: Decodable {
     let derive: Derivation?
 }
 
+/// One paper-doll layer (an art/sprites PNG) and how it's recoloured before stacking: by its own
+/// rules, or with nil by the sprite's (`ArtLibrary.register`'s `recolor`).
+nonisolated struct ArtLayer: Sendable {
+    let id: String
+    var recolor: [RecolorRule]? = nil
+}
+
 /// A texture plus the size it should be drawn at.
 struct SpriteArt {
     let texture: SKTexture
@@ -49,8 +56,8 @@ final class ArtLibrary {
     private var runtime: [String: (asset: ArtAsset, key: String)] = [:]
     /// Gear drawn onto runtime sprites after their recolour (the hero's armour and boots).
     private var gearLooks: [String: GearLook] = [:]
-    /// Paper-doll layers stacked in place of a runtime sprite's base (body, then hair or headgear).
-    private var layerSets: [String: [String]] = [:]
+    /// Paper-doll layers stacked in place of a runtime sprite's base (body, locks, then hair or headgear).
+    private var layerSets: [String: [ArtLayer]] = [:]
 
     init() {
         do {
@@ -94,7 +101,7 @@ final class ArtLibrary {
     /// `layers` (art/sprites PNGs, bottom first) replace the base's own picture when they all exist;
     /// the base still supplies the frame size and directions.
     func register(_ id: String, from base: String, recolor rules: [RecolorRule], key: String, gear: GearLook? = nil,
-                  layers: [String]? = nil) {
+                  layers: [ArtLayer]? = nil) {
         guard runtime[id]?.key != key else { return }
         let kind = asset(base)?.kind ?? "monster"
         runtime[id] = (ArtAsset(id: id, kind: kind, frame: nil, directions: nil, scale: nil, derive: Derivation(from: base, recolor: rules)), key)
@@ -117,8 +124,8 @@ final class ArtLibrary {
 
     /// A one-off recoloured portrait for pickers and previews (cached by `key`).
     func preview(from base: String, recolor rules: [RecolorRule], key: String, facing direction: Direction = .down,
-                 layers: [String]? = nil) -> UIImage {
-        let id = "preview:" + base + ":" + key + ":" + (layers ?? []).joined(separator: "+")
+                 layers: [ArtLayer]? = nil) -> UIImage {
+        let id = "preview:" + base + ":" + key + ":" + (layers ?? []).map(\.id).joined(separator: "+")
         register(id, from: base, recolor: rules, key: key, layers: layers)
         return image(id, facing: direction)
     }
@@ -153,9 +160,20 @@ final class ArtLibrary {
     /// The sprite's own PNG, or — for derived sprites — its base's PNG with the palette swap applied.
     private func sourceImage(_ id: String, depth: Int = 0) -> CGImage? {
         if let url = pngURL(id), let image = UIImage(contentsOfFile: url.path)?.cgImage { return image }
-        guard depth < 3, let derive = asset(id)?.derive,
-              let base = layerSets[id].flatMap({ stacked($0) }) ?? sourceImage(derive.from, depth: depth + 1) else { return nil }
-        let recolored = Recolor.apply(derive.recolor, to: base)
+        guard depth < 3, let derive = asset(id)?.derive else { return nil }
+        let base: CGImage
+        let recolored: CGImage?
+        // Paper-doll layers are recoloured one by one (a layer's own rules, like the hair's, touch
+        // only that layer), then stacked.
+        if let layers = layerSets[id], let original = stacked(layers), let dressed = stacked(layers, recolor: derive.recolor) {
+            base = original
+            recolored = dressed
+        } else if let sheet = sourceImage(derive.from, depth: depth + 1) {
+            base = sheet
+            recolored = Recolor.apply(derive.recolor, to: sheet)
+        } else {
+            return nil
+        }
         if let gear = gearLooks[id], let recolored, let from = asset(derive.from) {
             let directions = from.directions ?? ["up", "right", "down", "left"]
             return GearOverlay.apply(gear, original: base, dressed: recolored, frame: from.frame ?? 48, directions: directions)
@@ -164,8 +182,13 @@ final class ArtLibrary {
     }
 
     /// art/sprites PNGs drawn on top of each other, bottom first; nil unless every one exists.
-    private func stacked(_ layers: [String]) -> CGImage? {
-        let images = layers.compactMap { id in pngURL(id).flatMap { UIImage(contentsOfFile: $0.path)?.cgImage } }
+    /// With `rules`, each layer is recoloured first: by its own rules if it has them, else by these.
+    private func stacked(_ layers: [ArtLayer], recolor rules: [RecolorRule]? = nil) -> CGImage? {
+        let images = layers.compactMap { layer -> CGImage? in
+            guard let image = pngURL(layer.id).flatMap({ UIImage(contentsOfFile: $0.path)?.cgImage }) else { return nil }
+            guard let rules else { return image }
+            return Recolor.apply(layer.recolor ?? rules, to: image)
+        }
         guard let first = images.first, images.count == layers.count else { return nil }
         let width = first.width, height = first.height
         guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,

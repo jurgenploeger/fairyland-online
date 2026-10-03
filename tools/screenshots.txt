@@ -21,6 +21,9 @@ hair_elf     | newgame,race=elf,style=spiky,menu=character                    | 
 face_female  | newgame,gender=female                                          | 8
 face_elf_male | newgame,race=elf,gender=male                                  | 8
 hood_dwarf   | newgame,race=dwarf,level=30,equip=ranger_cloak                 | 8
+hair_blue    | newgame,hair=blue                                              | 8
+hair_elf_male | newgame,race=elf,gender=male,hair=black,menu=character        | 8
+hair_dwarf_female | newgame,race=dwarf,gender=female,hair=white                | 8
 boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 15
 edge_fog     | newgame,map=sunny_meadow,at=80_0                 | 15
 edge_town    | newgame,map=meadowbrook,at=0_-28                  | 8

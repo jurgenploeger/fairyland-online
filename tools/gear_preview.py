@@ -317,7 +317,7 @@ def main(out):
     sheet = Image.new("RGB", (len(races) * 4 * 48 * zoom, len(items) * 48 * zoom), (80, 130, 80))
     for k, race in enumerate(races):
         for r, item in enumerate(items):
-            # The layers the game stacks (GameSession.layers): body, then hair or headgear; or the
+            # The layers the game stacks (GameSession.layers): body, locks, then hair or headgear; or the
             # armour's own sheet, which is drawn as it is.
             if race["id"] in item.get("sheets", {}):
                 image = Image.open(root / "art" / "sprites" / f"{item['sheets'][race['id']]}.png").convert("RGBA")
@@ -328,7 +328,8 @@ def main(out):
             head = {"plate": "helmet", "cloak": "hood"}.get(item.get("wear"))
             top = f"{head}_{race['id']}" if head else f"hair_{race['hair']}_{race['id']}"
             base = Image.open(root / "art" / "sprites" / f"body_{race['id']}.png").convert("RGBA")
-            base.alpha_composite(Image.open(root / "art" / "sprites" / f"{top}.png").convert("RGBA"))
+            for layer in (f"locks_{race['id']}", top):
+                base.alpha_composite(Image.open(root / "art" / "sprites" / f"{layer}.png").convert("RGBA"))
             base = np.asarray(base).astype(float) / 255
             dressed = pp.recolor(base, item["recolor"]) if item.get("recolor") else base.copy()
             dressed = apply(base, dressed, item.get("wear"), item.get("accent"), pattern=item.get("pattern"))
