@@ -169,6 +169,12 @@ for map_def in maps.values():
         if npc["role"] == "boss":
             check(monsters.get(npc.get("monster"), {}).get("boss") is True, f"boss {npc['id']} → unknown boss {npc.get('monster')}")
 
+# Every monster can be met somewhere: on a map's encounter table, or standing there as a boss.
+met = {monster for m in maps.values() for monster in (m.get("encounters") or {}).get("monsters", {})}
+met |= {npc["monster"] for npc in npcs.values() if npc["role"] == "boss" and npc.get("monster")}
+for monster_id in monsters:
+    check(monster_id in met, f"monster {monster_id} → on no map's encounter table and not a boss, so it can never be met")
+
 for item in items.values():
     if item.get("art"):
         check(item["art"] in art, f"item {item['id']} → unknown art {item['art']}")

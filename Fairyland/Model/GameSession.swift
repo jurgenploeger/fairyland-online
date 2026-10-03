@@ -300,7 +300,7 @@ final class GameSession {
     // MARK: - Skills
     //
     // Every level gives a skill point. Your class unlocks new skills at milestone levels;
-    // a point either learns one of those or raises a skill you know (up to level 5).
+    // a point either learns one of those or raises a skill you know (up to level 10).
 
     /// Skills you've learned that your current class uses.
     var heroSkills: [SkillDef] {

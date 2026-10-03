@@ -104,7 +104,8 @@ nonisolated struct SaveData: Codable, Sendable {
     /// Adventurers you've befriended, and which of them travel with you.
     var friends: [Adventurer]?
     var partyIDs: [UUID]?
-    /// Bosses you've beaten (their NPC ids); they don't come back.
+    /// Bosses you've ever beaten (their NPC ids). They're back for a rematch on your next visit
+    /// (`GameSession.bossesBeatenHere`).
     var defeatedBosses: [String]?
     /// Maps you've set foot on, for the world map.
     var visitedMaps: [String]?

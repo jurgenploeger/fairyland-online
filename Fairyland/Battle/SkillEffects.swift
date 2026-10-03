@@ -1,9 +1,10 @@
 import SpriteKit
 import UIKit
 
-/// Battle effects, one per skill `animation` in content/skills.json. Every effect grows with the
-/// skill's level (1–5): longer beams, more particles, bigger explosions; on top of that, upgraded
-/// skills gather power first and land in glory (`charge`, `glory`, `masterBanner`).
+/// Battle effects, one per skill `animation` in content/skills.json. Every effect grows in five
+/// tiers (`level` 1–5, one per two skill levels, see BattleScene): longer beams, more particles,
+/// bigger explosions; on top of that, upgraded skills gather power first and land in glory
+/// (`charge`, `glory`, `masterBanner`).
 enum SkillEffects {
     static let healGreen = UIColor(red: 0.55, green: 1, blue: 0.6, alpha: 1)
 

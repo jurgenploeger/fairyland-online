@@ -338,7 +338,7 @@ private struct CompanionsTab: View {
 
     private var companions: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Companions fight beside you and earn a share of battle EXP. Weaken a wild monster below half HP and use Capture to befriend it (up to \(GameSession.maxPets)).")
+            Text("Companions fight beside you and earn a share of battle EXP. Weaken the last wild monster standing to \(Int((BattleEngine.captureThreshold * 100).rounded()))% HP or less and use Capture to befriend it (up to \(GameSession.maxPets)).")
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
             if session.data.pets.isEmpty {

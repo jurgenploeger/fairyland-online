@@ -323,6 +323,8 @@ final class BattleEngine {
             events.append(.fled(actor.id))
 
         case .defend:
+            // On guard for the rest of the round (the hero's guard is up from the start of it).
+            mutate(actor.id) { $0.isDefending = true }
             events.append(.defend(actor: actor.id))
 
         case .escape:
