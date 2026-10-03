@@ -111,7 +111,8 @@ private struct StatusCluster: View {
             }
             if let pet = session.activePet {
                 let petStats = session.stats(of: pet)
-                PortraitRow(face: ArtLibrary.shared.face(session.artID(for: pet)), level: pet.level, name: pet.name, size: 38) {
+                PortraitRow(face: ArtLibrary.shared.face(session.artID(for: pet)), level: pet.level, name: pet.name,
+                            detail: pet.hp > 0 ? nil : "Fainted", size: 38) {
                     TaggedBar(tag: "H", value: pet.hp, maximum: petStats.hp, color: HUDStyle.pet)
                     TaggedBar(tag: "M", value: pet.mp, maximum: petStats.mp, color: HUDStyle.mp)
                 }

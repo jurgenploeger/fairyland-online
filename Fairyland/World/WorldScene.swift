@@ -795,9 +795,10 @@ final class WorldScene: SKScene {
     private var followerKey: String?
     private var heroKey: String?
 
-    /// Keeps the companion in sync: switched, renamed or recoloured.
+    /// Keeps the companion in sync: switched, renamed or recoloured. A fainted one stays out of
+    /// sight until it's healed.
     private func refreshFollower() {
-        let pet = session.activePet
+        let pet = session.activePet.flatMap { $0.hp > 0 ? $0 : nil }
         let key = pet.map { "\($0.id)|\($0.name)" }
         guard key != followerKey else { return }
         followerKey = key

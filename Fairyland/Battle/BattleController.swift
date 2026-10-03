@@ -436,7 +436,8 @@ final class BattleController {
         }
         for fighter in engine.combatants {
             guard let petID = fighter.petID, let index = session.data.pets.firstIndex(where: { $0.id == petID }) else { continue }
-            session.data.pets[index].hp = max(1, fighter.hp)
+            // A companion that fainted stays down until a potion or a healer wakes it up.
+            session.data.pets[index].hp = max(0, fighter.hp)
             session.data.pets[index].mp = fighter.mp
         }
     }
@@ -479,11 +480,16 @@ final class BattleController {
             }
         }
 
-        if let petID = engine.combatants.first(where: { $0.petID != nil })?.petID,
+        if let fighter = engine.combatants.first(where: { $0.petID != nil }), let petID = fighter.petID,
            let pet = session.data.pets.first(where: { $0.id == petID }) {
-            let share = Int((Double(exp) * (session.heroClass.petExpShare ?? 0.5)).rounded())
-            if session.gainPetEXP(petID, share) > 0, let updated = session.data.pets.first(where: { $0.id == petID }) {
-                lines.append("\(pet.name) grew to level \(updated.level)!")
+            if fighter.hp <= 0 {
+                // Fainted companions earn nothing and sit out until they're healed.
+                lines.append("\(pet.name) needs rest: use a potion or visit a healer.")
+            } else {
+                let share = Int((Double(exp) * (session.heroClass.petExpShare ?? 0.5)).rounded())
+                if session.gainPetEXP(petID, share) > 0, let updated = session.data.pets.first(where: { $0.id == petID }) {
+                    lines.append("\(pet.name) grew to level \(updated.level)!")
+                }
             }
         }
 

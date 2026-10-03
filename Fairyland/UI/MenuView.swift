@@ -459,6 +459,11 @@ private struct CompanionCard: View {
                     .font(HUDStyle.font(11))
                     .foregroundStyle(HUDStyle.gold)
                 StatBar(label: "HP", value: pet.hp, maximum: stats.hp, color: HUDStyle.hp)
+                if pet.hp <= 0 {
+                    Text("Fainted: use a potion or visit a healer.")
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.orange)
+                }
                 StatBar(label: "EXP", value: pet.exp, maximum: GameSession.expToNext(level: pet.level), color: HUDStyle.exp)
                 Text("ATK \(stats.attack) · DEF \(stats.defense) · MAG \(stats.magic) · SPD \(stats.speed)")
                     .font(HUDStyle.font(10))
