@@ -6,6 +6,7 @@
       "date": "2026-10-03",
       "title": "Into the mist",
       "notes": [
+        "Fixed a crash when continuing a game saved before 0.2.0 with friends in it.",
         "The land beyond each map's edge now fades into a soft mist (a deep gloom in caves) instead of black.",
         "A companion that faints stays down after the battle: it sits out fights and stops following you until a potion or a healer wakes it up, and earns no EXP from that fight.",
         "Fixed the intro's first page running off the screen."

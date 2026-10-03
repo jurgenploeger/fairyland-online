@@ -229,8 +229,13 @@ final class GameSession {
             data.pets[index].hp = stats.hp
             data.pets[index].mp = stats.mp
         }
-        for index in (data.friends ?? []).indices {
-            data.friends?[index].level = Self.stretchedLevel(data.friends?[index].level ?? 1)
+        // Read first, then write: `data.friends?[i].level = f(data…)` reads `data` while the
+        // optional-chained write already holds it, which Swift's exclusivity check aborts on.
+        if var friends = data.friends {
+            for index in friends.indices {
+                friends[index].level = Self.stretchedLevel(friends[index].level)
+            }
+            data.friends = friends
         }
         restoreHero()
         post("The world grew bigger! You're now level \(data.hero.level).", .reward)
