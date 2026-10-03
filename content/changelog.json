@@ -14,7 +14,8 @@
         "Skill levels show as a ten-segment gauge that warms from bronze to silver to gold, and shimmers in rainbow colours once mastered.",
         "Battles face off across the screen's diagonal: monsters up on the left looking down at you, your party lower on the right looking back up at them, both lines centred.",
         "The victory card shows EXP with a star and gold with coins, and what you found as little item pictures with counts, instead of a list of lines.",
-        "In battle every fighter with MP shows a blue MP bar under their HP bar, and pinned skill buttons are labelled with the skill's name (cut short with … if it's long) instead of its MP cost."
+        "In battle every fighter with MP shows a blue MP bar under their HP bar, and pinned skill buttons are labelled with the skill's name (cut short with … if it's long) instead of its MP cost.",
+        "The world map is turned like the game's view, with a compass: north is up-left and east is up-right, so the road you take off the top-right of the screen leads to the place up-right on the map."
       ]
     },
     {

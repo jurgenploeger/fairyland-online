@@ -14,6 +14,7 @@ import Foundation
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
 ///   menu=<tab>     open character | companions | bag | quests
 ///   npc=<id>       open an NPC dialog
+///   worldmap       open the world map
 ///   landscape      lock the app to landscape
 enum DebugLaunch {
     private static var flags: [String: String] {
@@ -112,6 +113,9 @@ enum DebugLaunch {
         }
         if let npc = flags["npc"] {
             coordinator.open(.npc(npc))
+        }
+        if flags["worldmap"] != nil {
+            coordinator.open(.worldMap)
         }
     }
 }
