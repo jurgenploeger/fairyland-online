@@ -8,7 +8,8 @@
       "notes": [
         "Loading screens show a blue bar with a percentage instead of a spinner. The map is built a piece at a time behind it, so the bar moves as the ground, scenery, buildings and people go up.",
         "In battle, names are smaller and sit right on top of each fighter's HP bar, so the field isn't covered in big labels.",
-        "Tap a quest in the Quests list to see its reward: gold, EXP, items with their icons, new looks and roads it opens. Tap a completed quest to see what it said and what you earned."
+        "Tap a quest in the Quests list to see its reward: gold, EXP, items with their icons, new looks and roads it opens. Tap a completed quest to see what it said and what you earned.",
+        "The title screen shows your active companion walking beside your hero."
       ]
     },
     {
