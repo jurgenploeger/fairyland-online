@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Battle HUD: log line and party status on top, a round command wheel bottom-right,
-/// results at the end.
+/// Battle HUD: the log line on top, a round command wheel bottom-right, results at the end.
+/// Names, levels, HP and the hero's MP sit on the fighters themselves.
 struct BattleView: View {
     let controller: BattleController
 
@@ -18,10 +18,6 @@ struct BattleView: View {
                     .frame(maxWidth: 520)
                     .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2)))
 
-                HStack {
-                    PartyStatus(party: controller.party)
-                    Spacer()
-                }
                 Spacer()
             }
             .padding(.horizontal, 10)
@@ -374,34 +370,6 @@ private struct ChoiceRow<Label: View>: View {
 }
 
 // MARK: - Status & results
-
-private struct PartyStatus: View {
-    let party: [Combatant]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            ForEach(party) { fighter in
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(fighter.name)  Lv \(fighter.level)")
-                        .font(HUDStyle.font(11))
-                        .foregroundStyle(fighter.isHero ? HUDStyle.cream : HUDStyle.green)
-                    StatBar(label: "HP", value: fighter.hp, maximum: fighter.stats.hp, color: HUDStyle.hp, labelWidth: 20)
-                    if fighter.isHero {
-                        StatBar(label: "MP", value: fighter.mp, maximum: fighter.stats.mp, color: HUDStyle.mp, labelWidth: 20)
-                    }
-                }
-                .opacity(fighter.isAlive ? 1 : 0.45)
-            }
-        }
-        .frame(width: 170)
-        .padding(10)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(HUDStyle.ink.opacity(0.85))
-                .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(HUDStyle.cream.opacity(0.7), lineWidth: 2))
-        )
-    }
-}
 
 private struct ResultPanel: View {
     let result: BattleResult
