@@ -939,7 +939,7 @@
           "hi_potion"
         ]
       },
-      "minLevel": 7
+      "minLevel": 21
     },
     {
       "id": "great_wisp",
@@ -962,7 +962,7 @@
           "ether"
         ]
       },
-      "minLevel": 13
+      "minLevel": 41
     },
     {
       "id": "moon_queen",
@@ -986,7 +986,7 @@
           "hi_potion"
         ]
       },
-      "minLevel": 29
+      "minLevel": 95
     }
   ]
 }

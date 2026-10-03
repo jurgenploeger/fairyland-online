@@ -2633,7 +2633,7 @@
           "y": -13,
           "greeting": "Hrmph. Stop smiling at me. STOP IT.",
           "monster": "grumpy_oak",
-          "level": 8
+          "level": 28
         }
       ]
     },
@@ -4557,7 +4557,7 @@
           "y": 15,
           "greeting": "Ooooh, follow the pretty light... just a little further... hee hee!",
           "monster": "great_wisp",
-          "level": 15
+          "level": 48
         }
       ]
     },
@@ -6448,7 +6448,7 @@
           "y": -16,
           "greeting": "Who stole my moon-mochi? Was it YOU? Hop to it and face me!",
           "monster": "moon_rabbit_queen",
-          "level": 32
+          "level": 105
         }
       ]
     },

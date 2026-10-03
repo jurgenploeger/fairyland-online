@@ -2940,7 +2940,7 @@
       "classes": [
         "tamer"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Dyed in wild berries. Rare spoils from the Rat King.",
       "wear": "cloak",
       "sheets": {
@@ -2974,7 +2974,7 @@
       "classes": [
         "fighter"
       ],
-      "level": 12,
+      "level": 38,
       "recolor": [
         {
           "hue": [
@@ -3020,7 +3020,7 @@
         "defense": 28,
         "hp": 50
       },
-      "level": 20,
+      "level": 65,
       "recolor": [
         {
           "hue": [
@@ -3065,7 +3065,7 @@
         "defense": 28,
         "hp": 50
       },
-      "level": 20,
+      "level": 65,
       "recolor": [
         {
           "hue": [
@@ -3109,7 +3109,7 @@
         "defense": 30,
         "magic": 10
       },
-      "level": 24,
+      "level": 78,
       "recolor": [
         {
           "hue": [
@@ -3153,7 +3153,7 @@
         "defense": 30,
         "magic": 10
       },
-      "level": 24,
+      "level": 78,
       "recolor": [
         {
           "hue": [
@@ -3267,7 +3267,7 @@
       "classes": [
         "fighter"
       ],
-      "level": 5,
+      "level": 14,
       "description": "Every link dipped in wisp-light. Rare spoils from the Great Wisp.",
       "wear": "mail"
     },
@@ -3298,7 +3298,7 @@
       "classes": [
         "mage"
       ],
-      "level": 5,
+      "level": 14,
       "description": "The colour of the sky just before sunrise. Left behind by the Great Wisp.",
       "wear": "robe",
       "accent": "#F2C230"
@@ -3318,7 +3318,7 @@
       "classes": [
         "mage"
       ],
-      "level": 12,
+      "level": 38,
       "recolor": [
         {
           "hue": [
@@ -3350,7 +3350,7 @@
       "classes": [
         "tamer"
       ],
-      "level": 12,
+      "level": 38,
       "recolor": [
         {
           "hue": [
