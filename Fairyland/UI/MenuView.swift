@@ -622,12 +622,7 @@ private struct QuestsTab: View {
             if !session.completedQuests.isEmpty {
                 SectionTitle(text: "Completed")
                 ForEach(session.completedQuests) { quest in
-                    HStack(spacing: 8) {
-                        GiverFace(npcID: quest.giver, size: 24)
-                        Label(quest.title, icon: .badgeCheck)
-                            .font(HUDStyle.font(12))
-                            .foregroundStyle(HUDStyle.dim)
-                    }
+                    CompletedQuestRow(session: session, quest: quest)
                 }
             }
         }
@@ -638,7 +633,9 @@ struct QuestRow: View {
     let session: GameSession
     let quest: QuestDef
     /// Who asked and where they live (the Quests list; not while you're talking to them).
+    /// In the list a tap also shows what the quest pays.
     var showsGiver = false
+    @State private var expanded = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -663,10 +660,144 @@ struct QuestRow: View {
                         .foregroundStyle(HUDStyle.gold.opacity(0.85))
                 }
                 Text(quest.description).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                if showsGiver {
+                    if expanded {
+                        QuestRewardsView(session: session, quest: quest, earned: false)
+                            .padding(.top, 4)
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                    } else {
+                        Label("Tap to see the reward", icon: .gift, size: 12)
+                            .font(HUDStyle.font(10))
+                            .foregroundStyle(HUDStyle.gold.opacity(0.7))
+                            .padding(.top, 2)
+                    }
+                }
             }
         }
         .padding(8)
-        .background(RoundedRectangle(cornerRadius: 6).fill(.white.opacity(0.05)))
+        .background(RoundedRectangle(cornerRadius: 6).fill(.white.opacity(expanded ? 0.09 : 0.05)))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            guard showsGiver else { return }
+            withAnimation(.easeOut(duration: 0.2)) { expanded.toggle() }
+        }
+        .accessibilityAddTraits(showsGiver ? .isButton : [])
+        .accessibilityHint(showsGiver ? (expanded ? "Hides the reward" : "Shows the reward") : "")
+    }
+}
+
+/// A finished quest: who gave it and its name; a tap shows what it said and what you earned.
+private struct CompletedQuestRow: View {
+    let session: GameSession
+    let quest: QuestDef
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                GiverFace(npcID: quest.giver, size: 24)
+                Label(quest.title, icon: .badgeCheck)
+                    .font(HUDStyle.font(12))
+                    .foregroundStyle(HUDStyle.dim)
+                Spacer()
+                IconImage(expanded ? .chevronUp : .chevronDown, size: 12)
+                    .foregroundStyle(HUDStyle.dim)
+            }
+            if expanded {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(quest.description).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                    QuestRewardsView(session: session, quest: quest, earned: true)
+                }
+                .padding(.leading, 32)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .padding(.vertical, expanded ? 6 : 0)
+        .contentShape(Rectangle())
+        .onTapGesture { withAnimation(.easeOut(duration: 0.2)) { expanded.toggle() } }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint(expanded ? "Hides what you earned" : "Shows what you earned")
+    }
+}
+
+/// What a quest pays: gold, EXP, items (with their icons), new looks and roads it opens.
+/// `earned` words it for a quest you've finished.
+struct QuestRewardsView: View {
+    let session: GameSession
+    let quest: QuestDef
+    let earned: Bool
+
+    private struct RewardItem: Identifiable {
+        let item: ItemDef
+        var count: Int
+        var id: String { item.id }
+    }
+
+    /// Items in reward order, repeats counted ("Potion ×2").
+    private var items: [RewardItem] {
+        var result: [RewardItem] = []
+        for id in quest.reward.items ?? [] {
+            guard let item = session.content.item(id) else { continue }
+            if let index = result.firstIndex(where: { $0.id == id }) {
+                result[index].count += 1
+            } else {
+                result.append(RewardItem(item: item, count: 1))
+            }
+        }
+        return result
+    }
+
+    private var looks: [String] {
+        let content = session.content
+        return [("hair", content.appearance.hair), ("outfit", content.appearance.outfits)]
+            .flatMap { kind, presets in presets.filter { $0.unlock == quest.id }.map { "\($0.name) \(kind)" } }
+    }
+
+    private var roads: [String] {
+        let content = session.content
+        return content.maps.flatMap { map in
+            map.exits.filter { $0.requires == quest.id }.map { "\(map.name) → \(content.map($0.to)?.name ?? $0.to)" }
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(earned ? "You earned" : "Reward")
+                .font(HUDStyle.font(10))
+                .foregroundStyle(HUDStyle.gold)
+            HStack(spacing: 12) {
+                if let gold = quest.reward.gold, gold > 0 {
+                    Label("\(gold)", icon: .coins, size: 14)
+                }
+                if let exp = quest.reward.exp, exp > 0 {
+                    Label("\(exp) EXP", icon: .star, size: 14)
+                }
+            }
+            .font(HUDStyle.font(12))
+            .foregroundStyle(HUDStyle.cream)
+            ForEach(items) { entry in
+                HStack(spacing: 6) {
+                    ItemIcon(item: entry.item, size: 22)
+                    Text(entry.count > 1 ? "\(entry.item.name) ×\(entry.count)" : entry.item.name)
+                        .font(HUDStyle.font(11))
+                        .foregroundStyle(HUDStyle.cream)
+                }
+            }
+            ForEach(looks, id: \.self) { look in
+                Label("New look: \(look)", icon: .palette, size: 14)
+                    .font(HUDStyle.font(11))
+                    .foregroundStyle(HUDStyle.cream)
+            }
+            ForEach(roads, id: \.self) { road in
+                Label("\(earned ? "Opened" : "Opens") the road \(road)", icon: .map, size: 14)
+                    .font(HUDStyle.font(11))
+                    .foregroundStyle(HUDStyle.cream)
+            }
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 6).fill(HUDStyle.ink.opacity(0.35)))
     }
 }
 
