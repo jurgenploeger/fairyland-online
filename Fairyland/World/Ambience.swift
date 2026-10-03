@@ -312,7 +312,7 @@ enum SoftTextures {
         return canvas.texture()
     }
 
-    private static func radial(size: CGFloat, colors: [UIColor]) -> SKTexture {
+    static func radial(size: CGFloat, colors: [UIColor]) -> SKTexture {
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         let image = UIGraphicsImageRenderer(size: CGSize(width: size, height: size), format: format).image { context in

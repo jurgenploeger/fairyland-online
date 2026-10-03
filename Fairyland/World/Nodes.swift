@@ -278,79 +278,128 @@ enum Effects {
         ]))
     }
 
-    /// Big bouncy damage numbers.
+    /// How a hit looks: an ordinary blow, a critical, a splash on a neighbour, or a heal.
     enum BurstStyle {
         case normal, critical, heal, splash
-
-        var colors: (fill: UIColor, rim: UIColor, text: UIColor) {
-            switch self {
-            case .normal: (UIColor(red: 1, green: 0.97, blue: 0.75, alpha: 1), UIColor(red: 1, green: 0.72, blue: 0.2, alpha: 1), Nodes.ink)
-            case .critical: (UIColor(red: 1, green: 0.55, blue: 0.2, alpha: 1), UIColor(red: 0.9, green: 0.15, blue: 0.2, alpha: 1), .white)
-            case .heal: (UIColor(red: 0.8, green: 1, blue: 0.78, alpha: 1), UIColor(red: 0.3, green: 0.78, blue: 0.4, alpha: 1), Nodes.ink)
-            case .splash: (UIColor(red: 0.93, green: 0.93, blue: 1, alpha: 1), UIColor(red: 0.6, green: 0.62, blue: 0.85, alpha: 1), Nodes.ink)
-            }
-        }
-
-        var size: CGFloat {
-            switch self {
-            case .critical: 64
-            case .splash: 38
-            default: 50
-            }
-        }
     }
 
-    /// A damage (or heal) number bursting out of a little comic "pow!" star.
+    /// A hit lands: a fireball blooms where it struck (hot white core, orange flame, flying embers,
+    /// a wisp of smoke) and the number pops out above it. Heals get a soft green glow instead.
     static func damageBurst(_ text: String, style: BurstStyle, at point: CGPoint, in parent: SKNode) {
-        let image = burstImage(text, style: style)
-        let texture = SKTexture(image: image)
-        let node = SKSpriteNode(texture: texture, size: image.size)
-        node.position = point + CGVector(dx: .random(in: -10...10), dy: 6)
-        node.zPosition = 21_000
-        node.setScale(0.2)
-        node.zRotation = .random(in: -0.18...0.18)
-        parent.addChild(node)
-        let pop = SKAction.sequence([.scale(to: style == .critical ? 1.3 : 1.18, duration: 0.09), .scale(to: 1, duration: 0.08)])
-        let rise = SKAction.moveBy(x: 0, y: 22, duration: 0.55)
-        rise.timingMode = .easeOut
-        node.run(.sequence([pop, .wait(forDuration: 0.3), .group([rise, .fadeOut(withDuration: 0.55), .scale(to: 0.85, duration: 0.55)]), .removeFromParent()]))
+        let impact = point + CGVector(dx: .random(in: -6...6), dy: -14)
+        switch style {
+        case .heal: healGlow(at: impact, in: parent)
+        case .normal: fireball(at: impact, in: parent, power: 1)
+        case .critical: fireball(at: impact, in: parent, power: 1.6)
+        case .splash: fireball(at: impact, in: parent, power: 0.6)
+        }
+        hitNumber(text, style: style, at: impact + CGVector(dx: 0, dy: 16), in: parent)
     }
 
-    private static func burstImage(_ text: String, style: BurstStyle) -> UIImage {
-        let side = style.size
-        let (fill, rim, textColor) = style.colors
-        let fontSize = side * (text.count > 3 ? 0.3 : 0.36)
-        let base = UIFont.systemFont(ofSize: fontSize, weight: .black)
-        let font = base.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: fontSize) } ?? base
-        let label = NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: textColor])
-        let outline = NSAttributedString(string: text, attributes: [.font: font, .strokeColor: textColor == .white ? Nodes.ink : UIColor.white, .strokeWidth: 22])
-        let textSize = label.size()
-        let width = max(side, textSize.width + side * 0.55)
-        let canvas = CGSize(width: width + 4, height: side + 4)
-        return UIGraphicsImageRenderer(size: canvas).image { _ in
-            let center = CGPoint(x: canvas.width / 2, y: canvas.height / 2)
-            let points = style == .critical ? 14 : 11
-            let star = UIBezierPath()
-            for index in 0..<(points * 2) {
-                let angle = CGFloat(index) / CGFloat(points * 2) * 2 * .pi - .pi / 2
-                // Uneven spikes look hand-drawn.
-                let reach: CGFloat = index.isMultiple(of: 2) ? (index % 4 == 0 ? 1 : 0.86) : 0.62
-                let p = CGPoint(x: center.x + cos(angle) * width / 2 * reach, y: center.y + sin(angle) * side / 2 * reach)
-                index == 0 ? star.move(to: p) : star.addLine(to: p)
-            }
-            star.close()
-            rim.setFill()
-            star.fill()
-            let inner = UIBezierPath(ovalIn: CGRect(x: center.x - width * 0.3, y: center.y - side * 0.28, width: width * 0.6, height: side * 0.56))
-            fill.setFill()
-            inner.fill()
-            Nodes.ink.withAlphaComponent(0.85).setStroke()
-            star.lineWidth = 2
-            star.stroke()
-            let origin = CGPoint(x: center.x - textSize.width / 2, y: center.y - textSize.height / 2)
-            outline.draw(at: origin)
-            label.draw(at: origin)
+    private static let fireCore = SoftTextures.radial(size: 64, colors: [
+        .white, UIColor(red: 1, green: 0.95, blue: 0.7, alpha: 1), UIColor(red: 1, green: 0.75, blue: 0.25, alpha: 0.9),
+        UIColor(red: 1, green: 0.4, blue: 0.1, alpha: 0.5), UIColor(red: 0.9, green: 0.2, blue: 0.05, alpha: 0),
+    ])
+    private static let flame = SoftTextures.radial(size: 32, colors: [
+        UIColor(red: 1, green: 0.9, blue: 0.55, alpha: 1), UIColor(red: 1, green: 0.55, blue: 0.15, alpha: 0.85),
+        UIColor(red: 0.85, green: 0.2, blue: 0.05, alpha: 0),
+    ])
+    private static let smoke = SoftTextures.radial(size: 48, colors: [
+        UIColor(white: 0.35, alpha: 0.55), UIColor(white: 0.3, alpha: 0.3), UIColor(white: 0.25, alpha: 0),
+    ])
+    private static let greenGlow = SoftTextures.radial(size: 64, colors: [
+        UIColor(red: 0.9, green: 1, blue: 0.9, alpha: 1), UIColor(red: 0.45, green: 0.95, blue: 0.5, alpha: 0.7),
+        UIColor(red: 0.2, green: 0.8, blue: 0.35, alpha: 0),
+    ])
+
+    private static func fireball(at point: CGPoint, in parent: SKNode, power: CGFloat) {
+        // Smoke first, so the fire draws over it.
+        for _ in 0..<Int(3 * power + 1) {
+            let puff = SKSpriteNode(texture: smoke, size: CGSize(width: 34, height: 34) * power)
+            puff.position = point + CGVector(dx: CGFloat.random(in: -10...10) * power, dy: .random(in: -4...6))
+            puff.zPosition = 20_500
+            puff.alpha = 0
+            puff.setScale(0.6)
+            parent.addChild(puff)
+            let drift = SKAction.moveBy(x: .random(in: -10...10), y: CGFloat.random(in: 18...34) * power, duration: 0.9)
+            drift.timingMode = .easeOut
+            puff.run(.sequence([.wait(forDuration: 0.08), .group([drift, .scale(to: 1.5, duration: 0.9),
+                .sequence([.fadeAlpha(to: 0.8, duration: 0.12), .fadeOut(withDuration: 0.75)])]), .removeFromParent()]))
         }
+        // The bloom: a hot core that swells and burns out.
+        let core = SKSpriteNode(texture: fireCore, size: CGSize(width: 70, height: 70) * power)
+        core.position = point
+        core.zPosition = 20_600
+        core.blendMode = .add
+        core.setScale(0.25)
+        parent.addChild(core)
+        let swell = SKAction.scale(to: 1.15, duration: 0.14)
+        swell.timingMode = .easeOut
+        core.run(.sequence([swell, .group([.scale(to: 1.35, duration: 0.3), .fadeOut(withDuration: 0.3)]), .removeFromParent()]))
+        // Tongues of flame thrown outward.
+        let tongues = Int(8 * power)
+        for index in 0..<tongues {
+            let angle = CGFloat(index) / CGFloat(tongues) * 2 * .pi + .random(in: -0.3...0.3)
+            let reach = CGFloat.random(in: 18...34) * power
+            let bit = SKSpriteNode(texture: flame, size: CGSize(width: 22, height: 22) * CGFloat.random(in: 0.7...1.2) * power)
+            bit.position = point
+            bit.zPosition = 20_650
+            bit.blendMode = .add
+            parent.addChild(bit)
+            let fly = SKAction.moveBy(x: cos(angle) * reach, y: sin(angle) * reach * 0.75 + 6, duration: 0.32)
+            fly.timingMode = .easeOut
+            bit.run(.sequence([.group([fly, .scale(to: 0.3, duration: 0.32), .fadeOut(withDuration: 0.32)]), .removeFromParent()]))
+        }
+        // Embers: tiny sparks that arc out and fall.
+        for _ in 0..<Int(6 * power) {
+            let ember = SKSpriteNode(color: UIColor(red: 1, green: .random(in: 0.6...0.9), blue: 0.3, alpha: 1), size: CGSize(width: 2.5, height: 2.5))
+            ember.position = point
+            ember.zPosition = 20_700
+            ember.blendMode = .add
+            parent.addChild(ember)
+            let dx = CGFloat.random(in: -40...40) * power
+            let up = SKAction.moveBy(x: dx * 0.6, y: CGFloat.random(in: 14...30) * power, duration: 0.25)
+            up.timingMode = .easeOut
+            let down = SKAction.moveBy(x: dx * 0.4, y: -CGFloat.random(in: 18...30), duration: 0.35)
+            down.timingMode = .easeIn
+            ember.run(.sequence([up, .group([down, .fadeOut(withDuration: 0.35)]), .removeFromParent()]))
+        }
+    }
+
+    private static func healGlow(at point: CGPoint, in parent: SKNode) {
+        let glow = SKSpriteNode(texture: greenGlow, size: CGSize(width: 60, height: 60))
+        glow.position = point
+        glow.zPosition = 20_600
+        glow.blendMode = .add
+        glow.setScale(0.4)
+        parent.addChild(glow)
+        glow.run(.sequence([.group([.scale(to: 1.2, duration: 0.35), .sequence([.wait(forDuration: 0.15), .fadeOut(withDuration: 0.35)])]), .removeFromParent()]))
+    }
+
+    /// The number itself: bold, outlined, popping up and drifting away.
+    private static func hitNumber(_ text: String, style: BurstStyle, at point: CGPoint, in parent: SKNode) {
+        let color: UIColor = switch style {
+        case .normal: UIColor(red: 1, green: 0.95, blue: 0.82, alpha: 1)
+        case .critical: UIColor(red: 1, green: 0.62, blue: 0.2, alpha: 1)
+        case .heal: UIColor(red: 0.6, green: 1, blue: 0.62, alpha: 1)
+        case .splash: UIColor(red: 0.88, green: 0.88, blue: 0.95, alpha: 1)
+        }
+        let size: CGFloat = switch style {
+        case .critical: 30
+        case .splash: 17
+        default: 23
+        }
+        let label = SKLabelNode()
+        label.attributedText = Nodes.outlined(text, size: size, color: color)
+        label.verticalAlignmentMode = .center
+        label.position = point
+        label.zPosition = 21_000
+        label.setScale(0.3)
+        parent.addChild(label)
+        let pop = SKAction.sequence([.scale(to: style == .critical ? 1.3 : 1.15, duration: 0.09), .scale(to: 1, duration: 0.08)])
+        let rise = SKAction.moveBy(x: .random(in: -6...6), y: 26, duration: 0.6)
+        rise.timingMode = .easeOut
+        label.run(.sequence([pop, .wait(forDuration: 0.3), .group([rise, .fadeOut(withDuration: 0.6)]), .removeFromParent()]))
     }
 
     static func damageNumber(_ text: String, color: UIColor, at point: CGPoint, in parent: SKNode, big: Bool) {
