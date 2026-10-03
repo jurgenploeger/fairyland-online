@@ -394,12 +394,13 @@ private struct BattleCommand {
 /// The home-screen wiggle for buttons being rearranged, each a little out of step with the others.
 private struct Wiggle: ViewModifier {
     let active: Bool
-    @State private var phase = Double.random(in: 0...(2 * .pi))
+    @State private var speed = Double.random(in: 0.11...0.15)
 
     func body(content: Content) -> some View {
-        TimelineView(.animation(paused: !active)) { context in
-            let time = context.date.timeIntervalSinceReferenceDate
-            content.rotationEffect(.degrees(active ? sin(time * 22 + phase) * 2.5 : 0))
+        content.phaseAnimator([false, true]) { view, tilted in
+            view.rotationEffect(.degrees(active ? (tilted ? 2.5 : -2.5) : 0))
+        } animation: { _ in
+            .easeInOut(duration: speed)
         }
     }
 }
