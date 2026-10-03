@@ -11,7 +11,6 @@ struct TitleView: View {
     /// Your games, the last played first; the carousel shows one at a time.
     @State private var saves = SaveStore.all()
     @State private var selectedSlot: String?
-    @State private var confirmDelete = false
     @State private var showingChangelog = false
     @State private var showingSettings = false
     /// The story pages: before a new hero is made, or read from the title menu.
@@ -76,14 +75,6 @@ struct TitleView: View {
             }
         }
         .onAppear { MusicPlayer.shared.play("title") }
-        .alert("Delete this game?", isPresented: $confirmDelete) {
-            Button("Delete", role: .destructive) { deleteSelected() }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            if let save = selectedSave {
-                Text("\(save.hero.name), level \(save.hero.level), will be gone for good.")
-            }
-        }
     }
 
     private var menu: some View {
@@ -100,20 +91,9 @@ struct TitleView: View {
                     Label("Continue: \(save.hero.name), Lv \(save.hero.level)", icon: .play)
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
-                HStack(spacing: 10) {
-                    Text("Your progress saves automatically.")
-                        .font(HUDStyle.font(11))
-                        .foregroundStyle(HUDStyle.ink.opacity(0.6))
-                    Button {
-                        confirmDelete = true
-                    } label: {
-                        IconImage(.close, size: 12)
-                            .foregroundStyle(HUDStyle.ink.opacity(0.6))
-                            .frame(width: 28, height: 28)
-                            .background(Circle().fill(.white.opacity(0.4)))
-                    }
-                    .accessibilityLabel("Delete \(save.hero.name)'s game")
-                }
+                Text("Your progress saves automatically.")
+                    .font(HUDStyle.font(11))
+                    .foregroundStyle(HUDStyle.ink.opacity(0.6))
             }
             Button {
                 // A new game gets its own save, next to the others.
@@ -142,13 +122,6 @@ struct TitleView: View {
             }
             .buttonStyle(PixelButtonStyle(compact: true))
         }
-    }
-
-    private func deleteSelected() {
-        guard let slot = selectedSave?.slot else { return }
-        SaveStore.delete(slot: slot)
-        saves = SaveStore.all()
-        selectedSlot = saves.first?.slot
     }
 
     /// A new game opens with the story pages, then hero creation.

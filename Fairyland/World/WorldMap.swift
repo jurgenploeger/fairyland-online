@@ -878,8 +878,14 @@ final class WorldMap {
             ("desert", 0xE8C872), ("swamp", 0x5F6B32), ("forest", 0x3F7A3A),
             ("dark", 0x2E5E5A), ("sand", 0xF2D78F), ("shell", 0xF2D78F), ("town", 0xD8CDBB), ("path", 0xD9B77A),
         ]
+        // Once per tile id: `tileColor` averages a whole texture, far too slow to repeat for every cell
+        // (on a big map that stalled loading long enough for iOS to kill the app).
+        var colors: [String: PixelColor] = [:]
         func color(forTile id: String) -> PixelColor {
-            tileColor?(id) ?? PixelColor(tileColors.first { id.contains($0.0) }?.1 ?? 0x5DBB4C)
+            if let known = colors[id] { return known }
+            let value = tileColor?(id) ?? PixelColor(tileColors.first { id.contains($0.0) }?.1 ?? 0x5DBB4C)
+            colors[id] = value
+            return value
         }
         let theme = def.theme
         var canvas = PixelCanvas(width: columns, height: rows)
@@ -891,7 +897,7 @@ final class WorldMap {
                 case .accent: color(forTile: theme.accent ?? theme.ground).shaded(1.08)
                 case .path: tileColor == nil && theme.path == "tile_path" ? PixelColor(0xE8C98C) : color(forTile: theme.path).shaded(1.15)
                 case .border: color(forTile: theme.border ?? theme.ground)
-                case .water: tileColor?(theme.water ?? "tile_water") ?? PixelColor(0x4FA3E0)
+                case .water: tileColor == nil ? PixelColor(0x4FA3E0) : color(forTile: theme.water ?? "tile_water")
                 }
                 if rock.contains(cell) {
                     pixel = color(forTile: theme.cave?.rock ?? "cave_rock").shaded(0.5)
