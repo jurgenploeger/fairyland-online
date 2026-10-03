@@ -96,8 +96,6 @@ private struct CharacterTab: View {
     let session: GameSession
     @State private var changingSlot: ItemType?
     @State private var editing = false
-    @State private var renaming = false
-    @FocusState private var nameFocused: Bool
     @State private var draftName = ""
     @State private var draftLook = Look.standard
 
@@ -107,7 +105,9 @@ private struct CharacterTab: View {
         if editing {
             VStack(alignment: .leading, spacing: 12) {
                 SectionTitle(text: "Customize your hero")
-                LookEditor(name: $draftName, look: $draftLook, raceID: session.data.hero.raceID, isUnlocked: session.isUnlocked)
+                // Name and gender are set when the hero is made; looks stay changeable.
+                LookEditor(name: $draftName, look: $draftLook, raceID: session.data.hero.raceID, isUnlocked: session.isUnlocked,
+                           identityLocked: true)
                 HStack {
                     Button("Cancel") { editing = false }
                         .buttonStyle(PixelButtonStyle(compact: true))
@@ -126,57 +126,14 @@ private struct CharacterTab: View {
         }
     }
 
-    private func saveName() {
-        session.customizeHero(name: draftName, look: session.data.hero.look ?? .standard)
-        renaming = false
-    }
-
     @ViewBuilder
     private func overview(hero: Hero, stats: Stats) -> some View {
         AdaptiveStack(spacing: 18) {
             VStack(spacing: 6) {
                 SpriteImage(art: GameSession.heroArt, size: 156)
                     .background(Circle().fill(.white.opacity(0.06)))
-                if renaming {
-                    HStack(spacing: 6) {
-                        TextField("Name", text: $draftName)
-                            .textInputAutocapitalization(.words)
-                            .autocorrectionDisabled()
-                            .font(HUDStyle.font(16))
-                            .multilineTextAlignment(.center)
-                            .padding(.vertical, 6)
-                            .padding(.horizontal, 10)
-                            .frame(width: 140)
-                            .background(RoundedRectangle(cornerRadius: 8).fill(.white.opacity(0.12)))
-                            .focused($nameFocused)
-                            .submitLabel(.done)
-                            .onSubmit(saveName)
-                            .onChange(of: draftName) { _, value in
-                                if value.count > 12 { draftName = String(value.prefix(12)) }
-                            }
-                        Button(action: saveName) {
-                            IconImage(.check, size: 16)
-                                .foregroundStyle(HUDStyle.ink)
-                                .frame(width: 32, height: 32)
-                                .background(Circle().fill(HUDStyle.gold))
-                        }
-                        .buttonStyle(PressScaleStyle())
-                        .accessibilityLabel("Save name")
-                    }
-                } else {
-                    Button {
-                        draftName = hero.name
-                        renaming = true
-                        nameFocused = true
-                    } label: {
-                        HStack(spacing: 6) {
-                            Text(hero.name).font(HUDStyle.font(18))
-                            IconImage(.edit, size: 15).foregroundStyle(HUDStyle.gold)
-                        }
-                    }
-                    .buttonStyle(PressScaleStyle())
-                    .accessibilityLabel("Rename \(hero.name)")
-                }
+                // The name is chosen when the hero is made and stays.
+                Text(hero.name).font(HUDStyle.font(18))
                 Button {
                     draftName = hero.name
                     draftLook = hero.look ?? .standard
