@@ -115,6 +115,8 @@ nonisolated struct SaveData: Codable, Sendable {
     var pinnedSkills: [String]?
     /// Your order of the battle buttons (see `GameSession.battleButtons`).
     var battleButtons: [String]?
+    /// Trades already made with adventurers (`GameSession.TradeOffer.id`), so each offer is done once.
+    var tradesDone: [String]?
     /// Which save file this game lives in (SaveStore keeps one per game).
     var slot: String?
 }

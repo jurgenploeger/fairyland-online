@@ -154,39 +154,86 @@ private struct ShopPanel: View {
     let session: GameSession
     let stock: [String]
     @Binding var reply: String?
+    @State private var selling = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("\(session.data.gold) gold", icon: .coins)
-                .font(HUDStyle.font(12))
-                .foregroundStyle(HUDStyle.gold)
-            ForEach(stock.compactMap { session.content.item($0) }) { item in
-                HStack(spacing: 10) {
-                    ItemIcon(item: item, size: 36)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(item.name)
-                        let detail = item.type == .consumable ? (item.description ?? "") : "\(item.type.displayName) · \(item.stats?.bonusSummary ?? "")"
-                        Text(detail).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
-                        if item.type != .consumable, let issue = session.equipIssue(item) {
-                            Text(issue).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
-                        }
-                    }
-                    Spacer()
-                    if session.count(of: item.id) > 0 {
-                        Text("own \(session.count(of: item.id))").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
-                    }
-                    Button("\(item.price)g") {
-                        if session.buy(item.id) {
-                            session.post("Bought \(item.name).", .reward)
-                            reply = "Thanks! Enjoy your \(item.name)."
-                        } else {
-                            reply = "Hmm, you're a bit short on gold."
-                        }
-                    }
-                    .buttonStyle(PixelButtonStyle(tint: session.data.gold >= item.price ? HUDStyle.gold : HUDStyle.dim, compact: true))
-                }
-                .font(HUDStyle.font(12))
+            HStack {
+                Label("\(session.data.gold) gold", icon: .coins)
+                    .font(HUDStyle.font(12))
+                    .foregroundStyle(HUDStyle.gold)
+                Spacer()
+                Button("Buy") { selling = false }
+                    .buttonStyle(PixelButtonStyle(tint: selling ? HUDStyle.cream : HUDStyle.gold, compact: true))
+                Button("Sell") { selling = true }
+                    .buttonStyle(PixelButtonStyle(tint: selling ? HUDStyle.gold : HUDStyle.cream, compact: true))
             }
+            if selling {
+                sellList
+            } else {
+                buyList
+            }
+        }
+    }
+
+    private var buyList: some View {
+        ForEach(stock.compactMap { session.content.item($0) }) { item in
+            HStack(spacing: 10) {
+                ItemIcon(item: item, size: 36)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(item.name)
+                    let detail = item.type == .consumable ? (item.description ?? "") : "\(item.type.displayName) · \(item.stats?.bonusSummary ?? "")"
+                    Text(detail).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
+                    if item.type != .consumable, let issue = session.equipIssue(item) {
+                        Text(issue).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                    }
+                }
+                Spacer()
+                if session.count(of: item.id) > 0 {
+                    Text("own \(session.count(of: item.id))").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                }
+                Button("\(item.price)g") {
+                    if session.buy(item.id) {
+                        session.post("Bought \(item.name).", .reward)
+                        reply = "Thanks! Enjoy your \(item.name)."
+                    } else {
+                        reply = "Hmm, you're a bit short on gold."
+                    }
+                }
+                .buttonStyle(PixelButtonStyle(tint: session.data.gold >= item.price ? HUDStyle.gold : HUDStyle.dim, compact: true))
+            }
+            .font(HUDStyle.font(12))
+        }
+    }
+
+    /// Everything in your bag the shop will take, at half price. What you're wearing stays on.
+    @ViewBuilder
+    private var sellList: some View {
+        let items = session.sellableItems
+        if items.isEmpty {
+            Text("Nothing to sell. Monsters drop materials, and gear you've outgrown can come here.")
+                .font(HUDStyle.font(11))
+                .foregroundStyle(HUDStyle.dim)
+        }
+        ForEach(items) { item in
+            HStack(spacing: 10) {
+                ItemIcon(item: item, size: 36)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(item.name)
+                    Text("\(item.type.displayName) · you have \(session.count(of: item.id))")
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.dim)
+                }
+                Spacer()
+                Button("Sell \(GameSession.sellPrice(of: item))g") {
+                    if let paid = session.sell(item.id) {
+                        session.post("Sold \(item.name) for \(paid) gold.", .reward)
+                        reply = "A fine \(item.name)! Here's \(paid) gold."
+                    }
+                }
+                .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+            }
+            .font(HUDStyle.font(12))
         }
     }
 }

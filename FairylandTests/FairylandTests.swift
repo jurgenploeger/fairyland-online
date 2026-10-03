@@ -395,6 +395,33 @@ struct RulesTests {
         }
     }
 
+    @Test func shopsBuyBackAndAdventurersTrade() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let potion = try #require(Content.shared.item("potion"))
+        let gold = session.data.gold
+        let potions = session.count(of: "potion")
+        #expect(session.sell("potion") == GameSession.sellPrice(of: potion))
+        #expect(session.data.gold == gold + GameSession.sellPrice(of: potion))
+        #expect(session.count(of: "potion") == potions - 1)
+        #expect(session.sell("not_an_item") == nil)
+
+        let friend = Adventurer(name: "Mimi", raceID: "elf", classID: "mage", level: 10, look: .standard)
+        let offers = session.tradeOffers(with: friend)
+        // The same day gives the same offers.
+        #expect(offers.map(\.id) == session.tradeOffers(with: friend).map(\.id))
+        session.data.gold = 100_000
+        let deal = try #require(offers.first { $0.kind == .theySell })
+        #expect(session.trade(deal))
+        #expect(session.count(of: deal.item.id) >= 1)
+        // Each deal is made once.
+        #expect(!session.trade(deal))
+        #expect(!session.tradeOffers(with: friend).contains { $0.id == deal.id })
+        if let buy = offers.first(where: { $0.kind == .theyBuy }) {
+            // Adventurers pay more than the shop does.
+            #expect(buy.price > GameSession.sellPrice(of: buy.item))
+        }
+    }
+
     @Test func battleButtonsKeepYourOrder() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         #expect(session.battleButtons == GameSession.defaultBattleButtons)

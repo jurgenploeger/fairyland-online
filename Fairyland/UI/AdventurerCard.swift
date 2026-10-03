@@ -48,6 +48,10 @@ struct AdventurerCard: View {
                 } else if session.partyMembers.count >= GameSession.maxAllies {
                     Text("Your party is full").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                 }
+                if !adventurer.hostile {
+                    Button { coordinator.trade(with: adventurer) } label: { Label("Trade", icon: .coins, size: 13) }
+                        .buttonStyle(PixelButtonStyle(compact: true))
+                }
                 if danger {
                     Button { coordinator.challenge(adventurer) } label: { Label("Duel", icon: .sword, size: 13) }
                         .buttonStyle(PixelButtonStyle(tint: Color(red: 1, green: 0.55, blue: 0.5), compact: true))
