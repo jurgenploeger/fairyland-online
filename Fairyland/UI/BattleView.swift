@@ -118,10 +118,10 @@ struct BattleView: View {
 
 // MARK: - Commands
 
-/// A big button in the corner (Attack unless you change it), and beside it a column of round buttons
-/// built from the bottom up: More, then Skills, then whatever else turns up (Capture when a monster is
-/// weak enough, Items when someone is low on HP, pinned skills). Less-used commands hide behind More.
-/// Holding any button lets you rearrange them all.
+/// A big button in the corner (Attack unless you change it) with More on top of it, and to its left
+/// rows of round buttons filled from the bottom right: Skills, then whatever else turns up (Capture
+/// when a monster is weak enough, Items when someone is low on HP, pinned skills). Less-used commands
+/// hide behind More. Holding any button lets you rearrange them all.
 private struct CommandPad: View {
     let controller: BattleController
     @State private var showMore = false
@@ -163,22 +163,27 @@ private struct CommandPad: View {
     private var pad: some View {
         let (main, column, more) = sections
         return HStack(alignment: .bottom, spacing: 14) {
-            BottomUpColumns(maxRows: 4) {
+            // Rows beside the big button, filled right to left and wrapping upwards.
+            RightToLeftRows {
+                ForEach(showMore ? more : column, id: \.self) { id in
+                    button(id, size: buttonSize)
+                        .transition(.scale(scale: 0.2).combined(with: .opacity))
+                }
+            }
+            // More sits on top of the big button, always in the same spot.
+            VStack(spacing: 26) {
                 if !more.isEmpty {
                     RoundCommandButton(title: showMore ? "Close" : "More", icon: showMore ? .close : .more, size: buttonSize,
                                        tint: .quiet, onHold: arrange) {
                         showMore.toggle()
                     }
                 }
-                ForEach(showMore ? more : column, id: \.self) { id in
-                    button(id, size: buttonSize)
-                        .transition(.scale(scale: 0.2).combined(with: .opacity))
+                if let main {
+                    button(main, size: mainSize)
                 }
             }
-            if let main {
-                button(main, size: mainSize)
-            }
         }
+        .padding(.leading, 14)
         .animation(.spring(response: 0.38, dampingFraction: 0.72), value: showMore)
         .animation(.spring(response: 0.38, dampingFraction: 0.72), value: controller.canCapture)
         .animation(.spring(response: 0.38, dampingFraction: 0.72), value: controller.needsHealing)
@@ -193,7 +198,7 @@ private struct CommandPad: View {
     private func button(_ id: String, size: CGFloat) -> some View {
         let big = size == mainSize
         if id.hasPrefix("skill:"), let skill = controller.pinnedSkills.first(where: { "skill:\($0.id)" == id }) {
-            QuickSkillButton(controller: controller, skill: skill, size: big ? 74 : 46, onHold: arrange)
+            QuickSkillButton(controller: controller, skill: skill, size: size, onHold: arrange)
         } else {
             let info = BattleCommand(id)
             RoundCommandButton(title: info.title, icon: id == "items" && controller.needsHealing ? .heartPlus : info.icon,
@@ -351,57 +356,58 @@ private struct ArrangeButtonsCard: View {
     }
 }
 
-/// Stacks its views from the bottom up, centred in a column, and starts a new column to the left
-/// after `maxRows` (or sooner if the next one wouldn't fit the height it's offered).
-private struct BottomUpColumns: Layout {
-    var maxRows: Int
-    /// Room between buttons, so each label sits clear of the button above.
-    var spacing: CGFloat = 26
-    var columnSpacing: CGFloat = 14
+/// Lays its views out in rows from the bottom-right corner: right to left, and when a row is full,
+/// on up into the next one. Labels hang below the buttons, so rows leave room for them.
+private struct RightToLeftRows: Layout {
+    var spacing: CGFloat = 12
+    var rowSpacing: CGFloat = 26
 
-    private func columns(_ sizes: [CGSize], maxHeight: CGFloat) -> [[Int]] {
-        var columns: [[Int]] = [[]]
-        var height: CGFloat = 0
+    private func rows(_ sizes: [CGSize], maxWidth: CGFloat) -> [[Int]] {
+        var rows: [[Int]] = [[]]
+        var width: CGFloat = 0
         for (index, size) in sizes.enumerated() {
-            let column = columns[columns.count - 1]
-            let needed = column.isEmpty ? size.height : height + spacing + size.height
-            if !column.isEmpty, column.count >= maxRows || needed > maxHeight {
-                columns.append([index])
-                height = size.height
+            let row = rows[rows.count - 1]
+            let needed = row.isEmpty ? size.width : width + spacing + size.width
+            if !row.isEmpty, needed > maxWidth {
+                rows.append([index])
+                width = size.width
             } else {
-                columns[columns.count - 1].append(index)
-                height = needed
+                rows[rows.count - 1].append(index)
+                width = needed
             }
         }
-        return columns
+        return rows
     }
 
     private func measure(_ subviews: Subviews) -> [CGSize] {
         subviews.map { $0.sizeThatFits(.unspecified) }
     }
 
+    /// Without a width on offer, four buttons to a row.
+    private func maxWidth(_ proposal: ProposedViewSize, _ sizes: [CGSize]) -> CGFloat {
+        if let width = proposal.width, width.isFinite { return width }
+        return 4 * (sizes.first?.width ?? 56) + 3 * spacing
+    }
+
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let sizes = measure(subviews)
-        let columns = columns(sizes, maxHeight: proposal.height ?? .infinity)
-        let widths = columns.map { $0.map { sizes[$0].width }.max() ?? 0 }
-        let heights = columns.map { column in
-            column.map { sizes[$0].height }.reduce(0, +) + spacing * CGFloat(max(0, column.count - 1))
-        }
-        return CGSize(width: widths.reduce(0, +) + columnSpacing * CGFloat(max(0, columns.count - 1)),
-                      height: heights.max() ?? 0)
+        guard !sizes.isEmpty else { return .zero }
+        let rows = rows(sizes, maxWidth: maxWidth(proposal, sizes))
+        let widths = rows.map { row in row.map { sizes[$0].width }.reduce(0, +) + spacing * CGFloat(max(0, row.count - 1)) }
+        let heights = rows.map { row in row.map { sizes[$0].height }.max() ?? 0 }
+        return CGSize(width: widths.max() ?? 0, height: heights.reduce(0, +) + rowSpacing * CGFloat(max(0, rows.count - 1)))
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         let sizes = measure(subviews)
-        var x = bounds.maxX
-        for column in columns(sizes, maxHeight: proposal.height ?? .infinity) {
-            let width = column.map { sizes[$0].width }.max() ?? 0
-            var y = bounds.maxY
-            for index in column {
-                subviews[index].place(at: CGPoint(x: x - width / 2, y: y), anchor: .bottom, proposal: ProposedViewSize(sizes[index]))
-                y -= sizes[index].height + spacing
+        var y = bounds.maxY
+        for row in rows(sizes, maxWidth: bounds.width) {
+            var x = bounds.maxX
+            for index in row {
+                subviews[index].place(at: CGPoint(x: x, y: y), anchor: .bottomTrailing, proposal: ProposedViewSize(sizes[index]))
+                x -= sizes[index].width + spacing
             }
-            x -= width + columnSpacing
+            y -= (row.map { sizes[$0].height }.max() ?? 0) + rowSpacing
         }
     }
 }
@@ -575,22 +581,46 @@ private struct ChoiceCard<Content: View>: View {
 private struct QuickSkillButton: View {
     let controller: BattleController
     let skill: SkillDef
-    var size: CGFloat = 46
+    var size: CGFloat = 56
     var onHold: (() -> Void)? = nil
 
     var body: some View {
         let cost = controller.cost(of: skill)
         let affordable = (controller.hero?.mp ?? 0) >= cost
+        let tint = Color(uiColor: skill.tileColor)
         PressButton(action: { controller.useSkill(skill) }, onHold: onHold) {
-            VStack(spacing: 2) {
-                SkillIcon(skill: skill, size: size)
-                Text("\(cost) MP")
-                    .font(HUDStyle.mono(10))
-                    .foregroundStyle(affordable ? HUDStyle.cream : HUDStyle.dim)
-                    .padding(.horizontal, 5)
-                    .background(Capsule().fill(HUDStyle.ink.opacity(0.85)))
+            // Round like the other battle buttons, in the skill's colour.
+            Group {
+                if let picture = skill.art.flatMap(ArtLibrary.shared.artImage) {
+                    Image(uiImage: picture)
+                        .interpolation(.none)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: size * 0.62, height: size * 0.62)
+                } else {
+                    IconImage(skill.icon.flatMap(GameIcon.init) ?? .sparkles, size: size * 0.42)
+                        .foregroundStyle(.white)
+                }
             }
+            .frame(width: size, height: size)
+            .background(
+                Circle()
+                    .fill(RadialGradient(colors: [tint.opacity(0.75), tint], center: UnitPoint(x: 0.35, y: 0.3),
+                                         startRadius: 1, endRadius: size * 0.75))
+                    .overlay(Circle().fill(LinearGradient(colors: [.white.opacity(0.3), .clear, .black.opacity(0.2)],
+                                                          startPoint: .top, endPoint: .bottom)))
+                    .overlay(Circle().strokeBorder(.white.opacity(0.75), lineWidth: 2))
+            )
+            .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 4)
             .opacity(affordable ? 1 : 0.5)
+        }
+        .overlay(alignment: .bottom) {
+            Text("\(cost) MP")
+                .font(HUDStyle.mono(10))
+                .foregroundStyle(affordable ? HUDStyle.cream : HUDStyle.dim)
+                .shadow(color: .black, radius: 0, x: 1, y: 1)
+                .fixedSize()
+                .offset(y: 15)
         }
         .accessibilityLabel("\(skill.name), \(cost) MP")
     }

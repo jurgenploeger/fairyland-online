@@ -23,6 +23,6 @@ boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 
 edge_fog     | newgame,map=sunny_meadow,at=80_0                 | 15
 edge_town    | newgame,map=meadowbrook,at=0_-28                  | 8
 twilight     | newgame,level=40,map=twilight_woods                 | 15
-battle_big   | newgame,level=60,map=genie_desert,battle=10           | 15
+battle_big   | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+whirlwind,hp=0.3,map=genie_desert,battle=10 | 15
 battle_big_landscape | newgame,level=60,map=genie_desert,battle=10,landscape | 15
 quests       | newgame,menu=quests                                 | 8
