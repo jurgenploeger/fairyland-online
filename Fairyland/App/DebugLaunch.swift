@@ -31,6 +31,8 @@ enum DebugLaunch {
     }
 
     static var forcesLandscape: Bool { flags["landscape"] != nil }
+    /// `arrange`: battles open with the buttons already wiggling, ready to rearrange.
+    static var arrangesButtons: Bool { flags["arrange"] != nil }
 
     /// A debug game (tests, screenshots): the first-play tour stays hidden unless `coach` is set.
     static var isActive: Bool { flags["newgame"] != nil }
@@ -64,6 +66,15 @@ enum DebugLaunch {
             session.data.hero.look = look
         }
         session.applyLook()
+        // `class=fighter`, and `pin=bash+power_strike` learns those skills and pins them to the battle bar.
+        if let classID = flags["class"] {
+            session.data.hero.classID = classID
+        }
+        let pins = flags["pin"]?.split(separator: "+").map(String.init) ?? []
+        if !pins.isEmpty {
+            session.data.hero.learnedSkills = (session.data.hero.learnedSkills ?? []) + pins
+            session.data.pinnedSkills = pins
+        }
         if let at = flags["at"]?.split(separator: ";").first ?? flags["at"].map({ Substring($0) }),
            let def = Content.shared.map(session.data.mapID) {
             let parts = at.split(separator: "_").compactMap { Int($0) }

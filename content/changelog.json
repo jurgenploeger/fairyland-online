@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.3",
+      "date": "2026-10-03",
+      "title": "Tidy buttons",
+      "notes": [
+        "Battle buttons sit in neat rows beside the big button instead of a tall column over your party, with More on top of the big button.",
+        "Pinned skills are round like the other battle buttons, with their MP cost underneath.",
+        "Rearranging works like the iPhone home screen: hold any battle button and they all wiggle. Drag one over another to take its place, onto the big button to make it the big one, or into the \"Behind More\" tray. Tap Done when you're happy."
+      ]
+    },
+    {
       "version": "0.3.2",
       "date": "2026-10-03",
       "title": "Back on the road",
