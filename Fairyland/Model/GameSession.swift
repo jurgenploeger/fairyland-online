@@ -311,6 +311,24 @@ final class GameSession {
         return true
     }
 
+    // MARK: - Battle buttons
+
+    /// In `battleButtons`, everything after this sits in the More menu.
+    static let moreDivider = "more"
+    static let defaultBattleButtons = ["attack", "skills", "capture", moreDivider, "items", "guard", "run"]
+
+    /// The battle buttons in your order: the first is the big one, those after `moreDivider` wait
+    /// in the More menu. Pinned skills appear as "skill:<id>"; newly pinned ones join before More.
+    var battleButtons: [String] {
+        let pins = pinnedSkills.map { "skill:\($0.id)" }
+        var order = (data.battleButtons ?? Self.defaultBattleButtons).filter { !$0.hasPrefix("skill:") || pins.contains($0) }
+        for command in Self.defaultBattleButtons where !order.contains(command) { order.append(command) }
+        let divider = order.firstIndex(of: Self.moreDivider) ?? order.endIndex
+        let newPins = pins.filter { !order.contains($0) }
+        order.insert(contentsOf: newPins, at: divider)
+        return order
+    }
+
     /// Skills your class offers at your level that you haven't learned yet.
     var learnableSkills: [SkillDef] {
         let learned = Set(data.hero.learnedSkills ?? [])

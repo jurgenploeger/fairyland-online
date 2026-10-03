@@ -395,6 +395,25 @@ struct RulesTests {
         }
     }
 
+    @Test func battleButtonsKeepYourOrder() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        #expect(session.battleButtons == GameSession.defaultBattleButtons)
+        let bash = try #require(Content.shared.classDef("novice").skills.first { $0.skill == "bash" })
+        session.data.hero.level = bash.level
+        session.learnSkill("bash")
+        let skill = try #require(session.heroSkills.first)
+        session.togglePin(skill.id)
+        // A newly pinned skill joins just before More.
+        let divider = try #require(session.battleButtons.firstIndex(of: GameSession.moreDivider))
+        #expect(session.battleButtons[divider - 1] == "skill:\(skill.id)")
+        // Your own order sticks, even with the skill as the big button.
+        session.data.battleButtons = ["skill:\(skill.id)", "skills", "more", "attack", "items", "guard", "run", "capture"]
+        #expect(session.battleButtons == ["skill:\(skill.id)", "skills", "more", "attack", "items", "guard", "run", "capture"])
+        // Unpinned skills drop out; nothing else is lost.
+        session.togglePin(skill.id)
+        #expect(session.battleButtons == ["skills", "more", "attack", "items", "guard", "run", "capture"])
+    }
+
     @Test func questFlow() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.data.quests["hope_of_meadowbrook"] = QuestProgress(state: .completed, count: 3)

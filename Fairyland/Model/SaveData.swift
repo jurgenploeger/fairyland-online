@@ -113,6 +113,8 @@ nonisolated struct SaveData: Codable, Sendable {
     var levelsRescaled: Bool?
     /// Skills pinned to the battle bar for one-tap casting, in order.
     var pinnedSkills: [String]?
+    /// Your order of the battle buttons (see `GameSession.battleButtons`).
+    var battleButtons: [String]?
     /// Which save file this game lives in (SaveStore keeps one per game).
     var slot: String?
 }

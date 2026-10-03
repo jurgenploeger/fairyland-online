@@ -235,6 +235,12 @@ final class BattleController {
         }
     }
 
+    /// Saves a new order for the battle buttons (from holding one down).
+    func arrangeButtons(_ order: [String]) {
+        session.data.battleButtons = order
+        session.save()
+    }
+
     func cost(of skill: SkillDef) -> Int { GameSession.mpCost(of: skill, level: level(of: skill)) }
 
     func useSkill(_ skill: SkillDef) {
