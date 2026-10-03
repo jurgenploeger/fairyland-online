@@ -665,11 +665,14 @@ private struct QuickSkillButton: View {
             .opacity(affordable ? 1 : 0.5)
         }
         .overlay(alignment: .bottom) {
-            Text("\(cost) MP")
-                .font(HUDStyle.mono(10))
+            // The skill's name, like the other buttons' labels; long names end in "…".
+            Text(skill.name)
+                .font(HUDStyle.font(10))
                 .foregroundStyle(affordable ? HUDStyle.cream : HUDStyle.dim)
                 .shadow(color: .black, radius: 0, x: 1, y: 1)
-                .fixedSize()
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(width: size + 14)
                 .offset(y: 15)
         }
         .accessibilityLabel("\(skill.name), \(cost) MP")

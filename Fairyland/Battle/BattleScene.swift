@@ -610,7 +610,8 @@ final class BattleActor: SKNode {
         let size = cycle.size * 2
         sprite = SKSpriteNode(texture: cycle.frames(.down).first, size: size)
         sprite.anchorPoint = CGPoint(x: 0.5, y: 0.05)
-        bar = HealthBar(width: 44, level: fighter.level, mana: fighter.isHero)
+        // Everyone with MP shows it in a blue bar under their HP.
+        bar = HealthBar(width: 44, level: fighter.level, mana: fighter.stats.mp > 0)
         ring = SKShapeNode(ellipseOf: CGSize(width: max(64, size.width * 0.85), height: 26))
         super.init()
         ring.strokeColor = UIColor(white: 1, alpha: 0.55)

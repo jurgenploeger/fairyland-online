@@ -194,10 +194,10 @@ final class HealthBar: SKNode {
         fill.zPosition = 1
         parts += [background, fill]
         if mana {
-            let y = -(thick + 2) / 2 - 2
-            let back = SKSpriteNode(color: UIColor(white: 0, alpha: 0.6), size: CGSize(width: width + 2, height: 4))
+            let y = -(thick + 2) / 2 - 3
+            let back = SKSpriteNode(color: UIColor(white: 0, alpha: 0.6), size: CGSize(width: width + 2, height: 5))
             back.position.y = y
-            let blue = SKSpriteNode(color: UIColor(red: 0.24, green: 0.52, blue: 0.95, alpha: 1), size: CGSize(width: width, height: 2))
+            let blue = SKSpriteNode(color: UIColor(red: 0.24, green: 0.52, blue: 0.95, alpha: 1), size: CGSize(width: width, height: 3))
             blue.anchorPoint = CGPoint(x: 0, y: 0.5)
             blue.position = CGPoint(x: -width / 2, y: y)
             blue.zPosition = 1
