@@ -1,11 +1,11 @@
 {
-  "_about": "Quests. objective.type: defeat (target = monster id, omit for any) | capture | collect (gift boxes) | reachLevel (count = level) | chooseClass. `requires` lists quests that must be completed first. `question` is asked on accepting; each answer's `egg` decides what hatches from the Pet Egg. `giver` is an NPC id from maps.json.",
+  "_about": "Quests. objective.type: defeat (target = monster id, omit for any) | capture | hatch (a pet egg) | reachLevel (count = level) | chooseClass. `requires` lists quests that must be completed first. `question` is asked on accepting; each answer's `egg` decides what hatches from the Pet Egg. `giver` is an NPC id from maps.json.",
   "quests": [
     {
       "id": "hope_of_meadowbrook",
       "title": "Hope of Meadowbrook",
       "giver": "elder",
-      "description": "Every new adventurer gets three gifts from the village. Find the three gift boxes hidden around Meadowbrook, then come back to me.",
+      "description": "Elder Oak gives every new adventurer three gifts: a wooden sword, a novice ring and a pet egg. Hatch your egg from the Bag, then come back to me.",
       "question": {
         "text": "Before you go, tell me: what do you treasure most?",
         "answers": [
@@ -23,10 +23,14 @@
           }
         ]
       },
+      "starterItems": [
+        "wooden_sword",
+        "novice_ring",
+        "pet_egg"
+      ],
       "objective": {
-        "type": "collect",
-        "target": "gift_box",
-        "count": 3
+        "type": "hatch",
+        "count": 1
       },
       "reward": {
         "gold": 20,
@@ -87,7 +91,7 @@
       "id": "choose_path",
       "title": "Choose Your Path",
       "giver": "elder",
-      "description": "Reach level 5, then speak to a guild master in town to choose your path: Fighter, Mage or Beast Tamer.",
+      "description": "Reach level 10, then speak to a guild master in town to choose your path: Fighter, Mage or Beast Tamer.",
       "objective": {
         "type": "chooseClass"
       },
@@ -123,7 +127,7 @@
       "requires": [
         "pineapple_harvest"
       ],
-      "minLevel": 5,
+      "minLevel": 14,
       "description": "Something bounces in the dark of Twilight Woods, east of Sunny Meadow. Defeat 3 Bouncy Buns.",
       "objective": {
         "type": "defeat",
@@ -158,7 +162,7 @@
           "ether"
         ]
       },
-      "minLevel": 6
+      "minLevel": 18
     },
     {
       "id": "forest_friends",
@@ -181,7 +185,7 @@
           "hi_potion"
         ]
       },
-      "minLevel": 5
+      "minLevel": 14
     },
     {
       "id": "city_errands",
@@ -203,7 +207,7 @@
           "star_charm"
         ]
       },
-      "minLevel": 7
+      "minLevel": 21
     },
     {
       "id": "valley_lights",
@@ -226,7 +230,7 @@
           "seal_stone"
         ]
       },
-      "minLevel": 10
+      "minLevel": 31
     },
     {
       "id": "rat_king",
@@ -248,7 +252,7 @@
           "power_band"
         ]
       },
-      "minLevel": 14
+      "minLevel": 45
     },
     {
       "id": "dragon_hangover",
@@ -270,7 +274,7 @@
           "dragon_mail"
         ]
       },
-      "minLevel": 20
+      "minLevel": 65
     },
     {
       "id": "crystal_hearts",
@@ -292,7 +296,7 @@
           "speed_boots"
         ]
       },
-      "minLevel": 22
+      "minLevel": 71
     },
     {
       "id": "wolf_hunt",
@@ -314,7 +318,675 @@
           "snow_cloak"
         ]
       },
-      "minLevel": 25
+      "minLevel": 82
+    },
+    {
+      "id": "lost_lambs",
+      "title": "Lost Little Lambs",
+      "giver": "mother_sheep",
+      "description": "Baa! Golden Hamsters keep stuffing their cheeks with the clover my little lambs need. Shoo away 3 of them and my lambs can graze again.",
+      "objective": {
+        "type": "defeat",
+        "target": "golden_hamster",
+        "count": 3
+      },
+      "reward": {
+        "gold": 40,
+        "exp": 40,
+        "items": [
+          "potion",
+          "potion"
+        ]
+      },
+      "minLevel": 2
+    },
+    {
+      "id": "shell_snatchers",
+      "title": "Shell Snatchers",
+      "giver": "old_shelly",
+      "description": "Click-clack! Those Mud Eagles swoop down and snatch the prettiest shells off my beach. Chase off 3 of them for an old crab, will you?",
+      "objective": {
+        "type": "defeat",
+        "target": "mud_eagle",
+        "count": 3
+      },
+      "reward": {
+        "gold": 70,
+        "exp": 80,
+        "items": [
+          "hi_potion"
+        ]
+      },
+      "minLevel": 3
+    },
+    {
+      "id": "three_little_pigs",
+      "title": "Straw, Sticks and Bricks",
+      "giver": "little_pig",
+      "description": "My brothers built houses of straw and sticks, and now Tree Snakes keep coiling round them! Chase off 5 Tree Snakes so we can finish the house of bricks before the wolf comes.",
+      "objective": {
+        "type": "defeat",
+        "target": "tree_snake",
+        "count": 5
+      },
+      "reward": {
+        "gold": 110,
+        "exp": 160,
+        "items": [
+          "ether"
+        ]
+      },
+      "minLevel": 5
+    },
+    {
+      "id": "moonlight_thieves",
+      "title": "Moonlight Thieves",
+      "giver": "willow_wisp",
+      "description": "The Shade Puffs are drinking up the moonlight, and without it I fade away. Pop 4 Shade Puffs and let the light come back to Twilight Woods.",
+      "objective": {
+        "type": "defeat",
+        "target": "shade_puff",
+        "count": 4
+      },
+      "reward": {
+        "gold": 120,
+        "exp": 180,
+        "items": [
+          "hi_ether"
+        ]
+      },
+      "minLevel": 6
+    },
+    {
+      "id": "frog_prince",
+      "title": "The Frog Prince",
+      "giver": "frog_prince",
+      "description": "A kiss? Goodness, no. What I need is my golden ball back from the pond, and the Water Slugs are guarding it. Defeat 4 Water Slugs and a prince's reward is yours.",
+      "objective": {
+        "type": "defeat",
+        "target": "water_slug",
+        "count": 4
+      },
+      "reward": {
+        "gold": 150,
+        "exp": 230,
+        "items": [
+          "ruby_ring"
+        ]
+      },
+      "minLevel": 7
+    },
+    {
+      "id": "ugly_duckling",
+      "title": "The Ugly Duckling",
+      "giver": "ugly_duckling",
+      "description": "The Mud Slimes splash mud on my feathers and laugh at me. Would you make them stop? Defeat 4 Mud Slimes. One day I'll be a swan, you'll see!",
+      "objective": {
+        "type": "defeat",
+        "target": "mud_slime",
+        "count": 4
+      },
+      "reward": {
+        "gold": 160,
+        "exp": 250,
+        "items": [
+          "hi_potion",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 8
+    },
+    {
+      "id": "lion_and_mouse",
+      "title": "The Lion and the Mouse",
+      "giver": "brave_mouse",
+      "description": "An Earth Lion once spared my life, so now I look out for him. The Red Bulls keep stampeding through his den! Defeat 3 Red Bulls and we'll both owe you one.",
+      "objective": {
+        "type": "defeat",
+        "target": "red_bull",
+        "count": 3
+      },
+      "reward": {
+        "gold": 240,
+        "exp": 420,
+        "items": [
+          "seal_stone",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 11
+    },
+    {
+      "id": "puss_in_boots",
+      "title": "Puss in Boots",
+      "giver": "puss_in_boots",
+      "description": "My master the Marquis needs a clear road to his castle, but Black Widows keep spinning webs across it. Clear away 4 Black Widows and I'll tip my hat to you.",
+      "objective": {
+        "type": "defeat",
+        "target": "black_widow",
+        "count": 4
+      },
+      "reward": {
+        "gold": 600,
+        "exp": 1400,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 17
+    },
+    {
+      "id": "stormy_crystals",
+      "title": "Stormy Crystals",
+      "giver": "pebble",
+      "description": "Golden Clouds keep raining on my crystals until they go dull. Chase off 4 Golden Clouds so the mountain can sparkle again.",
+      "objective": {
+        "type": "defeat",
+        "target": "golden_cloud",
+        "count": 4
+      },
+      "reward": {
+        "gold": 750,
+        "exp": 1800,
+        "items": [
+          "hi_ether",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 21
+    },
+    {
+      "id": "melting_friends",
+      "title": "Melting Friends",
+      "giver": "mister_frost",
+      "description": "The Fire Bears keep hugging my snowman friends, and you can guess how that ends. Defeat 3 Fire Bears before we all turn into puddles!",
+      "objective": {
+        "type": "defeat",
+        "target": "fire_bear",
+        "count": 3
+      },
+      "reward": {
+        "gold": 800,
+        "exp": 2000,
+        "items": [
+          "hi_potion",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 22
+    },
+    {
+      "id": "night_flight",
+      "title": "Stardust's Night Flight",
+      "giver": "stardust",
+      "description": "I can't fly under the moon while Poison Skeletons haunt Moonglow. Defeat 4 of them and I'll carry your name across the stars.",
+      "objective": {
+        "type": "defeat",
+        "target": "poison_skeleton",
+        "count": 4
+      },
+      "reward": {
+        "gold": 1000,
+        "exp": 2600,
+        "items": [
+          "star_charm"
+        ]
+      },
+      "minLevel": 26
+    },
+    {
+      "id": "slime_gold",
+      "title": "The Golden God's Grunt",
+      "giver": "elder",
+      "description": "Slime Cave, west of the Northern Grassland, is full of Golden Slimes. Their master calls himself the Grunt of the Golden God. Defeat him.",
+      "objective": {
+        "type": "defeat",
+        "target": "golden_grunt",
+        "count": 1
+      },
+      "reward": {
+        "gold": 560,
+        "exp": 1600,
+        "items": [
+          "hi_potion",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 16
+    },
+    {
+      "id": "lambs_in_distress",
+      "title": "Lambs In Distress",
+      "giver": "linns",
+      "description": "The wolves of Candy Mountain took Mother Sheep's lambs to the Big Bad Wolf's Lair, west of the mountain. Thin out their pack: defeat 6 Earth Wolves.",
+      "objective": {
+        "type": "defeat",
+        "target": "earth_wolf",
+        "count": 6
+      },
+      "reward": {
+        "gold": 853,
+        "exp": 2548,
+        "items": [
+          "hi_potion",
+          "ether"
+        ]
+      },
+      "minLevel": 24
+    },
+    {
+      "id": "wolf_leader",
+      "title": "The Wolf Leader",
+      "giver": "linns",
+      "description": "The pack still follows its leader. Find the Wolf Leader deep in the lair and bring those lambs home.",
+      "objective": {
+        "type": "defeat",
+        "target": "wolf_leader",
+        "count": 1
+      },
+      "reward": {
+        "gold": 1469,
+        "exp": 4608,
+        "items": [
+          "power_band"
+        ]
+      },
+      "minLevel": 32,
+      "requires": [
+        "lambs_in_distress"
+      ]
+    },
+    {
+      "id": "fine_woolen_cloth",
+      "title": "Fine Woolen Cloth",
+      "giver": "linns",
+      "description": "I need wool for a very special dress, the kind a swan would wear. Candy Puffs spin the softest fluff; bring me what 8 of them leave behind.",
+      "objective": {
+        "type": "defeat",
+        "target": "candy_puff",
+        "count": 8
+      },
+      "reward": {
+        "gold": 963,
+        "exp": 2912,
+        "items": [
+          "ruby_ring"
+        ]
+      },
+      "minLevel": 22
+    },
+    {
+      "id": "wishes_of_a_duckling",
+      "title": "Wishes of an Ugly Duck",
+      "giver": "swan_keeper",
+      "description": "The little grey duckling of Swan Lake hides from the Water Slugs. Clear 6 of them so it can swim out and meet the swans.",
+      "objective": {
+        "type": "defeat",
+        "target": "water_slug",
+        "count": 6
+      },
+      "reward": {
+        "gold": 1760,
+        "exp": 5600,
+        "items": [
+          "hi_ether",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 34
+    },
+    {
+      "id": "some_love_and_happiness",
+      "title": "Some Love and Happiness",
+      "giver": "thumbelina",
+      "description": "The Lotus Sprites won't let me cross the pond to see my prince. Would you shoo away 6 of them? Gently, please.",
+      "objective": {
+        "type": "defeat",
+        "target": "lotus_sprite",
+        "count": 6
+      },
+      "reward": {
+        "gold": 2245,
+        "exp": 7268,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "star_charm"
+        ]
+      },
+      "minLevel": 40
+    },
+    {
+      "id": "animals_home",
+      "title": "Animal's Home",
+      "giver": "hermit_will",
+      "description": "The Wooden Puppets chased every animal off Puppet Hill. Break 8 of them and the animals can come home.",
+      "objective": {
+        "type": "defeat",
+        "target": "wooden_puppet",
+        "count": 8
+      },
+      "reward": {
+        "gold": 2981,
+        "exp": 9828,
+        "items": [
+          "hi_ether",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 50
+    },
+    {
+      "id": "puppet_king",
+      "title": "The Puppet King",
+      "giver": "hermit_will",
+      "description": "The puppets dance for their king at the top of the hill. Cut his strings for good.",
+      "objective": {
+        "type": "defeat",
+        "target": "puppet_king",
+        "count": 1
+      },
+      "reward": {
+        "gold": 3819,
+        "exp": 12772,
+        "items": [
+          "speed_boots"
+        ]
+      },
+      "minLevel": 56,
+      "requires": [
+        "animals_home"
+      ]
+    },
+    {
+      "id": "mystery_of_fantasy_ore",
+      "title": "Mystery of the Fantasy Ore",
+      "giver": "hamini",
+      "description": "Fantasy Ore Golems roll about Goldburg Lake. Their cores glow like the goddess Shiria's treasure. Defeat 6 and let me study one.",
+      "objective": {
+        "type": "defeat",
+        "target": "ore_golem",
+        "count": 6
+      },
+      "reward": {
+        "gold": 4045,
+        "exp": 13568,
+        "items": [
+          "hi_ether",
+          "seal_stone"
+        ]
+      },
+      "minLevel": 60
+    },
+    {
+      "id": "treasures_of_shiria",
+      "title": "Treasures of Goddess Shiria",
+      "giver": "hamini",
+      "description": "The ore points south, to the Secret Plain. Idreus guards the goddess's treasure there, and can hit for thousands. Bring a strong party.",
+      "objective": {
+        "type": "defeat",
+        "target": "idreus",
+        "count": 1
+      },
+      "reward": {
+        "gold": 14000,
+        "exp": 49375,
+        "items": [
+          "dragon_mail",
+          "hi_potion",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 110,
+      "requires": [
+        "mystery_of_fantasy_ore"
+      ]
+    },
+    {
+      "id": "sleeping_sophia",
+      "title": "Sleeping Sophia",
+      "giver": "thomas",
+      "description": "The Dream Phantoms keep Sleepy Town dreaming. Defeat 8 of them, then wake Sophia by beating the Rock Monster that snores in the cave.",
+      "objective": {
+        "type": "defeat",
+        "target": "dream_phantom",
+        "count": 8
+      },
+      "reward": {
+        "gold": 5533,
+        "exp": 18848,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 72
+    },
+    {
+      "id": "rock_monster",
+      "title": "The Rock Monster",
+      "giver": "thomas",
+      "description": "Now the monster itself. It's big, it's stone, and it has been asleep for a year. Wake it up the hard way.",
+      "objective": {
+        "type": "defeat",
+        "target": "rock_monster",
+        "count": 1
+      },
+      "reward": {
+        "gold": 6949,
+        "exp": 23908,
+        "items": [
+          "power_band"
+        ]
+      },
+      "minLevel": 80,
+      "requires": [
+        "sleeping_sophia"
+      ]
+    },
+    {
+      "id": "ore_of_hachoo",
+      "title": "Ore of Hachoo Island",
+      "giver": "hamini",
+      "description": "Even bigger golems live on Hachoo Island, south of the Secret Plain. Defeat 10 and the mystery of the ore is solved.",
+      "objective": {
+        "type": "defeat",
+        "target": "ore_golem",
+        "count": 10
+      },
+      "reward": {
+        "gold": 15080,
+        "exp": 53300,
+        "items": [
+          "hi_ether",
+          "hi_ether",
+          "star_charm"
+        ]
+      },
+      "minLevel": 120,
+      "requires": [
+        "treasures_of_shiria"
+      ]
+    },
+    {
+      "id": "temple_below",
+      "title": "The Temple Below",
+      "giver": "temple_keeper",
+      "description": "Temple Jellies drift up from the sunken Water Temple. Defeat 10 of them and the way down will clear.",
+      "objective": {
+        "type": "defeat",
+        "target": "temple_jelly",
+        "count": 10
+      },
+      "reward": {
+        "gold": 18560,
+        "exp": 65975,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 135
+    },
+    {
+      "id": "tide_dragon",
+      "title": "The Tide Dragon",
+      "giver": "temple_keeper",
+      "description": "The Tide Dragon sleeps in the deepest hall of the Water Temple. Wake it, and end it.",
+      "objective": {
+        "type": "defeat",
+        "target": "tide_dragon",
+        "count": 1
+      },
+      "reward": {
+        "gold": 25160,
+        "exp": 90100,
+        "items": [
+          "dragon_mail"
+        ]
+      },
+      "minLevel": 155,
+      "requires": [
+        "temple_below"
+      ]
+    },
+    {
+      "id": "silver_demon",
+      "title": "The Silver Demon's Lieutenant",
+      "giver": "emerald_guard",
+      "description": "The Silver Demon's Lieutenant holds the Mysterious Cave, the only way to this road. Defeat him so travellers can pass.",
+      "objective": {
+        "type": "defeat",
+        "target": "silver_lieutenant",
+        "count": 1
+      },
+      "reward": {
+        "gold": 29600,
+        "exp": 106375,
+        "items": [
+          "speed_boots",
+          "hi_ether"
+        ]
+      },
+      "minLevel": 170
+    },
+    {
+      "id": "crystal_widows",
+      "title": "Crystal Widows",
+      "giver": "emerald_guard",
+      "description": "Crystal Widows spin webs across the cave mouth. Clear 10 of them.",
+      "objective": {
+        "type": "defeat",
+        "target": "crystal_widow",
+        "count": 10
+      },
+      "reward": {
+        "gold": 26600,
+        "exp": 95375,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 165
+    },
+    {
+      "id": "emerald_dragon",
+      "title": "At the End of the Road",
+      "giver": "emerald_guard",
+      "description": "The Emerald Dragon waits at the gate of the Emerald City. Only a hero near level 200 should try.",
+      "objective": {
+        "type": "defeat",
+        "target": "emerald_dragon",
+        "count": 1
+      },
+      "reward": {
+        "gold": 34400,
+        "exp": 124000,
+        "items": [
+          "dragon_mail",
+          "star_charm",
+          "power_band"
+        ]
+      },
+      "minLevel": 190,
+      "requires": [
+        "silver_demon"
+      ]
+    },
+    {
+      "id": "grumpy_oak",
+      "title": "Turn That Frown Upside Down",
+      "giver": "elder",
+      "requires": [
+        "forest_friends"
+      ],
+      "description": "The oldest oak in Smiling Forest has stopped smiling and swats anyone who walks by. Cheer it up... the hard way.",
+      "objective": {
+        "type": "defeat",
+        "target": "grumpy_oak",
+        "count": 1
+      },
+      "reward": {
+        "gold": 200,
+        "exp": 320,
+        "items": [
+          "hi_potion"
+        ]
+      },
+      "minLevel": 21
+    },
+    {
+      "id": "great_wisp",
+      "title": "Follow the Pretty Light",
+      "giver": "elder",
+      "requires": [
+        "valley_lights"
+      ],
+      "description": "Travellers keep wandering off the road in the Valley of Fear, chasing a giant glowing wisp. Snuff out its tricks.",
+      "objective": {
+        "type": "defeat",
+        "target": "great_wisp",
+        "count": 1
+      },
+      "reward": {
+        "gold": 380,
+        "exp": 650,
+        "items": [
+          "ether",
+          "ether"
+        ]
+      },
+      "minLevel": 41
+    },
+    {
+      "id": "moon_queen",
+      "title": "The Missing Moon-Mochi",
+      "giver": "mayor",
+      "requires": [
+        "wolf_hunt"
+      ],
+      "description": "The Moon Rabbit Queen has come down to Moonglow, furious that someone stole her moon-mochi. Calm her before she flattens the town... with force.",
+      "objective": {
+        "type": "defeat",
+        "target": "moon_rabbit_queen",
+        "count": 1
+      },
+      "reward": {
+        "gold": 2600,
+        "exp": 5200,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 95
     }
   ]
 }

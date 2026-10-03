@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Battle HUD: log line and party status on top, a round command wheel bottom-right,
-/// results at the end.
+/// Battle HUD: the log line on top, a round command wheel bottom-right, results at the end.
+/// Names, levels, HP and the hero's MP sit on the fighters themselves.
 struct BattleView: View {
     let controller: BattleController
 
@@ -18,10 +18,6 @@ struct BattleView: View {
                     .frame(maxWidth: 520)
                     .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2)))
 
-                HStack {
-                    PartyStatus(party: controller.party)
-                    Spacer()
-                }
                 Spacer()
             }
             .padding(.horizontal, 10)
@@ -45,8 +41,11 @@ struct BattleView: View {
     private var commandArea: some View {
         switch controller.phase {
         case .command:
-            CommandWheel(controller: controller)
-                .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
+            HStack(alignment: .bottom, spacing: 10) {
+                QuickSkillBar(controller: controller)
+                CommandWheel(controller: controller)
+            }
+            .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
         case .skills:
             ChoiceCard(title: "Skills", icon: .sparkles, onBack: controller.back) {
                 if controller.skills.isEmpty {
@@ -56,14 +55,31 @@ struct BattleView: View {
                 }
                 ForEach(controller.skills) { skill in
                     let affordable = (controller.hero?.mp ?? 0) >= controller.cost(of: skill)
-                    ChoiceRow(action: { controller.useSkill(skill) }, enabled: affordable) {
-                        SkillIcon(skill: skill, size: 26)
-                        Text(skill.name)
-                        Text("Lv\(controller.level(of: skill))").font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
-                        if let element = skill.element { ElementBadge(element: element) }
-                        Spacer()
-                        Text("\(controller.cost(of: skill)) MP").foregroundStyle(HUDStyle.mp)
+                    let pinned = controller.session.isPinned(skill.id)
+                    HStack(spacing: 6) {
+                        ChoiceRow(action: { controller.useSkill(skill) }, enabled: affordable) {
+                            SkillIcon(skill: skill, size: 26)
+                            Text(skill.name)
+                            Text("Lv\(controller.level(of: skill))").font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
+                            if let element = skill.element { ElementBadge(element: element) }
+                            Spacer()
+                            Text("\(controller.cost(of: skill)) MP").foregroundStyle(HUDStyle.mp)
+                        }
+                        // Pin to the quick bar next to the command wheel.
+                        Button { controller.togglePin(skill) } label: {
+                            IconImage(pinned ? .star : .starOutline, size: 18)
+                                .foregroundStyle(pinned ? HUDStyle.gold : HUDStyle.cream)
+                                .frame(width: 34, height: 34)
+                                .background(Circle().fill(HUDStyle.ink.opacity(0.85)))
+                        }
+                        .buttonStyle(RoundPressStyle())
+                        .accessibilityLabel(pinned ? "Unpin \(skill.name)" : "Pin \(skill.name) to the quick bar")
                     }
+                }
+                if !controller.skills.isEmpty {
+                    Text("Tap the star to pin up to \(GameSession.maxPinnedSkills) skills next to Attack.")
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.cream.opacity(0.8))
                 }
             }
             .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
@@ -306,6 +322,34 @@ private struct ChoiceCard<Content: View>: View {
     }
 }
 
+/// Pinned skills beside the command wheel: one tap casts (or asks for a target).
+private struct QuickSkillBar: View {
+    let controller: BattleController
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ForEach(controller.pinnedSkills) { skill in
+                let cost = controller.cost(of: skill)
+                let affordable = (controller.hero?.mp ?? 0) >= cost
+                Button { controller.useSkill(skill) } label: {
+                    VStack(spacing: 2) {
+                        SkillIcon(skill: skill, size: 46)
+                        Text("\(cost) MP")
+                            .font(HUDStyle.mono(10))
+                            .foregroundStyle(affordable ? HUDStyle.cream : HUDStyle.dim)
+                            .padding(.horizontal, 5)
+                            .background(Capsule().fill(HUDStyle.ink.opacity(0.85)))
+                    }
+                    .opacity(affordable ? 1 : 0.5)
+                }
+                .buttonStyle(RoundPressStyle())
+                .accessibilityLabel("\(skill.name), \(cost) MP")
+            }
+        }
+        .padding(.bottom, 6)
+    }
+}
+
 private struct ChoiceRow<Label: View>: View {
     let action: () -> Void
     let enabled: Bool
@@ -326,34 +370,6 @@ private struct ChoiceRow<Label: View>: View {
 }
 
 // MARK: - Status & results
-
-private struct PartyStatus: View {
-    let party: [Combatant]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            ForEach(party) { fighter in
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(fighter.name)  Lv \(fighter.level)")
-                        .font(HUDStyle.font(11))
-                        .foregroundStyle(fighter.isHero ? HUDStyle.cream : HUDStyle.green)
-                    StatBar(label: "HP", value: fighter.hp, maximum: fighter.stats.hp, color: HUDStyle.hp, labelWidth: 20)
-                    if fighter.isHero {
-                        StatBar(label: "MP", value: fighter.mp, maximum: fighter.stats.mp, color: HUDStyle.mp, labelWidth: 20)
-                    }
-                }
-                .opacity(fighter.isAlive ? 1 : 0.45)
-            }
-        }
-        .frame(width: 170)
-        .padding(10)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(HUDStyle.ink.opacity(0.85))
-                .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(HUDStyle.cream.opacity(0.7), lineWidth: 2))
-        )
-    }
-}
 
 private struct ResultPanel: View {
     let result: BattleResult

@@ -4,11 +4,13 @@ import SwiftUI
 struct MenuView: View {
     let session: GameSession
     let onClose: () -> Void
+    var onQuitToTitle: (() -> Void)?
     @State private var tab: MenuTab
 
-    init(session: GameSession, initialTab: MenuTab, onClose: @escaping () -> Void) {
+    init(session: GameSession, initialTab: MenuTab, onClose: @escaping () -> Void, onQuitToTitle: (() -> Void)? = nil) {
         self.session = session
         self.onClose = onClose
+        self.onQuitToTitle = onQuitToTitle
         _tab = State(initialValue: initialTab)
     }
 
@@ -22,6 +24,7 @@ struct MenuView: View {
                 HStack(spacing: 6) {
                     ForEach(MenuTab.allCases) { item in
                         Button {
+                            if tab != item { SoundEffects.shared.play(.tap, volume: 0.7) }
                             tab = item
                         } label: {
                             Label(item.rawValue, icon: item.icon)
@@ -42,6 +45,7 @@ struct MenuView: View {
                         case .companions: CompanionsTab(session: session)
                         case .bag: BagTab(session: session)
                         case .quests: QuestsTab(session: session)
+                        case .settings: SettingsView(session: session, onQuitToTitle: onQuitToTitle)
                         }
                     }
                     .padding(14)
@@ -184,7 +188,7 @@ private struct CharacterTab: View {
                 Text("\(session.heroRace.name) · \(session.heroClass.name)")
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.gold)
-                Text("Level \(hero.level)").font(HUDStyle.font(12))
+                Text(session.rebirths > 0 ? "Level \(hero.level) · Reborn ×\(session.rebirths)" : "Level \(hero.level)").font(HUDStyle.font(12))
                 StatBar(label: "EXP", value: hero.exp, maximum: GameSession.expToNext(level: hero.level), color: HUDStyle.exp)
                     .frame(width: 170)
                 if session.canChooseClass {
@@ -232,9 +236,22 @@ private struct CharacterTab: View {
                 let upcoming = session.heroClass.skills.filter { $0.level > hero.level }
                 ForEach(upcoming, id: \.skill) { unlock in
                     if let skill = session.content.skill(unlock.skill) {
-                        Text("Lv \(unlock.level): \(skill.name)")
-                            .font(HUDStyle.font(11))
-                            .foregroundStyle(HUDStyle.dim)
+                        // Still locked: a faded tile, with the level it unlocks at.
+                        HStack(spacing: 8) {
+                            SkillIcon(skill: skill, size: 28)
+                                .saturation(0.2)
+                                .opacity(0.55)
+                            Text(skill.name)
+                                .foregroundStyle(HUDStyle.dim)
+                            Spacer()
+                            Text("Lv \(unlock.level)")
+                                .font(HUDStyle.font(10))
+                                .foregroundStyle(HUDStyle.ink)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(HUDStyle.dim))
+                        }
+                        .font(HUDStyle.font(11))
                     }
                 }
             }
@@ -396,6 +413,11 @@ private struct FriendRow: View {
             if inParty {
                 Button("Leave") { session.leaveParty(friend.id) }
                     .buttonStyle(PixelButtonStyle(compact: true))
+            } else if !session.adventurersAround.contains(friend.id) {
+                // Friends have to be here to join you.
+                Text("Not around")
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.dim)
             } else if session.partyMembers.count < GameSession.maxAllies {
                 Button("Invite") { session.invite(friend.id) }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
@@ -441,6 +463,19 @@ private struct CompanionCard: View {
                 Text("ATK \(stats.attack) · DEF \(stats.defense) · MAG \(stats.magic) · SPD \(stats.speed)")
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
+                if let skills = species?.skills.compactMap({ session.content.skill($0) }), !skills.isEmpty {
+                    // What it can do in a fight.
+                    HStack(spacing: 6) {
+                        ForEach(skills) { skill in
+                            HStack(spacing: 3) {
+                                SkillIcon(skill: skill, size: 22)
+                                Text(skill.name)
+                                    .font(HUDStyle.font(10))
+                                    .foregroundStyle(HUDStyle.cream)
+                            }
+                        }
+                    }
+                }
                 HStack(spacing: 8) {
                     if isActive {
                         Label("Following you", icon: .checkCircle)
@@ -542,6 +577,23 @@ private struct BagTab: View {
                         Button("Equip") { session.equip(item.id) }
                             .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                     }
+                }
+                .font(HUDStyle.font(12))
+            }
+
+            SectionTitle(text: "Materials")
+            if session.bagMaterials.isEmpty {
+                Text("Monsters drop wood, metal, gems and hides. A town smith forges them into weapons.")
+                    .font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+            }
+            ForEach(session.bagMaterials) { item in
+                HStack(spacing: 10) {
+                    ItemIcon(item: item, size: 28)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("\(item.name) ×\(session.count(of: item.id))")
+                        Text(item.description ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                    }
+                    Spacer()
                 }
                 .font(HUDStyle.font(12))
             }

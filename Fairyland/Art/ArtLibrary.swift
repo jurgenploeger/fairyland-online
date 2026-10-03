@@ -47,6 +47,10 @@ final class ArtLibrary {
     private var images: [String: UIImage] = [:]
     /// Sprites made at runtime (the customised hero, recoloured companions), keyed by id.
     private var runtime: [String: (asset: ArtAsset, key: String)] = [:]
+    /// Gear drawn onto runtime sprites after their recolour (the hero's armour and boots).
+    private var gearLooks: [String: GearLook] = [:]
+    /// Paper-doll layers stacked in place of a runtime sprite's base (body, then hair or headgear).
+    private var layerSets: [String: [String]] = [:]
 
     init() {
         do {
@@ -87,19 +91,35 @@ final class ArtLibrary {
 
     /// Registers (or updates) a recoloured copy of `base` under `id`, e.g. the customised hero.
     /// `key` identifies the look, so re-registering the same look is free.
-    func register(_ id: String, from base: String, recolor rules: [RecolorRule], key: String) {
+    /// `layers` (art/sprites PNGs, bottom first) replace the base's own picture when they all exist;
+    /// the base still supplies the frame size and directions.
+    func register(_ id: String, from base: String, recolor rules: [RecolorRule], key: String, gear: GearLook? = nil,
+                  layers: [String]? = nil) {
         guard runtime[id]?.key != key else { return }
         let kind = asset(base)?.kind ?? "monster"
         runtime[id] = (ArtAsset(id: id, kind: kind, frame: nil, directions: nil, scale: nil, derive: Derivation(from: base, recolor: rules)), key)
+        gearLooks[id] = gear
+        layerSets[id] = layers
         textures[id] = nil
         cycles[id] = nil
         images = images.filter { $0.key != id && !$0.key.hasPrefix(id + "#") }
     }
 
+    /// The sprite's own art as an image, or nil when it has none yet (no placeholder).
+    func artImage(_ id: String) -> UIImage? {
+        let cacheKey = "art:" + id
+        if let cached = images[cacheKey] { return cached }
+        guard let cgImage = sourceImage(id) else { return nil }
+        let image = UIImage(cgImage: cgImage)
+        images[cacheKey] = image
+        return image
+    }
+
     /// A one-off recoloured portrait for pickers and previews (cached by `key`).
-    func preview(from base: String, recolor rules: [RecolorRule], key: String, facing direction: Direction = .down) -> UIImage {
-        let id = "preview:" + base + ":" + key
-        register(id, from: base, recolor: rules, key: key)
+    func preview(from base: String, recolor rules: [RecolorRule], key: String, facing direction: Direction = .down,
+                 layers: [String]? = nil) -> UIImage {
+        let id = "preview:" + base + ":" + key + ":" + (layers ?? []).joined(separator: "+")
+        register(id, from: base, recolor: rules, key: key, layers: layers)
         return image(id, facing: direction)
     }
 
@@ -131,8 +151,29 @@ final class ArtLibrary {
     /// The sprite's own PNG, or — for derived sprites — its base's PNG with the palette swap applied.
     private func sourceImage(_ id: String, depth: Int = 0) -> CGImage? {
         if let url = pngURL(id), let image = UIImage(contentsOfFile: url.path)?.cgImage { return image }
-        guard depth < 3, let derive = asset(id)?.derive, let base = sourceImage(derive.from, depth: depth + 1) else { return nil }
-        return Recolor.apply(derive.recolor, to: base)
+        guard depth < 3, let derive = asset(id)?.derive,
+              let base = layerSets[id].flatMap({ stacked($0) }) ?? sourceImage(derive.from, depth: depth + 1) else { return nil }
+        let recolored = Recolor.apply(derive.recolor, to: base)
+        if let gear = gearLooks[id], let recolored, let from = asset(derive.from) {
+            let directions = from.directions ?? ["up", "right", "down", "left"]
+            return GearOverlay.apply(gear, original: base, dressed: recolored, frame: from.frame ?? 48, directions: directions)
+        }
+        return recolored
+    }
+
+    /// art/sprites PNGs drawn on top of each other, bottom first; nil unless every one exists.
+    private func stacked(_ layers: [String]) -> CGImage? {
+        let images = layers.compactMap { id in pngURL(id).flatMap { UIImage(contentsOfFile: $0.path)?.cgImage } }
+        guard let first = images.first, images.count == layers.count else { return nil }
+        let width = first.width, height = first.height
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                                      space: CGColorSpaceCreateDeviceRGB(),
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
+        context.interpolationQuality = .none
+        for image in images {
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        }
+        return context.makeImage()
     }
 
     func tileTexture(_ id: String) -> SKTexture {
@@ -448,6 +489,43 @@ final class ArtLibrary {
         let image = UIImage(cgImage: cgImage ?? Placeholder.canvas(for: id, kind: kind, direction: direction).cgImage())
         images[cacheKey] = image
         return image
+    }
+
+    /// A round-portrait crop, like Fairyland's HUD faces: a square about one head high from the top
+    /// of the sprite's visible pixels, centred on it. Cleared with the sprite when it's re-registered.
+    func face(_ id: String) -> UIImage {
+        let cacheKey = id + "#face"
+        if let cached = images[cacheKey] { return cached }
+        let whole = image(id)
+        guard let cgImage = whole.cgImage, let box = Self.visibleBounds(of: cgImage) else { return whole }
+        let side = max(8, min(box.width, box.height * 0.62).rounded())
+        let rect = CGRect(x: (box.midX - side / 2).rounded(), y: max(0, box.minY - 1), width: side, height: side)
+        let face = cgImage.cropping(to: rect).map { UIImage(cgImage: $0) } ?? whole
+        images[cacheKey] = face
+        return face
+    }
+
+    /// The box around a picture's opaque pixels, in pixels from its top left.
+    private static func visibleBounds(of image: CGImage) -> CGRect? {
+        let width = image.width, height = image.height
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let drawn: Bool = pixels.withUnsafeMutableBytes { buffer in
+            guard let context = CGContext(data: buffer.baseAddress, width: width, height: height, bitsPerComponent: 8,
+                                          bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(),
+                                          bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        guard drawn else { return nil }
+        var minX = width, minY = height, maxX = -1, maxY = -1
+        for y in 0..<height {
+            for x in 0..<width where pixels[(y * width + x) * 4 + 3] > 128 {
+                minX = min(minX, x); maxX = max(maxX, x)
+                minY = min(minY, y); maxY = max(maxY, y)
+            }
+        }
+        guard maxX >= 0 else { return nil }
+        return CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1)
     }
 }
 

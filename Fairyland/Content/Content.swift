@@ -79,8 +79,16 @@ nonisolated struct RaceDef: Decodable, Identifiable, Sendable {
     let base: Stats
     /// This race's walk sheet in art/assets.json.
     let art: String?
+    /// Gender id → its own walk sheet; genders without one use `art`.
+    let sheets: [String: String]?
+    /// The hairstyle a hero of this race starts with (an AppearanceOptions `styles` id).
+    let hair: String?
 
     var sheet: String { art ?? "player_walk" }
+
+    func sheet(for gender: String?) -> String {
+        gender.flatMap { sheets?[$0] } ?? sheet
+    }
 }
 
 nonisolated struct ClassDef: Decodable, Identifiable, Sendable {
@@ -122,6 +130,8 @@ nonisolated struct SkillDef: Decodable, Identifiable, Sendable {
     let animation: String?
     /// A GameIcon name for menus.
     let icon: String?
+    /// Its pixel-art icon (art/sprites/skill_<id>.png, drawn by tools/skill_art.py).
+    let art: String?
     /// Spells: the share of damage that also hits the target's neighbours at skill level 5
     /// (60% of that at level 3, 80% at level 4, none below).
     let splash: Double?
@@ -146,12 +156,21 @@ nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {
     let motion: String?
     /// Bosses can't be captured and never run away.
     let boss: Bool?
+    /// Rare spoils, rolled every time it's beaten (bosses come back for rematches).
+    let drops: [Drop]?
+
+    nonisolated struct Drop: Decodable, Sendable {
+        let item: String
+        /// 0...1, rolled on each win.
+        let chance: Double
+    }
 
     func stats(at level: Int) -> Stats { base + growth * (level - 1) }
 }
 
 nonisolated enum ItemType: String, Decodable, Sendable {
-    case consumable, weapon, armor, accessory
+    /// `material`: wood, metal, gems and hides that monsters drop, for the blacksmith.
+    case consumable, weapon, armor, accessory, material
 
     static let equipmentSlots: [ItemType] = [.weapon, .armor, .accessory]
 
@@ -171,17 +190,37 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     let description: String?
     /// For eggs: the species that can hatch from it.
     let hatches: [String]?
-    /// A GameIcon name for the bag and shops.
+    /// Its sprite in art/assets.json (item_<id>, drawn by tools/item_art.py).
+    let art: String?
+    /// A GameIcon name for the bag and shops when there's no sprite.
     let icon: String?
     /// Seal Stones: thrown in battle to befriend a weakened monster.
     let capture: Bool?
     /// Armour: how it recolours the hero's outfit while worn (same rules as looks).
     let recolor: [RecolorRule]?
+    /// Materials: wood | metal | gem | hide. Monsters of at least `level` drop them.
+    let material: String?
+    /// What a blacksmith needs to forge it: material id → how many.
+    let recipe: [String: Int]?
+    /// How it changes the hero's sprite (see GearOverlay): armour's cut (vest | mail | plate | robe |
+    /// cloak), or "boots" for footwear.
+    let wear: String?
+    /// Finer work drawn on stronger armour: engraved | scales | fur | runes | pockets.
+    let pattern: String?
+    /// Whole walk sheets (art/sprites) per race id, worn instead of the paper-doll layers.
+    let sheets: [String: String]?
+    /// A rare colour variant's recolour of those sheets.
+    let tint: [RecolorRule]?
+    /// Trim colour on the sprite (buttons, clasps, hems) and an accessory's sparkle, "#RRGGBB".
+    let accent: String?
+    /// Magic weapons: a soft light while held, "#RRGGBB", centred on `glowAt` ([x, y] in the 32×32 art).
+    let glow: String?
+    let glowAt: [Double]?
 }
 
 nonisolated struct QuestDef: Decodable, Identifiable, Sendable {
     nonisolated enum ObjectiveType: String, Decodable, Sendable {
-        case defeat, capture, reachLevel, chooseClass, collect
+        case defeat, capture, reachLevel, chooseClass, collect, hatch
     }
 
     /// Asked when accepting; the answer decides which companion hatches from the egg.
@@ -235,7 +274,8 @@ nonisolated enum Edge: String, Codable, Sendable {
 
 nonisolated enum NPCRole: String, Decodable, Sendable {
     /// `boss`: a mighty monster waiting on the map; talk to it to fight.
-    case healer, shop, quests, guild, chest, boss
+    /// `smith`: forges weapons from materials (the item's `recipe`).
+    case healer, shop, quests, guild, chest, boss, smith
 }
 
 nonisolated struct NPCDef: Decodable, Identifiable, Sendable {
@@ -254,6 +294,8 @@ nonisolated struct NPCDef: Decodable, Identifiable, Sendable {
     /// Bosses: which monster, at what level.
     let monster: String?
     let level: Int?
+    /// Offers rebirth once you're strong enough (Elder Oak).
+    let rebirth: Bool?
 }
 
 nonisolated struct MapDef: Decodable, Identifiable, Sendable {
@@ -272,6 +314,27 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let props: [PropPlacement]
         /// The map's colour mood for ground, scenery and buildings.
         let palette: MapPalette?
+        /// Caves are solid rock with tunnels and chambers dug out of it.
+        let cave: Cave?
+    }
+
+    /// Solid rock everywhere except galleries along the roads and trails, chambers off them and
+    /// dead-end tunnels, drawn as raised walls you walk between (and behind).
+    nonisolated struct Cave: Decodable, Sendable {
+        /// Tile for the tops and faces of the walls.
+        let rock: String
+        /// How tall the walls stand, in points (40 by default).
+        let height: Double?
+        /// Half-width of the galleries around roads and trails, in cells (3 by default; 0.5 or more).
+        let width: Double?
+        /// Extra chambers dug off the galleries.
+        let chambers: Int?
+        /// Dead-end tunnels branching off, for a bit of a maze.
+        let branches: Int?
+        /// Narrow zigzag passages linking parts of the cave.
+        let zigzags: Int?
+        /// A maze of narrow passages over the whole cave, with junctions about this many cells apart.
+        let maze: Int?
     }
 
     nonisolated struct PropPlacement: Decodable, Sendable {
@@ -309,7 +372,7 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
 
     /// Whimsy: floating particles, butterflies, cloud shadows and a colour mood.
     nonisolated struct Ambience: Decodable, Sendable {
-        /// petals | leaves | fireflies | sparkles
+        /// petals | leaves | fireflies | sparkles | snow | dust | motes, or several joined with "+".
         let particles: String?
         let butterflies: Int?
         let clouds: Bool?
@@ -328,6 +391,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let hazeAlpha: Double?
         /// Out-of-focus scenery drifting past in front of the camera.
         let foreground: Foreground?
+        /// Depth of field on the map's own scenery (on by default). See `DepthOfField`.
+        let focus: Focus?
 
         nonisolated struct Lights: Decodable, Sendable {
             let color: String
@@ -346,6 +411,15 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
             let blur: Double?
             let scale: Double?
         }
+
+        nonisolated struct Focus: Decodable, Sendable {
+            /// Strongest blur in points, at the top of the screen (default 1.5; 0 turns it off).
+            let blur: Double?
+            /// Half-height of the sharp band around the hero, as a fraction of half the screen (default 0.4).
+            let band: Double?
+            /// How soft the bottom of the screen gets compared with the top (default 0.5).
+            let near: Double?
+        }
     }
 
     nonisolated struct Exit: Decodable, Sendable {
@@ -353,6 +427,18 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let to: String
         /// A quest you must finish before this road opens.
         let requires: String?
+        /// Where along its edge the road leaves, in cells from the middle of the edge (east/north positive).
+        let at: Int?
+        /// Waypoints the road winds through on its way out, as [x, y] cell offsets from the centre.
+        let via: [[Int]]?
+    }
+
+    /// A narrower path off the roads, to somewhere worth visiting (a boss's lair, an oasis).
+    nonisolated struct Trail: Decodable, Sendable {
+        /// [x, y] cell offsets from the centre. Starts at the hub unless `from` is set.
+        let to: [Int]
+        let from: [Int]?
+        let via: [[Int]]?
     }
 
     nonisolated struct Building: Decodable, Sendable {
@@ -374,9 +460,16 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
     let width: Int
     let height: Int
     let music: String?
+    /// Song for random battles here (content/music.json); "battle" when unset.
+    let battleMusic: String?
     let theme: Theme
     let fence: Bool?
     let exits: [Exit]
+    /// Where this place sits on the world map, in steps [east, north] from the start town.
+    let world: [Int]?
+    /// Where the roads meet, as an [x, y] cell offset from the centre (the centre by default).
+    let hub: [Int]?
+    let trails: [Trail]?
     let buildings: [Building]?
     let decor: [Decor]?
     let npcs: [NPCDef]?
@@ -417,9 +510,16 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
 
 nonisolated struct SongDef: Decodable, Identifiable, Sendable {
     nonisolated struct Track: Decodable, Sendable {
-        let wave: String
+        /// An instrument from music.json "instruments" (or "drums").
+        let instrument: String?
+        /// Old chiptune tracks: square, triangle or noise.
+        let wave: String?
         let duty: Double?
         let volume: Double
+        /// -1 left ... 1 right.
+        let pan: Double?
+        /// How much of this track goes to the reverb (0...1, default 1).
+        let reverb: Double?
         let notes: String
     }
 
@@ -427,7 +527,28 @@ nonisolated struct SongDef: Decodable, Identifiable, Sendable {
     let title: String
     let tempo: Double
     let loops: Bool?
+    /// The hall reverb's level for the whole song.
+    let reverb: Double?
     let tracks: [Track]
+}
+
+/// An additive instrument (content/music.json "instruments"): sine partials, each
+/// [frequency ratio, level, decay per second], plus envelope and colour.
+nonisolated struct InstrumentDef: Decodable, Sendable {
+    let id: String
+    let partials: [[Double]]?
+    /// Held notes (winds, strings) don't decay; struck ones do.
+    let held: Bool?
+    let attack: Double?
+    let release: Double?
+    /// [depth in semitones, rate in Hz, delay in seconds]
+    let vibrato: [Double]?
+    let voices: Int?
+    /// Cents between the chorus voices.
+    let detune: Double?
+    let breath: Double?
+    let click: Double?
+    let gain: Double?
 }
 
 /// A colour choice in the look customiser (content/appearance.json).
@@ -451,7 +572,29 @@ nonisolated struct CrowdOptions: Decodable, Sendable {
     let companions: [String]
 }
 
+/// One entry in content/changelog.json, shown under "What's new" on the title screen.
+nonisolated struct ReleaseNote: Decodable, Identifiable, Sendable {
+    let version: String
+    let date: String
+    let title: String
+    let notes: [String]
+    var id: String { version }
+}
+
+nonisolated struct GenderOption: Decodable, Identifiable, Sendable {
+    let id: String
+    let name: String
+}
+
+/// A hairstyle: art/sprites/hair_<id>_<race>.png, drawn over the bald body_<race>.png.
+nonisolated struct HairStyle: Decodable, Identifiable, Sendable {
+    let id: String
+    let name: String
+}
+
 nonisolated struct AppearanceOptions: Decodable, Sendable {
+    let genders: [GenderOption]
+    let styles: [HairStyle]
     let hair: [LookPreset]
     let outfits: [LookPreset]
     let skin: [LookPreset]
@@ -470,7 +613,8 @@ private nonisolated struct MonstersFile: Decodable { let monsters: [MonsterDef] 
 private nonisolated struct ItemsFile: Decodable { let items: [ItemDef] }
 private nonisolated struct QuestsFile: Decodable { let quests: [QuestDef] }
 private nonisolated struct MapsFile: Decodable { let start: String; let maps: [MapDef] }
-private nonisolated struct MusicFile: Decodable { let songs: [SongDef] }
+private nonisolated struct MusicFile: Decodable { let songs: [SongDef]; let instruments: [InstrumentDef]? }
+private nonisolated struct ChangelogFile: Decodable { let releases: [ReleaseNote] }
 
 /// All game data from the bundled content/ folder. Edit the JSON, rebuild, done.
 final class Content {
@@ -486,8 +630,11 @@ final class Content {
     let maps: [MapDef]
     let startMap: String
     let songs: [SongDef]
+    let instruments: [InstrumentDef]
     let appearance: AppearanceOptions
     let crowd: CrowdOptions
+    /// Newest first.
+    let releases: [ReleaseNote]
 
     init(bundle: Bundle = .main) {
         let classFile: ClassesFile = Self.load("classes", from: bundle)
@@ -501,9 +648,12 @@ final class Content {
         let mapFile: MapsFile = Self.load("maps", from: bundle)
         maps = mapFile.maps
         startMap = mapFile.start
-        songs = (Self.load("music", from: bundle) as MusicFile).songs
+        let musicFile: MusicFile = Self.load("music", from: bundle)
+        songs = musicFile.songs
+        instruments = musicFile.instruments ?? []
         appearance = Self.load("appearance", from: bundle)
         crowd = Self.load("crowd", from: bundle)
+        releases = (Self.load("changelog", from: bundle) as ChangelogFile).releases
     }
 
     private static func load<T: Decodable>(_ name: String, from bundle: Bundle) -> T {

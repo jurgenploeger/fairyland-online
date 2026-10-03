@@ -5,22 +5,30 @@ Built with SwiftUI + SpriteKit. Art is generated with [Retro Diffusion](https://
 
 ## What's in the game
 
-- **14 isometric maps** you walk between along winding roads: towns (Meadowbrook, Rainbow City, dwarven
-  Goldburg) with streets, shops, fairytale buildings and raised stone terraces, and wild zones from Sunny
-  Meadow and the Smiling Forest to Frog Swamp, the Valley of Fear, Rat Cavern, Genie Desert, Crystal Mountain,
-  Snow White Forest and Moonglow. Quests open the roads onward.
+- **30 isometric maps** you walk between along winding roads, many named after Fairyland Online's: towns
+  (Meadowbrook, Rainbow City, Bluebird, dwarven Goldburg) with streets, shops, fairytale buildings and raised
+  stone terraces, and wild zones from Sunny Meadow, the Northern Grassland and Candy Mountain to Swan Lake,
+  Lotus Land, Puppet Hill, the Valley of Fear, Genie Desert, Sleepy Town and Moonglow, then the level
+  105–200 lands beyond: the Secret Plain, Hachoo Island, Rosen Lake, the Water Temple, the Mysterious Cave and
+  the Emerald Road. Quests open the roads onward.
 - **Random encounters** in the wild (no monsters on the map), with **turn-based battles** fought where you
-  stand. Big spells splash onto nearby monsters. Three bosses wait on their maps.
-- **81 monsters** across seven elements, including rare, tougher colour variants.
+  stand. Big spells splash onto nearby monsters. Eleven bosses wait on their maps, up to the Emerald Dragon at level 200.
+- **100 monsters** across seven elements, including rare, tougher colour variants.
 - **Capture like Fairyland Online:** throw a Seal Stone at the last monster standing once it's below 20% HP.
   It may break free or run away. Keep up to 5 companions; your first hatches from the starter quest's egg.
-- **Classes and skills:** start as a Novice, join a guild at level 5. Each level gives a skill point to learn
+- **Classes and skills:** start as a Novice, join a guild at level 10. Each level gives a skill point to learn
   a new skill or power one up (levels 1–5), each with its own animation.
+- **The long climb, like Fairyland Online:** zones run from level 1 to 200. Past level 100 each level takes
+  more EXP (twice as much by 140), like the original's slow late game. From level 101 Elder Oak can help you
+  be reborn at level 1, keeping your skills and some strength; each rebirth needs 5 more levels. Roughly
+  19 hours of battling to the first rebirth, about 145 to level 200, and about 280 with five rebirth climbs.
 - **A living world:** villagers and other adventurers wander and chat (see the chat window), you can befriend
   adventurers and bring two along in your party, and danger zones allow duels.
 - **Customisation:** hair, outfit and skin (more unlock through quests); armour recolours your outfit and your
   weapon shows in hand.
-- Quests, shops, healers, checkpoints, an in-game calendar and an original chiptune soundtrack.
+- **Onboarding:** a new game opens with the story, how to play and a map of the whole world, and the first
+  time you play a spotlight tour walks through the HUD (Previous, Next, Skip).
+- Quests, shops, healers, checkpoints, an in-game calendar and an original storybook soundtrack (flutes, harp, music box, strings and more, synthesized on the device).
 
 ## Run it
 
@@ -51,7 +59,8 @@ With a free Apple ID the app expires after 7 days. Press ⌘R again to reinstall
 | `content/skills.json` | skills and spells, power, MP, element, battle animation |
 | `content/items.json` | potions, eggs, equipment |
 | `content/quests.json` | quests, objectives, rewards, the elder's question |
-| `content/music.json` | the songs, in a tracker-style note format |
+| `content/changelog.json` | release notes shown under "What's new" on the title screen (newest first) |
+| `content/music.json` | the songs and their instruments, in a tracker-style note format (`tools/music_preview.py` renders them to WAV) |
 | `art/assets.json` | every sprite and its Retro Diffusion prompt |
 
 Rebuild after editing. The unit tests (⌘U) check that every reference between these files resolves.
@@ -94,7 +103,7 @@ Fairyland/App/         app, coordinator, SpriteKit host, debug launch
 Fairyland/Model/       save data, session rules (levels, quests, items), calendar
 Fairyland/World/       isometric maps, walking, NPCs, ambience
 Fairyland/Battle/      battle engine, controller, scene, skill effects
-Fairyland/Audio/       chiptune synth + music player
+Fairyland/Audio/       storybook synth (additive instruments, drums, reverb) + music player
 Fairyland/Art/         sprite loading and placeholder art
 Fairyland/UI/          SwiftUI HUD, menus, dialogs, battle UI
 FairylandTests/        rules and content tests

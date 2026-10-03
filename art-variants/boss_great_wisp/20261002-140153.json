@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "giant glowing will-o-the-wisp spirit, a big soft ball of pale yellow light with a mischievous face and swirling flame tail, boss monster, chibi, cute monster",
+    "prompt_style": "rd_plus__low_res",
+    "width": 64,
+    "height": 64,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790949713,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 47.991,
+    "request_id": "a409abd2-e4e2-4d6e-b411-210739798366",
+    "outputs_retained_until": 1791036086
+  }
+}

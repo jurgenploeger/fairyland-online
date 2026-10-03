@@ -48,7 +48,9 @@ final class Crowd {
     private let replies = Content.shared.crowd.replies
     private var rng = SystemRandomNumberGenerator()
 
-    init(def: MapDef, map: WorldMap, world: SKNode) {
+    /// Friends you've made (and who aren't travelling with you) now and then turn up on a map with
+    /// other adventurers about, if it suits their level, so you can meet them again and invite them.
+    init(def: MapDef, map: WorldMap, world: SKNode, friends: [Adventurer] = []) {
         self.map = map
         let options = Content.shared.crowd
         let town = def.fence == true
@@ -57,20 +59,20 @@ final class Crowd {
         var villagerNames = options.villagerNames.shuffled()
 
         let levels = def.encounters.map { ($0.levels.first ?? 1)...(($0.levels.last ?? 1) + 3) } ?? 1...8
-        for _ in 0..<(def.crowd?.adventurers ?? 0) {
+        let count = def.crowd?.adventurers ?? 0
+        // Towns welcome anyone; out in the wild, friends roam where the monsters suit them.
+        let nearLevel = (levels.lowerBound - 10)...(levels.upperBound + 10)
+        let visitors: [Adventurer] = count == 0 ? [] : Array(friends
+            .filter { town || nearLevel.contains($0.level) }
+            .filter { _ in Double.random(in: 0..<1) < Self.friendVisitChance }
+            .shuffled()
+            .prefix(min(2, count)))
+        for index in 0..<count {
             guard let home = map.strollTarget(near: map.center, radius: spread, using: &rng) else { continue }
-            let profile = Self.profile(named: adventurerNames.popLast() ?? "Traveller", levels: levels, danger: def.danger == true)
-            let walker = Self.person(profile.name, race: profile.raceID, look: profile.look,
-                                     color: profile.hostile ? Self.hostileColor : Self.adventurerColor)
-            walker.walkSpeed = .random(in: 72...92)
-            var pet: Walker?
-            if let species = profile.petSpecies.flatMap(Content.shared.monster) {
-                pet = Walker(cycle: ArtLibrary.shared.walkCycle(species.art), label: nil)
-                pet?.walkSpeed = 110
-                pet?.motion = IdleMotion.of(art: species.art)
-            }
-            add(Member(name: profile.name, kind: .adventurer, walker: walker, pet: pet, home: home, roam: town ? 9 : 14,
-                       lines: options.adventurerLines, profile: profile), to: world)
+            let profile = index < visitors.count
+                ? visitors[index]
+                : Self.profile(named: adventurerNames.popLast() ?? "Traveller", levels: levels, danger: def.danger == true)
+            addAdventurer(profile, home: home, roam: town ? 9 : 14, world: world)
         }
         for _ in 0..<(def.crowd?.villagers ?? 0) {
             guard let home = map.strollTarget(near: map.center, radius: spread, using: &rng) else { continue }
@@ -79,6 +81,33 @@ final class Crowd {
             let walker = Self.person(name, race: Content.shared.races.randomElement()?.id ?? "human", look: look, color: .white)
             walker.walkSpeed = .random(in: 50...66)
             add(Member(name: name, kind: .villager, walker: walker, pet: nil, home: home, roam: 5, lines: options.villagerLines), to: world)
+        }
+    }
+
+    /// How likely each friend is to be on a map you enter.
+    static let friendVisitChance = 0.35
+
+    private func addAdventurer(_ profile: Adventurer, home: GridPoint, roam: Int, world: SKNode) {
+        let walker = Self.person(profile.name, race: profile.raceID, look: profile.look,
+                                 color: profile.hostile ? Self.hostileColor : Self.adventurerColor)
+        walker.walkSpeed = .random(in: 72...92)
+        var pet: Walker?
+        if let species = profile.petSpecies.flatMap(Content.shared.monster) {
+            pet = Walker(cycle: ArtLibrary.shared.walkCycle(species.art), label: nil)
+            pet?.walkSpeed = 110
+            pet?.motion = IdleMotion.of(art: species.art)
+        }
+        add(Member(name: profile.name, kind: .adventurer, walker: walker, pet: pet, home: home, roam: roam,
+                   lines: Content.shared.crowd.adventurerLines, profile: profile), to: world)
+    }
+
+    /// A friend who left your party stays on this map, strolling around where they stood.
+    func rejoin(_ friend: Adventurer, at point: CGPoint, world: SKNode) {
+        guard !members.contains(where: { $0.profile?.id == friend.id }) else { return }
+        addAdventurer(friend, home: map.cell(at: point), roam: 9, world: world)
+        if let member = members.last {
+            member.walker.position = point
+            member.pet?.position = point + CGVector(dx: -30, dy: 0)
         }
     }
 
@@ -98,12 +127,13 @@ final class Crowd {
         let options = Content.shared.appearance
         return Look(hair: options.hair.randomElement()?.id ?? Look.standard.hair,
                     outfit: options.outfits.randomElement()?.id ?? Look.standard.outfit,
-                    skin: options.skin.randomElement()?.id ?? Look.standard.skin)
+                    skin: options.skin.randomElement()?.id ?? Look.standard.skin,
+                    gender: options.genders.randomElement()?.id)
     }
 
     /// Someone of a race and look, recoloured like a customised hero.
     private static func person(_ name: String, race raceID: String, look: Look, color: UIColor) -> Walker {
-        let sheet = Content.shared.race(raceID).sheet
+        let sheet = Content.shared.race(raceID).sheet(for: look.gender)
         let id = "adv:\(raceID):\(look.key)"
         ArtLibrary.shared.register(id, from: sheet, recolor: GameSession.rules(for: look), key: sheet + "/" + look.key)
         return Walker(cycle: ArtLibrary.shared.walkCycle(id), label: name, labelColor: color)
@@ -192,6 +222,13 @@ final class Crowd {
             .filter { $0.distance < reach }
             .min { $0.distance < $1.distance }?
             .profile
+    }
+
+    /// Every adventurer within reach of `point`.
+    func adventurers(near point: CGPoint, within reach: CGFloat) -> Set<UUID> {
+        Set(members.compactMap { member in
+            member.walker.position.distance(to: point) < reach ? member.profile?.id : nil
+        })
     }
 
     func position(of id: UUID) -> CGPoint? {

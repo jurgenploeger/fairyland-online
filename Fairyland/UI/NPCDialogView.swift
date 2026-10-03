@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Talking to someone in town: the healer, the shop, the quest giver, a guild master — or opening a gift box.
+/// Talking to someone: the healer, the shop, the quest giver, a guild master or a boss.
 struct NPCDialogView: View {
     let npc: NPCDef
     let session: GameSession
@@ -10,46 +10,125 @@ struct NPCDialogView: View {
     @State private var reply: String?
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Color.black.opacity(0.35)
-                .ignoresSafeArea()
-                .onTapGesture(perform: onClose)
+        GeometryReader { proxy in
+            // Fairyland-style: the character stands big in the bottom-right corner, cut off by the
+            // edge of the screen, and talks from a speech bubble on their left.
+            let portrait = min(proxy.size.width * 0.5, proxy.size.height * 0.6, 300)
+            ZStack(alignment: .bottomTrailing) {
+                Color.black.opacity(0.35)
+                    .onTapGesture(perform: onClose)
 
-            VStack(alignment: .leading, spacing: 0) {
-                FLTitleBar(title: npc.name, onClose: onClose)
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(alignment: .top, spacing: 10) {
-                        SpriteImage(art: npc.art, size: 60)
-                            .background(Circle().fill(.white.opacity(0.08)))
-                        Text(reply ?? npc.greeting)
-                            .font(HUDStyle.font(13))
-                            .fixedSize(horizontal: false, vertical: true)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(10)
-                            .background(RoundedRectangle(cornerRadius: 10).fill(.white.opacity(0.08)))
-                    }
-                    ScrollView {
-                        Group {
-                            switch npc.role {
-                            case .healer: HealerPanel(session: session, reply: $reply)
-                            case .shop: ShopPanel(session: session, stock: npc.stock ?? [], reply: $reply)
-                            case .quests: QuestGiverPanel(session: session, giver: npc.id, reply: $reply)
-                            case .guild: GuildPanel(session: session, classID: npc.classId ?? "", reply: $reply)
-                            case .chest: ChestPanel(session: session, chest: npc, reply: $reply)
-                            case .boss: BossPanel(session: session, boss: npc, onFight: onFight)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .frame(maxHeight: 260)
-                }
-                .padding(12)
+                SpriteImage(art: npc.art, size: portrait)
+                    .offset(x: portrait * 0.22, y: portrait * 0.16)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+
+                bubble(maxHeight: proxy.size.height * 0.5)
+                    .frame(maxWidth: 520)
+                    .padding(.leading, 12)
+                    .padding(.trailing, portrait * 0.62)
+                    .padding(.bottom, max(16, proxy.safeAreaInsets.bottom))
             }
-            .foregroundStyle(HUDStyle.cream)
-            .frame(maxWidth: 680)
-            .background(HUDStyle.panel)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .padding(10)
+            .frame(width: proxy.size.width, height: proxy.size.height)
+        }
+        .ignoresSafeArea()
+    }
+
+    private func bubble(maxHeight: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            FLTitleBar(title: npc.name, onClose: onClose)
+            VStack(alignment: .leading, spacing: 10) {
+                Text(reply ?? npc.greeting)
+                    .font(HUDStyle.font(13))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                ScrollView {
+                    Group {
+                        switch npc.role {
+                        case .healer: HealerPanel(session: session, reply: $reply)
+                        case .shop: ShopPanel(session: session, stock: npc.stock ?? [], reply: $reply)
+                        case .quests: QuestGiverPanel(session: session, giver: npc.id, reply: $reply)
+                        case .guild: GuildPanel(session: session, classID: npc.classId ?? "", reply: $reply)
+                        case .chest: EmptyView()   // opened straight from the map (GameCoordinator.open)
+                        case .boss: BossPanel(session: session, boss: npc, onFight: onFight)
+                        case .smith: SmithPanel(session: session, reply: $reply)
+                        }
+                        if npc.rebirth == true {
+                            RebirthPanel(session: session, reply: $reply)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .frame(maxHeight: min(260, max(120, maxHeight - 110)))
+            }
+            .padding(12)
+        }
+        .foregroundStyle(HUDStyle.cream)
+        .background(HUDStyle.panel)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        // The bubble's tail points at the speaker on the right.
+        .overlay(alignment: .bottomTrailing) {
+            BubbleTail()
+                .fill(Color(red: 0.05, green: 0.17, blue: 0.35).opacity(0.95))
+                .frame(width: 18, height: 22)
+                .offset(x: 16, y: -28)
+                .accessibilityHidden(true)
+        }
+    }
+}
+
+/// A small triangle pointing right, for the speech bubble.
+private nonisolated struct BubbleTail: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// Fairyland Online's rebirth: from level 101 (5 more each time), for gold.
+private struct RebirthPanel: View {
+    let session: GameSession
+    @Binding var reply: String?
+    @State private var confirming = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Divider().overlay(HUDStyle.cream.opacity(0.3))
+            Text("Rebirth").font(HUDStyle.font(13)).foregroundStyle(HUDStyle.gold)
+            if session.data.hero.level < session.rebirthLevel {
+                Text("Reach level \(session.rebirthLevel) and I can help you be reborn: back to level 1, keeping your skills and some of your strength.")
+                    .font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else if confirming {
+                Text("Start again at level 1? You keep your skills, pets and items.")
+                    .font(HUDStyle.font(11))
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack {
+                    Button("Be reborn (\(session.rebirthCost)g)") {
+                        session.rebirth()
+                        confirming = false
+                        reply = "Welcome back, little one. You'll grow even stronger this time."
+                    }
+                    .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+                    Button("Not yet") { confirming = false }
+                        .buttonStyle(PixelButtonStyle(compact: true))
+                }
+            } else {
+                Button {
+                    if session.canRebirth {
+                        confirming = true
+                    } else {
+                        reply = "Rebirth costs \(session.rebirthCost) gold. Come back when you have it."
+                    }
+                } label: {
+                    Label("Be reborn (\(session.rebirthCost)g)", icon: .sparkles)
+                }
+                .buttonStyle(PixelButtonStyle(tint: session.canRebirth ? HUDStyle.gold : HUDStyle.dim, compact: true))
+            }
         }
     }
 }
@@ -68,32 +147,6 @@ private struct HealerPanel: View {
             Label("Rest and recover (free)", icon: .heartPlus)
         }
         .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
-    }
-}
-
-private struct ChestPanel: View {
-    let session: GameSession
-    let chest: NPCDef
-    @Binding var reply: String?
-
-    var body: some View {
-        if session.isOpened(chest.id) {
-            EmptyNote("It's empty now.")
-        } else if session.canOpen(chest) {
-            Button {
-                if let item = session.openChest(chest) {
-                    session.save()
-                    reply = "You untie the ribbon… You found a \(item.name)!"
-                }
-            } label: {
-                Label("Open the gift box", icon: .gift)
-            }
-            .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
-        } else {
-            Text("The ribbon is tied tight. Maybe Elder Oak knows who it's for.")
-                .font(HUDStyle.font(12))
-                .foregroundStyle(HUDStyle.dim)
-        }
     }
 }
 
@@ -162,7 +215,7 @@ private struct QuestGiverPanel: View {
                                     Button(answer.text) {
                                         session.acceptQuest(quest.id, answer: answer)
                                         asking = nil
-                                        reply = "\(answer.text)… a fine answer. Now, off you go — the gift boxes are hidden around town!"
+                                        reply = "\(answer.text)… a fine answer. Here are your gifts. Hatch that egg and come show me!"
                                     }
                                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                                 }
@@ -257,10 +310,14 @@ private struct BossPanel: View {
                     Text("This looks really dangerous at your level…").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.orange)
                 }
             }
-            if session.isDefeated(boss) {
-                EmptyNote("You've already beaten it.")
+            if let drops = species?.drops, !drops.isEmpty {
+                let names = drops.compactMap { session.content.item($0.item)?.name }
+                Text("Rare drops: \(names.joined(separator: ", "))").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+            }
+            if session.isBeatenHere(boss) {
+                EmptyNote("Beaten! It'll be back next time you come by.")
             } else {
-                Button { onFight(boss) } label: { Label("Fight!", icon: .sword) }
+                Button { onFight(boss) } label: { Label(session.isDefeated(boss) ? "Rematch!" : "Fight!", icon: .sword) }
                     .buttonStyle(PixelButtonStyle(tint: Color(red: 1, green: 0.55, blue: 0.5)))
             }
         }

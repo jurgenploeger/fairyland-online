@@ -38,7 +38,7 @@ final class BattleScene: SKScene {
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
 
     override func didMove(to view: SKView) {
-        MusicPlayer.shared.play("battle")
+        MusicPlayer.shared.play(controller.music)
         layout()
         enter()
     }
@@ -76,8 +76,8 @@ final class BattleScene: SKScene {
     private func layout() {
         guard size.width > 1, size.height > 1 else { return }
         buildGround()
-        // Leave room for the HUD: log + party panel on top, the command wheel bottom-right.
-        let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (190, 240) : (70, 40)
+        // Leave room for the HUD: the log line on top, the command wheel bottom-right.
+        let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (130, 240) : (70, 40)
         let area = CGRect(x: 0, y: insets.bottom, width: size.width, height: max(120, size.height - insets.top - insets.bottom))
         if isPortrait {
             arrange(controller.enemies, around: CGPoint(x: area.midX - 20, y: area.minY + area.height * 0.66), facing: .down)
@@ -91,11 +91,21 @@ final class BattleScene: SKScene {
 
     /// Fighters stand in a diagonal line, like Fairyland's battle formation.
     private func arrange(_ group: [Combatant], around center: CGPoint, facing: Direction) {
+        // In portrait a long line closes up and slides over so everyone stays on screen.
+        let spacing = isPortrait ? min(108, (size.width - 100) / CGFloat(max(1, group.count - 1))) : 56
+        var center = center
+        if isPortrait, group.count > 1 {
+            let half = spacing * CGFloat(group.count - 1) / 2
+            center.x = min(max(center.x, 50 + half), size.width - 50 - half)
+            // The line steps down to the right; lift it so its lowest fighter stands where one alone
+            // would, clear of the command wheel.
+            center.y += 13 * CGFloat(group.count - 1)
+        }
         for (index, fighter) in group.enumerated() {
             let offset = CGFloat(index) - CGFloat(group.count - 1) / 2
             let point = isPortrait
-                ? CGPoint(x: center.x + offset * 108, y: center.y - offset * 26)
-                : CGPoint(x: center.x + offset * 56, y: center.y - offset * 76)
+                ? CGPoint(x: center.x + offset * spacing, y: center.y - offset * 26)
+                : CGPoint(x: center.x + offset * spacing, y: center.y - offset * 76)
             actors[fighter.id]?.place(at: point, facing: facing)
         }
     }
@@ -154,8 +164,8 @@ final class BattleScene: SKScene {
             guard let actor = actors[id] else { continue }
             let arrow = SKLabelNode()
             arrow.attributedText = Nodes.outlined("▼", size: 20, color: UIColor(red: 1, green: 0.55, blue: 0.15, alpha: 1))
-            // Right above the head (name tags sit under the fighters, so nothing's in the way).
-            arrow.position = CGPoint(x: actor.position.x, y: actor.position.y + actor.height + 2)
+            // Above the name over the fighter's head.
+            arrow.position = CGPoint(x: actor.position.x, y: actor.position.y + actor.nameHeight + 18)
             arrow.zPosition = 20_000
             arrow.run(.repeatForever(.sequence([.moveBy(x: 0, y: 5, duration: 0.3), .moveBy(x: 0, y: -5, duration: 0.3)])))
             stage.addChild(arrow)
@@ -197,7 +207,7 @@ final class BattleScene: SKScene {
 
         case .skill(let actorID, let skill, let level, let hits):
             controller.apply(event)
-            shout(skill.name + (level > 1 ? " Lv\(level)" : "") + "!", over: actorID, color: skill.element?.color)
+            shout(skill.name + (level > 1 ? " Lv\(level)" : "") + "!", over: actorID, color: skill.element?.color, skill: skill)
             await castSkill(skill, level: level, from: actorID, hits: hits)
             await pause(0.35)
 
@@ -363,19 +373,45 @@ final class BattleScene: SKScene {
         await actor.run(.move(to: actor.home, duration: 0.25))
     }
 
-    private func shout(_ text: String, over actorID: Int, color: UIColor?) {
+    /// The move's name over whoever made it, with the skill's icon tile in front when there is one,
+    /// so every cast (yours, a companion's, a monster's) shows what it was.
+    private func shout(_ text: String, over actorID: Int, color: UIColor?, skill: SkillDef? = nil) {
         guard let actor = actors[actorID] else { return }
         let label = SKLabelNode()
         label.attributedText = Nodes.outlined(text, size: 15, color: Nodes.gold)
-        label.position = actor.top + CGVector(dx: 0, dy: 26)
-        label.zPosition = 22_000
-        label.setScale(0.4)
-        stage.addChild(label)
-        label.run(.sequence([
+        label.verticalAlignmentMode = .center
+        let group = SKNode()
+        group.position = actor.top + CGVector(dx: 0, dy: 36)
+        group.zPosition = 22_000
+        group.addChild(label)
+        if let skill, let tile = Self.skillTile(skill, size: 24) {
+            let gap: CGFloat = 4
+            let total = tile.frame.width + gap + label.frame.width
+            tile.position = CGPoint(x: -total / 2 + tile.frame.width / 2, y: 0)
+            label.position.x = tile.position.x + tile.frame.width / 2 + gap + label.frame.width / 2
+            group.addChild(tile)
+        }
+        group.setScale(0.4)
+        stage.addChild(group)
+        group.run(.sequence([
             .scale(to: 1.1, duration: 0.12), .scale(to: 1, duration: 0.08),
             .wait(forDuration: 0.7), .group([.fadeOut(withDuration: 0.3), .moveBy(x: 0, y: 12, duration: 0.3)]),
             .removeFromParent(),
         ]))
+    }
+
+    /// A skill's icon on its coloured tile, like `SkillIcon` in the menus.
+    private static func skillTile(_ skill: SkillDef, size: CGFloat) -> SKNode? {
+        guard let id = skill.art, let image = ArtLibrary.shared.artImage(id) else { return nil }
+        let tile = SKShapeNode(rectOf: CGSize(width: size, height: size), cornerRadius: size * 0.26)
+        tile.fillColor = skill.tileColor
+        tile.strokeColor = UIColor(white: 1, alpha: 0.75)
+        tile.lineWidth = 1.5
+        let texture = SKTexture(image: image)
+        texture.filteringMode = .nearest
+        let picture = SKSpriteNode(texture: texture, size: CGSize(width: size * 0.84, height: size * 0.84))
+        tile.addChild(picture)
+        return tile
     }
 
     private func impactAll(_ hits: [Hit], heal: Bool) {
@@ -497,7 +533,7 @@ final class BattleScene: SKScene {
 
     private func refreshBars() {
         for fighter in controller.combatants {
-            actors[fighter.id]?.setHealth(fighter.hpFraction)
+            actors[fighter.id]?.setHealth(fighter.hpFraction, mana: fighter.mpFraction)
         }
     }
 
@@ -521,7 +557,7 @@ final class BattleActor: SKNode {
         let size = cycle.size * 2
         sprite = SKSpriteNode(texture: cycle.frames(.down).first, size: size)
         sprite.anchorPoint = CGPoint(x: 0.5, y: 0.05)
-        bar = HealthBar(width: 50)
+        bar = HealthBar(width: 44, level: fighter.level, mana: fighter.isHero)
         ring = SKShapeNode(ellipseOf: CGSize(width: max(64, size.width * 0.85), height: 26))
         super.init()
         ring.strokeColor = UIColor(white: 1, alpha: 0.55)
@@ -530,11 +566,15 @@ final class BattleActor: SKNode {
         ring.zPosition = -2
         addChild(ring)
         addChild(sprite)
-        bar.position = CGPoint(x: 0, y: -18)
+        // HP and level on one plate under the feet, the name over the head.
+        bar.position = CGPoint(x: 0, y: -17)
         bar.fraction = CGFloat(fighter.hpFraction)
+        bar.manaFraction = CGFloat(fighter.mpFraction)
         addChild(bar)
-        let label = NameTag(fighter.name, level: fighter.level, size: 14, alignment: .top)
-        label.position = CGPoint(x: 0, y: -26)
+        // The same small gap over every head, wherever the art's top edge sits in its frame.
+        nameHeight = size.height * (1 - sprite.anchorPoint.y - Self.emptyTop(of: sprite.texture)) + Self.nameGap
+        let label = NameTag(fighter.name, size: 12)
+        label.position = CGPoint(x: 0, y: nameHeight)
         addChild(label)
         sprite.run(IdleMotion.of(art: fighter.art).action(height: size.height, delay: .random(in: 0..<0.8)), withKey: "idle")
     }
@@ -544,6 +584,28 @@ final class BattleActor: SKNode {
     var height: CGFloat { sprite.size.height }
     var center: CGPoint { position + CGVector(dx: 0, dy: sprite.size.height * 0.45) }
     var top: CGPoint { position + CGVector(dx: 0, dy: sprite.size.height * 0.85) }
+    /// Where the name sits: just over the head.
+    private(set) var nameHeight: CGFloat = 0
+    private static let nameGap: CGFloat = 4
+
+    /// The share of `texture`'s height that's empty above the art.
+    private static func emptyTop(of texture: SKTexture?) -> CGFloat {
+        guard let image = texture?.cgImage(), image.width > 0, image.height > 0 else { return 0 }
+        let width = image.width, height = image.height
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                                      space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue),
+              let data = context.data
+        else { return 0 }
+        context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        let pixels = data.bindMemory(to: UInt8.self, capacity: width * height * 4)
+        // The bitmap's rows run top to bottom, like the image's.
+        for y in 0..<height {
+            for x in 0..<width where pixels[(y * width + x) * 4 + 3] > 8 {
+                return CGFloat(y) / CGFloat(height)
+            }
+        }
+        return 0
+    }
 
     func place(at point: CGPoint, facing direction: Direction) {
         home = point
@@ -569,8 +631,9 @@ final class BattleActor: SKNode {
         }
     }
 
-    func setHealth(_ fraction: Double) {
+    func setHealth(_ fraction: Double, mana: Double) {
         bar.fraction = CGFloat(fraction)
+        bar.manaFraction = CGFloat(mana)
     }
 
     func setHighlighted(_ highlighted: Bool) {

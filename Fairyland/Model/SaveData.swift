@@ -11,7 +11,7 @@ nonisolated struct Equipment: Codable, Equatable, Sendable {
             case .weapon: weapon
             case .armor: armor
             case .accessory: accessory
-            case .consumable: nil
+            case .consumable, .material: nil
             }
         }
         set {
@@ -19,7 +19,7 @@ nonisolated struct Equipment: Codable, Equatable, Sendable {
             case .weapon: weapon = newValue
             case .armor: armor = newValue
             case .accessory: accessory = newValue
-            case .consumable: break
+            case .consumable, .material: break
             }
         }
     }
@@ -41,17 +41,24 @@ nonisolated struct Hero: Codable, Equatable, Sendable {
     var learnedSkills: [String]?
     /// Extra points, e.g. for skills older saves got for free.
     var bonusSkillPoints: Int?
+    /// Times reborn (Fairyland Online's 轉生): back to level 1, keeping skills and some strength.
+    var rebirths: Int?
 }
 
-/// The hero's chosen colours (preset ids from content/appearance.json).
+/// The hero's chosen colours and hairstyle (ids from content/appearance.json).
 nonisolated struct Look: Codable, Equatable, Sendable {
     var hair: String
     var outfit: String
     var skin: String
+    /// male | female | other (content/appearance.json `genders`); nil in older saves, which
+    /// keep their race's original sheet.
+    var gender: String? = nil
+    /// Hairstyle; nil means the race's own (saves from before styles were a choice).
+    var style: String? = nil
 
     static let standard = Look(hair: "ginger", outfit: "green", skin: "fair")
 
-    var key: String { "\(hair)/\(outfit)/\(skin)" }
+    var key: String { "\(hair)/\(outfit)/\(skin)/\(style ?? "-")" + (gender.map { "/" + $0 } ?? "") }
 }
 
 /// A captured monster travelling with the hero.
@@ -76,7 +83,8 @@ nonisolated struct QuestProgress: Codable, Equatable, Sendable {
 
 /// Everything that's written to disk.
 nonisolated struct SaveData: Codable, Sendable {
-    var version = 1
+    /// 2: the elder hands out the starter gifts (1: they were gift boxes around Meadowbrook).
+    var version = 2
     var hero: Hero
     var pets: [Pet]
     var activePetID: UUID?
@@ -98,6 +106,13 @@ nonisolated struct SaveData: Codable, Sendable {
     var partyIDs: [UUID]?
     /// Bosses you've beaten (their NPC ids); they don't come back.
     var defeatedBosses: [String]?
+    /// Maps you've set foot on, for the world map.
+    var visitedMaps: [String]?
+    /// Levels were stretched from 1–33 to 1–105 (Fairyland Online's long climb); older saves are
+    /// scaled up once so the hero still matches the zones they were in.
+    var levelsRescaled: Bool?
+    /// Skills pinned to the battle bar for one-tap casting, in order.
+    var pinnedSkills: [String]?
 }
 
 /// Another adventurer (Fairyland's other players): met on the map, befriended, and maybe

@@ -1,5 +1,5 @@
 {
-  "_about": "Monster species. Wild monsters and companions share these stats: stats = base + growth × (level − 1). captureRate 0 means it can't be captured. `art` is an id from art/assets.json. Variants like Frost Puff reuse a base monster's art with a free palette swap (see art/assets.json). Rare colour variants (`rare`, `variantOf`) are about 30% tougher, give more EXP and gold, and are harder to catch. `motion` is how it fidgets standing still (breathe, squish, hop, sway, bounce). Bosses (`boss`) can't be captured and wait on the map to be challenged.",
+  "_about": "Monster species. Wild monsters and companions share these stats: stats = base + growth × (level − 1). captureRate 0 means it can't be captured. `art` is an id from art/assets.json. Variants like Frost Puff reuse a base monster's art with a free palette swap (see art/assets.json). Rare colour variants (`rare`, `variantOf`) are about 30% tougher, give more EXP and gold, and are harder to catch. `motion` is how it fidgets standing still (breathe, squish, hop, sway, bounce). Bosses (`boss`) can't be captured and wait on the map to be challenged; they're back for a rematch each time you return to their map, and every win rolls each of their `drops` (item, chance 0-1).",
   "monsters": [
     {
       "id": "bunny",
@@ -1021,6 +1021,7 @@
       "gold": 14,
       "captureRate": 0.4,
       "skills": [
+        "bash",
         "vine_whip",
         "bubble"
       ],
@@ -1051,8 +1052,74 @@
       "gold": 22,
       "captureRate": 0.24,
       "skills": [
+        "bash",
         "vine_whip",
         "bubble"
+      ],
+      "motion": "hop",
+      "rare": true,
+      "variantOf": "treefrog"
+    },
+    {
+      "id": "blue_treefrog",
+      "name": "Blue Treefrog",
+      "art": "monster_treefrog_blue",
+      "element": "water",
+      "base": {
+        "hp": 46,
+        "mp": 18,
+        "attack": 18,
+        "defense": 9,
+        "magic": 9,
+        "speed": 23
+      },
+      "growth": {
+        "hp": 7,
+        "mp": 2,
+        "attack": 2,
+        "defense": 1,
+        "magic": 1,
+        "speed": 2
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.4,
+      "skills": [
+        "bash",
+        "bubble",
+        "jelly_splash"
+      ],
+      "motion": "hop",
+      "variantOf": "treefrog"
+    },
+    {
+      "id": "golden_treefrog",
+      "name": "Golden Treefrog",
+      "art": "monster_treefrog_gold",
+      "element": "metal",
+      "base": {
+        "hp": 65,
+        "mp": 25,
+        "attack": 25,
+        "defense": 12,
+        "magic": 12,
+        "speed": 33
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 3,
+        "attack": 3,
+        "defense": 1,
+        "magic": 1,
+        "speed": 3
+      },
+      "exp": 46,
+      "gold": 40,
+      "captureRate": 0.18,
+      "skills": [
+        "bash",
+        "vine_whip",
+        "golden_spin"
       ],
       "motion": "hop",
       "rare": true,
@@ -2364,6 +2431,16 @@
     },
     {
       "id": "rat_king",
+      "drops": [
+        {
+          "item": "crimson_ranger_cloak",
+          "chance": 0.15
+        },
+        {
+          "item": "golden_plate",
+          "chance": 0.15
+        }
+      ],
       "name": "Rat King",
       "art": "boss_rat_king",
       "element": "fire",
@@ -2395,6 +2472,16 @@
     },
     {
       "id": "drunk_dragon",
+      "drops": [
+        {
+          "item": "golden_dragon_mail",
+          "chance": 0.15
+        },
+        {
+          "item": "azure_dragon_mail",
+          "chance": 0.15
+        }
+      ],
       "name": "Drunk Dragon",
       "art": "boss_drunk_dragon",
       "element": "fire",
@@ -2426,6 +2513,16 @@
     },
     {
       "id": "big_bad_wolf",
+      "drops": [
+        {
+          "item": "rose_snow_cloak",
+          "chance": 0.15
+        },
+        {
+          "item": "shadow_snow_cloak",
+          "chance": 0.15
+        }
+      ],
       "name": "Big Bad Wolf",
       "art": "boss_big_bad_wolf",
       "element": "dark",
@@ -2454,6 +2551,702 @@
       ],
       "motion": "breathe",
       "boss": true
+    },
+    {
+      "id": "golden_slime",
+      "name": "Golden Slime",
+      "art": "monster_golden_slime",
+      "element": "metal",
+      "base": {
+        "hp": 37,
+        "mp": 14,
+        "attack": 9,
+        "defense": 6,
+        "magic": 7,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 2,
+        "attack": 1,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 26,
+      "gold": 15,
+      "captureRate": 0.54,
+      "skills": [
+        "mud_shot"
+      ],
+      "motion": "squish"
+    },
+    {
+      "id": "candy_puff",
+      "name": "Candy Puff",
+      "art": "monster_candy_puff",
+      "element": "light",
+      "base": {
+        "hp": 34,
+        "mp": 13,
+        "attack": 8,
+        "defense": 5,
+        "magic": 6,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 3,
+        "attack": 1,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 10,
+      "gold": 6,
+      "captureRate": 0.6,
+      "skills": [
+        "jelly_splash"
+      ],
+      "motion": "squish"
+    },
+    {
+      "id": "temple_jelly",
+      "name": "Temple Jelly",
+      "art": "monster_temple_jelly",
+      "element": "water",
+      "base": {
+        "hp": 41,
+        "mp": 17,
+        "attack": 10,
+        "defense": 7,
+        "magic": 11,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 2,
+        "attack": 1,
+        "defense": 1,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 17,
+      "gold": 11,
+      "captureRate": 0.36,
+      "skills": [
+        "jelly_splash"
+      ],
+      "motion": "squish"
+    },
+    {
+      "id": "earth_wolf",
+      "name": "Earth Wolf",
+      "art": "monster_earth_wolf",
+      "element": "earth",
+      "base": {
+        "hp": 66,
+        "mp": 14,
+        "attack": 23,
+        "defense": 12,
+        "magic": 7,
+        "speed": 14
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 1,
+        "attack": 4,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 24,
+      "gold": 14,
+      "captureRate": 0.35,
+      "skills": [
+        "shadow_bite",
+        "roar"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "flame_wolf",
+      "name": "Flame Wolf",
+      "art": "monster_flame_wolf",
+      "element": "fire",
+      "base": {
+        "hp": 69,
+        "mp": 15,
+        "attack": 24,
+        "defense": 13,
+        "magic": 7,
+        "speed": 15
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 1,
+        "attack": 4,
+        "defense": 1,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 25,
+      "gold": 15,
+      "captureRate": 0.35,
+      "skills": [
+        "shadow_bite",
+        "roar"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "wooden_puppet",
+      "name": "Wooden Puppet",
+      "art": "monster_wooden_puppet",
+      "element": "wood",
+      "base": {
+        "hp": 112,
+        "mp": 35,
+        "attack": 32,
+        "defense": 21,
+        "magic": 21,
+        "speed": 32
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 3,
+        "attack": 3,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 64,
+      "gold": 38,
+      "captureRate": 0.25,
+      "skills": [
+        "shadow_bite",
+        "web_shot"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "lotus_sprite",
+      "name": "Lotus Sprite",
+      "art": "monster_lotus_sprite",
+      "element": "wood",
+      "base": {
+        "hp": 57,
+        "mp": 35,
+        "attack": 13,
+        "defense": 11,
+        "magic": 24,
+        "speed": 20
+      },
+      "growth": {
+        "hp": 8,
+        "mp": 4,
+        "attack": 1,
+        "defense": 1,
+        "magic": 3,
+        "speed": 1
+      },
+      "exp": 34,
+      "gold": 20,
+      "captureRate": 0.35,
+      "skills": [
+        "flash"
+      ],
+      "motion": "sway"
+    },
+    {
+      "id": "dream_phantom",
+      "name": "Dream Phantom",
+      "art": "monster_dream_phantom",
+      "element": "dark",
+      "base": {
+        "hp": 91,
+        "mp": 56,
+        "attack": 21,
+        "defense": 18,
+        "magic": 38,
+        "speed": 32
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 5,
+        "attack": 2,
+        "defense": 2,
+        "magic": 3,
+        "speed": 2
+      },
+      "exp": 64,
+      "gold": 38,
+      "captureRate": 0.25,
+      "skills": [
+        "shadow_bite"
+      ],
+      "motion": "sway"
+    },
+    {
+      "id": "ore_golem",
+      "name": "Fantasy Ore Golem",
+      "art": "monster_ore_golem",
+      "element": "metal",
+      "base": {
+        "hp": 135,
+        "mp": 24,
+        "attack": 28,
+        "defense": 31,
+        "magic": 12,
+        "speed": 19
+      },
+      "growth": {
+        "hp": 14,
+        "mp": 1,
+        "attack": 3,
+        "defense": 3,
+        "magic": 1,
+        "speed": 1
+      },
+      "exp": 53,
+      "gold": 32,
+      "captureRate": 0.3,
+      "skills": [
+        "rock_throw"
+      ],
+      "motion": "bounce"
+    },
+    {
+      "id": "crystal_widow",
+      "name": "Crystal Widow",
+      "art": "monster_crystal_widow",
+      "element": "light",
+      "base": {
+        "hp": 80,
+        "mp": 50,
+        "attack": 19,
+        "defense": 15,
+        "magic": 34,
+        "speed": 28
+      },
+      "growth": {
+        "hp": 10,
+        "mp": 4,
+        "attack": 1,
+        "defense": 1,
+        "magic": 3,
+        "speed": 1
+      },
+      "exp": 53,
+      "gold": 32,
+      "captureRate": 0.3,
+      "skills": [
+        "web_shot",
+        "shadow_bite"
+      ],
+      "motion": "squish"
+    },
+    {
+      "id": "emerald_pegasus",
+      "name": "Emerald Pegasus",
+      "art": "monster_emerald_pegasus",
+      "element": "wood",
+      "base": {
+        "hp": 100,
+        "mp": 38,
+        "attack": 38,
+        "defense": 20,
+        "magic": 20,
+        "speed": 51
+      },
+      "growth": {
+        "hp": 11,
+        "mp": 3,
+        "attack": 3,
+        "defense": 2,
+        "magic": 2,
+        "speed": 3
+      },
+      "exp": 70,
+      "gold": 42,
+      "captureRate": 0.2,
+      "skills": [
+        "gust",
+        "flash"
+      ],
+      "motion": "hop"
+    },
+    {
+      "id": "golden_grunt",
+      "name": "Grunt of the Golden God",
+      "art": "boss_golden_grunt",
+      "element": "metal",
+      "base": {
+        "hp": 268,
+        "mp": 56,
+        "attack": 92,
+        "defense": 49,
+        "magic": 28,
+        "speed": 56
+      },
+      "growth": {
+        "hp": 19,
+        "mp": 2,
+        "attack": 7,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 272,
+      "gold": 204,
+      "captureRate": 0,
+      "skills": [
+        "ember",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "wolf_leader",
+      "name": "Wolf Leader",
+      "art": "boss_wolf_leader",
+      "element": "dark",
+      "base": {
+        "hp": 479,
+        "mp": 101,
+        "attack": 164,
+        "defense": 88,
+        "magic": 50,
+        "speed": 101
+      },
+      "growth": {
+        "hp": 24,
+        "mp": 3,
+        "attack": 9,
+        "defense": 3,
+        "magic": 3,
+        "speed": 3
+      },
+      "exp": 512,
+      "gold": 384,
+      "captureRate": 0,
+      "skills": [
+        "shadow_bite",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "puppet_king",
+      "name": "Puppet King",
+      "art": "boss_puppet_king",
+      "element": "wood",
+      "base": {
+        "hp": 479,
+        "mp": 101,
+        "attack": 164,
+        "defense": 88,
+        "magic": 50,
+        "speed": 101
+      },
+      "growth": {
+        "hp": 24,
+        "mp": 3,
+        "attack": 9,
+        "defense": 3,
+        "magic": 3,
+        "speed": 3
+      },
+      "exp": 512,
+      "gold": 384,
+      "captureRate": 0,
+      "skills": [
+        "shadow_bite",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "rock_monster",
+      "name": "Rock Monster",
+      "art": "boss_rock_monster",
+      "element": "earth",
+      "base": {
+        "hp": 295,
+        "mp": 62,
+        "attack": 101,
+        "defense": 54,
+        "magic": 31,
+        "speed": 62
+      },
+      "growth": {
+        "hp": 21,
+        "mp": 2,
+        "attack": 8,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 299,
+      "gold": 224,
+      "captureRate": 0,
+      "skills": [
+        "ember",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "idreus",
+      "name": "Idreus",
+      "art": "boss_idreus",
+      "element": "dark",
+      "base": {
+        "hp": 362,
+        "mp": 76,
+        "attack": 124,
+        "defense": 67,
+        "magic": 38,
+        "speed": 76
+      },
+      "growth": {
+        "hp": 22,
+        "mp": 3,
+        "attack": 8,
+        "defense": 3,
+        "magic": 3,
+        "speed": 3
+      },
+      "exp": 384,
+      "gold": 288,
+      "captureRate": 0,
+      "skills": [
+        "ember",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "tide_dragon",
+      "name": "Tide Dragon",
+      "art": "boss_tide_dragon",
+      "element": "water",
+      "base": {
+        "hp": 380,
+        "mp": 80,
+        "attack": 130,
+        "defense": 70,
+        "magic": 40,
+        "speed": 80
+      },
+      "growth": {
+        "hp": 23,
+        "mp": 3,
+        "attack": 8,
+        "defense": 3,
+        "magic": 3,
+        "speed": 3
+      },
+      "exp": 403,
+      "gold": 302,
+      "captureRate": 0,
+      "skills": [
+        "ember",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "silver_lieutenant",
+      "name": "Lieutenant of the Silver Demon",
+      "art": "boss_silver_lieutenant",
+      "element": "metal",
+      "base": {
+        "hp": 527,
+        "mp": 111,
+        "attack": 180,
+        "defense": 97,
+        "magic": 55,
+        "speed": 111
+      },
+      "growth": {
+        "hp": 26,
+        "mp": 3,
+        "attack": 10,
+        "defense": 3,
+        "magic": 3,
+        "speed": 3
+      },
+      "exp": 563,
+      "gold": 422,
+      "captureRate": 0,
+      "skills": [
+        "shadow_bite",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "emerald_dragon",
+      "name": "Emerald Dragon",
+      "art": "boss_emerald_dragon",
+      "element": "wood",
+      "base": {
+        "hp": 416,
+        "mp": 87,
+        "attack": 143,
+        "defense": 77,
+        "magic": 44,
+        "speed": 87
+      },
+      "growth": {
+        "hp": 25,
+        "mp": 3,
+        "attack": 9,
+        "defense": 3,
+        "magic": 3,
+        "speed": 3
+      },
+      "exp": 442,
+      "gold": 331,
+      "captureRate": 0,
+      "skills": [
+        "ember",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "grumpy_oak",
+      "name": "Grumpy Old Oak",
+      "art": "boss_grumpy_oak",
+      "element": "wood",
+      "base": {
+        "hp": 115,
+        "mp": 26,
+        "attack": 50,
+        "defense": 24,
+        "magic": 16,
+        "speed": 28
+      },
+      "growth": {
+        "hp": 15,
+        "mp": 2,
+        "attack": 5,
+        "defense": 2,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 110,
+      "gold": 80,
+      "captureRate": 0,
+      "skills": [
+        "vine_whip",
+        "leaf_storm"
+      ],
+      "motion": "sway",
+      "boss": true,
+      "drops": [
+        {
+          "item": "mossy_leather_vest",
+          "chance": 0.15
+        },
+        {
+          "item": "autumn_leather_vest",
+          "chance": 0.15
+        }
+      ]
+    },
+    {
+      "id": "great_wisp",
+      "name": "Great Wisp",
+      "art": "boss_great_wisp",
+      "element": "light",
+      "base": {
+        "hp": 228,
+        "mp": 64,
+        "attack": 64,
+        "defense": 32,
+        "magic": 86,
+        "speed": 43
+      },
+      "growth": {
+        "hp": 18,
+        "mp": 4,
+        "attack": 4,
+        "defense": 2,
+        "magic": 6,
+        "speed": 3
+      },
+      "exp": 230,
+      "gold": 170,
+      "captureRate": 0,
+      "skills": [
+        "flash",
+        "gust"
+      ],
+      "motion": "sway",
+      "boss": true,
+      "drops": [
+        {
+          "item": "gilded_chain_mail",
+          "chance": 0.15
+        },
+        {
+          "item": "dawn_silk_robe",
+          "chance": 0.15
+        }
+      ]
+    },
+    {
+      "id": "moon_rabbit_queen",
+      "name": "Moon Rabbit Queen",
+      "art": "boss_moon_rabbit_queen",
+      "element": "light",
+      "base": {
+        "hp": 534,
+        "mp": 96,
+        "attack": 160,
+        "defense": 71,
+        "magic": 114,
+        "speed": 86
+      },
+      "growth": {
+        "hp": 26,
+        "mp": 4,
+        "attack": 10,
+        "defense": 4,
+        "magic": 6,
+        "speed": 4
+      },
+      "exp": 640,
+      "gold": 480,
+      "captureRate": 0,
+      "skills": [
+        "flash",
+        "bounce",
+        "roar"
+      ],
+      "motion": "hop",
+      "boss": true,
+      "drops": [
+        {
+          "item": "moonlight_mage_robe",
+          "chance": 0.15
+        },
+        {
+          "item": "bunny_tamer_jacket",
+          "chance": 0.15
+        }
+      ]
     }
   ]
 }

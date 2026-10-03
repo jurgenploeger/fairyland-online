@@ -29,6 +29,8 @@ final class BattleController {
     private(set) var result: BattleResult?
 
     let session: GameSession
+    /// What plays during the fight: the map's battle theme, or the boss theme.
+    @ObservationIgnored var music: String
     @ObservationIgnored weak var scene: BattleScene?
     @ObservationIgnored var onFinish: (@MainActor (BattleOutcome) -> Void)?
     private let engine: BattleEngine
@@ -37,6 +39,11 @@ final class BattleController {
     init(engine: BattleEngine, session: GameSession, intro: String? = nil) {
         self.engine = engine
         self.session = session
+        // Like Fairyland Online, a foe 5+ levels above you gets the tougher battle theme.
+        let toughest = engine.alive(on: .enemies).map(\.level).max() ?? 0
+        music = toughest >= session.data.hero.level + 5
+            ? "battle_dark"
+            : session.content.map(session.data.mapID)?.battleMusic ?? "battle"
         combatants = engine.combatants
         let names = engine.alive(on: .enemies).map(\.name)
         message = intro ?? (names.count == 1 ? "A wild \(names[0]) appears!" : "\(names.count) monsters appear!")
@@ -107,7 +114,9 @@ final class BattleController {
                              level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp,
                              skills: species.skills, captureRate: 0)
         let engine = BattleEngine(party: party(for: session), enemies: [boss], content: session.content)
-        return BattleController(engine: engine, session: session, intro: "\(species.name) blocks your way!")
+        let controller = BattleController(engine: engine, session: session, intro: "\(species.name) blocks your way!")
+        controller.music = "boss"
+        return controller
     }
 
     /// Builds a random encounter for the current map.
@@ -214,6 +223,16 @@ final class BattleController {
 
     func level(of skill: SkillDef) -> Int { session.skillLevel(skill.id) }
 
+    var pinnedSkills: [SkillDef] { session.pinnedSkills }
+
+    func togglePin(_ skill: SkillDef) {
+        if session.togglePin(skill.id) {
+            session.save()
+        } else {
+            message = "The quick bar holds \(GameSession.maxPinnedSkills) skills. Unpin one first."
+        }
+    }
+
     func cost(of skill: SkillDef) -> Int { GameSession.mpCost(of: skill, level: level(of: skill)) }
 
     func useSkill(_ skill: SkillDef) {
@@ -300,9 +319,12 @@ final class BattleController {
         switch event {
         case .attack(let actor, let hit):
             damage(hit)
+            SoundEffects.shared.play(hit.critical ? .crit : .hit)
+            Haptics.impact(hit.critical ? .medium : .light)
             message = "\(name(actor)) attacks \(name(hit.target))!" + (hit.critical ? " Critical hit!" : "")
         case .skill(let actor, let skill, let level, let hits):
             mutate(actor) { $0.mp = max(0, $0.mp - GameSession.mpCost(of: skill, level: level)) }
+            SoundEffects.shared.play(skill.kind == .heal ? .heal : .magic)
             for hit in hits {
                 if skill.kind == .heal {
                     mutate(hit.target) { $0.hp = min($0.stats.hp, $0.hp + hit.amount) }
@@ -317,14 +339,18 @@ final class BattleController {
         case .item(let actor, let item, let target, let hp, let mp):
             // Only used up once it actually reaches someone.
             session.removeItem(item.id)
+            SoundEffects.shared.play(.potion)
             mutate(target) {
                 $0.hp += hp
                 $0.mp += mp
             }
             message = "\(name(actor)) uses a \(item.name) on \(name(target))."
         case .defend(let actor):
+            SoundEffects.shared.play(.shield)
             message = "\(name(actor)) is on guard."
         case .capture(_, let target, let success, _):
+            SoundEffects.shared.play(success ? .capture : .breakFree)
+            if success { Haptics.success() }
             if success {
                 mutate(target) { $0.isCaptured = true }
                 // Like Fairyland's capsules, a stone is only used up when it works.
@@ -334,12 +360,15 @@ final class BattleController {
             }
             message = success ? "Sealed! \(name(target)) was captured!" : "Oh no! \(name(target)) broke free!"
         case .fled(let id):
+            SoundEffects.shared.play(.run)
             mutate(id) { $0.hasFled = true }
             message = "\(name(id)) ran away!"
         case .escape(_, let success):
+            SoundEffects.shared.play(success ? .run : .breakFree)
             message = success ? "Got away safely!" : "Couldn't get away!"
         case .defeated(let id):
             let fighter = combatants.first { $0.id == id }
+            SoundEffects.shared.play(fighter?.side == .enemies ? .poof : .faint)
             message = fighter?.side == .enemies ? "\(name(id)) is defeated!" : "\(name(id)) fainted!"
         case .message(let text):
             message = text
@@ -388,6 +417,15 @@ final class BattleController {
         for line in lines { session.post(line, won ? .reward : .battle) }
         phase = .finished
         MusicPlayer.shared.play(won ? "victory" : nil)
+        if outcome == .defeat { SoundEffects.shared.play(.lose) }
+        if newLevel != nil {
+            // After the first notes of the victory fanfare.
+            Task {
+                try? await Task.sleep(for: .milliseconds(700))
+                SoundEffects.shared.play(.levelUp)
+                Haptics.success()
+            }
+        }
     }
 
     /// Writes battle damage back to the hero and companion.
@@ -465,6 +503,21 @@ final class BattleController {
         if Double.random(in: 0..<1) < 0.25 {
             session.addItem("potion")
             lines.append("Found a Potion!")
+        }
+
+        // Materials for the blacksmith: about one wild monster in three drops something, bosses three.
+        var found: [String: Int] = [:]
+        for foe in engine.combatants where foe.side == .enemies && !foe.isCaptured && !foe.hasFled {
+            guard case .wild = foe.source, let id = foe.speciesID else { continue }
+            let isBoss = content.monster(id)?.boss == true
+            for _ in 0..<(isBoss ? 3 : 1) where isBoss || Double.random(in: 0..<1) < 0.35 {
+                guard let material = session.materialDrop(level: foe.level) else { continue }
+                session.addItem(material.id)
+                found[material.name, default: 0] += 1
+            }
+        }
+        for (name, count) in found.sorted(by: { $0.key < $1.key }) {
+            lines.append(count > 1 ? "Found \(name) ×\(count)!" : "Found \(name)!")
         }
         session.save()
         return lines

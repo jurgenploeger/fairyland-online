@@ -33,7 +33,9 @@ struct RootView: View {
                     .task {
                         // Let the curtain draw before the (heavier) map build starts.
                         try? await Task.sleep(for: .milliseconds(60))
-                        coordinator = GameCoordinator(session: pending)
+                        let game = GameCoordinator(session: pending)
+                        game.onQuitToTitle = { quitToTitle() }
+                        coordinator = game
                     }
             } else {
                 TitleView { session in
@@ -55,5 +57,11 @@ struct RootView: View {
             default: break
             }
         }
+    }
+
+    /// Leaves the game for the title screen (Settings → Back to title; the game is already saved).
+    private func quitToTitle() {
+        coordinator = nil
+        pending = nil
     }
 }

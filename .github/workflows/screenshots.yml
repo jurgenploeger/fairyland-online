@@ -36,9 +36,11 @@ jobs:
       - name: Build for the simulator
         run: |
           xcodebuild -version
+          mkdir -p build
           xcodebuild -project Fairyland.xcodeproj -scheme Fairyland -configuration Debug \
             -destination 'generic/platform=iOS Simulator' -derivedDataPath build/DerivedData \
-            CODE_SIGNING_ALLOWED=NO -quiet build
+            CODE_SIGNING_ALLOWED=NO build > build/simulator.log 2>&1 \
+            || { tools/ci_errors.sh build/simulator.log; exit 1; }
 
       - name: Boot a simulator
         id: sim
@@ -75,7 +77,14 @@ jobs:
           cd ../pub
           git add -A
           git commit -qm "Screenshots of $BRANCH at ${GITHUB_SHA::7}" || exit 0
-          git push -q origin screenshots
+          # Other branches publish at the same time; each writes only its own folder, so catch up
+          # and try again.
+          for attempt in 1 2 3 4 5; do
+            git push -q origin screenshots && exit 0
+            sleep $((attempt * 3))
+            git fetch -q origin screenshots && git rebase -q origin/screenshots
+          done
+          exit 1
 
       - name: Summary
         env:

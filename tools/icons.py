@@ -45,6 +45,8 @@ ICONS = {
     "moon": ("weather/moon-star", "solid"),
     "music": ("media/music", "solid"),
     "music-off": ("media/music-off", "solid"),
+    "settings": ("essential/settings", "solid"),
+    "volume": ("media/volume", "solid"),
     "chevron-up": ("arrows/chevron-up", "solid"),
     "chevron-down": ("arrows/chevron-down", "solid"),
     "arrow-up": ("arrows/arrow-up", "solid"),

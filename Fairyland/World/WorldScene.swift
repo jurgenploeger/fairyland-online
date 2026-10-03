@@ -30,7 +30,7 @@ final class WorldScene: SKScene {
     private let cam = SKCameraNode()
     private let player: Walker
     private var follower: Walker?
-    private var npcs: [(def: NPCDef, node: Walker, marker: SKLabelNode)] = []
+    private var npcs: [(def: NPCDef, node: Walker, marker: NameTag)] = []
     private var talkTarget: String?
     private var lastCell: GridPoint
     private var stepsSinceBattle = 0
@@ -39,12 +39,16 @@ final class WorldScene: SKScene {
     private var hasLeft = false
     private var ambience: Ambience?
     private var lighting: Lighting?
+    /// Scenery softens toward the top and bottom of the screen.
+    private let focus: DepthOfField
     private var crowd: Crowd?
+    private var caveWalls: CaveWalls?
     /// Friends in your party walk behind you in a little line.
     private var allies: [(id: UUID, node: Walker)] = []
     /// Roads that stay closed until a quest is done: the barricade nodes and the cells they block.
     private var barricades: [(exit: MapDef.Exit, nodes: [SKNode], cells: Set<GridPoint>)] = []
     private var lastBlockedNotice = Date.distantPast
+    private var leftFoot = false
     /// Darkens the screen as you walk toward the edge of the map, so leaving is obvious.
     private let edgeFade = SKSpriteNode(color: .black, size: .zero)
 
@@ -74,6 +78,7 @@ final class WorldScene: SKScene {
         self.map = map
         self.player = player
         rng = SeededRandom(text: def.id + "/props")
+        focus = DepthOfField(def.ambience?.focus)
 
         var start = map.center(of: map.center)
         if let entry {
@@ -89,7 +94,9 @@ final class WorldScene: SKScene {
         backgroundColor = .black
         build()
         // Don't start on top of scenery (e.g. an old save).
-        if !map.isWalkable(lastCell), let open = map.nearestWalkable(to: lastCell) {
+        // (A save from before a cave's walls went up can even be deep inside the rock.)
+        if !map.isWalkable(lastCell),
+           let open = map.nearestWalkable(to: lastCell) ?? map.nearestWalkable(to: map.entryCell(from: def.exits.first?.edge ?? .south)) {
             player.position = map.center(of: open)
             lastCell = open
         }
@@ -134,12 +141,15 @@ final class WorldScene: SKScene {
 
         world.addChild(makeGround())
         placeSurroundings()
+        if let cave = def.theme.cave {
+            caveWalls = CaveWalls(map: map, cave: cave, world: world, art: art, margin: Self.surroundingsMargin)
+        }
         placeLilyPads()
         placeFence()
         placeBuildings()
         placeDecor()
         placeNPCs()
-        crowd = Crowd(def: def, map: map, world: world)
+        crowd = Crowd(def: def, map: map, world: world, friends: session.friends.filter { !session.isInParty($0) })
         crowd?.onChat = { [weak session] speaker, text, kind in session?.postChat(text, from: speaker, kind: kind) }
         crowd?.onChallenge = { [weak self] rival in
             guard let self, !self.isInputLocked else { return }
@@ -275,7 +285,7 @@ final class WorldScene: SKScene {
     }
 
     /// Which of a tile's four versions a cell shows: a hash, so neighbours differ without a pattern.
-    private static func variant(of cell: GridPoint) -> Int {
+    static func variant(of cell: GridPoint) -> Int {
         var hash = UInt64(bitPattern: Int64(cell.col)) &* 0x9E37_79B9_7F4A_7C15
         hash ^= UInt64(bitPattern: Int64(cell.row)) &* 0xC2B2_AE3D_27D4_EB4F
         hash ^= hash >> 29
@@ -296,10 +306,12 @@ final class WorldScene: SKScene {
         return squash
     }
 
+    private static let surroundingsMargin = 14
+
     /// Scenery beyond the map's edge, so small maps never show black bars (e.g. in portrait).
     /// Roads carry on out through the exits.
     private func placeSurroundings() {
-        let margin = 14
+        let margin = Self.surroundingsMargin
         let tile = WorldMap.tileSize
         let tileSize = CGSize(width: tile, height: tile)
         let theme = def.theme
@@ -336,8 +348,8 @@ final class WorldScene: SKScene {
             surroundings.setTileGroup(road, forColumn: cell.col + margin, row: cell.row + margin)
         }
 
-        // A loose treeline, keeping the roads clear.
-        guard let decor = theme.props.first(where: \.blocking)?.art else { return }
+        // A loose treeline, keeping the roads clear (caves have rock walls instead).
+        guard def.theme.cave == nil, let decor = theme.props.first(where: \.blocking)?.art else { return }
         let sprite = art.sprite(decor)
         var decorRNG = SeededRandom(text: def.id + "/surroundings")
         for row in -margin..<(map.rows + margin) {
@@ -353,11 +365,8 @@ final class WorldScene: SKScene {
 
     private func placeFence() {
         guard !map.fenceCells.isEmpty else { return }
-        let fence = art.sprite("fence")
-        for cell in map.fenceCells {
-            map.occupy(cell, blocking: true)
-            addScenery(fence, at: cell)
-        }
+        for cell in map.fenceCells { map.occupy(cell, blocking: true) }
+        TownFence.place(cells: map.fenceCells, map: map, world: world, art: art)
     }
 
     /// Houses take a 3×2 footprint above their anchor tile.
@@ -430,13 +439,16 @@ final class WorldScene: SKScene {
                 face.fillColor = UIColor(white: 0.78, alpha: 1)
                 face.strokeColor = UIColor(white: 0.25, alpha: 0.9)
                 face.lineWidth = 1.5
-                face.zPosition = -min(a.y, b.y) + 1
+                // Behind everything standing in front of any part of the wall: its far (top) end. Taking
+                // the near end drew the wall over trees, lamps and walkers along the rest of it.
+                // Nothing behind the wall overlaps it on screen, since the face hangs below its top edge.
+                face.zPosition = -max(a.y, b.y) - 0.5
                 world.addChild(face)
                 // A lighter lip along the top edge.
                 let lip = SKShapeNode(path: { let p = CGMutablePath(); p.move(to: a); p.addLine(to: b); return p }())
                 lip.strokeColor = UIColor(white: 1, alpha: 0.55)
                 lip.lineWidth = 2
-                lip.zPosition = face.zPosition + 0.5
+                lip.zPosition = face.zPosition + 0.25
                 world.addChild(lip)
             }
             // Railings, pillars and stairs on the border ring.
@@ -467,12 +479,14 @@ final class WorldScene: SKScene {
             if npc.role == .boss { node.motion = IdleMotion.of(art: npc.art) }
             node.position = map.center(of: cell)
             node.zPosition = -node.position.y
-            let marker = SKLabelNode()
-            marker.attributedText = Nodes.outlined("!", size: 18, color: Nodes.gold)
+            // Quest "!" / "?" in the same style as the names in battle, big enough to spot from afar.
+            let marker = NameTag("!", size: 28)
             marker.position = CGPoint(x: 0, y: node.sprite.size.height + 18)
             marker.zPosition = 6_000
             marker.isHidden = true
-            marker.run(.repeatForever(.sequence([.moveBy(x: 0, y: 4, duration: 0.4), .moveBy(x: 0, y: -4, duration: 0.4)])))
+            let bob = SKAction.sequence([.moveBy(x: 0, y: 5, duration: 0.4), .moveBy(x: 0, y: -5, duration: 0.4)])
+            let pulse = SKAction.sequence([.scale(to: 1.15, duration: 0.4), .scale(to: 1, duration: 0.4)])
+            marker.run(.repeatForever(.group([bob, pulse])))
             node.addChild(marker)
             world.addChild(node)
             npcs.append((npc, node, marker))
@@ -493,7 +507,7 @@ final class WorldScene: SKScene {
                 let found: GridPoint? = if let radius = placement.within {
                     map.randomFreeCell(within: radius, using: &rng)
                 } else {
-                    map.randomFreeCell(using: &rng)
+                    map.randomFreeCell(blocking: placement.blocking, using: &rng)
                 }
                 guard let middle = found else { break }
                 let wanted = min(groupSize, placement.count - placed)
@@ -503,7 +517,7 @@ final class WorldScene: SKScene {
                         col: middle.col + Int.random(in: -spread...spread, using: &rng),
                         row: middle.row + Int.random(in: -spread...spread, using: &rng)
                     )
-                    guard map.isFreeForScenery(cell, insideFence: placement.within != nil) else { continue }
+                    guard map.isFreeForScenery(cell, insideFence: placement.within != nil, blocking: placement.blocking) else { continue }
                     map.occupy(cell, blocking: placement.blocking)
                     var scale: CGFloat = 1
                     if let range = placement.size, range.count == 2, range[0] <= range[1] {
@@ -562,6 +576,8 @@ final class WorldScene: SKScene {
     }
 
     private func placeLilyPads() {
+        // Frozen ponds don't grow lily pads.
+        guard !(def.theme.water ?? "").contains("ice") else { return }
         let sprite = art.sprite("lily_pad")
         var padRNG = SeededRandom(text: def.id + "/lilies")
         for pond in map.ponds {
@@ -584,10 +600,11 @@ final class WorldScene: SKScene {
         for exit in def.exits {
             guard let destination = Content.shared.map(exit.to) else { continue }
             let text = switch exit.edge {
-            case .north: "▲ \(destination.name)"
-            case .south: "▼ \(destination.name)"
-            case .east: "\(destination.name) ▶"
-            case .west: "◀ \(destination.name)"
+            // Arrows follow the road on screen: north runs up-left, east up-right.
+            case .north: "↖ \(destination.name)"
+            case .south: "\(destination.name) ↘"
+            case .east: "\(destination.name) ↗"
+            case .west: "↙ \(destination.name)"
             }
             let label = SKLabelNode()
             label.attributedText = Nodes.outlined(text, size: 11, color: Nodes.gold)
@@ -640,7 +657,7 @@ final class WorldScene: SKScene {
     @discardableResult
     private func addScenery(_ sprite: SpriteArt, at cell: GridPoint, sway: Bool = false, jitter: Bool = false, scale: CGFloat = 1) -> SKSpriteNode {
         let node = SKSpriteNode(texture: sprite.texture, size: CGSize(width: sprite.size.width * scale, height: sprite.size.height * scale))
-        node.anchorPoint = CGPoint(x: 0.5, y: 0.05)
+        node.anchorPoint = CGPoint(x: 0.5, y: min(0.5, 0.05 + foot(of: sprite.texture)))
         var position = map.base(of: cell)
         if jitter {
             // Nudge off the grid so groves look planted by nature, not a spreadsheet.
@@ -660,7 +677,37 @@ final class WorldScene: SKScene {
             node.run(.repeatForever(.sequence([left, right])))
         }
         world.addChild(node)
+        focus.add(node)
         return node
+    }
+
+    private var feet: [ObjectIdentifier: CGFloat] = [:]
+
+    /// How far up its image a sprite's lowest opaque pixel sits (0...1). Scenery is anchored there,
+    /// so a log or cactus drawn with empty rows under it stands on its cell instead of floating
+    /// above it, where it looked like it was behind the ground in front of it.
+    private func foot(of texture: SKTexture) -> CGFloat {
+        let key = ObjectIdentifier(texture)
+        if let known = feet[key] { return known }
+        let image = texture.cgImage()
+        let width = image.width, height = image.height
+        var foot: CGFloat = 0
+        if width > 0, height > 0,
+           let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                                   space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue),
+           let data = context.data {
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            let pixels = data.bindMemory(to: UInt8.self, capacity: width * height * 4)
+            // The bitmap's rows run top to bottom, so search up from the last one.
+            search: for row in stride(from: height - 1, through: 0, by: -1) {
+                for col in 0..<width where pixels[(row * width + col) * 4 + 3] > 127 {
+                    foot = CGFloat(height - 1 - row) / CGFloat(height)
+                    break search
+                }
+            }
+        }
+        feet[key] = foot
+        return foot
     }
 
     /// One pixel per tile, for the HUD minimap.
@@ -732,7 +779,12 @@ final class WorldScene: SKScene {
         let members = session.partyMembers
         guard members.map(\.id) != allies.map(\.id) else { return }
         for ally in allies where !members.contains(where: { $0.id == ally.id }) {
-            SkillEffects.smoke(at: ally.node.position, in: world)
+            if let friend = session.friends.first(where: { $0.id == ally.id }) {
+                // Left the party but still a friend: they stay here, so you can invite them back.
+                crowd?.rejoin(friend, at: ally.node.position, world: world)
+            } else {
+                SkillEffects.smoke(at: ally.node.position, in: world)
+            }
             ally.node.removeFromParent()
         }
         allies = members.map { friend in
@@ -821,6 +873,8 @@ final class WorldScene: SKScene {
             refreshAllies()
             let nearby = crowd?.adventurer(near: player.position, within: 80)
             if session.nearbyAdventurer?.id != nearby?.id { session.nearbyAdventurer = nearby }
+            let around = crowd?.adventurers(near: player.position, within: 320) ?? []
+            if session.adventurersAround != around { session.adventurersAround = around }
         }
 
         player.zPosition = -player.position.y
@@ -888,6 +942,11 @@ final class WorldScene: SKScene {
             return
         }
         lastCell = cell
+        if GameSettings.footsteps {
+            // Alternate feet, a touch louder and softer.
+            leftFoot.toggle()
+            SoundEffects.shared.play(.step, volume: leftFoot ? 0.6 : 0.45)
+        }
         session.playerPosition = player.position
         session.mapCell = cell
 
@@ -953,7 +1012,7 @@ final class WorldScene: SKScene {
             if npc.def.role == .chest, session.isOpened(npc.def.id), npc.node.alpha > 0.5 {
                 npc.node.run(.fadeAlpha(to: 0.35, duration: 0.3))
             }
-            if npc.def.role == .boss, session.isDefeated(npc.def) {
+            if npc.def.role == .boss, session.isBeatenHere(npc.def) {
                 if !npc.node.isHidden {
                     SkillEffects.smoke(at: npc.node.position, in: world)
                     npc.node.isHidden = true
@@ -963,7 +1022,7 @@ final class WorldScene: SKScene {
             let notice = session.notice(for: npc.def.id)
             npc.marker.isHidden = notice == nil
             if let notice {
-                npc.marker.attributedText = Nodes.outlined(notice == .ready ? "?" : "!", size: 18, color: Nodes.gold)
+                npc.marker.setText(notice == .ready ? "?" : "!")
             }
             let distance = player.position.distance(to: npc.node.position)
             if distance <= talkRange + 12, distance < (nearest?.distance ?? .infinity) {
@@ -1005,5 +1064,6 @@ final class WorldScene: SKScene {
         let scale = (view?.contentScaleFactor ?? 1) / cam.xScale
         cam.position = CGPoint(x: (eased.x * scale).rounded() / scale, y: (eased.y * scale).rounded() / scale)
         lighting?.follow(cam.position)
+        focus.update(camera: cam.position, halfHeight: size.height / 2 * cam.yScale)
     }
 }

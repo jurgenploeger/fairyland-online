@@ -278,7 +278,27 @@ def _variation(m, palette, gx, gy, seed=5):
     color = np.where((lean < 0)[..., None], dark, light)
     return alpha[..., None], color
 
-def draw_scene(mid, palette, kinds, items, W=420, H=300, seed=3, tint=True, organic=True, light=True, origin=(0, 0), lighting=True):
+def focus_blur(s, sy, h, W, H, amb):
+    """DepthOfField.swift: scenery toward the top of the screen (and less so the bottom) is swapped
+    for one of 3 blurred copies. Returns the sprite (padded when blurred), its padding and soft=True."""
+    f = amb.get('focus') or {}
+    blur, band, near = f.get('blur', 1.5), min(0.9, f.get('band', 0.4)), f.get('near', 0.5)
+    if blur <= 0: return s, 0, False
+    offset = (H / 2 - (sy - h * 0.45)) / (H / 2)          # the sprite's middle: +1 top edge, -1 bottom
+    amount = min(1, max(0, (abs(offset) - band) / (1 - band)))
+    amount = amount * amount * (3 - 2 * amount) * (1 if offset > 0 else near)
+    level = round(amount * 3)
+    if level == 0: return s, 0, False
+    from PIL import ImageFilter
+    sigma = blur * level / 3; pad = int(np.ceil(sigma * 2.5))
+    pm = np.zeros((s.shape[0] + 2 * pad, s.shape[1] + 2 * pad, 4)); pm[pad:-pad, pad:-pad] = s
+    pm[..., :3] *= pm[..., 3:]                              # blur premultiplied, like Core Image
+    out = np.stack([np.asarray(Image.fromarray((pm[..., k] * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(sigma))).astype(float) / 255
+                    for k in range(4)], -1)
+    out[..., :3] /= np.maximum(out[..., 3:], 1e-4)
+    return out.clip(0, 1), pad, True
+
+def draw_scene(mid, palette, kinds, items, W=420, H=300, seed=3, tint=True, organic=True, light=True, origin=(0, 0), lighting=True, focus=True):
     """items: (art, col, row, scale). Walkers (walk sheets) keep their colours, lit by the map's light.
     lighting=True adds what Lighting.swift does: ground colour patches, light pools, prop shadows and
     glows, sunbeams, foreground blur, haze and the sun flare."""
@@ -326,22 +346,32 @@ def draw_scene(mid, palette, kinds, items, W=420, H=300, seed=3, tint=True, orga
             s = np.asarray(Image.fromarray((s * 255).astype(np.uint8)).resize((max(1, round(w * scale)), max(1, round(h * scale))), Image.NEAREST)).astype(float) / 255
         h, w = s.shape[:2]
         sx, sy = screen(c, r)
-        x0 = int(sx - w / 2 + (0 if walker else rng.randint(-7, 7))); y0 = int(sy - h * 0.95)
-        drawn.append((art, s, x0, y0, w, h, walker))
+        if walker: foot = 0
+        else:   # WorldScene.foot(of:): scenery stands on its lowest opaque row
+            rows = np.where((s[..., 3] > 0.5).any(1))[0]
+            foot = (h - 1 - rows[-1]) / h if len(rows) else 0
+        x0 = int(sx - w / 2 + (0 if walker else rng.randint(-7, 7))); y0 = int(sy - h * (0.95 - min(0.45, foot)))
+        drawn.append((art, s, x0, y0, w, h, walker, 0))
     if lighting:
-        for art, s, x0, y0, w, h, walker in drawn:   # shadows lie under everything that stands
+        for art, s, x0, y0, w, h, walker, _ in drawn:   # shadows lie under everything that stands
             if props.get(art, {}).get('shadow'):
                 sw = w * 0.8
                 _paint(img, int(x0 + w / 2 - sw / 2 + sw * 0.12), int(y0 + h * 0.95 - sw * 0.18 + 1), _soft(sw, sw * 0.36) * 0.3, np.zeros(3), False)
-    for art, s, x0, y0, w, h, walker in drawn:
+    if focus and lighting:
+        for i, (art, s, x0, y0, w, h, walker, _) in enumerate(drawn):
+            if walker: continue
+            b, pad, soft = focus_blur(s, y0 + h * 0.95, h, W, H, amb)
+            if soft: drawn[i] = (art, b, x0, y0, w, h, walker, pad)
+    for art, s, x0, y0, w, h, walker, pad in drawn:
         g = props.get(art, {}).get('glow') if lighting else None
         if g:
             gw, gh = w * 1.9, w * 1.5
             _paint(img, int(x0 + w / 2 - gw / 2), int(y0 + h * 0.95 - h * 0.4 - gh / 2), _soft(gw, gh) * 0.38, hexrgb(g), True)
-        xa, ya = max(0, x0), max(0, y0); xb, yb = min(W, x0 + w), min(H, y0 + h)
+        x0 -= pad; y0 -= pad; h2, w2 = s.shape[:2]   # a blurred copy is padded on every side
+        xa, ya = max(0, x0), max(0, y0); xb, yb = min(W, x0 + w2), min(H, y0 + h2)
         if xa >= xb or ya >= yb: continue
         part = s[ya - y0:yb - y0, xa - x0:xb - x0]
-        al = (part[..., 3:] > 0.5).astype(float)
+        al = part[..., 3:] if pad else (part[..., 3:] > 0.5).astype(float)
         img[ya:yb, xa:xb, :3] = img[ya:yb, xa:xb, :3] * (1 - al) + part[..., :3] * al
     if lighting:
         sb = amb.get('sunbeams')

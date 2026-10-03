@@ -1,0 +1,35 @@
+{
+  "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
+  "releases": [
+    {
+      "version": "0.2.0",
+      "date": "2026-10-03",
+      "title": "A bigger Fairyland",
+      "notes": [
+        "The world grows to 30 maps, with a world atlas, winding roads, caves, snowfall, icy ponds and busier towns.",
+        "Levels now run to 105 and beyond, and you join a guild at level 10.",
+        "Three new bosses: Grumpy Old Oak, Great Wisp and the Moon Rabbit Queen. Bosses can be fought again, and six of them may drop a rare colour of their armour.",
+        "Choose male, female or other and a hairstyle. Helmets and hoods now cover your hair, and stronger armour shows finer detail.",
+        "Every item and skill has its own art, magic weapons glow, and blacksmiths forge gear from monster materials.",
+        "Battles show names above each fighter with level and HP below; the map shows faces for you, your companion and your party.",
+        "A storybook soundtrack, new sound effects with volume settings, an intro for new heroes and a What's new list.",
+        "Friends you've made turn up around the world now and then, and can only join your party when they're nearby."
+      ]
+    },
+    {
+      "version": "0.0.1",
+      "date": "2026-09-29",
+      "title": "First steps into Fairyland",
+      "notes": [
+        "14 maps joined by winding roads: Meadowbrook, Rainbow City and Goldburg, plus wild zones from Sunny Meadow to Moonglow.",
+        "Random encounters and turn-based battles fought where you stand. Big spells splash onto nearby monsters.",
+        "81 monsters across seven elements, with rare colour variants and three bosses.",
+        "Capture with Seal Stones and keep up to 5 companions. Your first hatches from the starter egg.",
+        "Start as a Novice and join a guild at level 5. Spend skill points to learn and power up skills.",
+        "Villagers and adventurers wander and chat. Befriend adventurers and bring two along in your party.",
+        "Customise hair, outfit and skin. Armour recolours your outfit and your weapon shows in hand.",
+        "Quests, shops, healers, checkpoints, an in-game calendar and a chiptune soundtrack."
+      ]
+    }
+  ]
+}

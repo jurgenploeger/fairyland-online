@@ -1,19 +1,101 @@
 import SpriteKit
 
-/// What your equipment looks like on the hero: the weapon in hand (drawn as a little pixel
-/// sprite, in front of or behind the body depending on facing) and a sparkle for accessories.
-/// Armour recolours the outfit instead (see `GameSession.rules(for:armor:)`).
+/// What your equipment looks like on the hero: the weapon in hand (the item's own pixel art, in
+/// front of or behind the body depending on facing) and a sparkle in an accessory's colour.
+/// Armour and boots change the sprite itself (`GameSession.rules(for:armor:)` and GearOverlay).
 enum GearArt {
     // MARK: Weapon
 
     /// A weapon sprite for `item`, sized for a character `height` points tall.
     static func weapon(_ item: ItemDef, height: CGFloat) -> SKSpriteNode? {
         guard item.type == .weapon else { return nil }
+        if let art = item.art, let held = held(art) {
+            // The item's own art (drawn diagonally, grip bottom-left), so every weapon looks like itself.
+            let size = CGSize(width: height * 0.48, height: height * 0.48)
+            let node = SKSpriteNode(texture: held.texture, size: size)
+            node.anchorPoint = held.grip
+            node.name = "weapon"
+            if let hex = item.glow, let color = UIColor(hex: hex), let at = item.glowAt, at.count == 2 {
+                // glowAt is in the art's pixels, rows top-down; the node's origin is the grip.
+                let spot = CGPoint(x: at[0] / held.pixels.width - held.grip.x, y: 1 - at[1] / held.pixels.height - held.grip.y)
+                node.addChild(glow(color, at: CGPoint(x: spot.x * size.width, y: spot.y * size.height), height: height))
+            }
+            return node
+        }
         let texture = texture(for: item.icon ?? "sword")
         let node = SKSpriteNode(texture: texture, size: CGSize(width: height * 0.42, height: height * 0.42))
         node.anchorPoint = CGPoint(x: 0.2, y: 0.2)   // the grip
         node.name = "weapon"
         return node
+    }
+
+    /// A magic weapon's light: a small soft glow at the tip that slowly breathes, and now and then
+    /// a tiny sparkle drifting up from it. Kept faint so it reads as magic, not a lamp.
+    private static func glow(_ color: UIColor, at tip: CGPoint, height: CGFloat) -> SKNode {
+        let group = SKNode()
+        group.position = tip
+        group.zPosition = 1
+        let light = SKSpriteNode(texture: SoftTextures.glow, size: CGSize(width: height * 0.32, height: height * 0.32))
+        light.color = color
+        light.colorBlendFactor = 1
+        light.blendMode = .add
+        light.alpha = 0.3
+        let breathe = SKAction.sequence([.fadeAlpha(to: 0.5, duration: 1.1), .fadeAlpha(to: 0.25, duration: 1.1)])
+        breathe.timingMode = .easeInEaseOut
+        light.run(.repeatForever(breathe))
+        group.addChild(light)
+        let spark = SKSpriteNode(texture: SoftTextures.star, size: CGSize(width: 5, height: 5))
+        spark.color = color
+        spark.colorBlendFactor = 1
+        spark.blendMode = .add
+        spark.alpha = 0
+        group.addChild(spark)
+        let drift = SKAction.sequence([
+            .run { spark.position = CGPoint(x: .random(in: -3...3), y: .random(in: -2...2)) },
+            .group([.sequence([.fadeAlpha(to: 0.8, duration: 0.25), .fadeOut(withDuration: 0.6)]), .moveBy(x: 0, y: 7, duration: 0.85)]),
+            .wait(forDuration: 1.4, withRange: 1.6),
+        ])
+        spark.run(.repeatForever(drift))
+        return group
+    }
+
+    private static var heldCache: [String: (texture: SKTexture, grip: CGPoint, pixels: CGSize)] = [:]
+
+    /// An item sprite as a held weapon: its texture, the grip (the lowest, leftmost bit of art) as a
+    /// unit point like an anchor, and the art's size in pixels.
+    private static func held(_ art: String) -> (texture: SKTexture, grip: CGPoint, pixels: CGSize)? {
+        if let cached = heldCache[art] { return cached }
+        guard let image = ArtLibrary.shared.artImage(art)?.cgImage else { return nil }
+        let width = image.width, height = image.height
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let drawn: Bool = pixels.withUnsafeMutableBytes { buffer in
+            guard let context = CGContext(data: buffer.baseAddress, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                                          space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        guard drawn else { return nil }
+        // Rows run top to bottom. The grip is the solid pixel nearest the bottom-left corner (soft
+        // glow pixels and lone sparkles don't count).
+        var best: (x: Int, y: Int)?
+        func solid(_ x: Int, _ y: Int) -> Bool {
+            x >= 0 && y >= 0 && x < width && y < height && pixels[(y * width + x) * 4 + 3] > 200
+        }
+        for y in 0..<height {
+            // Skip lone sparkle pixels: a part of the weapon has solid neighbours.
+            for x in 0..<width where solid(x, y) && [(1, 0), (-1, 0), (0, 1), (0, -1)].filter({ solid(x + $0.0, y + $0.1) }).count >= 2 {
+                // Distance from each corner, along both edges.
+                if best == nil || x + (height - y) < best!.x + (height - best!.y) { best = (x, y) }
+            }
+        }
+        guard let grip = best else { return nil }
+        let texture = SKTexture(cgImage: image)
+        texture.filteringMode = .nearest
+        // Hold it a little up the handle, not by the very tip.
+        let anchor = CGPoint(x: (Double(grip.x) + 3) / Double(width), y: (Double(height - grip.y) + 2) / Double(height))
+        let artSize = CGSize(width: width, height: height)
+        heldCache[art] = (texture, anchor, artSize)
+        return (texture, anchor, artSize)
     }
 
     /// Holds the weapon in the right hand for the way the character faces.
@@ -101,11 +183,12 @@ enum GearArt {
     /// A few twinkles around the wearer, in the accessory's colour.
     static func aura(_ item: ItemDef, height: CGFloat) -> SKNode? {
         guard item.type == .accessory else { return nil }
-        let color: UIColor = switch item.icon {
+        let fallback: UIColor = switch item.icon {
         case "clover": UIColor(red: 0.55, green: 1, blue: 0.5, alpha: 1)
         case "gem": UIColor(red: 1, green: 0.45, blue: 0.5, alpha: 1)
         default: UIColor(red: 1, green: 0.88, blue: 0.45, alpha: 1)
         }
+        let color = item.accent.flatMap { UIColor(hex: $0) } ?? fallback
         let aura = SKNode()
         aura.name = "aura"
         aura.zPosition = 2

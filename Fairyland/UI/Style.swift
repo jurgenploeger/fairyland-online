@@ -158,39 +158,59 @@ struct OrangeCloseButton: View {
     }
 }
 
-/// Glossy square toolbar button (Fairyland's top-right / hotbar icons).
+/// Glossy square toolbar button (Fairyland's top-right / hotbar icons), optionally captioned.
 struct FLIconButton: View {
     let icon: GameIcon
     let label: String
     var size: CGFloat = 46
     var badge: Bool = false
+    /// Writes the label under the button, so it's clear what it opens.
+    var showsLabel = false
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            IconImage(icon, size: size * 0.5)
-                .foregroundStyle(.white)
-                .shadow(color: HUDStyle.frameDark, radius: 0, x: 1, y: 1)
-                .frame(width: size, height: size)
-                .background(
-                    RoundedRectangle(cornerRadius: 9)
-                        .fill(LinearGradient(colors: [Color(red: 0.6, green: 0.85, blue: 1), Color(red: 0.25, green: 0.55, blue: 0.9), Color(red: 0.12, green: 0.33, blue: 0.66)], startPoint: .top, endPoint: .bottom))
-                        .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(HUDStyle.bevel, lineWidth: 2.5))
-                        .overlay(alignment: .top) {
-                            RoundedRectangle(cornerRadius: 6).fill(.white.opacity(0.35)).frame(height: size * 0.3).padding(4)
-                        }
-                )
-                .overlay(alignment: .topTrailing) {
-                    if badge {
-                        Circle().fill(HUDStyle.gold).frame(width: 12, height: 12)
-                            .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 1.5))
-                            .offset(x: 3, y: -3)
-                    }
+        Button {
+            SoundEffects.shared.play(.tap, volume: 0.7)
+            action()
+        } label: {
+            VStack(spacing: 2) {
+                tile
+                if showsLabel {
+                    Text(label)
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .frame(width: size + 8)
+                        .shadow(color: .black, radius: 0, x: 1, y: 1)
                 }
-                .shadow(color: .black.opacity(0.35), radius: 2, x: 0, y: 2)
+            }
         }
         .buttonStyle(PressScaleStyle())
         .accessibilityLabel(label)
+    }
+
+    private var tile: some View {
+        IconImage(icon, size: size * 0.5)
+            .foregroundStyle(.white)
+            .shadow(color: HUDStyle.frameDark, radius: 0, x: 1, y: 1)
+            .frame(width: size, height: size)
+            .background(
+                RoundedRectangle(cornerRadius: 9)
+                    .fill(LinearGradient(colors: [Color(red: 0.6, green: 0.85, blue: 1), Color(red: 0.25, green: 0.55, blue: 0.9), Color(red: 0.12, green: 0.33, blue: 0.66)], startPoint: .top, endPoint: .bottom))
+                    .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(HUDStyle.bevel, lineWidth: 2.5))
+                    .overlay(alignment: .top) {
+                        RoundedRectangle(cornerRadius: 6).fill(.white.opacity(0.35)).frame(height: size * 0.3).padding(4)
+                    }
+            )
+            .overlay(alignment: .topTrailing) {
+                if badge {
+                    Circle().fill(HUDStyle.gold).frame(width: 12, height: 12)
+                        .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 1.5))
+                        .offset(x: 3, y: -3)
+                }
+            }
+            .shadow(color: .black.opacity(0.35), radius: 2, x: 0, y: 2)
     }
 }
 
@@ -239,6 +259,9 @@ struct PixelButtonStyle: ButtonStyle {
                     .shadow(color: .black.opacity(0.35), radius: 0, x: 0, y: configuration.isPressed ? 0 : 3)
             )
             .offset(y: configuration.isPressed ? 2 : 0)
+            .onChange(of: configuration.isPressed) { _, pressed in
+                if pressed { SoundEffects.shared.play(.tap, volume: 0.7) }
+            }
     }
 }
 

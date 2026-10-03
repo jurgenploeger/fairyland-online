@@ -51,7 +51,7 @@
         "left"
       ],
       "request": {
-        "prompt": "cute chibi dwarf adventurer, short and stocky, big bushy ginger beard, ginger hair, green tunic, brown belt and boots",
+        "prompt": "cute chibi dwarf adventurer kid, very short and chubby with a round belly and short legs, round rosy cheeks, clean-shaven with no beard and no moustache, ginger hair, green tunic, brown belt and boots",
         "prompt_style": "rd_animation__four_angle_walking",
         "width": 48,
         "height": 48,
@@ -59,6 +59,114 @@
       },
       "derive": {
         "from": "player_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dwarf_npc_walk",
+      "kind": "walk_sheet",
+      "frame": 48,
+      "directions": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "request": {
+        "prompt": "cute chibi dwarf, short and stocky, big bushy ginger beard, ginger hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      }
+    },
+    {
+      "id": "human_female_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi adventurer girl with long orange hair in a ponytail, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "player_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "human_other_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi androgynous adventurer kid with a short fluffy orange bob haircut, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "player_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "elf_male_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi elf adventurer boy with long pointy ears, short golden blonde hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "elf_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "elf_other_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi androgynous elf adventurer with long pointy ears, shoulder-length golden blonde hair, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "elf_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dwarf_female_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi dwarf adventurer girl, very short and chubby with a round belly and short legs, round rosy cheeks, two thick ginger braids, no beard, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "dwarf_walk",
+        "recolor": []
+      }
+    },
+    {
+      "id": "dwarf_other_walk",
+      "kind": "walk_sheet",
+      "request": {
+        "prompt": "cute chibi androgynous dwarf adventurer, very short and chubby with a round belly and short legs, round rosy cheeks, messy short ginger hair, no beard, green tunic, brown belt and boots",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      },
+      "derive": {
+        "from": "dwarf_walk",
         "recolor": []
       }
     },
@@ -520,7 +628,7 @@
       "id": "npc_trader",
       "kind": "walk_sheet",
       "derive": {
-        "from": "dwarf_walk",
+        "from": "dwarf_npc_walk",
         "recolor": [
           {
             "hue": [
@@ -594,7 +702,7 @@
       "id": "npc_warrior",
       "kind": "walk_sheet",
       "derive": {
-        "from": "dwarf_walk",
+        "from": "dwarf_npc_walk",
         "recolor": [
           {
             "hue": [
@@ -962,6 +1070,88 @@
       }
     },
     {
+      "id": "npc_mother_sheep",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_flame_sheep",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              60
+            ],
+            "minSaturation": 0.3,
+            "minValue": 0.45,
+            "to": 40,
+            "saturation": 0.1,
+            "value": 1.3
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_little_pig",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_wood_hog",
+        "recolor": [
+          {
+            "hue": [
+              60,
+              170
+            ],
+            "minSaturation": 0.2,
+            "to": 345,
+            "saturation": 0.45,
+            "value": 1.25
+          },
+          {
+            "hue": [
+              10,
+              50
+            ],
+            "minSaturation": 0.25,
+            "to": 350,
+            "saturation": 0.5,
+            "value": 1.3
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_ugly_duckling",
+      "kind": "monster",
+      "request": {
+        "prompt": "shy scruffy grey ugly duckling with big sad eyes, fluffy messy feathers, chibi, cute",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "npc_frog_prince",
+      "kind": "monster",
+      "request": {
+        "prompt": "cute green frog prince wearing a tiny golden crown and a red cape, chibi, cute",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "npc_puss_in_boots",
+      "kind": "monster",
+      "request": {
+        "prompt": "orange tabby cat standing upright in tall brown boots and a feathered hat, chibi, cute",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
+    },
+    {
       "id": "monster_wood_hog",
       "kind": "monster",
       "request": {
@@ -976,7 +1166,7 @@
       "id": "monster_treefrog",
       "kind": "monster",
       "request": {
-        "prompt": "bright green tree frog with big round eyes and sticky toes, chibi, cute monster",
+        "prompt": "green tree frog fighter wearing a hero mask over its eyes, fists raised in a fighting stance, big round eyes, sticky toes, chibi, cute monster",
         "prompt_style": "rd_plus__low_res",
         "width": 40,
         "height": 40,
@@ -1534,6 +1724,134 @@
         "width": 96,
         "height": 64,
         "remove_bg": true
+      }
+    },
+    {
+      "id": "house_green",
+      "kind": "building",
+      "derive": {
+        "from": "house",
+        "recolor": [
+          {
+            "hue": [
+              340,
+              30
+            ],
+            "minSaturation": 0.3,
+            "to": 140,
+            "saturation": 0.8,
+            "value": 0.95
+          }
+        ]
+      }
+    },
+    {
+      "id": "house_purple",
+      "kind": "building",
+      "derive": {
+        "from": "house",
+        "recolor": [
+          {
+            "hue": [
+              340,
+              30
+            ],
+            "minSaturation": 0.3,
+            "to": 280,
+            "saturation": 0.85
+          }
+        ]
+      }
+    },
+    {
+      "id": "mushroom_house_blue",
+      "kind": "building",
+      "derive": {
+        "from": "mushroom_house",
+        "recolor": [
+          {
+            "hue": [
+              340,
+              30
+            ],
+            "minSaturation": 0.3,
+            "to": 205,
+            "saturation": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "mushroom_house_gold",
+      "kind": "building",
+      "derive": {
+        "from": "mushroom_house",
+        "recolor": [
+          {
+            "hue": [
+              340,
+              30
+            ],
+            "minSaturation": 0.3,
+            "to": 42,
+            "saturation": 1.1,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "inn_red",
+      "kind": "building",
+      "derive": {
+        "from": "inn",
+        "recolor": [
+          {
+            "hue": [
+              250,
+              320
+            ],
+            "minSaturation": 0.25,
+            "to": 2,
+            "saturation": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "inn_teal",
+      "kind": "building",
+      "derive": {
+        "from": "inn",
+        "recolor": [
+          {
+            "hue": [
+              250,
+              320
+            ],
+            "minSaturation": 0.25,
+            "to": 175,
+            "saturation": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_shop_red",
+      "kind": "building",
+      "derive": {
+        "from": "item_shop",
+        "recolor": [
+          {
+            "hue": [
+              90,
+              170
+            ],
+            "minSaturation": 0.25,
+            "to": 355,
+            "saturation": 1.0
+          }
+        ]
       }
     },
     {
@@ -2311,8 +2629,37 @@
         "recolor": [
           {
             "minSaturation": 0.2,
-            "shift": 200,
+            "shift": -85,
+            "saturation": 1.2
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_treefrog_blue",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_treefrog",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "shift": 95,
             "saturation": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_treefrog_gold",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_treefrog",
+        "recolor": [
+          {
+            "minSaturation": 0.2,
+            "to": 46,
+            "saturation": 1.3,
+            "value": 1.1
           }
         ]
       }
@@ -2731,7 +3078,7 @@
         "left"
       ],
       "derive": {
-        "from": "dwarf_walk",
+        "from": "dwarf_npc_walk",
         "recolor": [
           {
             "hue": [
@@ -3326,6 +3673,2781 @@
             "to": 195,
             "saturation": 0.35,
             "value": 1.25
+          }
+        ]
+      }
+    },
+    {
+      "id": "ice_cluster",
+      "kind": "prop",
+      "derive": {
+        "from": "crystal",
+        "recolor": [
+          {
+            "to": 195,
+            "saturation": 0.5,
+            "value": 1.25
+          }
+        ]
+      }
+    },
+    {
+      "id": "big_ice_cluster",
+      "kind": "prop",
+      "scale": 1.6,
+      "derive": {
+        "from": "crystal",
+        "recolor": [
+          {
+            "to": 195,
+            "saturation": 0.5,
+            "value": 1.25
+          }
+        ]
+      }
+    },
+    {
+      "id": "ice_boulder",
+      "kind": "prop",
+      "derive": {
+        "from": "ice_rock",
+        "recolor": [
+          {
+            "to": 195,
+            "saturation": 0.5,
+            "value": 1.25
+          }
+        ]
+      }
+    },
+    {
+      "id": "tile_ice",
+      "kind": "tile",
+      "derive": {
+        "from": "tile_water",
+        "recolor": [
+          {
+            "to": 200,
+            "saturation": 0.45,
+            "value": 1.3
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_smith",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "dwarf_walk",
+        "recolor": [
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "minSaturation": 0.3,
+            "to": 24,
+            "saturation": 0.6,
+            "value": 0.7
+          },
+          {
+            "hue": [
+              12,
+              58
+            ],
+            "minSaturation": 0.55,
+            "minValue": 0.55,
+            "to": 18,
+            "saturation": 0.25,
+            "value": 0.35
+          }
+        ]
+      },
+      "request": {
+        "prompt": "stout dwarf blacksmith with a leather apron and a hammer, chibi",
+        "prompt_style": "rd_animation__four_angle_walking",
+        "width": 48,
+        "height": 48,
+        "return_spritesheet": true
+      }
+    },
+    {
+      "id": "item_potion",
+      "kind": "item",
+      "request": {
+        "prompt": "round red healing potion bottle with a cork, cute fairytale game item icon, soft 3D shading",
+        "prompt_style": "rd_pro__fantasy",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ether",
+      "kind": "item",
+      "request": {
+        "prompt": "blue mana potion in a cone flask with a cork, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      },
+      "derive": {
+        "from": "item_potion",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              9
+            ],
+            "minSaturation": 0.1,
+            "to": 212,
+            "saturation": 1.0,
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_seal_stone",
+      "kind": "item",
+      "request": {
+        "prompt": "teal crystal sealing stone with a white spiral rune, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_pet_egg",
+      "kind": "item",
+      "request": {
+        "prompt": "cream pet egg with colourful spots, wiggling, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_wooden_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "small wooden practice sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_oak_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "oak staff topped with green leaves, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_iron_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "iron axe with a wooden handle, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_crystal_wand",
+      "kind": "item",
+      "request": {
+        "prompt": "short wand with a cyan crystal tip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_tamer_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "coiled leather whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_cloth_tunic",
+      "kind": "item",
+      "request": {
+        "prompt": "simple beige cloth tunic with a belt, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_leather_vest",
+      "kind": "item",
+      "request": {
+        "prompt": "brown leather vest, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_chain_mail",
+      "kind": "item",
+      "request": {
+        "prompt": "chain mail shirt, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_silk_robe",
+      "kind": "item",
+      "request": {
+        "prompt": "lilac silk robe with a gold star, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ranger_cloak",
+      "kind": "item",
+      "request": {
+        "prompt": "green hooded ranger cloak, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_lucky_clover",
+      "kind": "item",
+      "request": {
+        "prompt": "four-leaf lucky clover, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ruby_ring",
+      "kind": "item",
+      "request": {
+        "prompt": "gold ring with a red ruby, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_novice_ring",
+      "kind": "item",
+      "request": {
+        "prompt": "simple copper ring with a small blue stone, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_hi_potion",
+      "kind": "item",
+      "request": {
+        "prompt": "big pink healing potion bottle with a gold star label, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      },
+      "derive": {
+        "from": "item_potion",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              9
+            ],
+            "minSaturation": 0.1,
+            "to": 328,
+            "saturation": 0.9,
+            "value": 1.12
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_hi_ether",
+      "kind": "item",
+      "request": {
+        "prompt": "violet mana potion in a cone flask with a gold star, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      },
+      "derive": {
+        "from": "item_potion",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              9
+            ],
+            "minSaturation": 0.1,
+            "to": 272,
+            "saturation": 0.9,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_steel_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "steel sword with a gold crossguard and a red gem, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_battle_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "double-headed dwarven battle axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_elder_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "gnarled elder staff holding a glowing cyan orb, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_star_wand",
+      "kind": "item",
+      "request": {
+        "prompt": "golden wand with a big shining star, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_beast_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "red coiled whip with a paw-shaped tassel, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_wild_horn",
+      "kind": "item",
+      "request": {
+        "prompt": "curved hunting horn with a leather strap, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_iron_plate",
+      "kind": "item",
+      "request": {
+        "prompt": "shiny iron breastplate, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_mage_robe",
+      "kind": "item",
+      "request": {
+        "prompt": "navy mage robe with gold trim, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_tamer_jacket",
+      "kind": "item",
+      "request": {
+        "prompt": "orange jacket with big pockets, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_dragon_mail",
+      "kind": "item",
+      "request": {
+        "prompt": "red dragon scale armor, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_snow_cloak",
+      "kind": "item",
+      "request": {
+        "prompt": "white snow cloak with a fur collar, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_star_charm",
+      "kind": "item",
+      "request": {
+        "prompt": "gold star charm on a necklace, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_power_band",
+      "kind": "item",
+      "request": {
+        "prompt": "red wristband with steel studs, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_speed_boots",
+      "kind": "item",
+      "request": {
+        "prompt": "blue winged speed boots, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_bamboo_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "green bamboo staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_rattan_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "rattan staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_heavy_rattan_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "heavy rattan staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_lightwood_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "lightwood staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_brownwood_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "brownwood staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_blossom_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "blossom staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_teak_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "teak staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_heavywood_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "heavywood staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_red_cypress_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "red cypress staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_blood_cypress_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "blood cypress staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_yew_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "yew staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_purple_star_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "purple star staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_armorbreaker_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "armorbreaker staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ironcrusher_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "ironcrusher staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_red_cloud_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "red cloud staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_titanium_sceptre",
+      "kind": "item",
+      "request": {
+        "prompt": "titanium sceptre, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_emperor_sceptre",
+      "kind": "item",
+      "request": {
+        "prompt": "emperor's sceptre, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_aurora_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "aurora staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ghost_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "ghost staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_sky_ending_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "sky-ending staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_luna_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "luna staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_dragon_god_staff",
+      "kind": "item",
+      "request": {
+        "prompt": "dragon god staff, a magic staff, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_novice_bronze_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "novice bronze sword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_bronze_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "bronze sword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_bronze_broadsword",
+      "kind": "item",
+      "request": {
+        "prompt": "bronze broadsword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_bronze_longsword",
+      "kind": "item",
+      "request": {
+        "prompt": "bronze longsword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_copper_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "copper sword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_iron_longsword",
+      "kind": "item",
+      "request": {
+        "prompt": "iron longsword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_silver_inlaid_longsword",
+      "kind": "item",
+      "request": {
+        "prompt": "silver-inlaid longsword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_silver_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "silver sword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_blue_frost_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "blue frost sword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_tempered_steel_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "tempered steel sword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_golden_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "golden sword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_silver_steel_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "silver steel sword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_serpent_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "serpent sword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_alloy_shortsword",
+      "kind": "item",
+      "request": {
+        "prompt": "alloy shortsword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_platinum_longsword",
+      "kind": "item",
+      "request": {
+        "prompt": "platinum longsword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ironcleaver_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "ironcleaver, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_tungsten_dragonslayer",
+      "kind": "item",
+      "request": {
+        "prompt": "tungsten dragonslayer, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_aurora_blade",
+      "kind": "item",
+      "request": {
+        "prompt": "aurora blade, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_phantom_blade",
+      "kind": "item",
+      "request": {
+        "prompt": "phantom blade, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_sky_splitter",
+      "kind": "item",
+      "request": {
+        "prompt": "sky splitter, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_moonlight_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "moonlight sword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_dragon_god_sword",
+      "kind": "item",
+      "request": {
+        "prompt": "dragon god sword, a sword, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_novice_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "novice axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_small_hatchet",
+      "kind": "item",
+      "request": {
+        "prompt": "small hatchet, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_wood_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "woodcutter's axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_hand_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "hand axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_copper_plate_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "copper plate axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_light_war_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "light war axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_windchaser_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "windchaser axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_iron_bead_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "iron bead axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_curved_war_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "curved war axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_steel_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "steel axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_twin_blade_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "twin-blade axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_long_war_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "long war axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_grey_dragon_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "grey dragon axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_overlord_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "overlord axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_alloy_twin_war_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "alloy twin war axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_titanium_dwarf_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "titanium dwarf axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_tungsten_skybreaker",
+      "kind": "item",
+      "request": {
+        "prompt": "tungsten skybreaker, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_aurora_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "aurora axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_phantom_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "phantom axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_thunder_god_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "thunder god axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_luna_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "luna axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_dragon_god_axe",
+      "kind": "item",
+      "request": {
+        "prompt": "dragon god axe, an axe, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_sheepskin_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "sheepskin whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_handy_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "handy whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_cowhide_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "cowhide whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_strong_ox_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "strong ox whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_whitewood_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "whitewood whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_cactus_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "cactus whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_teak_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "teak whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_golden_deer_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "golden deer whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_red_cypress_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "red cypress whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_deerhide_lash",
+      "kind": "item",
+      "request": {
+        "prompt": "deerhide lash, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_blue_sky_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "blue sky whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_amber_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "amber whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_power_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "power whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_hardened_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "hardened whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_crocodile_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "crocodile whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_thorn_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "thorn whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_azure_dragon_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "azure dragon whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_aurora_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "aurora whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_phantom_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "phantom whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_storm_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "storm whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_luna_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "luna whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_dragon_god_whip",
+      "kind": "item",
+      "request": {
+        "prompt": "dragon god whip, a whip, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_bamboo",
+      "kind": "item",
+      "request": {
+        "prompt": "bamboo, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_rattan",
+      "kind": "item",
+      "request": {
+        "prompt": "rattan, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_poplar",
+      "kind": "item",
+      "request": {
+        "prompt": "white poplar, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_teak",
+      "kind": "item",
+      "request": {
+        "prompt": "teak, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_red_cypress",
+      "kind": "item",
+      "request": {
+        "prompt": "red cypress, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_yew",
+      "kind": "item",
+      "request": {
+        "prompt": "yew, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_ebony",
+      "kind": "item",
+      "request": {
+        "prompt": "ebony, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_hemlock",
+      "kind": "item",
+      "request": {
+        "prompt": "iron hemlock, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_red_yew",
+      "kind": "item",
+      "request": {
+        "prompt": "red yew, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_bronze_ingot",
+      "kind": "item",
+      "request": {
+        "prompt": "bronze ingot, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_copper_ingot",
+      "kind": "item",
+      "request": {
+        "prompt": "copper ingot, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_iron_ingot",
+      "kind": "item",
+      "request": {
+        "prompt": "iron ingot, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_silver_ingot",
+      "kind": "item",
+      "request": {
+        "prompt": "silver ingot, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_gold_ingot",
+      "kind": "item",
+      "request": {
+        "prompt": "gold ingot, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_steel_ingot",
+      "kind": "item",
+      "request": {
+        "prompt": "steel ingot, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_alloy_steel",
+      "kind": "item",
+      "request": {
+        "prompt": "alloy steel, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_platinum_ingot",
+      "kind": "item",
+      "request": {
+        "prompt": "platinum ingot, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_titanium_alloy",
+      "kind": "item",
+      "request": {
+        "prompt": "titanium alloy, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_tungsten_alloy",
+      "kind": "item",
+      "request": {
+        "prompt": "tungsten alloy, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_dragon_steel",
+      "kind": "item",
+      "request": {
+        "prompt": "dragon steel, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_amber",
+      "kind": "item",
+      "request": {
+        "prompt": "amber, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_cats_eye",
+      "kind": "item",
+      "request": {
+        "prompt": "cat's eye, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_emerald",
+      "kind": "item",
+      "request": {
+        "prompt": "emerald, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_azurite",
+      "kind": "item",
+      "request": {
+        "prompt": "azurite, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_topaz",
+      "kind": "item",
+      "request": {
+        "prompt": "topaz, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_agate",
+      "kind": "item",
+      "request": {
+        "prompt": "agate, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_diamond",
+      "kind": "item",
+      "request": {
+        "prompt": "diamond, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_chalcedony",
+      "kind": "item",
+      "request": {
+        "prompt": "chalcedony, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_dragon_pearl",
+      "kind": "item",
+      "request": {
+        "prompt": "dragon pearl, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_sheepskin",
+      "kind": "item",
+      "request": {
+        "prompt": "sheepskin, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_cowhide",
+      "kind": "item",
+      "request": {
+        "prompt": "cowhide, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_deer_hide",
+      "kind": "item",
+      "request": {
+        "prompt": "deer hide, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_marten_fur",
+      "kind": "item",
+      "request": {
+        "prompt": "marten fur, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_crocodile_hide",
+      "kind": "item",
+      "request": {
+        "prompt": "crocodile hide, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_dragon_scale",
+      "kind": "item",
+      "request": {
+        "prompt": "dragon scale, a crafting material, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "monster_golden_slime",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_jelly",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 45,
+            "saturation": 1.1,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "boss_golden_grunt",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_jelly",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 42,
+            "saturation": 1.2,
+            "value": 1.05
+          }
+        ]
+      },
+      "scale": 1.8
+    },
+    {
+      "id": "monster_candy_puff",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_jelly",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 160,
+            "saturation": 0.7,
+            "value": 1.15
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_temple_jelly",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_jelly",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 222,
+            "saturation": 1.0,
+            "value": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_earth_wolf",
+      "kind": "monster",
+      "derive": {
+        "from": "boss_big_bad_wolf",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0,
+            "maxSaturation": 0.25,
+            "to": 28,
+            "saturation": 5,
+            "value": 0.85
+          },
+          {
+            "hue": [
+              330,
+              40
+            ],
+            "minSaturation": 0.25,
+            "to": 30,
+            "saturation": 0.8,
+            "value": 0.8
+          }
+        ]
+      },
+      "scale": 0.65
+    },
+    {
+      "id": "monster_flame_wolf",
+      "kind": "monster",
+      "derive": {
+        "from": "boss_big_bad_wolf",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0,
+            "maxSaturation": 0.25,
+            "to": 14,
+            "saturation": 7,
+            "value": 1.05
+          },
+          {
+            "hue": [
+              330,
+              40
+            ],
+            "minSaturation": 0.25,
+            "to": 40,
+            "saturation": 1.2,
+            "value": 1.2
+          }
+        ]
+      },
+      "scale": 0.65
+    },
+    {
+      "id": "boss_wolf_leader",
+      "kind": "monster",
+      "derive": {
+        "from": "boss_big_bad_wolf",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0,
+            "maxSaturation": 0.25,
+            "to": 222,
+            "saturation": 4,
+            "value": 0.7
+          },
+          {
+            "hue": [
+              330,
+              40
+            ],
+            "minSaturation": 0.25,
+            "to": 0,
+            "saturation": 1.1,
+            "value": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_wooden_puppet",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_poison_skeleton",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0,
+            "maxSaturation": 0.25,
+            "to": 32,
+            "saturation": 5,
+            "value": 0.95
+          },
+          {
+            "hue": [
+              90,
+              180
+            ],
+            "minSaturation": 0.25,
+            "to": 30,
+            "saturation": 0.8,
+            "value": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "boss_puppet_king",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_poison_skeleton",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0,
+            "maxSaturation": 0.25,
+            "to": 36,
+            "saturation": 5,
+            "value": 1.0
+          },
+          {
+            "hue": [
+              90,
+              180
+            ],
+            "minSaturation": 0.25,
+            "to": 48,
+            "saturation": 1.2,
+            "value": 1.2
+          }
+        ]
+      },
+      "scale": 1.6
+    },
+    {
+      "id": "monster_lotus_sprite",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_wisp",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 320,
+            "saturation": 0.8,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_dream_phantom",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_phantom",
+        "recolor": [
+          {
+            "hue": [
+              200,
+              300
+            ],
+            "minSaturation": 0.25,
+            "to": 285,
+            "saturation": 0.55,
+            "value": 1.2
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_ore_golem",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_floating_stone",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0,
+            "maxSaturation": 0.25,
+            "to": 24,
+            "saturation": 5,
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "boss_rock_monster",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_floating_stone",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 35,
+            "saturation": 0.35,
+            "value": 0.8
+          }
+        ]
+      },
+      "scale": 1.7
+    },
+    {
+      "id": "monster_crystal_widow",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_black_widow",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 185,
+            "saturation": 0.9,
+            "value": 1.15
+          }
+        ]
+      }
+    },
+    {
+      "id": "monster_emerald_pegasus",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_pegasus",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 140,
+            "saturation": 0.9,
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "boss_idreus",
+      "kind": "monster",
+      "derive": {
+        "from": "boss_drunk_dragon",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 272,
+            "saturation": 0.9,
+            "value": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "boss_tide_dragon",
+      "kind": "monster",
+      "derive": {
+        "from": "boss_drunk_dragon",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 205,
+            "saturation": 1.0,
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "boss_emerald_dragon",
+      "kind": "monster",
+      "derive": {
+        "from": "boss_drunk_dragon",
+        "recolor": [
+          {
+            "hue": [
+              0,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 140,
+            "saturation": 1.0,
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "boss_silver_lieutenant",
+      "kind": "monster",
+      "derive": {
+        "from": "monster_phantom",
+        "recolor": [
+          {
+            "hue": [
+              200,
+              300
+            ],
+            "minSaturation": 0.25,
+            "to": 215,
+            "saturation": 0.2,
+            "value": 1.3
+          }
+        ]
+      },
+      "scale": 1.5
+    },
+    {
+      "id": "npc_linns",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "npc_healer",
+        "recolor": [
+          {
+            "hue": [
+              300,
+              360
+            ],
+            "minSaturation": 0.25,
+            "to": 205,
+            "saturation": 1.0,
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_thumbelina",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "player_walk",
+        "recolor": [
+          {
+            "hue": [
+              60,
+              180
+            ],
+            "minSaturation": 0.25,
+            "to": 330,
+            "saturation": 0.6,
+            "value": 1.2
+          },
+          {
+            "hue": [
+              10,
+              55
+            ],
+            "minSaturation": 0.25,
+            "to": 50,
+            "saturation": 1.0,
+            "value": 1.25
+          }
+        ]
+      },
+      "scale": 0.7
+    },
+    {
+      "id": "npc_hermit_will",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "npc_elder",
+        "recolor": [
+          {
+            "hue": [
+              240,
+              290
+            ],
+            "minSaturation": 0.08,
+            "to": 95,
+            "saturation": 2.0,
+            "value": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_hamini",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "npc_elder",
+        "recolor": [
+          {
+            "hue": [
+              240,
+              290
+            ],
+            "minSaturation": 0.08,
+            "to": 210,
+            "saturation": 3.0,
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_thomas",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "npc_journeyman",
+        "recolor": [
+          {
+            "hue": [
+              60,
+              180
+            ],
+            "minSaturation": 0.25,
+            "to": 25,
+            "saturation": 0.7,
+            "value": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_temple_keeper",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "npc_diviner",
+        "recolor": [
+          {
+            "hue": [
+              250,
+              300
+            ],
+            "minSaturation": 0.25,
+            "to": 185,
+            "saturation": 1.0,
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc_emerald_guard",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "npc_warrior",
+        "recolor": [
+          {
+            "hue": [
+              190,
+              235
+            ],
+            "minSaturation": 0.08,
+            "to": 140,
+            "saturation": 4.0,
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "skill_bash",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_first_aid",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_power_strike",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_whirlwind",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_fire_bolt",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_stone_spike",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_leaf_storm",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_blessing",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_wild_call",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_mend_beast",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_nibble",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_jelly_splash",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_pine_needles",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_bounce",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_golden_spin",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_flash",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_shadow_bite",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_ember",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_mud_shot",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_vine_whip",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_bubble",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_web_shot",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_frost_breath",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_roar",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_gust",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_rock_throw",
+      "kind": "icon"
+    },
+    {
+      "id": "item_crimson_ranger_cloak",
+      "kind": "item",
+      "derive": {
+        "from": "item_ranger_cloak",
+        "recolor": [
+          {
+            "hue": [
+              70,
+              170
+            ],
+            "minSaturation": 0.2,
+            "to": 358
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_golden_plate",
+      "kind": "item",
+      "derive": {
+        "from": "item_iron_plate",
+        "recolor": [
+          {
+            "hue": [
+              170,
+              250
+            ],
+            "minSaturation": 0.05,
+            "to": 44,
+            "saturation": 2.6,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_golden_dragon_mail",
+      "kind": "item",
+      "derive": {
+        "from": "item_dragon_mail",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              20
+            ],
+            "minSaturation": 0.55,
+            "to": 44,
+            "value": 1.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_azure_dragon_mail",
+      "kind": "item",
+      "derive": {
+        "from": "item_dragon_mail",
+        "recolor": [
+          {
+            "hue": [
+              335,
+              20
+            ],
+            "minSaturation": 0.55,
+            "to": 212
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_rose_snow_cloak",
+      "kind": "item",
+      "derive": {
+        "from": "item_snow_cloak",
+        "recolor": [
+          {
+            "hue": [
+              180,
+              250
+            ],
+            "minSaturation": 0.1,
+            "to": 335
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_shadow_snow_cloak",
+      "kind": "item",
+      "derive": {
+        "from": "item_snow_cloak",
+        "recolor": [
+          {
+            "hue": [
+              180,
+              250
+            ],
+            "minSaturation": 0.1,
+            "to": 250,
+            "saturation": 0.5,
+            "value": 0.45
+          }
+        ]
+      }
+    },
+    {
+      "id": "boss_grumpy_oak",
+      "kind": "monster",
+      "request": {
+        "prompt": "grumpy old oak tree monster with a frowning bark face, bushy eyebrows and leafy crown, waving branch arms, boss monster, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "boss_great_wisp",
+      "kind": "monster",
+      "request": {
+        "prompt": "giant glowing will-o-the-wisp spirit, a big soft ball of pale yellow light with a mischievous face and swirling flame tail, boss monster, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "boss_moon_rabbit_queen",
+      "kind": "monster",
+      "request": {
+        "prompt": "moon rabbit queen, a white rabbit in a flowing lavender gown with a crescent moon crown, holding a mochi mallet, boss monster, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_mossy_leather_vest",
+      "kind": "item",
+      "derive": {
+        "from": "item_leather_vest",
+        "recolor": [
+          {
+            "hue": [
+              5,
+              32
+            ],
+            "minSaturation": 0.2,
+            "to": 95
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_autumn_leather_vest",
+      "kind": "item",
+      "derive": {
+        "from": "item_leather_vest",
+        "recolor": [
+          {
+            "hue": [
+              5,
+              32
+            ],
+            "minSaturation": 0.2,
+            "to": 4,
+            "saturation": 1.2
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_gilded_chain_mail",
+      "kind": "item",
+      "derive": {
+        "from": "item_chain_mail",
+        "recolor": [
+          {
+            "hue": [
+              190,
+              235
+            ],
+            "minSaturation": 0.05,
+            "to": 45,
+            "saturation": 3.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_dawn_silk_robe",
+      "kind": "item",
+      "derive": {
+        "from": "item_silk_robe",
+        "recolor": [
+          {
+            "hue": [
+              255,
+              295
+            ],
+            "minSaturation": 0.08,
+            "minValue": 0.45,
+            "to": 22
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_moonlight_mage_robe",
+      "kind": "item",
+      "derive": {
+        "from": "item_mage_robe",
+        "recolor": [
+          {
+            "hue": [
+              205,
+              240
+            ],
+            "minValue": 0.3,
+            "to": 275,
+            "saturation": 0.45,
+            "value": 1.2
+          }
+        ]
+      }
+    },
+    {
+      "id": "item_bunny_tamer_jacket",
+      "kind": "item",
+      "derive": {
+        "from": "item_tamer_jacket",
+        "recolor": [
+          {
+            "hue": [
+              5,
+              34
+            ],
+            "minSaturation": 0.2,
+            "to": 335,
+            "saturation": 0.8,
+            "value": 1.1
           }
         ]
       }

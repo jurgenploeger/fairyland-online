@@ -46,6 +46,7 @@ struct Combatant: Identifiable {
     var isAlive: Bool { hp > 0 && !isCaptured && !hasFled }
     var isHero: Bool { source == .hero }
     var hpFraction: Double { stats.hp > 0 ? Double(hp) / Double(stats.hp) : 0 }
+    var mpFraction: Double { stats.mp > 0 ? Double(mp) / Double(stats.mp) : 0 }
 
     var speciesID: String? {
         switch source {
@@ -359,8 +360,15 @@ final class BattleEngine {
 
     // MARK: - Numbers
 
+    /// Defence softens hits against a constant that grows past level 30, so fights take about
+    /// as many hits at level 100 as at level 30 (stats grow with level; a fixed 30 would not).
+    private func armorConstant(for defender: Combatant) -> Double {
+        30 * max(1, Double(defender.level) / 30)
+    }
+
     private func physicalHit(from attacker: Combatant, to defender: Combatant, power: Double) -> Hit {
-        var damage = Double(attacker.stats.attack) * power * 30 / (30 + Double(defender.stats.defense))
+        let k = armorConstant(for: defender)
+        var damage = Double(attacker.stats.attack) * power * k / (k + Double(defender.stats.defense))
         damage *= Double.random(in: 0.9...1.1, using: &rng)
         let critical = Double.random(in: 0..<1, using: &rng) < 0.08
         if critical { damage *= 1.5 }
@@ -370,7 +378,8 @@ final class BattleEngine {
 
     private func magicHit(from attacker: Combatant, to defender: Combatant, skill: SkillDef, boost: Double) -> Hit {
         let effectiveness = (skill.element ?? .neutral).multiplier(against: defender.element)
-        var damage = Double(attacker.stats.magic) * skill.power * boost * 30 / (30 + Double(defender.stats.defense) / 2)
+        let k = armorConstant(for: defender)
+        var damage = Double(attacker.stats.magic) * skill.power * boost * k / (k + Double(defender.stats.defense) / 2)
         damage *= effectiveness * Double.random(in: 0.9...1.1, using: &rng)
         if defender.isDefending { damage *= 0.5 }
         return Hit(target: defender.id, amount: max(1, Int(damage.rounded())), effectiveness: effectiveness, critical: false)

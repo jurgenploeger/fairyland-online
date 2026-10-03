@@ -1,9 +1,10 @@
 {
-  "_about": "Skills and spells. `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift). kind: physical | magic | heal. target: enemy | allEnemies | ally | allAllies. animation picks the battle effect (slash, whirlwind, fire, stone, leaves, water, heal, holy, wild, needles, bounce, bite); it grows with the skill's level (1-5, raised with skill points). Elements: metal, wood, water, fire, earth, light, dark. `splash`: from skill level 3 the spell also hits the target's neighbours for a share of the damage (this share at level 5).",
+  "_about": "Skills and spells. `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift); `art` is its pixel icon, drawn by tools/skill_art.py. kind: physical | magic | heal. target: enemy | allEnemies | ally | allAllies. animation picks the battle effect (slash, whirlwind, fire, stone, leaves, water, heal, holy, wild, needles, bounce, bite); it grows with the skill's level (1-5, raised with skill points). Elements: metal, wood, water, fire, earth, light, dark. `splash`: from skill level 3 the spell also hits the target's neighbours for a share of the damage (this share at level 5).",
   "skills": [
     {
       "id": "bash",
       "icon": "hammer",
+      "art": "skill_bash",
       "name": "Bash",
       "mp": 3,
       "kind": "physical",
@@ -15,6 +16,7 @@
     {
       "id": "first_aid",
       "icon": "first-aid",
+      "art": "skill_first_aid",
       "name": "First Aid",
       "mp": 4,
       "kind": "heal",
@@ -26,6 +28,7 @@
     {
       "id": "power_strike",
       "icon": "sword",
+      "art": "skill_power_strike",
       "name": "Power Strike",
       "mp": 6,
       "kind": "physical",
@@ -37,6 +40,7 @@
     {
       "id": "whirlwind",
       "icon": "tornado",
+      "art": "skill_whirlwind",
       "name": "Whirlwind",
       "mp": 9,
       "kind": "physical",
@@ -49,6 +53,7 @@
       "id": "fire_bolt",
       "splash": 0.5,
       "icon": "flame",
+      "art": "skill_fire_bolt",
       "name": "Fire Bolt",
       "mp": 5,
       "kind": "magic",
@@ -62,6 +67,7 @@
       "id": "stone_spike",
       "splash": 0.5,
       "icon": "mountain",
+      "art": "skill_stone_spike",
       "name": "Stone Spike",
       "mp": 6,
       "kind": "magic",
@@ -74,6 +80,7 @@
     {
       "id": "leaf_storm",
       "icon": "leaf",
+      "art": "skill_leaf_storm",
       "name": "Leaf Storm",
       "mp": 10,
       "kind": "magic",
@@ -86,6 +93,7 @@
     {
       "id": "blessing",
       "icon": "sun",
+      "art": "skill_blessing",
       "name": "Blessing",
       "mp": 12,
       "kind": "heal",
@@ -97,6 +105,7 @@
     {
       "id": "wild_call",
       "icon": "paw",
+      "art": "skill_wild_call",
       "name": "Wild Call",
       "mp": 7,
       "kind": "physical",
@@ -108,6 +117,7 @@
     {
       "id": "mend_beast",
       "icon": "heart-plus",
+      "art": "skill_mend_beast",
       "name": "Mend Beast",
       "mp": 5,
       "kind": "heal",
@@ -119,6 +129,7 @@
     {
       "id": "nibble",
       "icon": "tooth",
+      "art": "skill_nibble",
       "name": "Nibble",
       "mp": 0,
       "kind": "physical",
@@ -129,6 +140,7 @@
     {
       "id": "jelly_splash",
       "icon": "droplet",
+      "art": "skill_jelly_splash",
       "name": "Jelly Splash",
       "mp": 0,
       "kind": "magic",
@@ -140,6 +152,7 @@
     {
       "id": "pine_needles",
       "icon": "pine-tree",
+      "art": "skill_pine_needles",
       "name": "Pine Needles",
       "mp": 0,
       "kind": "physical",
@@ -150,6 +163,7 @@
     {
       "id": "bounce",
       "icon": "bounce",
+      "art": "skill_bounce",
       "name": "Bounce",
       "mp": 0,
       "kind": "physical",
@@ -160,6 +174,7 @@
     {
       "id": "golden_spin",
       "icon": "sparkles",
+      "art": "skill_golden_spin",
       "name": "Golden Spin",
       "mp": 0,
       "kind": "physical",
@@ -172,6 +187,7 @@
     {
       "id": "flash",
       "icon": "sun",
+      "art": "skill_flash",
       "name": "Flash",
       "mp": 0,
       "kind": "magic",
@@ -184,6 +200,7 @@
     {
       "id": "shadow_bite",
       "icon": "tooth",
+      "art": "skill_shadow_bite",
       "name": "Shadow Bite",
       "mp": 0,
       "kind": "magic",
@@ -196,6 +213,7 @@
     {
       "id": "ember",
       "icon": "flame",
+      "art": "skill_ember",
       "name": "Ember",
       "mp": 0,
       "kind": "magic",
@@ -208,6 +226,7 @@
     {
       "id": "mud_shot",
       "icon": "mountain",
+      "art": "skill_mud_shot",
       "name": "Mud Shot",
       "mp": 0,
       "kind": "magic",
@@ -220,6 +239,7 @@
     {
       "id": "vine_whip",
       "icon": "leaf",
+      "art": "skill_vine_whip",
       "name": "Vine Whip",
       "mp": 0,
       "kind": "physical",
@@ -232,6 +252,7 @@
     {
       "id": "bubble",
       "icon": "droplet",
+      "art": "skill_bubble",
       "name": "Bubble",
       "mp": 0,
       "kind": "magic",
@@ -244,6 +265,7 @@
     {
       "id": "web_shot",
       "icon": "pine-tree",
+      "art": "skill_web_shot",
       "name": "Web Shot",
       "mp": 0,
       "kind": "physical",
@@ -256,6 +278,7 @@
     {
       "id": "frost_breath",
       "icon": "droplet",
+      "art": "skill_frost_breath",
       "name": "Frost Breath",
       "mp": 0,
       "kind": "magic",
@@ -268,6 +291,7 @@
     {
       "id": "roar",
       "icon": "paw",
+      "art": "skill_roar",
       "name": "Roar",
       "mp": 0,
       "kind": "physical",
@@ -279,6 +303,7 @@
     {
       "id": "gust",
       "icon": "tornado",
+      "art": "skill_gust",
       "name": "Gust",
       "mp": 0,
       "kind": "physical",
@@ -290,6 +315,7 @@
     {
       "id": "rock_throw",
       "icon": "mountain",
+      "art": "skill_rock_throw",
       "name": "Rock Throw",
       "mp": 0,
       "kind": "physical",

@@ -8,10 +8,19 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
   most features are a JSON edit.
 - `art/assets.json` + `art/sprites/`: every sprite. `derive` makes free palette swaps of existing art.
 - `Fairyland/`: Swift code (World = maps and walking, Battle = combat, UI = SwiftUI HUD and menus).
+- `tools/item_art.py`: draws every item's 32×32 sprite in code (free); rerun it after editing a drawing.
+- `tools/skill_art.py`: the same for every skill's icon (`art/sprites/skill_<id>.png`).
+- `tools/hero_layers.py`: splits each race's walk sheet into paper-doll layers (bald `body_<race>`,
+  `hair_<style>_<race>` for every hairstyle, `hood_`/`helmet_<race>` in magenta that GearOverlay paints in the
+  armour's colours). The game stacks them (`GameSession.layers`); rerun after changing a race's sheet.
 - `tools/rd.py`: Retro Diffusion client. `tools/icons.py`: vendors Iconaut icons (MIT).
   `tools/check_content.py`: validates the game data.
 - `theme.palette` in `content/maps.json` colour-grades each map's ground, scenery and buildings at load time.
   `tools/palette_preview.py` (needs pillow + numpy) renders every map with and without it, to tune without a Mac.
+- `content/music.json` defines instruments and songs for `Fairyland/Audio/SongSynth.swift`. `tools/music_preview.py`
+  (needs numpy + scipy) renders songs to WAV with the same algorithm; keep the two in step.
+- `sound/*.wav`: sound effects, synthesized by `tools/make_sounds.py` (needs numpy). Edit a recipe and rerun;
+  `SoundEffects.Sound` in `Fairyland/Audio/SoundEffects.swift` lists them. Settings live in `GameSettings` (UserDefaults).
 
 ## Rules
 - **Cloud sessions (Linux) can't build or run the app.** After editing `content/` or `art/assets.json`, run
@@ -20,6 +29,8 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 - **Retro Diffusion costs money.** Always run `python3 tools/rd.py generate <ids> --dry-run` (free) and get
   the user's OK before generating. Paid runs are logged in `art/spend-log.jsonl`. Never commit `.env` or the
   API key (`RETRO_DIFFUSION_API_KEY`).
+- **Versions:** `MARKETING_VERSION` in `project.yml` and the top entry of `content/changelog.json` move together
+  (the checker enforces it). Add a changelog entry when shipping a user-visible change. 1.0.0 = App Store launch.
 - **Screenshots:** pushes to `claude/**` branches run `.github/workflows/screenshots.yml` (macOS runner):
   it builds for the simulator and shoots the scenes in `tools/screenshots.txt` (FAIRYLAND_DEBUG flags). Results
   land on the `screenshots` branch under `<branch>/`: `git fetch origin screenshots` and read the PNGs.

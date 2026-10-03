@@ -2,9 +2,21 @@
 # name | FAIRYLAND_DEBUG flags (see Fairyland/App/DebugLaunch.swift) | seconds to wait before the shot
 title        |                                   | 6
 meadowbrook  | newgame                           | 8
-sunny_meadow | newgame,map=sunny_meadow          | 8
-smiling_forest | newgame,map=smiling_forest       | 8
-battle       | newgame,map=sunny_meadow,battle   | 10
+sunny_meadow | newgame,map=sunny_meadow          | 40
+smiling_forest | newgame,map=smiling_forest       | 40
+battle       | newgame,map=sunny_meadow,battle   | 40
 character    | newgame,menu=character            | 8
 companions   | newgame,level=5,menu=companions   | 8
 landscape    | newgame,map=rainbow_city,landscape | 8
+rat_cavern   | newgame,map=rat_cavern            | 8
+behind_wall  | newgame,map=rat_cavern,at=-3_3        | 30
+behind_tree  | newgame,map=smiling_forest,at=0_-14   | 40
+intro_story  | intro                             | 6
+intro_play   | intro=2                           | 6
+intro_world  | intro=3                           | 6
+coach        | newgame,coach                     | 9
+gear_plate   | newgame,level=30,equip=dragon_mail+wooden_sword+ruby_ring      | 8
+gear_cloak   | newgame,level=30,equip=snow_cloak+oak_staff+speed_boots        | 8
+hair_elf     | newgame,race=elf,style=spiky,menu=character                    | 8
+hood_dwarf   | newgame,race=dwarf,level=30,equip=ranger_cloak                 | 8
+boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 8
