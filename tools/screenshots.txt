@@ -22,3 +22,4 @@ hood_dwarf   | newgame,race=dwarf,level=30,equip=ranger_cloak                 | 
 boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 15
 edge_fog     | newgame,map=sunny_meadow,at=80_0                 | 15
 edge_town    | newgame,map=meadowbrook,at=0_-28                  | 8
+twilight     | newgame,level=40,map=twilight_woods                 | 15
