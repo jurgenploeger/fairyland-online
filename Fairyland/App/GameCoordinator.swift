@@ -40,6 +40,8 @@ final class GameCoordinator {
     private(set) var isReady = false
     /// The map being travelled to, while its loading card is showing.
     private(set) var loadingMapName: String?
+    /// How far the map build has got, 0...1, for the loading bar.
+    private(set) var loadProgress: Double = 0
     @ObservationIgnored private var loadingStarted = Date()
     @ObservationIgnored private(set) var battleScene: BattleScene?
     /// Set by the app: saves are done, go back to the title screen.
@@ -55,6 +57,7 @@ final class GameCoordinator {
         session.handOutMissingStarterGifts()
         world = WorldScene(map: map, session: session, input: input, entry: nil)
         wire(world)
+        build(world)
         startAutosave()
         SoundEffects.shared.preload()
     }
@@ -72,6 +75,14 @@ final class GameCoordinator {
 
     /// The scene SpriteKit should show right now.
     var scene: SKScene { battle != nil ? (battleScene ?? world) : world }
+
+    /// Builds the scenery a piece at a time; the grid (made in the scene's init) counts as the first part.
+    private func build(_ scene: WorldScene) {
+        loadProgress = 0.15
+        Task { [weak self] in
+            await scene.build { fraction in self?.loadProgress = 0.15 + fraction * 0.8 }
+        }
+    }
 
     private func wire(_ scene: WorldScene) {
         scene.onFirstFrame = { [weak self] in self?.finishLoading() }
@@ -96,6 +107,7 @@ final class GameCoordinator {
     private func go(to map: MapDef, entry: Edge?) {
         loadingMapName = map.name
         loadingStarted = Date()
+        loadProgress = 0
         isReady = false
         Task {
             try? await Task.sleep(for: .milliseconds(280))
@@ -107,6 +119,7 @@ final class GameCoordinator {
     private func finishLoading() {
         let remaining = 0.8 - Date().timeIntervalSince(loadingStarted)
         Task {
+            loadProgress = 1
             if remaining > 0 { try? await Task.sleep(for: .seconds(remaining)) }
             isReady = true
             loadingMapName = nil
@@ -121,6 +134,7 @@ final class GameCoordinator {
         if entry != nil || map.fence == true { session.reachCheckpoint(map, entry: entry) }
         let scene = WorldScene(map: map, session: session, input: input, entry: entry)
         wire(scene)
+        build(scene)
         input.move = .zero
         world = scene
         session.save()
