@@ -18,7 +18,8 @@
         "The world map is turned like the game's view, with a compass: north is up-left and east is up-right, so the road you take off the top-right of the screen leads to the place up-right on the map.",
         "Bars use the same colours everywhere: HP red, MP blue, EXP green. Battle HP bars were green, and your companion's HP bar on the map was orange.",
         "Handing in a quest opens a Quest complete card like the victory card after a battle: EXP with a star, gold with coins, items as little pictures, plus any new looks and roads it opens. If it levels you up, the skill card follows.",
-        "New Monster Book (Companions → Monster Book): every monster you meet in battle is written down, with its lore, element (and what it's strong against and weak to), stats at the level you met it, skills, where it lives, rare drops and how many you've beaten. Monsters you haven't met yet show as dark silhouettes; filter the book by element."
+        "New Monster Book (Companions → Monster Book): every monster you meet in battle is written down, with its lore, element (and what it's strong against and weak to), stats at the level you met it, skills, where it lives, rare drops and how many you've beaten. Monsters you haven't met yet show as dark silhouettes; filter the book by element.",
+        "Monsters of the same kind in one battle are just called by their name, without the A, B, C after it."
       ]
     },
     {

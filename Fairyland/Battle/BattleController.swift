@@ -150,16 +150,6 @@ final class BattleController {
             enemy.isRare = species.rare == true
             enemies.append(enemy)
         }
-        // Tell duplicates apart: "Jelly Puff A", "Jelly Puff B".
-        let counts = Dictionary(grouping: enemies, by: \.name).mapValues(\.count)
-        var seen: [String: Int] = [:]
-        for index in enemies.indices where counts[enemies[index].name, default: 0] > 1 {
-            let name = enemies[index].name
-            let letter = String(UnicodeScalar(UInt8(65 + seen[name, default: 0])))
-            seen[name, default: 0] += 1
-            enemies[index].name = "\(name) \(letter)"
-        }
-
         let engine = BattleEngine(party: party, enemies: enemies, content: content, captureBonus: session.heroClass.captureBonus ?? 1)
         return BattleController(engine: engine, session: session)
     }
