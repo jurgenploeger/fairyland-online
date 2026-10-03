@@ -175,7 +175,7 @@ private struct WorldPage: View {
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.cream)
                 .fixedSize(horizontal: false, vertical: true)
-            WorldAtlas(highlight: Content.shared.startMap)
+            IntroAtlas(highlight: Content.shared.startMap)
             HStack(spacing: 14) {
                 Label { Text("Start") } icon: { Circle().fill(HUDStyle.gold).frame(width: 9, height: 9) }
                 Label { Text("Town") } icon: { RoundedRectangle(cornerRadius: 2).strokeBorder(HUDStyle.gold, lineWidth: 2).frame(width: 10, height: 10) }
@@ -190,7 +190,7 @@ private struct WorldPage: View {
 
 /// Every map laid out by its roads: each exit puts the next map one step north, south, east or
 /// west of the one it leaves, starting from the first map.
-struct WorldAtlas: View {
+struct IntroAtlas: View {
     struct Place: Identifiable {
         let id: String
         let name: String
@@ -288,7 +288,7 @@ struct WorldAtlas: View {
 }
 
 private struct PlaceBadge: View {
-    let place: WorldAtlas.Place
+    let place: IntroAtlas.Place
     let isStart: Bool
     let width: CGFloat
 
