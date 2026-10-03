@@ -9,6 +9,8 @@ import Foundation
 ///   map=<id>       start on a map from content/maps.json
 ///   at=x_y         start at this offset from the map's centre (e.g. at=0_14)
 ///   equip=a+b      start wearing these items (ids from content/items.json, joined with +)
+///   bag=a+b        put these items in the bag
+///   change=<slot>  open the Character tab's list for weapon | armor | accessory (with menu=character)
 ///   race=<id>      play this race (content/classes.json)
 ///   style=<id>     wear this hairstyle (content/appearance.json `styles`)
 ///   hair=<id>      dye the hair this colour (content/appearance.json `hair`)
@@ -49,6 +51,8 @@ enum DebugLaunch {
     }
     static var showsCoachMarks: Bool { flags["coach"] != nil }
     static var opensMonsterBook: Bool { flags["book"] != nil }
+    /// `change=armor`: the Character tab opens with that slot's list of things to wear.
+    static var changingSlot: ItemType? { flags["change"].flatMap(ItemType.init(rawValue:)) }
     /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).
     static var introPage: Int? { flags["intro"].map { Int($0).map { $0 - 1 } ?? 0 } }
 
@@ -76,6 +80,9 @@ enum DebugLaunch {
             if let item = Content.shared.item(id), ItemType.equipmentSlots.contains(item.type) {
                 session.data.hero.equipment[item.type] = id
             }
+        }
+        for id in flags["bag"]?.split(separator: "+").map(String.init) ?? [] where Content.shared.item(id) != nil {
+            session.addItem(id)
         }
         if let style = flags["style"] {
             var look = session.data.hero.look ?? .standard
