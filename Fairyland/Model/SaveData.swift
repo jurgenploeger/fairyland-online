@@ -113,6 +113,8 @@ nonisolated struct SaveData: Codable, Sendable {
     var levelsRescaled: Bool?
     /// Skills pinned to the battle bar for one-tap casting, in order.
     var pinnedSkills: [String]?
+    /// Which save file this game lives in (SaveStore keeps one per game).
+    var slot: String?
 }
 
 /// Another adventurer (Fairyland's other players): met on the map, befriended, and maybe
@@ -136,30 +138,61 @@ nonisolated struct Checkpoint: Codable, Equatable, Sendable {
     var entry: Edge?
 }
 
+/// One file per game, so starting a new game never overwrites another (the title screen lists them).
 enum SaveStore {
-    /// Tests and debug launches use their own files so they never overwrite your real game.
+    /// Tests and debug launches use their own names so they never touch your real games.
     static var fileName = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         ? "fairyland-tests-save.json"
         : "fairyland-save.json"
-    static var url: URL { URL.applicationSupportDirectory.appending(path: fileName) }
-
-    static var exists: Bool { load() != nil }
-
-    static func load() -> SaveData? {
-        guard let data = try? Data(contentsOf: url) else { return nil }
-        return try? JSONDecoder().decode(SaveData.self, from: data)
+    /// The games live in a folder named after `fileName`.
+    static var folder: URL {
+        URL.applicationSupportDirectory.appending(path: String(fileName.dropLast(".json".count)), directoryHint: .isDirectory)
     }
+    /// The single save from before there were several (moved into the folder on first look).
+    static var legacyURL: URL { URL.applicationSupportDirectory.appending(path: fileName) }
+
+    static func url(for slot: String) -> URL { folder.appending(path: "\(slot).json") }
+
+    static var exists: Bool { !all().isEmpty }
+
+    /// Every saved game, the most recently played first.
+    static func all() -> [SaveData] {
+        moveLegacySave()
+        let files = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: [.contentModificationDateKey])) ?? []
+        return files
+            .filter { $0.pathExtension == "json" }
+            .compactMap { file -> (SaveData, Date)? in
+                guard let raw = try? Data(contentsOf: file), var data = try? JSONDecoder().decode(SaveData.self, from: raw) else { return nil }
+                data.slot = data.slot ?? file.deletingPathExtension().lastPathComponent
+                let played = (try? file.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? .distantPast
+                return (data, played)
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
+    }
+
+    /// The most recently played game.
+    static func load() -> SaveData? { all().first }
 
     static func save(_ data: SaveData) {
         do {
-            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-            try JSONEncoder().encode(data).write(to: url, options: .atomic)
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            try JSONEncoder().encode(data).write(to: url(for: data.slot ?? "game"), options: .atomic)
         } catch {
             print("⚠️ Couldn't save the game: \(error)")
         }
     }
 
-    static func delete() {
-        try? FileManager.default.removeItem(at: url)
+    static func delete(slot: String) {
+        try? FileManager.default.removeItem(at: url(for: slot))
+    }
+
+    private static func moveLegacySave() {
+        guard let raw = try? Data(contentsOf: legacyURL), var data = try? JSONDecoder().decode(SaveData.self, from: raw) else { return }
+        data.slot = data.slot ?? UUID().uuidString
+        save(data)
+        if FileManager.default.fileExists(atPath: url(for: data.slot ?? "game").path()) {
+            try? FileManager.default.removeItem(at: legacyURL)
+        }
     }
 }

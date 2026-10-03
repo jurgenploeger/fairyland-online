@@ -130,7 +130,7 @@ private struct CharacterTab: View {
     private func overview(hero: Hero, stats: Stats) -> some View {
         AdaptiveStack(spacing: 18) {
             VStack(spacing: 6) {
-                SpriteImage(art: GameSession.heroArt, size: 156)
+                WalkingSprite(art: GameSession.heroArt, size: 156)
                     .background(Circle().fill(.white.opacity(0.06)))
                 // The name is chosen when the hero is made and stays.
                 Text(hero.name).font(HUDStyle.font(18))
@@ -617,14 +617,17 @@ private struct QuestsTab: View {
                 Text("No active quests. Elder Oak in Meadowbrook always needs help.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             }
             ForEach(session.activeQuests) { quest in
-                QuestRow(session: session, quest: quest)
+                QuestRow(session: session, quest: quest, showsGiver: true)
             }
             if !session.completedQuests.isEmpty {
                 SectionTitle(text: "Completed")
                 ForEach(session.completedQuests) { quest in
-                    Label(quest.title, icon: .badgeCheck)
-                        .font(HUDStyle.font(12))
-                        .foregroundStyle(HUDStyle.dim)
+                    HStack(spacing: 8) {
+                        GiverFace(npcID: quest.giver, size: 24)
+                        Label(quest.title, icon: .badgeCheck)
+                            .font(HUDStyle.font(12))
+                            .foregroundStyle(HUDStyle.dim)
+                    }
                 }
             }
         }
@@ -634,22 +637,59 @@ private struct QuestsTab: View {
 struct QuestRow: View {
     let session: GameSession
     let quest: QuestDef
+    /// Who asked and where they live (the Quests list; not while you're talking to them).
+    var showsGiver = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            HStack {
-                Text(quest.title).font(HUDStyle.font(13))
-                Spacer()
-                switch session.status(of: quest) {
-                case .active(let progress, let goal): Text("\(progress)/\(goal)").foregroundStyle(HUDStyle.gold)
-                case .ready: Text("Done! Report back").foregroundStyle(HUDStyle.green)
-                default: EmptyView()
-                }
+        HStack(alignment: .top, spacing: 10) {
+            if showsGiver {
+                GiverFace(npcID: quest.giver, size: 44)
             }
-            .font(HUDStyle.font(12))
-            Text(quest.description).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    Text(quest.title).font(HUDStyle.font(13))
+                    Spacer()
+                    switch session.status(of: quest) {
+                    case .active(let progress, let goal): Text("\(progress)/\(goal)").foregroundStyle(HUDStyle.gold)
+                    case .ready: Text("Done! Report back").foregroundStyle(HUDStyle.green)
+                    default: EmptyView()
+                    }
+                }
+                .font(HUDStyle.font(12))
+                if showsGiver, let giver = session.content.npc(quest.giver) {
+                    let home = session.content.home(ofNPC: quest.giver)?.name
+                    Text("From \(giver.name)" + (home.map { " · \($0)" } ?? ""))
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.gold.opacity(0.85))
+                }
+                Text(quest.description).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+            }
         }
         .padding(8)
         .background(RoundedRectangle(cornerRadius: 6).fill(.white.opacity(0.05)))
+    }
+}
+
+/// The quest giver's face in a little round frame, so you remember who asked.
+struct GiverFace: View {
+    let npcID: String
+    let size: CGFloat
+
+    var body: some View {
+        Group {
+            if let npc = Content.shared.npc(npcID) {
+                Image(uiImage: ArtLibrary.shared.face(npc.art))
+                    .interpolation(.none)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(size * 0.08)
+            } else {
+                Color.clear
+            }
+        }
+        .frame(width: size, height: size)
+        .background(Circle().fill(Color(red: 0.98, green: 0.95, blue: 0.85).opacity(0.9)))
+        .clipShape(Circle())
+        .overlay(Circle().strokeBorder(HUDStyle.bevel, lineWidth: size > 30 ? 2 : 1.5))
     }
 }

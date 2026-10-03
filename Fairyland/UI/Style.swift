@@ -1,3 +1,4 @@
+import SpriteKit
 import SwiftUI
 
 /// Fairyland Online's look: glossy light-blue bevelled frames, deep-blue glass windows,
@@ -223,6 +224,31 @@ struct PressScaleStyle: ButtonStyle {
 }
 
 /// Pixel art from ArtLibrary, scaled up with crisp square pixels.
+/// A walking sprite on the spot: one step cycle, then a turn to face the next way (down, right, up,
+/// left), so you see the whole outfit in motion.
+struct WalkingSprite: View {
+    let art: String
+    var size: CGFloat = 156
+    private static let frameTime = 0.125
+    private static let order: [Direction] = [.down, .right, .up, .left]
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: Self.frameTime)) { context in
+            let tick = Int(context.date.timeIntervalSinceReferenceDate / Self.frameTime)
+            let frames = ArtLibrary.shared.walkCycle(art).frames(Self.order[(tick / 4) % Self.order.count])
+            if frames.isEmpty {
+                SpriteImage(art: art, size: size)
+            } else {
+                Image(uiImage: UIImage(cgImage: frames[tick % frames.count].cgImage()))
+                    .interpolation(.none)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: size, height: size)
+            }
+        }
+    }
+}
+
 struct SpriteImage: View {
     let art: String
     var size: CGFloat = 64

@@ -108,11 +108,11 @@
         },
         {
           "skill": "power_strike",
-          "level": 14
+          "level": 20
         },
         {
           "skill": "whirlwind",
-          "level": 21
+          "level": 40
         }
       ]
     },
@@ -136,19 +136,19 @@
         },
         {
           "skill": "fire_bolt",
-          "level": 14
+          "level": 15
         },
         {
           "skill": "stone_spike",
-          "level": 18
+          "level": 30
         },
         {
           "skill": "leaf_storm",
-          "level": 24
+          "level": 50
         },
         {
           "skill": "blessing",
-          "level": 28
+          "level": 70
         }
       ]
     },
@@ -178,11 +178,11 @@
         },
         {
           "skill": "wild_call",
-          "level": 14
+          "level": 20
         },
         {
           "skill": "mend_beast",
-          "level": 18
+          "level": 40
         }
       ]
     }

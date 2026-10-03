@@ -679,4 +679,9 @@ final class Content {
     func npc(_ id: String) -> NPCDef? {
         maps.lazy.compactMap { $0.npcs?.first { $0.id == id } }.first
     }
+
+    /// The map a character lives on.
+    func home(ofNPC id: String) -> MapDef? {
+        maps.first { $0.npcs?.contains { $0.id == id } == true }
+    }
 }

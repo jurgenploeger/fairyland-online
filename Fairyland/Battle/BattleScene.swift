@@ -89,8 +89,22 @@ final class BattleScene: SKScene {
         showTargets(controller.validTargets)
     }
 
-    /// Fighters stand in a diagonal line, like Fairyland's battle formation.
+    /// Fighters stand in diagonal lines of up to five, like Fairyland's battle formation; a bigger
+    /// group forms a second row behind the first.
     private func arrange(_ group: [Combatant], around center: CGPoint, facing: Direction) {
+        let rows = stride(from: 0, to: group.count, by: 5).map { Array(group[$0..<min($0 + 5, group.count)]) }
+        for (index, row) in rows.enumerated() {
+            // The first row stands at the back, away from the other side.
+            let depth = CGFloat(index) - CGFloat(rows.count - 1) / 2
+            let toward: CGFloat = facing == .right || facing == .down ? 1 : -1
+            let shift = isPortrait
+                ? CGVector(dx: depth * 22, dy: depth * 74 * (facing == .down ? -1 : 1))
+                : CGVector(dx: depth * 70 * toward, dy: -depth * 20)
+            arrangeLine(row, around: CGPoint(x: center.x + shift.dx, y: center.y + shift.dy), facing: facing)
+        }
+    }
+
+    private func arrangeLine(_ group: [Combatant], around center: CGPoint, facing: Direction) {
         // In portrait a long line closes up and slides over so everyone stays on screen.
         let spacing = isPortrait ? min(108, (size.width - 100) / CGFloat(max(1, group.count - 1))) : 56
         var center = center
@@ -276,7 +290,13 @@ final class BattleScene: SKScene {
         let heal = skill.kind == .heal
         let color = skill.element?.color ?? (heal ? SkillEffects.healGreen : .white)
         actors[actorID]?.sprite.flash(color)
-        if level >= 3 { SkillEffects.screenFlash(color: color, strength: 0.18 + 0.06 * CGFloat(level - 3), size: size, in: self) }
+        // Upgraded skills gather power first; a mastered one is announced in gold.
+        if level >= GameSession.maxSkillLevel { SkillEffects.masterBanner(skill.name, level: level, size: size, in: self) }
+        if let caster = actors[actorID] {
+            let hold = SkillEffects.charge(on: caster, color: color, level: level, in: stage)
+            if hold > 0 { await pause(hold) }
+        }
+        if level >= 3 { SkillEffects.screenFlash(color: color, strength: 0.18 + 0.08 * CGFloat(level - 3), size: size, in: self) }
 
         switch skill.animation ?? (heal ? "heal" : skill.kind == .magic ? "fire" : "slash") {
         case "slash":
@@ -334,7 +354,8 @@ final class BattleScene: SKScene {
             await pause(0.3)
             impactAll(hits, heal: heal)
         }
-        if level >= 4, !heal { shake(strength: CGFloat(level - 2) * 2.5) }
+        for target in targets { SkillEffects.glory(on: target, color: color, level: level, in: stage) }
+        if level >= 4, !heal { shake(strength: CGFloat(level - 2) * 3) }
     }
 
     // MARK: - Moves

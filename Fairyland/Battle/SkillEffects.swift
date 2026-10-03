@@ -2,7 +2,8 @@ import SpriteKit
 import UIKit
 
 /// Battle effects, one per skill `animation` in content/skills.json. Every effect grows with the
-/// skill's level (1–5): longer beams, more particles, bigger explosions.
+/// skill's level (1–5): longer beams, more particles, bigger explosions; on top of that, upgraded
+/// skills gather power first and land in glory (`charge`, `glory`, `masterBanner`).
 enum SkillEffects {
     static let healGreen = UIColor(red: 0.55, green: 1, blue: 0.6, alpha: 1)
 
@@ -272,6 +273,130 @@ enum SkillEffects {
                 .removeFromParent(),
             ]))
         }
+    }
+
+    // MARK: - Glory (upgraded skills)
+
+    /// Power gathering around the caster before an upgraded skill (level 2+): rings of light close
+    /// in and motes rise, more and brighter with every level; at the top level a golden sunburst
+    /// opens behind them. Returns how long to hold before the skill itself plays.
+    static func charge(on caster: BattleActor, color: UIColor, level: Int, in parent: SKNode) -> TimeInterval {
+        guard level >= 2 else { return 0 }
+        let gold = UIColor(red: 1, green: 0.85, blue: 0.35, alpha: 1)
+        let tint = level >= 5 ? gold : color
+        for index in 0..<(level - 1) {
+            let ring = SKShapeNode(ellipseOf: CGSize(width: 70, height: 26))
+            ring.strokeColor = tint.withAlphaComponent(0.9)
+            ring.lineWidth = 2.5
+            ring.glowWidth = 4
+            ring.position = caster.position
+            ring.zPosition = 18_000
+            ring.setScale(2.2)
+            ring.alpha = 0
+            parent.addChild(ring)
+            ring.run(.sequence([
+                .wait(forDuration: Double(index) * 0.08),
+                .group([.fadeIn(withDuration: 0.08), .scale(to: 0.5, duration: 0.3)]),
+                .fadeOut(withDuration: 0.08), .removeFromParent(),
+            ]))
+        }
+        for index in 0..<(level * 5) {
+            let mote = glowSprite(index % 3 == 0 ? .white : tint, size: CGSize(width: 9, height: 9))
+            mote.position = caster.position + CGVector(dx: .random(in: -26...26), dy: .random(in: -4...10))
+            mote.alpha = 0
+            parent.addChild(mote)
+            mote.run(.sequence([
+                .wait(forDuration: .random(in: 0...0.25)),
+                .group([.fadeIn(withDuration: 0.06), .moveBy(x: 0, y: 46 + CGFloat(level) * 10, duration: 0.45), .scale(to: 0.3, duration: 0.45)]),
+                .fadeOut(withDuration: 0.1), .removeFromParent(),
+            ]))
+        }
+        let aura = glowSprite(tint, size: CGSize(width: 70 + CGFloat(level) * 14, height: 90 + CGFloat(level) * 16))
+        aura.position = caster.center
+        aura.zPosition = caster.zPosition - 1
+        aura.alpha = 0
+        parent.addChild(aura)
+        aura.run(.sequence([.fadeAlpha(to: 0.35 + 0.1 * CGFloat(level - 2), duration: 0.15), .wait(forDuration: 0.25), .fadeOut(withDuration: 0.3), .removeFromParent()]))
+        if level >= 5 {
+            rays(at: caster.center, color: gold, count: 14, length: 120, width: 9, z: caster.zPosition - 2, in: parent)
+        }
+        return 0.25 + 0.06 * Double(level)
+    }
+
+    /// The landing of an upgraded skill on each target: a ring of light bursting outward (level 3+),
+    /// light rays and a rain of sparkles (4+), all in gold at the top level.
+    static func glory(on target: BattleActor, color: UIColor, level: Int, in parent: SKNode) {
+        guard level >= 3 else { return }
+        let gold = UIColor(red: 1, green: 0.85, blue: 0.35, alpha: 1)
+        let tint = level >= 5 ? gold : color
+        for index in 0..<(level - 2) {
+            let ring = SKShapeNode(ellipseOf: CGSize(width: 40, height: 16))
+            ring.strokeColor = index == 0 ? .white : tint
+            ring.lineWidth = 3
+            ring.glowWidth = 5
+            ring.position = target.position
+            ring.zPosition = 18_000
+            ring.setScale(0.4)
+            parent.addChild(ring)
+            ring.run(.sequence([
+                .wait(forDuration: Double(index) * 0.1),
+                .group([.scale(to: 2.4 + CGFloat(level) * 0.4, duration: 0.45), .fadeOut(withDuration: 0.45)]),
+                .removeFromParent(),
+            ]))
+        }
+        guard level >= 4 else { return }
+        rays(at: target.center, color: tint, count: level >= 5 ? 12 : 8, length: 70 + CGFloat(level) * 14, width: 7,
+             z: target.zPosition - 1, in: parent)
+        for _ in 0..<(level * 4) {
+            let sparkle = SKSpriteNode(texture: SoftTextures.star, size: CGSize(width: 9, height: 9))
+            sparkle.color = Bool.random() ? .white : tint
+            sparkle.colorBlendFactor = 1
+            sparkle.blendMode = .add
+            sparkle.zPosition = 18_500
+            sparkle.position = target.center + CGVector(dx: .random(in: -50...50), dy: .random(in: 40...90))
+            sparkle.alpha = 0
+            parent.addChild(sparkle)
+            sparkle.run(.sequence([
+                .wait(forDuration: .random(in: 0...0.35)),
+                .group([.fadeIn(withDuration: 0.08), .moveBy(x: .random(in: -10...10), y: -70, duration: 0.6), .rotate(byAngle: .pi, duration: 0.6)]),
+                .fadeOut(withDuration: 0.15), .removeFromParent(),
+            ]))
+        }
+    }
+
+    /// Beams of light fanning out from a point like a sunburst.
+    static func rays(at point: CGPoint, color: UIColor, count: Int, length: CGFloat, width: CGFloat, z: CGFloat, in parent: SKNode) {
+        for index in 0..<count {
+            let ray = glowSprite(color, size: CGSize(width: length, height: width))
+            ray.anchorPoint = CGPoint(x: 0, y: 0.5)
+            ray.position = point
+            ray.zPosition = z
+            ray.zRotation = CGFloat(index) / CGFloat(count) * 2 * .pi
+            ray.xScale = 0.05
+            ray.alpha = 0.9
+            parent.addChild(ray)
+            ray.run(.sequence([
+                .group([.scaleX(to: 1, duration: 0.18), .rotate(byAngle: 0.25, duration: 0.6)]),
+                .fadeOut(withDuration: 0.4), .removeFromParent(),
+            ]))
+        }
+    }
+
+    /// A mastered skill (top level) announces itself: its name in big gold letters.
+    static func masterBanner(_ name: String, level: Int, size: CGSize, in scene: SKScene) {
+        let banner = NameTag("\(name) ★\(level)", color: Nodes.gold, size: 26, alignment: .center)
+        banner.position = CGPoint(x: size.width / 2, y: size.height * 0.6)
+        banner.zPosition = 31_000
+        banner.setScale(0.4)
+        banner.alpha = 0
+        scene.addChild(banner)
+        banner.run(.sequence([
+            .group([.fadeIn(withDuration: 0.12), .scale(to: 1.15, duration: 0.18)]),
+            .scale(to: 1, duration: 0.1),
+            .wait(forDuration: 0.6),
+            .group([.fadeOut(withDuration: 0.3), .moveBy(x: 0, y: 20, duration: 0.3)]),
+            .removeFromParent(),
+        ]))
     }
 
     static func screenFlash(color: UIColor, strength: CGFloat, size: CGSize, in scene: SKScene) {

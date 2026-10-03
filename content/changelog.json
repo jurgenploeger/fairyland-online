@@ -2,6 +2,20 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.0",
+      "date": "2026-10-03",
+      "title": "Glory in numbers",
+      "notes": [
+        "Bigger battles: monster groups grow as you travel, from one to three in the first fields to as many as ten in the far lands, lined up in two rows.",
+        "Upgraded skills feel it: from level 2 your hero gathers power first, at 3 and 4 the hit bursts with rings, light rays and falling sparkles, and a mastered skill (level 5) blazes in gold with its name across the screen.",
+        "Class skills are spread over the long climb: new ones open at levels 15 to 70 instead of all before 30.",
+        "Play several heroes: a new game gets its own save, and the title screen lets you swipe between your games (and delete old ones).",
+        "The title screen shows each hero as they look in the game: race, hairstyle, colours and armour.",
+        "The quest list shows who gave you each quest, with their face and where they live, so you know where to report back.",
+        "Your hero walks on the Character screen and the title screen, turning to show every side."
+      ]
+    },
+    {
       "version": "0.2.2",
       "date": "2026-10-03",
       "title": "Within reach",

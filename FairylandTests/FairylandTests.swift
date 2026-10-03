@@ -251,6 +251,10 @@ struct RulesTests {
         // The wooden sword isn't for mages, so it goes back into the bag.
         #expect(session.data.hero.equipment.weapon == nil)
         #expect(session.count(of: "wooden_sword") == 1)
+        // Mage skills open up as you level.
+        let fireBolt = Content.shared.classDef("mage").skills.first { $0.skill == "fire_bolt" }!
+        #expect(!session.learnableSkills.contains { $0.id == "fire_bolt" } || fireBolt.level <= session.data.hero.level)
+        session.data.hero.level = fireBolt.level
         #expect(session.learnableSkills.contains { $0.id == "fire_bolt" })
     }
 
@@ -469,6 +473,20 @@ struct RulesTests {
         #expect(session.data.pets.contains { $0.id == newcomer.id })
         #expect(!session.data.pets.contains { $0.id == parting.id })
         #expect(session.pendingPet == nil)
+    }
+
+    @Test func eachGameHasItsOwnSave() {
+        let first = GameSession.newGame(name: "One", raceID: "human")
+        let second = GameSession.newGame(name: "Two", raceID: "elf")
+        #expect(first.data.slot != nil && first.data.slot != second.data.slot)
+        first.save()
+        second.save()
+        let names = Set(SaveStore.all().map(\.hero.name))
+        #expect(names.isSuperset(of: ["One", "Two"]))
+        if let slot = first.data.slot { SaveStore.delete(slot: slot) }
+        #expect(!SaveStore.all().contains { $0.slot == first.data.slot })
+        #expect(SaveStore.all().contains { $0.slot == second.data.slot })
+        if let slot = second.data.slot { SaveStore.delete(slot: slot) }
     }
 
     @Test func oldSavesWithFriendsRescale() {

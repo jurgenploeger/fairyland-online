@@ -128,8 +128,10 @@ final class BattleController {
         let high = max(low, encounters.groupSize.last ?? low)
         let minLevel = encounters.levels.first ?? 1
         let maxLevel = max(minLevel, encounters.levels.last ?? minLevel)
+        // Small groups are common, the biggest rare (squaring the roll leans it low).
+        let count = min(high, low + Int(pow(Double.random(in: 0..<1), 2) * Double(high - low + 1)))
         var enemies: [Combatant] = []
-        for index in 0..<Int.random(in: low...high) {
+        for index in 0..<count {
             guard let id = pick(from: encounters.monsters), let species = content.monster(id) else { continue }
             let level = Int.random(in: minLevel...maxLevel)
             let stats = species.stats(at: level)

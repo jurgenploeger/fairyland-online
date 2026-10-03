@@ -8,12 +8,18 @@ struct TitleView: View {
     @State private var name = "Hero"
     @State private var look = Look(hair: Look.standard.hair, outfit: Look.standard.outfit, skin: Look.standard.skin, gender: "male")
     @State private var raceID = "human"
-    @State private var confirmNewGame = false
+    /// Your games, the last played first; the carousel shows one at a time.
+    @State private var saves = SaveStore.all()
+    @State private var selectedSlot: String?
+    @State private var confirmDelete = false
     @State private var showingChangelog = false
     @State private var showingSettings = false
     /// The story pages: before a new hero is made, or read from the title menu.
     @State private var intro: IntroRequest? = DebugLaunch.introPage.map { IntroRequest(startPage: $0, thenCreate: false) }
-    private let savedGame = SaveStore.load()
+    /// The game the carousel is showing.
+    private var selectedSave: SaveData? {
+        saves.first { $0.slot == selectedSlot } ?? saves.first
+    }
 
     var body: some View {
         ZStack {
@@ -70,30 +76,48 @@ struct TitleView: View {
             }
         }
         .onAppear { MusicPlayer.shared.play("title") }
-        .alert("Start a new game?", isPresented: $confirmNewGame) {
-            Button("New game", role: .destructive) { startNewGame() }
+        .alert("Delete this game?", isPresented: $confirmDelete) {
+            Button("Delete", role: .destructive) { deleteSelected() }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Your saved game will be replaced when you begin.")
+            if let save = selectedSave {
+                Text("\(save.hero.name), level \(save.hero.level), will be gone for good.")
+            }
         }
     }
 
     private var menu: some View {
         VStack(spacing: 12) {
-            SpriteImage(art: "player_walk", size: 96)
-            if let savedGame {
+            if saves.isEmpty {
+                SpriteImage(art: "player_walk", size: 96)
+            } else {
+                SaveCarousel(saves: saves, selection: $selectedSlot)
+            }
+            if let save = selectedSave {
                 Button {
-                    onStart(GameSession(data: savedGame))
+                    onStart(GameSession(data: save))
                 } label: {
-                    Label("Continue: \(savedGame.hero.name), Lv \(savedGame.hero.level)", icon: .play)
+                    Label("Continue: \(save.hero.name), Lv \(save.hero.level)", icon: .play)
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
-                Text("Your progress saves automatically.")
-                    .font(HUDStyle.font(11))
-                    .foregroundStyle(HUDStyle.ink.opacity(0.6))
+                HStack(spacing: 10) {
+                    Text("Your progress saves automatically.")
+                        .font(HUDStyle.font(11))
+                        .foregroundStyle(HUDStyle.ink.opacity(0.6))
+                    Button {
+                        confirmDelete = true
+                    } label: {
+                        IconImage(.close, size: 12)
+                            .foregroundStyle(HUDStyle.ink.opacity(0.6))
+                            .frame(width: 28, height: 28)
+                            .background(Circle().fill(.white.opacity(0.4)))
+                    }
+                    .accessibilityLabel("Delete \(save.hero.name)'s game")
+                }
             }
             Button {
-                if savedGame != nil { confirmNewGame = true } else { startNewGame() }
+                // A new game gets its own save, next to the others.
+                startNewGame()
             } label: {
                 Label("New game", icon: .sparkles)
             }
@@ -118,6 +142,13 @@ struct TitleView: View {
             }
             .buttonStyle(PixelButtonStyle(compact: true))
         }
+    }
+
+    private func deleteSelected() {
+        guard let slot = selectedSave?.slot else { return }
+        SaveStore.delete(slot: slot)
+        saves = SaveStore.all()
+        selectedSlot = saves.first?.slot
     }
 
     /// A new game opens with the story pages, then hero creation.
@@ -199,6 +230,50 @@ private struct ChangelogPanel: View {
         .foregroundStyle(HUDStyle.cream)
         .frame(maxWidth: 640)
         .background(HUDStyle.panel)
+    }
+}
+
+/// Your saved heroes, each as they look in the game; swipe between them when there's more than one.
+private struct SaveCarousel: View {
+    let saves: [SaveData]
+    @Binding var selection: String?
+
+    var body: some View {
+        if saves.count == 1, let save = saves.first {
+            SavedHeroCard(save: save)
+        } else {
+            TabView(selection: Binding(get: { selection ?? saves.first?.slot }, set: { selection = $0 })) {
+                ForEach(saves, id: \.slot) { save in
+                    SavedHeroCard(save: save)
+                        .tag(save.slot)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .always))
+            .frame(height: 190)
+        }
+    }
+}
+
+private struct SavedHeroCard: View {
+    let save: SaveData
+    private let art: String
+
+    init(save: SaveData) {
+        self.save = save
+        art = "title-hero-\(save.slot ?? "game")"
+        GameSession.registerHero(save.hero, as: art)
+    }
+
+    var body: some View {
+        let content = Content.shared
+        VStack(spacing: 4) {
+            WalkingSprite(art: art, size: 96)
+            Text(save.hero.name).font(HUDStyle.font(15)).foregroundStyle(HUDStyle.ink)
+            Text("Lv \(save.hero.level) \(content.classDef(save.hero.classID).name) · \(content.map(save.mapID)?.name ?? "")")
+                .font(HUDStyle.font(10))
+                .foregroundStyle(HUDStyle.ink.opacity(0.65))
+        }
+        .padding(.bottom, 28)   // room for the page dots
     }
 }
 
