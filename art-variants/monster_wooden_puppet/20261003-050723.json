@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 2,
+    "prompt": "small wooden marionette puppet monster, carved light brown wood body with visible round ball joints, painted rosy cheeks and button eyes, little strings rising from its wrists and head to a wooden cross bar, chibi, cute monster",
+    "prompt_style": "rd_plus__low_res",
+    "width": 40,
+    "height": 40,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1791004042,
+    "credit_cost": 4,
+    "balance_cost": 0.12,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 47.601,
+    "request_id": "7391f6d5-1a3c-422b-bc3b-0138bf586168",
+    "outputs_retained_until": 1791090420
+  }
+}
