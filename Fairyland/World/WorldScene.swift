@@ -306,10 +306,13 @@ final class WorldScene: SKScene {
         return squash
     }
 
-    private static let surroundingsMargin = 14
+    private static let surroundingsMargin = 18
+    /// The outer tiles of the surroundings that fade into fog. Past them the scene's background is
+    /// the same fog colour, so walking to a corner never shows black.
+    private static let fogBand = 8
 
     /// Scenery beyond the map's edge, so small maps never show black bars (e.g. in portrait).
-    /// Roads carry on out through the exits.
+    /// Roads carry on out through the exits, and the far edge melts into a soft fog.
     private func placeSurroundings() {
         let margin = Self.surroundingsMargin
         let tile = WorldMap.tileSize
@@ -322,7 +325,13 @@ final class WorldScene: SKScene {
         let surroundings = SKTileMapNode(tileSet: SKTileSet(tileGroups: [fill, road]), columns: columns, rows: rows, tileSize: tileSize, fillWith: fill)
         surroundings.anchorPoint = .zero
         surroundings.position = CGPoint(x: -CGFloat(margin) * tile, y: -CGFloat(margin) * tile)
-        let projectedSurroundings = projected(surroundings)
+        let fog = Self.fogColor(from: art.tileTexture(theme.border ?? theme.ground), cave: theme.cave != nil)
+        backgroundColor = fog
+        let ground = SKNode()
+        ground.addChild(surroundings)
+        addFog(fog, around: CGRect(origin: surroundings.position,
+                                   size: CGSize(width: CGFloat(columns) * tile, height: CGFloat(rows) * tile)), in: ground)
+        let projectedSurroundings = projected(ground)
         projectedSurroundings.zPosition = -100_001
         world.addChild(projectedSurroundings)
 
@@ -348,12 +357,14 @@ final class WorldScene: SKScene {
             surroundings.setTileGroup(road, forColumn: cell.col + margin, row: cell.row + margin)
         }
 
-        // A loose treeline, keeping the roads clear (caves have rock walls instead).
+        // A loose treeline, keeping the roads clear (caves have rock walls instead), and stopping
+        // where the fog begins so no tree pokes out of it.
         guard def.theme.cave == nil, let decor = theme.props.first(where: \.blocking)?.art else { return }
         let sprite = art.sprite(decor)
         var decorRNG = SeededRandom(text: def.id + "/surroundings")
-        for row in -margin..<(map.rows + margin) {
-            for col in -margin..<(map.columns + margin) {
+        let reach = margin - Self.fogBand
+        for row in -reach..<(map.rows + reach) {
+            for col in -reach..<(map.columns + reach) {
                 let outside = row < 0 || col < 0 || row >= map.rows || col >= map.columns
                 guard outside, Double.random(in: 0..<1, using: &decorRNG) < 0.14 else { continue }
                 let nearRoad = (-1...1).contains { dc in (-1...1).contains { dr in roadCells.contains(GridPoint(col: col + dc, row: row + dr)) } }
@@ -361,6 +372,64 @@ final class WorldScene: SKScene {
                 addScenery(sprite, at: GridPoint(col: col, row: row))
             }
         }
+    }
+
+    /// Soft bands along the inside of `rect` (in unprojected ground space), clear on the map side
+    /// and solid fog at the edge, where the background takes over.
+    private func addFog(_ color: UIColor, around rect: CGRect, in parent: SKNode) {
+        let depth = CGFloat(Self.fogBand) * WorldMap.tileSize
+        let texture = Self.fogTexture
+        // (centre, length along the edge, rotation): the texture is solid at its top edge.
+        let bands: [(CGPoint, CGFloat, CGFloat)] = [
+            (CGPoint(x: rect.midX, y: rect.maxY - depth / 2), rect.width, 0),
+            (CGPoint(x: rect.midX, y: rect.minY + depth / 2), rect.width, .pi),
+            (CGPoint(x: rect.minX + depth / 2, y: rect.midY), rect.height, .pi / 2),
+            (CGPoint(x: rect.maxX - depth / 2, y: rect.midY), rect.height, -.pi / 2),
+        ]
+        for (center, length, angle) in bands {
+            let band = SKSpriteNode(texture: texture, color: color, size: CGSize(width: length, height: depth))
+            band.colorBlendFactor = 1
+            band.position = center
+            band.zRotation = angle
+            band.zPosition = 1
+            parent.addChild(band)
+        }
+    }
+
+    /// White, solid along the top row and fading smoothly to clear at the bottom (tinted per map).
+    private static let fogTexture: SKTexture = {
+        let height = 64
+        var pixels = [UInt8](repeating: 0, count: height * 4)
+        for row in 0..<height {
+            let t = 1 - Double(row) / Double(height - 1)
+            let alpha = UInt8((t * t * (3 - 2 * t) * 255).rounded())     // smoothstep
+            for channel in 0..<4 { pixels[row * 4 + channel] = alpha }   // premultiplied white
+        }
+        let image = pixels.withUnsafeMutableBytes { buffer -> CGImage? in
+            CGContext(data: buffer.baseAddress, width: 1, height: height, bitsPerComponent: 8, bytesPerRow: 4,
+                      space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)?.makeImage()
+        }
+        let texture = image.map { SKTexture(cgImage: $0) } ?? SKTexture()
+        texture.filteringMode = .linear
+        return texture
+    }()
+
+    /// The map's surrounding ground, averaged and hazed: pale mist outdoors, deep gloom in caves.
+    private static func fogColor(from texture: SKTexture, cave: Bool) -> UIColor {
+        var pixel = [UInt8](repeating: 0, count: 4)
+        let image = texture.cgImage()
+        pixel.withUnsafeMutableBytes { buffer in
+            guard let context = CGContext(data: buffer.baseAddress, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+                                          space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+            else { return }
+            context.interpolationQuality = .medium
+            context.draw(image, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+        }
+        let average = (0..<3).map { CGFloat(pixel[$0]) / 255 }
+        let haze: [CGFloat] = cave ? [0.05, 0.04, 0.06] : [0.86, 0.9, 0.94]
+        let mix: CGFloat = cave ? 0.55 : 0.4
+        let channel = (0..<3).map { average[$0] + (haze[$0] - average[$0]) * mix }
+        return UIColor(red: channel[0], green: channel[1], blue: channel[2], alpha: 1)
     }
 
     private func placeFence() {
