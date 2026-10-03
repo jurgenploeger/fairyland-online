@@ -152,9 +152,23 @@ private struct MonsterPage: View {
             }
 
             section("Element") {
+                // Light and Dark hurt each other: say that once instead of "strong against" and "weak to" the same thing.
+                let element = monster.element
+                let mutual = element.strongAgainst.filter { element.weakTo.contains($0) }
                 VStack(alignment: .leading, spacing: 4) {
-                    elementLine("Strong against", monster.element.strongAgainst)
-                    elementLine("Weak to", monster.element.weakTo)
+                    if mutual.isEmpty {
+                        elementLine("Strong against", element.strongAgainst)
+                        elementLine("Weak to", element.weakTo)
+                    } else {
+                        ForEach(mutual, id: \.self) { other in
+                            HStack(spacing: 6) {
+                                ElementBadge(element: element)
+                                Text("and").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.cream)
+                                ElementBadge(element: other)
+                                Text("hit each other extra hard").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.cream)
+                            }
+                        }
+                    }
                 }
             }
 
