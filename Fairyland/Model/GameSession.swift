@@ -94,7 +94,9 @@ final class GameSession {
             hero: hero, pets: [], activePetID: nil, gold: 30, inventory: ["potion": 3],
             quests: [:], mapID: content.startMap, position: nil, startedAt: Date()
         )
-        let session = GameSession(data: data)
+        var slotted = data
+        slotted.slot = UUID().uuidString   // every new game gets its own save
+        let session = GameSession(data: slotted)
         session.restoreHero()
         // Like Fairyland, your first companion comes from an egg in the first quest.
         return session
@@ -142,26 +144,36 @@ final class GameSession {
     }
 
     /// Changes whenever the hero's sprite should be redrawn (look, race or gear).
-    var heroLookKey: String {
-        let gear = ItemType.equipmentSlots.map { data.hero.equipment[$0] ?? "-" }.joined(separator: ",")
-        let look = data.hero.look ?? .standard
-        return "\(heroRace.sheet(for: look.gender))/\(look.key)/\(gear)"
+    var heroLookKey: String { Self.lookKey(for: data.hero) }
+
+    static func lookKey(for hero: Hero) -> String {
+        let gear = ItemType.equipmentSlots.map { hero.equipment[$0] ?? "-" }.joined(separator: ",")
+        let look = hero.look ?? .standard
+        return "\(Content.shared.race(hero.raceID).sheet(for: look.gender))/\(look.key)/\(gear)"
     }
 
     func applyLook() {
-        let look = data.hero.look ?? .standard
-        let armor = equipped(.armor)
-        let boots = equipped(.accessory)?.wear == "boots"
+        Self.registerHero(data.hero, as: Self.heroArt)
+    }
+
+    /// Draws a hero exactly as the game shows them (race, gender, hairstyle, colours, worn armour)
+    /// under the art id `id`: the hero in play, or a saved hero on the title screen.
+    static func registerHero(_ hero: Hero, as id: String) {
+        let content = Content.shared
+        let race = content.race(hero.raceID)
+        let look = hero.look ?? .standard
+        let armor = hero.equipment[.armor].flatMap(content.item)
+        let boots = hero.equipment[.accessory].flatMap(content.item)?.wear == "boots"
         var gear = GearLook(wear: armor?.wear, accent: armor?.accent, boots: boots, pattern: armor?.pattern)
         var rules = Self.rules(for: look, armor: armor)
-        if let armor, armor.sheets?[heroRace.id] != nil {
+        if let armor, armor.sheets?[race.id] != nil {
             // The armour's own sheet is already drawn and coloured: only the skin tone applies, plus a
             // rare colour variant's tint.
             gear = GearLook(wear: nil, accent: nil, boots: boots)
             rules = (content.appearance.skin.first { $0.id == look.skin }?.recolor ?? []) + (armor.tint ?? [])
         }
-        ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet(for: look.gender), recolor: rules, key: heroLookKey,
-                                   gear: gear, layers: Self.layers(race: heroRace, look: look, armor: armor))
+        ArtLibrary.shared.register(id, from: race.sheet(for: look.gender), recolor: rules, key: Self.lookKey(for: hero),
+                                   gear: gear, layers: Self.layers(race: race, look: look, armor: armor))
     }
 
     func customizeHero(name: String, look: Look) {

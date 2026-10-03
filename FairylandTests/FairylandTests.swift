@@ -475,6 +475,20 @@ struct RulesTests {
         #expect(session.pendingPet == nil)
     }
 
+    @Test func eachGameHasItsOwnSave() {
+        let first = GameSession.newGame(name: "One", raceID: "human")
+        let second = GameSession.newGame(name: "Two", raceID: "elf")
+        #expect(first.data.slot != nil && first.data.slot != second.data.slot)
+        first.save()
+        second.save()
+        let names = Set(SaveStore.all().map(\.hero.name))
+        #expect(names.isSuperset(of: ["One", "Two"]))
+        if let slot = first.data.slot { SaveStore.delete(slot: slot) }
+        #expect(!SaveStore.all().contains { $0.slot == first.data.slot })
+        #expect(SaveStore.all().contains { $0.slot == second.data.slot })
+        if let slot = second.data.slot { SaveStore.delete(slot: slot) }
+    }
+
     @Test func oldSavesWithFriendsRescale() {
         // 0.1.0 saves: levels from before the stretch, and friends to scale up too. This used to
         // trip Swift's exclusivity check and crash on Continue.
