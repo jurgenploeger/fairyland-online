@@ -1679,7 +1679,9 @@
           "frost_puff": 1,
           "dragonfruit": 1,
           "wood_crab": 3,
-          "mud_eagle": 2
+          "mud_eagle": 2,
+          "rosy_wood_crab": 1,
+          "frosted_mud_eagle": 1
         }
       },
       "ambience": {
@@ -6874,7 +6876,9 @@
           "bunny": 3,
           "golden_hamster": 3,
           "hedgehog": 2,
-          "yellow_butterfly": 2
+          "yellow_butterfly": 2,
+          "azure_golden_hamster": 1,
+          "starry_hedgehog": 1
         }
       },
       "world": [
@@ -7793,7 +7797,8 @@
           "earth_wolf": 5,
           "flame_wolf": 4,
           "werewolf": 2,
-          "night_monkey": 1
+          "night_monkey": 1,
+          "amber_werewolf": 1
         }
       },
       "npcs": [
@@ -8851,7 +8856,8 @@
           "crimson_treefrog": 3,
           "yellow_butterfly": 2,
           "dragonfruit": 2,
-          "water_slug": 2
+          "water_slug": 2,
+          "crimson_yellow_butterfly": 1
         }
       },
       "npcs": [

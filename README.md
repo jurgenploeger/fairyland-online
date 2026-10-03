@@ -12,12 +12,12 @@ Built with SwiftUI + SpriteKit. Art is generated with [Retro Diffusion](https://
   105–200 lands beyond: the Secret Plain, Hachoo Island, Rosen Lake, the Water Temple, the Mysterious Cave and
   the Emerald Road. Quests open the roads onward.
 - **Random encounters** in the wild (no monsters on the map), with **turn-based battles** fought where you
-  stand. Big spells splash onto nearby monsters. Eleven bosses wait on their maps, up to the Emerald Dragon at level 200.
-- **100 monsters** across seven elements, including rare, tougher colour variants.
+  stand. Big spells splash onto nearby monsters. Fourteen bosses wait on their maps, up to the Emerald Dragon at level 200.
+- **105 monsters** across seven elements, including rare, tougher colour variants.
 - **Capture like Fairyland Online:** throw a Seal Stone at the last monster standing once it's below 20% HP.
   It may break free or run away. Keep up to 5 companions; your first hatches from the starter quest's egg.
 - **Classes and skills:** start as a Novice, join a guild at level 10. Each level gives a skill point to learn
-  a new skill or power one up (levels 1–5), each with its own animation.
+  a new skill or power one up (levels 1–10), each with its own animation.
 - **The long climb, like Fairyland Online:** zones run from level 1 to 200. Past level 100 each level takes
   more EXP (twice as much by 140), like the original's slow late game. From level 101 Elder Oak can help you
   be reborn at level 1, keeping your skills and some strength; each rebirth needs 5 more levels. Roughly
