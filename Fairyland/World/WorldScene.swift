@@ -683,11 +683,34 @@ final class WorldScene: SKScene {
             }
             let label = SKLabelNode()
             label.attributedText = Nodes.outlined(text, size: 11, color: Nodes.gold)
-            let cell = map.entryCell(from: exit.edge)
-            label.position = map.center(of: cell) + CGVector(dx: 0, dy: 26)
             label.zPosition = 4_000
+            if let cell = signCell(near: exit.edge) {
+                // A wooden signpost beside the road, the destination written above it.
+                let post = addScenery(art.sprite("signpost"), at: cell, scale: 1.6)
+                map.occupy(cell, blocking: true)
+                label.position = map.base(of: cell) + CGVector(dx: 0, dy: post.size.height + 6)
+            } else {
+                label.position = map.center(of: map.entryCell(from: exit.edge)) + CGVector(dx: 0, dy: 26)
+            }
             world.addChild(label)
         }
+    }
+
+    /// A free cell just off the side of the road, a few tiles in from `edge`, for its signpost.
+    private func signCell(near edge: Edge, depth: Int = 4) -> GridPoint? {
+        let line: [GridPoint] = switch edge {
+        case .north: (0..<map.columns).map { GridPoint(col: $0, row: map.rows - 1 - depth) }
+        case .south: (0..<map.columns).map { GridPoint(col: $0, row: depth) }
+        case .east: (0..<map.rows).map { GridPoint(col: map.columns - 1 - depth, row: $0) }
+        case .west: (0..<map.rows).map { GridPoint(col: depth, row: $0) }
+        }
+        let road = line.indices.filter { map.contains(line[$0]) && map.ground[line[$0].row][line[$0].col] == .path }
+        guard let first = road.first, let last = road.last else { return nil }
+        for index in [first - 1, last + 1, first - 2, last + 2] where line.indices.contains(index) {
+            let cell = line[index]
+            if map.isWalkable(cell), map.ground[cell.row][cell.col] != .water { return cell }
+        }
+        return nil
     }
 
     /// A fence across each road that a quest hasn't opened yet, with a little lock sign.
