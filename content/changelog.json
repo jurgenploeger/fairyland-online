@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.7",
+      "date": "2026-10-03",
+      "title": "Clean corner",
+      "notes": [
+        "The four menu buttons on the map (Character, Companions, Bag, Quests) are icons only now, without the text underneath.",
+        "The title screen card is tidier: the hero's name and the companion line are gone (Continue already says who you are), leaving the hero and companion with your class, level and map."
+      ]
+    },
+    {
       "version": "0.3.6",
       "date": "2026-10-03",
       "title": "Light and strings",
