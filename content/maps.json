@@ -2623,6 +2623,17 @@
           "x": 4,
           "y": -3,
           "greeting": "Oink! Have you seen a wolf around here?"
+        },
+        {
+          "id": "oak_grove",
+          "name": "Grumpy Old Oak",
+          "role": "boss",
+          "art": "boss_grumpy_oak",
+          "x": -7,
+          "y": -13,
+          "greeting": "Hrmph. Stop smiling at me. STOP IT.",
+          "monster": "grumpy_oak",
+          "level": 8
         }
       ]
     },
@@ -4536,6 +4547,17 @@
           "x": 3,
           "y": -3,
           "greeting": "Squeak! Small, but brave!"
+        },
+        {
+          "id": "wisp_hollow",
+          "name": "Great Wisp",
+          "role": "boss",
+          "art": "boss_great_wisp",
+          "x": -2,
+          "y": 15,
+          "greeting": "Ooooh, follow the pretty light... just a little further... hee hee!",
+          "monster": "great_wisp",
+          "level": 15
         }
       ]
     },
@@ -6416,6 +6438,17 @@
           "x": -3,
           "y": 4,
           "greeting": "Neigh... the stars are restless tonight."
+        },
+        {
+          "id": "moon_throne",
+          "name": "Moon Rabbit Queen",
+          "role": "boss",
+          "art": "boss_moon_rabbit_queen",
+          "x": 0,
+          "y": -16,
+          "greeting": "Who stole my moon-mochi? Was it YOU? Hop to it and face me!",
+          "monster": "moon_rabbit_queen",
+          "level": 32
         }
       ]
     },

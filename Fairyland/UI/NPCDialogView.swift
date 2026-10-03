@@ -310,10 +310,14 @@ private struct BossPanel: View {
                     Text("This looks really dangerous at your level…").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.orange)
                 }
             }
-            if session.isDefeated(boss) {
-                EmptyNote("You've already beaten it.")
+            if let drops = species?.drops, !drops.isEmpty {
+                let names = drops.compactMap { session.content.item($0.item)?.name }
+                Text("Rare drops: \(names.joined(separator: ", "))").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+            }
+            if session.isBeatenHere(boss) {
+                EmptyNote("Beaten! It'll be back next time you come by.")
             } else {
-                Button { onFight(boss) } label: { Label("Fight!", icon: .sword) }
+                Button { onFight(boss) } label: { Label(session.isDefeated(boss) ? "Rematch!" : "Fight!", icon: .sword) }
                     .buttonStyle(PixelButtonStyle(tint: Color(red: 1, green: 0.55, blue: 0.5)))
             }
         }

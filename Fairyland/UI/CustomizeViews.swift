@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Name + hair, outfit and skin colours, with a turning live preview. Used when creating a
+/// Name, hairstyle, and hair, outfit and skin colours, with a turning live preview. Used when creating a
 /// hero and from the Character screen.
 struct LookEditor: View {
     @Binding var name: String
@@ -11,17 +11,19 @@ struct LookEditor: View {
     var isUnlocked: (LookPreset) -> Bool = { $0.unlock == nil }
 
     private var options: AppearanceOptions { Content.shared.appearance }
+    private var race: RaceDef { Content.shared.race(raceID) }
 
     var body: some View {
         AdaptiveStack(spacing: 16) {
             VStack(spacing: 6) {
-                TurntablePreview(look: look, sheet: Content.shared.race(raceID).sheet(for: look.gender))
+                TurntablePreview(look: look, race: race)
                 Button {
                     look = Look(
                         hair: options.hair.filter(isUnlocked).randomElement()?.id ?? look.hair,
                         outfit: options.outfits.filter(isUnlocked).randomElement()?.id ?? look.outfit,
                         skin: options.skin.filter(isUnlocked).randomElement()?.id ?? look.skin,
-                        gender: look.gender
+                        gender: look.gender,
+                        style: options.styles.randomElement()?.id ?? look.style
                     )
                 } label: {
                     Label("Surprise me", icon: .dice)
@@ -45,6 +47,7 @@ struct LookEditor: View {
                         }
                 }
                 GenderPicker(genders: options.genders, selection: $look.gender)
+                StylePicker(look: $look, race: race)
                 SwatchPicker(title: "Hair", presets: options.hair, selection: $look.hair, isUnlocked: isUnlocked)
                 SwatchPicker(title: "Outfit", presets: options.outfits, selection: $look.outfit, isUnlocked: isUnlocked)
                 SwatchPicker(title: "Skin", presets: options.skin, selection: $look.skin, isUnlocked: isUnlocked)
@@ -57,13 +60,14 @@ struct LookEditor: View {
 /// The hero slowly turning on the spot, so you see the look from every side.
 private struct TurntablePreview: View {
     let look: Look
-    let sheet: String
+    let race: RaceDef
     private let order: [Direction] = [.down, .right, .up, .left]
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 0.9)) { context in
             let step = Int(context.date.timeIntervalSinceReferenceDate / 0.9) % order.count
-            Image(uiImage: ArtLibrary.shared.preview(from: sheet, recolor: GameSession.rules(for: look), key: look.key, facing: order[step]))
+            Image(uiImage: ArtLibrary.shared.preview(from: race.sheet(for: look.gender), recolor: GameSession.rules(for: look), key: look.key,
+                                                     facing: order[step], layers: GameSession.layers(race: race, look: look)))
                 .interpolation(.none)
                 .resizable()
                 .scaledToFit()
@@ -94,6 +98,52 @@ private struct GenderPicker: View {
                 }
             }
         }
+    }
+}
+
+/// Hairstyles, each shown on your hero as they look right now. Any style suits any race.
+private struct StylePicker: View {
+    @Binding var look: Look
+    let race: RaceDef
+
+    private var styles: [HairStyle] { Content.shared.appearance.styles }
+    private var current: String? { look.style ?? race.hair ?? styles.first?.id }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 6) {
+                Text("Hairstyle").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                Text(styles.first { $0.id == current }?.name ?? "").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.gold)
+            }
+            HStack(spacing: 8) {
+                ForEach(styles) { style in
+                    let selected = style.id == current
+                    Button {
+                        look.style = style.id
+                    } label: {
+                        Image(uiImage: portrait(style))
+                            .interpolation(.none)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 44, height: 44)
+                            .background(RoundedRectangle(cornerRadius: 8).fill(.white.opacity(0.08)))
+                            .overlay(RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(selected ? HUDStyle.gold : .white.opacity(0.4), lineWidth: selected ? 3 : 1.5))
+                            .padding(2)
+                    }
+                    .buttonStyle(PressScaleStyle())
+                    .accessibilityLabel("Hairstyle \(style.name)")
+                    .accessibilityAddTraits(selected ? .isSelected : [])
+                }
+            }
+        }
+    }
+
+    private func portrait(_ style: HairStyle) -> UIImage {
+        var styled = look
+        styled.style = style.id
+        return ArtLibrary.shared.preview(from: race.sheet(for: look.gender), recolor: GameSession.rules(for: styled), key: styled.key,
+                                         layers: GameSession.layers(race: race, look: styled))
     }
 }
 

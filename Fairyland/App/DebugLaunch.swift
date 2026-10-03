@@ -8,6 +8,9 @@ import Foundation
 ///   hp=0.2         start with this fraction of HP left
 ///   map=<id>       start on a map from content/maps.json
 ///   at=x_y         start at this offset from the map's centre (e.g. at=0_14)
+///   equip=a+b      start wearing these items (ids from content/items.json, joined with +)
+///   race=<id>      play this race (content/classes.json)
+///   style=<id>     wear this hairstyle (content/appearance.json `styles`)
 ///   battle         start in a random battle on the current map
 ///   menu=<tab>     open character | companions | bag | quests
 ///   npc=<id>       open an NPC dialog
@@ -39,7 +42,7 @@ enum DebugLaunch {
         let flags = flags
         guard flags["newgame"] != nil else { return nil }
         SaveStore.fileName = "fairyland-debug-save.json"
-        let session = GameSession.newGame(name: "Hero", raceID: "human")
+        let session = GameSession.newGame(name: "Hero", raceID: flags["race"] ?? "human")
         if let level = flags["level"].flatMap(Int.init), level > 1 {
             session.data.hero.level = level
             session.restoreHero()
@@ -50,6 +53,17 @@ enum DebugLaunch {
         if let map = flags["map"], Content.shared.map(map) != nil {
             session.data.mapID = map
         }
+        for id in flags["equip"]?.split(separator: "+").map(String.init) ?? [] {
+            if let item = Content.shared.item(id), ItemType.equipmentSlots.contains(item.type) {
+                session.data.hero.equipment[item.type] = id
+            }
+        }
+        if let style = flags["style"] {
+            var look = session.data.hero.look ?? .standard
+            look.style = style
+            session.data.hero.look = look
+        }
+        session.applyLook()
         if let at = flags["at"]?.split(separator: ";").first ?? flags["at"].map({ Substring($0) }),
            let def = Content.shared.map(session.data.mapID) {
             let parts = at.split(separator: "_").compactMap { Int($0) }

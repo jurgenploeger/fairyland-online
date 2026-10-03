@@ -918,6 +918,75 @@
       "requires": [
         "silver_demon"
       ]
+    },
+    {
+      "id": "grumpy_oak",
+      "title": "Turn That Frown Upside Down",
+      "giver": "elder",
+      "requires": [
+        "forest_friends"
+      ],
+      "description": "The oldest oak in Smiling Forest has stopped smiling and swats anyone who walks by. Cheer it up... the hard way.",
+      "objective": {
+        "type": "defeat",
+        "target": "grumpy_oak",
+        "count": 1
+      },
+      "reward": {
+        "gold": 200,
+        "exp": 320,
+        "items": [
+          "hi_potion"
+        ]
+      },
+      "minLevel": 7
+    },
+    {
+      "id": "great_wisp",
+      "title": "Follow the Pretty Light",
+      "giver": "elder",
+      "requires": [
+        "valley_lights"
+      ],
+      "description": "Travellers keep wandering off the road in the Valley of Fear, chasing a giant glowing wisp. Snuff out its tricks.",
+      "objective": {
+        "type": "defeat",
+        "target": "great_wisp",
+        "count": 1
+      },
+      "reward": {
+        "gold": 380,
+        "exp": 650,
+        "items": [
+          "ether",
+          "ether"
+        ]
+      },
+      "minLevel": 13
+    },
+    {
+      "id": "moon_queen",
+      "title": "The Missing Moon-Mochi",
+      "giver": "mayor",
+      "requires": [
+        "wolf_hunt"
+      ],
+      "description": "The Moon Rabbit Queen has come down to Moonglow, furious that someone stole her moon-mochi. Calm her before she flattens the town... with force.",
+      "objective": {
+        "type": "defeat",
+        "target": "moon_rabbit_queen",
+        "count": 1
+      },
+      "reward": {
+        "gold": 2600,
+        "exp": 5200,
+        "items": [
+          "hi_potion",
+          "hi_potion",
+          "hi_potion"
+        ]
+      },
+      "minLevel": 29
     }
   ]
 }

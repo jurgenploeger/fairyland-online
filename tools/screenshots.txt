@@ -15,3 +15,8 @@ intro_story  | intro                             | 6
 intro_play   | intro=2                           | 6
 intro_world  | intro=3                           | 6
 coach        | newgame,coach                     | 9
+gear_plate   | newgame,level=30,equip=dragon_mail+wooden_sword+ruby_ring      | 8
+gear_cloak   | newgame,level=30,equip=snow_cloak+oak_staff+speed_boots        | 8
+hair_elf     | newgame,race=elf,style=spiky,menu=character                    | 8
+hood_dwarf   | newgame,race=dwarf,level=30,equip=ranger_cloak                 | 8
+boss_oak     | newgame,level=8,map=smiling_forest,at=-7_-11,npc=oak_grove    | 8

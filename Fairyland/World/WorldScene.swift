@@ -1005,7 +1005,7 @@ final class WorldScene: SKScene {
             if npc.def.role == .chest, session.isOpened(npc.def.id), npc.node.alpha > 0.5 {
                 npc.node.run(.fadeAlpha(to: 0.35, duration: 0.3))
             }
-            if npc.def.role == .boss, session.isDefeated(npc.def) {
+            if npc.def.role == .boss, session.isBeatenHere(npc.def) {
                 if !npc.node.isHidden {
                     SkillEffects.smoke(at: npc.node.position, in: world)
                     npc.node.isHidden = true

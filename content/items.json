@@ -1,5 +1,5 @@
 {
-  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand by their icon. Armour `recolor` changes the outfit colours while worn. type: consumable | weapon | armor | accessory | material. `classes` limits who can equip it (omit = everyone); `level` is the level needed. Materials (type material; `material` is wood | metal | gem | hide) drop from monsters of at least their `level`. `recipe` is what a blacksmith needs to forge the item.",
+  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `sheets` (per race) swaps in a whole walk sheet while it's worn (Retro Diffusion art in art/sprites; only the skin colour applies), recoloured by `tint` for the rare colour variants bosses drop. Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory | material. `classes` limits who can equip it (omit = everyone); `level` is the level needed. Materials (type material; `material` is wood | metal | gem | hide) drop from monsters of at least their `level`. `recipe` is what a blacksmith needs to forge the item.",
   "items": [
     {
       "id": "potion",
@@ -77,7 +77,12 @@
         "novice",
         "mage"
       ],
-      "description": "Hums faintly with magic."
+      "description": "Hums faintly with magic.",
+      "glow": "#B8FF9A",
+      "glowAt": [
+        22.5,
+        7.5
+      ]
     },
     {
       "id": "iron_axe",
@@ -109,7 +114,12 @@
         "mage"
       ],
       "level": 14,
-      "description": "Focuses elemental power."
+      "description": "Focuses elemental power.",
+      "glow": "#9AF4FF",
+      "glowAt": [
+        21,
+        9
+      ]
     },
     {
       "id": "tamer_whip",
@@ -163,7 +173,9 @@
         "defense": 6,
         "hp": 10
       },
-      "description": "Sturdy leather."
+      "description": "Sturdy leather.",
+      "wear": "vest",
+      "accent": "#D9B060"
     },
     {
       "id": "chain_mail",
@@ -191,7 +203,8 @@
         "fighter"
       ],
       "level": 14,
-      "description": "Clinks when you walk."
+      "description": "Clinks when you walk.",
+      "wear": "mail"
     },
     {
       "id": "silk_robe",
@@ -221,7 +234,9 @@
         "mage"
       ],
       "level": 14,
-      "description": "Woven with starlight."
+      "description": "Woven with starlight.",
+      "wear": "robe",
+      "accent": "#F2C230"
     },
     {
       "id": "ranger_cloak",
@@ -250,7 +265,14 @@
         "tamer"
       ],
       "level": 14,
-      "description": "Smells like pine."
+      "description": "Smells like pine.",
+      "wear": "cloak",
+      "sheets": {
+        "human": "armor_ranger_cloak_human",
+        "elf": "armor_ranger_cloak_elf",
+        "dwarf": "armor_ranger_cloak_dwarf"
+      },
+      "accent": "#C9A040"
     },
     {
       "id": "lucky_clover",
@@ -262,7 +284,8 @@
       "stats": {
         "speed": 4
       },
-      "description": "Four leaves, twice the luck."
+      "description": "Four leaves, twice the luck.",
+      "accent": "#8CFF80"
     },
     {
       "id": "ruby_ring",
@@ -274,7 +297,8 @@
       "stats": {
         "magic": 5
       },
-      "description": "Warm to the touch."
+      "description": "Warm to the touch.",
+      "accent": "#FF6070"
     },
     {
       "id": "novice_ring",
@@ -287,7 +311,8 @@
         "hp": 8,
         "mp": 4
       },
-      "description": "A small ring for new adventurers."
+      "description": "A small ring for new adventurers.",
+      "accent": "#E0A060"
     },
     {
       "id": "hi_potion",
@@ -355,7 +380,12 @@
         "mage"
       ],
       "level": 31,
-      "description": "Carved from the Smiling Forest's oldest oak."
+      "description": "Carved from the Smiling Forest's oldest oak.",
+      "glow": "#7AF0FF",
+      "glowAt": [
+        22.5,
+        7.5
+      ]
     },
     {
       "id": "star_wand",
@@ -371,7 +401,12 @@
         "mage"
       ],
       "level": 58,
-      "description": "A shooting star, caught and polished."
+      "description": "A shooting star, caught and polished.",
+      "glow": "#FFE880",
+      "glowAt": [
+        20.5,
+        10.5
+      ]
     },
     {
       "id": "beast_whip",
@@ -430,11 +465,19 @@
           ],
           "minSaturation": 0.3,
           "to": 220,
-          "saturation": 0.2,
-          "value": 0.75
+          "saturation": 0.14,
+          "value": 1.0
         }
       ],
-      "description": "Heavy, shiny, and very safe."
+      "description": "Heavy, shiny, and very safe.",
+      "wear": "plate",
+      "sheets": {
+        "human": "armor_iron_plate_human",
+        "elf": "armor_iron_plate_elf",
+        "dwarf": "armor_iron_plate_dwarf"
+      },
+      "pattern": "engraved",
+      "accent": "#E8C04A"
     },
     {
       "id": "mage_robe",
@@ -464,7 +507,10 @@
           "value": 0.9
         }
       ],
-      "description": "Embroidered with glowing runes."
+      "description": "Embroidered with glowing runes.",
+      "wear": "robe",
+      "pattern": "runes",
+      "accent": "#F2C230"
     },
     {
       "id": "tamer_jacket",
@@ -493,7 +539,10 @@
           "value": 0.85
         }
       ],
-      "description": "Lots of pockets for treats."
+      "description": "Lots of pockets for treats.",
+      "wear": "vest",
+      "pattern": "pockets",
+      "accent": "#F2C230"
     },
     {
       "id": "dragon_mail",
@@ -519,7 +568,15 @@
           "value": 0.8
         }
       ],
-      "description": "Scales from a very sleepy dragon."
+      "description": "Scales from a very sleepy dragon.",
+      "wear": "plate",
+      "sheets": {
+        "human": "armor_dragon_mail_human",
+        "elf": "armor_dragon_mail_elf",
+        "dwarf": "armor_dragon_mail_dwarf"
+      },
+      "pattern": "scales",
+      "accent": "#F2C230"
     },
     {
       "id": "snow_cloak",
@@ -545,7 +602,15 @@
           "value": 1.25
         }
       ],
-      "description": "Woven from the first snow of winter."
+      "description": "Woven from the first snow of winter.",
+      "wear": "cloak",
+      "sheets": {
+        "human": "armor_snow_cloak_human",
+        "elf": "armor_snow_cloak_elf",
+        "dwarf": "armor_snow_cloak_dwarf"
+      },
+      "pattern": "fur",
+      "accent": "#9AD8FF"
     },
     {
       "id": "star_charm",
@@ -558,7 +623,8 @@
         "magic": 10
       },
       "level": 48,
-      "description": "Twinkles when you cast."
+      "description": "Twinkles when you cast.",
+      "accent": "#FFE070"
     },
     {
       "id": "power_band",
@@ -571,7 +637,8 @@
         "attack": 10
       },
       "level": 48,
-      "description": "Makes you feel mighty."
+      "description": "Makes you feel mighty.",
+      "accent": "#FF5050"
     },
     {
       "id": "speed_boots",
@@ -584,7 +651,9 @@
         "speed": 8
       },
       "level": 58,
-      "description": "Zoom!"
+      "description": "Zoom!",
+      "wear": "boots",
+      "accent": "#6FB8FF"
     },
     {
       "id": "bamboo_staff",
@@ -2844,6 +2913,460 @@
       "price": 77,
       "level": 75,
       "description": "Fireproof, and very rare."
+    },
+    {
+      "id": "crimson_ranger_cloak",
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 358,
+          "saturation": 0.85,
+          "value": 0.62
+        }
+      ],
+      "icon": "shield-heart",
+      "art": "item_crimson_ranger_cloak",
+      "name": "Crimson Ranger Cloak",
+      "type": "armor",
+      "price": 255,
+      "stats": {
+        "defense": 8,
+        "speed": 2
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 5,
+      "description": "Dyed in wild berries. Rare spoils from the Rat King.",
+      "wear": "cloak",
+      "sheets": {
+        "human": "armor_ranger_cloak_human",
+        "elf": "armor_ranger_cloak_elf",
+        "dwarf": "armor_ranger_cloak_dwarf"
+      },
+      "accent": "#C9A040",
+      "tint": [
+        {
+          "hue": [
+            70,
+            170
+          ],
+          "minSaturation": 0.2,
+          "to": 358
+        }
+      ]
+    },
+    {
+      "id": "golden_plate",
+      "icon": "shield-plus",
+      "art": "item_golden_plate",
+      "name": "Golden Plate",
+      "type": "armor",
+      "price": 675,
+      "stats": {
+        "defense": 20,
+        "hp": 30
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 12,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 44,
+          "saturation": 0.14,
+          "value": 1.0
+        }
+      ],
+      "description": "Gilded by the Rat King's hoard. Very shiny, very rare.",
+      "wear": "plate",
+      "sheets": {
+        "human": "armor_iron_plate_human",
+        "elf": "armor_iron_plate_elf",
+        "dwarf": "armor_iron_plate_dwarf"
+      },
+      "pattern": "engraved",
+      "accent": "#E8C04A",
+      "tint": [
+        {
+          "hue": [
+            170,
+            250
+          ],
+          "minSaturation": 0.05,
+          "to": 44,
+          "saturation": 2.6,
+          "value": 1.05
+        }
+      ]
+    },
+    {
+      "id": "golden_dragon_mail",
+      "icon": "shield-plus",
+      "art": "item_golden_dragon_mail",
+      "name": "Golden Dragon Mail",
+      "type": "armor",
+      "price": 2100,
+      "stats": {
+        "defense": 28,
+        "hp": 50
+      },
+      "level": 20,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 44,
+          "saturation": 0.95,
+          "value": 0.8
+        }
+      ],
+      "description": "Scales from the dragon's best (and rarest) day.",
+      "wear": "plate",
+      "sheets": {
+        "human": "armor_dragon_mail_human",
+        "elf": "armor_dragon_mail_elf",
+        "dwarf": "armor_dragon_mail_dwarf"
+      },
+      "pattern": "scales",
+      "accent": "#F2C230",
+      "tint": [
+        {
+          "hue": [
+            335,
+            20
+          ],
+          "minSaturation": 0.55,
+          "to": 44,
+          "value": 1.1
+        }
+      ]
+    },
+    {
+      "id": "azure_dragon_mail",
+      "icon": "shield-plus",
+      "art": "item_azure_dragon_mail",
+      "name": "Azure Dragon Mail",
+      "type": "armor",
+      "price": 2100,
+      "stats": {
+        "defense": 28,
+        "hp": 50
+      },
+      "level": 20,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 212,
+          "saturation": 0.95,
+          "value": 0.8
+        }
+      ],
+      "description": "Blue as the oasis the dragon naps by. Rare.",
+      "wear": "plate",
+      "sheets": {
+        "human": "armor_dragon_mail_human",
+        "elf": "armor_dragon_mail_elf",
+        "dwarf": "armor_dragon_mail_dwarf"
+      },
+      "pattern": "scales",
+      "accent": "#F2C230",
+      "tint": [
+        {
+          "hue": [
+            335,
+            20
+          ],
+          "minSaturation": 0.55,
+          "to": 212
+        }
+      ]
+    },
+    {
+      "id": "rose_snow_cloak",
+      "icon": "shield-star",
+      "art": "item_rose_snow_cloak",
+      "name": "Rose Snow Cloak",
+      "type": "armor",
+      "price": 2250,
+      "stats": {
+        "defense": 30,
+        "magic": 10
+      },
+      "level": 24,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 335,
+          "saturation": 0.15,
+          "value": 1.25
+        }
+      ],
+      "description": "Snow at sunrise. Rarely left behind by the Big Bad Wolf.",
+      "wear": "cloak",
+      "sheets": {
+        "human": "armor_snow_cloak_human",
+        "elf": "armor_snow_cloak_elf",
+        "dwarf": "armor_snow_cloak_dwarf"
+      },
+      "pattern": "fur",
+      "accent": "#9AD8FF",
+      "tint": [
+        {
+          "hue": [
+            180,
+            250
+          ],
+          "minSaturation": 0.1,
+          "to": 335
+        }
+      ]
+    },
+    {
+      "id": "shadow_snow_cloak",
+      "icon": "shield-star",
+      "art": "item_shadow_snow_cloak",
+      "name": "Shadow Snow Cloak",
+      "type": "armor",
+      "price": 2250,
+      "stats": {
+        "defense": 30,
+        "magic": 10
+      },
+      "level": 24,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 250,
+          "saturation": 0.15,
+          "value": 1.25
+        }
+      ],
+      "description": "Woven from a winter night. The wolf's rarest trophy.",
+      "wear": "cloak",
+      "sheets": {
+        "human": "armor_snow_cloak_human",
+        "elf": "armor_snow_cloak_elf",
+        "dwarf": "armor_snow_cloak_dwarf"
+      },
+      "pattern": "fur",
+      "accent": "#9AD8FF",
+      "tint": [
+        {
+          "hue": [
+            180,
+            250
+          ],
+          "minSaturation": 0.1,
+          "to": 250,
+          "saturation": 0.5,
+          "value": 0.45
+        }
+      ]
+    },
+    {
+      "id": "mossy_leather_vest",
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 95,
+          "saturation": 0.65,
+          "value": 0.7
+        }
+      ],
+      "icon": "shield-check",
+      "art": "item_mossy_leather_vest",
+      "name": "Mossy Leather Vest",
+      "type": "armor",
+      "price": 135,
+      "stats": {
+        "defense": 6,
+        "hp": 10
+      },
+      "description": "Grown over with soft moss. Rare spoils from the Grumpy Old Oak.",
+      "wear": "vest",
+      "accent": "#D9B060"
+    },
+    {
+      "id": "autumn_leather_vest",
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 8,
+          "saturation": 0.8,
+          "value": 0.75
+        }
+      ],
+      "icon": "shield-check",
+      "art": "item_autumn_leather_vest",
+      "name": "Autumn Leather Vest",
+      "type": "armor",
+      "price": 135,
+      "stats": {
+        "defense": 6,
+        "hp": 10
+      },
+      "description": "Rusty red as falling leaves. The oak drops it once in a while.",
+      "wear": "vest",
+      "accent": "#D9B060"
+    },
+    {
+      "id": "gilded_chain_mail",
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 45,
+          "saturation": 0.45,
+          "value": 1.0
+        }
+      ],
+      "icon": "shield-plus",
+      "art": "item_gilded_chain_mail",
+      "name": "Gilded Chain Mail",
+      "type": "armor",
+      "price": 330,
+      "stats": {
+        "defense": 12
+      },
+      "classes": [
+        "fighter"
+      ],
+      "level": 5,
+      "description": "Every link dipped in wisp-light. Rare spoils from the Great Wisp.",
+      "wear": "mail"
+    },
+    {
+      "id": "dawn_silk_robe",
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 22,
+          "saturation": 0.7,
+          "value": 1.15
+        }
+      ],
+      "icon": "shield-star",
+      "art": "item_dawn_silk_robe",
+      "name": "Dawn Silk Robe",
+      "type": "armor",
+      "price": 270,
+      "stats": {
+        "defense": 5,
+        "magic": 4,
+        "mp": 10
+      },
+      "classes": [
+        "mage"
+      ],
+      "level": 5,
+      "description": "The colour of the sky just before sunrise. Left behind by the Great Wisp.",
+      "wear": "robe",
+      "accent": "#F2C230"
+    },
+    {
+      "id": "moonlight_mage_robe",
+      "icon": "shield-star",
+      "art": "item_moonlight_mage_robe",
+      "name": "Moonlight Mage Robe",
+      "type": "armor",
+      "price": 675,
+      "stats": {
+        "defense": 9,
+        "magic": 8,
+        "mp": 20
+      },
+      "classes": [
+        "mage"
+      ],
+      "level": 12,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 272,
+          "saturation": 0.4,
+          "value": 1.2
+        }
+      ],
+      "description": "Woven from moonbeams. The Moon Rabbit Queen's rarest gift.",
+      "wear": "robe",
+      "pattern": "runes",
+      "accent": "#F2C230"
+    },
+    {
+      "id": "bunny_tamer_jacket",
+      "icon": "shield-heart",
+      "art": "item_bunny_tamer_jacket",
+      "name": "Bunny Tamer Jacket",
+      "type": "armor",
+      "price": 675,
+      "stats": {
+        "defense": 14,
+        "speed": 4
+      },
+      "classes": [
+        "tamer"
+      ],
+      "level": 12,
+      "recolor": [
+        {
+          "hue": [
+            85,
+            170
+          ],
+          "minSaturation": 0.3,
+          "to": 335,
+          "saturation": 0.6,
+          "value": 1.05
+        }
+      ],
+      "description": "Soft and pink, with a fluffy tail. Rare spoils from the Moon Rabbit Queen.",
+      "wear": "vest",
+      "pattern": "pockets",
+      "accent": "#F2C230"
     }
   ]
 }

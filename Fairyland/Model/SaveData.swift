@@ -45,7 +45,7 @@ nonisolated struct Hero: Codable, Equatable, Sendable {
     var rebirths: Int?
 }
 
-/// The hero's chosen colours (preset ids from content/appearance.json).
+/// The hero's chosen colours and hairstyle (ids from content/appearance.json).
 nonisolated struct Look: Codable, Equatable, Sendable {
     var hair: String
     var outfit: String
@@ -53,10 +53,12 @@ nonisolated struct Look: Codable, Equatable, Sendable {
     /// male | female | other (content/appearance.json `genders`); nil in older saves, which
     /// keep their race's original sheet.
     var gender: String? = nil
+    /// Hairstyle; nil means the race's own (saves from before styles were a choice).
+    var style: String? = nil
 
     static let standard = Look(hair: "ginger", outfit: "green", skin: "fair")
 
-    var key: String { "\(hair)/\(outfit)/\(skin)" + (gender.map { "/" + $0 } ?? "") }
+    var key: String { "\(hair)/\(outfit)/\(skin)/\(style ?? "-")" + (gender.map { "/" + $0 } ?? "") }
 }
 
 /// A captured monster travelling with the hero.

@@ -81,6 +81,8 @@ nonisolated struct RaceDef: Decodable, Identifiable, Sendable {
     let art: String?
     /// Gender id → its own walk sheet; genders without one use `art`.
     let sheets: [String: String]?
+    /// The hairstyle a hero of this race starts with (an AppearanceOptions `styles` id).
+    let hair: String?
 
     var sheet: String { art ?? "player_walk" }
 
@@ -154,6 +156,14 @@ nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {
     let motion: String?
     /// Bosses can't be captured and never run away.
     let boss: Bool?
+    /// Rare spoils, rolled every time it's beaten (bosses come back for rematches).
+    let drops: [Drop]?
+
+    nonisolated struct Drop: Decodable, Sendable {
+        let item: String
+        /// 0...1, rolled on each win.
+        let chance: Double
+    }
 
     func stats(at level: Int) -> Stats { base + growth * (level - 1) }
 }
@@ -192,6 +202,20 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     let material: String?
     /// What a blacksmith needs to forge it: material id → how many.
     let recipe: [String: Int]?
+    /// How it changes the hero's sprite (see GearOverlay): armour's cut (vest | mail | plate | robe |
+    /// cloak), or "boots" for footwear.
+    let wear: String?
+    /// Finer work drawn on stronger armour: engraved | scales | fur | runes | pockets.
+    let pattern: String?
+    /// Whole walk sheets (art/sprites) per race id, worn instead of the paper-doll layers.
+    let sheets: [String: String]?
+    /// A rare colour variant's recolour of those sheets.
+    let tint: [RecolorRule]?
+    /// Trim colour on the sprite (buttons, clasps, hems) and an accessory's sparkle, "#RRGGBB".
+    let accent: String?
+    /// Magic weapons: a soft light while held, "#RRGGBB", centred on `glowAt` ([x, y] in the 32×32 art).
+    let glow: String?
+    let glowAt: [Double]?
 }
 
 nonisolated struct QuestDef: Decodable, Identifiable, Sendable {
@@ -562,8 +586,15 @@ nonisolated struct GenderOption: Decodable, Identifiable, Sendable {
     let name: String
 }
 
+/// A hairstyle: art/sprites/hair_<id>_<race>.png, drawn over the bald body_<race>.png.
+nonisolated struct HairStyle: Decodable, Identifiable, Sendable {
+    let id: String
+    let name: String
+}
+
 nonisolated struct AppearanceOptions: Decodable, Sendable {
     let genders: [GenderOption]
+    let styles: [HairStyle]
     let hair: [LookPreset]
     let outfits: [LookPreset]
     let skin: [LookPreset]

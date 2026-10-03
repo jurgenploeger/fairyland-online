@@ -1,5 +1,5 @@
 {
-  "_about": "Races (chosen at character creation) and classes. Everyone starts as a Novice; at classChoiceLevel you join a guild and pick a path. Stats = race base + class growth × (level − 1) + equipment. Each race has its own walk sheet (`art`), plus `sheets` for the other genders; your hair/outfit/skin choices recolour it.",
+  "_about": "Races (chosen at character creation) and classes. Everyone starts as a Novice; at classChoiceLevel you join a guild and pick a path. Stats = race base + class growth × (level − 1) + equipment. Each race has its own walk sheet (`art`), plus `sheets` for the other genders; your hair/outfit/skin choices recolour it. `hair` is the race's starting hairstyle (content/appearance.json `styles`).",
   "classChoiceLevel": 10,
   "races": [
     {
@@ -18,7 +18,8 @@
       "sheets": {
         "female": "human_female_walk",
         "other": "human_other_walk"
-      }
+      },
+      "hair": "spiky"
     },
     {
       "id": "elf",
@@ -36,7 +37,8 @@
       "sheets": {
         "male": "elf_male_walk",
         "other": "elf_other_walk"
-      }
+      },
+      "hair": "long"
     },
     {
       "id": "dwarf",
@@ -54,7 +56,8 @@
       "sheets": {
         "female": "dwarf_female_walk",
         "other": "dwarf_other_walk"
-      }
+      },
+      "hair": "crop"
     }
   ],
   "classes": [

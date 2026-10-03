@@ -119,6 +119,22 @@ final class GameSession {
             + outfit
     }
 
+    /// The hero as paper-doll layers (art/sprites, made by tools/hero_layers.py): the bald body, then
+    /// the hairstyle, or a helmet or hood instead (so no hair pokes through).
+    /// Armour with its own walk sheet for the race (items.json `sheets`) replaces the lot.
+    static func layers(race: RaceDef, look: Look, armor: ItemDef? = nil) -> [String] {
+        if let sheet = armor?.sheets?[race.id] { return [sheet] }
+        let headgear: String? = switch armor?.wear ?? "" {
+        case "plate": "helmet"
+        case "cloak": "hood"
+        default: nil
+        }
+        let style = look.style ?? race.hair ?? Content.shared.appearance.styles.first?.id ?? "spiky"
+        // Each gender's walk sheet has its own set; the race's default sheet keeps the plain names.
+        let body = look.gender.flatMap { race.sheets?[$0] != nil ? "\(race.id)_\($0)" : nil } ?? race.id
+        return ["body_\(body)", headgear.map { "\($0)_\(body)" } ?? "hair_\(style)_\(body)"]
+    }
+
     func equipped(_ slot: ItemType) -> ItemDef? {
         data.hero.equipment[slot].flatMap(content.item)
     }
@@ -132,7 +148,18 @@ final class GameSession {
 
     func applyLook() {
         let look = data.hero.look ?? .standard
-        ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet(for: look.gender), recolor: Self.rules(for: look, armor: equipped(.armor)), key: heroLookKey)
+        let armor = equipped(.armor)
+        let boots = equipped(.accessory)?.wear == "boots"
+        var gear = GearLook(wear: armor?.wear, accent: armor?.accent, boots: boots, pattern: armor?.pattern)
+        var rules = Self.rules(for: look, armor: armor)
+        if let armor, armor.sheets?[heroRace.id] != nil {
+            // The armour's own sheet is already drawn and coloured: only the skin tone applies, plus a
+            // rare colour variant's tint.
+            gear = GearLook(wear: nil, accent: nil, boots: boots)
+            rules = (content.appearance.skin.first { $0.id == look.skin }?.recolor ?? []) + (armor.tint ?? [])
+        }
+        ArtLibrary.shared.register(Self.heroArt, from: heroRace.sheet(for: look.gender), recolor: rules, key: heroLookKey,
+                                   gear: gear, layers: Self.layers(race: heroRace, look: look, armor: armor))
     }
 
     func customizeHero(name: String, look: Look) {
@@ -846,9 +873,25 @@ final class GameSession {
         data.defeatedBosses?.contains(boss.id) == true
     }
 
+    /// Bosses beaten since arriving on this map. They're back for a rematch next visit.
+    var bossesBeatenHere: Set<String> = []
+
+    func isBeatenHere(_ boss: NPCDef) -> Bool {
+        bossesBeatenHere.contains(boss.id)
+    }
+
+    /// Every win rolls the boss's rare drops (the colour variants of top armour).
     func defeatBoss(_ boss: NPCDef) {
-        guard !isDefeated(boss) else { return }
-        data.defeatedBosses = (data.defeatedBosses ?? []) + [boss.id]
+        bossesBeatenHere.insert(boss.id)
+        if !isDefeated(boss) {
+            data.defeatedBosses = (data.defeatedBosses ?? []) + [boss.id]
+        }
+        let species = boss.monster.flatMap(content.monster)
+        for drop in species?.drops ?? [] where Double.random(in: 0..<1) < drop.chance {
+            guard let item = content.item(drop.item) else { continue }
+            addItem(item.id)
+            post("\(species?.name ?? boss.name) dropped \(item.name)!", .reward)
+        }
         save()
     }
 

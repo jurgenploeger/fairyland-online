@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "moon rabbit queen, a white rabbit in a flowing lavender gown with a crescent moon crown, holding a mochi mallet, boss monster, chibi, cute monster",
+    "prompt_style": "rd_plus__low_res",
+    "width": 64,
+    "height": 64,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1790949726,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 47.931,
+    "request_id": "68daa66e-86c2-47e9-96e3-ff917a45e3cc",
+    "outputs_retained_until": 1791036114
+  }
+}

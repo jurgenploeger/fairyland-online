@@ -62,6 +62,21 @@ for race in classes["races"]:
     for gender, sheet in (race.get("sheets") or {}).items():
         check(gender in gender_ids, f"race {race['id']} → unknown gender {gender}")
         check(sheet in art, f"race {race['id']} ({gender}) → unknown art {sheet}")
+styles = {style["id"] for style in appearance["styles"]}
+for race in classes["races"]:
+    check(race.get("hair") in styles, f"race {race['id']} → unknown hairstyle {race.get('hair')}")
+    # The paper-doll layers the hero is stacked from (GameSession.layers): one set per walk sheet,
+    # the race's own plus one for each gender with its own sheet.
+    for body in [race["id"]] + [f"{race['id']}_{gender}" for gender in (race.get("sheets") or {})]:
+        layers = [f"body_{body}", f"hood_{body}", f"helmet_{body}"] + [f"hair_{style}_{body}" for style in styles]
+        for layer in layers:
+            check((ROOT / "art" / "sprites" / f"{layer}.png").exists(),
+                  f"race {race['id']} → art/sprites/{layer}.png is missing (python3 tools/hero_layers.py)")
+
+for monster in monsters.values():
+    for drop in monster.get("drops", []):
+        check(drop.get("item") in items and 0 < drop.get("chance", 0) <= 1,
+              f"monster {monster['id']} → drop {drop} needs a known item and a chance in (0, 1]")
 
 for skill in skills.values():
     check(skill.get("icon") in icon_names, f"skill {skill['id']} → unknown icon {skill.get('icon')}")
@@ -158,6 +173,31 @@ for item in items.values():
         check(item["art"] in art, f"item {item['id']} → unknown art {item['art']}")
         check((ROOT / "art" / "sprites" / f"{item['art']}.png").exists() or "derive" in art.get(item["art"], {}),
               f"item {item['id']} → art/sprites/{item['art']}.png is missing (python3 tools/item_art.py)")
+
+WEARS = {"armor": {"vest", "mail", "plate", "robe", "cloak"}, "accessory": {"boots"}}
+for item in items.values():
+    if "wear" in item:
+        check(item["wear"] in WEARS.get(item["type"], set()),
+              f"item {item['id']} → wear {item['wear']!r} doesn't fit a {item['type']} ({sorted(WEARS.get(item['type'], []))})")
+    for race_id, sheet in item.get("sheets", {}).items():
+        check(item["type"] == "armor" and race_id in {r["id"] for r in classes["races"]},
+              f"item {item['id']} → sheets: {race_id!r} isn't a race (or the item isn't armour)")
+        check((ROOT / "art" / "sprites" / f"{sheet}.png").exists(), f"item {item['id']} → art/sprites/{sheet}.png is missing")
+    for rule in item.get("tint", []):
+        check("sheets" in item and isinstance(rule.get("hue"), list) and len(rule["hue"]) == 2,
+              f"item {item['id']} → tint rules need a hue: [from, to] (and the item needs sheets)")
+    if "pattern" in item:
+        check(item["type"] == "armor" and item["pattern"] in {"engraved", "scales", "fur", "runes", "pockets"},
+              f"item {item['id']} → pattern {item['pattern']!r} must be engraved | scales | fur | runes | pockets, on armour")
+    if "glow" in item:
+        check(item["type"] == "weapon" and re.fullmatch(r"#[0-9A-Fa-f]{6}", str(item["glow"])) is not None,
+              f"item {item['id']} → glow must be a #RRGGBB colour on a weapon")
+        at = item.get("glowAt")
+        check(isinstance(at, list) and len(at) == 2 and all(isinstance(v, (int, float)) and 0 <= v <= 32 for v in at),
+              f"item {item['id']} → glow needs glowAt: [x, y] inside its 32×32 art")
+    if "accent" in item:
+        check(isinstance(item["accent"], str) and re.fullmatch(r"#[0-9A-Fa-f]{6}", item["accent"]) is not None,
+              f"item {item['id']} → accent must be #RRGGBB")
 
 hex_colour = re.compile(r"^#[0-9A-Fa-f]{6}$")
 for map_def in maps.values():

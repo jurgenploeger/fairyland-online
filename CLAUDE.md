@@ -10,6 +10,9 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 - `Fairyland/`: Swift code (World = maps and walking, Battle = combat, UI = SwiftUI HUD and menus).
 - `tools/item_art.py`: draws every item's 32×32 sprite in code (free); rerun it after editing a drawing.
 - `tools/skill_art.py`: the same for every skill's icon (`art/sprites/skill_<id>.png`).
+- `tools/hero_layers.py`: splits each race's walk sheet into paper-doll layers (bald `body_<race>`,
+  `hair_<style>_<race>` for every hairstyle, `hood_`/`helmet_<race>` in magenta that GearOverlay paints in the
+  armour's colours). The game stacks them (`GameSession.layers`); rerun after changing a race's sheet.
 - `tools/rd.py`: Retro Diffusion client. `tools/icons.py`: vendors Iconaut icons (MIT).
   `tools/check_content.py`: validates the game data.
 - `theme.palette` in `content/maps.json` colour-grades each map's ground, scenery and buildings at load time.
