@@ -68,7 +68,7 @@ struct WorldHUD: View {
                 HStack(spacing: 7) {
                     // Settings has its own button up top, next to Chat.
                     ForEach(MenuTab.allCases.filter { $0 != .settings }) { tab in
-                        FLIconButton(icon: tab.icon, label: tab.rawValue, badge: badge(for: tab), showsLabel: true) {
+                        FLIconButton(icon: tab.icon, label: tab.rawValue, badge: badge(for: tab)) {
                             coordinator.open(.menu(tab))
                         }
                     }
