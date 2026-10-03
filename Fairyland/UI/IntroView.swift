@@ -101,7 +101,7 @@ private struct PageTitle: View {
 private struct StoryPage: View {
     /// The three the story names, in its order: one row that fits any screen, and the rest of the
     /// bosses stay a surprise.
-    private let bosses = ["big_bad_wolf", "rat_king", "drunk_dragon"].compactMap(Content.shared.monster)
+    private let bosses = ["big_bad_wolf", "rat_king", "drunk_dragon"].compactMap { Content.shared.monster($0) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
