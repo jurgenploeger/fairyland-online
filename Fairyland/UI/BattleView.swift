@@ -738,7 +738,7 @@ private struct ResultPanel: View {
     private func advance() {
         if stage == .summary, session.pendingPet != nil {
             stage = .release
-        } else if stage != .levelUp, result.newLevel != nil, session.unspentSkillPoints > 0 {
+        } else if stage != .levelUp, result.newLevel != nil, session.canSpendSkillPoint {
             stage = .levelUp
         } else {
             onContinue()

@@ -180,10 +180,15 @@ private struct CharacterTab: View {
                 HStack {
                     SectionTitle(text: "Skills")
                     Spacer()
-                    if session.unspentSkillPoints > 0 {
+                    if session.canSpendSkillPoint {
                         Text("\(session.unspentSkillPoints) skill point\(session.unspentSkillPoints == 1 ? "" : "s") to spend")
                             .font(HUDStyle.font(11))
                             .foregroundStyle(HUDStyle.gold)
+                    } else if session.unspentSkillPoints > 0 {
+                        // Everything known is mastered: points wait for the next skill the class unlocks.
+                        Text("\(session.unspentSkillPoints) saved for your next skill")
+                            .font(HUDStyle.font(11))
+                            .foregroundStyle(HUDStyle.dim)
                     }
                 }
                 if session.heroSkills.isEmpty && session.learnableSkills.isEmpty {

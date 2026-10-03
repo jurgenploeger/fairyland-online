@@ -371,6 +371,12 @@ final class GameSession {
         max(1, data.hero.skillLevels?[id] ?? 1)
     }
 
+    /// A point to spend and something to spend it on: a skill to learn, or one not yet mastered.
+    var canSpendSkillPoint: Bool {
+        unspentSkillPoints > 0
+            && (!learnableSkills.isEmpty || heroSkills.contains { skillLevel($0.id) < Self.maxSkillLevel })
+    }
+
     /// One point per level gained. Learning costs one and each upgrade one; points in skills
     /// your class no longer has come back.
     var unspentSkillPoints: Int {
