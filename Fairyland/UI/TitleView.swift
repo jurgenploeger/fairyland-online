@@ -239,12 +239,25 @@ private struct SavedHeroCard: View {
 
     var body: some View {
         let content = Content.shared
+        // The companion walking with them, if one is out.
+        let pet = save.pets.first { $0.id == save.activePetID }
+        let petArt = pet.flatMap { content.monster($0.speciesID)?.art }
         VStack(spacing: 4) {
-            WalkingSprite(art: art, size: 96)
+            HStack(alignment: .bottom, spacing: -6) {
+                WalkingSprite(art: art, size: 96)
+                if let petArt {
+                    WalkingSprite(art: petArt, size: 64)
+                }
+            }
             Text(save.hero.name).font(HUDStyle.font(15)).foregroundStyle(HUDStyle.ink)
             Text("Lv \(save.hero.level) \(content.classDef(save.hero.classID).name) · \(content.map(save.mapID)?.name ?? "")")
                 .font(HUDStyle.font(10))
                 .foregroundStyle(HUDStyle.ink.opacity(0.65))
+            if let pet {
+                Text("with \(pet.name), Lv \(pet.level)")
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.ink.opacity(0.65))
+            }
         }
         .padding(.bottom, 28)   // room for the page dots
     }

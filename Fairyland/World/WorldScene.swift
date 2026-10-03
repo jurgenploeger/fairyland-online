@@ -93,15 +93,8 @@ final class WorldScene: SKScene {
         super.init(size: CGSize(width: 874, height: 402))
         scaleMode = .resizeFill
         backgroundColor = .black
-        build()
-        // Don't start on top of scenery (e.g. an old save).
-        // (A save from before a cave's walls went up can even be deep inside the rock.)
-        if !map.isWalkable(lastCell),
-           let open = map.nearestWalkable(to: lastCell) ?? map.nearestWalkable(to: map.entryCell(from: def.exits.first?.edge ?? .south)) {
-            player.position = map.center(of: open)
-            lastCell = open
-        }
         session.playerPosition = player.position
+        // The scenery goes up in `build(progress:)`, a piece at a time, behind the loading bar.
     }
 
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
@@ -134,21 +127,33 @@ final class WorldScene: SKScene {
 
     // MARK: - Building the map
 
-    private func build() {
+    /// True once `build(progress:)` has finished; until then the scene sits still under the loading bar.
+    private(set) var isBuilt = false
+
+    /// Builds the map a piece at a time, pausing between pieces so the loading bar can move.
+    /// `progress` gets 0...1 as the pieces are done (weighted by roughly how long each takes).
+    func build(progress: (Double) -> Void) async {
+        guard !isBuilt, world.parent == nil else { return }
         art.use(palette: def.theme.palette, for: def.id)
         addChild(world)
         addChild(cam)
         camera = cam
+        await reached(0.05, progress)
 
         world.addChild(makeGround())
+        await reached(0.3, progress)
         placeSurroundings()
+        await reached(0.45, progress)
         if let cave = def.theme.cave {
             caveWalls = CaveWalls(map: map, cave: cave, world: world, art: art, margin: Self.surroundingsMargin)
+            await reached(0.55, progress)
         }
         placeLilyPads()
         placeFence()
         placeBuildings()
+        await reached(0.65, progress)
         placeDecor()
+        await reached(0.8, progress)
         placeNPCs()
         crowd = Crowd(def: def, map: map, world: world, friends: session.friends.filter { !session.isInParty($0) })
         crowd?.onChat = { [weak session] speaker, text, kind in session?.postChat(text, from: speaker, kind: kind) }
@@ -160,6 +165,7 @@ final class WorldScene: SKScene {
         placeProps()
         placeSignposts()
         placeBarricades()
+        await reached(0.9, progress)
 
         world.addChild(player)
         refreshHero()
@@ -175,6 +181,24 @@ final class WorldScene: SKScene {
         lighting = Lighting(def.ambience, world: world, camera: cam, bounds: map.bounds, seed: def.id)
         lighting?.resize(to: size)
         lighting?.follow(cam.position)
+
+        // Don't start on top of scenery (e.g. an old save).
+        // (A save from before a cave's walls went up can even be deep inside the rock.)
+        if !map.isWalkable(lastCell),
+           let open = map.nearestWalkable(to: lastCell) ?? map.nearestWalkable(to: map.entryCell(from: def.exits.first?.edge ?? .south)) {
+            player.position = map.center(of: open)
+            lastCell = open
+            cam.position = player.position
+        }
+        session.playerPosition = player.position
+        isBuilt = true
+        progress(1)
+    }
+
+    /// Reports progress, then gives the screen a moment to draw it before the next piece.
+    private func reached(_ fraction: Double, _ progress: (Double) -> Void) async {
+        progress(fraction)
+        try? await Task.sleep(for: .milliseconds(10))
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
@@ -848,7 +872,7 @@ final class WorldScene: SKScene {
     // MARK: - Input
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard !isInputLocked, let point = touches.first?.location(in: world) else { return }
+        guard isBuilt, !isInputLocked, let point = touches.first?.location(in: world) else { return }
         if let npc = npcs.first(where: { ($0.node.position + CGVector(dx: 0, dy: 24)).distance(to: point) < 34 }) {
             talkTarget = npc.def.id
             npc.node.revealTag()
@@ -932,6 +956,7 @@ final class WorldScene: SKScene {
     // MARK: - Loop
 
     override func update(_ currentTime: TimeInterval) {
+        guard isBuilt else { return }
         if let onFirstFrame {
             self.onFirstFrame = nil
             onFirstFrame()

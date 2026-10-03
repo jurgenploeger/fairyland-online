@@ -568,13 +568,17 @@ struct RulesTests {
 @MainActor
 struct PerformanceTests {
     /// Big maps must still load quickly; this prints how long each one takes to build.
-    @Test func mapsBuildQuickly() {
+    @Test func mapsBuildQuickly() async {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         for def in Content.shared.maps {
             let clock = ContinuousClock()
             var grid: WorldMap?
             let gridTime = clock.measure { grid = WorldMap(def: def) }
-            let sceneTime = clock.measure { _ = WorldScene(map: def, session: session, input: InputState(), entry: nil) }
+            let start = clock.now
+            let scene = WorldScene(map: def, session: session, input: InputState(), entry: nil)
+            await scene.build { _ in }
+            let sceneTime = clock.now - start
+            #expect(scene.isBuilt)
             print("⏱ \(def.id): grid \(gridTime), scene \(sceneTime), cells \(grid!.columns * grid!.rows)")
             #expect(sceneTime < .seconds(3), "\(def.id) took \(sceneTime) to build")
         }

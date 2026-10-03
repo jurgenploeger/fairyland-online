@@ -43,9 +43,9 @@ struct GameView: View {
         .overlay {
             if !coordinator.isReady {
                 if let name = coordinator.loadingMapName {
-                    MapLoadingCard(mapName: name).transition(.opacity)
+                    MapLoadingCard(mapName: name, progress: coordinator.loadProgress).transition(.opacity)
                 } else {
-                    LoadingCurtain().transition(.opacity)
+                    LoadingCurtain(progress: coordinator.loadProgress).transition(.opacity)
                 }
             }
         }
