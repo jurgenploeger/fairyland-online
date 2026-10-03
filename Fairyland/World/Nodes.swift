@@ -172,7 +172,6 @@ final class HealthBar: SKNode {
     var fraction: CGFloat = 1 {
         didSet {
             fill.size.width = max(0, width * min(fraction, 1))
-            fill.color = fraction > 0.3 ? UIColor(red: 0.4, green: 0.85, blue: 0.35, alpha: 1) : UIColor(red: 0.95, green: 0.3, blue: 0.3, alpha: 1)
         }
     }
 
@@ -185,7 +184,8 @@ final class HealthBar: SKNode {
     init(width: CGFloat, level: Int? = nil, mana: Bool = false) {
         self.width = width
         let thick: CGFloat = level == nil ? 3 : 4
-        fill = SKSpriteNode(color: .green, size: CGSize(width: width, height: thick))
+        // HP is red everywhere (HUDStyle.hp), MP blue.
+        fill = SKSpriteNode(color: UIColor(red: 0.93, green: 0.22, blue: 0.2, alpha: 1), size: CGSize(width: width, height: thick))
         super.init()
         var parts: [SKNode] = []
         let background = SKSpriteNode(color: UIColor(white: 0, alpha: 0.6), size: CGSize(width: width + 2, height: thick + 2))
@@ -194,10 +194,10 @@ final class HealthBar: SKNode {
         fill.zPosition = 1
         parts += [background, fill]
         if mana {
-            let y = -(thick + 2) / 2 - 2
-            let back = SKSpriteNode(color: UIColor(white: 0, alpha: 0.6), size: CGSize(width: width + 2, height: 4))
+            let y = -(thick + 2) / 2 - 3
+            let back = SKSpriteNode(color: UIColor(white: 0, alpha: 0.6), size: CGSize(width: width + 2, height: 5))
             back.position.y = y
-            let blue = SKSpriteNode(color: UIColor(red: 0.24, green: 0.52, blue: 0.95, alpha: 1), size: CGSize(width: width, height: 2))
+            let blue = SKSpriteNode(color: UIColor(red: 0.24, green: 0.52, blue: 0.95, alpha: 1), size: CGSize(width: width, height: 3))
             blue.anchorPoint = CGPoint(x: 0, y: 0.5)
             blue.position = CGPoint(x: -width / 2, y: y)
             blue.zPosition = 1

@@ -6,6 +6,10 @@ struct BattleResult {
     let lines: [String]
     /// The hero's new level, if they levelled up (the result screen then offers skill choices).
     var newLevel: Int?
+    /// The pay: EXP, gold, and what was found (item id and how many), shown as icons.
+    var exp = 0
+    var gold = 0
+    var loot: [(id: String, count: Int)] = []
 }
 
 /// Runs one battle: turns the player's menu choices into engine actions, feeds the
@@ -51,6 +55,9 @@ final class BattleController {
             message += " ✦ A rare \(rare.name)!"
         }
         engine.canSeal = session.sealStones > 0
+        for foe in engine.alive(on: .enemies) {
+            if let id = foe.speciesID { session.sawMonster(id, level: foe.level) }
+        }
     }
 
     /// You, your companion and the friends in your party.
@@ -85,7 +92,7 @@ final class BattleController {
             art: session.artID(for: person), level: person.level, element: .neutral, stats: stats,
             hp: stats.hp, mp: stats.mp, skills: skills.map(\.id), captureRate: 0
         )
-        fighter.skillLevels = Dictionary(uniqueKeysWithValues: skills.map { ($0.id, min(GameSession.maxSkillLevel, 1 + person.level / 4)) })
+        fighter.skillLevels = Dictionary(uniqueKeysWithValues: skills.map { ($0.id, Combatant.naturalSkillLevel(for: person.level)) })
         return fighter
     }
 
@@ -143,16 +150,6 @@ final class BattleController {
             enemy.isRare = species.rare == true
             enemies.append(enemy)
         }
-        // Tell duplicates apart: "Jelly Puff A", "Jelly Puff B".
-        let counts = Dictionary(grouping: enemies, by: \.name).mapValues(\.count)
-        var seen: [String: Int] = [:]
-        for index in enemies.indices where counts[enemies[index].name, default: 0] > 1 {
-            let name = enemies[index].name
-            let letter = String(UnicodeScalar(UInt8(65 + seen[name, default: 0])))
-            seen[name, default: 0] += 1
-            enemies[index].name = "\(name) \(letter)"
-        }
-
         let engine = BattleEngine(party: party, enemies: enemies, content: content, captureBonus: session.heroClass.captureBonus ?? 1)
         return BattleController(engine: engine, session: session)
     }
@@ -172,6 +169,10 @@ final class BattleController {
 
     /// Set when the hero levels up during the victory payout.
     private var newLevel: Int?
+    private var rewardEXP = 0
+    private var rewardGold = 0
+    /// Item id → how many were found after a win.
+    private var loot: [String: Int] = [:]
 
     var hero: Combatant? { combatants.first(where: \.isHero) }
     var party: [Combatant] { combatants.filter { $0.side == .party } }
@@ -430,9 +431,17 @@ final class BattleController {
     }
 
     private func finish(_ outcome: BattleOutcome, lines: [String]) {
-        result = BattleResult(outcome: outcome, lines: lines, newLevel: newLevel)
+        let found = loot.sorted { $0.key < $1.key }.map { (id: $0.key, count: $0.value) }
+        result = BattleResult(outcome: outcome, lines: lines, newLevel: newLevel, exp: rewardEXP, gold: rewardGold, loot: found)
         let won = outcome == .victory || outcome == .fled
-        for line in lines { session.post(line, won ? .reward : .battle) }
+        // The log gets it all in words; the result card shows the pay as icons.
+        var logged = lines
+        if rewardEXP > 0 || rewardGold > 0 { logged.insert("+\(rewardEXP) EXP    +\(rewardGold) gold", at: min(1, logged.count)) }
+        for item in found {
+            let name = session.content.item(item.id)?.name ?? item.id
+            logged.append(item.count > 1 ? "Found \(name) ×\(item.count)!" : "Found \(name)!")
+        }
+        for line in logged { session.post(line, won ? .reward : .battle) }
         phase = .finished
         MusicPlayer.shared.play(won ? "victory" : nil)
         if outcome == .defeat { SoundEffects.shared.play(.lose) }
@@ -481,9 +490,11 @@ final class BattleController {
             exp += Int((Double(species.exp) * (1 + 0.35 * Double(foe.level - 1))).rounded())
             gold += Int((Double(species.gold) * (1 + 0.25 * Double(foe.level - 1))).rounded())
             session.record(.defeat, target: id)
+            session.beatMonster(id, level: foe.level)
         }
         session.data.gold += gold
-        if exp > 0 || gold > 0 { lines.append("+\(exp) EXP    +\(gold) gold") }
+        rewardEXP = exp
+        rewardGold = gold
         session.growParty()
 
         let learnableBefore = Set(session.learnableSkills.map(\.id))
@@ -526,22 +537,18 @@ final class BattleController {
 
         if Double.random(in: 0..<1) < 0.25 {
             session.addItem("potion")
-            lines.append("Found a Potion!")
+            loot["potion", default: 0] += 1
         }
 
         // Materials for the blacksmith: about one wild monster in three drops something, bosses three.
-        var found: [String: Int] = [:]
         for foe in engine.combatants where foe.side == .enemies && !foe.isCaptured && !foe.hasFled {
             guard case .wild = foe.source, let id = foe.speciesID else { continue }
             let isBoss = content.monster(id)?.boss == true
             for _ in 0..<(isBoss ? 3 : 1) where isBoss || Double.random(in: 0..<1) < 0.35 {
                 guard let material = session.materialDrop(level: foe.level) else { continue }
                 session.addItem(material.id)
-                found[material.name, default: 0] += 1
+                loot[material.id, default: 0] += 1
             }
-        }
-        for (name, count) in found.sorted(by: { $0.key < $1.key }) {
-            lines.append(count > 1 ? "Found \(name) ×\(count)!" : "Found \(name)!")
         }
         session.save()
         return lines

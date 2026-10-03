@@ -86,7 +86,7 @@ struct WorldHUD: View {
 
     private func badge(for tab: MenuTab) -> Bool {
         switch tab {
-        case .character: session.canChooseClass || session.unspentSkillPoints > 0
+        case .character: session.canChooseClass || session.canSpendSkillPoint
         case .quests: session.activeQuests.contains { session.status(of: $0) == .ready }
         case .bag: session.count(of: "pet_egg") > 0
         case .companions, .settings: false
@@ -105,7 +105,7 @@ private struct StatusCluster: View {
         VStack(alignment: .leading, spacing: 4) {
             PortraitRow(face: ArtLibrary.shared.face(GameSession.heroArt), level: hero.level, name: hero.name,
                         detail: session.heroClass.name, size: 52,
-                        glowing: session.canChooseClass || session.unspentSkillPoints > 0) {
+                        glowing: session.canChooseClass || session.canSpendSkillPoint) {
                 TaggedBar(tag: "H", value: hero.hp, maximum: stats.hp, color: HUDStyle.hp)
                 TaggedBar(tag: "M", value: hero.mp, maximum: stats.mp, color: HUDStyle.mp)
             }
@@ -113,7 +113,7 @@ private struct StatusCluster: View {
                 let petStats = session.stats(of: pet)
                 PortraitRow(face: ArtLibrary.shared.face(session.artID(for: pet)), level: pet.level, name: pet.name,
                             detail: pet.hp > 0 ? nil : "Fainted", size: 38) {
-                    TaggedBar(tag: "H", value: pet.hp, maximum: petStats.hp, color: HUDStyle.pet)
+                    TaggedBar(tag: "H", value: pet.hp, maximum: petStats.hp, color: HUDStyle.hp)
                     TaggedBar(tag: "M", value: pet.mp, maximum: petStats.mp, color: HUDStyle.mp)
                 }
             }

@@ -87,6 +87,7 @@ for skill in skills.values():
 
 for monster in monsters.values():
     check(monster["art"] in art, f"monster {monster['id']} → unknown art {monster['art']}")
+    check(isinstance(monster.get("lore"), str) and monster["lore"].strip(), f"monster {monster['id']} needs lore for the Monster Book")
     for skill in monster["skills"]:
         check(skill in skills, f"monster {monster['id']} → unknown skill {skill}")
     if "variantOf" in monster:

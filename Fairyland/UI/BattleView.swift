@@ -665,11 +665,14 @@ private struct QuickSkillButton: View {
             .opacity(affordable ? 1 : 0.5)
         }
         .overlay(alignment: .bottom) {
-            Text("\(cost) MP")
-                .font(HUDStyle.mono(10))
+            // The skill's name, like the other buttons' labels; long names end in "…".
+            Text(skill.name)
+                .font(HUDStyle.font(10))
                 .foregroundStyle(affordable ? HUDStyle.cream : HUDStyle.dim)
                 .shadow(color: .black, radius: 0, x: 1, y: 1)
-                .fixedSize()
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(width: size + 14)
                 .offset(y: 15)
         }
         .accessibilityLabel("\(skill.name), \(cost) MP")
@@ -738,7 +741,7 @@ private struct ResultPanel: View {
     private func advance() {
         if stage == .summary, session.pendingPet != nil {
             stage = .release
-        } else if stage != .levelUp, result.newLevel != nil, session.unspentSkillPoints > 0 {
+        } else if stage != .levelUp, result.newLevel != nil, session.canSpendSkillPoint {
             stage = .levelUp
         } else {
             onContinue()
@@ -750,6 +753,21 @@ private struct ResultPanel: View {
                 Text(title)
                     .font(HUDStyle.font(26))
                     .foregroundStyle(result.outcome == .victory ? HUDStyle.gold : HUDStyle.cream)
+                if result.exp > 0 || result.gold > 0 {
+                    HStack(spacing: 18) {
+                        Label { Text("+\(result.exp) EXP") } icon: {
+                            IconImage(.star, size: 18).foregroundStyle(HUDStyle.exp)
+                        }
+                        Label { Text("+\(result.gold)") } icon: {
+                            IconImage(.coins, size: 18).foregroundStyle(HUDStyle.gold)
+                        }
+                    }
+                    .font(HUDStyle.font(16))
+                    .foregroundStyle(HUDStyle.cream)
+                }
+                if !result.loot.isEmpty {
+                    LootGrid(loot: result.loot)
+                }
                 ForEach(Array(result.lines.enumerated()), id: \.offset) { _, line in
                     Text(line)
                         .font(HUDStyle.font(13))
@@ -768,5 +786,45 @@ private struct ResultPanel: View {
                 .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(HUDStyle.cream.opacity(0.85), lineWidth: 2))
         )
         .padding(20)
+    }
+}
+
+/// What a win (or a quest) turned up, as little item tiles with how many and the name underneath.
+struct LootGrid: View {
+    let loot: [(id: String, count: Int)]
+    var title = "Found"
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Text(title).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.gold)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 78), spacing: 8)], spacing: 8) {
+                ForEach(Array(loot.enumerated()), id: \.offset) { _, entry in
+                    if let item = Content.shared.item(entry.id) {
+                        VStack(spacing: 3) {
+                            ItemIcon(item: item, size: 40)
+                                .overlay(alignment: .bottomTrailing) {
+                                    if entry.count > 1 {
+                                        Text("×\(entry.count)")
+                                            .font(HUDStyle.font(10))
+                                            .foregroundStyle(HUDStyle.ink)
+                                            .padding(.horizontal, 4)
+                                            .background(Capsule().fill(HUDStyle.gold))
+                                            .offset(x: 6, y: 4)
+                                    }
+                                }
+                            Text(item.name)
+                                .font(HUDStyle.font(10))
+                                .foregroundStyle(HUDStyle.cream)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.center)
+                        }
+                        .accessibilityElement(children: .combine)
+                    }
+                }
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+        .background(RoundedRectangle(cornerRadius: 12).fill(.white.opacity(0.06)))
     }
 }

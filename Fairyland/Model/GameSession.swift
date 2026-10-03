@@ -99,6 +99,7 @@ final class GameSession {
         )
         var slotted = data
         slotted.slot = UUID().uuidString   // every new game gets its own save
+        slotted.skillLevelsDoubled = true  // already on the 10-step skill scale
         let session = GameSession(data: slotted)
         session.restoreHero()
         // Like Fairyland, your first companion comes from an egg in the first quest.
@@ -241,6 +242,18 @@ final class GameSession {
         max(1, Int((1 + Double(old - 1) * 104 / 31).rounded()))
     }
 
+    /// Skills used to master at level 5; now it takes 10. Older saves keep their progress: a skill
+    /// at level L becomes 2L (level 1 stays 1), so a mastered skill is still mastered.
+    func rescaleSkillLevelsIfNeeded() {
+        guard data.skillLevelsDoubled != true else { return }
+        data.skillLevelsDoubled = true
+        guard var levels = data.hero.skillLevels else { return }
+        for (id, level) in levels where level > 1 {
+            levels[id] = min(Self.maxSkillLevel, level * 2)
+        }
+        data.hero.skillLevels = levels
+    }
+
     func rescaleLevelsIfNeeded() {
         guard data.levelsRescaled != true else { return }
         data.levelsRescaled = true
@@ -365,10 +378,17 @@ final class GameSession {
         return "No skills yet."
     }
 
-    static let maxSkillLevel = 5
+    /// Ten steps from learning a skill to mastering it.
+    static let maxSkillLevel = 10
 
     func skillLevel(_ id: String) -> Int {
         max(1, data.hero.skillLevels?[id] ?? 1)
+    }
+
+    /// A point to spend and something to spend it on: a skill to learn, or one not yet mastered.
+    var canSpendSkillPoint: Bool {
+        unspentSkillPoints > 0
+            && (!learnableSkills.isEmpty || heroSkills.contains { skillLevel($0.id) < Self.maxSkillLevel })
     }
 
     /// One point per level gained. Learning costs one and each upgrade one; points in skills
@@ -748,6 +768,80 @@ final class GameSession {
         return true
     }
 
+    // MARK: - Selling and trading
+
+    /// Shops buy things back for half their price, like Fairyland's NPC shops.
+    static func sellPrice(of item: ItemDef) -> Int { max(1, item.price / 2) }
+
+    /// What a shop will take: anything in the bag with a price (eggs have none).
+    var sellableItems: [ItemDef] {
+        content.items.filter { $0.price > 0 && count(of: $0.id) > 0 }
+    }
+
+    /// Sells one to a shop. Returns the gold paid, or nil if there was nothing to sell.
+    @discardableResult
+    func sell(_ id: String) -> Int? {
+        guard let item = content.item(id), item.price > 0, removeItem(id) else { return nil }
+        let paid = Self.sellPrice(of: item)
+        data.gold += paid
+        SoundEffects.shared.play(.coins)
+        return paid
+    }
+
+    /// One deal an adventurer offers: they buy something of yours (for more than a shop pays), or
+    /// sell you something they carry (for a little over the shop price, but shops may not stock it).
+    struct TradeOffer: Identifiable {
+        enum Kind { case theyBuy, theySell }
+        let kind: Kind
+        let item: ItemDef
+        let price: Int
+        /// Who offered it, on which in-game day, for what: a deal is made once.
+        let id: String
+    }
+
+    /// Today's offers from `adventurer`. They change with the in-game day, and stay put while
+    /// you think it over.
+    func tradeOffers(with adventurer: Adventurer, at date: Date = Date()) -> [TradeOffer] {
+        let moment = GameClock.moment(at: date, since: data.startedAt)
+        let day = "\(moment.year)/\(moment.month.displayName)/\(moment.day)"
+        var rng = SeededRandom(text: "\(adventurer.id)|\(day)")
+        let done = Set(data.tradesDone ?? [])
+        func offer(_ kind: TradeOffer.Kind, _ item: ItemDef, _ price: Int) -> TradeOffer? {
+            let id = "\(adventurer.id)|\(day)|\(kind == .theyBuy ? "buy" : "sell")|\(item.id)"
+            return done.contains(id) ? nil : TradeOffer(kind: kind, item: item, price: price, id: id)
+        }
+        // They want a couple of your things, materials first, and pay half again what a shop would.
+        let yours = sellableItems.filter { $0.type == .material } + sellableItems.filter { $0.type != .material }
+        let wanted = Array(yours.prefix(6).shuffled(using: &rng).prefix(2))
+        // And they carry a few things around their level.
+        let level = adventurer.level
+        let goods = content.items.filter { item in
+            item.price > 0 && item.capture != true && item.hatches == nil
+                && (item.type == .consumable || item.type == .material || abs((item.level ?? 1) - level) <= 12)
+        }
+        let carried = Array(goods.shuffled(using: &rng).prefix(3))
+        return wanted.compactMap { offer(.theyBuy, $0, max(1, Self.sellPrice(of: $0) * 3 / 2)) }
+            + carried.compactMap { offer(.theySell, $0, max(1, $0.price * 11 / 10)) }
+    }
+
+    /// Makes a deal. Returns false if you can't (not enough gold, or the item's gone).
+    @discardableResult
+    func trade(_ offer: TradeOffer) -> Bool {
+        guard !(data.tradesDone ?? []).contains(offer.id) else { return false }
+        switch offer.kind {
+        case .theyBuy:
+            guard removeItem(offer.item.id) else { return false }
+            data.gold += offer.price
+        case .theySell:
+            guard data.gold >= offer.price else { return false }
+            data.gold -= offer.price
+            addItem(offer.item.id)
+        }
+        data.tradesDone = Array((data.tradesDone ?? []).suffix(200)) + [offer.id]
+        SoundEffects.shared.play(.coins)
+        return true
+    }
+
     // MARK: - Crafting
     // Fairyland Online's blacksmiths forged weapons from gathered wood, metal and gems. Here
     // monsters drop the materials, and a smith in each town turns a recipe into the weapon.
@@ -966,6 +1060,26 @@ final class GameSession {
         data.visitedMaps?.contains(mapID) == true || mapID == data.mapID
             || mapID == content.startMap || mapID == data.checkpoint?.mapID
     }
+
+    /// A species met in battle goes into the Monster Book (or widens the levels it was met at).
+    func sawMonster(_ id: String, level: Int) {
+        var book = data.monsterBook ?? [:]
+        if var entry = book[id] {
+            entry.lowestLevel = min(entry.lowestLevel, level)
+            entry.highestLevel = max(entry.highestLevel, level)
+            book[id] = entry
+        } else {
+            book[id] = MonsterSighting(lowestLevel: level, highestLevel: level)
+        }
+        data.monsterBook = book
+    }
+
+    func beatMonster(_ id: String, level: Int) {
+        sawMonster(id, level: level)
+        data.monsterBook?[id]?.defeated += 1
+    }
+
+    func sighting(of id: String) -> MonsterSighting? { data.monsterBook?[id] }
 
     func markVisited(_ mapID: String) {
         guard data.visitedMaps?.contains(mapID) != true else { return }

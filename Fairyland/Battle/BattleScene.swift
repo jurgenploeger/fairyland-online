@@ -48,7 +48,7 @@ final class BattleScene: SKScene {
         for (index, actor) in actors.values.sorted(by: { $0.fighterID < $1.fighterID }).enumerated() {
             let isEnemy = controller.enemies.contains { $0.id == actor.fighterID }
             let offset = isPortrait
-                ? CGVector(dx: 0, dy: isEnemy ? 160 : -160)
+                ? CGVector(dx: isEnemy ? -60 : 60, dy: isEnemy ? 160 : -160)
                 : CGVector(dx: isEnemy ? -220 : 220, dy: 0)
             actor.position = actor.home + offset
             actor.alpha = 0
@@ -80,8 +80,10 @@ final class BattleScene: SKScene {
         let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (130, 240) : (70, 40)
         let area = CGRect(x: 0, y: insets.bottom, width: size.width, height: max(120, size.height - insets.top - insets.bottom))
         if isPortrait {
-            arrange(controller.enemies, around: CGPoint(x: area.midX - 20, y: area.minY + area.height * 0.66), facing: .down)
-            arrange(controller.party, around: CGPoint(x: area.midX - 40, y: area.minY + area.height * 0.2), facing: .up)
+            // Monsters up on the left looking down-right at your party, which stands lower on the
+            // right looking back up-left; both lines sit around the middle of the screen.
+            arrange(controller.enemies, around: CGPoint(x: area.midX - 36, y: area.minY + area.height * 0.56), facing: .down)
+            arrange(controller.party, around: CGPoint(x: area.midX + 36, y: area.minY + area.height * 0.2), facing: .up)
         } else {
             arrange(controller.enemies, around: CGPoint(x: area.minX + area.width * 0.28, y: area.midY + 4), facing: .right)
             arrange(controller.party, around: CGPoint(x: area.minX + area.width * 0.6, y: area.midY - 24), facing: .left)
@@ -97,8 +99,9 @@ final class BattleScene: SKScene {
             // The first row stands at the back, away from the other side.
             let depth = CGFloat(index) - CGFloat(rows.count - 1) / 2
             let toward: CGFloat = facing == .right || facing == .down ? 1 : -1
+            // Back rows stand further from the other side: up-left for monsters, down-right for you.
             let shift = isPortrait
-                ? CGVector(dx: depth * 22, dy: depth * 74 * (facing == .down ? -1 : 1))
+                ? CGVector(dx: depth * 36 * (facing == .down ? 1 : -1), dy: depth * 74 * (facing == .down ? -1 : 1))
                 : CGVector(dx: depth * 70 * toward, dy: -depth * 20)
             arrangeLine(row, around: CGPoint(x: center.x + shift.dx, y: center.y + shift.dy), facing: facing)
         }
@@ -111,14 +114,18 @@ final class BattleScene: SKScene {
         if isPortrait, group.count > 1 {
             let half = spacing * CGFloat(group.count - 1) / 2
             center.x = min(max(center.x, 50 + half), size.width - 50 - half)
-            // The line steps down to the right; lift it so its lowest fighter stands where one alone
-            // would, clear of the command wheel.
+        }
+        // Only your party needs lifting clear of the command wheel; monsters stay where they are
+        // so a long line (and a second row behind it) doesn't climb off the top.
+        if isPortrait, group.count > 1, facing == .up {
+            // The line steps up to the right, across the way the sides face; lift it so its lowest
+            // fighter stands where one alone would, clear of the command wheel.
             center.y += 13 * CGFloat(group.count - 1)
         }
         for (index, fighter) in group.enumerated() {
             let offset = CGFloat(index) - CGFloat(group.count - 1) / 2
             let point = isPortrait
-                ? CGPoint(x: center.x + offset * spacing, y: center.y - offset * 26)
+                ? CGPoint(x: center.x + offset * spacing, y: center.y + offset * 26)
                 : CGPoint(x: center.x + offset * spacing, y: center.y - offset * 76)
             actors[fighter.id]?.place(at: point, facing: facing)
         }
@@ -293,6 +300,8 @@ final class BattleScene: SKScene {
         actors[actorID]?.sprite.flash(color)
         // Upgraded skills gather power first; a mastered one is announced in gold.
         if level >= GameSession.maxSkillLevel { SkillEffects.masterBanner(skill.name, level: level, size: size, in: self) }
+        // The effects grow in five tiers: every two skill levels look a step grander.
+        let level = (level + 1) / 2
         if let caster = actors[actorID] {
             let hold = SkillEffects.charge(on: caster, color: color, level: level, in: stage)
             if hold > 0 { await pause(hold) }
@@ -601,7 +610,8 @@ final class BattleActor: SKNode {
         let size = cycle.size * 2
         sprite = SKSpriteNode(texture: cycle.frames(.down).first, size: size)
         sprite.anchorPoint = CGPoint(x: 0.5, y: 0.05)
-        bar = HealthBar(width: 44, level: fighter.level, mana: fighter.isHero)
+        // Everyone with MP shows it in a blue bar under their HP.
+        bar = HealthBar(width: 44, level: fighter.level, mana: fighter.stats.mp > 0)
         ring = SKShapeNode(ellipseOf: CGSize(width: max(64, size.width * 0.85), height: 26))
         super.init()
         ring.strokeColor = UIColor(white: 1, alpha: 0.55)

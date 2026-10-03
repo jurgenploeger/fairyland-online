@@ -384,7 +384,7 @@ enum SkillEffects {
 
     /// A mastered skill (top level) announces itself: its name in big gold letters.
     static func masterBanner(_ name: String, level: Int, size: CGSize, in scene: SKScene) {
-        let banner = NameTag("\(name) ★\(level)", color: Nodes.gold, size: 26, alignment: .center)
+        let banner = NameTag("\(name) · Mastered", color: Nodes.gold, size: 26, alignment: .center)
         banner.position = CGPoint(x: size.width / 2, y: size.height * 0.6)
         banner.zPosition = 31_000
         banner.setScale(0.4)

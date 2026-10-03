@@ -29,6 +29,8 @@ final class GameCoordinator {
         case npc(String)
         case worldMap
         case chat
+        /// Swapping goods with an adventurer you're standing next to.
+        case trade(Adventurer)
     }
 
     let session: GameSession
@@ -54,6 +56,7 @@ final class GameCoordinator {
         self.input = input
         session.markVisited(map.id)
         session.rescaleLevelsIfNeeded()
+        session.rescaleSkillLevelsIfNeeded()
         session.handOutMissingStarterGifts()
         let began = Date()
         world = WorldScene(map: map, session: session, input: input, entry: nil)
@@ -222,6 +225,10 @@ final class GameCoordinator {
         if session.befriend(adventurer) {
             world.adventurerSays(["Yay, friends! ^_^", "Sure! Let's adventure sometime!", "Friends! :D"].randomElement()!, adventurer.id)
         }
+    }
+
+    func trade(with adventurer: Adventurer) {
+        open(.trade(adventurer))
     }
 
     func invite(_ adventurer: Adventurer) {

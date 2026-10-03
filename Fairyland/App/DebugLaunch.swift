@@ -14,6 +14,8 @@ import Foundation
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
 ///   menu=<tab>     open character | companions | bag | quests
 ///   npc=<id>       open an NPC dialog
+///   worldmap       open the world map
+///   book           open the Monster Book, with the first 24 monsters already met
 ///   landscape      lock the app to landscape
 enum DebugLaunch {
     private static var flags: [String: String] {
@@ -44,6 +46,7 @@ enum DebugLaunch {
         try? Data().write(to: folder.appending(path: "debug-ready"))
     }
     static var showsCoachMarks: Bool { flags["coach"] != nil }
+    static var opensMonsterBook: Bool { flags["book"] != nil }
     /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).
     static var introPage: Int? { flags["intro"].map { Int($0).map { $0 - 1 } ?? 0 } }
 
@@ -61,6 +64,11 @@ enum DebugLaunch {
         }
         if let map = flags["map"], Content.shared.map(map) != nil {
             session.data.mapID = map
+        }
+        if flags["book"] != nil {
+            for (index, monster) in Content.shared.monsters.prefix(24).enumerated() {
+                session.sawMonster(monster.id, level: 3 + index)
+            }
         }
         for id in flags["equip"]?.split(separator: "+").map(String.init) ?? [] {
             if let item = Content.shared.item(id), ItemType.equipmentSlots.contains(item.type) {
@@ -112,6 +120,12 @@ enum DebugLaunch {
         }
         if let npc = flags["npc"] {
             coordinator.open(.npc(npc))
+        }
+        if flags["book"] != nil {
+            coordinator.open(.menu(.companions))
+        }
+        if flags["worldmap"] != nil {
+            coordinator.open(.worldMap)
         }
     }
 }

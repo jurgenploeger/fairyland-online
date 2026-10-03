@@ -111,16 +111,29 @@ nonisolated struct SaveData: Codable, Sendable {
     /// Levels were stretched from 1–33 to 1–105 (Fairyland Online's long climb); older saves are
     /// scaled up once so the hero still matches the zones they were in.
     var levelsRescaled: Bool?
+    /// Skill levels were doubled when mastering went from 5 steps to 10 (see `rescaleSkillLevelsIfNeeded`).
+    var skillLevelsDoubled: Bool?
     /// Skills pinned to the battle bar for one-tap casting, in order.
     var pinnedSkills: [String]?
     /// Your order of the battle buttons (see `GameSession.battleButtons`).
     var battleButtons: [String]?
+    /// Trades already made with adventurers (`GameSession.TradeOffer.id`), so each offer is done once.
+    var tradesDone: [String]?
+    /// The Monster Book: every species met in battle, by id.
+    var monsterBook: [String: MonsterSighting]?
     /// Which save file this game lives in (SaveStore keeps one per game).
     var slot: String?
 }
 
 /// Another adventurer (Fairyland's other players): met on the map, befriended, and maybe
 /// invited to travel and fight alongside you.
+/// A Monster Book entry: how many you've beaten and the levels you've met it at.
+nonisolated struct MonsterSighting: Codable, Equatable, Sendable {
+    var defeated = 0
+    var lowestLevel: Int
+    var highestLevel: Int
+}
+
 nonisolated struct Adventurer: Codable, Equatable, Identifiable, Sendable {
     var id = UUID()
     var name: String

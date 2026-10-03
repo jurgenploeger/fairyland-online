@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// The whole world at a glance, like Fairyland's world map: every place on the roads between
-/// them, north up. Places you haven't been to show as "???", and roads a quest hasn't opened
+/// them, turned like the game's isometric view so north points up-left and east up-right, the way
+/// you walk out of a map on screen. A compass in the corner says so. Places you haven't been to show as "???", and roads a quest hasn't opened
 /// yet show a lock. Tap a place to read about it.
 struct WorldAtlas: View {
     let session: GameSession
@@ -21,12 +22,18 @@ struct WorldAtlas: View {
         var id: String { a.id + "|" + b.id }
     }
 
-    private let cell = CGSize(width: 84, height: 70)
+    /// One step east moves a place a cell right and a cell up; one step north, a cell left and a cell up.
+    private let cell = CGSize(width: 64, height: 46)
     private var maps: [MapDef] { Content.shared.maps.filter { $0.world?.count == 2 } }
-    private var minX: Int { maps.compactMap { $0.world?[0] }.min() ?? 0 }
-    private var maxX: Int { maps.compactMap { $0.world?[0] }.max() ?? 0 }
-    private var minY: Int { maps.compactMap { $0.world?[1] }.min() ?? 0 }
-    private var maxY: Int { maps.compactMap { $0.world?[1] }.max() ?? 0 }
+    /// Screen column (east minus north) and row from the bottom (east plus north) of a place.
+    private func spot(_ map: MapDef) -> (across: Int, up: Int) {
+        let world = map.world ?? [0, 0]
+        return (world[0] - world[1], world[0] + world[1])
+    }
+    private var minAcross: Int { maps.map { spot($0).across }.min() ?? 0 }
+    private var maxAcross: Int { maps.map { spot($0).across }.max() ?? 0 }
+    private var minUp: Int { maps.map { spot($0).up }.min() ?? 0 }
+    private var maxUp: Int { maps.map { spot($0).up }.max() ?? 0 }
 
     var body: some View {
         VStack(spacing: 8) {
@@ -38,6 +45,7 @@ struct WorldAtlas: View {
                 .onAppear { reader.scrollTo(session.data.mapID, anchor: .center) }
             }
             .background(Color(red: 0.16, green: 0.42, blue: 0.62))
+            .overlay(alignment: .topTrailing) { AtlasCompass().padding(6).allowsHitTesting(false) }
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(HUDStyle.cream.opacity(0.6), lineWidth: 2))
 
@@ -49,7 +57,7 @@ struct WorldAtlas: View {
     }
 
     private var atlas: some View {
-        let size = CGSize(width: CGFloat(maxX - minX + 1) * cell.width, height: CGFloat(maxY - minY + 1) * cell.height)
+        let size = CGSize(width: CGFloat(maxAcross - minAcross + 1) * cell.width, height: CGFloat(maxUp - minUp + 1) * cell.height)
         return ZStack(alignment: .topLeading) {
             ForEach(roads) { road in
                 Path { path in
@@ -68,7 +76,7 @@ struct WorldAtlas: View {
             }
             ForEach(maps) { map in
                 PlaceBadge(map: map, status: status(of: map), selected: selected == map.id, pulse: pulse)
-                    .frame(width: cell.width - 4)
+                    .frame(width: cell.width + 12)
                     .position(center(of: map))
                     .id(map.id)
                     .onTapGesture { selected = map.id }
@@ -138,14 +146,43 @@ struct WorldAtlas: View {
     // MARK: Layout
 
     private func center(of map: MapDef) -> CGPoint {
-        let world = map.world ?? [0, 0]
-        return CGPoint(x: (CGFloat(world[0] - minX) + 0.5) * cell.width,
-                       y: (CGFloat(maxY - world[1]) + 0.5) * cell.height)
+        let at = spot(map)
+        return CGPoint(x: (CGFloat(at.across - minAcross) + 0.5) * cell.width,
+                       y: (CGFloat(maxUp - at.up) + 0.5) * cell.height)
     }
 
     private func midpoint(_ road: Road) -> CGPoint {
         let a = center(of: road.a), b = center(of: road.b)
         return CGPoint(x: (a.x + b.x) / 2, y: (a.y + b.y) / 2)
+    }
+}
+
+/// A little compass rose, turned like the atlas: N up-left, E up-right.
+private struct AtlasCompass: View {
+    var body: some View {
+        let reach: CGFloat = 17
+        // The same slant as a step between places on the atlas.
+        let slope: CGFloat = 46.0 / 64.0
+        let dy = reach * slope / (1 + slope * slope).squareRoot()
+        let dx = reach / (1 + slope * slope).squareRoot()
+        ZStack {
+            Circle().fill(HUDStyle.ink.opacity(0.55)).frame(width: 54, height: 54)
+            Path { path in
+                path.move(to: CGPoint(x: 27 - dx, y: 27 - dy)); path.addLine(to: CGPoint(x: 27 + dx, y: 27 + dy))
+                path.move(to: CGPoint(x: 27 + dx, y: 27 - dy)); path.addLine(to: CGPoint(x: 27 - dx, y: 27 + dy))
+            }
+            .stroke(HUDStyle.cream.opacity(0.7), lineWidth: 1.5)
+            ForEach(["N", "E", "S", "W"], id: \.self) { label in
+                let sx: CGFloat = label == "E" || label == "S" ? 1 : -1
+                let sy: CGFloat = label == "S" || label == "W" ? 1 : -1
+                Text(label)
+                    .font(HUDStyle.font(label == "N" ? 11 : 9))
+                    .foregroundStyle(label == "N" ? HUDStyle.gold : HUDStyle.cream)
+                    .position(x: 27 + sx * (dx + 5), y: 27 + sy * (dy + 5))
+            }
+        }
+        .frame(width: 54, height: 54)
+        .accessibilityHidden(true)
     }
 }
 

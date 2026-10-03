@@ -2,6 +2,27 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.8",
+      "date": "2026-10-03",
+      "title": "Dressed for battle",
+      "notes": [
+        "While you wear armour, Customize no longer offers outfit colours: the armour decides how your clothes look. Take it off to dye your clothes again.",
+        "Levelling up no longer opens the skill card when every skill you know is mastered and there's nothing new to learn; points are kept for the next skill your class unlocks.",
+        "Shops buy too: tap Sell in any shop to sell materials and gear you've outgrown for half their price.",
+        "Trade with adventurers you meet: tap Trade on their card. They pay half again what a shop would for things they want, and sell a few things of their own. Offers change every in-game day.",
+        "Skills take 10 steps to master instead of 5, each step a little stronger (a mastered skill still hits 80% harder than a new one). Your progress carries over: a skill at level 3 is now level 6, and mastered skills stay mastered.",
+        "Skill levels show as a ten-segment gauge that warms from bronze to silver to gold, and shimmers in rainbow colours once mastered.",
+        "Battles face off across the screen's diagonal: monsters up on the left looking down at you, your party lower on the right looking back up at them, both lines centred.",
+        "The victory card shows EXP with a star and gold with coins, and what you found as little item pictures with counts, instead of a list of lines.",
+        "In battle every fighter with MP shows a blue MP bar under their HP bar, and pinned skill buttons are labelled with the skill's name (cut short with … if it's long) instead of its MP cost.",
+        "The world map is turned like the game's view, with a compass: north is up-left and east is up-right, so the road you take off the top-right of the screen leads to the place up-right on the map.",
+        "Bars use the same colours everywhere: HP red, MP blue, EXP green. Battle HP bars were green, and your companion's HP bar on the map was orange.",
+        "Handing in a quest opens a Quest complete card like the victory card after a battle: EXP with a star, gold with coins, items as little pictures, plus any new looks and roads it opens. If it levels you up, the skill card follows.",
+        "New Monster Book (Companions → Monster Book): every monster you meet in battle is written down, with its lore, element (and what it's strong against and weak to), stats at the level you met it, skills, where it lives, rare drops and how many you've beaten. Monsters you haven't met yet show as dark silhouettes; filter the book by element.",
+        "Monsters of the same kind in one battle are just called by their name, without the A, B, C after it."
+      ]
+    },
+    {
       "version": "0.3.7",
       "date": "2026-10-03",
       "title": "Clean corner",
