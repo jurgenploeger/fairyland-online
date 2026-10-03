@@ -28,3 +28,4 @@ battle_arrange | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+
 battle_big_landscape | newgame,level=60,map=genie_desert,battle=10,landscape | 15
 quests       | newgame,menu=quests                                 | 8
 worldmap     | newgame,worldmap                                    | 8
+monster_book | newgame,book                                        | 8

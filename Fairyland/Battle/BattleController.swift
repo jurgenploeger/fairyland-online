@@ -55,6 +55,9 @@ final class BattleController {
             message += " ✦ A rare \(rare.name)!"
         }
         engine.canSeal = session.sealStones > 0
+        for foe in engine.alive(on: .enemies) {
+            if let id = foe.speciesID { session.sawMonster(id, level: foe.level) }
+        }
     }
 
     /// You, your companion and the friends in your party.
@@ -497,6 +500,7 @@ final class BattleController {
             exp += Int((Double(species.exp) * (1 + 0.35 * Double(foe.level - 1))).rounded())
             gold += Int((Double(species.gold) * (1 + 0.25 * Double(foe.level - 1))).rounded())
             session.record(.defeat, target: id)
+            session.beatMonster(id, level: foe.level)
         }
         session.data.gold += gold
         rewardEXP = exp

@@ -1061,6 +1061,26 @@ final class GameSession {
             || mapID == content.startMap || mapID == data.checkpoint?.mapID
     }
 
+    /// A species met in battle goes into the Monster Book (or widens the levels it was met at).
+    func sawMonster(_ id: String, level: Int) {
+        var book = data.monsterBook ?? [:]
+        if var entry = book[id] {
+            entry.lowestLevel = min(entry.lowestLevel, level)
+            entry.highestLevel = max(entry.highestLevel, level)
+            book[id] = entry
+        } else {
+            book[id] = MonsterSighting(lowestLevel: level, highestLevel: level)
+        }
+        data.monsterBook = book
+    }
+
+    func beatMonster(_ id: String, level: Int) {
+        sawMonster(id, level: level)
+        data.monsterBook?[id]?.defeated += 1
+    }
+
+    func sighting(of id: String) -> MonsterSighting? { data.monsterBook?[id] }
+
     func markVisited(_ mapID: String) {
         guard data.visitedMaps?.contains(mapID) != true else { return }
         data.visitedMaps = (data.visitedMaps ?? []) + [mapID]

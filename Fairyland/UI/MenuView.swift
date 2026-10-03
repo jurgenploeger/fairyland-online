@@ -318,8 +318,25 @@ struct ElementBadge: View {
 
 private struct CompanionsTab: View {
     let session: GameSession
+    @State private var showsBook = DebugLaunch.opensMonsterBook
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Button("Companions") { showsBook = false }
+                    .buttonStyle(PixelButtonStyle(tint: showsBook ? HUDStyle.cream : HUDStyle.gold, compact: true))
+                Button("Monster Book") { showsBook = true }
+                    .buttonStyle(PixelButtonStyle(tint: showsBook ? HUDStyle.gold : HUDStyle.cream, compact: true))
+            }
+            if showsBook {
+                MonsterBook(session: session)
+            } else {
+                companions
+            }
+        }
+    }
+
+    private var companions: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Companions fight beside you and earn a share of battle EXP. Weaken a wild monster below half HP and use Capture to befriend it (up to \(GameSession.maxPets)).")
                 .font(HUDStyle.font(11))

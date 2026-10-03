@@ -119,12 +119,21 @@ nonisolated struct SaveData: Codable, Sendable {
     var battleButtons: [String]?
     /// Trades already made with adventurers (`GameSession.TradeOffer.id`), so each offer is done once.
     var tradesDone: [String]?
+    /// The Monster Book: every species met in battle, by id.
+    var monsterBook: [String: MonsterSighting]?
     /// Which save file this game lives in (SaveStore keeps one per game).
     var slot: String?
 }
 
 /// Another adventurer (Fairyland's other players): met on the map, befriended, and maybe
 /// invited to travel and fight alongside you.
+/// A Monster Book entry: how many you've beaten and the levels you've met it at.
+nonisolated struct MonsterSighting: Codable, Equatable, Sendable {
+    var defeated = 0
+    var lowestLevel: Int
+    var highestLevel: Int
+}
+
 nonisolated struct Adventurer: Codable, Equatable, Identifiable, Sendable {
     var id = UUID()
     var name: String

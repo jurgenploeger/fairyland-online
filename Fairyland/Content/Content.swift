@@ -68,6 +68,10 @@ nonisolated enum Element: String, Codable, CaseIterable, Sendable {
     }
 
     var displayName: String { rawValue.capitalized }
+
+    /// Elements this one hits harder (×1.5), and the ones that hit it harder.
+    var strongAgainst: [Element] { Element.allCases.filter { multiplier(against: $0) > 1 } }
+    var weakTo: [Element] { Element.allCases.filter { $0.multiplier(against: self) > 1 } }
 }
 
 // MARK: - Definitions (one per JSON file in content/)
@@ -149,6 +153,8 @@ nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {
     let name: String
     let art: String
     let element: Element
+    /// The Monster Book's entry, unlocked by meeting it in battle.
+    let lore: String?
     let base: Stats
     let growth: Stats
     let exp: Int

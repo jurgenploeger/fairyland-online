@@ -395,6 +395,23 @@ struct RulesTests {
         }
     }
 
+    @Test func monsterBookRemembersWhatYouMeet() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        #expect(session.sighting(of: "rat_king") == nil)
+        let npc = try #require(Content.shared.maps.flatMap { $0.npcs ?? [] }.first { $0.monster == "rat_king" })
+        _ = try #require(BattleController.boss(npc, session: session))
+        let met = try #require(session.sighting(of: "rat_king"))
+        #expect(met.defeated == 0)
+        session.beatMonster("rat_king", level: 2)
+        session.beatMonster("rat_king", level: 40)
+        let beaten = try #require(session.sighting(of: "rat_king"))
+        #expect(beaten.defeated == 2)
+        #expect(beaten.lowestLevel == 2 && beaten.highestLevel == 40)
+        #expect(Element.water.strongAgainst == [.fire])
+        #expect(Element.water.weakTo == [.earth])
+        #expect(Content.shared.monsters.allSatisfy { !($0.lore ?? "").isEmpty })
+    }
+
     @Test func shopsBuyBackAndAdventurersTrade() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let potion = try #require(Content.shared.item("potion"))
