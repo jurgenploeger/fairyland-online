@@ -67,6 +67,17 @@ jobs:
           } > Config/Local.xcconfig
           xcodegen generate
 
+      - name: Clear old CI signing certificates
+        # Each fresh runner's cloud signing makes a new development certificate; Apple caps them
+        # per account, so revoke the ones earlier runs left (only those the API key made).
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID || vars.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID || vars.ASC_ISSUER_ID }}
+        run: |
+          python3 -m pip install --quiet --break-system-packages pyjwt cryptography 2>/dev/null \
+            || python3 -m pip install --quiet pyjwt cryptography
+          python3 tools/asc_dev_certs.py "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" "$ASC_KEY_ID" "$ASC_ISSUER_ID"
+
       - name: Archive
         env:
           BUILD_NUMBER: ${{ github.run_number }}.${{ github.run_attempt }}
