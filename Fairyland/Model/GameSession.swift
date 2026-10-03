@@ -131,14 +131,15 @@ final class GameSession {
     /// (leather, steel, silk…).
     static func rules(for look: Look, armor: ItemDef? = nil) -> [RecolorRule] {
         let options = Content.shared.appearance
-        // Skin first (pale), then hair (saturated), then outfit (green) — they never overlap.
-        return (options.skin.first { $0.id == look.skin }?.recolor ?? [])
-            + (options.hair.first { $0.id == look.hair }?.recolor ?? [])
-            + outfitRules(for: look, armor: armor)
+        let skin: [RecolorRule] = options.skin.first { $0.id == look.skin }?.recolor ?? []
+        let hair: [RecolorRule] = options.hair.first { $0.id == look.hair }?.recolor ?? []
+        // Skin first (pale), then hair (saturated), then outfit (green): they never overlap.
+        return skin + hair + outfitRules(for: look, armor: armor)
     }
 
     private static func outfitRules(for look: Look, armor: ItemDef?) -> [RecolorRule] {
-        armor?.recolor.flatMap { $0.isEmpty ? nil : $0 } ?? Content.shared.appearance.outfits.first { $0.id == look.outfit }?.recolor ?? []
+        if let worn = armor?.recolor, !worn.isEmpty { return worn }
+        return Content.shared.appearance.outfits.first { $0.id == look.outfit }?.recolor ?? []
     }
 
     /// The hair and locks layers hold nothing but hair, so the hair colour's rules widen to the
@@ -146,12 +147,9 @@ final class GameSession {
     /// shadows and the pale tips. The outfit's rules follow for a collar showing through.
     static func hairLayerRules(for look: Look, armor: ItemDef? = nil) -> [RecolorRule] {
         let options = Content.shared.appearance
-        let window = options.hairLayer
-        let hair = (options.hair.first { $0.id == look.hair }?.recolor ?? []).map { rule in
-            RecolorRule(hue: window?.hue ?? rule.hue, minSaturation: window?.minSaturation ?? rule.minSaturation,
-                        maxSaturation: window?.maxSaturation ?? rule.maxSaturation, minValue: window?.minValue ?? rule.minValue,
-                        maxValue: window?.maxValue ?? rule.maxValue, to: rule.to, shift: rule.shift,
-                        saturation: rule.saturation, value: rule.value)
+        var hair: [RecolorRule] = options.hair.first { $0.id == look.hair }?.recolor ?? []
+        if let window = options.hairLayer {
+            hair = hair.map { $0.within(window) }
         }
         return hair + outfitRules(for: look, armor: armor)
     }
