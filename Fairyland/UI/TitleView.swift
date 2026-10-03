@@ -267,7 +267,7 @@ private struct SavedHeroCard: View {
     var body: some View {
         let content = Content.shared
         VStack(spacing: 4) {
-            SpriteImage(art: art, size: 96)
+            WalkingSprite(art: art, size: 96)
             Text(save.hero.name).font(HUDStyle.font(15)).foregroundStyle(HUDStyle.ink)
             Text("Lv \(save.hero.level) \(content.classDef(save.hero.classID).name) · \(content.map(save.mapID)?.name ?? "")")
                 .font(HUDStyle.font(10))
