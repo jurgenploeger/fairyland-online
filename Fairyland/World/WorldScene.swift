@@ -149,7 +149,7 @@ final class WorldScene: SKScene {
         placeBuildings()
         placeDecor()
         placeNPCs()
-        crowd = Crowd(def: def, map: map, world: world)
+        crowd = Crowd(def: def, map: map, world: world, friends: session.friends.filter { !session.isInParty($0) })
         crowd?.onChat = { [weak session] speaker, text, kind in session?.postChat(text, from: speaker, kind: kind) }
         crowd?.onChallenge = { [weak self] rival in
             guard let self, !self.isInputLocked else { return }
@@ -779,7 +779,12 @@ final class WorldScene: SKScene {
         let members = session.partyMembers
         guard members.map(\.id) != allies.map(\.id) else { return }
         for ally in allies where !members.contains(where: { $0.id == ally.id }) {
-            SkillEffects.smoke(at: ally.node.position, in: world)
+            if let friend = session.friends.first(where: { $0.id == ally.id }) {
+                // Left the party but still a friend: they stay here, so you can invite them back.
+                crowd?.rejoin(friend, at: ally.node.position, world: world)
+            } else {
+                SkillEffects.smoke(at: ally.node.position, in: world)
+            }
             ally.node.removeFromParent()
         }
         allies = members.map { friend in
