@@ -11,6 +11,7 @@ import Foundation
 ///   equip=a+b      start wearing these items (ids from content/items.json, joined with +)
 ///   race=<id>      play this race (content/classes.json)
 ///   style=<id>     wear this hairstyle (content/appearance.json `styles`)
+///   gender=<id>    male | female | other (picks the race's matching sheet)
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
 ///   menu=<tab>     open character | companions | bag | quests
 ///   npc=<id>       open an NPC dialog
@@ -78,6 +79,11 @@ enum DebugLaunch {
         if let style = flags["style"] {
             var look = session.data.hero.look ?? .standard
             look.style = style
+            session.data.hero.look = look
+        }
+        if let gender = flags["gender"] {
+            var look = session.data.hero.look ?? .standard
+            look.gender = gender
             session.data.hero.look = look
         }
         session.applyLook()
