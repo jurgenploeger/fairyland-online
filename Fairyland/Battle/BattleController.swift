@@ -69,6 +69,8 @@ final class BattleController {
             skills: session.heroSkills.map(\.id), captureRate: 0
         )
         hero.skillLevels = Dictionary(uniqueKeysWithValues: session.heroSkills.map { ($0.id, session.skillLevel($0.id)) })
+        hero.classID = session.data.hero.classID
+        hero.raceID = session.data.hero.raceID
         var party: [Combatant] = [hero]
         if let pet = session.activePet, pet.hp > 0, let species = session.species(of: pet) {
             party.append(Combatant(
@@ -79,6 +81,15 @@ final class BattleController {
         }
         for (index, friend) in session.partyMembers.enumerated() {
             party.append(adventurer(friend, id: 2 + index, side: .party, session: session))
+            // A friend's companion fights beside them (a step below their level, like a rival's).
+            if let speciesID = friend.petSpecies, let species = session.content.monster(speciesID) {
+                let level = max(1, friend.level - 1)
+                let stats = species.stats(at: level)
+                party.append(Combatant(
+                    id: 2 + GameSession.maxAllies + index, side: .party, source: .pet(UUID()), name: species.name, art: species.art,
+                    level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp, skills: species.skills, captureRate: 0
+                ))
+            }
         }
         return party
     }
@@ -93,6 +104,8 @@ final class BattleController {
             hp: stats.hp, mp: stats.mp, skills: skills.map(\.id), captureRate: 0
         )
         fighter.skillLevels = Dictionary(uniqueKeysWithValues: skills.map { ($0.id, Combatant.naturalSkillLevel(for: person.level)) })
+        fighter.classID = person.classID
+        fighter.raceID = person.raceID
         return fighter
     }
 
@@ -349,7 +362,7 @@ final class BattleController {
                 case .buff, .field: break
                 }
             }
-            var text = "\(name(actor)) uses \(skill.name)\(level > 1 ? " Lv\(level)" : "")!"
+            var text = "\(name(actor)) uses \(skill.name)!"
             if skill.kind == .revive, let hit = hits.first { text += " \(name(hit.target)) is back on their feet!" }
             if skill.kind == .buff, let hit = hits.first { text += " \(name(hit.target)) feels stronger." }
             if hits.contains(where: { $0.effectiveness > 1 }) { text += " A weak spot!" }

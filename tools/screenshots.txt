@@ -18,6 +18,8 @@ coach        | newgame,coach                     | 9
 gear_plate   | newgame,level=30,equip=dragon_mail+wooden_sword+ruby_ring      | 8
 gear_cloak   | newgame,level=30,equip=snow_cloak+oak_staff+speed_boots        | 8
 hair_elf     | newgame,race=elf,style=spiky,menu=character                    | 8
+face_female  | newgame,gender=female                                          | 8
+face_elf_male | newgame,race=elf,gender=male                                  | 8
 hood_dwarf   | newgame,race=dwarf,level=30,equip=ranger_cloak                 | 8
 boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 15
 edge_fog     | newgame,map=sunny_meadow,at=80_0                 | 15

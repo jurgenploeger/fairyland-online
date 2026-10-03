@@ -5,6 +5,8 @@ struct GameView: View {
     let coordinator: GameCoordinator
     /// The first-play tour of the HUD (see CoachMarks).
     @State private var touring = CoachMarks.shouldShow
+    /// The chat window over a battle (the fight waits while you type).
+    @State private var battleChat = false
 
     var body: some View {
         ZStack {
@@ -13,6 +15,19 @@ struct GameView: View {
 
             if let battle = coordinator.battle {
                 BattleView(controller: battle)
+                // Chat stays one tap away mid-fight, under the battle log on the right.
+                if !battleChat, battle.phase != .finished {
+                    FLIconButton(icon: .talk, label: "Chat", size: 40, badge: coordinator.session.unreadChat > 0) {
+                        coordinator.session.unreadChat = 0
+                        battleChat = true
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(.top, 62)
+                    .padding(.trailing, 14)
+                }
+                if battleChat {
+                    ChatView(session: coordinator.session, onSay: coordinator.say) { battleChat = false }
+                }
             } else {
                 WorldHUD(coordinator: coordinator)
                 switch coordinator.overlay {
@@ -52,6 +67,7 @@ struct GameView: View {
             }
         }
         .animation(.easeOut(duration: 0.4), value: coordinator.isReady)
+        .onChange(of: coordinator.battle == nil) { battleChat = false }
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
     }

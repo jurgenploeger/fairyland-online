@@ -41,6 +41,9 @@ struct Combatant: Identifiable {
     /// Bless: rounds left, and how much it raises strength and defense (0.25 = +25%).
     var blessRounds = 0
     var blessPower = 0.0
+    /// People only: their class and race, so each fights in their own style (BattleScene).
+    var classID: String?
+    var raceID: String?
 
     /// Strength and defense with any Bless on top.
     var attack: Double { Double(stats.attack) * (blessRounds > 0 ? 1 + blessPower : 1) }

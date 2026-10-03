@@ -384,7 +384,7 @@ enum SkillEffects {
 
     /// A mastered skill (top level) announces itself: its name in big gold letters.
     static func masterBanner(_ name: String, level: Int, size: CGSize, in scene: SKScene) {
-        let banner = NameTag("\(name) · Mastered", color: Nodes.gold, size: 26, alignment: .center)
+        let banner = NameTag(name, color: Nodes.gold, size: 30, alignment: .center)
         banner.position = CGPoint(x: size.width / 2, y: size.height * 0.6)
         banner.zPosition = 31_000
         banner.setScale(0.4)
@@ -465,4 +465,261 @@ enum SkillEffects {
         }
         return SKTexture(image: image)
     }()
+}
+
+// MARK: - Mastered skills
+
+extension SkillEffects {
+    /// The stage for a mastered skill: the battlefield dims (fighters stay lit), a spinning magic
+    /// circle opens under the caster and a pillar of light rises from it. Returns the dimmer, which
+    /// `ultimateEnd` lifts again.
+    static func ultimateStart(caster: BattleActor?, color: UIColor, size: CGSize, in parent: SKNode) -> SKNode {
+        let dim = SKSpriteNode(color: .black, size: CGSize(width: size.width * 3, height: size.height * 3))
+        dim.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        dim.zPosition = -9_000   // above the ground, below every fighter
+        dim.alpha = 0
+        parent.addChild(dim)
+        dim.run(.fadeAlpha(to: 0.6, duration: 0.25))
+        guard let caster else { return dim }
+        magicCircle(at: caster.position, color: color, radius: 70, duration: 1.4, in: parent)
+        let pillar = glowSprite(color, size: CGSize(width: 60, height: size.height * 1.2))
+        pillar.anchorPoint = CGPoint(x: 0.5, y: 0)
+        pillar.position = caster.position
+        pillar.zPosition = caster.zPosition - 1
+        pillar.xScale = 0.1
+        pillar.alpha = 0
+        parent.addChild(pillar)
+        pillar.run(.sequence([
+            .group([.fadeAlpha(to: 0.85, duration: 0.2), .scaleX(to: 1, duration: 0.25)]),
+            .wait(forDuration: 0.35),
+            .group([.fadeOut(withDuration: 0.4), .scaleX(to: 2.2, duration: 0.4)]),
+            .removeFromParent(),
+        ]))
+        rays(at: caster.center, color: .white, count: 18, length: 170, width: 10, z: caster.zPosition - 2, in: parent)
+        for _ in 0..<26 {
+            let mote = glowSprite(Bool.random() ? .white : color, size: CGSize(width: 10, height: 10))
+            mote.position = caster.position + CGVector(dx: .random(in: -70...70), dy: .random(in: -20...10))
+            mote.alpha = 0
+            parent.addChild(mote)
+            mote.run(.sequence([
+                .wait(forDuration: .random(in: 0...0.4)),
+                .group([.fadeIn(withDuration: 0.08), .moveBy(x: 0, y: .random(in: 120...220), duration: 0.7), .scale(to: 0.2, duration: 0.7)]),
+                .removeFromParent(),
+            ]))
+        }
+        return dim
+    }
+
+    /// The finale of a mastered skill on its targets, in the skill's own style (`animation` in
+    /// content/skills.json): a meteor rain for fire, a tidal wave for water, a forest of stone
+    /// spikes, a leaf hurricane, pillars of holy light, giant crossing blades, a tornado...
+    static func ultimateFinale(on targets: [BattleActor], style: String, color: UIColor, size: CGSize, in parent: SKNode) {
+        for target in targets {
+            magicCircle(at: target.position, color: color, radius: 55, duration: 0.9, in: parent)
+        }
+        switch style {
+        case "fire":
+            for (index, target) in targets.enumerated() {
+                for drop in 0..<3 {
+                    meteor(onto: target.center + CGVector(dx: .random(in: -24...24), dy: .random(in: -10...10)),
+                           color: color, delay: Double(index) * 0.08 + Double(drop) * 0.12, size: size, in: parent)
+                }
+            }
+        case "water":
+            let wave = glowSprite(color, size: CGSize(width: size.width * 0.5, height: 160))
+            wave.position = CGPoint(x: -size.width * 0.3, y: (targets.first?.center.y ?? size.height / 2))
+            wave.zPosition = 19_000
+            wave.alpha = 0.85
+            parent.addChild(wave)
+            wave.run(.sequence([.moveTo(x: size.width * 1.3, duration: 0.55), .removeFromParent()]))
+            for target in targets { splash(on: target, level: 5, in: parent) }
+        case "stone":
+            for target in targets {
+                spikes(under: target, level: 5, in: parent)
+                burst(at: target.position, color: UIColor(red: 0.75, green: 0.6, blue: 0.4, alpha: 1), count: 18, speed: 110, in: parent)
+            }
+        case "leaves":
+            for target in targets {
+                leafStorm(around: target, level: 5, in: parent)
+                whirl(on: target, level: 5, in: parent)
+            }
+        case "holy", "heal":
+            for target in targets {
+                lightPillar(on: target, level: 5, in: parent)
+                rays(at: target.center, color: .white, count: 16, length: 140, width: 8, z: target.zPosition - 1, in: parent)
+            }
+        case "whirlwind":
+            for target in targets {
+                for level in 0..<3 {
+                    let node = SKNode()
+                    node.position = CGPoint(x: 0, y: CGFloat(level) * 28)
+                    parent.addChild(node)
+                    whirl(on: target, level: 5, in: node)
+                    node.run(.sequence([.wait(forDuration: 1), .removeFromParent()]))
+                }
+            }
+        default:
+            // Two giant blades crossing the whole field through the targets.
+            let middle = targets.isEmpty ? CGPoint(x: size.width / 2, y: size.height / 2)
+                : CGPoint(x: targets.map(\.center.x).reduce(0, +) / CGFloat(targets.count), y: targets.map(\.center.y).reduce(0, +) / CGFloat(targets.count))
+            for (index, angle) in [CGFloat(-0.6), 0.6].enumerated() {
+                let blade = glowSprite(index == 0 ? .white : color, size: CGSize(width: size.width * 1.4, height: 22))
+                blade.position = middle
+                blade.zRotation = angle
+                blade.zPosition = 19_000
+                blade.xScale = 0.02
+                parent.addChild(blade)
+                blade.run(.sequence([
+                    .wait(forDuration: Double(index) * 0.12),
+                    .scaleX(to: 1, duration: 0.1),
+                    .fadeOut(withDuration: 0.45),
+                    .removeFromParent(),
+                ]))
+            }
+            for target in targets { burst(at: target.center, color: color, count: 22, speed: 120, in: parent) }
+        }
+    }
+
+    /// Lifts the dimmer with a last shower of light.
+    static func ultimateEnd(_ dim: SKNode, color: UIColor, size: CGSize, in parent: SKNode) {
+        dim.run(.sequence([.fadeOut(withDuration: 0.45), .removeFromParent()]))
+        for _ in 0..<30 {
+            let spark = SKSpriteNode(texture: SoftTextures.star, size: CGSize(width: 10, height: 10))
+            spark.color = Bool.random() ? .white : color
+            spark.colorBlendFactor = 1
+            spark.blendMode = .add
+            spark.zPosition = 19_500
+            spark.position = CGPoint(x: .random(in: 0...size.width), y: size.height * .random(in: 0.5...1))
+            spark.alpha = 0
+            parent.addChild(spark)
+            spark.run(.sequence([
+                .wait(forDuration: .random(in: 0...0.4)),
+                .group([.fadeIn(withDuration: 0.1), .moveBy(x: 0, y: -CGFloat.random(in: 120...240), duration: 0.9), .rotate(byAngle: .pi, duration: 0.9)]),
+                .fadeOut(withDuration: 0.2), .removeFromParent(),
+            ]))
+        }
+    }
+
+    /// A glowing double ring with runes, squashed flat on the ground and spinning.
+    static func magicCircle(at point: CGPoint, color: UIColor, radius: CGFloat, duration: TimeInterval, in parent: SKNode) {
+        let flat = SKNode()
+        flat.position = point
+        flat.yScale = 0.4
+        flat.zPosition = -8_500
+        parent.addChild(flat)
+        let spinner = SKNode()
+        flat.addChild(spinner)
+        for (index, scale) in [CGFloat(1), 0.72].enumerated() {
+            let ring = SKShapeNode(circleOfRadius: radius * scale)
+            ring.strokeColor = index == 0 ? color : .white
+            ring.lineWidth = index == 0 ? 4 : 2
+            ring.glowWidth = 6
+            ring.fillColor = .clear
+            spinner.addChild(ring)
+        }
+        for index in 0..<8 {
+            let rune = SKShapeNode(rectOf: CGSize(width: 12, height: 12), cornerRadius: 2)
+            rune.strokeColor = .white
+            rune.fillColor = color.withAlphaComponent(0.6)
+            rune.glowWidth = 3
+            let angle = CGFloat(index) / 8 * 2 * .pi
+            rune.position = CGPoint(x: cos(angle) * radius * 0.86, y: sin(angle) * radius * 0.86)
+            rune.zRotation = angle
+            spinner.addChild(rune)
+        }
+        flat.setScale(0.2)
+        flat.yScale = 0.08
+        flat.alpha = 0
+        spinner.run(.repeatForever(.rotate(byAngle: .pi, duration: 0.8)))
+        flat.run(.sequence([
+            .group([.fadeIn(withDuration: 0.15), .scaleX(to: 1, duration: 0.2), .scaleY(to: 0.4, duration: 0.2)]),
+            .wait(forDuration: duration),
+            .fadeOut(withDuration: 0.3),
+            .removeFromParent(),
+        ]))
+    }
+
+    /// A blazing rock streaking down from the top-left onto a point, bursting into fire.
+    static func meteor(onto point: CGPoint, color: UIColor, delay: TimeInterval, size: CGSize, in parent: SKNode) {
+        let rock = glowSprite(.white, size: CGSize(width: 26, height: 26))
+        let tail = glowSprite(color, size: CGSize(width: 90, height: 22))
+        tail.position = CGPoint(x: -40, y: 0)
+        tail.zPosition = -1
+        rock.addChild(tail)
+        let start = point + CGVector(dx: -size.width * 0.45, dy: size.height * 0.6)
+        rock.position = start
+        rock.zRotation = atan2(point.y - start.y, point.x - start.x)
+        rock.zPosition = 19_000
+        rock.alpha = 0
+        parent.addChild(rock)
+        let fall = SKAction.move(to: point, duration: 0.32)
+        fall.timingMode = .easeIn
+        rock.run(.sequence([
+            .wait(forDuration: delay), .fadeIn(withDuration: 0.04), fall,
+            .run {
+                SkillEffects.burst(at: point, color: color, count: 16, speed: 90, in: parent)
+                SkillEffects.burst(at: point, color: .white, count: 8, speed: 50, in: parent)
+                let blast = SkillEffects.glowSprite(color, size: CGSize(width: 110, height: 80))
+                blast.position = point
+                blast.setScale(0.3)
+                parent.addChild(blast)
+                blast.run(.sequence([.group([.scale(to: 1.3, duration: 0.25), .fadeOut(withDuration: 0.35)]), .removeFromParent()]))
+            },
+            .removeFromParent(),
+        ]))
+    }
+}
+
+// MARK: - Fighting styles
+
+extension SkillEffects {
+    /// How someone gathers themselves before a skill, by class: a mage draws a rune circle, a
+    /// fighter flares up in a battle aura, a beast tamer calls a swirl of wild spirits. Their race
+    /// adds its touch: elves shed leaves, dwarves crack the ground, humans glint.
+    static func flourish(on caster: BattleActor, classID: String?, raceID: String?, color: UIColor, in parent: SKNode) {
+        switch classID ?? "" {
+        case "mage":
+            magicCircle(at: caster.position, color: color, radius: 42, duration: 0.45, in: parent)
+        case "fighter":
+            let aura = glowSprite(UIColor(red: 1, green: 0.45, blue: 0.2, alpha: 1), size: CGSize(width: 80, height: 110))
+            aura.position = caster.center
+            aura.zPosition = caster.zPosition - 1
+            aura.setScale(0.6)
+            aura.alpha = 0
+            parent.addChild(aura)
+            aura.run(.sequence([.group([.fadeAlpha(to: 0.7, duration: 0.12), .scale(to: 1.2, duration: 0.25)]), .fadeOut(withDuration: 0.25), .removeFromParent()]))
+        case "tamer":
+            for index in 0..<10 {
+                let spirit = glowSprite(UIColor(red: 0.6, green: 1, blue: 0.6, alpha: 1), size: CGSize(width: 10, height: 10))
+                let angle = CGFloat(index) / 10 * 2 * .pi
+                spirit.position = caster.center + CGVector(dx: cos(angle) * 40, dy: sin(angle) * 20)
+                parent.addChild(spirit)
+                let swirl = SKAction.customAction(withDuration: 0.45) { node, time in
+                    let a = angle + time * 9
+                    let r = 40 * (1 - time / 0.45 * 0.6)
+                    node.position = caster.center + CGVector(dx: cos(a) * r, dy: sin(a) * r * 0.5 + time * 40)
+                }
+                spirit.run(.sequence([swirl, .fadeOut(withDuration: 0.1), .removeFromParent()]))
+            }
+        default:
+            break
+        }
+        let touch: UIColor? = switch raceID ?? "" {
+        case "elf": UIColor(red: 0.55, green: 0.95, blue: 0.45, alpha: 1)
+        case "dwarf": UIColor(red: 0.8, green: 0.6, blue: 0.35, alpha: 1)
+        case "human": UIColor(red: 1, green: 0.95, blue: 0.75, alpha: 1)
+        default: nil
+        }
+        guard let touch else { return }
+        if raceID == "dwarf" {
+            burst(at: caster.position, color: touch, count: 10, speed: 50, in: parent)
+        } else {
+            for _ in 0..<8 {
+                let bit = glowSprite(touch, size: CGSize(width: 7, height: 7))
+                bit.position = caster.center + CGVector(dx: .random(in: -22...22), dy: .random(in: 10...40))
+                parent.addChild(bit)
+                bit.run(.sequence([.group([.moveBy(x: .random(in: -14...14), y: raceID == "elf" ? -30 : 24, duration: 0.5), .fadeOut(withDuration: 0.5)]), .removeFromParent()]))
+            }
+        }
+    }
 }

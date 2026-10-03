@@ -125,7 +125,9 @@ final class ArtLibrary {
 
     func asset(_ id: String) -> ArtAsset? {
         guard let own = manifest.assets.first(where: { $0.id == id }) ?? runtime[id]?.asset else { return nil }
-        guard let derive = own.derive, let base = manifest.assets.first(where: { $0.id == derive.from }) else { return own }
+        // The base can itself be derived (hero → human_female_walk → player_walk): resolve it fully, or
+        // the frame size and direction order are lost and the wrong row shows (her back for "down").
+        guard let derive = own.derive, derive.from != id, let base = asset(derive.from) else { return own }
         return ArtAsset(id: own.id, kind: own.kind, frame: own.frame ?? base.frame, directions: own.directions ?? base.directions,
                         scale: own.scale ?? base.scale, derive: derive)
     }

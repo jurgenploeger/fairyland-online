@@ -82,8 +82,9 @@ final class BattleScene: SKScene {
         if isPortrait {
             // Monsters up on the left looking down-right at your party, which stands lower on the
             // right looking back up-left; both lines sit around the middle of the screen.
-            arrange(controller.enemies, around: CGPoint(x: area.midX - 36, y: area.minY + area.height * 0.56), facing: .down)
-            arrange(controller.party, around: CGPoint(x: area.midX + 36, y: area.minY + area.height * 0.2), facing: .up)
+            // A wide gap between the sides, so it reads as two lines facing off.
+            arrange(controller.enemies, around: CGPoint(x: area.midX - 50, y: area.minY + area.height * 0.64), facing: .down)
+            arrange(controller.party, around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.1), facing: .up)
         } else {
             arrange(controller.enemies, around: CGPoint(x: area.minX + area.width * 0.28, y: area.midY + 4), facing: .right)
             arrange(controller.party, around: CGPoint(x: area.minX + area.width * 0.6, y: area.midY - 24), facing: .left)
@@ -219,16 +220,12 @@ final class BattleScene: SKScene {
     private func animate(_ event: BattleEvent) async {
         switch event {
         case .attack(let actorID, let hit):
-            await lunge(actorID, toward: hit.target) {
-                self.controller.apply(event)
-                SkillEffects.slash(on: self.actors[hit.target], level: 1, in: self.stage)
-                self.impact(hit, heal: false)
-            }
+            await attack(by: actorID, hit: hit) { self.controller.apply(event) }
             await pause(0.3)
 
         case .skill(let actorID, let skill, let level, let hits):
             controller.apply(event)
-            shout(skill.name + (level > 1 ? " Lv\(level)" : "") + "!", over: actorID, color: skill.element?.color, skill: skill)
+            shout(skill.name + "!", over: actorID, color: skill.element?.color, skill: skill)
             await castSkill(skill, level: level, from: actorID, hits: hits)
             await pause(0.35)
 
@@ -291,15 +288,82 @@ final class BattleScene: SKScene {
         }
     }
 
-    /// Picks the effect for a skill; bigger and flashier at higher skill levels.
+    /// A plain attack in the fighter's own style. Fighters close in with a double slash; mages stay
+    /// back and loose a bolt of magic from their staff; beast tamers pounce with claw marks; novices
+    /// and monsters dash in with a single slash. Elves dart in quicker and leave a green shimmer,
+    /// dwarves hit hard enough to shake the ground.
+    private func attack(by actorID: Int, hit: Hit, apply: @escaping () -> Void) async {
+        let fighter = controller.combatants.first { $0.id == actorID }
+        let target = actors[hit.target]
+        let landed: () -> Void = {
+            apply()
+            if fighter?.raceID == "dwarf" {
+                self.shake(strength: 4)
+                SkillEffects.burst(at: target?.position ?? .zero, color: UIColor(red: 0.8, green: 0.6, blue: 0.35, alpha: 1), count: 8, speed: 45, in: self.stage)
+            }
+            if fighter?.raceID == "elf", let target {
+                SkillEffects.burst(at: target.center, color: UIColor(red: 0.55, green: 0.95, blue: 0.45, alpha: 1), count: 8, speed: 55, in: self.stage)
+            }
+            self.impact(hit, heal: false)
+        }
+        switch fighter?.classID ?? "" {
+        case "mage":
+            let violet = UIColor(red: 0.75, green: 0.5, blue: 1, alpha: 1)
+            if let caster = actors[actorID] {
+                caster.sprite.flash(violet)
+                SkillEffects.magicCircle(at: caster.position, color: violet, radius: 30, duration: 0.25, in: stage)
+            }
+            await pause(0.15)
+            await SkillEffects.projectile(from: actors[actorID]?.center, to: target?.center, color: violet, level: 1, trail: true, in: stage)
+            if let target { SkillEffects.explosion(on: target, color: violet, level: 1, in: stage) }
+            landed()
+        case "tamer":
+            await lunge(actorID, toward: hit.target, speed: fighter?.raceID == "elf" ? 0.7 : 1) {
+                if let target { SkillEffects.claws(on: target, level: 2, in: self.stage) }
+                landed()
+            }
+        case "fighter":
+            await lunge(actorID, toward: hit.target, speed: fighter?.raceID == "elf" ? 0.7 : 1) {
+                SkillEffects.slash(on: target, level: 3, in: self.stage)
+                landed()
+            }
+        default:
+            await lunge(actorID, toward: hit.target, speed: fighter?.raceID == "elf" ? 0.7 : 1) {
+                SkillEffects.slash(on: target, level: 1, in: self.stage)
+                landed()
+            }
+        }
+    }
+
+    /// Picks the effect for a skill; bigger and flashier at higher skill levels, and a full show
+    /// (dimmed field, magic circles, an elemental finale) once the skill is mastered.
     private func castSkill(_ skill: SkillDef, level: Int, from actorID: Int, hits: [Hit]) async {
         let targets = hits.compactMap { actors[$0.target] }
         let heal = skill.kind == .heal || skill.kind == .revive
         let blessBlue = UIColor(red: 0.6, green: 0.85, blue: 1, alpha: 1)
         let color = skill.element?.color ?? (heal ? SkillEffects.healGreen : skill.kind == .buff ? blessBlue : .white)
+        let style = skill.animation ?? (heal ? "heal" : skill.kind == .magic ? "fire" : "slash")
         actors[actorID]?.sprite.flash(color)
-        // Upgraded skills gather power first; a mastered one is announced in gold.
-        if level >= GameSession.maxSkillLevel { SkillEffects.masterBanner(skill.name, level: level, size: size, in: self) }
+        // People gather themselves in their own way (class and race).
+        let fighter = controller.combatants.first { $0.id == actorID }
+        if let caster = actors[actorID], fighter?.classID != nil || fighter?.raceID != nil {
+            SkillEffects.flourish(on: caster, classID: fighter?.classID, raceID: fighter?.raceID, color: color, in: stage)
+        }
+        // A mastered skill gets the whole stage: its name in gold, the field dims, a magic circle
+        // and a pillar of light at the caster; the finale plays after the skill lands.
+        // Your side and bosses only: wild monsters master their skills by level 18, and a show on
+        // every one of their turns would drag every battle out.
+        let isBoss = fighter?.speciesID.flatMap { Content.shared.monster($0)?.boss } == true
+        let mastered = level >= GameSession.maxSkillLevel && (fighter?.side == .party || isBoss)
+        var dimmer: SKNode?
+        if mastered {
+            SkillEffects.masterBanner(skill.name, level: level, size: size, in: self)
+            dimmer = SkillEffects.ultimateStart(caster: actors[actorID], color: color, size: size, in: stage)
+            await pause(0.75)
+        }
+        defer {
+            if let dimmer { SkillEffects.ultimateEnd(dimmer, color: color, size: size, in: stage) }
+        }
         // The effects grow in five tiers: every two skill levels look a step grander.
         let level = (level + 1) / 2
         if let caster = actors[actorID] {
@@ -327,10 +391,14 @@ final class BattleScene: SKScene {
                 }
             }
             for target in targets { SkillEffects.glory(on: target, color: color, level: level, in: stage) }
+            if mastered {
+                SkillEffects.ultimateFinale(on: targets, style: "holy", color: color, size: size, in: stage)
+                await pause(0.7)
+            }
             return
         }
 
-        switch skill.animation ?? (heal ? "heal" : skill.kind == .magic ? "fire" : "slash") {
+        switch style {
         case "slash":
             await lunge(actorID, toward: hits.first?.target ?? actorID) {
                 for target in targets { SkillEffects.slash(on: target, level: level, in: self.stage) }
@@ -388,23 +456,31 @@ final class BattleScene: SKScene {
         }
         for target in targets { SkillEffects.glory(on: target, color: color, level: level, in: stage) }
         if level >= 4, !heal { shake(strength: CGFloat(level - 2) * 3) }
+        if mastered {
+            await pause(0.2)
+            SkillEffects.ultimateFinale(on: targets, style: style, color: color, size: size, in: stage)
+            await pause(0.35)
+            SkillEffects.screenFlash(color: .white, strength: 0.55, size: size, in: self)
+            if !heal { shake(strength: 14) }
+            await pause(0.6)
+        }
     }
 
     // MARK: - Moves
 
     /// Dash toward the target, run `atContact`, dash back.
-    private func lunge(_ actorID: Int, toward targetID: Int, atContact: () -> Void) async {
+    private func lunge(_ actorID: Int, toward targetID: Int, speed: Double = 1, atContact: () -> Void) async {
         guard let actor = actors[actorID], let target = actors[targetID], actorID != targetID else {
             atContact()
             return
         }
         let offset = target.home - actor.home
         let step = offset.normalized * min(offset.length * 0.6, 150)
-        let out = SKAction.move(to: actor.home + step, duration: 0.16)
+        let out = SKAction.move(to: actor.home + step, duration: 0.16 * speed)
         out.timingMode = .easeIn
         await actor.run(out)
         atContact()
-        let back = SKAction.move(to: actor.home, duration: 0.22)
+        let back = SKAction.move(to: actor.home, duration: 0.22 * speed)
         back.timingMode = .easeOut
         await actor.run(back)
     }

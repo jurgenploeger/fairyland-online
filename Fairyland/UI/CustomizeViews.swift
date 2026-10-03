@@ -55,15 +55,7 @@ struct LookEditor: View {
                 }
                 StylePicker(look: $look, race: race)
                 SwatchPicker(title: "Hair", presets: options.hair, selection: $look.hair, isUnlocked: isUnlocked)
-                if let armor {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Outfit").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.cream)
-                        Text("Your \(armor.name) gives your clothes its own colours. Take it off under Equipment to choose an outfit colour.")
-                            .font(HUDStyle.font(10))
-                            .foregroundStyle(HUDStyle.dim)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                } else {
+                if armor == nil {
                     SwatchPicker(title: "Outfit", presets: options.outfits, selection: $look.outfit, isUnlocked: isUnlocked)
                 }
                 SwatchPicker(title: "Skin", presets: options.skin, selection: $look.skin, isUnlocked: isUnlocked)
