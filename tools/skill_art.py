@@ -284,6 +284,45 @@ def draw_gust(c):
             c.set(x1 + 3 * math.sin(t), y - curl * (3 - 3 * math.cos(t)), hexc("e8f4ff"))
 
 
+def draw_recovery(c):
+    heart(c, 16, 18, 9, GREEN)
+    c.rect(14, 11, 18, 23, WHITE)                                       # a white cross on the heart
+    c.rect(10, 15, 22, 19, WHITE)
+    for x, y in ((5, 7), (27, 9), (26, 26)):
+        c.rect(x - 1, y, x + 2, y + 1, GREEN[2])
+        c.rect(x, y - 1, x + 1, y + 2, GREEN[2])
+
+
+def draw_revive(c):
+    c.ring(16, 6, 6, 4.4, GOLD[2], ry_scale=0.4)                        # halo
+    for side in (-1, 1):                                                 # a pair of white wings
+        c.poly([(16, 14), (16 + side * 13, 9), (16 + side * 12, 14), (16 + side * 14, 17),
+                (16 + side * 10, 21), (16 + side * 11, 24), (16, 22)], WHITE)
+        c.line(16, 16, 16 + side * 11, 12, hexc("c8d4f0"))
+        c.line(16, 19, 16 + side * 10, 18, hexc("c8d4f0"))
+    c.disc(16, 18, 3.4, GOLD[1])
+    c.disc(15, 17, 1.4, GOLD[2])
+
+
+def draw_bless(c):
+    c.poly([(6, 7), (26, 7), (26, 16), (16, 28), (6, 16)], BLUE[1])     # a shield
+    c.poly([(6, 7), (16, 7), (16, 28), (6, 16)], BLUE[2])
+    c.poly([(9, 10), (23, 10), (23, 16), (16, 24), (9, 16)], BLUE[0])
+    star_shape(c, 16, 15.5, 6, GOLD[1])
+    c.disc(15, 14, 1.6, GOLD[2])
+
+
+def draw_bridge_of_light(c):
+    for r, color in ((14, GOLD[1]), (11.5, WHITE), (9, hexc("9ccaff"))):  # a rainbow arch of light
+        c.ring(16, 26, r, r - 2.2, color)
+    for y in range(26, 32):                                              # only the top half of the rings
+        for x in range(32):
+            c.px[y][x] = None
+    c.rect(4, 25, 9, 27, GOLD[0])
+    c.rect(23, 25, 28, 27, GOLD[0])
+    c.disc(16, 10, 2.2, WHITE)
+
+
 SKILLS = {name[5:]: fn for name, fn in dict(globals()).items() if name.startswith("draw_")}
 
 

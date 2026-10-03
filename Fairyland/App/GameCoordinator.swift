@@ -60,6 +60,7 @@ final class GameCoordinator {
         wire(world)
         build(world, mapID: map.id, began: began)
         startAutosave()
+        session.onCastField = { [weak self] skill in self?.castField(skill) }
         SoundEffects.shared.preload()
     }
 
@@ -274,6 +275,23 @@ final class GameCoordinator {
         } else {
             session.post("The ribbon is tied tight. Maybe someone in town knows who it's for.")
         }
+    }
+
+    /// A field spell cast from the Character screen. Bridge of Light carries you to your checkpoint.
+    private func castField(_ skill: SkillDef) {
+        guard battle == nil, skill.id == "bridge_of_light" else { return }
+        let cost = GameSession.mpCost(of: skill, level: session.skillLevel(skill.id))
+        guard session.data.hero.mp >= cost else {
+            session.post("Not enough MP for \(skill.name).")
+            return
+        }
+        let checkpoint = session.checkpoint
+        guard let map = Content.shared.map(checkpoint.mapID) else { return }
+        session.data.hero.mp -= cost
+        overlay = nil
+        session.post("A bridge of light carries you to \(session.checkpointName(checkpoint)).", .quest)
+        SoundEffects.shared.play(.whoosh)
+        go(to: map, entry: checkpoint.entry)
     }
 
     func closeOverlay() {

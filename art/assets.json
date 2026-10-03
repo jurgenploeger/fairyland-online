@@ -6070,6 +6070,22 @@
       "kind": "icon"
     },
     {
+      "id": "skill_recovery",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_revive",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_bless",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_bridge_of_light",
+      "kind": "icon"
+    },
+    {
       "id": "skill_power_strike",
       "kind": "icon"
     },
