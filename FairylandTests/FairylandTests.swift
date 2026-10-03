@@ -471,6 +471,20 @@ struct RulesTests {
         #expect(session.pendingPet == nil)
     }
 
+    @Test func oldSavesWithFriendsRescale() {
+        // 0.1.0 saves: levels from before the stretch, and friends to scale up too. This used to
+        // trip Swift's exclusivity check and crash on Continue.
+        var data = GameSession.newGame(name: "Test", raceID: "human").data
+        data.hero.level = 10
+        data.levelsRescaled = nil
+        data.friends = [Adventurer(name: "Momo", raceID: "elf", classID: "mage", level: 8, look: .standard)]
+        let session = GameSession(data: data)
+        session.rescaleLevelsIfNeeded()
+        #expect(session.data.hero.level == GameSession.stretchedLevel(10))
+        #expect(session.friends.first?.level == GameSession.stretchedLevel(8))
+        #expect(session.data.levelsRescaled == true)
+    }
+
     @Test func friendsJoinTheParty() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.data.hero.level = 6

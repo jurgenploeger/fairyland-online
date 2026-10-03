@@ -2,6 +2,17 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.2.1",
+      "date": "2026-10-03",
+      "title": "Into the mist",
+      "notes": [
+        "Fixed a crash when continuing a game saved before 0.2.0 with friends in it.",
+        "The land beyond each map's edge now fades into a soft mist (a deep gloom in caves) instead of black.",
+        "A companion that faints stays down after the battle: it sits out fights and stops following you until a potion or a healer wakes it up, and earns no EXP from that fight.",
+        "Fixed the intro's first page running off the screen."
+      ]
+    },
+    {
       "version": "0.2.0",
       "date": "2026-10-03",
       "title": "A bigger Fairyland",

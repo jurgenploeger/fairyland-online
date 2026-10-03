@@ -99,7 +99,9 @@ private struct PageTitle: View {
 // MARK: - Story
 
 private struct StoryPage: View {
-    private let bosses = Content.shared.monsters.filter { $0.boss == true }
+    /// The three the story names, in its order: one row that fits any screen, and the rest of the
+    /// bosses stay a surprise.
+    private let bosses = ["big_bad_wolf", "rat_king", "drunk_dragon"].compactMap { Content.shared.monster($0) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -139,7 +141,7 @@ private struct HowToPlayPage: View {
         Tip(icon: .tap, title: "Walk", text: "Drag the stick in the corner, or tap the ground and your hero walks there."),
         Tip(icon: .sword, title: "Battle", text: "Monsters jump out as you explore the wild. Battles take turns: attack, cast a skill or use an item."),
         Tip(icon: .paw, title: "Companions", text: "Beat a group down to its last monster, weaken it below 20% health and throw a Seal Stone. Keep up to five."),
-        Tip(icon: .star, title: "Grow", text: "Every level gives a skill point. At level 5, visit a guild master in town to become a Fighter, Mage or Beast Tamer."),
+        Tip(icon: .star, title: "Grow", text: "Every level gives a skill point. At level \(Content.shared.classChoiceLevel), visit a guild master in town to become a Fighter, Mage or Beast Tamer."),
         Tip(icon: .book, title: "Quests", text: "Villagers with a gold ! have work for you. Quests reward you and open the roads to new places."),
         Tip(icon: .heart, title: "Towns", text: "Shops, healers and checkpoints wait in town. Your progress saves by itself."),
     ]
