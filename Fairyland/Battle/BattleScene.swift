@@ -179,7 +179,7 @@ final class BattleScene: SKScene {
             let arrow = SKLabelNode()
             arrow.attributedText = Nodes.outlined("▼", size: 20, color: UIColor(red: 1, green: 0.55, blue: 0.15, alpha: 1))
             // Above the name over the fighter's head.
-            arrow.position = CGPoint(x: actor.position.x, y: actor.position.y + actor.nameHeight + 18)
+            arrow.position = CGPoint(x: actor.position.x, y: actor.position.y + actor.nameHeight + 8)
             arrow.zPosition = 20_000
             arrow.run(.repeatForever(.sequence([.moveBy(x: 0, y: 5, duration: 0.3), .moveBy(x: 0, y: -5, duration: 0.3)])))
             stage.addChild(arrow)
@@ -587,15 +587,16 @@ final class BattleActor: SKNode {
         ring.zPosition = -2
         addChild(ring)
         addChild(sprite)
-        // HP and level on one plate under the feet, the name over the head.
-        bar.position = CGPoint(x: 0, y: -17)
+        // Name, level and HP on one compact plate under the feet: the name in small letters
+        // right on top of the bar, so nothing floats over the fighters' heads.
+        bar.position = CGPoint(x: 0, y: -25)
         bar.fraction = CGFloat(fighter.hpFraction)
         bar.manaFraction = CGFloat(fighter.mpFraction)
         addChild(bar)
         // The same small gap over every head, wherever the art's top edge sits in its frame.
         nameHeight = size.height * (1 - sprite.anchorPoint.y - Self.emptyTop(of: sprite.texture)) + Self.nameGap
-        let label = NameTag(fighter.name, size: 12)
-        label.position = CGPoint(x: 0, y: nameHeight)
+        let label = NameTag(fighter.name, size: 9)
+        label.position = CGPoint(x: 0, y: bar.position.y + 2)
         addChild(label)
         sprite.run(IdleMotion.of(art: fighter.art).action(height: size.height, delay: .random(in: 0..<0.8)), withKey: "idle")
     }
@@ -605,7 +606,7 @@ final class BattleActor: SKNode {
     var height: CGFloat { sprite.size.height }
     var center: CGPoint { position + CGVector(dx: 0, dy: sprite.size.height * 0.45) }
     var top: CGPoint { position + CGVector(dx: 0, dy: sprite.size.height * 0.85) }
-    /// Where the name sits: just over the head.
+    /// Just over the head (the turn arrow points down at it).
     private(set) var nameHeight: CGFloat = 0
     private static let nameGap: CGFloat = 4
 

@@ -6,7 +6,8 @@
       "date": "2026-10-03",
       "title": "Watch it fill",
       "notes": [
-        "Loading screens show a blue bar with a percentage instead of a spinner. The map is built a piece at a time behind it, so the bar moves as the ground, scenery, buildings and people go up."
+        "Loading screens show a blue bar with a percentage instead of a spinner. The map is built a piece at a time behind it, so the bar moves as the ground, scenery, buildings and people go up.",
+        "In battle, names are smaller and sit right on top of each fighter's HP bar, so the field isn't covered in big labels."
       ]
     },
     {
