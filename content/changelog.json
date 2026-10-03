@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.2",
+      "date": "2026-10-03",
+      "title": "Back on the road",
+      "notes": [
+        "Fixed: the game could crash while loading a map. Drawing the minimap's colours took so long on big maps that iOS stopped the app.",
+        "Deleting a game moved off the title screen, where its little × looked like it only closed the notice. It's now under Settings → Danger zone inside the game, and asks before deleting."
+      ]
+    },
+    {
       "version": "0.3.1",
       "date": "2026-10-03",
       "title": "Quieter streets",

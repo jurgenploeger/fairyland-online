@@ -103,9 +103,19 @@ final class GameSession {
     }
 
     func save() {
+        guard !isDeleted else { return }
         data.position = playerPosition.map { [Double($0.x), Double($0.y)] }
         SaveStore.save(data)
         lastSaved = Date()
+    }
+
+    /// Set once the game is deleted, so a late autosave can't bring it back.
+    private(set) var isDeleted = false
+
+    /// Deletes this game's save for good (Settings → Danger zone).
+    func deleteGame() {
+        isDeleted = true
+        if let slot = data.slot { SaveStore.delete(slot: slot) }
     }
 
     // MARK: - Looks

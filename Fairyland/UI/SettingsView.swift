@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var music = MusicPlayer.shared
     @State private var justSaved = false
     @State private var confirmQuit = false
+    @State private var confirmDelete = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -65,6 +66,29 @@ struct SettingsView: View {
                     Text("Your progress also saves by itself every few seconds.")
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.dim)
+                }
+            }
+
+            if let session, let onQuitToTitle {
+                section("Danger zone", icon: .close) {
+                    Text("Deleting a game can't be undone.")
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.dim)
+                    Button {
+                        confirmDelete = true
+                    } label: {
+                        Label("Delete this game", icon: .close)
+                    }
+                    .buttonStyle(PixelButtonStyle(tint: Color(red: 0.9, green: 0.35, blue: 0.35), compact: true))
+                    .alert("Delete \(session.data.hero.name)'s game?", isPresented: $confirmDelete) {
+                        Button("Delete for good", role: .destructive) {
+                            session.deleteGame()
+                            onQuitToTitle()
+                        }
+                        Button("Cancel", role: .cancel) {}
+                    } message: {
+                        Text("\(session.data.hero.name), level \(session.data.hero.level), and everything they carry will be gone for good.")
+                    }
                 }
             }
 
