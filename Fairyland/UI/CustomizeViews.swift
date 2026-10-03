@@ -11,6 +11,8 @@ struct LookEditor: View {
     var isUnlocked: (LookPreset) -> Bool = { $0.unlock == nil }
     /// After creation the hero keeps their name and gender: only their looks change.
     var identityLocked = false
+    /// Worn armour: its own colours replace the outfit's, so there's nothing to dye while it's on.
+    var armor: ItemDef? = nil
 
     private var options: AppearanceOptions { Content.shared.appearance }
     private var race: RaceDef { Content.shared.race(raceID) }
@@ -53,7 +55,17 @@ struct LookEditor: View {
                 }
                 StylePicker(look: $look, race: race)
                 SwatchPicker(title: "Hair", presets: options.hair, selection: $look.hair, isUnlocked: isUnlocked)
-                SwatchPicker(title: "Outfit", presets: options.outfits, selection: $look.outfit, isUnlocked: isUnlocked)
+                if let armor {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Outfit").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.cream)
+                        Text("Your \(armor.name) gives your clothes its own colours. Take it off under Equipment to choose an outfit colour.")
+                            .font(HUDStyle.font(10))
+                            .foregroundStyle(HUDStyle.dim)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                } else {
+                    SwatchPicker(title: "Outfit", presets: options.outfits, selection: $look.outfit, isUnlocked: isUnlocked)
+                }
                 SwatchPicker(title: "Skin", presets: options.skin, selection: $look.skin, isUnlocked: isUnlocked)
             }
             .frame(maxWidth: .infinity, alignment: .leading)

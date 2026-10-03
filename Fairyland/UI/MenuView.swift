@@ -107,7 +107,7 @@ private struct CharacterTab: View {
                 SectionTitle(text: "Customize your hero")
                 // Name and gender are set when the hero is made; looks stay changeable.
                 LookEditor(name: $draftName, look: $draftLook, raceID: session.data.hero.raceID, isUnlocked: session.isUnlocked,
-                           identityLocked: true)
+                           identityLocked: true, armor: session.equipped(.armor))
                 HStack {
                     Button("Cancel") { editing = false }
                         .buttonStyle(PixelButtonStyle(compact: true))
