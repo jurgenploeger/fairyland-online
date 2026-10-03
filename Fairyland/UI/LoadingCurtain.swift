@@ -87,7 +87,8 @@ struct LoadingBar: View {
                 .overlay(Capsule().strokeBorder(.white.opacity(0.8), lineWidth: 2))
                 .frame(maxWidth: 280)
                 .frame(height: 16)
-                .animation(.easeOut(duration: 0.25), value: progress)
+                // No animation: the map build holds the screen between steps, so an animated bar
+                // would lag behind its own number.
             Text("\(label)… \(percent)%")
                 .font(HUDStyle.font(14))
                 .monospacedDigit()

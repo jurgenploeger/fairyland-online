@@ -36,6 +36,13 @@ enum DebugLaunch {
 
     /// A debug game (tests, screenshots): the first-play tour stays hidden unless `coach` is set.
     static var isActive: Bool { flags["newgame"] != nil }
+
+    /// Debug launches leave `Documents/debug-ready` once the map or battle is on screen, so
+    /// tools/screenshots.sh knows when to shoot (the loading curtain alone can look "drawn").
+    static func markReady() {
+        guard isActive, let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        try? Data().write(to: folder.appending(path: "debug-ready"))
+    }
     static var showsCoachMarks: Bool { flags["coach"] != nil }
     /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).
     static var introPage: Int? { flags["intro"].map { Int($0).map { $0 - 1 } ?? 0 } }
