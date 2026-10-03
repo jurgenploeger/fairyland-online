@@ -122,6 +122,7 @@ final class GameCoordinator {
             loadProgress = 1
             if remaining > 0 { try? await Task.sleep(for: .seconds(remaining)) }
             isReady = true
+            DebugLaunch.markReady()
             loadingMapName = nil
         }
     }
@@ -150,6 +151,7 @@ final class GameCoordinator {
         input.move = .zero
         battle = controller
         isReady = true
+        DebugLaunch.markReady()
     }
 
     /// The adventurer you're duelling, so they can leave the map if you win.
@@ -163,6 +165,7 @@ final class GameCoordinator {
         self.rival = rival
         battle = controller
         isReady = true
+        DebugLaunch.markReady()
     }
 
     /// The boss you're fighting, so it disappears from the map once beaten.
@@ -177,6 +180,7 @@ final class GameCoordinator {
         boss = npc
         battle = controller
         isReady = true
+        DebugLaunch.markReady()
     }
 
     /// From the adventurer card: befriend, invite along, or challenge.
