@@ -31,6 +31,8 @@ enum DebugLaunch {
     }
 
     static var forcesLandscape: Bool { flags["landscape"] != nil }
+    /// `arrange`: battles open with the buttons already wiggling, ready to rearrange.
+    static var arrangesButtons: Bool { flags["arrange"] != nil }
 
     /// A debug game (tests, screenshots): the first-play tour stays hidden unless `coach` is set.
     static var isActive: Bool { flags["newgame"] != nil }

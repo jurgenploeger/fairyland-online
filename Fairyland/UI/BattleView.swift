@@ -121,23 +121,35 @@ struct BattleView: View {
 /// A big button in the corner (Attack unless you change it) with More on top of it, and to its left
 /// rows of round buttons filled from the bottom right: Skills, then whatever else turns up (Capture
 /// when a monster is weak enough, Items when someone is low on HP, pinned skills). Less-used commands
-/// hide behind More. Holding any button lets you rearrange them all.
+/// hide behind More. Holding any button makes them all wiggle, like the iPhone home screen: drag
+/// them into any order (onto the big button, or into the "Behind More" tray), then tap Done.
 private struct CommandPad: View {
     let controller: BattleController
     @State private var showMore = false
-    /// Holding any button opens the arrange panel.
-    @State private var arranging = false
+    /// While rearranging: the whole order, `moreDivider` included (nil otherwise).
+    @State private var editing: [String]?
+    /// Where each button sits, for working out what a dragged button is over.
+    @State private var frames: [String: CGRect] = [:]
+    @State private var trayFrame: CGRect = .zero
+    @State private var dragging: String?
+    @State private var dragPoint: CGPoint = .zero
+    /// The button last swapped with, so hovering over it doesn't swap back and forth.
+    @State private var lastTarget: String?
 
     private let mainSize: CGFloat = 88
     private let buttonSize: CGFloat = 56
+    private static let space = "commandPad"
 
     var body: some View {
-        if arranging {
-            ArrangeButtonsCard(controller: controller) { arranging = false }
-                .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
-        } else {
-            pad
+        Group {
+            if let editing {
+                editPad(editing)
+            } else {
+                pad
+            }
         }
+        .coordinateSpace(name: Self.space)
+        .onAppear { if DebugLaunch.arrangesButtons, editing == nil { arrange() } }
     }
 
     /// Your order (`GameSession.battleButtons`), split into the big button, the column beside it
@@ -191,7 +203,141 @@ private struct CommandPad: View {
 
     private func arrange() {
         showMore = false
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { arranging = true }
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { editing = controller.session.battleButtons }
+    }
+
+    // MARK: Rearranging
+
+    private func editPad(_ order: [String]) -> some View {
+        let divider = order.firstIndex(of: GameSession.moreDivider) ?? order.endIndex
+        let main = order.first
+        let row = Array(order[..<divider].dropFirst())
+        let tray = Array(order[divider...].dropFirst())
+        return VStack(alignment: .trailing, spacing: 22) {
+            HStack(spacing: 8) {
+                Text("Drag to rearrange")
+                    .font(HUDStyle.font(11))
+                    .foregroundStyle(HUDStyle.cream)
+                Button("Reset") { withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { editing = resetOrder(order) } }
+                    .font(HUDStyle.font(12))
+                    .foregroundStyle(HUDStyle.cream)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Capsule().fill(.white.opacity(0.15)))
+                Button {
+                    controller.arrangeButtons(order)
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { editing = nil }
+                } label: {
+                    Text("Done")
+                        .font(HUDStyle.font(13))
+                        .foregroundStyle(HUDStyle.ink)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Capsule().fill(HUDStyle.gold))
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Capsule().fill(HUDStyle.ink.opacity(0.85)))
+
+            // What waits behind More.
+            VStack(alignment: .trailing, spacing: 8) {
+                Text("Behind More")
+                    .font(HUDStyle.font(11))
+                    .foregroundStyle(HUDStyle.cream.opacity(0.8))
+                RightToLeftRows {
+                    ForEach(tray, id: \.self) { id in editTile(id, size: buttonSize) }
+                }
+                .frame(minWidth: buttonSize * 2, minHeight: buttonSize, alignment: .bottomTrailing)
+                .padding(.bottom, 16)
+            }
+            .padding(10)
+            .background(
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(HUDStyle.ink.opacity(0.55))
+                    .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(HUDStyle.cream.opacity(0.5), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])))
+            )
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(Self.space)) } action: { trayFrame = $0 }
+            .zIndex(tray.contains { $0 == dragging } ? 1 : 0)
+
+            HStack(alignment: .bottom, spacing: 14) {
+                RightToLeftRows {
+                    ForEach(row, id: \.self) { id in editTile(id, size: buttonSize) }
+                }
+                .zIndex(row.contains { $0 == dragging } ? 1 : 0)
+                VStack(spacing: 26) {
+                    RoundCommandButton(title: "More", icon: .more, size: buttonSize, tint: .quiet) {}
+                        .allowsHitTesting(false)
+                        .opacity(0.5)
+                    if let main { editTile(main, size: mainSize) }
+                }
+                .zIndex(main == dragging ? 1 : 0)
+            }
+            .padding(.leading, 14)
+        }
+    }
+
+    /// A wiggling button that can be dragged; taps do nothing while rearranging.
+    private func editTile(_ id: String, size: CGFloat) -> some View {
+        let isDragged = dragging == id
+        let center = frames[id].map { CGPoint(x: $0.midX, y: $0.midY) } ?? dragPoint
+        return button(id, size: size)
+            .allowsHitTesting(false)
+            .modifier(Wiggle(active: !isDragged))
+            .opacity(id == "capture" && !controller.canCapture ? 0.7 : 1)
+            .contentShape(Rectangle())
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(Self.space)) } action: { frames[id] = $0 }
+            .scaleEffect(isDragged ? 1.15 : 1)
+            .offset(isDragged ? CGSize(width: dragPoint.x - center.x, height: dragPoint.y - center.y) : .zero)
+            .zIndex(isDragged ? 1 : 0)
+            .gesture(
+                DragGesture(minimumDistance: 0, coordinateSpace: .named(Self.space))
+                    .onChanged { value in
+                        if dragging != id {
+                            dragging = id
+                            lastTarget = nil
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        }
+                        dragPoint = value.location
+                        drag(id, over: value.location)
+                    }
+                    .onEnded { _ in
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                            dragging = nil
+                            lastTarget = nil
+                        }
+                    }
+            )
+    }
+
+    /// Moves the dragged button into the place of whatever it's over (iPhone home screen style), or to
+    /// the end of the tray when it's dropped into the tray's empty space.
+    private func drag(_ id: String, over point: CGPoint) {
+        guard var order = editing, let from = order.firstIndex(of: id) else { return }
+        if let target = frames.first(where: { $0.key != id && order.contains($0.key) && $0.value.contains(point) })?.key {
+            guard target != lastTarget, let to = order.firstIndex(of: target) else { return }
+            lastTarget = target
+            order.move(fromOffsets: [from], toOffset: to > from ? to + 1 : to)
+        } else if trayFrame.contains(point), let divider = order.firstIndex(of: GameSession.moreDivider), from < divider {
+            lastTarget = nil
+            order.remove(at: from)
+            order.append(id)
+        } else {
+            lastTarget = nil
+            return
+        }
+        // Something always has to be the big button.
+        if order.first == GameSession.moreDivider, order.count > 1 { order.swapAt(0, 1) }
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { editing = order }
+        UISelectionFeedbackGenerator().selectionChanged()
+    }
+
+    /// The standard order, keeping your pinned skills beside the big button.
+    private func resetOrder(_ order: [String]) -> [String] {
+        var standard = GameSession.defaultBattleButtons
+        standard.insert(contentsOf: order.filter { $0.hasPrefix("skill:") },
+                        at: standard.firstIndex(of: GameSession.moreDivider) ?? standard.endIndex)
+        return standard
     }
 
     @ViewBuilder
@@ -245,113 +391,15 @@ private struct BattleCommand {
     }
 }
 
-/// Hold any battle button to get here: drag the buttons into any order. The top one becomes the
-/// big button, the ones under "More menu" wait behind More.
-private struct ArrangeButtonsCard: View {
-    let controller: BattleController
-    let onDone: () -> Void
-    @State private var order: [String]
+/// The home-screen wiggle for buttons being rearranged, each a little out of step with the others.
+private struct Wiggle: ViewModifier {
+    let active: Bool
+    @State private var phase = Double.random(in: 0...(2 * .pi))
 
-    init(controller: BattleController, onDone: @escaping () -> Void) {
-        self.controller = controller
-        self.onDone = onDone
-        _order = State(initialValue: controller.session.battleButtons)
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Arrange buttons")
-                    .font(HUDStyle.font(14))
-                    .foregroundStyle(HUDStyle.gold)
-                Spacer()
-                Button("Reset") { order = resetOrder }
-                    .font(HUDStyle.font(12))
-                    .foregroundStyle(HUDStyle.cream)
-                    .padding(.horizontal, 8)
-                Button {
-                    controller.arrangeButtons(order)
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { onDone() }
-                } label: {
-                    Text("Done")
-                        .font(HUDStyle.font(13))
-                        .foregroundStyle(HUDStyle.ink)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Capsule().fill(HUDStyle.gold))
-                }
-            }
-            Text("Drag to reorder. The top one is the big button.")
-                .font(HUDStyle.font(11))
-                .foregroundStyle(HUDStyle.cream.opacity(0.8))
-            List {
-                ForEach(order, id: \.self) { id in
-                    row(id)
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
-                }
-                .onMove { from, to in
-                    order.move(fromOffsets: from, toOffset: to)
-                    // Something always has to be the big button.
-                    if order.first == GameSession.moreDivider { order.swapAt(0, 1) }
-                }
-            }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .environment(\.editMode, .constant(.active))
-            .environment(\.defaultMinListRowHeight, 36)
-            .frame(height: min(CGFloat(order.count) * 40, 300))
-        }
-        .padding(12)
-        .frame(width: 300)
-        .background(
-            RoundedRectangle(cornerRadius: 22)
-                .fill(HUDStyle.ink.opacity(0.92))
-                .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2))
-        )
-    }
-
-    /// The standard order, keeping your pinned skills beside the big button.
-    private var resetOrder: [String] {
-        let pins = order.filter { $0.hasPrefix("skill:") }
-        var standard = GameSession.defaultBattleButtons
-        standard.insert(contentsOf: pins, at: standard.firstIndex(of: GameSession.moreDivider) ?? standard.endIndex)
-        return standard
-    }
-
-    @ViewBuilder
-    private func row(_ id: String) -> some View {
-        if id == GameSession.moreDivider {
-            HStack(spacing: 6) {
-                IconImage(.more, size: 16)
-                Text("More menu")
-                Rectangle().fill(HUDStyle.cream.opacity(0.4)).frame(height: 1)
-            }
-            .font(HUDStyle.font(12))
-            .foregroundStyle(HUDStyle.cream.opacity(0.8))
-        } else {
-            HStack(spacing: 8) {
-                if id.hasPrefix("skill:"), let skill = controller.pinnedSkills.first(where: { "skill:\($0.id)" == id }) {
-                    SkillIcon(skill: skill, size: 24)
-                    Text(skill.name)
-                } else {
-                    let info = BattleCommand(id)
-                    IconImage(info.icon, size: 20)
-                        .frame(width: 24)
-                    Text(id == "capture" ? "Capture (when possible)" : info.title)
-                }
-                Spacer()
-                if id == order.first {
-                    Text("Big button")
-                        .font(HUDStyle.font(10))
-                        .foregroundStyle(HUDStyle.ink)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Capsule().fill(HUDStyle.gold))
-                }
-            }
-            .font(HUDStyle.font(13))
-            .foregroundStyle(HUDStyle.cream)
+    func body(content: Content) -> some View {
+        TimelineView(.animation(paused: !active)) { context in
+            let time = context.date.timeIntervalSinceReferenceDate
+            content.rotationEffect(.degrees(active ? sin(time * 22 + phase) * 2.5 : 0))
         }
     }
 }
