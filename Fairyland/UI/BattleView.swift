@@ -789,13 +789,14 @@ private struct ResultPanel: View {
     }
 }
 
-/// What a win turned up, as little item tiles with how many and the name underneath.
-private struct LootGrid: View {
+/// What a win (or a quest) turned up, as little item tiles with how many and the name underneath.
+struct LootGrid: View {
     let loot: [(id: String, count: Int)]
+    var title = "Found"
 
     var body: some View {
         VStack(spacing: 6) {
-            Text("Found").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.gold)
+            Text(title).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.gold)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 78), spacing: 8)], spacing: 8) {
                 ForEach(Array(loot.enumerated()), id: \.offset) { _, entry in
                     if let item = Content.shared.item(entry.id) {

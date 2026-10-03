@@ -8,6 +8,8 @@ struct NPCDialogView: View {
     /// Bosses: start the fight.
     var onFight: (NPCDef) -> Void = { _ in }
     @State private var reply: String?
+    /// A quest just handed in: its reward card covers the dialog until you continue.
+    @State private var finished: FinishedQuest?
 
     var body: some View {
         GeometryReader { proxy in
@@ -28,8 +30,15 @@ struct NPCDialogView: View {
                     .padding(.leading, 12)
                     .padding(.trailing, portrait * 0.62)
                     .padding(.bottom, max(16, proxy.safeAreaInsets.bottom))
+
+                if let finished {
+                    QuestCompleteCard(session: session, finished: finished) { self.finished = nil }
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .transition(.opacity)
+                }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
+            .animation(.easeOut(duration: 0.2), value: finished?.quest.id)
         }
         .ignoresSafeArea()
     }
@@ -47,7 +56,7 @@ struct NPCDialogView: View {
                         switch npc.role {
                         case .healer: HealerPanel(session: session, reply: $reply)
                         case .shop: ShopPanel(session: session, stock: npc.stock ?? [], reply: $reply)
-                        case .quests: QuestGiverPanel(session: session, giver: npc.id, reply: $reply)
+                        case .quests: QuestGiverPanel(session: session, giver: npc.id, reply: $reply, finished: $finished)
                         case .guild: GuildPanel(session: session, classID: npc.classId ?? "", reply: $reply)
                         case .chest: EmptyView()   // opened straight from the map (GameCoordinator.open)
                         case .boss: BossPanel(session: session, boss: npc, onFight: onFight)
@@ -242,6 +251,7 @@ private struct QuestGiverPanel: View {
     let session: GameSession
     let giver: String
     @Binding var reply: String?
+    @Binding var finished: FinishedQuest?
     @State private var asking: String?
 
     var body: some View {
@@ -281,9 +291,12 @@ private struct QuestGiverPanel: View {
                         }
                     case .ready:
                         Button("Complete quest") {
-                            let rewards = session.turnInQuest(quest.id)
+                            let level = session.data.hero.level
+                            session.turnInQuest(quest.id)
                             session.save()
-                            reply = "Thank you! Here's your reward: " + rewards.joined(separator: ", ")
+                            reply = "Thank you! You've been a great help."
+                            let reached = session.data.hero.level
+                            finished = FinishedQuest(quest: quest, newLevel: reached > level ? reached : nil)
                         }
                         .buttonStyle(PixelButtonStyle(tint: HUDStyle.green, compact: true))
                     default:
@@ -368,5 +381,143 @@ private struct BossPanel: View {
                     .buttonStyle(PixelButtonStyle(tint: Color(red: 1, green: 0.55, blue: 0.5)))
             }
         }
+    }
+}
+
+/// A quest you just handed in, and the level it took you to (if any).
+struct FinishedQuest {
+    let quest: QuestDef
+    let newLevel: Int?
+}
+
+/// "Quest complete!": what the quest paid, laid out like the victory card after a battle (EXP with
+/// a star, gold with coins, items as tiles), then new looks and roads. A level-up follows with the
+/// skill card, as after a battle.
+private struct QuestCompleteCard: View {
+    let session: GameSession
+    let finished: FinishedQuest
+    let onDone: () -> Void
+    @State private var levelUp = false
+
+    private var quest: QuestDef { finished.quest }
+
+    /// Items in reward order, repeats counted.
+    private var loot: [(id: String, count: Int)] {
+        var result: [(id: String, count: Int)] = []
+        for id in quest.reward.items ?? [] {
+            if let index = result.firstIndex(where: { $0.id == id }) {
+                result[index].count += 1
+            } else {
+                result.append((id: id, count: 1))
+            }
+        }
+        return result
+    }
+
+    private var looks: [String] {
+        let content = session.content
+        return [("hair", content.appearance.hair), ("outfit", content.appearance.outfits)]
+            .flatMap { kind, presets in presets.filter { $0.unlock == quest.id }.map { "\($0.name) \(kind)" } }
+    }
+
+    private var roads: [String] {
+        let content = session.content
+        return content.maps.flatMap { map in
+            map.exits.filter { $0.requires == quest.id }.map { "\(map.name) → \(content.map($0.to)?.name ?? $0.to)" }
+        }
+    }
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.45).ignoresSafeArea()
+                .onTapGesture {}
+            if levelUp, let level = finished.newLevel {
+                LevelUpCard(session: session, level: level, onDone: onDone)
+                    .transition(.scale(scale: 0.9).combined(with: .opacity))
+            } else {
+                card
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: levelUp)
+    }
+
+    private func advance() {
+        if !levelUp, finished.newLevel != nil, session.canSpendSkillPoint {
+            levelUp = true
+        } else {
+            onDone()
+        }
+    }
+
+    private var card: some View {
+        VStack(spacing: 10) {
+            VStack(spacing: 2) {
+                Text("Quest complete!")
+                    .font(HUDStyle.font(24))
+                    .foregroundStyle(HUDStyle.gold)
+                Text(quest.title)
+                    .font(HUDStyle.font(14))
+                    .foregroundStyle(HUDStyle.cream)
+                    .multilineTextAlignment(.center)
+            }
+            let gold = quest.reward.gold ?? 0
+            let exp = quest.reward.exp ?? 0
+            if gold > 0 || exp > 0 {
+                HStack(spacing: 18) {
+                    if exp > 0 {
+                        Label { Text("+\(exp) EXP") } icon: {
+                            IconImage(.star, size: 18).foregroundStyle(HUDStyle.exp)
+                        }
+                    }
+                    if gold > 0 {
+                        Label { Text("+\(gold)") } icon: {
+                            IconImage(.coins, size: 18).foregroundStyle(HUDStyle.gold)
+                        }
+                    }
+                }
+                .font(HUDStyle.font(16))
+                .foregroundStyle(HUDStyle.cream)
+            }
+            if !loot.isEmpty {
+                LootGrid(loot: loot, title: "Got")
+            }
+            if !looks.isEmpty || !roads.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(looks, id: \.self) { look in
+                        Label("New look: \(look)", icon: .palette, size: 14)
+                    }
+                    if !looks.isEmpty {
+                        Text("Try it in Character → Customize")
+                            .font(HUDStyle.font(10))
+                            .foregroundStyle(HUDStyle.dim)
+                            .padding(.leading, 20)
+                    }
+                    ForEach(roads, id: \.self) { road in
+                        Label("Road open: \(road)", icon: .map, size: 14)
+                    }
+                }
+                .font(HUDStyle.font(12))
+                .foregroundStyle(HUDStyle.cream)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: 12).fill(.white.opacity(0.06)))
+            }
+            if let level = finished.newLevel {
+                Text("Level up! You're now level \(level).")
+                    .font(HUDStyle.font(13))
+                    .foregroundStyle(HUDStyle.gold)
+            }
+            Button("Continue", action: advance)
+                .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
+                .padding(.top, 6)
+        }
+        .padding(22)
+        .frame(maxWidth: 420)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(HUDStyle.ink.opacity(0.92))
+                .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(HUDStyle.gold.opacity(0.9), lineWidth: 2))
+        )
+        .padding(20)
     }
 }
