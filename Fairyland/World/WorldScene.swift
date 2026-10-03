@@ -415,7 +415,8 @@ final class WorldScene: SKScene {
     }()
 
     /// The map's surrounding ground, averaged and hazed: pale mist outdoors, deep gloom in caves.
-    private static func fogColor(from texture: SKTexture, cave: Bool) -> UIColor {
+    /// A texture's average colour, 0...1 per channel.
+    private static func averageColor(of texture: SKTexture) -> (CGFloat, CGFloat, CGFloat) {
         var pixel = [UInt8](repeating: 0, count: 4)
         let image = texture.cgImage()
         pixel.withUnsafeMutableBytes { buffer in
@@ -425,7 +426,12 @@ final class WorldScene: SKScene {
             context.interpolationQuality = .medium
             context.draw(image, in: CGRect(x: 0, y: 0, width: 1, height: 1))
         }
-        let average = (0..<3).map { CGFloat(pixel[$0]) / 255 }
+        return (CGFloat(pixel[0]) / 255, CGFloat(pixel[1]) / 255, CGFloat(pixel[2]) / 255)
+    }
+
+    private static func fogColor(from texture: SKTexture, cave: Bool) -> UIColor {
+        let (r, g, b) = averageColor(of: texture)
+        let average = [r, g, b]
         let haze: [CGFloat] = cave ? [0.05, 0.04, 0.06] : [0.86, 0.9, 0.94]
         let mix: CGFloat = cave ? 0.55 : 0.4
         let channel = (0..<3).map { average[$0] + (haze[$0] - average[$0]) * mix }
@@ -780,7 +786,16 @@ final class WorldScene: SKScene {
     }
 
     /// One pixel per tile, for the HUD minimap.
-    private(set) lazy var minimap = UIImage(cgImage: map.overviewImage())
+    private(set) lazy var minimap: UIImage = {
+        // The map's own (palette-graded) tiles, averaged: a purple wood looks purple here too.
+        let art = self.art
+        let waterID = def.theme.water ?? "tile_water"
+        return UIImage(cgImage: map.overviewImage { id in
+            let texture = id == waterID ? art.waterFrames(id).first ?? art.tileTexture(id) : art.tileTexture(id)
+            let (r, g, b) = Self.averageColor(of: texture)
+            return PixelColor(r: UInt8(r * 255), g: UInt8(g * 255), b: UInt8(b * 255))
+        })
+    }()
 
     /// Everything the map screen needs.
     func overview() -> (image: UIImage, player: CGPoint, companion: CGPoint?, name: String, exits: [MapDef.Exit]) {
