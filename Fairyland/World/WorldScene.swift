@@ -707,13 +707,62 @@ final class WorldScene: SKScene {
             case .east: "\(destination.name) ↗"
             case .west: "↙ \(destination.name)"
             }
-            let label = SKLabelNode()
-            label.attributedText = Nodes.outlined(text, size: 11, color: Nodes.gold)
-            let cell = map.entryCell(from: exit.edge)
-            label.position = map.center(of: cell) + CGVector(dx: 0, dy: 26)
-            label.zPosition = 4_000
+            // A wooden signpost beside the road. Its words only show when you walk up and tap it.
+            let cell = signCell(near: exit.edge) ?? map.entryCell(from: exit.edge)
+            let post = addScenery(art.sprite("signpost"), at: cell, scale: 1.6)
+            if map.isWalkable(cell) { map.occupy(cell, blocking: true) }
+            let top = map.base(of: cell) + CGVector(dx: 0, dy: post.size.height + 4)
+            let label = NameTag(text, color: Nodes.gold, size: 12)
+            label.position = top + CGVector(dx: 0, dy: 4)
+            label.zPosition = 6_000
+            label.alpha = 0
             world.addChild(label)
+            // A little "?" bobs over it while you're close enough to read it.
+            let hint = NameTag("?", color: Nodes.gold, size: 16)
+            hint.position = top
+            hint.zPosition = 6_000
+            hint.isHidden = true
+            hint.run(.repeatForever(.sequence([.moveBy(x: 0, y: 4, duration: 0.4), .moveBy(x: 0, y: -4, duration: 0.4)])))
+            world.addChild(hint)
+            signs.append(Signpost(text: text, base: map.base(of: cell), label: label, hint: hint))
         }
+    }
+
+    /// A signpost by the road out, and the destination written on it.
+    private struct Signpost {
+        let text: String
+        let base: CGPoint
+        let label: NameTag
+        let hint: NameTag
+    }
+    private var signs: [Signpost] = []
+    /// A signpost you tapped from afar: read it once you get there.
+    private var signTarget: Int?
+    private let signRange: CGFloat = 90
+
+    /// Shows what a signpost says for a few seconds, and notes it in the log.
+    private func read(_ sign: Signpost) {
+        sign.label.removeAllActions()
+        sign.label.run(.sequence([.fadeIn(withDuration: 0.15), .wait(forDuration: 4), .fadeOut(withDuration: 0.4)]))
+        session.post("The sign reads: \(sign.text)")
+        SoundEffects.shared.play(.talk, volume: 0.5)
+    }
+
+    /// A free cell just off the side of the road, a few tiles in from `edge`, for its signpost.
+    private func signCell(near edge: Edge, depth: Int = 4) -> GridPoint? {
+        let line: [GridPoint] = switch edge {
+        case .north: (0..<map.columns).map { GridPoint(col: $0, row: map.rows - 1 - depth) }
+        case .south: (0..<map.columns).map { GridPoint(col: $0, row: depth) }
+        case .east: (0..<map.rows).map { GridPoint(col: map.columns - 1 - depth, row: $0) }
+        case .west: (0..<map.rows).map { GridPoint(col: depth, row: $0) }
+        }
+        let road = line.indices.filter { map.contains(line[$0]) && map.ground[line[$0].row][line[$0].col] == .path }
+        guard let first = road.first, let last = road.last else { return nil }
+        for index in [first - 1, last + 1, first - 2, last + 2] where line.indices.contains(index) {
+            let cell = line[index]
+            if map.isWalkable(cell), map.ground[cell.row][cell.col] != .water { return cell }
+        }
+        return nil
     }
 
     /// A fence across each road that a quest hasn't opened yet, with a little lock sign.
@@ -880,6 +929,15 @@ final class WorldScene: SKScene {
             return
         }
         talkTarget = nil
+        signTarget = nil
+        // Tapping a signpost reads it, walking over first if it's too far to make out.
+        if let index = signs.firstIndex(where: { ($0.base + CGVector(dx: 0, dy: 22)).distance(to: point) < 30 }) {
+            if signs[index].base.distance(to: player.position) <= signRange {
+                read(signs[index])
+                return
+            }
+            signTarget = index
+        }
         crowd?.greet(at: point, from: player.position)
         player.path = map.path(from: player.position, to: point)
         if let destination = player.path.last {
@@ -1154,6 +1212,14 @@ final class WorldScene: SKScene {
             }
         }
         if session.nearbyNPC != nearest?.id { session.nearbyNPC = nearest?.id }
+        for (index, sign) in signs.enumerated() {
+            let near = sign.base.distance(to: player.position) <= signRange
+            sign.hint.isHidden = !near || sign.label.alpha > 0.5
+            if near, signTarget == index {
+                signTarget = nil
+                read(sign)
+            }
+        }
     }
 
     /// The last few steps toward an open road out fade to black.

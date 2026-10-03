@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.5",
+      "date": "2026-10-03",
+      "title": "Signs and smiles",
+      "notes": [
+        "Roads out of a map have a wooden signpost again. Walk up to it (a ? shows when you're close) and tap it to read where the road goes; tapping from afar walks you over first.",
+        "The title screen shows your hero facing you and breathing like they do in the game, with your companion close beside them doing its own idle bounce or sway.",
+        "The loading bar matches its percentage, and it learns how long each part of a map takes on your phone, so it fills at the real pace from the second visit on."
+      ]
+    },
+    {
       "version": "0.3.4",
       "date": "2026-10-03",
       "title": "Watch it fill",

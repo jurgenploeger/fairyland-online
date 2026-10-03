@@ -1,3 +1,4 @@
+import SpriteKit
 import SwiftUI
 
 /// Title screen: continue a saved game, or create a hero (name + race, like Fairyland).
@@ -243,12 +244,7 @@ private struct SavedHeroCard: View {
         let pet = save.pets.first { $0.id == save.activePetID }
         let petArt = pet.flatMap { content.monster($0.speciesID)?.art }
         VStack(spacing: 4) {
-            HStack(alignment: .bottom, spacing: -6) {
-                WalkingSprite(art: art, size: 96)
-                if let petArt {
-                    WalkingSprite(art: petArt, size: 64)
-                }
-            }
+            IdlePair(hero: art, pet: petArt)
             Text(save.hero.name).font(HUDStyle.font(15)).foregroundStyle(HUDStyle.ink)
             Text("Lv \(save.hero.level) \(content.classDef(save.hero.classID).name) · \(content.map(save.mapID)?.name ?? "")")
                 .font(HUDStyle.font(10))
@@ -260,6 +256,48 @@ private struct SavedHeroCard: View {
             }
         }
         .padding(.bottom, 28)   // room for the page dots
+    }
+}
+
+/// The hero facing you, breathing like they do while standing in the game, and their companion
+/// close beside them with its own idle motion (squish, hop, sway…). A tiny SpriteKit scene, so
+/// both move exactly as they do on the map.
+private struct IdlePair: View {
+    @State private var scene: SKScene
+
+    init(hero: String, pet: String?) {
+        _scene = State(initialValue: Self.makeScene(hero: hero, pet: pet))
+    }
+
+    var body: some View {
+        SpriteView(scene: scene, options: [.allowsTransparency])
+            .frame(width: Self.size.width, height: Self.size.height)
+            .accessibilityHidden(true)
+    }
+
+    private static let size = CGSize(width: 150, height: 104)
+
+    private static func makeScene(hero: String, pet: String?) -> SKScene {
+        let scene = SKScene(size: size)
+        scene.backgroundColor = .clear
+        scene.scaleMode = .aspectFit
+        func add(_ art: String, height: CGFloat, x: CGFloat, motion: IdleMotion) {
+            let cycle = ArtLibrary.shared.walkCycle(art)
+            guard let texture = cycle.frames(.down).first, cycle.size.height > 0 else { return }
+            texture.filteringMode = .nearest
+            let node = SKSpriteNode(texture: texture, size: cycle.size * (height / cycle.size.height))
+            node.anchorPoint = CGPoint(x: 0.5, y: 0.04)
+            node.position = CGPoint(x: x, y: 2)
+            scene.addChild(node)
+            node.run(motion.action(height: node.size.height, delay: .random(in: 0..<0.6)))
+        }
+        if let pet {
+            add(hero, height: 100, x: size.width / 2 - 18, motion: .breathe)
+            add(pet, height: 58, x: size.width / 2 + 36, motion: IdleMotion.of(art: pet))
+        } else {
+            add(hero, height: 100, x: size.width / 2, motion: .breathe)
+        }
+        return scene
     }
 }
 

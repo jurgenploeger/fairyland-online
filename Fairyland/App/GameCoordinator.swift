@@ -55,9 +55,10 @@ final class GameCoordinator {
         session.markVisited(map.id)
         session.rescaleLevelsIfNeeded()
         session.handOutMissingStarterGifts()
+        let began = Date()
         world = WorldScene(map: map, session: session, input: input, entry: nil)
         wire(world)
-        build(world)
+        build(world, mapID: map.id, began: began)
         startAutosave()
         SoundEffects.shared.preload()
     }
@@ -76,12 +77,42 @@ final class GameCoordinator {
     /// The scene SpriteKit should show right now.
     var scene: SKScene { battle != nil ? (battleScene ?? world) : world }
 
-    /// Builds the scenery a piece at a time; the grid (made in the scene's init) counts as the first part.
-    private func build(_ scene: WorldScene) {
-        loadProgress = 0.15
+    /// Builds the scenery a piece at a time. The bar follows how long each piece took the last time
+    /// this map loaded (on this phone); the first time, the scene's own rough guesses.
+    private func build(_ scene: WorldScene, mapID: String, began: Date) {
+        let learned = Self.learnedSteps(mapID)
+        let gridDone = Date()
+        loadProgress = learned?.first ?? 0.15
         Task { [weak self] in
-            await scene.build { fraction in self?.loadProgress = 0.15 + fraction * 0.8 }
+            var marks = [gridDone]
+            await scene.build { guess in
+                marks.append(Date())
+                let step = marks.count - 1
+                if let learned, step < learned.count {
+                    self?.loadProgress = learned[step]
+                } else {
+                    self?.loadProgress = 0.15 + guess * 0.8
+                }
+            }
+            self?.loadTiming = (mapID, began, marks)
         }
+    }
+
+    /// When the current load began and when each of its steps finished, until the first frame.
+    @ObservationIgnored private var loadTiming: (mapID: String, began: Date, marks: [Date])?
+
+    private static func learnedSteps(_ mapID: String) -> [Double]? {
+        UserDefaults.standard.array(forKey: "loadSteps." + mapID) as? [Double]
+    }
+
+    /// Remembers what share of the whole load each step took, for the next time.
+    private func rememberLoadTiming() {
+        guard let timing = loadTiming else { return }
+        loadTiming = nil
+        let total = Date().timeIntervalSince(timing.began)
+        guard total > 0 else { return }
+        let steps = timing.marks.map { min(0.99, $0.timeIntervalSince(timing.began) / total) }
+        UserDefaults.standard.set(steps, forKey: "loadSteps." + timing.mapID)
     }
 
     private func wire(_ scene: WorldScene) {
@@ -117,6 +148,7 @@ final class GameCoordinator {
 
     /// Keeps the loading card up long enough to read, then fades it out.
     private func finishLoading() {
+        rememberLoadTiming()
         let remaining = 0.8 - Date().timeIntervalSince(loadingStarted)
         Task {
             loadProgress = 1
@@ -133,9 +165,10 @@ final class GameCoordinator {
         session.bossesBeatenHere = []
         if entry == nil { session.playerPosition = nil }
         if entry != nil || map.fence == true { session.reachCheckpoint(map, entry: entry) }
+        let began = Date()
         let scene = WorldScene(map: map, session: session, input: input, entry: entry)
         wire(scene)
-        build(scene)
+        build(scene, mapID: map.id, began: began)
         input.move = .zero
         world = scene
         session.save()
