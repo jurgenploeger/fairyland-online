@@ -490,6 +490,43 @@ final class ArtLibrary {
         images[cacheKey] = image
         return image
     }
+
+    /// A round-portrait crop, like Fairyland's HUD faces: a square about one head high from the top
+    /// of the sprite's visible pixels, centred on it. Cleared with the sprite when it's re-registered.
+    func face(_ id: String) -> UIImage {
+        let cacheKey = id + "#face"
+        if let cached = images[cacheKey] { return cached }
+        let whole = image(id)
+        guard let cgImage = whole.cgImage, let box = Self.visibleBounds(of: cgImage) else { return whole }
+        let side = max(8, min(box.width, box.height * 0.62).rounded())
+        let rect = CGRect(x: (box.midX - side / 2).rounded(), y: max(0, box.minY - 1), width: side, height: side)
+        let face = cgImage.cropping(to: rect).map { UIImage(cgImage: $0) } ?? whole
+        images[cacheKey] = face
+        return face
+    }
+
+    /// The box around a picture's opaque pixels, in pixels from its top left.
+    private static func visibleBounds(of image: CGImage) -> CGRect? {
+        let width = image.width, height = image.height
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let drawn: Bool = pixels.withUnsafeMutableBytes { buffer in
+            guard let context = CGContext(data: buffer.baseAddress, width: width, height: height, bitsPerComponent: 8,
+                                          bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(),
+                                          bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        guard drawn else { return nil }
+        var minX = width, minY = height, maxX = -1, maxY = -1
+        for y in 0..<height {
+            for x in 0..<width where pixels[(y * width + x) * 4 + 3] > 128 {
+                minX = min(minX, x); maxX = max(maxX, x)
+                minY = min(minY, y); maxY = max(maxY, y)
+            }
+        }
+        guard maxX >= 0 else { return nil }
+        return CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1)
+    }
 }
 
 /// Where each direction's frames sit in a walk sheet: one row per direction (the usual

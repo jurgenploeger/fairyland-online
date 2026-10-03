@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// On-map HUD in Fairyland Online's style: H/M/P bars with a level badge and the calendar
-/// plate top-left, a framed minimap top-right, the system log, joystick bottom-left and
+/// On-map HUD in Fairyland Online's style: round faces with HP/MP for you, your companion and
+/// your party, and the calendar plate top-left, a framed minimap top-right, the system log, joystick bottom-left and
 /// a glossy toolbar bottom-right.
 struct WorldHUD: View {
     let coordinator: GameCoordinator
@@ -68,7 +68,7 @@ struct WorldHUD: View {
                 HStack(spacing: 7) {
                     // Settings has its own button up top, next to Chat.
                     ForEach(MenuTab.allCases.filter { $0 != .settings }) { tab in
-                        FLIconButton(icon: tab.icon, label: tab.rawValue, badge: badge(for: tab)) {
+                        FLIconButton(icon: tab.icon, label: tab.rawValue, badge: badge(for: tab), showsLabel: true) {
                             coordinator.open(.menu(tab))
                         }
                     }
@@ -94,33 +94,103 @@ struct WorldHUD: View {
     }
 }
 
-/// H / M / P bars (hero HP, MP, companion HP) with Fairyland's round level badge.
+/// Fairyland's top-left faces: you in a big round frame with your level, HP and MP; your companion
+/// underneath with its own; and the friends in your party, smaller.
 private struct StatusCluster: View {
     let session: GameSession
 
     var body: some View {
         let hero = session.data.hero
         let stats = session.heroStats
-        let pet = session.activePet
-        HStack(spacing: 6) {
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 4) {
-                    Text(hero.name).font(HUDStyle.mono(11)).foregroundStyle(HUDStyle.nameYellow)
-                    Text(session.heroClass.name).font(HUDStyle.mono(9)).foregroundStyle(HUDStyle.dim)
-                }
-                .shadow(color: .black, radius: 0, x: 1, y: 1)
+        VStack(alignment: .leading, spacing: 4) {
+            PortraitRow(face: ArtLibrary.shared.face(GameSession.heroArt), level: hero.level, name: hero.name,
+                        detail: session.heroClass.name, size: 52,
+                        glowing: session.canChooseClass || session.unspentSkillPoints > 0) {
                 TaggedBar(tag: "H", value: hero.hp, maximum: stats.hp, color: HUDStyle.hp)
                 TaggedBar(tag: "M", value: hero.mp, maximum: stats.mp, color: HUDStyle.mp)
-                if let pet {
-                    TaggedBar(tag: "P", value: pet.hp, maximum: session.stats(of: pet).hp, color: HUDStyle.pet)
+            }
+            if let pet = session.activePet {
+                let petStats = session.stats(of: pet)
+                PortraitRow(face: ArtLibrary.shared.face(session.artID(for: pet)), level: pet.level, name: pet.name, size: 38) {
+                    TaggedBar(tag: "H", value: pet.hp, maximum: petStats.hp, color: HUDStyle.pet)
+                    TaggedBar(tag: "M", value: pet.mp, maximum: petStats.mp, color: HUDStyle.mp)
                 }
             }
-            LevelBadge(level: hero.level, glowing: session.canChooseClass || session.unspentSkillPoints > 0)
+            ForEach(session.partyMembers) { friend in
+                PortraitRow(face: ArtLibrary.shared.face(session.artID(for: friend)), level: friend.level, name: friend.name,
+                            detail: session.content.classDef(friend.classID).name, size: 30) {
+                    EmptyView()
+                }
+            }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .frame(width: 214)
-        .background(HUDStyle.panel)
+    }
+}
+
+/// One face in the top-left: a round portrait with a level chip, then a name and bars on a panel.
+private struct PortraitRow<Bars: View>: View {
+    let face: UIImage
+    let level: Int
+    let name: String
+    var detail: String? = nil
+    let size: CGFloat
+    var glowing = false
+    @ViewBuilder let bars: () -> Bars
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Portrait(face: face, level: level, size: size, glowing: glowing)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 4) {
+                    Text(name).font(HUDStyle.mono(size > 40 ? 11 : 10)).foregroundStyle(HUDStyle.nameYellow).lineLimit(1)
+                    if let detail {
+                        Text(detail).font(HUDStyle.mono(9)).foregroundStyle(HUDStyle.dim).lineLimit(1)
+                    }
+                }
+                .shadow(color: .black, radius: 0, x: 1, y: 1)
+                bars()
+            }
+            .frame(width: size > 40 ? 132 : 112, alignment: .leading)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 4)
+            .background(HUDStyle.panel)
+        }
+    }
+}
+
+/// A round, bevelled portrait with Fairyland's little level chip at the bottom left. It glows when
+/// there's something to spend (a class to choose, skill points).
+private struct Portrait: View {
+    let face: UIImage
+    let level: Int
+    let size: CGFloat
+    var glowing = false
+    @State private var pulse = false
+
+    var body: some View {
+        Image(uiImage: face)
+            .interpolation(.none)
+            .resizable()
+            .scaledToFit()
+            .padding(size * 0.08)
+            .frame(width: size, height: size)
+            .background(Circle().fill(RadialGradient(colors: [Color(red: 0.98, green: 0.95, blue: 0.85), Color(red: 0.75, green: 0.88, blue: 0.98)],
+                                                     center: UnitPoint(x: 0.4, y: 0.35), startRadius: 1, endRadius: size * 0.7)))
+            .clipShape(Circle())
+            .overlay(Circle().strokeBorder(HUDStyle.bevel, lineWidth: size > 40 ? 3 : 2))
+            .overlay(alignment: .bottomLeading) {
+                Text("\(level)")
+                    .font(HUDStyle.mono(size > 40 ? 10 : 8))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 4)
+                    .frame(minWidth: size * 0.36, minHeight: size * 0.32)
+                    .background(Circle().fill(HUDStyle.frameDark).overlay(Circle().strokeBorder(HUDStyle.bevel, lineWidth: 1.5)))
+                    .offset(x: -2, y: 2)
+            }
+            .shadow(color: glowing ? HUDStyle.gold.opacity(pulse ? 1 : 0.3) : .black.opacity(0.35), radius: glowing ? 8 : 2, y: glowing ? 0 : 2)
+            .onAppear {
+                guard glowing else { return }
+                withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { pulse = true }
+            }
     }
 }
 
@@ -132,38 +202,12 @@ private struct TaggedBar: View {
 
     var body: some View {
         HStack(spacing: 3) {
-            StatBar(label: "", value: value, maximum: maximum, color: color, height: 10)
+            StatBar(label: "", value: value, maximum: maximum, color: color, height: 9)
             Text(tag)
                 .font(HUDStyle.mono(9))
                 .foregroundStyle(.white)
-                .frame(width: 14, height: 12)
+                .frame(width: 14, height: 11)
                 .background(RoundedRectangle(cornerRadius: 3).fill(HUDStyle.frameDark))
-        }
-    }
-}
-
-/// Fairyland's glossy "LEVEL UP" badge; glows when there's something to spend.
-private struct LevelBadge: View {
-    let level: Int
-    let glowing: Bool
-    @State private var pulse = false
-
-    var body: some View {
-        VStack(spacing: -2) {
-            Text("LV").font(HUDStyle.mono(8))
-            Text("\(level)").font(HUDStyle.font(17))
-        }
-        .foregroundStyle(.white)
-        .shadow(color: HUDStyle.frameDark, radius: 0, x: 1, y: 1)
-        .frame(width: 44, height: 44)
-        .background(
-            Circle()
-                .fill(RadialGradient(colors: [Color(red: 0.7, green: 0.9, blue: 1), Color(red: 0.25, green: 0.55, blue: 0.9), HUDStyle.frameDark], center: UnitPoint(x: 0.35, y: 0.3), startRadius: 1, endRadius: 30))
-                .overlay(Circle().strokeBorder(HUDStyle.bevel, lineWidth: 2.5))
-        )
-        .shadow(color: glowing ? HUDStyle.gold.opacity(pulse ? 1 : 0.3) : .clear, radius: glowing ? 8 : 0)
-        .onAppear {
-            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { pulse = true }
         }
     }
 }
