@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.1",
+      "date": "2026-10-03",
+      "title": "Quieter streets",
+      "notes": [
+        "Names step aside: your hero's and companions' names hide while you walk and come back when you stop.",
+        "Everyone else's name shows only when you walk up to them or tap them."
+      ]
+    },
+    {
       "version": "0.3.0",
       "date": "2026-10-03",
       "title": "Glory in numbers",

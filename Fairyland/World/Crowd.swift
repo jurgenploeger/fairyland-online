@@ -136,7 +136,9 @@ final class Crowd {
         let sheet = Content.shared.race(raceID).sheet(for: look.gender)
         let id = "adv:\(raceID):\(look.key)"
         ArtLibrary.shared.register(id, from: sheet, recolor: GameSession.rules(for: look), key: sheet + "/" + look.key)
-        return Walker(cycle: ArtLibrary.shared.walkCycle(id), label: name, labelColor: color)
+        let walker = Walker(cycle: ArtLibrary.shared.walkCycle(id), label: name, labelColor: color)
+        walker.tagMode = .onDemand
+        return walker
     }
 
     private func add(_ member: Member, to world: SKNode) {
@@ -155,6 +157,7 @@ final class Crowd {
     func update(dt: TimeInterval, player: CGPoint) {
         for member in members {
             let walker = member.walker
+            walker.isNear = walker.position.distance(to: player) < Walker.nameRange
             // Adventurers stop to chat when you walk up to them.
             if member.profile?.hostile == false, walker.position.distance(to: player) < 90 {
                 walker.path = []
@@ -260,6 +263,7 @@ final class Crowd {
         }
         member.walker.path = []
         member.walker.setWalking(false)
+        member.walker.revealTag()
         member.walker.face(Direction(player - member.walker.position, current: member.walker.facing))
         member.wait = 3
         member.chat = .random(in: 20...45)
