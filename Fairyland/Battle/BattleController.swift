@@ -85,7 +85,7 @@ final class BattleController {
             art: session.artID(for: person), level: person.level, element: .neutral, stats: stats,
             hp: stats.hp, mp: stats.mp, skills: skills.map(\.id), captureRate: 0
         )
-        fighter.skillLevels = Dictionary(uniqueKeysWithValues: skills.map { ($0.id, BattleEngine.naturalSkillLevel(for: person.level)) })
+        fighter.skillLevels = Dictionary(uniqueKeysWithValues: skills.map { ($0.id, Combatant.naturalSkillLevel(for: person.level)) })
         return fighter
     }
 
