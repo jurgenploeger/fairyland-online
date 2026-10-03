@@ -82,6 +82,14 @@ struct SkillRow: View {
             }
             Spacer()
             Text("\(GameSession.mpCost(of: skill, level: level)) MP").foregroundStyle(HUDStyle.mp)
+            // Field spells are cast from here, outside battle.
+            if skill.kind == .field, let cast = session.onCastField {
+                let affordable = session.data.hero.mp >= GameSession.mpCost(of: skill, level: level)
+                Button("Cast") { cast(skill) }
+                    .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+                    .disabled(!affordable)
+                    .opacity(affordable ? 1 : 0.5)
+            }
             if session.unspentSkillPoints > 0, level < GameSession.maxSkillLevel {
                 Button {
                     session.upgradeSkill(skill.id)

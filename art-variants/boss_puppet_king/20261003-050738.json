@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 2,
+    "prompt": "wooden marionette puppet king monster, polished dark wood body with ball joints, golden crown and red velvet cape, painted grin, puppet strings rising from its limbs to a large wooden control bar above, chibi, cute boss monster",
+    "prompt_style": "rd_plus__low_res",
+    "width": 40,
+    "height": 40,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1791004056,
+    "credit_cost": 4,
+    "balance_cost": 0.12,
+    "output_urls": [],
+    "model": "rd_plus",
+    "remaining_credits": 0,
+    "remaining_balance": 47.481,
+    "request_id": "bacf5952-97b3-4ad9-8be9-2d1d2d5d8c7f",
+    "outputs_retained_until": 1791090444
+  }
+}

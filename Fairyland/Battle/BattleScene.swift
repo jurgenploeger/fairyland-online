@@ -287,8 +287,9 @@ final class BattleScene: SKScene {
     /// Picks the effect for a skill; bigger and flashier at higher skill levels.
     private func castSkill(_ skill: SkillDef, level: Int, from actorID: Int, hits: [Hit]) async {
         let targets = hits.compactMap { actors[$0.target] }
-        let heal = skill.kind == .heal
-        let color = skill.element?.color ?? (heal ? SkillEffects.healGreen : .white)
+        let heal = skill.kind == .heal || skill.kind == .revive
+        let blessBlue = UIColor(red: 0.6, green: 0.85, blue: 1, alpha: 1)
+        let color = skill.element?.color ?? (heal ? SkillEffects.healGreen : skill.kind == .buff ? blessBlue : .white)
         actors[actorID]?.sprite.flash(color)
         // Upgraded skills gather power first; a mastered one is announced in gold.
         if level >= GameSession.maxSkillLevel { SkillEffects.masterBanner(skill.name, level: level, size: size, in: self) }
@@ -297,6 +298,28 @@ final class BattleScene: SKScene {
             if hold > 0 { await pause(hold) }
         }
         if level >= 3 { SkillEffects.screenFlash(color: color, strength: 0.18 + 0.08 * CGFloat(level - 3), size: size, in: self) }
+        // Revive and Bless: a pillar of light on the ally. A revived fighter rises back into view.
+        if skill.kind == .revive || skill.kind == .buff {
+            for target in targets {
+                if skill.kind == .revive {
+                    target.run(.group([.fadeIn(withDuration: 0.5), .move(to: target.home, duration: 0.5)]), withKey: "revive")
+                }
+                SkillEffects.lightPillar(on: target, level: level, in: stage)
+            }
+            await pause(0.4)
+            for hit in hits {
+                guard let target = actors[hit.target] else { continue }
+                if skill.kind == .revive {
+                    SkillEffects.sparkles(on: target, color: SkillEffects.healGreen, level: 2, in: stage)
+                    Effects.damageBurst("+\(hit.amount)", style: .heal, at: target.top, in: stage)
+                } else {
+                    SkillEffects.shield(on: target, in: stage)
+                    Effects.floatingText("STR & DEF up!", color: blessBlue, at: target.top, in: stage, size: 13)
+                }
+            }
+            for target in targets { SkillEffects.glory(on: target, color: color, level: level, in: stage) }
+            return
+        }
 
         switch skill.animation ?? (heal ? "heal" : skill.kind == .magic ? "fire" : "slash") {
         case "slash":

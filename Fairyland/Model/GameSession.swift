@@ -67,6 +67,9 @@ final class GameSession {
     }
     /// Last known position on the current map (saved with the game).
     @ObservationIgnored var playerPosition: CGPoint?
+    /// Set by the game while you're on a map: casts a field spell like Bridge of Light. Nil on the
+    /// title screen and in tests, where there's nowhere to go.
+    @ObservationIgnored var onCastField: ((SkillDef) -> Void)?
 
     var content: Content { .shared }
 

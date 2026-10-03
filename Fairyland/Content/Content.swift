@@ -110,11 +110,18 @@ nonisolated struct ClassDef: Decodable, Identifiable, Sendable {
 }
 
 nonisolated enum SkillKind: String, Decodable, Sendable {
-    case physical, magic, heal
+    /// `revive` wakes a fainted ally, `buff` raises strength and defense for a few turns, and
+    /// `field` spells are cast from the Character screen outside battle (Bridge of Light).
+    case physical, magic, heal, revive, buff, field
+
+    /// Hurts the other side (what monsters and companions pick when they attack).
+    var isAttack: Bool { self == .physical || self == .magic }
 }
 
 nonisolated enum SkillTarget: String, Decodable, Sendable {
     case enemy, allEnemies, ally, allAllies
+    /// A fainted fighter on your own side (Revive).
+    case fallenAlly
 }
 
 nonisolated struct SkillDef: Decodable, Identifiable, Sendable {

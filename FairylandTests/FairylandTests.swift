@@ -450,6 +450,30 @@ struct RulesTests {
         #expect(engine.outcome == .victory || engine.outcome == .fled)
     }
 
+    @Test func reviveWakesAFaintedCompanionAndBlessHelps() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let heroStats = Stats(hp: 200, mp: 100, attack: 30, defense: 10, magic: 20, speed: 99)
+        var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 40, element: .neutral,
+                             stats: heroStats, hp: 200, mp: 100, skills: ["revive", "bless"], captureRate: 0)
+        hero.skillLevels = ["revive": 1, "bless": 1]
+        let petStats = Stats(hp: 100, mp: 0, attack: 10, defense: 10, magic: 0, speed: 1)
+        let pet = Combatant(id: 1, side: .party, source: .pet(UUID()), name: "Pet", art: jelly.art, level: 10, element: .neutral,
+                            stats: petStats, hp: 0, mp: 0, skills: [], captureRate: 0)
+        let stats = jelly.stats(at: 1)
+        let enemy = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
+                              stats: stats, hp: 9_999, mp: 0, skills: [], captureRate: 0)
+        let engine = BattleEngine(party: [hero, pet], enemies: [enemy], content: content, seed: 7)
+        _ = engine.resolveRound(heroAction: .skill("revive", target: 1))
+        // Revive Lv1 brings them back with 30% of their HP; a level-1 jelly can't knock that out.
+        #expect(engine.combatant(1)!.hp > 0)
+        #expect(engine.combatant(0)!.mp < 100)
+        _ = engine.resolveRound(heroAction: .skill("bless", target: 0))
+        let blessed = engine.combatant(0)!
+        #expect(blessed.blessRounds == BattleEngine.blessLength + 1)
+        #expect(blessed.attack > Double(heroStats.attack))
+    }
+
     @Test func captureNeedsALoneWeakenedMonster() {
         let content = Content.shared
         let jelly = content.monster("jelly")!

@@ -38,6 +38,15 @@ struct Combatant: Identifiable {
     var isRare = false
     /// Skill id → level for the hero; monsters and companions scale with their own level.
     var skillLevels: [String: Int] = [:]
+    /// Bless: rounds left, and how much it raises strength and defense (0.25 = +25%).
+    var blessRounds = 0
+    var blessPower = 0.0
+
+    /// Strength and defense with any Bless on top.
+    var attack: Double { Double(stats.attack) * (blessRounds > 0 ? 1 + blessPower : 1) }
+    var defense: Double { Double(stats.defense) * (blessRounds > 0 ? 1 + blessPower : 1) }
+    /// Fainted, but still on the field to be revived (not sealed or run off).
+    var isFallen: Bool { hp <= 0 && !isCaptured && !hasFled }
 
     func skillLevel(_ id: String) -> Int {
         skillLevels[id] ?? min(GameSession.maxSkillLevel, 1 + level / 4)
@@ -125,6 +134,9 @@ final class BattleEngine {
     /// Whether the hero can throw a Seal Stone (companions hold back when you could).
     var canSeal = true
 
+    /// How many rounds Bless lasts after the one it's cast in.
+    static let blessLength = 3
+
     /// Like Fairyland's capsules: only below 20% HP.
     static let captureThreshold = 0.2
 
@@ -177,6 +189,7 @@ final class BattleEngine {
         round += 1
         for index in combatants.indices {
             combatants[index].isDefending = false
+            if combatants[index].blessRounds > 0 { combatants[index].blessRounds -= 1 }
         }
         // Guarding protects for the whole round, even against faster monsters.
         if case .defend = heroAction, let heroID = hero?.id {
@@ -229,6 +242,9 @@ final class BattleEngine {
                 case .physical: return physicalHit(from: actor, to: target, power: skill.power * boost)
                 case .magic: return magicHit(from: actor, to: target, skill: skill, boost: boost)
                 case .heal: return Hit(target: target.id, amount: Int(Double(healAmount(actor, skill)) * boost), effectiveness: 1, critical: false)
+                // Revive: back on their feet with a share of their HP (more at higher levels).
+                case .revive: return Hit(target: target.id, amount: max(1, Int(Double(target.stats.hp) * skill.power * boost)), effectiveness: 1, critical: false)
+                case .buff, .field: return Hit(target: target.id, amount: 0, effectiveness: 1, critical: false)
                 }
             }
             // Big spells spill over: the chosen target takes the full blast, the rest a share.
@@ -242,10 +258,20 @@ final class BattleEngine {
             }
             events.append(.skill(actor: actor.id, skill: skill, level: level, hits: hits))
             for hit in hits {
-                if skill.kind == .heal {
+                switch skill.kind {
+                case .heal, .revive:
                     mutate(hit.target) { $0.hp = min($0.stats.hp, $0.hp + hit.amount) }
-                } else {
+                case .buff:
+                    let power = skill.power * boost
+                    // Lasts this round and the next three.
+                    mutate(hit.target) {
+                        $0.blessRounds = Self.blessLength + 1
+                        $0.blessPower = power
+                    }
+                case .physical, .magic:
                     applyDamage(hit, events: &events)
+                case .field:
+                    break
                 }
             }
 
@@ -300,7 +326,7 @@ final class BattleEngine {
         guard let weakest = alive(on: .enemies).min(by: { $0.hp < $1.hp }) else { return .defend }
         // Don't finish off a monster you could seal.
         if canSeal, case .ready = captureStatus(of: weakest.id) { return .defend }
-        let attacks = usableSkills(of: pet).filter { $0.kind != .heal }
+        let attacks = usableSkills(of: pet).filter(\.kind.isAttack)
         if let skill = attacks.randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.35 {
             return .skill(skill.id, target: weakest.id)
         }
@@ -326,7 +352,7 @@ final class BattleEngine {
         guard let weakest = alive(on: fighter.side.opposite).min(by: { $0.hp < $1.hp }) else { return .defend }
         // Friends leave a monster you could seal to you.
         if fighter.side == .party, canSeal, case .ready = captureStatus(of: weakest.id) { return .defend }
-        let attacks = skills.filter { $0.kind != .heal }
+        let attacks = skills.filter(\.kind.isAttack)
         if let skill = attacks.randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.45 {
             return .skill(skill.id, target: weakest.id)
         }
@@ -355,7 +381,14 @@ final class BattleEngine {
         case .ally: ally(of: actor, preferring: id).map { [$0] } ?? []
         case .allEnemies: alive(on: actor.side.opposite)
         case .allAllies: alive(on: actor.side)
+        case .fallenAlly: fallen(of: actor, preferring: id).map { [$0] } ?? []
         }
+    }
+
+    /// A fainted fighter on `actor`'s side to revive: the one chosen if they're still down.
+    private func fallen(of actor: Combatant, preferring id: Int) -> Combatant? {
+        if let preferred = combatant(id), preferred.isFallen, preferred.side == actor.side { return preferred }
+        return combatants.first { $0.side == actor.side && $0.isFallen && !$0.isHero }
     }
 
     // MARK: - Numbers
@@ -368,7 +401,7 @@ final class BattleEngine {
 
     private func physicalHit(from attacker: Combatant, to defender: Combatant, power: Double) -> Hit {
         let k = armorConstant(for: defender)
-        var damage = Double(attacker.stats.attack) * power * k / (k + Double(defender.stats.defense))
+        var damage = attacker.attack * power * k / (k + defender.defense)
         damage *= Double.random(in: 0.9...1.1, using: &rng)
         let critical = Double.random(in: 0..<1, using: &rng) < 0.08
         if critical { damage *= 1.5 }
@@ -379,7 +412,7 @@ final class BattleEngine {
     private func magicHit(from attacker: Combatant, to defender: Combatant, skill: SkillDef, boost: Double) -> Hit {
         let effectiveness = (skill.element ?? .neutral).multiplier(against: defender.element)
         let k = armorConstant(for: defender)
-        var damage = Double(attacker.stats.magic) * skill.power * boost * k / (k + Double(defender.stats.defense) / 2)
+        var damage = Double(attacker.stats.magic) * skill.power * boost * k / (k + defender.defense / 2)
         damage *= effectiveness * Double.random(in: 0.9...1.1, using: &rng)
         if defender.isDefending { damage *= 0.5 }
         return Hit(target: defender.id, amount: max(1, Int(damage.rounded())), effectiveness: effectiveness, critical: false)

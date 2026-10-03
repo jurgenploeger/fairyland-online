@@ -5704,63 +5704,25 @@
     {
       "id": "monster_wooden_puppet",
       "kind": "monster",
-      "derive": {
-        "from": "monster_poison_skeleton",
-        "recolor": [
-          {
-            "hue": [
-              0,
-              360
-            ],
-            "minSaturation": 0,
-            "maxSaturation": 0.25,
-            "to": 32,
-            "saturation": 5,
-            "value": 0.95
-          },
-          {
-            "hue": [
-              90,
-              180
-            ],
-            "minSaturation": 0.25,
-            "to": 30,
-            "saturation": 0.8,
-            "value": 0.8
-          }
-        ]
+      "request": {
+        "prompt": "small wooden marionette puppet monster, carved light brown wood body with visible round ball joints, painted rosy cheeks and button eyes, little strings rising from its wrists and head to a wooden cross bar, chibi, cute monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
       }
     },
     {
       "id": "boss_puppet_king",
       "kind": "monster",
-      "derive": {
-        "from": "monster_poison_skeleton",
-        "recolor": [
-          {
-            "hue": [
-              0,
-              360
-            ],
-            "minSaturation": 0,
-            "maxSaturation": 0.25,
-            "to": 36,
-            "saturation": 5,
-            "value": 1.0
-          },
-          {
-            "hue": [
-              90,
-              180
-            ],
-            "minSaturation": 0.25,
-            "to": 48,
-            "saturation": 1.2,
-            "value": 1.2
-          }
-        ]
-      },
-      "scale": 1.6
+      "scale": 1.6,
+      "request": {
+        "prompt": "wooden marionette puppet king monster, polished dark wood body with ball joints, golden crown and red velvet cape, painted grin, puppet strings rising from its limbs to a large wooden control bar above, chibi, cute boss monster",
+        "prompt_style": "rd_plus__low_res",
+        "width": 40,
+        "height": 40,
+        "remove_bg": true
+      }
     },
     {
       "id": "monster_lotus_sprite",
@@ -6105,6 +6067,22 @@
     },
     {
       "id": "skill_first_aid",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_recovery",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_revive",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_bless",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_bridge_of_light",
       "kind": "icon"
     },
     {

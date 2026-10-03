@@ -135,12 +135,28 @@
           "level": 1
         },
         {
+          "skill": "recovery",
+          "level": 10
+        },
+        {
           "skill": "fire_bolt",
           "level": 15
         },
         {
+          "skill": "bridge_of_light",
+          "level": 20
+        },
+        {
           "skill": "stone_spike",
           "level": 30
+        },
+        {
+          "skill": "revive",
+          "level": 35
+        },
+        {
+          "skill": "bless",
+          "level": 45
         },
         {
           "skill": "leaf_storm",
@@ -179,6 +195,10 @@
         {
           "skill": "wild_call",
           "level": 20
+        },
+        {
+          "skill": "revive",
+          "level": 30
         },
         {
           "skill": "mend_beast",

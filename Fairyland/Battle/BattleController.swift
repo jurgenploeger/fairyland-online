@@ -176,7 +176,8 @@ final class BattleController {
     var hero: Combatant? { combatants.first(where: \.isHero) }
     var party: [Combatant] { combatants.filter { $0.side == .party } }
     var enemies: [Combatant] { combatants.filter { $0.side == .enemies } }
-    var skills: [SkillDef] { session.heroSkills }
+    /// Skills usable in battle (Bridge of Light and other field spells are cast from the menu).
+    var skills: [SkillDef] { session.heroSkills.filter { $0.kind != .field } }
     var items: [ItemDef] { session.battleItems }
 
     /// True when a hurt party member could use a healing item, so Items moves out from under "More".
@@ -251,6 +252,13 @@ final class BattleController {
         switch skill.target {
         case .enemy: beginTargeting(.skill(skill), targets: aliveEnemyIDs, prompt: "\(skill.name): choose a monster")
         case .ally: beginTargeting(.skill(skill), targets: aliveAllyIDs, prompt: "\(skill.name): choose who")
+        case .fallenAlly:
+            let fallen = party.filter { $0.isFallen && !$0.isHero }.map(\.id)
+            guard !fallen.isEmpty else {
+                message = "Nobody has fainted. \(skill.name) can wait."
+                return
+            }
+            beginTargeting(.skill(skill), targets: fallen, prompt: "\(skill.name): wake who?")
         case .allEnemies, .allAllies: submit(.skill(skill.id, target: -1))
         }
     }
@@ -332,15 +340,17 @@ final class BattleController {
             message = "\(name(actor)) attacks \(name(hit.target))!" + (hit.critical ? " Critical hit!" : "")
         case .skill(let actor, let skill, let level, let hits):
             mutate(actor) { $0.mp = max(0, $0.mp - GameSession.mpCost(of: skill, level: level)) }
-            SoundEffects.shared.play(skill.kind == .heal ? .heal : .magic)
+            SoundEffects.shared.play(skill.kind.isAttack ? .magic : .heal)
             for hit in hits {
-                if skill.kind == .heal {
-                    mutate(hit.target) { $0.hp = min($0.stats.hp, $0.hp + hit.amount) }
-                } else {
-                    damage(hit)
+                switch skill.kind {
+                case .heal, .revive: mutate(hit.target) { $0.hp = min($0.stats.hp, $0.hp + hit.amount) }
+                case .physical, .magic: damage(hit)
+                case .buff, .field: break
                 }
             }
             var text = "\(name(actor)) uses \(skill.name)\(level > 1 ? " Lv\(level)" : "")!"
+            if skill.kind == .revive, let hit = hits.first { text += " \(name(hit.target)) is back on their feet!" }
+            if skill.kind == .buff, let hit = hits.first { text += " \(name(hit.target)) feels stronger." }
             if hits.contains(where: { $0.effectiveness > 1 }) { text += " A weak spot!" }
             if hits.contains(where: { $0.effectiveness < 1 }) { text += " It was resisted…" }
             message = text

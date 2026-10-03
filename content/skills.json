@@ -1,5 +1,5 @@
 {
-  "_about": "Skills and spells. `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift); `art` is its pixel icon, drawn by tools/skill_art.py. kind: physical | magic | heal. target: enemy | allEnemies | ally | allAllies. animation picks the battle effect (slash, whirlwind, fire, stone, leaves, water, heal, holy, wild, needles, bounce, bite); it grows with the skill's level (1-5, raised with skill points). Elements: metal, wood, water, fire, earth, light, dark. `splash`: from skill level 3 the spell also hits the target's neighbours for a share of the damage (this share at level 5).",
+  "_about": "Skills and spells. `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift); `art` is its pixel icon, drawn by tools/skill_art.py. kind: physical | magic | heal | revive (wakes a fainted ally with `power` of their HP) | buff (raises strength and defense by `power` for 3 turns) | field (cast from the Character screen outside battle). target: enemy | allEnemies | ally | allAllies | fallenAlly. animation picks the battle effect (slash, whirlwind, fire, stone, leaves, water, heal, holy, wild, needles, bounce, bite); it grows with the skill's level (1-5, raised with skill points). Elements: metal, wood, water, fire, earth, light, dark. `splash`: from skill level 3 the spell also hits the target's neighbours for a share of the damage (this share at level 5).",
   "skills": [
     {
       "id": "bash",
@@ -94,13 +94,60 @@
       "id": "blessing",
       "icon": "sun",
       "art": "skill_blessing",
-      "name": "Blessing",
+      "name": "Healing Spring",
       "mp": 12,
       "kind": "heal",
       "power": 1.0,
       "target": "allAllies",
-      "description": "Heal the whole party.",
+      "description": "Healing water washes over the whole party.",
       "animation": "holy"
+    },
+    {
+      "id": "recovery",
+      "icon": "heart-plus",
+      "art": "skill_recovery",
+      "name": "Recovery",
+      "mp": 5,
+      "kind": "heal",
+      "power": 1.5,
+      "target": "ally",
+      "description": "Light mends one ally's wounds.",
+      "animation": "holy"
+    },
+    {
+      "id": "revive",
+      "icon": "sparkles",
+      "art": "skill_revive",
+      "name": "Revive",
+      "mp": 12,
+      "kind": "revive",
+      "power": 0.3,
+      "target": "fallenAlly",
+      "description": "Wake a fainted ally with some of their HP.",
+      "animation": "holy"
+    },
+    {
+      "id": "bless",
+      "icon": "shield-plus",
+      "art": "skill_bless",
+      "name": "Bless",
+      "mp": 8,
+      "kind": "buff",
+      "power": 0.25,
+      "target": "ally",
+      "description": "Raise an ally's strength and defense for 3 turns.",
+      "animation": "holy"
+    },
+    {
+      "id": "bridge_of_light",
+      "icon": "map",
+      "art": "skill_bridge_of_light",
+      "name": "Bridge of Light",
+      "mp": 10,
+      "kind": "field",
+      "power": 0,
+      "target": "ally",
+      "description": "Outside battle: carry yourself back to your checkpoint."
     },
     {
       "id": "wild_call",
