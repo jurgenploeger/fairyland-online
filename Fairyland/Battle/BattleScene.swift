@@ -302,7 +302,7 @@ final class BattleScene: SKScene {
         if skill.kind == .revive || skill.kind == .buff {
             for target in targets {
                 if skill.kind == .revive {
-                    target.run(.group([.fadeIn(withDuration: 0.5), .move(to: target.home, duration: 0.5)]))
+                    target.run(.group([.fadeIn(withDuration: 0.5), .move(to: target.home, duration: 0.5)]), withKey: "revive")
                 }
                 SkillEffects.lightPillar(on: target, level: level, in: stage)
             }

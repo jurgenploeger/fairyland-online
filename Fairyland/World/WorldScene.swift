@@ -872,13 +872,6 @@ final class WorldScene: SKScene {
         })
     }()
 
-    /// Everything the map screen needs.
-    func overview() -> (image: UIImage, player: CGPoint, companion: CGPoint?, name: String, exits: [MapDef.Exit]) {
-        func unit(_ point: CGPoint) -> CGPoint {
-            map.unitPosition(of: map.cell(at: point))
-        }
-        return (minimap, unit(player.position), follower.map { unit($0.position) }, def.name, def.exits)
-    }
 
     // MARK: - Companion
 

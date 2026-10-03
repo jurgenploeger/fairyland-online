@@ -9,7 +9,8 @@
         "New spells in the spirit of Fairyland's Acolyte of Light. Mages learn Recovery (Lv 10, heal an ally), Bridge of Light (Lv 20), Revive (Lv 35, wake a fainted ally mid-battle) and Bless (Lv 45, +25% strength and defense for 3 turns, more at higher levels). Tamers learn Revive at Lv 30, to bring a fainted companion back.",
         "Bridge of Light is cast from the Character screen outside battle: tap Cast to be carried back to your last checkpoint.",
         "The party heal Blessing is now called Healing Spring, like the original spell.",
-        "Wooden Puppets and the Puppet King look like real marionettes now, strings and all, instead of recoloured skeletons."
+        "Wooden Puppets and the Puppet King look like real marionettes now, strings and all, instead of recoloured skeletons.",
+        "Tapping the minimap opens the world map only. The full map of the area you're in no longer shows, so caves and forests stay a mystery until you explore them."
       ]
     },
     {

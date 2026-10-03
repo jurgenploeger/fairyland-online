@@ -47,7 +47,7 @@ private struct CoachStep {
         CoachStep(target: .joystick, icon: .tap, title: "Walking",
                   text: "Drag the stick to walk, or tap the ground and your hero walks there."),
         CoachStep(target: .minimap, icon: .map, title: "Where you are",
-                  text: "The minimap shows this area. Tap it for the whole map and the roads that lead on."),
+                  text: "The minimap shows what's around you. Tap it for the world map."),
         CoachStep(target: .toolbar, icon: .backpack, title: "Your adventure",
                   text: "Your character, companions, bag and quests. A gold dot means there's something new."),
         CoachStep(target: .chat, icon: .talk, title: "Other adventurers",
