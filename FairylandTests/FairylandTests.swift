@@ -478,6 +478,10 @@ struct RulesTests {
         let grump = Adventurer(name: "Grump", raceID: "dwarf", classID: "fighter", level: 7, look: .standard, hostile: true)
         #expect(!session.befriend(grump))
         #expect(session.befriend(momo))
+        // Only friends walking around nearby can join.
+        session.invite(momo.id)
+        #expect(session.partyMembers.isEmpty)
+        session.adventurersAround = [momo.id]
         session.invite(momo.id)
         #expect(session.partyMembers.map(\.name) == ["Momo"])
         // Friends keep up with you.

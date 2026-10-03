@@ -413,6 +413,11 @@ private struct FriendRow: View {
             if inParty {
                 Button("Leave") { session.leaveParty(friend.id) }
                     .buttonStyle(PixelButtonStyle(compact: true))
+            } else if !session.adventurersAround.contains(friend.id) {
+                // Friends have to be here to join you.
+                Text("Not around")
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.dim)
             } else if session.partyMembers.count < GameSession.maxAllies {
                 Button("Invite") { session.invite(friend.id) }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
