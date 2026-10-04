@@ -16,7 +16,8 @@
         "While you talk to someone (or trade, chat or open a menu), the joystick and the buttons step aside instead of peeking out from behind the conversation.",
         "Your companion and friends no longer walk through water or cave walls: where there's no room beside you, they fall in behind you in single file, in your footsteps. Adventurers' pets keep to dry land too.",
         "Caves are dark now: you see as far as your light reaches, a warm circle round you that flickers like a flame, and beyond it the dark. Glowing crystals and moss still shine faintly through it.",
-        "In a cave the minimap shows only what your light has fallen on, so you map it as you go instead of seeing every passage from the start. What you've explored is saved."
+        "In a cave the minimap shows only what your light has fallen on, so you map it as you go instead of seeing every passage from the start. What you've explored is saved.",
+        "Battles keep moving: you have 5 seconds to choose each turn, counting down in a bar under the battle log. When it runs out you attack, going for the monster you last hit (or the first one standing). The clock waits while the chat is open or you're moving the buttons around."
       ]
     },
     {

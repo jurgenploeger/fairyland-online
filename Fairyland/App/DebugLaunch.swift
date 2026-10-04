@@ -25,6 +25,7 @@ import Foundation
 ///   duel           start in a duel with an adventurer of your level (with win: their dropped goods)
 ///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
 ///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
+///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
 ///   menu=<tab>     open character | companions | bag | quests
 ///   bottom         open the menu scrolled to the end
 ///   npc=<id>       open an NPC dialog
@@ -48,6 +49,9 @@ enum DebugLaunch {
     }
 
     static var forcesLandscape: Bool { flags["landscape"] != nil }
+    /// `turntimer=40`: battles give you that many seconds to choose (debug launches have no clock
+    /// otherwise, so screenshots can wait in a battle).
+    static var turnSeconds: TimeInterval? { flags["turntimer"].flatMap(Double.init) }
     /// `arrange`: battles open with the buttons already wiggling, ready to rearrange.
     static var arrangesButtons: Bool { flags["arrange"] != nil }
 
