@@ -86,10 +86,10 @@ final class BattleScene: SKScene {
             // right looking back up-left; both lines sit around the middle of the screen.
             // A wide gap between the sides, so it reads as two lines facing off.
             arrange(controller.enemies, around: CGPoint(x: area.midX - 50, y: area.minY + area.height * 0.64), facing: .down)
-            arrange(controller.party, around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.1), facing: .up)
+            arrangeParty(around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.1), facing: .up)
         } else {
             arrange(controller.enemies, around: CGPoint(x: area.minX + area.width * 0.28, y: area.midY + 4), facing: .right)
-            arrange(controller.party, around: CGPoint(x: area.minX + area.width * 0.6, y: area.midY - 24), facing: .left)
+            arrangeParty(around: CGPoint(x: area.minX + area.width * 0.6, y: area.midY - 24), facing: .left)
         }
         showTargets(controller.validTargets)
     }
@@ -98,6 +98,23 @@ final class BattleScene: SKScene {
     /// group forms a second row behind the first.
     private func arrange(_ group: [Combatant], around center: CGPoint, facing: Direction) {
         let rows = stride(from: 0, to: group.count, by: 5).map { Array(group[$0..<min($0 + 5, group.count)]) }
+        arrange(rows: rows, around: center, facing: facing)
+    }
+
+    /// Your side: up to five stand in one line; a bigger party puts the people in front and the
+    /// companions in a row behind them, each line in the order they joined.
+    private func arrangeParty(around center: CGPoint, facing: Direction) {
+        let party = controller.party
+        guard party.count > 5 else {
+            arrange(party, around: center, facing: facing)
+            return
+        }
+        let people = party.filter { $0.petID == nil }
+        let companions = party.filter { $0.petID != nil }
+        arrange(rows: [companions, people].filter { !$0.isEmpty }, around: center, facing: facing)
+    }
+
+    private func arrange(rows: [[Combatant]], around center: CGPoint, facing: Direction) {
         for (index, row) in rows.enumerated() {
             // The first row stands at the back, away from the other side.
             let depth = CGFloat(index) - CGFloat(rows.count - 1) / 2

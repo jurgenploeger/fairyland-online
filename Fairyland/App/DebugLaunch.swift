@@ -114,9 +114,14 @@ enum DebugLaunch {
             session.data.activePetID = pet.id
         }
         if let count = flags["friends"].flatMap({ Int($0) }) {
-            let people: [(name: String, race: String, classID: String)] = [("Dumpling", "human", "fighter"), ("Sprout", "elf", "mage")]
+            // Most bring a companion, as friends do.
+            let people: [(name: String, race: String, classID: String, pet: String?)] = [
+                ("Dumpling", "human", "fighter", "jelly"), ("Sprout", "elf", "mage", nil),
+                ("Clover", "dwarf", "tamer", "bunny"), ("Maple", "human", "mage", "hedgehog"),
+            ]
             let friends = people.prefix(min(count, GameSession.maxAllies)).map { person in
-                Adventurer(name: person.name, raceID: person.race, classID: person.classID, level: session.data.hero.level, look: .standard)
+                Adventurer(name: person.name, raceID: person.race, classID: person.classID, level: session.data.hero.level,
+                           look: .standard, petSpecies: person.pet)
             }
             session.data.friends = (session.data.friends ?? []) + friends
             session.data.partyIDs = (session.data.partyIDs ?? []) + friends.map(\.id)

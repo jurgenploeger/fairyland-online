@@ -243,8 +243,12 @@ adventurer drops everything they carry (the goods they'd sell you that day).
 - **Level cap 200; rebirth from level 101** (+5 levels per earlier rebirth) for 20,000 gold × (rebirths + 1),
   keeping 8 levels of growth per rebirth. FO does have rebirth (the 2026 video); the numbers are ours.
 - **Capture rules:** at 20% HP or less, on the last monster standing.
-- **Battle layout:** party size, battle rows (the Blademan's row attack suggests there were rows), equipment
-  slots, and the full list of status effects.
+- **Party size:** more than two people, each bringing their pet, from a playtester's memory (2026-10-04).
+  Not found in any source reachable from a cloud session.
+  - Us: you and up to four friends, each with a companion.
+  - Past five, the battle line splits: people in front, companions in a row behind.
+- **Battle layout:** battle rows (the Blademan's row attack suggests there were rows), equipment slots, and
+  the full list of status effects.
 - **Selling products:** Logistics Trading Officers in the three capitals pay more for products than ordinary
   shops.
 

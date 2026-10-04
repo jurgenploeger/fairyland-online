@@ -719,6 +719,26 @@ struct RulesTests {
         #expect(session.friends.count == 1)
     }
 
+    @Test func aFullPartyBringsItsCompanions() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let friends = (0..<5).map { index in
+            Adventurer(name: "Friend \(index)", raceID: "elf", classID: "mage", level: 4, look: .standard, petSpecies: "jelly")
+        }
+        for friend in friends { #expect(session.befriend(friend)) }
+        session.adventurersAround = Set(friends.map(\.id))
+        for friend in friends { session.invite(friend.id) }
+        // Four friends travel with you; the fifth waits for a place.
+        #expect(GameSession.maxAllies == 4)
+        #expect(session.partyMembers.count == 4)
+        let rival = Adventurer(name: "Grump", raceID: "dwarf", classID: "fighter", level: 7, look: .standard, hostile: true)
+        let controller = BattleController.duel(with: rival, session: session)
+        // Each brings their companion, and nobody on your side shares an id with the other (10 and up).
+        #expect(controller.party.filter { $0.petID != nil }.count == 4)
+        let ids = controller.party.map(\.id)
+        #expect(Set(ids).count == ids.count)
+        #expect(ids.allSatisfy { $0 < 10 })
+    }
+
     @Test func questsUnlockLooksAndRoads() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let pink = Content.shared.appearance.hair.first { $0.id == "pink" }!

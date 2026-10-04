@@ -47,8 +47,8 @@ final class WorldScene: SKScene {
     private let focus: DepthOfField
     private var crowd: Crowd?
     private var caveWalls: CaveWalls?
-    /// Friends in your party walk behind you in a little line.
-    private var allies: [(id: UUID, node: Walker)] = []
+    /// Friends in your party walk behind you in a little line, each with their companion at their side.
+    private var allies: [(id: UUID, node: Walker, pet: Walker?)] = []
     /// Roads that stay closed until a quest is done: the barricade nodes and the cells they block.
     private var barricades: [(exit: MapDef.Exit, nodes: [SKNode], cells: Set<GridPoint>)] = []
     private var lastBlockedNotice = Date.distantPast
@@ -1015,6 +1015,7 @@ final class WorldScene: SKScene {
                 SkillEffects.smoke(at: ally.node.position, in: world)
             }
             ally.node.removeFromParent()
+            ally.pet?.removeFromParent()
         }
         allies = members.map { friend in
             if let existing = allies.first(where: { $0.id == friend.id }) { return existing }
@@ -1026,7 +1027,18 @@ final class WorldScene: SKScene {
             node.position = crowd?.position(of: friend.id) ?? (canStand(at: beside) ? beside : player.position)
             crowd?.remove(friend.id, poof: false)
             world.addChild(node)
-            return (friend.id, node)
+            // Their companion comes along too, at their side.
+            var pet: Walker?
+            if let species = friend.petSpecies.flatMap(session.content.monster) {
+                let walker = Walker(cycle: art.walkCycle(species.art), label: nil)
+                walker.walkSpeed = 110
+                walker.motion = IdleMotion.of(art: species.art)
+                let side = node.position + CGVector(dx: 24, dy: 0)
+                walker.position = canStand(at: side) ? side : node.position
+                world.addChild(walker)
+                pet = walker
+            }
+            return (friend.id, node, pet)
         }
     }
 
@@ -1098,6 +1110,10 @@ final class WorldScene: SKScene {
             let place = CGFloat(index + (follower == nil ? 1 : 2)) * 36
             ally.node.follow(leader, dt: dt, footstep: player.footstep(behind: place), canStand: standable)
             ally.node.zPosition = -ally.node.position.y
+            if let pet = ally.pet {
+                pet.follow(ally.node, dt: dt, footstep: player.footstep(behind: place + 18), canStand: standable, beside: true)
+                pet.zPosition = -pet.position.y
+            }
             leader = ally.node
         }
         crowd?.update(dt: dt, player: player.position)
@@ -1232,8 +1248,9 @@ final class WorldScene: SKScene {
     func battleBackdrop(hiding npcID: String? = nil) -> SKTexture? {
         let visible = CGRect(x: cam.position.x - size.width / 2, y: cam.position.y - size.height / 2, width: size.width, height: size.height)
         let boss: [SKNode] = npcs.filter { $0.def.id == npcID }.map(\.node)
-        let hidden: [SKNode] = [player, follower].compactMap { $0 } + allies.map(\.node) + boss
+        var hidden: [SKNode] = [player, follower].compactMap { $0 } + allies.map(\.node) + boss
             + world.children.filter { $0.name == Effects.tapMarkerName } + (lantern?.nodes ?? [])
+        hidden += allies.compactMap(\.pet)
         hidden.forEach { $0.isHidden = true }
         defer { hidden.forEach { $0.isHidden = false } }
         return view?.texture(from: world, crop: visible)

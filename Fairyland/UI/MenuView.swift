@@ -372,7 +372,7 @@ private struct CompanionsTab: View {
             }
 
             SectionTitle(text: "Party & friends")
-            Text("Befriend adventurers you meet (walk up to one). Up to \(GameSession.maxAllies) friends can travel and fight with you.")
+            Text("Befriend adventurers you meet (walk up to one). Up to \(GameSession.maxAllies) friends can travel and fight with you, and they bring their companions.")
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
             if session.friends.isEmpty {
@@ -391,8 +391,15 @@ private struct FriendRow: View {
 
     var body: some View {
         let inParty = session.isInParty(friend)
+        let pet = friend.petSpecies.flatMap(session.content.monster)
         HStack(spacing: 10) {
+            // Their companion at their feet.
             SpriteImage(art: session.artID(for: friend), size: 44)
+                .overlay(alignment: .bottomTrailing) {
+                    if let pet {
+                        SpriteImage(art: pet.art, size: 24).offset(x: 12, y: 4)
+                    }
+                }
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(friend.name)
@@ -408,6 +415,11 @@ private struct FriendRow: View {
                 Text("Lv \(friend.level) \(session.content.race(friend.raceID).name) \(session.content.classDef(friend.classID).name)")
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
+                if let pet {
+                    Text("with their \(pet.name)")
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.green)
+                }
             }
             Spacer()
             if inParty {
@@ -421,6 +433,10 @@ private struct FriendRow: View {
             } else if session.partyMembers.count < GameSession.maxAllies {
                 Button("Invite") { session.invite(friend.id) }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+            } else {
+                Text("Party full")
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.dim)
             }
         }
         .font(HUDStyle.font(12))
