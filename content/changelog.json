@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.33",
+      "date": "2026-10-04",
+      "title": "Gear from battles",
+      "notes": [
+        "Monsters drop equipment now: weapons, armour and accessories from up to their own level, mostly for your class. Stronger fights pay better: a monster at your level drops a piece 6% of the time, ten levels above you 16%, well below you 2%. A rare monster drops one a third of the time, and a boss always does, on top of its own rare drops. Two pieces at most a fight.",
+        "How many you have of an item shows as a small blue badge on its picture: in your bag, on the Character tab, in battle's item list and in what a win turned up."
+      ]
+    },
+    {
       "version": "0.3.32",
       "date": "2026-10-04",
       "title": "Fire looks like fire",

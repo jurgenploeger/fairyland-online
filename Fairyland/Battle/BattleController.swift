@@ -1084,6 +1084,23 @@ final class BattleController {
                 loot[material.id, default: 0] += 1
             }
         }
+
+        // Equipment: now and then a beaten monster drops gear from up to its own level, more often
+        // the stronger it is next to you; a rare one often, a boss always. Two pieces at most a fight.
+        var gearFound = 0
+        for foe in engine.combatants where foe.side == .enemies && !foe.isCaptured && !foe.hasFled {
+            guard gearFound < 2 else { break }
+            guard case .wild = foe.source, let id = foe.speciesID else { continue }
+            let isBoss = content.monster(id)?.boss == true
+            let chance = GameSession.equipmentDropChance(level: foe.level, heroLevel: session.data.hero.level,
+                                                         rare: foe.isRare, boss: isBoss)
+            guard Double.random(in: 0..<1) < chance,
+                  let gear = session.equipmentDrop(level: foe.level, best: foe.isRare || isBoss) else { continue }
+            session.addItem(gear.id)
+            loot[gear.id, default: 0] += 1
+            gearFound += 1
+            lines.append("\(foe.name) dropped \(gear.name)!")
+        }
         session.save()
         return lines
     }

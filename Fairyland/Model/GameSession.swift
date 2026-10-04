@@ -1168,6 +1168,40 @@ final class GameSession {
         return Double.random(in: 0..<1) < 0.3 && options.count > 1 ? options[1] : options[0]
     }
 
+    /// How likely a beaten wild monster is to drop a piece of equipment: 6%, a point more for each
+    /// level it has over you (up to 16%) and a point less for each below (down to 2%), so stronger
+    /// fights pay better; a rare monster 35%, and a boss always.
+    static func equipmentDropChance(level: Int, heroLevel: Int, rare: Bool, boss: Bool) -> Double {
+        if boss { return 1 }
+        if rare { return 0.35 }
+        return min(0.16, max(0.02, 0.06 + 0.01 * Double(level - heroLevel)))
+    }
+
+    /// The piece of equipment a beaten monster of `level` drops: a weapon, armour or accessory from
+    /// the twelve levels up to its own (the top six from a rare monster or a boss), the higher ones
+    /// more often. Three times in four it's something your class can use. Bosses' own rare drops
+    /// aren't in it; those stay theirs.
+    func equipmentDrop(level: Int, best: Bool = false) -> ItemDef? {
+        let span = best ? 6 : 12
+        // Past the best gear there is, a monster drops from the top.
+        let top = min(level, content.items.compactMap(\.level).max() ?? level)
+        let bossDrops = Set(content.monsters.flatMap { $0.drops ?? [] }.map(\.item))
+        let pool = content.items.filter {
+            ItemType.equipmentSlots.contains($0.type) && !bossDrops.contains($0.id)
+                && ($0.level ?? 1) <= top && ($0.level ?? 1) > top - span
+        }
+        let yours = pool.filter { $0.classes?.contains(data.hero.classID) ?? true }
+        let choices = !yours.isEmpty && Double.random(in: 0..<1) < 0.75 ? yours : pool
+        // An item at the top of the range is `span` times as likely as one at the bottom.
+        let weights = choices.map { Double(($0.level ?? 1) - (top - span)) }
+        var roll = Double.random(in: 0..<max(1, weights.reduce(0, +)))
+        for (item, weight) in zip(choices, weights) {
+            if roll < weight { return item }
+            roll -= weight
+        }
+        return choices.last
+    }
+
     /// Uses a potion or ether outside battle, on the hero or a companion. Returns a message.
     /// Nothing is used up when it wouldn't help (Seal Stones and eggs aren't drunk at all).
     @discardableResult

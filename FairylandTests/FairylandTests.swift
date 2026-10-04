@@ -383,6 +383,37 @@ struct RulesTests {
         }
     }
 
+    @Test func monstersDropGearFromUpToTheirLevel() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.data.hero.classID = "fighter"
+        let bossDrops = Set(Content.shared.monsters.flatMap { $0.drops ?? [] }.map(\.item))
+        var usable = 0
+        for _ in 0..<400 {
+            let gear = try #require(session.equipmentDrop(level: 40))
+            #expect(ItemType.equipmentSlots.contains(gear.type))
+            #expect((29...40).contains(gear.level ?? 1), "\(gear.id) is level \(gear.level ?? 1)")
+            #expect(!bossDrops.contains(gear.id), "\(gear.id) is a boss's own drop")
+            if gear.classes?.contains("fighter") ?? true { usable += 1 }
+        }
+        // Mostly gear your class can use (three in four, plus what the rest happens to hit).
+        #expect(usable > 240)
+        for _ in 0..<100 {
+            let best = try #require(session.equipmentDrop(level: 40, best: true))
+            #expect((35...40).contains(best.level ?? 1))
+        }
+        // Past the best gear there is, drops come from the top.
+        let top = try #require(Content.shared.items.compactMap(\.level).max())
+        #expect((session.equipmentDrop(level: top + 50)?.level ?? 0) > top - 12)
+        // Stronger fights drop gear more often; a rare monster often, a boss always.
+        let even = GameSession.equipmentDropChance(level: 30, heroLevel: 30, rare: false, boss: false)
+        let above = GameSession.equipmentDropChance(level: 45, heroLevel: 30, rare: false, boss: false)
+        let below = GameSession.equipmentDropChance(level: 10, heroLevel: 30, rare: false, boss: false)
+        #expect(below < even && even < above)
+        #expect(abs(above - 0.16) < 1e-9 && abs(below - 0.02) < 1e-9)
+        #expect(GameSession.equipmentDropChance(level: 30, heroLevel: 30, rare: true, boss: false) > above)
+        #expect(GameSession.equipmentDropChance(level: 30, heroLevel: 30, rare: false, boss: true) == 1)
+    }
+
     @Test func levelsStopAtTheCap() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.data.hero.level = GameSession.levelCap

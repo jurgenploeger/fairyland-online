@@ -298,9 +298,9 @@ private struct EquipmentRow: View {
                 // The choices line up with the worn item: same icon size, same column.
                 ForEach(options) { item in
                     HStack(spacing: Self.spacing) {
-                        ItemIcon(item: item, size: Self.iconSize)
+                        ItemIcon(item: item, size: Self.iconSize, count: session.count(of: item.id))
                         VStack(alignment: .leading, spacing: 1) {
-                            Text("\(item.name)\(session.spareCount(item))")
+                            Text(item.name)
                             Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
                         }
                         Spacer()
@@ -389,14 +389,6 @@ extension View {
                     .overlay(Capsule().inset(by: 1).strokeBorder(ElementGem.bevel, lineWidth: 0.75))
                     .shadow(color: .black.opacity(0.35), radius: 1, x: 0, y: 1)
             )
-    }
-}
-
-private extension GameSession {
-    /// " ×2" after gear you have more than one of, as potions and materials show.
-    func spareCount(_ item: ItemDef) -> String {
-        let owned = count(of: item.id)
-        return owned > 1 ? " ×\(owned)" : ""
     }
 }
 
@@ -689,9 +681,9 @@ private struct BagTab: View {
             }
             ForEach(session.consumables) { item in
                 HStack(spacing: 10) {
-                    ItemIcon(item: item, size: 36)
+                    ItemIcon(item: item, size: 36, count: session.count(of: item.id))
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("\(item.name) ×\(session.count(of: item.id))")
+                        Text(item.name)
                         Text(item.description ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                     }
                     Spacer()
@@ -731,9 +723,9 @@ private struct BagTab: View {
             }
             ForEach(session.bagEquipment) { item in
                 HStack(spacing: 10) {
-                    ItemIcon(item: item, size: 36)
+                    ItemIcon(item: item, size: 36, count: session.count(of: item.id))
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("\(item.name)\(session.spareCount(item))  ·  \(item.type.displayName)")
+                        Text("\(item.name)  ·  \(item.type.displayName)")
                         Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
                     }
                     Spacer()
@@ -754,9 +746,9 @@ private struct BagTab: View {
             }
             ForEach(session.bagMaterials) { item in
                 HStack(spacing: 10) {
-                    ItemIcon(item: item, size: 28)
+                    ItemIcon(item: item, size: 28, count: session.count(of: item.id))
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("\(item.name) ×\(session.count(of: item.id))")
+                        Text(item.name)
                         Text(item.description ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                     }
                     Spacer()

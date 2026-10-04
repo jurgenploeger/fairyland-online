@@ -238,7 +238,9 @@ Full Heal.
   Metal Working and Gem Cutting, which make equipment.
 
 **Us:** monsters drop wood, metal, hide and gems, and three town smiths forge weapons from them. There's no
-gathering and no crafting level, and forging always works.
+gathering and no crafting level, and forging always works. Monsters also drop equipment from up to their own
+level (6% a monster at your level, up to 16% above it, 2% well below; rares 35%, bosses always), mostly for
+your class (`GameSession.equipmentDrop`).
 
 ## Titles, fame and PvP
 
@@ -253,6 +255,8 @@ adventurer drops everything they carry (the goods they'd sell you that day).
 
 ## Unverified, or only our own repo says so
 
+- **Equipment drops:** monsters drop equipment, and stronger fights drop better gear. From a playtester's
+  memory (2026-10-04); check the rates on the ToM wiki.
 - **PK drops:** a player beaten in PvP drops their items. From a playtester's memory (2026-10-04);
   not in any source reachable from a cloud session. Check on the ToM wiki.
 - **Level cap 200; rebirth from level 101** (+5 levels per earlier rebirth) for 20,000 gold × (rebirths + 1),

@@ -132,10 +132,9 @@ struct BattleView: View {
                 }
                 ForEach(controller.items) { item in
                     ChoiceRow(action: { controller.useItem(item) }, enabled: true) {
-                        ItemIcon(item: item, size: 26)
+                        ItemIcon(item: item, size: 26, count: controller.session.count(of: item.id))
                         Text(item.name)
                         Spacer()
-                        Text("×\(controller.session.count(of: item.id))").foregroundStyle(HUDStyle.frameDark)
                     }
                 }
             }
@@ -1156,17 +1155,7 @@ struct LootGrid: View {
                 ForEach(Array(loot.enumerated()), id: \.offset) { _, entry in
                     if let item = Content.shared.item(entry.id) {
                         VStack(spacing: 3) {
-                            ItemIcon(item: item, size: 40)
-                                .overlay(alignment: .bottomTrailing) {
-                                    if entry.count > 1 {
-                                        Text("×\(entry.count)")
-                                            .font(HUDStyle.font(10))
-                                            .foregroundStyle(HUDStyle.ink)
-                                            .padding(.horizontal, 4)
-                                            .background(Capsule().fill(HUDStyle.gold))
-                                            .offset(x: 6, y: 4)
-                                    }
-                                }
+                            ItemIcon(item: item, size: 40, count: entry.count)
                             Text(item.name)
                                 .font(HUDStyle.font(10))
                                 .foregroundStyle(HUDStyle.cream)
