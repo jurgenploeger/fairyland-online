@@ -256,7 +256,7 @@ for map_def in maps.values():
     for rule in palette.get("recolor", []):
         check(set(rule) <= rule_keys, f"{where} → unknown recolor keys {set(rule) - rule_keys}")
 
-ambience_keys = {"particles", "butterflies", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground", "focus"}
+ambience_keys = {"particles", "butterflies", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground", "focus", "darkness"}
 for map_def in maps.values():
     ambience = map_def.get("ambience") or {}
     where = f"map {map_def['id']} ambience"
@@ -276,6 +276,14 @@ for map_def in maps.values():
         check(0 <= focus.get("blur", 1.5) <= 6, f"{where} focus → blur should be 0...6 points")
         check(0 <= focus.get("band", 0.4) <= 0.9, f"{where} focus → band should be 0...0.9")
         check(0 <= focus.get("near", 0.5) <= 1, f"{where} focus → near should be 0...1")
+    if "darkness" in ambience:
+        dark = ambience["darkness"]
+        check(set(dark) <= {"radius", "alpha", "color", "light"}, f"{where} darkness → unknown keys {set(dark) - {'radius', 'alpha', 'color', 'light'}}")
+        check(80 <= dark.get("radius", 190) <= 500, f"{where} darkness → radius should be 80...500 points")
+        check(0 < dark.get("alpha", 0.9) <= 1, f"{where} darkness → alpha should be above 0, up to 1")
+        for key in ("color", "light"):
+            if key in dark:
+                check(bool(hex_colour.match(dark[key])), f"{where} darkness → {key} must be a #RRGGBB colour")
     if "foreground" in ambience:
         for art_id in ambience["foreground"].get("art", []):
             check(art_id in art, f"{where} foreground → unknown art {art_id}")

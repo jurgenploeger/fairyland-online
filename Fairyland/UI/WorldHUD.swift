@@ -25,7 +25,7 @@ struct WorldHUD: View {
 
             VStack(alignment: .trailing, spacing: 6) {
                 MinimapWindow(
-                    image: coordinator.world.minimap,
+                    image: coordinator.world.minimapImage(explored: session.exploredVersion),
                     name: session.mapName,
                     cell: session.mapCell,
                     columns: coordinator.world.def.width,
