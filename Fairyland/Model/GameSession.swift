@@ -702,9 +702,17 @@ final class GameSession {
 
     /// Their walk sheet in their colours.
     func artID(for adventurer: Adventurer) -> String {
-        let sheet = content.race(adventurer.raceID).sheet(for: adventurer.look.gender)
-        let id = "adv:\(adventurer.raceID):\(adventurer.look.key)"
-        ArtLibrary.shared.register(id, from: sheet, recolor: Self.rules(for: adventurer.look), key: sheet + "/" + adventurer.look.key)
+        Self.registerAdventurer(race: adventurer.raceID, look: adventurer.look)
+    }
+
+    /// Draws another adventurer from the same paper-doll layers as a hero, so their hair takes its
+    /// colour on every shade too (a whole-sheet recolour leaves the ginger's deep reds and pale tips).
+    static func registerAdventurer(race raceID: String, look: Look) -> String {
+        let race = Content.shared.race(raceID)
+        let sheet = race.sheet(for: look.gender)
+        let id = "adv:\(raceID):\(look.key)"
+        ArtLibrary.shared.register(id, from: sheet, recolor: Self.rules(for: look), key: sheet + "/" + look.key,
+                                   layers: Self.layers(race: race, look: look))
         return id
     }
 

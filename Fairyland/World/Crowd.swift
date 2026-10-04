@@ -189,11 +189,9 @@ final class Crowd {
                     gender: options.genders.randomElement()?.id)
     }
 
-    /// Someone of a race and look, recoloured like a customised hero.
+    /// Someone of a race and look, drawn like a customised hero.
     private static func person(_ name: String, race raceID: String, look: Look, color: UIColor, badge: PlayerBadge? = nil) -> Walker {
-        let sheet = Content.shared.race(raceID).sheet(for: look.gender)
-        let id = "adv:\(raceID):\(look.key)"
-        ArtLibrary.shared.register(id, from: sheet, recolor: GameSession.rules(for: look), key: sheet + "/" + look.key)
+        let id = GameSession.registerAdventurer(race: raceID, look: look)
         let walker = Walker(cycle: ArtLibrary.shared.walkCycle(id), label: name, labelColor: color, badge: badge)
         walker.tagMode = .onDemand
         return walker

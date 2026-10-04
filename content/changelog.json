@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.25",
+      "date": "2026-10-04",
+      "title": "Bots' hair, every shade",
+      "notes": [
+        "Other adventurers' hair takes its colour on every shade, like yours: no more red strands and outlines in black, blue or white hair, in town, in your party, in battle and on their cards."
+      ]
+    },
+    {
       "version": "0.3.24",
       "date": "2026-10-04",
       "title": "Companions behind their owners",
