@@ -32,6 +32,10 @@ import Foundation
 ///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
 ///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
 ///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
+///   mod            moderator mode (a MOD tag, and the chat's World channel) for this launch only
+///   announce       once the map is on screen: a rare sighting, news of another adventurer and, with mod,
+///                  a World message (with chat: then the chat opens)
+///   chat           open the chat window
 ///   menu=<tab>     open character | companions | bag | quests
 ///   profile=<who>  open someone's stats: hero | pet (with pet=) | friend (with friends=)
 ///   bottom         open the menu scrolled to the end
@@ -63,6 +67,8 @@ enum DebugLaunch {
     static var bossWave: Int? { flags["wave"].flatMap { Int($0) } }
     /// `arrange`: battles open with the buttons already wiggling, ready to rearrange.
     static var arrangesButtons: Bool { flags["arrange"] != nil }
+    /// `mod`: moderator mode for this launch, without touching the saved setting.
+    static var isModerator: Bool { flags["mod"] != nil }
 
     /// A debug game (tests, screenshots): the first-play tour stays hidden unless `coach` is set.
     static var isActive: Bool { flags["newgame"] != nil }
@@ -268,6 +274,24 @@ enum DebugLaunch {
             }
         }
         #endif
+        // `announce`: once the map is on screen, a few notices (and the chat, with `chat`).
+        if flags["announce"] != nil {
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard coordinator.isReady else { continue }
+                    coordinator.announcer.showOffForDebug()
+                    // A moderator's World message, which adventurers about answer.
+                    if coordinator.session.isModerator {
+                        coordinator.broadcast("Welcome to Fairyland! Be kind, and have fun out there.")
+                    }
+                    if flags["chat"] != nil { coordinator.open(.chat) }
+                    return
+                }
+            }
+        } else if flags["chat"] != nil {
+            coordinator.open(.chat)
+        }
         if let tab = flags["menu"].flatMap({ MenuTab(rawValue: $0.capitalized) }) {
             coordinator.open(.menu(tab))
         }

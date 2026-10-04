@@ -276,6 +276,15 @@ adventurer drops everything they carry (the goods they'd sell you that day).
     first. Whoever is down at the end wakes at their own checkpoint (you get no EXP if your friends won it),
     and friends still standing when you fell wait where the fight was. Waiting friends stay in the party but
     sit out fights until you walk up to them.
+- **Bots, moderators and announcements:** ours, asked for in playtesting (2026-10-04). FO's chat channels,
+  GM notices and player stalls (players selling under a sign in town) aren't in any source reachable from a
+  cloud session; check the ToM wiki.
+  - Us (since 0.3.22): computer-run adventurers wear a BOT tag. A moderator (switched on per device with a
+    code typed in the chat, `Moderation`) wears MOD and has a World channel that every map's chat shows.
+  - Announcements (content/announcements.json) cover dawn and dusk, arrivals, other adventurers' news, and
+    rare sightings that really raise a rare monster's odds on its map for 20 minutes.
+  - Goldburg's square has market traders under signs, selling their real deals of the day
+    (`crowd.traders`). `botDensity` in content/crowd.json thins out every map's bots.
 - **Selling products:** Logistics Trading Officers in the three capitals pay more for products than ordinary
   shops.
 

@@ -1,9 +1,13 @@
 {
-  "_about": "Background life on the maps. Adventurers stand in for Fairyland's other players: a random race and look, sometimes with a companion, wandering and chatting. Villagers potter around towns. How many of each a map gets is its `crowd` in maps.json. Tap anyone to hear a line.",
+  "_about": "Background life on the maps. Adventurers stand in for Fairyland's other players until there's online play, and say so with a BOT tag: a random race and look, sometimes with a companion, wandering and chatting. Villagers potter around towns. How many of each a map gets is its `crowd` in maps.json, with `traders`: market traders standing about the main square, their wares on a sign over their heads, calling out their real deals (`traderLines`: {item} and {price} for what they sell, {buy} and {price} for what they'd buy from you). `botDensity` scales every map's adventurers and traders (1: all of them); turn it down as real players arrive. `modReplies` answer a moderator's World message. Tap anyone to hear a line.",
+  "botDensity": 1,
   "adventurerNames": [
-    "Momo", "Pudding", "Lulu", "Kiki", "Tofu", "Sora", "Bubbles", "Mochi", "Pippin", "Clover",
-    "Nana", "Yuki", "Toffee", "Maple", "Juniper", "Biscuit", "Hazel", "Sprout", "Rin", "Miso",
-    "Poppy", "Taro", "Luna", "Fern", "Dumpling", "Kiwi", "Sunny", "Pebble", "Noodle", "Wisp"
+    "Momo", "Pudding", "Lulu", "Kiki", "Tofu", "Sora", "Bubbles", "Mochi", "Pippin", "Clover", "Nana",
+    "Yuki", "Toffee", "Maple", "Juniper", "Biscuit", "Hazel", "Sprout", "Rin", "Miso", "Poppy", "Taro",
+    "Luna", "Fern", "Dumpling", "Kiwi", "Sunny", "Pebble", "Noodle", "Wisp", "Peanut", "Ginger", "Cocoa",
+    "Bean", "Pickle", "Waffle", "Muffin", "Sage", "Basil", "Olive", "Willow", "Aster", "Daisy",
+    "Bramble", "Thistle", "Nutmeg", "Cinder", "Ember", "Pip", "Mango", "Peaches", "Cosmo", "Echo",
+    "Nimbus", "Pixel", "Ziggy", "Tango", "Lumi", "Puddle", "Saffron"
   ],
   "adventurerLines": [
     "Anyone seen a Sakura Bunny?",
@@ -22,6 +26,14 @@
     "Heading to the shore, who's coming?",
     "Nice outfit!",
     "Remember to rest at the healer~"
+  ],
+  "traderLines": [
+    "WTS {item} {price}g!",
+    "Selling {item}, {price}g. Find me in the square!",
+    "{item} for only {price}g, cheapest in town!",
+    "Anyone need a {item}? {price}g!",
+    "WTB {buy}, paying {price}g!",
+    "Buying {buy} for {price}g, come see me!"
   ],
   "villagerNames": [
     "Old Tom", "Granny Bea", "Farmer Ned", "Little Pim", "Baker Rosa", "Milo", "Ada", "Wren",
@@ -43,5 +55,11 @@
     "hi!", "hello :)", "hey there", "^_^", "lol", "good luck!", "same here", "nice!",
     "want to party up?", "haha", "gg", "o/", "see you around!", "yay"
   ],
-  "companions": ["pet_walk", "monster_jelly", "monster_bun", "monster_pineapple", "pet_walk_sakura", "monster_jelly_frost", "monster_bun_cotton"]
+  "modReplies": [
+    "thanks mod!", "o7", "yes, mod!", "noted ^_^", "hi mod!", "will do!", "ty mod :D"
+  ],
+  "companions": [
+    "pet_walk", "monster_jelly", "monster_bun", "monster_pineapple", "pet_walk_sakura",
+    "monster_jelly_frost", "monster_bun_cotton"
+  ]
 }

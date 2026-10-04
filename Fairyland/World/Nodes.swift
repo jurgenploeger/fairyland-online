@@ -48,6 +48,36 @@ enum Nodes {
         return node
     }
 
+    /// A market trader's sign: a little wooden board over their head with something they sell.
+    static func shopSign(_ text: String) -> SKSpriteNode {
+        let base = UIFont.systemFont(ofSize: 10, weight: .heavy)
+        let font = base.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: 10) } ?? base
+        let wood = UIColor(red: 0.42, green: 0.25, blue: 0.1, alpha: 1)
+        let string = NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: wood])
+        let fit = string.size()
+        let board = CGRect(x: 1, y: 1, width: ceil(fit.width) + 14, height: ceil(fit.height) + 6)
+        let canvas = CGSize(width: board.width + 2, height: board.height + 2)
+        let image = UIGraphicsImageRenderer(size: canvas).image { _ in
+            let shape = UIBezierPath(roundedRect: board, cornerRadius: 3)
+            UIColor(red: 0.95, green: 0.8, blue: 0.52, alpha: 0.97).setFill()
+            shape.fill()
+            wood.setStroke()
+            shape.lineWidth = 1.5
+            shape.stroke()
+            // Two nail heads, so it reads as a board.
+            wood.setFill()
+            for x in [board.minX + 3.5, board.maxX - 3.5] {
+                UIBezierPath(ovalIn: CGRect(x: x - 1, y: board.midY - 1, width: 2, height: 2)).fill()
+            }
+            string.draw(at: CGPoint(x: board.minX + 7, y: board.minY + 3))
+        }
+        let texture = SKTexture(image: image)
+        texture.filteringMode = .linear
+        let node = SKSpriteNode(texture: texture, size: image.size)
+        node.anchorPoint = CGPoint(x: 0.5, y: 0)
+        return node
+    }
+
     static func outlined(_ text: String, size: CGFloat, color: UIColor, monospaced: Bool = false) -> NSAttributedString {
         let base = monospaced ? UIFont.monospacedSystemFont(ofSize: size, weight: .bold) : UIFont.systemFont(ofSize: size, weight: .heavy)
         let font = monospaced ? base : (base.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: size) } ?? base)
@@ -107,41 +137,59 @@ enum IdleMotion: String {
     }
 }
 
-/// A name tag like Fairyland's: yellow text with a solid dark outline, and an optional
-/// "[Lv.3]" prefix in cream. Drawn into a crisp texture (outline first, then the letters on
-/// top) so the outline grows outward instead of eating into small text.
+/// A name tag like Fairyland's: yellow text with a solid dark outline, an optional "[Lv.3]"
+/// prefix in cream, and an optional pill after the name (BOT for computer-run adventurers, MOD for a
+/// moderator). Drawn into a crisp texture (outline first, then the letters on top) so the outline
+/// grows outward instead of eating into small text.
 final class NameTag: SKNode {
     private let sprite = SKSpriteNode()
     private let color: UIColor
     private let size: CGFloat
     /// What's drawn now, so setting the same text again skips re-rendering the texture.
     private var shown: String?
+    private var label: String
+    private var level: Int?
+    private var badge: PlayerBadge?
 
     init(_ text: String, level: Int? = nil, color: UIColor = Nodes.nameYellow, size: CGFloat = 12,
-         alignment: SKLabelVerticalAlignmentMode = .bottom) {
+         alignment: SKLabelVerticalAlignmentMode = .bottom, badge: PlayerBadge? = nil) {
         self.color = color
         self.size = size
+        label = text
+        self.level = level
+        self.badge = badge
         super.init()
         zPosition = 5_000
         sprite.anchorPoint = CGPoint(x: 0.5, y: alignment == .top ? 1 : alignment == .center ? 0.5 : 0)
         addChild(sprite)
-        setText(text, level: level)
+        redraw()
     }
 
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
 
     func setText(_ text: String, level: Int? = nil) {
-        let key = "\(level.map(String.init) ?? "")|\(text)"
+        label = text
+        self.level = level
+        redraw()
+    }
+
+    func setBadge(_ badge: PlayerBadge?) {
+        self.badge = badge
+        redraw()
+    }
+
+    private func redraw() {
+        let key = "\(level.map(String.init) ?? "")|\(label)|\(badge?.rawValue ?? "")"
         guard key != shown else { return }
         shown = key
-        let image = Self.render(prefix: level.map { "[Lv.\($0)] " } ?? "", text: text, color: color, size: size)
+        let image = Self.render(prefix: level.map { "[Lv.\($0)] " } ?? "", text: label, color: color, size: size, badge: badge)
         let texture = SKTexture(image: image)
         texture.filteringMode = .linear
         sprite.texture = texture
         sprite.size = image.size
     }
 
-    private static func render(prefix: String, text: String, color: UIColor, size: CGFloat) -> UIImage {
+    private static func render(prefix: String, text: String, color: UIColor, size: CGFloat, badge: PlayerBadge?) -> UIImage {
         let base = UIFont.systemFont(ofSize: size, weight: .heavy)
         let font = base.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: size) } ?? base
         let letters = NSMutableAttributedString(string: prefix, attributes: [.font: font, .foregroundColor: UIColor(red: 1, green: 0.97, blue: 0.86, alpha: 1)])
@@ -153,13 +201,32 @@ final class NameTag: SKNode {
         ])
         let pad = ceil(size * 0.25)
         let textSize = letters.size()
-        let canvas = CGSize(width: ceil(textSize.width) + pad * 2, height: ceil(textSize.height) + pad * 2)
+        // The pill after the name, with as much room left before the name so it stays centred.
+        let tag = badge.map { NSAttributedString(string: $0.rawValue, attributes: [
+            .font: UIFont.systemFont(ofSize: max(7, size * 0.6), weight: .black), .foregroundColor: UIColor.white,
+        ]) }
+        let tagSize = tag?.size() ?? .zero
+        let pill = tag == nil ? CGSize.zero : CGSize(width: ceil(tagSize.width) + size * 0.7, height: ceil(tagSize.height) + size * 0.15)
+        let side = tag == nil ? 0 : pill.width + size * 0.3
+        let canvas = CGSize(width: ceil(textSize.width) + side * 2 + pad * 2,
+                            height: max(ceil(textSize.height), pill.height) + pad * 2)
         return UIGraphicsImageRenderer(size: canvas).image { context in
-            let origin = CGPoint(x: pad, y: pad)
+            let origin = CGPoint(x: pad + side, y: (canvas.height - ceil(textSize.height)) / 2)
             context.cgContext.setShadow(offset: CGSize(width: 0, height: 1), blur: 1.5, color: UIColor(white: 0, alpha: 0.45).cgColor)
             outline.draw(at: origin)
             context.cgContext.setShadow(offset: .zero, blur: 0)
             letters.draw(at: origin)
+            if let badge, let tag {
+                let box = CGRect(x: origin.x + ceil(textSize.width) + size * 0.3, y: (canvas.height - pill.height) / 2,
+                                 width: pill.width, height: pill.height)
+                let shape = UIBezierPath(roundedRect: box, cornerRadius: pill.height / 2)
+                badge.uiColor.setFill()
+                shape.fill()
+                Nodes.ink.setStroke()
+                shape.lineWidth = 1
+                shape.stroke()
+                tag.draw(at: CGPoint(x: box.midX - tagSize.width / 2, y: box.midY - tagSize.height / 2))
+            }
         }
     }
 }

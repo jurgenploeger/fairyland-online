@@ -136,6 +136,17 @@ struct ContentTests {
         }
     }
 
+    @Test func announcementsAndTradersHaveSomethingToSay() {
+        let notices = content.announcements
+        #expect(!notices.dawn.isEmpty && !notices.dusk.isEmpty && !notices.community.isEmpty)
+        for id in notices.arrival.keys {
+            #expect(content.map(id) != nil, "announcements arrival → unknown map \(id)")
+        }
+        let lines = content.crowd.traderLines ?? []
+        #expect(lines.contains { $0.contains("{item}") } && lines.contains { $0.contains("{buy}") })
+        #expect(!(content.crowd.modReplies ?? []).isEmpty)
+    }
+
     @Test func everyMapHasAPaletteThatGrades() throws {
         let url = try #require(Bundle.main.url(forResource: "tile_grass", withExtension: "png", subdirectory: "art/sprites"))
         let image = try #require(UIImage(contentsOfFile: url.path)?.cgImage)
@@ -840,8 +851,10 @@ struct RulesTests {
         #expect(session.partyMembers[0].level == 5)
         let controller = BattleController.duel(with: grump, session: session)
         #expect(controller.party.contains { $0.name == "Momo" })
-        // Momo's companion comes along, named for Momo.
+        // Momo's companion comes along, named for Momo, and stands behind Momo.
         #expect(controller.party.contains { $0.name == "Momo's Jelly Puff" && $0.petID != nil })
+        let momo = controller.party.first { $0.name == "Momo" }
+        #expect(momo != nil && controller.party.first { $0.name == "Momo's Jelly Puff" }?.ownerID == momo?.id)
         #expect(controller.party.first { $0.name == "Momo" }?.classID == "mage")
         #expect(controller.enemies.map(\.name) == ["Grump"])
         session.leaveParty(momo.id)
@@ -934,6 +947,112 @@ struct RulesTests {
         let together = session.partWays(fainted: [maple.id], heroFainted: true)
         #expect(together.first == "You and Maple wake up at the Sunny Meadow entrance, a little bruised.")
         #expect(session.friendsAtYourSide.map(\.name) == ["Maple"])
+    }
+
+    @Test func botsAndModeratorsAreTagged() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.postChat("hi!", from: "Momo", kind: .adventurer)
+        #expect(session.chat.last?.badge == .bot)
+        session.isModerator = false
+        session.postChat("hello", from: "Test", kind: .you)
+        #expect(session.chat.last?.badge == nil)
+        session.isModerator = true
+        session.postChat("hello", from: "Test", kind: .you)
+        #expect(session.chat.last?.badge == .mod)
+        session.postChat("Welcome!", from: "Elder Oak", kind: .npc)
+        #expect(session.chat.last?.badge == nil)
+        // Only the moderator code switches it on (its hash is in the source, never the code).
+        #expect(!Moderation.unlock(with: "not the code"))
+    }
+
+    @Test func worldMessagesAndAnnouncementsFollowYouFromMapToMap() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.isModerator = true
+        session.startChat(on: "Meadowbrook")
+        session.postWorld("Welcome, everyone!")
+        session.announce("Dawn breaks over Mysteria.")
+        session.postChat("lol", from: "Momo", kind: .adventurer)
+        session.startChat(on: "Goldburg")
+        // What's said to everyone stays; the map's own chatter starts over.
+        #expect(session.chat.map(\.kind) == [.world, .announcement, .system])
+        #expect(session.chat.first?.badge == .mod)
+        #expect(session.log.contains { $0.kind == .world } && session.log.contains { $0.kind == .announcement })
+    }
+
+    @Test func aRareSightingMakesItTurnUpMoreOften() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let meadow = try #require(Content.shared.map("sunny_meadow"))
+        let encounters = try #require(meadow.encounters)
+        let rare = try #require(encounters.monsters.keys.first { Content.shared.monster($0)?.rare == true })
+        let base = try #require(encounters.monsters[rare])
+        session.data.mapID = meadow.id
+        #expect(BattleController.encounterWeights(encounters, session: session)[rare] == base)
+        session.sighting = GameSession.Sighting(mapID: meadow.id, monsterID: rare, boost: 6, until: Date().addingTimeInterval(60))
+        #expect(BattleController.encounterWeights(encounters, session: session)[rare] == base * 6)
+        // Only on its own map, and only until it's over.
+        session.data.mapID = "meadowbrook"
+        #expect(BattleController.encounterWeights(encounters, session: session)[rare] == base)
+        session.data.mapID = meadow.id
+        session.sighting = GameSession.Sighting(mapID: meadow.id, monsterID: rare, boost: 6, until: Date().addingTimeInterval(-1))
+        #expect(BattleController.encounterWeights(encounters, session: session)[rare] == base)
+    }
+
+    @Test func marketTradersCallOutTheirDeals() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let trader = Adventurer(name: "Momo", raceID: "dwarf", classID: "fighter", level: 30, look: .standard)
+        let offers = session.tradeOffers(with: trader)
+        // The sign shows something they really sell today, and what they call out is a real deal.
+        let sign = try #require(session.marketSign(for: trader))
+        #expect(offers.contains { $0.kind == .theySell && sign == "\($0.item.name) · \($0.price)g" })
+        let shout = try #require(session.marketShout(for: trader))
+        #expect(offers.contains { shout.contains($0.item.name) && shout.contains("\($0.price)") })
+    }
+
+    @Test func botsWearArmourForTheirClassAndLevel() {
+        func bot(_ classID: String, _ level: Int) -> Adventurer {
+            Adventurer(name: "Momo", raceID: "elf", classID: classID, level: level, look: .standard)
+        }
+        var worn: Set<String> = []
+        for _ in 0..<60 {
+            for (classID, level) in [("novice", 5), ("fighter", 45), ("mage", 45), ("tamer", 70), ("fighter", 90)] {
+                let someone = bot(classID, level)
+                let armor = GameSession.armor(for: someone)
+                #expect(armor?.type == .armor)
+                #expect((armor?.level ?? 1) <= level, "\(armor?.id ?? "-") is above level \(level)")
+                #expect(armor?.classes?.contains(classID) ?? true, "a \(classID) can't wear \(armor?.id ?? "-")")
+                // The same adventurer always wears the same.
+                #expect(GameSession.armor(for: someone)?.id == armor?.id)
+                if let armor { worn.insert(armor.id) }
+            }
+        }
+        // ...but the crowd doesn't all wear the same, and past their first steps it isn't a tunic.
+        #expect(worn.count >= 8)
+        #expect((GameSession.armor(for: bot("fighter", 45))?.level ?? 1) >= 14)
+        #expect(!GameSession.wearsBoots(bot("fighter", 30)))
+    }
+
+    @Test func monstersBeatenTogetherFallTogether() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 200, mp: 100, attack: 60, defense: 10, magic: 20, speed: 999)
+        var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 40, element: .neutral,
+                             stats: stats, hp: 200, mp: 100, skills: ["whirlwind"], captureRate: 0)
+        hero.skillLevels = ["whirlwind": 1]
+        let foes = (10..<13).map { id -> Combatant in
+            Combatant(id: id, side: .enemies, source: .wild("jelly"), name: id == 11 ? "Fire Rat" : "Jelly", art: jelly.art, level: 1,
+                      element: jelly.element, stats: jelly.stats(at: 1), hp: 1, mp: 0, skills: [], captureRate: 0)
+        }
+        let engine = BattleEngine(party: [hero], enemies: foes, content: content, seed: 5)
+        let events = engine.resolveRound(heroAction: .skill("whirlwind", target: 10))
+        let defeats = events.indices.filter { index in
+            if case .defeated = events[index] { return true }
+            return false
+        }
+        // The sweep's knock-outs come one after another, so the battle plays them as one.
+        #expect(defeats.count == 3)
+        #expect(defeats == Array((defeats.first ?? 0)..<((defeats.first ?? 0) + 3)))
+        #expect(BattleController.tally(foes.map(\.name)) == "Jelly ×2 and Fire Rat")
+        #expect(BattleController.tally(["Fire Rat"]) == "Fire Rat")
     }
 
     @Test func questsUnlockLooksAndRoads() {

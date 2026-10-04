@@ -58,6 +58,8 @@ struct ProfileCard: View {
                     Text(facts.kind)
                         .font(HUDStyle.font(13))
                         .foregroundStyle(HUDStyle.gold)
+                    // BOT for a computer-run adventurer, MOD for a moderator.
+                    if let badge = facts.badge { NameBadge(badge: badge) }
                     if let element = facts.element { ElementBadge(element: element) }
                     if let note = facts.note {
                         Text(note)
@@ -145,6 +147,7 @@ struct ProfileCard: View {
         var art: String
         /// "Lv 42 · Human Fighter", "Lv 12 · Jelly Puff".
         var kind: String
+        var badge: PlayerBadge?
         var element: Element?
         var note: String?
         var noteColor = HUDStyle.cream
@@ -167,6 +170,7 @@ struct ProfileCard: View {
                               kind: "Lv \(hero.level) · \(content.race(hero.raceID).name) \(session.heroClass.name)",
                               stats: session.heroStats, hp: hero.hp, mp: hero.mp,
                               exp: (hero.exp, GameSession.expToNext(level: hero.level)))
+            if session.isModerator { facts.badge = .mod }
             if session.rebirths > 0 { facts.note = "Reborn \(session.rebirths)×" }
             facts.gear = [ItemType.weapon, .armor, .accessory].compactMap { session.equipped($0) }
             return facts
@@ -192,6 +196,7 @@ struct ProfileCard: View {
             var facts = Facts(name: person.name, icon: .user, art: session.artID(for: person),
                               kind: "Lv \(person.level) · \(content.race(person.raceID).name) \(content.classDef(person.classID).name)",
                               stats: stats, hp: stats.hp, mp: stats.mp)
+            facts.badge = .bot
             if let place = session.whereabouts(of: person) {
                 facts.note = "Waiting for you at \(place)"
                 facts.noteColor = HUDStyle.orange

@@ -585,6 +585,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
     nonisolated struct Crowd: Decodable, Sendable {
         let adventurers: Int?
         let villagers: Int?
+        /// Market traders standing about the main square, their wares on a sign over their heads.
+        let traders: Int?
     }
 }
 
@@ -650,6 +652,42 @@ nonisolated struct CrowdOptions: Decodable, Sendable {
     /// Answers when you say something in chat.
     let replies: [String]
     let companions: [String]
+    /// How many of each map's adventurers and traders turn up (1: all of them). Turn it down as real
+    /// players arrive.
+    let botDensity: Double?
+    /// What market traders call out: {item} and {price} for what they sell, {buy} and {price} for
+    /// what they'd buy from you.
+    let traderLines: [String]?
+    /// Answers to a moderator's World message.
+    let modReplies: [String]?
+}
+
+/// The game's own notices in the chat (content/announcements.json): what's happening where and when.
+nonisolated struct AnnouncementOptions: Decodable, Sendable {
+    /// Real seconds between notices while you play: [shortest, longest].
+    let every: [Double]
+    /// When the calendar's hour turns 6 (dawn) or 18 (dusk).
+    let dawn: [String]
+    let dusk: [String]
+    /// When you come to a map, by map id.
+    let arrival: [String: [String]]
+    /// When you come to a map with a boss you've never beaten: {boss}, {map}.
+    let bossNearby: [String]?
+    /// What other adventurers have been up to: {bot}, {level}, {boss}, {rare}, {item}, {map}.
+    let community: [String]
+    let sighting: Sighting?
+
+    /// A map's rare monster turns up `boost` times as often there for `minutes` real minutes.
+    nonisolated struct Sighting: Decodable, Sendable {
+        /// {monster}, {map}, {minutes}.
+        let text: String
+        /// When it's over: {monster}, {map}.
+        let end: String
+        let minutes: Int
+        let boost: Int
+        /// How often a notice is a sighting rather than news of another adventurer.
+        let chance: Double
+    }
 }
 
 /// One entry in content/changelog.json, shown under "What's new" on the title screen.
@@ -724,6 +762,7 @@ final class Content {
     let instruments: [InstrumentDef]
     let appearance: AppearanceOptions
     let crowd: CrowdOptions
+    let announcements: AnnouncementOptions
     /// Newest first.
     let releases: [ReleaseNote]
 
@@ -744,6 +783,7 @@ final class Content {
         instruments = musicFile.instruments ?? []
         appearance = Self.load("appearance", from: bundle)
         crowd = Self.load("crowd", from: bundle)
+        announcements = Self.load("announcements", from: bundle)
         releases = (Self.load("changelog", from: bundle) as ChangelogFile).releases
     }
 

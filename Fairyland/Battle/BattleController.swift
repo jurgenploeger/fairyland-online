@@ -92,23 +92,28 @@ final class BattleController {
         hero.raceID = session.data.hero.raceID
         var party: [Combatant] = [hero]
         if let pet = session.activePet, pet.hp > 0, let species = session.species(of: pet) {
-            party.append(Combatant(
+            var companion = Combatant(
                 id: 1, side: .party, source: .pet(pet.id), name: pet.name, art: session.artID(for: pet),
                 level: pet.level, element: species.element, stats: session.stats(of: pet),
                 hp: pet.hp, mp: pet.mp, skills: species.skills, captureRate: 0
-            ))
+            )
+            // It stands right behind you.
+            companion.ownerID = hero.id
+            party.append(companion)
         }
         for (index, friend) in session.friendsAtYourSide.enumerated() {
             party.append(adventurer(friend, id: 2 + index, side: .party, session: session))
-            // A friend's companion fights beside them (a step below their level, like a rival's),
+            // A friend's companion fights behind them (a step below their level, like a rival's),
             // named for its owner so it's never mistaken for yours.
             if let speciesID = friend.petSpecies, let species = session.content.monster(speciesID) {
                 let level = max(1, friend.level - 1)
                 let stats = species.stats(at: level)
-                party.append(Combatant(
+                var companion = Combatant(
                     id: 2 + GameSession.maxAllies + index, side: .party, source: .pet(UUID()), name: "\(friend.name)'s \(species.name)", art: species.art,
                     level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp, skills: species.skills, captureRate: 0
-                ))
+                )
+                companion.ownerID = 2 + index
+                party.append(companion)
             }
         }
         return party
@@ -135,10 +140,12 @@ final class BattleController {
         if let speciesID = rival.petSpecies, let species = session.content.monster(speciesID) {
             let level = max(1, rival.level - 1)
             let stats = species.stats(at: level)
-            enemies.append(Combatant(
+            var companion = Combatant(
                 id: 11, side: .enemies, source: .rival(rival.id), name: "\(rival.name)'s \(species.name)", art: species.art,
                 level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp, skills: species.skills, captureRate: 0
-            ))
+            )
+            companion.ownerID = 10
+            enemies.append(companion)
         }
         let engine = BattleEngine(party: party(for: session), enemies: enemies, content: session.content)
         let intro = rival.hostile ? "\(rival.name) picks a fight with you!" : "You challenge \(rival.name) to a duel!"
@@ -225,10 +232,22 @@ final class BattleController {
         return waves
     }
 
+    /// How often each monster turns up on the current map: its encounter table, with a rare one
+    /// sighted here (an announcement, `GameSession.sighting`) `boost` times as often until it's over.
+    static func encounterWeights(_ encounters: MapDef.Encounters, session: GameSession) -> [String: Int] {
+        var weights = encounters.monsters
+        if let sighting = session.sighting, sighting.mapID == session.data.mapID, sighting.until > Date(),
+           let weight = weights[sighting.monsterID] {
+            weights[sighting.monsterID] = weight * sighting.boost
+        }
+        return weights
+    }
+
     /// Builds a random encounter for the current map.
     static func encounter(_ encounters: MapDef.Encounters, session: GameSession) -> BattleController {
         let content = session.content
         let party = party(for: session)
+        let weights = encounterWeights(encounters, session: session)
 
         let low = encounters.groupSize.first ?? 1
         let high = max(low, encounters.groupSize.last ?? low)
@@ -238,7 +257,7 @@ final class BattleController {
         let count = min(high, low + Int(pow(Double.random(in: 0..<1), 2) * Double(high - low + 1)))
         var enemies: [Combatant] = []
         for index in 0..<count {
-            guard let id = pick(from: encounters.monsters), let species = content.monster(id) else { continue }
+            guard let id = pick(from: weights), let species = content.monster(id) else { continue }
             let level = Int.random(in: minLevel...maxLevel)
             let stats = species.stats(at: level)
             var enemy = Combatant(
@@ -510,7 +529,7 @@ final class BattleController {
     static var turnSeconds: TimeInterval? {
         if let seconds = DebugLaunch.turnSeconds { return seconds }
         if DebugLaunch.isActive || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil { return nil }
-        return 5
+        return 10
     }
 
     /// When the time to choose runs out; nil while no clock is ticking.
@@ -688,6 +707,35 @@ final class BattleController {
         message = text
     }
 
+    /// Everyone one blow knocked out, at once: one sound and one line for them all.
+    func applyDefeats(_ ids: [Int]) {
+        guard ids.count > 1 else {
+            if let id = ids.first { apply(.defeated(id)) }
+            return
+        }
+        let foes = ids.filter { id in combatants.first { $0.id == id }?.side == .enemies }
+        let friends = ids.filter { !foes.contains($0) }
+        SoundEffects.shared.play(foes.isEmpty ? .faint : .poof)
+        var lines: [String] = []
+        if !foes.isEmpty { lines.append("\(Self.tally(foes.map { name($0) })) \(foes.count == 1 ? "is" : "are") defeated!") }
+        if !friends.isEmpty { lines.append("\(Self.tally(friends.map { name($0) })) fainted!") }
+        message = lines.joined(separator: " ")
+    }
+
+    /// Names in the order they fell, a repeated one counted: "Dark Beetle ×2 and Fire Rat".
+    static func tally(_ names: [String]) -> String {
+        var order: [String] = []
+        var counts: [String: Int] = [:]
+        for name in names {
+            if counts[name] == nil { order.append(name) }
+            counts[name, default: 0] += 1
+        }
+        return GameSession.listed(order.map { name in
+            let count = counts[name, default: 1]
+            return count > 1 ? "\(name) ×\(count)" : name
+        })
+    }
+
     private func damage(_ hit: Hit) {
         mutate(hit.target) { $0.hp = max(0, $0.hp - hit.amount) }
     }
@@ -798,7 +846,10 @@ final class BattleController {
     func winForDebug() {
         guard phase == .command else { return }
         phase = .animating
-        for event in engine.defeatEnemiesForDebug() { apply(event) }
+        let events = engine.defeatEnemiesForDebug()
+        // The later waves of a boss fight join the field all at once, so they have names in the log.
+        combatants = engine.combatants
+        for event in events { apply(event) }
         roundFinished()
     }
 

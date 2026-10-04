@@ -52,6 +52,8 @@ struct Combatant: Identifiable {
     var raceID: String?
     /// Which wave of a boss fight it comes in with (1 for everyone else).
     var wave = 1
+    /// A companion: the fighter it came with, who it stands behind.
+    var ownerID: Int?
 
     /// Strength and defense with any Bless on top.
     var attack: Double { Double(stats.attack) * (blessRounds > 0 ? 1 + blessPower : 1) }

@@ -397,6 +397,39 @@ for asset in art.values():
 for item in items.values():
     check_rules((item.get("recolor") or []) + (item.get("tint") or []), f"item {item['id']}")
 
+# Crowds and announcements: whole-number counts, and only placeholders the game fills in.
+crowd = load("content/crowd.json")
+check(0 <= crowd.get("botDensity", 1) <= 1, "crowd botDensity → between 0 and 1")
+for line in crowd.get("traderLines", []):
+    check(("{item}" in line) != ("{buy}" in line), f"crowd traderLines → \"{line}\" needs {{item}} or {{buy}} (one of them)")
+    check(set(re.findall(r"\{(\w+)\}", line)) <= {"item", "buy", "price"}, f"crowd traderLines → unknown placeholder in \"{line}\"")
+for map_def in maps.values():
+    for key, value in (map_def.get("crowd") or {}).items():
+        check(key in ("adventurers", "villagers", "traders") and isinstance(value, int) and value >= 0,
+              f"map {map_def['id']} crowd → {key}: {value} (adventurers, villagers or traders: a whole number)")
+    if (map_def.get("crowd") or {}).get("traders"):
+        check(map_def.get("fence") is True, f"map {map_def['id']} crowd → traders stand about a town's main square: towns only")
+notices = load("content/announcements.json")
+every = notices.get("every", [])
+check(len(every) == 2 and 0 < every[0] <= every[1], "announcements every → [shortest, longest] real seconds")
+for key in ("dawn", "dusk", "community"):
+    check(bool(notices.get(key)), f"announcements → needs some {key} lines")
+for map_id, lines in notices.get("arrival", {}).items():
+    check(map_id in maps, f"announcements arrival → unknown map {map_id}")
+    check(bool(lines), f"announcements arrival {map_id} → needs a line")
+placeholders = {"dawn": set(), "dusk": set(), "bossNearby": {"boss", "map"},
+                "community": {"bot", "level", "boss", "rare", "item", "map"}}
+for key, allowed in placeholders.items():
+    for line in notices.get(key, []):
+        unknown = set(re.findall(r"\{(\w+)\}", line)) - allowed
+        check(not unknown, f"announcements {key} → unknown placeholder {sorted(unknown)} in \"{line}\"")
+sighting = notices.get("sighting")
+if sighting:
+    for field in ("text", "end", "minutes", "boost", "chance"):
+        check(field in sighting, f"announcements sighting → needs {field}")
+    check(0 <= sighting.get("chance", 0) <= 1, "announcements sighting chance → between 0 and 1")
+    check(sighting.get("boost", 1) >= 1 and sighting.get("minutes", 1) >= 1, "announcements sighting → boost and minutes at least 1")
+
 changelog = load("content/changelog.json")["releases"]
 versions = [r["version"] for r in changelog]
 check(len(versions) == len(set(versions)), "changelog → duplicate version")

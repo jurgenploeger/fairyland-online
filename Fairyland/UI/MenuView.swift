@@ -515,6 +515,7 @@ private struct FriendRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(friend.name)
+                    NameBadge(badge: .bot)
                     if inParty {
                         Text("IN PARTY")
                             .font(HUDStyle.font(9))

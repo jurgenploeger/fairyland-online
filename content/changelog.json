@@ -2,6 +2,59 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.27",
+      "date": "2026-10-04",
+      "title": "Dressed for their level",
+      "notes": [
+        "Other adventurers wear armour now, like players would: what their class can wear at their level, mostly the best of it. Chain mail, plate, robes, jackets, ranger cloaks, dragon mail and snow cloaks, and speed boots on some, where before everyone wore the same tunic. Your party friends dress up too, and their gear gets better as they level with you.",
+        "Towns are full of adventurers about your level instead of beginners, each with a class and the gear to match, and with all sorts of hairstyles.",
+        "Monsters knocked out by the same blow fall together, with one line for all of them (\"Jelly ×2 and Fire Rat are defeated!\"), so a sweep that wins the fight doesn't wait on each one in turn."
+      ]
+    },
+    {
+      "version": "0.3.26",
+      "date": "2026-10-04",
+      "title": "Caves stay dark in a fight",
+      "notes": [
+        "In Rat Cavern, Slime Cave and Mysterious Cave a fight keeps your light: behind the fighters the cave is lit only as far as it reached, and the rest stays dark, so a battle shows no more of the cave than your light does."
+      ]
+    },
+    {
+      "version": "0.3.25",
+      "date": "2026-10-04",
+      "title": "Bots' hair, every shade",
+      "notes": [
+        "Other adventurers' hair takes its colour on every shade, like yours: no more red strands and outlines in black, blue or white hair, in town, in your party, in battle and on their cards."
+      ]
+    },
+    {
+      "version": "0.3.24",
+      "date": "2026-10-04",
+      "title": "Companions behind their owners",
+      "notes": [
+        "In battle every companion stands right behind the one it came with: yours behind you, each friend's behind that friend, a rival's behind the rival. The people stand in front, however small the party."
+      ]
+    },
+    {
+      "version": "0.3.23",
+      "date": "2026-10-04",
+      "title": "Ten seconds to choose",
+      "notes": [
+        "Battles give you 10 seconds to choose each turn instead of 5, and your companion gets its own 10 when you command it. When the bar runs out you still attack the monster you last hit."
+      ]
+    },
+    {
+      "version": "0.3.22",
+      "date": "2026-10-04",
+      "title": "A busier world",
+      "notes": [
+        "Every computer-run adventurer wears a BOT tag: over their head, in the chat, on their card and stats, and in your friends list. They stand in for other players until Fairyland goes online.",
+        "Towns are busier: Meadowbrook has twice the adventurers it had, and Rainbow City and Bluebird 14 each instead of 8. Goldburg's main square is a market: traders stand about under signs showing what they sell today, call out their deals in the chat, and trade with you when you walk up.",
+        "The chat has announcements on a gold banner: dawn and dusk, a word when you arrive somewhere, news of other adventurers, and rare monster sightings. A sighting is real: for 20 minutes that rare monster turns up far more often on its map.",
+        "Moderators get a red MOD tag and a World channel in the chat to message everyone in the game. Their messages show on a red banner, on every map."
+      ]
+    },
+    {
       "version": "0.3.21",
       "date": "2026-10-04",
       "title": "Fainting splits the party",

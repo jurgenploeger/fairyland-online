@@ -2,6 +2,13 @@ import CoreGraphics
 import Foundation
 import Observation
 
+/// The tag next to someone's name: BOT for the computer-run adventurers (Fairyland's other players,
+/// until there's online play), MOD for a moderator (`Moderation`).
+nonisolated enum PlayerBadge: String, Sendable {
+    case bot = "BOT"
+    case mod = "MOD"
+}
+
 /// The player's progress: hero, companions, bag, quests. All rules for levelling,
 /// equipment, class choice and quests live here; the scenes and UI just call in.
 @Observable
@@ -31,36 +38,75 @@ final class GameSession {
     private(set) var lastSaved: Date?
 
     struct LogLine: Identifiable {
-        enum Kind { case system, quest, battle, reward }
+        /// `announcement`: the game's own notices; `world`: a moderator's message to everyone.
+        enum Kind { case system, quest, battle, reward, announcement, world }
         let id = UUID()
         let text: String
         let kind: Kind
         let time = Date()
     }
 
-    /// What people on this map have said: the Chat window. Starts over on each map.
+    /// What people on this map have said: the Chat window. Starts over on each map, but for
+    /// what's said to everyone in the game (World messages and announcements), which stays.
     struct ChatLine: Identifiable {
-        enum Kind { case you, adventurer, villager, npc, system }
+        /// `world`: a moderator's message on the World channel. `announcement`: the game's own notice
+        /// of what's happening where and when (content/announcements.json).
+        enum Kind { case you, adventurer, villager, npc, system, world, announcement }
         let id = UUID()
         let speaker: String
         let text: String
         let kind: Kind
+        /// BOT or MOD, next to the speaker's name.
+        var badge: PlayerBadge? = nil
         let time = Date()
     }
 
     private(set) var chat: [ChatLine] = []
     var unreadChat = 0
 
+    /// Moderator mode (`Moderation`): a MOD tag on your name and the World channel in the chat.
+    var isModerator = false
+
     func postChat(_ text: String, from speaker: String, kind: ChatLine.Kind) {
-        chat.append(ChatLine(speaker: speaker, text: text, kind: kind))
+        // Adventurers are computer-run for now, and say so.
+        let badge: PlayerBadge? = switch kind {
+        case .adventurer: .bot
+        case .you, .world: isModerator ? .mod : nil
+        case .villager, .npc, .system, .announcement: nil
+        }
+        chat.append(ChatLine(speaker: speaker, text: text, kind: kind, badge: badge))
         if chat.count > 80 { chat.removeFirst(chat.count - 80) }
         if kind != .you { unreadChat += 1 }
     }
 
     func startChat(on mapName: String) {
-        chat = [ChatLine(speaker: "", text: "You entered \(mapName).", kind: .system)]
+        let kept = chat.filter { $0.kind == .world || $0.kind == .announcement }.suffix(10)
+        chat = Array(kept) + [ChatLine(speaker: "", text: "You entered \(mapName).", kind: .system)]
         unreadChat = 0
     }
+
+    /// A moderator's message on the World channel: everyone in the game sees it, on every map.
+    func postWorld(_ text: String) {
+        postChat(text, from: data.hero.name, kind: .world)
+        post("\(data.hero.name): \(text)", .world)
+    }
+
+    /// One of the game's own notices: in the chat, set apart from what people say, and the message log.
+    func announce(_ text: String) {
+        postChat(text, from: "", kind: .announcement)
+        post(text, .announcement)
+    }
+
+    /// A rare monster sighted somewhere (an announcement): it turns up `boost` times as often on that
+    /// map until `until`.
+    struct Sighting {
+        let mapID: String
+        let monsterID: String
+        let boost: Int
+        let until: Date
+    }
+
+    @ObservationIgnored var sighting: Sighting?
 
     func post(_ text: String, _ kind: LogLine.Kind = .system) {
         log.append(LogLine(text: text, kind: kind))
@@ -76,6 +122,7 @@ final class GameSession {
 
     init(data: SaveData) {
         self.data = data
+        isModerator = Moderation.isOn
         if let position = data.position, position.count == 2 {
             playerPosition = CGPoint(x: position[0], y: position[1])
         }
@@ -215,19 +262,24 @@ final class GameSession {
     /// under the art id `id`: the hero in play, or a saved hero on the title screen.
     static func registerHero(_ hero: Hero, as id: String) {
         let content = Content.shared
-        let race = content.race(hero.raceID)
-        let look = hero.look ?? .standard
-        let armor = hero.equipment[.armor].flatMap(content.item)
         let boots = hero.equipment[.accessory].flatMap(content.item)?.wear == "boots"
+        registerArt(id, race: content.race(hero.raceID), look: hero.look ?? .standard,
+                    armor: hero.equipment[.armor].flatMap(content.item), boots: boots, key: Self.lookKey(for: hero))
+    }
+
+    /// Draws someone of `race` in `look` under the art id `id`: the hero, or another adventurer. Worn
+    /// armour takes over the outfit's colours and adds its cut (or brings its own walk sheet), and
+    /// speed boots turn the boots blue.
+    private static func registerArt(_ id: String, race: RaceDef, look: Look, armor: ItemDef?, boots: Bool, key: String) {
         var gear = GearLook(wear: armor?.wear, accent: armor?.accent, boots: boots, pattern: armor?.pattern)
         var rules = Self.rules(for: look, armor: armor)
         if let armor, armor.sheets?[race.id] != nil {
             // The armour's own sheet is already drawn and coloured: only the skin tone applies, plus a
             // rare colour variant's tint.
             gear = GearLook(wear: nil, accent: nil, boots: boots)
-            rules = (content.appearance.skin.first { $0.id == look.skin }?.recolor ?? []) + (armor.tint ?? [])
+            rules = (Content.shared.appearance.skin.first { $0.id == look.skin }?.recolor ?? []) + (armor.tint ?? [])
         }
-        ArtLibrary.shared.register(id, from: race.sheet(for: look.gender), recolor: rules, key: Self.lookKey(for: hero),
+        ArtLibrary.shared.register(id, from: race.sheet(for: look.gender), recolor: rules, key: key,
                                    gear: gear, layers: Self.layers(race: race, look: look, armor: armor))
     }
 
@@ -653,12 +705,53 @@ final class GameSession {
         content.classDef(adventurer.classID).skills.filter { $0.level <= adventurer.level }.compactMap { content.skill($0.skill) }
     }
 
-    /// Their walk sheet in their colours.
+    /// Their walk sheet in their colours, in the armour they wear.
     func artID(for adventurer: Adventurer) -> String {
-        let sheet = content.race(adventurer.raceID).sheet(for: adventurer.look.gender)
-        let id = "adv:\(adventurer.raceID):\(adventurer.look.key)"
-        ArtLibrary.shared.register(id, from: sheet, recolor: Self.rules(for: adventurer.look), key: sheet + "/" + adventurer.look.key)
+        Self.registerAdventurer(adventurer)
+    }
+
+    /// Draws another adventurer like a hero, in the armour that suits them (`armor(for:)`) and
+    /// sometimes speed boots.
+    static func registerAdventurer(_ adventurer: Adventurer) -> String {
+        registerPerson(race: adventurer.raceID, look: adventurer.look, armor: Self.armor(for: adventurer),
+                       boots: Self.wearsBoots(adventurer))
+    }
+
+    /// Someone of a race and look (a villager in plain clothes without `armor`), drawn from the same
+    /// paper-doll layers as a hero, so their hair takes its colour on every shade too (a whole-sheet
+    /// recolour leaves the ginger's deep reds and pale tips).
+    static func registerPerson(race raceID: String, look: Look, armor: ItemDef? = nil, boots: Bool = false) -> String {
+        let id = "adv:\(raceID):\(look.key):\(armor?.id ?? "-")" + (boots ? ":boots" : "")
+        registerArt(id, race: Content.shared.race(raceID), look: look, armor: armor, boots: boots, key: id)
         return id
+    }
+
+    /// The armour another adventurer wears, like a player would: one their class can wear at their
+    /// level, mostly of the best kind (a third of the time the kind before it). Novices wear tunics
+    /// and leather vests. The same adventurer always picks the same, until they outgrow it.
+    static func armor(for adventurer: Adventurer) -> ItemDef? {
+        let wearable = Content.shared.items.filter {
+            $0.type == .armor && ($0.level ?? 1) <= adventurer.level && ($0.classes?.contains(adventurer.classID) ?? true)
+        }
+        let tiers = Set(wearable.map { $0.level ?? 1 }).sorted(by: >)
+        guard let best = tiers.first else { return nil }
+        let seed = Self.seed(adventurer.id)
+        let tier = tiers.count > 1 && seed % 3 == 0 ? tiers[1] : best
+        let choices = wearable.filter { ($0.level ?? 1) == tier }
+        return choices[Int((seed / 3) % UInt64(choices.count))]
+    }
+
+    /// Speed boots, on a third of the adventurers old enough to wear them.
+    static func wearsBoots(_ adventurer: Adventurer) -> Bool {
+        guard let boots = Content.shared.items.first(where: { $0.wear == "boots" }) else { return false }
+        return adventurer.level >= (boots.level ?? 1) && (Self.seed(adventurer.id) / 7) % 3 == 0
+    }
+
+    /// The same number for the same adventurer on every launch (Swift's own hashes change each run).
+    private static func seed(_ id: UUID) -> UInt64 {
+        var hash: UInt64 = 14_695_981_039_346_656_037
+        for byte in id.uuidString.utf8 { hash = (hash ^ UInt64(byte)) &* 1_099_511_628_211 }
+        return hash
     }
 
     /// Party friends grow with you: a share of every win.
@@ -971,6 +1064,24 @@ final class GameSession {
         let carried = Array(goods.shuffled(using: &rng).prefix(3))
         return wanted.compactMap { offer(.theyBuy, $0, max(1, Self.sellPrice(of: $0) * 3 / 2)) }
             + carried.compactMap { offer(.theySell, $0, max(1, $0.price * 11 / 10)) }
+    }
+
+    /// A market trader's sign: the first thing they're selling today, and its price.
+    func marketSign(for trader: Adventurer) -> String? {
+        guard let offer = tradeOffers(with: trader).first(where: { $0.kind == .theySell }) else { return nil }
+        return "\(offer.item.name) · \(offer.price)g"
+    }
+
+    /// What a market trader calls out on the map's chat: one of today's real deals, from
+    /// content/crowd.json `traderLines` ({item} and {price} for what they sell, {buy} and {price}
+    /// for what they'd buy from you).
+    func marketShout(for trader: Adventurer) -> String? {
+        guard let offer = tradeOffers(with: trader).randomElement() else { return nil }
+        let placeholder = offer.kind == .theyBuy ? "{buy}" : "{item}"
+        guard let line = (content.crowd.traderLines ?? []).filter({ $0.contains(placeholder) }).randomElement() else { return nil }
+        return line
+            .replacingOccurrences(of: placeholder, with: offer.item.name)
+            .replacingOccurrences(of: "{price}", with: "\(offer.price)")
     }
 
     /// Beat an adventurer and they drop everything they carry: today's goods (what they'd have sold

@@ -26,7 +26,7 @@ struct GameView: View {
                     .padding(.trailing, 14)
                 }
                 if battleChat {
-                    ChatView(session: coordinator.session, onSay: coordinator.say) { battleChat = false }
+                    ChatView(session: coordinator.session, onSay: coordinator.say, onBroadcast: coordinator.broadcast) { battleChat = false }
                 }
             } else {
                 WorldHUD(coordinator: coordinator)
@@ -38,7 +38,7 @@ struct GameView: View {
                 case .trade(let adventurer):
                     TradeView(session: coordinator.session, adventurer: adventurer, onClose: coordinator.closeOverlay)
                 case .chat:
-                    ChatView(session: coordinator.session, onSay: coordinator.say, onClose: coordinator.closeOverlay)
+                    ChatView(session: coordinator.session, onSay: coordinator.say, onBroadcast: coordinator.broadcast, onClose: coordinator.closeOverlay)
                 case .profile(let profile):
                     ProfileCard(session: coordinator.session, profile: profile, onClose: coordinator.closeOverlay)
                 case .npc(let id):

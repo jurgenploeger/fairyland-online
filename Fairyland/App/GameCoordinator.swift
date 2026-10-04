@@ -37,6 +37,8 @@ final class GameCoordinator {
 
     let session: GameSession
     let input: InputState
+    /// The game's own notices in the chat (content/announcements.json).
+    let announcer: Announcer
     private(set) var world: WorldScene
     private(set) var battle: BattleController?
     private(set) var overlay: Overlay?
@@ -56,6 +58,7 @@ final class GameCoordinator {
         let map = Content.shared.map(session.data.mapID) ?? Content.shared.maps[0]
         self.session = session
         self.input = input
+        announcer = Announcer(session: session)
         session.markVisited(map.id)
         session.rescaleLevelsIfNeeded()
         session.rescaleSkillLevelsIfNeeded()
@@ -65,6 +68,7 @@ final class GameCoordinator {
         wire(world)
         build(world, mapID: map.id, began: began)
         startAutosave()
+        announcer.start()
         session.onCastField = { [weak self] skill in self?.castField(skill) }
         SoundEffects.shared.preload()
     }
@@ -158,6 +162,8 @@ final class GameCoordinator {
     /// Keeps the loading card up long enough to read, then fades it out.
     private func finishLoading() {
         rememberLoadTiming()
+        // The map's chat has started over by now (WorldScene.didMove), so the notice stays in it.
+        announcer.arrived(at: world.def)
         let remaining = 0.8 - Date().timeIntervalSince(loadingStarted)
         Task {
             loadProgress = 1
@@ -327,6 +333,42 @@ final class GameCoordinator {
     }
 
     func say(_ text: String) {
+        // Chat commands aren't said out loud.
+        if text.hasPrefix("/") {
+            command(text)
+            return
+        }
         world.heroSay(text)
+    }
+
+    /// A moderator's message on the World channel: everyone in the game sees it, on every map, and
+    /// adventurers about may answer.
+    func broadcast(_ text: String) {
+        guard session.isModerator else {
+            say(text)
+            return
+        }
+        session.postWorld(text)
+        world.answerModerator()
+    }
+
+    /// `/mod <code>` switches moderator mode on for this device, `/mod off` switches it off.
+    private func command(_ text: String) {
+        let words = text.dropFirst().split(separator: " ", maxSplits: 1).map(String.init)
+        guard words.first?.lowercased() == "mod" else {
+            session.postChat("Unknown command. The only one is /mod.", from: "", kind: .system)
+            return
+        }
+        let argument = words.count > 1 ? words[1] : ""
+        if argument.lowercased() == "off" {
+            Moderation.switchOff()
+            session.isModerator = Moderation.isOn
+            session.postChat("Moderator mode is off.", from: "", kind: .system)
+        } else if Moderation.unlock(with: argument) {
+            session.isModerator = true
+            session.postChat("Moderator mode is on: a MOD tag on your name, and the World channel here in the chat.", from: "", kind: .system)
+        } else {
+            session.postChat("That's not the moderator code.", from: "", kind: .system)
+        }
     }
 }

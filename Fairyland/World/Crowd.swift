@@ -1,9 +1,10 @@
 import SpriteKit
 
-/// Background life on a map: adventurers (standing in for Fairyland's other players, some
-/// with a companion trotting behind) and villagers pottering around town. They stroll,
-/// pause, look around and chat now and then. They never block the way. Walk up to an
-/// adventurer to see their card: befriend them, invite them along, or (in danger zones) duel.
+/// Background life on a map: adventurers (standing in for Fairyland's other players until there's
+/// online play, and tagged BOT, some with a companion trotting behind), market traders about a
+/// town's main square, and villagers pottering around town. They stroll, pause, look around and chat
+/// now and then. They never block the way. Walk up to an adventurer to see their card: befriend
+/// them, invite them along, trade, or (in danger zones) duel.
 final class Crowd {
     private final class Member {
         let name: String
@@ -15,14 +16,17 @@ final class Crowd {
         let lines: [String]
         /// Adventurers have a level, class and companion like you.
         let profile: Adventurer?
+        /// A market trader: stays at their spot, and calls out their deals.
+        let trades: Bool
         var wait: TimeInterval
         var chat: TimeInterval
         /// Hostile adventurers wait a while between picking fights.
         var calm: TimeInterval = 8
 
         init(name: String, kind: GameSession.ChatLine.Kind, walker: Walker, pet: Walker?, home: GridPoint, roam: Int,
-             lines: [String], profile: Adventurer? = nil) {
+             lines: [String], profile: Adventurer? = nil, trades: Bool = false) {
             self.profile = profile
+            self.trades = trades
             self.name = name
             self.kind = kind
             self.walker = walker
@@ -38,6 +42,15 @@ final class Crowd {
     static let adventurerColor = UIColor(red: 0.62, green: 0.93, blue: 1, alpha: 1)
     static let hostileColor = UIColor(red: 1, green: 0.42, blue: 0.4, alpha: 1)
 
+    /// What a town's market traders have: the sign over their heads and what they call out (their
+    /// real deals of the day, `GameSession.marketSign` and `marketShout`), and the level their wares
+    /// are around (yours, so they suit you).
+    struct Market {
+        let sign: (Adventurer) -> String?
+        let shout: (Adventurer) -> String?
+        let level: Int
+    }
+
     /// Everything anyone says goes to the map's chat log.
     var onChat: ((String, String, GameSession.ChatLine.Kind) -> Void)?
     /// A red-named adventurer in a danger zone walks up and picks a fight.
@@ -47,19 +60,34 @@ final class Crowd {
     private var members: [Member] = []
     private let replies = Content.shared.crowd.replies
     private var rng = SystemRandomNumberGenerator()
+    private let market: Market?
+    /// How much longer everyone waits between chats on a busy map, so the chat stays readable.
+    private var pace: TimeInterval = 1
+    /// Where you were last frame (for who's near enough to be heard).
+    private var player = CGPoint.zero
 
     /// Friends you've made (and who aren't travelling with you) now and then turn up on a map with
     /// other adventurers about, if it suits their level, so you can meet them again and invite them.
-    init(def: MapDef, map: WorldMap, world: SKNode, friends: [Adventurer] = []) {
+    /// `heroLevel`: yours, which a town's adventurers are about. `market`: what the town's traders
+    /// (`crowd.traders`) have, if it has any.
+    init(def: MapDef, map: WorldMap, world: SKNode, heroLevel: Int = 1, friends: [Adventurer] = [], market: Market? = nil) {
         self.map = map
+        self.market = market
         let options = Content.shared.crowd
         let town = def.fence == true
         let spread = max(map.columns, map.rows) / 2
         var adventurerNames = options.adventurerNames.shuffled()
         var villagerNames = options.villagerNames.shuffled()
 
-        let levels = def.encounters.map { ($0.levels.first ?? 1)...(($0.levels.last ?? 1) + 3) } ?? 1...8
-        let count = def.crowd?.adventurers ?? 0
+        // Out in the wild adventurers suit the monsters; a town draws all sorts, about your level
+        // (so they wear the armour of your stage of the game, and anyone you invite fits in).
+        let levels = def.encounters.map { ($0.levels.first ?? 1)...(($0.levels.last ?? 1) + 3) }
+            ?? max(1, heroLevel - 12)...max(8, heroLevel + 8)
+        // Fewer computer-run adventurers as real players arrive (crowd.json `botDensity`).
+        let density = max(0, options.botDensity ?? 1)
+        let count = Int((Double(def.crowd?.adventurers ?? 0) * density).rounded())
+        let traders = market == nil ? 0 : Int((Double(def.crowd?.traders ?? 0) * density).rounded())
+        pace = max(1, Double(count + traders) / 8)
         // Towns welcome anyone; out in the wild, friends roam where the monsters suit them.
         let nearLevel = (levels.lowerBound - 10)...(levels.upperBound + 10)
         let visitors: [Adventurer] = count == 0 ? [] : Array(friends
@@ -74,11 +102,14 @@ final class Crowd {
                 : Self.profile(named: adventurerNames.popLast() ?? "Traveller", levels: levels, danger: def.danger == true)
             addAdventurer(profile, home: home, roam: town ? 9 : 14, world: world)
         }
+        if let market, traders > 0 {
+            placeTraders(traders, market: market, names: &adventurerNames, avoiding: def, world: world)
+        }
         for _ in 0..<(def.crowd?.villagers ?? 0) {
             guard let home = map.strollTarget(near: map.center, radius: spread, using: &rng) else { continue }
             let name = villagerNames.popLast() ?? "Villager"
-            let look = Self.randomLook()
-            let walker = Self.person(name, race: Content.shared.races.randomElement()?.id ?? "human", look: look, color: .white)
+            let race = Content.shared.races.randomElement()?.id ?? "human"
+            let walker = Self.person(name, art: GameSession.registerPerson(race: race, look: Self.randomLook(race: race)), color: .white)
             walker.walkSpeed = .random(in: 50...66)
             add(Member(name: name, kind: .villager, walker: walker, pet: nil, home: home, roam: 5, lines: options.villagerLines), to: world)
         }
@@ -87,9 +118,9 @@ final class Crowd {
     /// How likely each friend is to be on a map you enter.
     static let friendVisitChance = 0.35
 
-    private func addAdventurer(_ profile: Adventurer, home: GridPoint, roam: Int, world: SKNode) {
-        let walker = Self.person(profile.name, race: profile.raceID, look: profile.look,
-                                 color: profile.hostile ? Self.hostileColor : Self.adventurerColor)
+    private func addAdventurer(_ profile: Adventurer, home: GridPoint, roam: Int, world: SKNode, trades: Bool = false) {
+        let walker = Self.person(profile.name, art: GameSession.registerAdventurer(profile),
+                                 color: profile.hostile ? Self.hostileColor : Self.adventurerColor, badge: .bot)
         walker.walkSpeed = .random(in: 72...92)
         var pet: Walker?
         if let species = profile.petSpecies.flatMap(Content.shared.monster) {
@@ -98,7 +129,38 @@ final class Crowd {
             pet?.motion = IdleMotion.of(art: species.art)
         }
         add(Member(name: profile.name, kind: .adventurer, walker: walker, pet: pet, home: home, roam: roam,
-                   lines: Content.shared.crowd.adventurerLines, profile: profile), to: world)
+                   lines: Content.shared.crowd.adventurerLines, profile: profile, trades: trades), to: world)
+    }
+
+    /// Market traders about the main square: a step apart, clear of the middle where you arrive and
+    /// of the townsfolk with jobs, each under a sign with something they're selling today.
+    private func placeTraders(_ count: Int, market: Market, names: inout [String], avoiding def: MapDef, world: SKNode) {
+        let middle = map.center(of: map.center)
+        let townsfolk = (def.npcs ?? []).map { map.center(of: map.offset($0.x, $0.y)) }
+        var spots: [CGPoint] = []
+        for _ in 0..<(count * 20) where spots.count < count {
+            let angle = Double.random(in: 0..<(2 * .pi), using: &rng)
+            let reach = Double.random(in: 0.3...1, using: &rng)
+            let spot = middle + CGVector(dx: cos(angle) * 290 * reach, dy: sin(angle) * 160 * reach)
+            guard map.isWalkable(map.rawCell(at: spot)), spot.distance(to: middle) > 70,
+                  townsfolk.allSatisfy({ $0.distance(to: spot) > 56 }),
+                  spots.allSatisfy({ $0.distance(to: spot) > 46 }) else { continue }
+            spots.append(spot)
+        }
+        let levels = max(1, market.level - 6)...max(1, market.level + 10)
+        for spot in spots {
+            let profile = Self.profile(named: names.popLast() ?? "Trader", levels: levels, danger: false)
+            addAdventurer(profile, home: map.cell(at: spot), roam: 0, world: world, trades: true)
+            guard let member = members.last else { continue }
+            member.walker.position = spot
+            member.pet?.position = spot + CGVector(dx: -26, dy: -6)
+            if let text = market.sign(profile) {
+                let sign = Nodes.shopSign(text)
+                sign.position = CGPoint(x: 0, y: member.walker.sprite.size.height + 24)
+                sign.zPosition = 5_100
+                member.walker.addChild(sign)
+            }
+        }
     }
 
     /// A friend who left your party stays on this map, strolling around where they stood.
@@ -111,32 +173,34 @@ final class Crowd {
         }
     }
 
-    /// A random adventurer: level to suit the area, a class once they're past Novice, and
-    /// often a companion. In danger zones some are troublemakers.
+    /// A random adventurer: level to suit the area, a class once they're past Novice (and armour
+    /// to match, `GameSession.armor(for:)`), and often a companion. In danger zones some are
+    /// troublemakers.
     private static func profile(named name: String, levels: ClosedRange<Int>, danger: Bool) -> Adventurer {
         let content = Content.shared
         let level = Int.random(in: levels)
         let classID = level < content.classChoiceLevel ? "novice" : (content.classes.filter { $0.id != "novice" }.randomElement()?.id ?? "novice")
         let pets = content.crowd.companions.compactMap { art in content.monsters.first { $0.art == art }?.id }
-        return Adventurer(name: name, raceID: content.races.randomElement()?.id ?? "human", classID: classID, level: level,
-                          look: randomLook(), petSpecies: Bool.random() ? pets.randomElement() : nil,
+        let race = content.races.randomElement()?.id ?? "human"
+        return Adventurer(name: name, raceID: race, classID: classID, level: level,
+                          look: randomLook(race: race), petSpecies: Bool.random() ? pets.randomElement() : nil,
                           hostile: danger && Int.random(in: 0..<5) < 2)
     }
 
-    private static func randomLook() -> Look {
+    /// Colours, gender and a hairstyle that suits that race and gender's walk sheet.
+    private static func randomLook(race raceID: String) -> Look {
         let options = Content.shared.appearance
+        let gender = options.genders.randomElement()?.id
+        let sheet = Content.shared.race(raceID).sheet(for: gender)
         return Look(hair: options.hair.randomElement()?.id ?? Look.standard.hair,
                     outfit: options.outfits.randomElement()?.id ?? Look.standard.outfit,
                     skin: options.skin.randomElement()?.id ?? Look.standard.skin,
-                    gender: options.genders.randomElement()?.id)
+                    gender: gender, style: options.styles(for: sheet).randomElement()?.id)
     }
 
-    /// Someone of a race and look, recoloured like a customised hero.
-    private static func person(_ name: String, race raceID: String, look: Look, color: UIColor) -> Walker {
-        let sheet = Content.shared.race(raceID).sheet(for: look.gender)
-        let id = "adv:\(raceID):\(look.key)"
-        ArtLibrary.shared.register(id, from: sheet, recolor: GameSession.rules(for: look), key: sheet + "/" + look.key)
-        let walker = Walker(cycle: ArtLibrary.shared.walkCycle(id), label: name, labelColor: color)
+    /// A walker for someone drawn like a customised hero (art from `GameSession.registerPerson`).
+    private static func person(_ name: String, art id: String, color: UIColor, badge: PlayerBadge? = nil) -> Walker {
+        let walker = Walker(cycle: ArtLibrary.shared.walkCycle(id), label: name, labelColor: color, badge: badge)
         walker.tagMode = .onDemand
         return walker
     }
@@ -144,6 +208,9 @@ final class Crowd {
     private func add(_ member: Member, to world: SKNode) {
         member.walker.position = map.center(of: member.home)
         member.walker.face(Direction.allCases.randomElement() ?? .down)
+        // On a busy map they chat less often each, and traders less often still; the first lines
+        // come spread over that, so the chat is lively from the start without a burst.
+        member.chat = .random(in: 5...(45 * pace * (member.trades ? 2.5 : 1)))
         world.addChild(member.walker)
         if let pet = member.pet {
             pet.position = member.walker.position + CGVector(dx: -30, dy: 0)
@@ -155,6 +222,7 @@ final class Crowd {
     // MARK: - Every frame
 
     func update(dt: TimeInterval, player: CGPoint) {
+        self.player = player
         for member in members {
             let walker = member.walker
             walker.isNear = walker.position.distance(to: player) < Walker.nameRange
@@ -174,10 +242,12 @@ final class Crowd {
             }
             member.chat -= dt
             if member.chat <= 0 {
-                member.chat = .random(in: 20...45)
-                // Adventurers talk on the map channel; villagers only chat to those nearby.
+                member.chat = .random(in: 20...45) * pace * (member.trades ? 2.5 : 1)
+                // Adventurers talk on the map channel; villagers only chat to those nearby. Traders
+                // call out their deals.
                 let near = walker.position.distance(to: player) < 420
-                if near || member.kind == .adventurer, let line = member.lines.randomElement() {
+                let deal = member.trades ? member.profile.flatMap { market?.shout($0) } : nil
+                if near || member.kind == .adventurer, let line = deal ?? member.lines.randomElement() {
                     speak(line, by: member, bubble: near)
                 }
             }
@@ -203,9 +273,9 @@ final class Crowd {
         }
     }
 
-    /// Standing around is over: look about, or stroll somewhere near home.
+    /// Standing around is over: look about, or stroll somewhere near home (traders mind their spot).
     private func decide(_ member: Member) {
-        if Int.random(in: 0..<3, using: &rng) == 0 {
+        if member.trades || Int.random(in: 0..<3, using: &rng) == 0 {
             member.walker.face(Direction.allCases.randomElement(using: &rng) ?? .down)
             member.wait = .random(in: 1.5...3.5, using: &rng)
             return
@@ -278,6 +348,20 @@ final class Crowd {
         member.chat = .random(in: 20...45)
         if let line = member.lines.randomElement() { speak(line, by: member, bubble: true) }
         return true
+    }
+
+    /// After a moderator's World message, a few adventurers on the map answer in the chat.
+    func answerModerator() {
+        guard let lines = Content.shared.crowd.modReplies, !lines.isEmpty else { return }
+        let adventurers = members.filter { $0.kind == .adventurer && $0.profile?.hostile != true }
+        for member in adventurers.shuffled().prefix(Int.random(in: 1...3)) {
+            guard let line = lines.randomElement() else { continue }
+            member.chat = max(member.chat, 20)
+            member.walker.run(.wait(forDuration: .random(in: 1.5...5))) { [weak self] in
+                guard let self else { return }
+                self.speak(line, by: member, bubble: member.walker.position.distance(to: self.player) < 420)
+            }
+        }
     }
 
     /// After you say something, someone nearby (or on the map) may answer.

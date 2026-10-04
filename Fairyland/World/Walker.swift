@@ -44,7 +44,8 @@ final class Walker: SKNode {
     /// The current map's light, cast softly on everyone standing in it (`theme.palette.light`).
     static var light: (color: UIColor, strength: CGFloat)?
 
-    init(cycle: WalkCycle, label: String?, labelColor: UIColor = .white) {
+    /// `badge`: BOT or MOD after the name.
+    init(cycle: WalkCycle, label: String?, labelColor: UIColor = .white, badge: PlayerBadge? = nil) {
         self.cycle = cycle
         sprite = SKSpriteNode(texture: cycle.frames(.down).first, size: cycle.size)
         sprite.anchorPoint = CGPoint(x: 0.5, y: 0.08)
@@ -53,7 +54,7 @@ final class Walker: SKNode {
         addChild(sprite)
         Self.lit(sprite)
         if let label {
-            let tag = NameTag(label, color: labelColor, size: 11)
+            let tag = NameTag(label, color: labelColor, size: 11, badge: badge)
             tag.position = CGPoint(x: 0, y: cycle.size.height * 0.95)
             addChild(tag)
             self.tag = tag
@@ -97,6 +98,10 @@ final class Walker: SKNode {
 
     func setLabel(_ text: String) {
         tag?.setText(text)
+    }
+
+    func setBadge(_ badge: PlayerBadge?) {
+        tag?.setBadge(badge)
     }
 
     /// Shows the name tag for a few seconds, whatever its mode (someone tapped them).

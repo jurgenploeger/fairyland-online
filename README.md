@@ -22,9 +22,11 @@ Built with SwiftUI + SpriteKit. Art is generated with [Retro Diffusion](https://
   more EXP (twice as much by 140), like the original's slow late game. From level 101 Elder Oak can help you
   be reborn at level 1, keeping your skills and some strength; each rebirth needs 5 more levels. Roughly
   19 hours of battling to the first rebirth, about 145 to level 200, and about 280 with five rebirth climbs.
-- **A living world:** villagers and other adventurers wander and chat (see the chat window), you can befriend
-  adventurers and bring up to four along in your party, with their companions (they fight on if you faint,
-  and wait for you where you fell), and danger zones allow duels.
+- **A living world:** villagers and other adventurers (computer-run for now, tagged BOT) wander and chat (see
+  the chat window), you can befriend adventurers and bring up to four along in your party, with their
+  companions (they fight on if you faint, and wait for you where you fell), and danger zones allow duels.
+  Goldburg's square is a market of traders under signs, and announcements in the chat tell of dawn and dusk,
+  arrivals, other adventurers' news and rare monster sightings. Moderators get a MOD tag and a World channel.
 - **Customisation:** hair, outfit and skin (more unlock through quests); armour recolours your outfit and your
   weapon shows in hand.
 - **Onboarding:** a new game opens with the story, how to play and a map of the whole world, and the first
