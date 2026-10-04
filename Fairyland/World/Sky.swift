@@ -81,7 +81,7 @@ final class Sky {
             day = (a.r + (b.r - a.r) * eased, a.g + (b.g - a.g) * eased, a.b + (b.b - a.b) * eased)
             break
         }
-        let cloud = weather?.shade ?? (1, 1, 1)
+        let cloud: (r: Double, g: Double, b: Double) = weather?.shade ?? (1, 1, 1)
         return (day.r * cloud.r, day.g * cloud.g, day.b * cloud.b)
     }
 
