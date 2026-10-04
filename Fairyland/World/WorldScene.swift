@@ -892,7 +892,8 @@ final class WorldScene: SKScene {
         let node = Walker(cycle: art.walkCycle(session.artID(for: pet)), label: pet.name)
         node.motion = IdleMotion.of(art: session.artID(for: pet))
         node.tagMode = .whenStill
-        node.position = previous ?? player.position + CGVector(dx: -30, dy: 0)
+        let beside = player.position + CGVector(dx: -30, dy: 0)
+        node.position = previous ?? (canStand(at: beside) ? beside : player.position)
         node.walkSpeed = 110
         world.addChild(node)
         follower = node
@@ -957,7 +958,8 @@ final class WorldScene: SKScene {
             node.walkSpeed = 105
             node.tagMode = .whenStill
             // Recruited on this map: they start where they stood.
-            node.position = crowd?.position(of: friend.id) ?? player.position + CGVector(dx: -40, dy: -10)
+            let beside = player.position + CGVector(dx: -40, dy: -10)
+            node.position = crowd?.position(of: friend.id) ?? (canStand(at: beside) ? beside : player.position)
             crowd?.remove(friend.id, poof: false)
             world.addChild(node)
             return (friend.id, node)
@@ -1022,10 +1024,15 @@ final class WorldScene: SKScene {
             checkTalkTarget()
             checkCell()
         }
-        follower?.follow(player, dt: dt)
+        // Companions and friends keep to ground they can stand on, never into water or through a
+        // wall. Where their places beside you are blocked, they line up in your footsteps.
+        player.markFootstep()
+        let standable: (CGPoint) -> Bool = { self.canStand(at: $0) }
+        follower?.follow(player, dt: dt, footstep: player.footstep(behind: 36), canStand: standable)
         var leader: Walker = follower ?? player
-        for ally in allies {
-            ally.node.follow(leader, dt: dt)
+        for (index, ally) in allies.enumerated() {
+            let place = CGFloat(index + (follower == nil ? 1 : 2)) * 36
+            ally.node.follow(leader, dt: dt, footstep: player.footstep(behind: place), canStand: standable)
             ally.node.zPosition = -ally.node.position.y
             leader = ally.node
         }
