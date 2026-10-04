@@ -96,12 +96,13 @@ final class BattleController {
         }
         for (index, friend) in session.partyMembers.enumerated() {
             party.append(adventurer(friend, id: 2 + index, side: .party, session: session))
-            // A friend's companion fights beside them (a step below their level, like a rival's).
+            // A friend's companion fights beside them (a step below their level, like a rival's),
+            // named for its owner so it's never mistaken for yours.
             if let speciesID = friend.petSpecies, let species = session.content.monster(speciesID) {
                 let level = max(1, friend.level - 1)
                 let stats = species.stats(at: level)
                 party.append(Combatant(
-                    id: 2 + GameSession.maxAllies + index, side: .party, source: .pet(UUID()), name: species.name, art: species.art,
+                    id: 2 + GameSession.maxAllies + index, side: .party, source: .pet(UUID()), name: "\(friend.name)'s \(species.name)", art: species.art,
                     level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp, skills: species.skills, captureRate: 0
                 ))
             }
