@@ -40,6 +40,10 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 - **Retro Diffusion costs money.** Always run `python3 tools/rd.py generate <ids> --dry-run` (free) and get
   the user's OK before generating. Paid runs are logged in `art/spend-log.jsonl`. Never commit `.env` or the
   API key (`RETRO_DIFFUSION_API_KEY`).
+- **Every skill looks different** (a playtest rule): each skill used in battle has its own `animation` in
+  `content/skills.json`, drawn by `Fairyland/Battle/SkillStyles.swift` (or `ElementEffects.swift` for the elemental
+  spells) and dispatched in `BattleScene.castSkill`. `check_content.py` rejects a shared or unknown one, so a new skill
+  needs a new effect, in light and its own colours.
 - **Versions:** `MARKETING_VERSION` in `project.yml` and the top entry of `content/changelog.json` move together
   (the checker enforces it). Add a changelog entry when shipping a user-visible change. 1.0.0 = App Store launch.
 - **Screenshots and tests:** pushes to `claude/**` branches run `.github/workflows/screenshots.yml` (macOS

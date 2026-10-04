@@ -525,8 +525,11 @@ final class BattleScene: SKScene {
         let targets = hits.compactMap { actors[$0.target] }
         let heal = skill.kind == .heal || skill.kind == .revive
         let blessBlue = UIColor(red: 0.6, green: 0.85, blue: 1, alpha: 1)
-        let color = skill.element?.color ?? (heal ? SkillEffects.healGreen : skill.kind == .buff ? blessBlue : .white)
+        // Every skill has a look of its own (`animation` in content/skills.json; the checker keeps
+        // them apart), and its colour where it has one (frost's ice, a rage's red), else its element's.
         let style = skill.animation ?? (heal ? "heal" : skill.kind == .magic ? "fire" : "slash")
+        let color = SkillEffects.styleColor(style) ?? skill.element?.color
+            ?? (heal ? SkillEffects.healGreen : skill.kind == .buff ? blessBlue : .white)
         actors[actorID]?.sprite.flash(color)
         // People gather themselves in their own way (class and race).
         let fighter = controller.combatants.first { $0.id == actorID }
@@ -555,25 +558,29 @@ final class BattleScene: SKScene {
             if hold > 0 { await pause(hold) }
         }
         if level >= 3 { SkillEffects.screenFlash(color: color, strength: 0.18 + 0.08 * CGFloat(level - 3), size: size, in: self) }
-        // Revive and Bless: a pillar of light on the ally. A revived fighter rises back into view.
-        if skill.kind == .revive || skill.kind == .buff {
+        // Revive: a pillar of light on the fallen ally, who rises back into view.
+        if skill.kind == .revive {
             for target in targets {
-                if skill.kind == .revive {
-                    target.run(.group([.fadeIn(withDuration: 0.5), .move(to: target.home, duration: 0.5)]), withKey: "revive")
-                }
+                target.run(.group([.fadeIn(withDuration: 0.5), .move(to: target.home, duration: 0.5)]), withKey: "revive")
                 SkillEffects.lightPillar(on: target, level: level, in: stage)
             }
             await pause(0.4)
             for hit in hits {
                 guard let target = actors[hit.target] else { continue }
-                if skill.kind == .revive {
-                    SkillEffects.sparkles(on: target, color: SkillEffects.healGreen, level: 2, in: stage)
-                    Effects.damageBurst("+\(hit.amount)", style: .heal, at: target.top, in: stage)
-                } else {
-                    // What it raised, and by how much, shows in the events after this one.
-                    SkillEffects.shield(on: target, in: stage)
-                }
+                SkillEffects.sparkles(on: target, color: SkillEffects.healGreen, level: 2, in: stage)
+                Effects.damageBurst("+\(hit.amount)", style: .heal, at: target.top, in: stage)
             }
+            for target in targets { SkillEffects.glory(on: target, color: color, level: level, in: stage) }
+            if mastered {
+                SkillEffects.ultimateFinale(on: targets, style: "holy", color: color, size: size, in: stage)
+                await pause(0.7)
+            }
+            return
+        }
+        // Buffs, each in its own way (Bless's pillar, Protection's shield, Berserk's flames...);
+        // what it raised, and by how much, shows in the events after this one.
+        if skill.kind == .buff {
+            await pause(SkillEffects.buff(style, on: targets, level: level, in: stage))
             for target in targets { SkillEffects.glory(on: target, color: color, level: level, in: stage) }
             if mastered {
                 SkillEffects.ultimateFinale(on: targets, style: "holy", color: color, size: size, in: stage)
@@ -584,19 +591,29 @@ final class BattleScene: SKScene {
 
         // Curses and poisons: a dark mote flies to the foe and sinks in (a mist spreads over all of
         // them at once). Each mark shows as it takes hold, in the events after this one.
+        // Evil Eye glares from a great eye instead, and Poison Mist rolls in as a fog.
         if skill.kind == .curse {
-            let poison = skill.inflicts?.effect == .poison
-            if skill.target != .allEnemies, let first = targets.first {
-                await SkillEffects.projectile(from: actors[actorID]?.center, to: first.center, color: color, level: level, trail: true, in: stage)
-            }
-            for target in targets {
-                if poison {
-                    SkillEffects.poisonCloud(on: target, level: level, in: stage)
-                } else {
-                    SkillEffects.curseSpell(on: target, level: level, in: stage)
+            switch style {
+            case "glare":
+                for target in targets { SkillEffects.evilEye(on: target, in: stage) }
+                await pause(0.55)
+            case "mist":
+                SkillEffects.poisonMist(on: targets, in: stage)
+                await pause(0.6)
+            default:
+                let poison = skill.inflicts?.effect == .poison
+                if skill.target != .allEnemies, let first = targets.first {
+                    await SkillEffects.projectile(from: actors[actorID]?.center, to: first.center, color: color, level: level, trail: true, in: stage)
                 }
+                for target in targets {
+                    if poison {
+                        SkillEffects.poisonCloud(on: target, level: level, in: stage)
+                    } else {
+                        SkillEffects.curseSpell(on: target, level: level, in: stage)
+                    }
+                }
+                await pause(0.35)
             }
-            await pause(0.35)
             return
         }
 
@@ -658,6 +675,79 @@ final class BattleScene: SKScene {
                 for target in targets { SkillEffects.bite(on: target, in: self.stage) }
                 self.impactAll(hits, heal: false)
             }
+        case "shadow_bite":
+            await lunge(actorID, toward: hits.first?.target ?? actorID) {
+                for target in targets { SkillEffects.shadowBite(on: target, in: self.stage) }
+                self.impactAll(hits, heal: false)
+            }
+        case "venom_bite":
+            await lunge(actorID, toward: hits.first?.target ?? actorID) {
+                for target in targets { SkillEffects.venomBite(on: target, in: self.stage) }
+                self.impactAll(hits, heal: false)
+            }
+        case "smash":
+            await lunge(actorID, toward: hits.first?.target ?? actorID) {
+                for target in targets { SkillEffects.smash(on: target, level: level, in: self.stage) }
+                self.shake(strength: 3 + CGFloat(level))
+                self.impactAll(hits, heal: false)
+            }
+        case "frost":
+            await pause(SkillEffects.frostBreath(from: actors[actorID]?.center, on: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "bubbles":
+            await pause(SkillEffects.bubbleStream(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "embers":
+            await pause(SkillEffects.emberSpray(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "mud":
+            await pause(SkillEffects.mudShot(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "boulder":
+            await pause(SkillEffects.rockThrow(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            shake(strength: 3 + CGFloat(level))
+            impactAll(hits, heal: false)
+        case "vine":
+            await pause(SkillEffects.vineWhip(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "gold_spin":
+            if let actor = actors[actorID] {
+                await actor.run(.rotate(byAngle: .pi * 2, duration: 0.25))
+                actor.zRotation = 0
+            }
+            await pause(SkillEffects.goldenSpin(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "gust":
+            await pause(SkillEffects.gust(from: actors[actorID]?.center, on: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "roar":
+            await pause(SkillEffects.roar(from: actors[actorID], on: targets, level: level, in: stage))
+            shake(strength: 3 + CGFloat(level))
+            impactAll(hits, heal: false)
+        case "web":
+            await pause(SkillEffects.webShot(from: actors[actorID]?.center, on: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "flash":
+            for target in targets { SkillEffects.flashBurst(on: target, level: level, in: stage) }
+            SkillEffects.screenFlash(color: .white, strength: 0.3, size: size, in: self)
+            await pause(0.2)
+            impactAll(hits, heal: false)
+        case "first_aid":
+            for target in targets { SkillEffects.firstAid(on: target, in: stage) }
+            await pause(0.3)
+            impactAll(hits, heal: true)
+        case "heart":
+            for target in targets { SkillEffects.healingHeart(on: target, in: stage) }
+            await pause(0.4)
+            impactAll(hits, heal: true)
+        case "paw":
+            for target in targets { SkillEffects.pawPrints(on: target, in: stage) }
+            await pause(0.55)
+            impactAll(hits, heal: true)
+        case "rain":
+            SkillEffects.lightRain(on: targets, level: level, in: stage)
+            await pause(0.4)
+            impactAll(hits, heal: true)
         default:
             for target in targets { SkillEffects.sparkles(on: target, color: color, level: level, in: stage) }
             await pause(0.3)
@@ -667,7 +757,7 @@ final class BattleScene: SKScene {
         if level >= 4, !heal { shake(strength: CGFloat(level - 2) * 3) }
         if mastered {
             await pause(0.2)
-            SkillEffects.ultimateFinale(on: targets, style: style, color: color, size: size, in: stage)
+            SkillEffects.ultimateFinale(on: targets, style: SkillEffects.finale(for: style), color: color, size: size, in: stage)
             await pause(0.35)
             SkillEffects.screenFlash(color: .white, strength: 0.55, size: size, in: self)
             if !heal { shake(strength: 14) }

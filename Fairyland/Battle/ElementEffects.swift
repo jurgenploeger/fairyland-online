@@ -37,7 +37,7 @@ extension SkillEffects {
     // MARK: - Light
 
     /// A soft disc of `color`, alpha-blended: it tints whatever's under it, bright ground too.
-    private static func shade(_ color: UIColor, size: CGSize, alpha: CGFloat) -> SKSpriteNode {
+    static func shade(_ color: UIColor, size: CGSize, alpha: CGFloat) -> SKSpriteNode {
         let sprite = SKSpriteNode(texture: SoftTextures.glow, size: size)
         sprite.color = color
         sprite.colorBlendFactor = 1
@@ -64,7 +64,7 @@ extension SkillEffects {
     }
 
     /// A stroke of light `size` (long and thin), tinted underneath like a ball of light.
-    private static func streak(_ light: ElementLight, color: UIColor? = nil, size: CGSize, tint: CGFloat = 0.5) -> SKNode {
+    static func streak(_ light: ElementLight, color: UIColor? = nil, size: CGSize, tint: CGFloat = 0.5) -> SKNode {
         let node = SKNode()
         node.zPosition = 18_000
         node.addChild(shade(light.deep, size: size * 1.15, alpha: tint))
@@ -75,7 +75,7 @@ extension SkillEffects {
     }
 
     /// A ring of light rolling out over the ground from `point`.
-    private static func ring(at point: CGPoint, color: UIColor, size: CGSize, grow: CGFloat, delay: TimeInterval = 0, in parent: SKNode) {
+    static func ring(at point: CGPoint, color: UIColor, size: CGSize, grow: CGFloat, delay: TimeInterval = 0, in parent: SKNode) {
         let band = SKShapeNode(ellipseOf: size)
         band.strokeColor = color
         band.lineWidth = 3
@@ -96,7 +96,7 @@ extension SkillEffects {
     }
 
     /// The ground under a spell glowing in its light, flat and wide, under every fighter.
-    private static func groundGlow(at point: CGPoint, light: ElementLight, width: CGFloat, appear: TimeInterval = 0,
+    static func groundGlow(at point: CGPoint, light: ElementLight, width: CGFloat, appear: TimeInterval = 0,
                                    hold: TimeInterval, in parent: SKNode) {
         let pool = SKNode()
         pool.position = point
@@ -113,7 +113,7 @@ extension SkillEffects {
     }
 
     /// Sparks of light streaking out from `point`, each stretched along its way.
-    private static func sparks(from point: CGPoint, light: ElementLight, count: Int, reach: CGFloat, delay: TimeInterval = 0,
+    static func sparks(from point: CGPoint, light: ElementLight, count: Int, reach: CGFloat, delay: TimeInterval = 0,
                                in parent: SKNode) {
         for index in 0..<count {
             let angle = CGFloat(index) / CGFloat(count) * 2 * .pi + .random(in: -0.2...0.2)
@@ -137,7 +137,7 @@ extension SkillEffects {
 
     /// Light streaming back from something in flight (a fireball, an orb): sparks in its colours
     /// over a tint of its deep shade, so the trail keeps its colour. `falling`: they drip down.
-    private static func trail(_ light: ElementLight, level: Int, falling: Bool = false, parent: SKNode) -> SKNode {
+    static func trail(_ light: ElementLight, level: Int, falling: Bool = false, parent: SKNode) -> SKNode {
         let node = SKNode()
         for tinted in [true, false] {
             let emitter = SKEmitterNode()
@@ -174,7 +174,7 @@ extension SkillEffects {
     }
 
     /// Stops a trail and lets its last sparks die out where they are.
-    private static func settle(_ trail: SKNode, in parent: SKNode) {
+    static func settle(_ trail: SKNode, in parent: SKNode) {
         for case let emitter as SKEmitterNode in trail.children { emitter.particleBirthRate = 0 }
         trail.move(toParent: parent)
         trail.zPosition = 18_100
@@ -182,7 +182,7 @@ extension SkillEffects {
     }
 
     /// Light rising from a fighter's feet and dying out as it goes (flames, a cyclone's lift).
-    private static func rising(from target: BattleActor, light: ElementLight, count: Int, height: CGFloat, in parent: SKNode) {
+    static func rising(from target: BattleActor, light: ElementLight, count: Int, height: CGFloat, in parent: SKNode) {
         for index in 0..<count {
             let size = CGFloat.random(in: 20...28)
             let flame = SKNode()
@@ -206,7 +206,7 @@ extension SkillEffects {
     }
 
     /// A column of light roaring up through a fighter.
-    private static func column(on target: BattleActor, light: ElementLight, width: CGFloat, in parent: SKNode) {
+    static func column(on target: BattleActor, light: ElementLight, width: CGFloat, in parent: SKNode) {
         let pillar = SKNode()
         pillar.position = target.position
         pillar.zPosition = 18_050
@@ -270,7 +270,7 @@ extension SkillEffects {
 
     /// A shard of light pointing up, in white to colour: nested triangles from wide and faint to
     /// narrow and bright, so it glows from a bright spine. Its foot is the bottom edge.
-    private static let shardTexture: SKTexture = {
+    static let shardTexture: SKTexture = {
         let size = CGSize(width: 48, height: 96)
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
@@ -292,7 +292,7 @@ extension SkillEffects {
 
     /// One shard of an element's light standing at its foot (the node's origin): its deep shade
     /// a little wider underneath, its colour, and a bright spine.
-    private static func shard(_ light: ElementLight, size: CGSize) -> SKNode {
+    static func shard(_ light: ElementLight, size: CGSize) -> SKNode {
         let node = SKNode()
         let layers: [(UIColor, CGFloat, CGFloat, CGFloat, SKBlendMode)] = [
             (light.deep, 1.25, 1.05, 0.8, .alpha), (light.main, 1, 1, 0.85, .add), (light.core, 0.55, 0.9, 0.5, .add),

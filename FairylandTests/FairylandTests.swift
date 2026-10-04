@@ -1241,6 +1241,51 @@ struct RulesTests {
         #expect(skill == "first_aid" && target == 2)
     }
 
+    /// Friends (and you on Auto) weigh their moves: a plain blow for a monster it would finish off,
+    /// a sweep for a crowd, a spell's element where it's a weak spot.
+    @Test func adventurersMakeEducatedChoices() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        func hero(_ skills: [String], stats: Stats) -> Combatant {
+            var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 30, element: .neutral,
+                                 stats: stats, hp: stats.hp, mp: stats.mp, skills: skills, captureRate: 0)
+            hero.skillLevels = Dictionary(uniqueKeysWithValues: skills.map { ($0, 1) })
+            return hero
+        }
+        func foe(_ id: Int, hp: Int, element: Element = .water) -> Combatant {
+            Combatant(id: id, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 30, element: element,
+                      stats: Stats(hp: 1_000, mp: 0, attack: 5, defense: 10, magic: 5, speed: 1), hp: hp, mp: 0, skills: [], captureRate: 0)
+        }
+        let fighter = Stats(hp: 500, mp: 100, attack: 30, defense: 10, magic: 5, speed: 10)
+
+        // A monster one plain blow would beat isn't worth MP.
+        let finishing = BattleEngine(party: [hero(["power_strike"], stats: fighter)], enemies: [foe(10, hp: 1)], content: content, seed: 1)
+        guard case .attack(let target) = finishing.autoAction(for: 0) else {
+            Issue.record("expected a plain blow on the nearly beaten monster")
+            return
+        }
+        #expect(target == 10)
+
+        // A crowd is swept.
+        let crowd = (10..<14).map { foe($0, hp: 1_000) }
+        let sweeping = BattleEngine(party: [hero(["whirlwind", "bash"], stats: fighter)], enemies: crowd, content: content, seed: 1)
+        guard case .skill(let sweep, _) = sweeping.autoAction(for: 0) else {
+            Issue.record("expected Whirlwind on the crowd")
+            return
+        }
+        #expect(sweep == "whirlwind")
+
+        // Fire goes where it's a weak spot (metal), not where it's resisted (water).
+        let mage = Stats(hp: 500, mp: 100, attack: 10, defense: 10, magic: 60, speed: 10)
+        let aiming = BattleEngine(party: [hero(["fire_bolt"], stats: mage)], enemies: [foe(10, hp: 1_000, element: .water), foe(11, hp: 1_000, element: .metal)],
+                                  content: content, seed: 1)
+        guard case .skill(let spell, let mark) = aiming.autoAction(for: 0) else {
+            Issue.record("expected Fire Bolt")
+            return
+        }
+        #expect(spell == "fire_bolt" && mark == 11)
+    }
+
     @Test func monstersBeatenTogetherFallTogether() {
         let content = Content.shared
         let jelly = content.monster("jelly")!

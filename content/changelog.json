@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.43",
+      "date": "2026-10-04",
+      "title": "A look for every skill, and bots that think",
+      "notes": [
+        "Every skill now has a look of its own. Frost Breath is an icy breath that grows crystals of ice and drifts snow, no longer Bubble's water orb; Bubble sends a stream of bubbles that pop. Ember sprays little embers, Mud Shot lobs a gob that splats, Rock Throw hurls a tumbling boulder, Vine Whip lashes, Golden Spin flings a spinning gold disc, Gust blows streaks of wind, Roar sends out shockwaves, and Web Shot throws webs. Bash slams down from above, Shadow Bite and Venom Bite bite in violet and green, Evil Eye opens a great glaring eye, Poison Mist rolls in as a fog, and Flash bursts into a blinding star.",
+        "Heals and buffs too: First Aid raises a white cross, Recovery a beating heart, Mend Beast paw prints, Blessing a rain of light; Protection forms a shield, Holy Glow an orb of rosy light, Guardianship a dome over the party, Animal Training paw prints and speed lines, Boost rising arrows and Berserk red flames.",
+        "Friends no longer copy you. They weigh every move: a plain blow to finish off a monster rather than spending MP, a sweep when there's a crowd, a spell where it hits a weak spot and never where it's resisted, their best skill on the toughest monster, a heal or a buff when it pays, and MP kept back if they're the healer. They rarely use the skill you just used, and on Auto you fight the same thoughtful way."
+      ]
+    },
+    {
       "version": "0.3.42",
       "date": "2026-10-04",
       "title": "One spacing for both sides",

@@ -146,6 +146,24 @@ for skill in skills.values():
     else:
         check(not {"raises", "lowers", "rounds"} & set(skill), f"{where} → only buffs have raises, lowers or rounds")
 
+# Every skill used in battle looks like no other (a playtest rule): its own `animation`, one the
+# scene knows (BattleScene.castSkill and SkillEffects in Fairyland/Battle).
+ANIMATIONS = {
+    "slash", "smash", "whirlwind", "fire", "embers", "stone", "mud", "boulder", "leaves", "vine", "water", "bubbles", "frost",
+    "wild", "roar", "needles", "web", "bounce", "bite", "shadow_bite", "venom_bite", "gold_spin", "gust", "flash",
+    "curse", "glare", "poison", "mist", "first_aid", "heart", "paw", "rain", "revive",
+    "bless", "shield", "glow", "ward", "spur", "boost", "rage",
+}
+seen = {}
+for skill in skills.values():
+    if skill["kind"] == "field":
+        continue
+    animation = skill.get("animation")
+    check(animation in ANIMATIONS, f"skill {skill['id']} → animation must be one the battle draws: {animation}")
+    if animation in seen:
+        check(False, f"skill {skill['id']} → animation {animation} is {seen[animation]}'s already: every skill needs its own look")
+    seen.setdefault(animation, skill["id"])
+
 for monster in monsters.values():
     check(monster["art"] in art, f"monster {monster['id']} → unknown art {monster['art']}")
     check(isinstance(monster.get("lore"), str) and monster["lore"].strip(), f"monster {monster['id']} needs lore for the Monster Book")
