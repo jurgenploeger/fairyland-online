@@ -1031,6 +1031,16 @@ struct RulesTests {
         #expect(!GameSession.wearsBoots(bot("fighter", 30)))
     }
 
+    @Test func aBackupComesBackAsAGameOfItsOwn() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.data.hero.level = 12
+        let game = try SaveStore.imported(try JSONEncoder().encode(session.data))
+        #expect(game.hero.name == "Test" && game.hero.level == 12)
+        // A slot of its own, so it never overwrites the game it was made from.
+        #expect(game.slot != nil && game.slot != session.data.slot)
+        #expect(throws: (any Error).self) { try SaveStore.imported(Data("not a save".utf8)) }
+    }
+
     @Test func autoFightsOnlyMonstersWellBelowYou() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let meadow = try #require(Content.shared.map("sunny_meadow")?.encounters)

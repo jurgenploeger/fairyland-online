@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.31",
+      "date": "2026-10-04",
+      "title": "Back up your game",
+      "notes": [
+        "Settings has a Back up to Files button: it saves your game as a file in Files or iCloud Drive. Bring it back with Import a backup on the title screen, on a new phone or after deleting the app. It comes back as a game of its own and never overwrites another.",
+        "Your games were already in your phone's own iCloud Backup; this is a copy you keep yourself."
+      ]
+    },
+    {
       "version": "0.3.30",
       "date": "2026-10-04",
       "title": "Faster fights, and Auto",
