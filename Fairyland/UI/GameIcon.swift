@@ -14,6 +14,8 @@ enum GameIcon: String, CaseIterable {
     case shieldCheck = "shield-check", shieldPlus = "shield-plus", shieldStar = "shield-star", shieldHeart = "shield-heart"
     // Skills (content/skills.json `icon`)
     case hammer, firstAid = "first-aid", tornado, flame, mountain, leaf, droplet, pineTree = "pine-tree", tooth, bounce
+    // Elements (with flame, droplet, leaf, mountain, sun and moon above)
+    case magnet, circleDashed = "circle-dashed"
 
     /// Iconaut draws a simplified version for 16px and below, so small icons stay readable.
     func assetName(for size: CGFloat) -> String {
@@ -39,6 +41,23 @@ struct IconImage: View {
             .scaledToFit()
             .frame(width: size, height: size)
             .accessibilityHidden(true)
+    }
+}
+
+extension Element {
+    /// The element's shape, so it reads without its colour: a flame, a droplet, a leaf, a mountain,
+    /// a magnet for metal, the sun, the moon, and a dashed ring for none.
+    var icon: GameIcon {
+        switch self {
+        case .fire: .flame
+        case .water: .droplet
+        case .wood: .leaf
+        case .earth: .mountain
+        case .metal: .magnet
+        case .light: .sun
+        case .dark: .moon
+        case .neutral: .circleDashed
+        }
     }
 }
 

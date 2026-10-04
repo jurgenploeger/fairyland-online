@@ -49,7 +49,10 @@ struct MonsterBook: View {
         return Button {
             element = value
         } label: {
-            Text(value?.displayName ?? "All")
+            HStack(spacing: 4) {
+                if let value { IconImage(value.icon, size: 11) }
+                Text(value?.displayName ?? "All")
+            }
                 .font(HUDStyle.font(10))
                 .foregroundStyle(on ? HUDStyle.ink : HUDStyle.cream)
                 .padding(.horizontal, 9)
@@ -81,7 +84,7 @@ struct MonsterBook: View {
                 .fill(.white.opacity(seen ? 0.08 : 0.03))
                 .overlay(alignment: .topTrailing) {
                     if seen {
-                        Circle().fill(Color(uiColor: monster.element.color)).frame(width: 8, height: 8).padding(5)
+                        ElementIcon(element: monster.element, size: 16).padding(4)
                     }
                 }
         )

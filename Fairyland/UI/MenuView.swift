@@ -326,12 +326,32 @@ struct ElementBadge: View {
     let element: Element
 
     var body: some View {
-        Text(element.displayName)
-            .font(HUDStyle.font(9))
-            .foregroundStyle(HUDStyle.ink)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(Capsule().fill(Color(uiColor: element.color)))
+        HStack(spacing: 3) {
+            IconImage(element.icon, size: 9)
+            Text(element.displayName)
+        }
+        .font(HUDStyle.font(9))
+        .foregroundStyle(HUDStyle.ink)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(Capsule().fill(Color(uiColor: element.color)))
+    }
+}
+
+/// An element's shape on a disc of its colour, where there's no room for its name.
+struct ElementIcon: View {
+    let element: Element
+    var size: CGFloat = 16
+
+    var body: some View {
+        ZStack {
+            Circle().fill(Color(uiColor: element.color))
+            IconImage(element.icon, size: (size * 0.62).rounded())
+                .foregroundStyle(HUDStyle.ink)
+        }
+        .frame(width: size, height: size)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(element.displayName)
     }
 }
 

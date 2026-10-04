@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.16",
+      "date": "2026-10-04",
+      "title": "Elements you can read at a glance",
+      "notes": [
+        "Elements show their shape, not just a colour: a flame for fire, a droplet for water, a leaf for wood, a mountain for earth, a magnet for metal, the sun for light and the moon for dark (neutral is a dashed ring). They mark each monster in the Monster Book, its element filters, and every element tag on skills, companions and monster pages."
+      ]
+    },
+    {
       "version": "0.3.15",
       "date": "2026-10-04",
       "title": "A livelier world",
