@@ -40,13 +40,21 @@ struct BattleView: View {
                 .padding(.bottom, 14)
                 .allowsHitTesting(controller.phase != .animating)
 
+            // Top left, across from the chat: how fast the fight plays, and Auto.
+            if controller.phase != .finished {
+                PaceControls(controller: controller)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .padding(.top, 66)
+                    .padding(.leading, 14)
+            }
+
             if controller.phase == .finished, let result = controller.result {
                 ResultPanel(result: result, session: controller.session, onContinue: controller.leave)
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.phase)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.choosingForCompanion)
-        .onAppear { controller.startTurnClock() }
+        .onAppear { controller.begin() }
     }
 
     @ViewBuilder
@@ -465,6 +473,60 @@ private struct CommandPad: View {
         case "capture": controller.capture()
         default: break
         }
+    }
+}
+
+/// The fight's pace: 2× plays it twice as fast (your time to choose stays the same), and Auto lets
+/// the hero and companion fight on their own against monsters well below you. Both are kept for
+/// the next fights. Auto shows only in wild fights, dimmed where the monsters are too strong for it.
+private struct PaceControls: View {
+    let controller: BattleController
+
+    var body: some View {
+        HStack(spacing: 8) {
+            let fast = controller.speed > 1
+            PaceButton(title: fast ? "2×" : "1×", lit: fast,
+                       label: fast ? "Battle speed: double. Tap for normal." : "Battle speed: normal. Tap for double.") {
+                controller.toggleSpeed()
+            }
+            if controller.isWild {
+                PaceButton(title: "AUTO", lit: controller.isAuto, enabled: controller.isAuto || controller.canAuto,
+                           label: controller.isAuto ? "Auto is on. Tap to choose yourself." : "Auto: fight on your own.") {
+                    controller.toggleAuto()
+                }
+            }
+        }
+    }
+}
+
+/// A small lit-or-not switch for the pace controls.
+private struct PaceButton: View {
+    let title: String
+    let lit: Bool
+    var enabled = true
+    let label: String
+    let action: () -> Void
+
+    var body: some View {
+        Button {
+            SoundEffects.shared.play(.tap, volume: 0.7)
+            action()
+        } label: {
+            Text(title)
+                .font(HUDStyle.font(12))
+                .foregroundStyle(lit ? HUDStyle.ink : HUDStyle.cream)
+                .frame(minWidth: 40, minHeight: 30)
+                .padding(.horizontal, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 9)
+                        .fill(lit ? HUDStyle.gold : HUDStyle.ink.opacity(0.85))
+                        .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(lit ? Color.white.opacity(0.9) : HUDStyle.cream.opacity(0.55), lineWidth: 2))
+                )
+                .opacity(enabled ? 1 : 0.45)
+        }
+        .buttonStyle(PressScaleStyle())
+        .accessibilityLabel(label)
+        .accessibilityAddTraits(lit ? .isSelected : [])
     }
 }
 

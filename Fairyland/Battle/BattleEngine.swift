@@ -438,6 +438,12 @@ final class BattleEngine {
         return .attack(target: target.id)
     }
 
+    /// What the hero does on Auto: what a friend in your party would.
+    func autoAction(for id: Int) -> BattleAction {
+        guard let fighter = combatant(id), fighter.isAlive else { return .defend }
+        return adventurerAction(for: fighter)
+    }
+
     /// Adventurers fight like players: wake a fallen friend (you first), heal one in trouble,
     /// otherwise skills and attacks.
     private func adventurerAction(for fighter: Combatant) -> BattleAction {

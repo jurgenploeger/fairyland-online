@@ -269,7 +269,10 @@ final class BattleController {
             enemies.append(enemy)
         }
         let engine = BattleEngine(party: party, enemies: enemies, content: content, captureBonus: session.heroClass.captureBonus ?? 1)
-        return BattleController(engine: engine, session: session)
+        let controller = BattleController(engine: engine, session: session)
+        controller.isWild = true
+        controller.isAuto = GameSettings.autoBattle && controller.canAuto
+        return controller
     }
 
     private static func pick(from weights: [String: Int]) -> String? {
@@ -350,6 +353,109 @@ final class BattleController {
         clearTargets()
         choosingForCompanion = false
         resolve(heroChoice ?? .defend, orders: [:])
+    }
+
+    // MARK: - Pace
+
+    /// How fast the fight plays (the 2× button): its animations and the pauses between rounds that
+    /// play by themselves, never your time to choose. Kept for the next fights.
+    private(set) var speed = GameSettings.battleSpeed
+
+    func toggleSpeed() {
+        speed = speed > 1 ? 1 : 2
+        UserDefaults.standard.set(speed, forKey: GameSettings.battleSpeedKey)
+        scene?.setPace(speed)
+    }
+
+    /// Auto: the hero fights by themselves, as a friend in your party would
+    /// (`BattleEngine.autoAction`), your companion decides for itself, and the rounds play on their
+    /// own until you switch it off. Only in a wild fight against monsters well below you, never a
+    /// boss or a duel; it hands back to you when you're badly hurt. Left on, it's on in the next
+    /// fight it's allowed in.
+    private(set) var isAuto = false
+    /// A wild encounter (not a boss or a duel), where Auto may play.
+    @ObservationIgnored private(set) var isWild = false
+    /// How many levels below you every monster must be for Auto.
+    static let autoLevelGap = 5
+    /// Below this share of HP, Auto stops and you choose again.
+    static let autoStopsBelow = 0.3
+
+    /// Auto is allowed here: a wild fight where every monster standing is well below you.
+    var canAuto: Bool {
+        guard isWild, let hero, hero.isAlive else { return false }
+        let standing = enemies.filter(\.isAlive)
+        return !standing.isEmpty && standing.allSatisfy { $0.level <= hero.level - Self.autoLevelGap }
+    }
+
+    /// Auto plays the next round: it's on, allowed here, and you're not badly hurt.
+    private var autoPlays: Bool {
+        isAuto && canAuto && (hero?.hpFraction ?? 0) >= Self.autoStopsBelow
+    }
+
+    func toggleAuto() {
+        guard phase != .finished else { return }
+        if isAuto {
+            isAuto = false
+            UserDefaults.standard.set(false, forKey: GameSettings.autoBattleKey)
+            return
+        }
+        guard canAuto else {
+            message = isWild
+                ? "Auto fights only monsters at least \(Self.autoLevelGap) levels below you."
+                : "No Auto against a boss or in a duel."
+            return
+        }
+        isAuto = true
+        UserDefaults.standard.set(true, forKey: GameSettings.autoBattleKey)
+        // Mid-choice, it plays on at once (with your choice, if you'd made it and were on your companion's).
+        if isChoosing { autoRound() }
+    }
+
+    /// The fight is on screen: your first turn's clock starts, or on Auto the first round plays
+    /// once everyone has marched in.
+    func begin() {
+        if autoPlays, phase == .command, !choosingForCompanion {
+            playOnAuto(after: 1200)
+        } else {
+            startTurnClock()
+        }
+    }
+
+    /// Plays the next round on Auto after a short pause (or hands back to you if Auto was switched
+    /// off meanwhile). The chat holds it, as it holds the turn clock.
+    private func playOnAuto(after milliseconds: Int = 500) {
+        phase = .animating
+        message = "Auto: \(hero?.name ?? "you") fights on…"
+        Task { [weak self] in
+            await self?.breather(milliseconds)
+            while self?.holds.isEmpty == false { try? await Task.sleep(for: .milliseconds(250)) }
+            guard let self, self.phase == .animating, self.result == nil else { return }
+            if self.autoPlays { self.autoRound() } else { self.awaitCommand() }
+        }
+    }
+
+    /// One round on Auto: the hero acts as a friend would (or as you'd chosen, mid-choice), and your
+    /// companion decides for itself.
+    private func autoRound() {
+        stopTurnClock()
+        clearTargets()
+        let action = heroChoice ?? hero.map { engine.autoAction(for: $0.id) } ?? .defend
+        choosingForCompanion = false
+        resolve(action, orders: [:])
+    }
+
+    /// Your turn to choose; the turn clock starts.
+    private func awaitCommand(note: String? = nil) {
+        phase = .command
+        let ask = "What will \(hero?.name ?? "you") do?"
+        message = note.map { "\($0) \(ask)" } ?? ask
+        startTurnClock()
+    }
+
+    /// A pause before something that plays by itself, shorter at 2×. None without a scene (tests).
+    private func breather(_ milliseconds: Int) async {
+        guard scene != nil else { return }
+        try? await Task.sleep(for: .milliseconds(Int(Double(milliseconds) / speed)))
     }
 
     // MARK: - Commands
@@ -741,10 +847,14 @@ final class BattleController {
         switch engine.outcome {
         case .ongoing where heroIsDown:
             fightOnWithoutYou()
+        case .ongoing where autoPlays:
+            playOnAuto()
+        case .ongoing where isAuto && canAuto:
+            // Badly hurt: Auto hands back to you (and comes on again in the next fight).
+            isAuto = false
+            awaitCommand(note: "Auto stops: you're badly hurt!")
         case .ongoing:
-            phase = .command
-            message = "What will \(hero?.name ?? "you") do?"
-            startTurnClock()
+            awaitCommand()
         case .victory:
             finish(.victory, lines: concludeVictory() + afterTheFight())
         case .fled:
@@ -768,7 +878,7 @@ final class BattleController {
         let standing = party.filter { $0.isAlly && $0.isAlive }.map(\.name)
         message = "\(hero?.name ?? "You") fainted! \(GameSession.listed(standing)) \(standing.count == 1 ? "fights" : "fight") on…"
         Task {
-            if scene != nil { try? await Task.sleep(for: .milliseconds(900)) }
+            await breather(900)
             while !holds.isEmpty { try? await Task.sleep(for: .milliseconds(250)) }
             resolve(.defend, orders: [:])
         }
@@ -816,11 +926,11 @@ final class BattleController {
         // the victory fanfare, light pours down on the hero with the level-up jingle.
         message = levelLine(newLevel)
         Task {
-            try? await Task.sleep(for: .milliseconds(450))
+            await breather(450)
             scene?.celebrateLevelUp(to: newLevel)
             SoundEffects.shared.play(.levelUp)
             Haptics.success()
-            if scene != nil { try? await Task.sleep(for: .milliseconds(1500)) }
+            await breather(1500)
             phase = .finished
         }
     }

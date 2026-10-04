@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.30",
+      "date": "2026-10-04",
+      "title": "Faster fights, and Auto",
+      "notes": [
+        "A 2× button at the top left of every fight plays it twice as fast. Your 10 seconds to choose stay the same. It's kept for the next fights.",
+        "Auto, next to it, fights for you against monsters at least 5 levels below you: your hero does what a friend would (wake a fallen friend, heal one in trouble, or go for the weakest monster, now and then with a skill), and your companion fights on its own. It stays on from fight to fight until you switch it off, hands back to you when you're badly hurt, and never plays in a boss fight or a duel."
+      ]
+    },
+    {
       "version": "0.3.29",
       "date": "2026-10-04",
       "title": "Friends can join again",

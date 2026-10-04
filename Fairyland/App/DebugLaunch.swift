@@ -34,6 +34,8 @@ import Foundation
 ///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
 ///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
 ///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
+///   auto           battles start on Auto where it's allowed (monsters well below you)
+///   fast           battles play at 2×
 ///   mod            moderator mode (a MOD tag, and the chat's World channel) for this launch only
 ///   announce       once the map is on screen: a rare sighting, news of another adventurer and, with mod,
 ///                  a World message (with chat: then the chat opens)
@@ -142,6 +144,12 @@ enum DebugLaunch {
         }
         if flags["unfold"] != nil {
             UserDefaults.standard.set(false, forKey: GameSettings.partyFoldedKey)
+        }
+        if flags["auto"] != nil {
+            UserDefaults.standard.set(true, forKey: GameSettings.autoBattleKey)
+        }
+        if flags["fast"] != nil {
+            UserDefaults.standard.set(2.0, forKey: GameSettings.battleSpeedKey)
         }
         if let style = flags["style"] {
             var look = session.data.hero.look ?? .standard

@@ -1031,6 +1031,42 @@ struct RulesTests {
         #expect(!GameSession.wearsBoots(bot("fighter", 30)))
     }
 
+    @Test func autoFightsOnlyMonstersWellBelowYou() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let meadow = try #require(Content.shared.map("sunny_meadow")?.encounters)
+        let lowest = meadow.levels.first ?? 1
+        let highest = meadow.levels.last ?? lowest
+        session.data.hero.level = highest + BattleController.autoLevelGap
+        #expect(BattleController.encounter(meadow, session: session).canAuto)
+        // Every monster here is within a few levels of you: you fight it yourself.
+        session.data.hero.level = lowest + BattleController.autoLevelGap - 1
+        #expect(!BattleController.encounter(meadow, session: session).canAuto)
+        // Never in a duel.
+        session.data.hero.level = 60
+        let rival = Adventurer(name: "Grump", raceID: "dwarf", classID: "fighter", level: 1, look: .standard, hostile: true)
+        #expect(!BattleController.duel(with: rival, session: session).canAuto)
+    }
+
+    @Test func theHeroOnAutoFightsLikeAFriend() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 200, mp: 100, attack: 30, defense: 10, magic: 20, speed: 10)
+        var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 40, element: .neutral,
+                             stats: stats, hp: 200, mp: 100, skills: ["first_aid"], captureRate: 0)
+        hero.skillLevels = ["first_aid": 1]
+        let friend = Combatant(id: 2, side: .party, source: .ally(UUID()), name: "Maple", art: "player_walk", level: 40, element: .neutral,
+                               stats: stats, hp: 30, mp: 0, skills: [], captureRate: 0)
+        let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
+                            stats: jelly.stats(at: 1), hp: 5, mp: 0, skills: [], captureRate: 0)
+        let engine = BattleEngine(party: [hero, friend], enemies: [foe], content: content, seed: 2)
+        // A friend in trouble is healed first, as a friend would; then it's the monster's turn to fall.
+        guard case .skill(let skill, let target) = engine.autoAction(for: 0) else {
+            Issue.record("expected First Aid on Maple")
+            return
+        }
+        #expect(skill == "first_aid" && target == 2)
+    }
+
     @Test func monstersBeatenTogetherFallTogether() {
         let content = Content.shared
         let jelly = content.monster("jelly")!
