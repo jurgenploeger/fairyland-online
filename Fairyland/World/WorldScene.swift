@@ -990,7 +990,8 @@ final class WorldScene: SKScene {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard isBuilt, !isInputLocked, let point = touches.first?.location(in: world) else { return }
-        if let npc = npcs.first(where: { ($0.node.position + CGVector(dx: 0, dy: 24)).distance(to: point) < 34 }) {
+        // A boss you've just beaten has gone (hidden) and doesn't answer taps.
+        if let npc = npcs.first(where: { !$0.node.isHidden && ($0.node.position + CGVector(dx: 0, dy: 24)).distance(to: point) < 34 }) {
             talkTarget = npc.def.id
             npc.node.revealTag()
             player.path = map.path(from: player.position, to: npc.node.position)

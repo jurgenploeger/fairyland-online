@@ -158,8 +158,8 @@ final class BattleEngine {
     private var rng: SeededRandom
     /// Rounds played so far; long fights make monsters warier.
     private(set) var round = 0
-    /// Whether the hero can throw a Seal Stone (companions hold back when you could).
-    var canSeal = true
+    /// Whether the hero throws a Seal Stone this round (everyone else holds back from the monster).
+    private var sealing = false
 
     /// How many rounds Bless lasts after the one it's cast in.
     static let blessLength = 3
@@ -213,8 +213,10 @@ final class BattleEngine {
 
     /// A nearly beaten monster on its own may bolt.
     private func fleeChance(of monster: Combatant) -> Double {
-        // Bosses (who can't be captured) stand their ground.
-        guard monster.captureRate > 0, alive(on: .enemies).count == 1, monster.hpFraction <= Self.captureThreshold else { return 0 }
+        // Bosses (who can't be captured) stand their ground, and so do the monsters at their side,
+        // so beating the boss always wins the fight.
+        guard monster.captureRate > 0, !combatants.contains(where: { $0.side == .enemies && $0.captureRate == 0 }),
+              alive(on: .enemies).count == 1, monster.hpFraction <= Self.captureThreshold else { return 0 }
         let panic = (Self.captureThreshold - monster.hpFraction) / Self.captureThreshold
         return min(0.4, 0.05 + 0.15 * panic + 0.02 * Double(round))
     }
@@ -224,6 +226,7 @@ final class BattleEngine {
     func resolveRound(heroAction: BattleAction, orders: [Int: BattleAction] = [:]) -> [BattleEvent] {
         guard outcome == .ongoing else { return [] }
         round += 1
+        if case .capture = heroAction { sealing = true } else { sealing = false }
         for index in combatants.indices {
             combatants[index].isDefending = false
             if combatants[index].blessRounds > 0 { combatants[index].blessRounds -= 1 }
@@ -381,8 +384,8 @@ final class BattleEngine {
 
     private func companionAction(for pet: Combatant) -> BattleAction {
         guard let weakest = alive(on: .enemies).min(by: { $0.hp < $1.hp }) else { return .defend }
-        // Don't finish off a monster you could seal.
-        if canSeal, case .ready = captureStatus(of: weakest.id) { return .defend }
+        // Don't finish off the monster you're sealing.
+        if sealing, case .ready = captureStatus(of: weakest.id) { return .defend }
         let attacks = usableSkills(of: pet).filter(\.kind.isHostile)
         if let skill = attacks.randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.35 {
             return .skill(skill.id, target: weakest.id)
@@ -402,13 +405,13 @@ final class BattleEngine {
     /// Adventurers fight like players: heal a friend in trouble, otherwise skills and attacks.
     private func adventurerAction(for fighter: Combatant) -> BattleAction {
         let skills = usableSkills(of: fighter)
-        if let heal = skills.first(where: { $0.kind == .heal }),
+        if let heal = skills.filter({ $0.kind == .heal }).max(by: { $0.power < $1.power }),
            let hurt = alive(on: fighter.side).filter({ $0.hpFraction < 0.4 }).min(by: { $0.hpFraction < $1.hpFraction }) {
             return .skill(heal.id, target: hurt.id)
         }
         guard let weakest = alive(on: fighter.side.opposite).min(by: { $0.hp < $1.hp }) else { return .defend }
-        // Friends leave a monster you could seal to you.
-        if fighter.side == .party, canSeal, case .ready = captureStatus(of: weakest.id) { return .defend }
+        // Friends leave the monster you're sealing to you.
+        if fighter.side == .party, sealing, case .ready = captureStatus(of: weakest.id) { return .defend }
         let attacks = skills.filter(\.kind.isHostile)
         if let skill = attacks.randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.45 {
             return .skill(skill.id, target: weakest.id)
@@ -516,7 +519,13 @@ final class BattleEngine {
     private func applyDamage(_ hit: Hit, events: inout [BattleEvent]) {
         guard let index = combatants.firstIndex(where: { $0.id == hit.target }), combatants[index].hp > 0 else { return }
         combatants[index].hp = max(0, combatants[index].hp - hit.amount)
-        if combatants[index].hp == 0 { events.append(.defeated(hit.target)) }
+        if combatants[index].hp == 0 {
+            // Fainting ends poison, curses and blessings; a revived fighter starts clean.
+            combatants[index].poisonRounds = 0
+            combatants[index].curseRounds = 0
+            combatants[index].blessRounds = 0
+            events.append(.defeated(hit.target))
+        }
     }
 
     private func mutate(_ id: Int, _ change: (inout Combatant) -> Void) {

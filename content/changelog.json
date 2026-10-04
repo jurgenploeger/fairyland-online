@@ -2,6 +2,25 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.17",
+      "date": "2026-10-04",
+      "title": "Fairer bosses, and fixes from a full playtest",
+      "notes": [
+        "Revive works: fainted friends show as ghosts while you choose who to wake, and tapping one casts it. Before, they had faded away and couldn't be picked.",
+        "Beating a boss always counts as a win. Its last minion no longer runs off at the end, which turned the win into \"It got away…\" with no story, no rare drop, and the boss still waiting for you.",
+        "The Grunt of the Golden God, the Wolf Leader and the Puppet King had stats meant for bosses 20 to 50 levels higher. They're now as tough as the bosses around them, and pay like them.",
+        "Bosses fight with their own element: the Tide Dragon blows bubbles, the Rock Monster slings mud, the Emerald Dragon lashes vines and Idreus bites with shadow, instead of all of them breathing fire.",
+        "Mages learn Fire Bolt when they join the guild at level 10 (Recovery moves to 15), so a new Mage has a spell to fight with.",
+        "Eleven side quests, from Lost Little Lambs to Stardust's Night Flight, were offered long before you could face their monsters. They now open at the level of the place they send you: the Frog Prince's at 21, Puss in Boots at 55, Night Flight at 85.",
+        "Companions and friends hold back from a weakened monster only on the round you throw a Seal Stone at it. Before, just carrying a stone made the whole party stand around while the monster got away.",
+        "Friends heal with their best healing skill, not always First Aid. Poison, curses and Bless end when a fighter faints, so a revived one starts clean.",
+        "Only your hero's and bosses' mastered skills get the big golden show, so fights with a full party don't drag.",
+        "The Bag no longer lets you drink a Seal Stone: only potions and ethers have Hero and companion buttons, and nothing is used up when it wouldn't help. Hatching an egg with five companions says there's no room.",
+        "Spare gear shows how many you have (×2) in the Bag and the Change list. Reborn heroes no longer see the skills they know listed again as locked.",
+        "The Companions tab and the Monster Book say where your first egg comes from and that befriending needs a Seal Stone. The first-play tour no longer mentions a \"P\" bar, and a boss you've beaten no longer answers taps on the spot where it stood."
+      ]
+    },
+    {
       "version": "0.3.16",
       "date": "2026-10-04",
       "title": "Elements you can read at a glance",

@@ -2984,6 +2984,70 @@
       "element": "metal",
       "lore": "A servant of the Golden God, guarding the depths of Slime Cave with fire and roars.",
       "base": {
+        "hp": 110,
+        "mp": 24,
+        "attack": 40,
+        "defense": 22,
+        "magic": 16,
+        "speed": 26
+      },
+      "growth": {
+        "hp": 14,
+        "mp": 2,
+        "attack": 5,
+        "defense": 2,
+        "magic": 2,
+        "speed": 1
+      },
+      "exp": 110,
+      "gold": 80,
+      "captureRate": 0,
+      "skills": [
+        "ember",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "wolf_leader",
+      "name": "Wolf Leader",
+      "art": "boss_wolf_leader",
+      "element": "dark",
+      "lore": "The leader of the wolf pack, scarred and wise. Every wolf in the lair answers to it.",
+      "base": {
+        "hp": 260,
+        "mp": 60,
+        "attack": 90,
+        "defense": 50,
+        "magic": 30,
+        "speed": 60
+      },
+      "growth": {
+        "hp": 24,
+        "mp": 2,
+        "attack": 4,
+        "defense": 2,
+        "magic": 2,
+        "speed": 2
+      },
+      "exp": 160,
+      "gold": 120,
+      "captureRate": 0,
+      "skills": [
+        "shadow_bite",
+        "roar"
+      ],
+      "motion": "breathe",
+      "boss": true
+    },
+    {
+      "id": "puppet_king",
+      "name": "Puppet King",
+      "art": "boss_puppet_king",
+      "element": "wood",
+      "lore": "The master of Puppet Hill, who pulls the strings of every puppet there.",
+      "base": {
         "hp": 268,
         "mp": 56,
         "attack": 92,
@@ -3001,70 +3065,6 @@
       },
       "exp": 272,
       "gold": 204,
-      "captureRate": 0,
-      "skills": [
-        "ember",
-        "roar"
-      ],
-      "motion": "breathe",
-      "boss": true
-    },
-    {
-      "id": "wolf_leader",
-      "name": "Wolf Leader",
-      "art": "boss_wolf_leader",
-      "element": "dark",
-      "lore": "The leader of the wolf pack, scarred and wise. Every wolf in the lair answers to it.",
-      "base": {
-        "hp": 479,
-        "mp": 101,
-        "attack": 164,
-        "defense": 88,
-        "magic": 50,
-        "speed": 101
-      },
-      "growth": {
-        "hp": 24,
-        "mp": 3,
-        "attack": 9,
-        "defense": 3,
-        "magic": 3,
-        "speed": 3
-      },
-      "exp": 512,
-      "gold": 384,
-      "captureRate": 0,
-      "skills": [
-        "shadow_bite",
-        "roar"
-      ],
-      "motion": "breathe",
-      "boss": true
-    },
-    {
-      "id": "puppet_king",
-      "name": "Puppet King",
-      "art": "boss_puppet_king",
-      "element": "wood",
-      "lore": "The master of Puppet Hill, who pulls the strings of every puppet there.",
-      "base": {
-        "hp": 479,
-        "mp": 101,
-        "attack": 164,
-        "defense": 88,
-        "magic": 50,
-        "speed": 101
-      },
-      "growth": {
-        "hp": 24,
-        "mp": 3,
-        "attack": 9,
-        "defense": 3,
-        "magic": 3,
-        "speed": 3
-      },
-      "exp": 512,
-      "gold": 384,
       "captureRate": 0,
       "skills": [
         "shadow_bite",
@@ -3099,7 +3099,7 @@
       "gold": 224,
       "captureRate": 0,
       "skills": [
-        "ember",
+        "mud_shot",
         "roar"
       ],
       "motion": "breathe",
@@ -3131,7 +3131,7 @@
       "gold": 288,
       "captureRate": 0,
       "skills": [
-        "ember",
+        "shadow_bite",
         "roar",
         "evil_eye"
       ],
@@ -3164,7 +3164,7 @@
       "gold": 302,
       "captureRate": 0,
       "skills": [
-        "ember",
+        "bubble",
         "roar"
       ],
       "motion": "breathe",
@@ -3228,7 +3228,7 @@
       "gold": 331,
       "captureRate": 0,
       "skills": [
-        "ember",
+        "vine_whip",
         "roar"
       ],
       "motion": "breathe",

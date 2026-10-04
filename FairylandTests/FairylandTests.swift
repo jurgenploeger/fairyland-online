@@ -610,6 +610,55 @@ struct RulesTests {
         #expect(engine.combatant(10)?.hitFactor == 1)
     }
 
+    @Test func aBossesMinionsStandTheirGround() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 500, mp: 20, attack: 1, defense: 50, magic: 1, speed: 1)
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 30, element: .neutral,
+                             stats: stats, hp: 500, mp: 20, skills: [], captureRate: 0)
+        // The boss is down and its last minion nearly beaten: it can't run off and turn the win into "It got away".
+        let boss = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Boss", art: jelly.art, level: 30, element: jelly.element,
+                             stats: stats, hp: 0, mp: 0, skills: [], captureRate: 0)
+        let minionStats = jelly.stats(at: 5)
+        let minion = Combatant(id: 11, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 5, element: jelly.element,
+                               stats: minionStats, hp: 1, mp: 0, skills: [], captureRate: jelly.captureRate)
+        let engine = BattleEngine(party: [hero], enemies: [boss, minion], content: content, seed: 11)
+        for _ in 0..<20 { _ = engine.resolveRound(heroAction: .defend) }
+        #expect(engine.outcome == .ongoing)
+        #expect(engine.combatant(11)?.hasFled == false)
+    }
+
+    @Test func companionsHoldBackOnlyWhileYouSeal() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let foeStats = jelly.stats(at: 1)
+        func play(_ heroAction: BattleAction) -> [BattleEvent] {
+            let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 5, element: .neutral,
+                                 stats: Stats(hp: 500, mp: 20, attack: 30, defense: 50, magic: 10, speed: 50), hp: 500, mp: 20,
+                                 skills: [], captureRate: 0)
+            // Faster than everyone, so it acts first.
+            let pet = Combatant(id: 1, side: .party, source: .pet(UUID()), name: "Pet", art: jelly.art, level: 5, element: jelly.element,
+                                stats: Stats(hp: 500, mp: 0, attack: 30, defense: 50, magic: 10, speed: 99), hp: 500, mp: 0,
+                                skills: [], captureRate: 0)
+            let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
+                                stats: foeStats, hp: 1, mp: 0, skills: [], captureRate: jelly.captureRate)
+            let engine = BattleEngine(party: [hero, pet], enemies: [foe], content: content, seed: 5)
+            return engine.resolveRound(heroAction: heroAction)
+        }
+        // The monster could be sealed, but you're not throwing a stone: your companion goes for it.
+        let attacked = play(.defend).contains { event in
+            if case .attack(let actor, _) = event { return actor == 1 }
+            return false
+        }
+        #expect(attacked)
+        // You throw one: it holds back.
+        let heldBack = play(.capture(target: 10)).contains { event in
+            if case .defend(let actor) = event { return actor == 1 }
+            return false
+        }
+        #expect(heldBack)
+    }
+
     @Test func reviveWakesAFaintedCompanionAndBlessHelps() {
         let content = Content.shared
         let jelly = content.monster("jelly")!

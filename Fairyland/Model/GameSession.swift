@@ -980,19 +980,25 @@ final class GameSession {
     }
 
     /// Uses a potion or ether outside battle, on the hero or a companion. Returns a message.
+    /// Nothing is used up when it wouldn't help (Seal Stones and eggs aren't drunk at all).
     @discardableResult
     func use(_ id: String, onPet petID: UUID? = nil) -> String? {
         guard let item = content.item(id), item.type == .consumable, count(of: id) > 0 else { return nil }
+        let heal = item.heal ?? 0, mp = item.mp ?? 0
+        guard heal > 0 || mp > 0 else { return nil }
         if let petID, let index = data.pets.firstIndex(where: { $0.id == petID }) {
             let stats = stats(of: data.pets[index])
-            data.pets[index].hp = min(stats.hp, data.pets[index].hp + (item.heal ?? 0))
-            data.pets[index].mp = min(stats.mp, data.pets[index].mp + (item.mp ?? 0))
+            let pet = data.pets[index]
+            guard (heal > 0 && pet.hp < stats.hp) || (mp > 0 && pet.mp < stats.mp) else { return "\(pet.name) doesn't need it." }
+            data.pets[index].hp = min(stats.hp, pet.hp + heal)
+            data.pets[index].mp = min(stats.mp, pet.mp + mp)
             removeItem(id)
-            return "\(data.pets[index].name) feels better."
+            return "\(pet.name) feels better."
         }
         let stats = heroStats
-        data.hero.hp = min(stats.hp, data.hero.hp + (item.heal ?? 0))
-        data.hero.mp = min(stats.mp, data.hero.mp + (item.mp ?? 0))
+        guard (heal > 0 && data.hero.hp < stats.hp) || (mp > 0 && data.hero.mp < stats.mp) else { return "\(data.hero.name) doesn't need it." }
+        data.hero.hp = min(stats.hp, data.hero.hp + heal)
+        data.hero.mp = min(stats.mp, data.hero.mp + mp)
         removeItem(id)
         return "\(data.hero.name) feels better."
     }

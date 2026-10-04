@@ -147,6 +147,8 @@ No advanced classes.
 - 16 hero skills.
 - Our Mage carries Recovery, Revive and Bless, which FO gives the Acolyte of Light, and Curse (level 12) and
   Poison (level 25), the Acolyte of Dark's.
+- Like FO's Mage, whose list starts with Fireball, ours learns Fire Bolt on joining the guild at level 10
+  (since 0.3.17).
 - Status effects (since 0.3.14): Bless and Guard, plus:
   - Poison: HP lost at the end of each round, 3 times.
   - Curse: hits 20% weaker (up to 36% as the skill grows) for 3 rounds.

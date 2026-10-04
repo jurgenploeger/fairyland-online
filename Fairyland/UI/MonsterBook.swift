@@ -247,7 +247,7 @@ private struct MonsterPage: View {
             }
 
             Label(monster.captureRate > 0 && monster.boss != true
-                  ? "Can be befriended: weaken it and use Capture."
+                  ? "Can be befriended: weaken it, then throw a Seal Stone with Capture."
                   : "Can't be befriended.", icon: .paw, size: 13)
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
