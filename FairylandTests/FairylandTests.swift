@@ -497,9 +497,11 @@ struct RulesTests {
         let npc = try #require(map.npcs?.first { $0.monster == "rat_king" })
         let level = try #require(npc.level)
         let waves = try #require(BattleController.bossWaves(npc, encounters: map.encounters, session: session))
-        // Two waves of two of the map's own monsters, then the boss in the middle of two more.
-        #expect(waves.map(\.count) == [2, 2, 3])
-        #expect(waves[2][1].speciesID == "rat_king" && waves[2][1].level == level)
+        // Two waves of ten of the map's own monsters, then the boss in front of nine more (the
+        // middle of the second row of five, the one nearest you).
+        #expect(waves.map(\.count) == [10, 10, 10])
+        #expect(waves[2][7].speciesID == "rat_king" && waves[2][7].level == level)
+        #expect(waves[2].filter { $0.speciesID == "rat_king" }.count == 1)
         let monsters = waves.joined().filter { $0.speciesID != "rat_king" }
         #expect(monsters.allSatisfy { map.encounters?.monsters[$0.speciesID ?? ""] != nil })
         // The boss outranks them all, and each wave stands a little closer to its level.
@@ -511,7 +513,7 @@ struct RulesTests {
 
         // The fight opens with the first wave and knows how many follow.
         let battle = try #require(BattleController.boss(npc, encounters: map.encounters, session: session))
-        #expect(battle.enemies.count == 2 && battle.wave == 1 && battle.waveCount == 3)
+        #expect(battle.enemies.count == 10 && battle.wave == 1 && battle.waveCount == 3)
         #expect(!battle.enemies.contains { $0.speciesID == "rat_king" })
         #if DEBUG
         // Debug wins (screenshots) take every wave down at once.

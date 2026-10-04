@@ -342,7 +342,7 @@ nonisolated struct NPCDef: Decodable, Identifiable, Sendable {
     let gives: String?
     let quest: String?
     /// Bosses: which monster, at what level, and how many of the map's own monsters fight at its
-    /// side (2 unless set; 0 for none).
+    /// side in its own wave (9 unless set, so the wave is 10 strong; 0 for none).
     let monster: String?
     let level: Int?
     let minions: Int?

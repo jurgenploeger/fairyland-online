@@ -178,8 +178,8 @@ final class BattleController {
     }
 
     /// A boss waiting on the map. The fight comes in waves (`waves` on the NPC, 3 unless it says
-    /// otherwise): first waves of the map's own monsters, then the boss with a few at its side
-    /// (`minions`, 2 unless set), standing in the middle. Each wave is a little stronger than the
+    /// otherwise): first waves of `waveSize` of the map's own monsters, then the boss with its
+    /// minions (`minions`, enough to make `waveSize` unless set), standing in front. Each wave is a little stronger than the
     /// one before, and the boss outranks them all. Your HP and MP carry from wave to wave.
     static func boss(_ npc: NPCDef, encounters: MapDef.Encounters? = nil, session: GameSession) -> BattleController? {
         guard let id = npc.monster, let species = session.content.monster(id),
@@ -205,15 +205,17 @@ final class BattleController {
         return controller
     }
 
-    /// A boss fight's waves, in order: as many of the map's monsters as the boss has minions (at
-    /// least one) in each wave before the boss's own, where it stands in the middle of its minions.
-    /// Levels climb three a wave: the boss's minions are 1 to 8 levels below it, the wave before 4 to
-    /// 11, and so on, within the map's range but never up to the boss's level. Wave n's fighters
-    /// have ids from 10 × n.
+    /// How many fighters each wave of a boss fight has, the boss's own included.
+    static let waveSize = 10
+
+    /// A boss fight's waves, in order: `waveSize` of the map's monsters in each wave before the
+    /// boss's own, where it stands in the middle of the front row of its minions. Levels climb three
+    /// a wave: the boss's minions are 1 to 8 levels below it, the wave before 4 to 11, and so on,
+    /// within the map's range but never up to the boss's level. Wave n's fighters have ids from 100 × n.
     static func bossWaves(_ npc: NPCDef, encounters: MapDef.Encounters?, session: GameSession) -> [[Combatant]]? {
         guard let id = npc.monster, let species = session.content.monster(id) else { return nil }
         let level = npc.level ?? 10
-        let followers = max(0, npc.minions ?? 2)
+        let followers = max(0, npc.minions ?? waveSize - 1)
         // Waves of monsters need the map's own; without them the boss stands alone.
         let count = (encounters?.monsters.isEmpty ?? true) ? 1 : max(1, npc.waves ?? 3)
         // The map's level range, kept below the boss's own.
@@ -232,7 +234,7 @@ final class BattleController {
                 let kindLevel = Int.random(in: bottom...top)
                 let stats = kind.stats(at: kindLevel)
                 var monster = Combatant(
-                    id: 10 * wave + 1 + index, side: .enemies, source: .wild(kindID), name: kind.name, art: kind.art,
+                    id: 100 * wave + 1 + index, side: .enemies, source: .wild(kindID), name: kind.name, art: kind.art,
                     level: kindLevel, element: kind.element, stats: stats, hp: stats.hp, mp: stats.mp,
                     skills: kind.skills, captureRate: kind.captureRate
                 )
@@ -243,15 +245,19 @@ final class BattleController {
             return group
         }
 
-        var waves: [[Combatant]] = (1..<count).map { monsters(max(1, followers), wave: $0) }
+        var waves: [[Combatant]] = (1..<count).map { monsters(waveSize, wave: $0) }
         let stats = species.stats(at: level)
-        var boss = Combatant(id: 10 * count, side: .enemies, source: .wild(id), name: species.name, art: species.art,
+        var boss = Combatant(id: 100 * count, side: .enemies, source: .wild(id), name: species.name, art: species.art,
                              level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp,
                              skills: species.skills, captureRate: 0)
         boss.wave = count
-        let minions = monsters(followers, wave: count)
-        let half = (minions.count + 1) / 2
-        waves.append(Array(minions.prefix(half)) + [boss] + Array(minions.dropFirst(half)))
+        var final = monsters(followers, wave: count)
+        // The battle stands a side in rows of five, the last one nearest you: the boss takes the
+        // middle of that row.
+        let total = final.count + 1
+        let frontRow = (total - 1) / 5 * 5
+        final.insert(boss, at: frontRow + (total - frontRow) / 2)
+        waves.append(final)
         return waves
     }
 

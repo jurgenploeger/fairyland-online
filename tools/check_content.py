@@ -248,11 +248,11 @@ for map_def in maps.values():
         if npc["role"] == "boss":
             check(monsters.get(npc.get("monster"), {}).get("boss") is True, f"boss {npc['id']} → unknown boss {npc.get('monster')}")
             # Its minions come from the map's encounter table.
-            if npc.get("minions", 2) > 0:
+            if npc.get("minions", 9) > 0:
                 check(bool((map_def.get("encounters") or {}).get("monsters")), f"boss {npc['id']} → minions need the map's encounters")
         if "minions" in npc:
-            check(npc["role"] == "boss" and isinstance(npc["minions"], int) and 0 <= npc["minions"] <= 4,
-                  f"npc {npc['id']} → minions is for bosses, 0 to 4")
+            check(npc["role"] == "boss" and isinstance(npc["minions"], int) and 0 <= npc["minions"] <= 9,
+                  f"npc {npc['id']} → minions is for bosses, 0 to 9")
         # A boss fight comes in waves (3 unless set): the map's monsters first, the boss last.
         if npc["role"] == "boss" and npc.get("waves", 3) > 1:
             check(bool((map_def.get("encounters") or {}).get("monsters")), f"boss {npc['id']} → waves need the map's encounters")
