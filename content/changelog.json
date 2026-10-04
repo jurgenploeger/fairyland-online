@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.38",
+      "date": "2026-10-04",
+      "title": "Tap a monster to attack",
+      "notes": [
+        "Attack is already chosen when your turn starts, and your companion's: tap a monster and you attack it, no Attack button first. Pick a skill, an item or Capture to do something else instead."
+      ]
+    },
+    {
       "version": "0.3.37",
       "date": "2026-10-04",
       "title": "Armed friends, a tidy line, honest roads",

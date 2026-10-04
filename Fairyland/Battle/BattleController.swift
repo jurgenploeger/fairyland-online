@@ -428,6 +428,7 @@ final class BattleController {
         if autoPlays, phase == .command, !choosingForCompanion {
             playOnAuto(after: 1200)
         } else {
+            if phase == .command { armAttack() }
             startTurnClock()
         }
     }
@@ -458,9 +459,19 @@ final class BattleController {
     /// Your turn to choose; the turn clock starts.
     private func awaitCommand(note: String? = nil) {
         phase = .command
+        armAttack()
         let ask = "What will \(hero?.name ?? "you") do?"
         message = note.map { "\($0) \(ask)" } ?? ask
         startTurnClock()
+    }
+
+    /// Attack is already chosen when a turn starts, yours or your companion's, as in Fairyland: the
+    /// monsters show as targets, and tapping one attacks it, without the Attack button first. A
+    /// skill, an item or Capture takes over the targets when you pick it.
+    private func armAttack() {
+        pending = .attack
+        validTargets = aliveEnemyIDs
+        scene?.showTargets(validTargets)
     }
 
     /// A pause before something that plays by itself, shorter at 2×. None without a scene (tests).
@@ -478,17 +489,22 @@ final class BattleController {
 
     func openSkills() {
         guard phase == .command else { return }
+        clearTargets()
         phase = .skills
     }
 
     func openItems() {
         guard phase == .command else { return }
+        clearTargets()
         phase = .items
     }
 
     func back() {
+        // Out of time just as you backed out: the round is already playing.
+        guard isChoosing else { return }
         clearTargets()
         phase = .command
+        armAttack()
     }
 
     func level(of skill: SkillDef) -> Int { session.skillLevel(skill.id) }
@@ -548,9 +564,10 @@ final class BattleController {
 
     func escape() { submit(.escape) }
 
-    /// A target was tapped in the scene or picked in the menu.
+    /// A target was tapped in the scene or picked in the menu (on a turn's command menu, a monster
+    /// tapped is attacked: `armAttack`, unless the chat or rearranging the buttons has your attention).
     func select(_ id: Int) {
-        guard phase == .target, validTargets.contains(id), let pending else { return }
+        guard phase == .target || (phase == .command && holds.isEmpty), validTargets.contains(id), let pending else { return }
         switch pending {
         case .attack:
             submit(.attack(target: id))
@@ -600,6 +617,7 @@ final class BattleController {
             heroChoice = action
             choosingForCompanion = true
             phase = .command
+            armAttack()
             message = "What will \(companion.name) do?"
             startTurnClock()
             return
