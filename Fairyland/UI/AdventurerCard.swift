@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// Fairyland's target frame for another adventurer you're standing next to: who they are,
-/// how strong, and what you can do (befriend, invite to your party, or duel in danger zones).
+/// how strong, and what you can do (befriend, invite to your party, or duel in danger zones, where
+/// a beaten adventurer drops everything they carry).
 struct AdventurerCard: View {
     let coordinator: GameCoordinator
     let adventurer: Adventurer
@@ -56,6 +57,11 @@ struct AdventurerCard: View {
                     Button { coordinator.challenge(adventurer) } label: { Label("Duel", icon: .sword, size: 13) }
                         .buttonStyle(PixelButtonStyle(tint: Color(red: 1, green: 0.55, blue: 0.5), compact: true))
                 }
+            }
+            if danger {
+                Text("Beat them and they drop everything they carry.")
+                    .font(HUDStyle.font(9))
+                    .foregroundStyle(HUDStyle.dim)
             }
         }
         .padding(10)

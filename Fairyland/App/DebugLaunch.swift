@@ -21,7 +21,8 @@ import Foundation
 ///   hair=<id>      dye the hair this colour (content/appearance.json `hair`)
 ///   gender=<id>    male | female | other (picks the race's matching sheet)
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
-///   win            with battle: the monsters fall at once and the victory plays out
+///   win            with battle or duel: the foes fall at once and the victory plays out
+///   duel           start in a duel with an adventurer of your level (with win: their dropped goods)
 ///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
 ///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
 ///   menu=<tab>     open character | companions | bag | quests
@@ -190,6 +191,18 @@ enum DebugLaunch {
             }
             #endif
         }
+        #if DEBUG
+        if flags["duel"] != nil {
+            let level = coordinator.session.data.hero.level
+            coordinator.duelForDebug(Adventurer(name: "Hazel", raceID: "elf", classID: "tamer", level: level, look: .standard))
+            if flags["win"] != nil, let battle = coordinator.battle {
+                Task {
+                    try? await Task.sleep(for: .seconds(2))
+                    battle.winForDebug()
+                }
+            }
+        }
+        #endif
         if let tab = flags["menu"].flatMap({ MenuTab(rawValue: $0.capitalized) }) {
             coordinator.open(.menu(tab))
         }

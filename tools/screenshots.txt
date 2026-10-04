@@ -43,6 +43,7 @@ battle_arrange | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+
 battle_big_landscape | newgame,level=60,map=genie_desert,battle=10,landscape | 15
 levelup      | newgame,level=9,levelup,map=sunny_meadow,battle=1,win           | 30
 levelup_landscape | newgame,level=9,levelup,map=sunny_meadow,battle=1,win,landscape | 30
+duel_spoils  | newgame,level=30,map=valley_of_fear,duel,win              | 30
 # Spell effects, frozen mid-cast (fxstop: seconds into the cast; the battle runs at 3% speed till then).
 fx_stone     | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=stone_spike:1,fxstop=0.36 | 38
 fx_stone_top | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=stone_spike:9,fxstop=0.92 | 56

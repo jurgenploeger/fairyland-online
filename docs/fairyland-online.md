@@ -218,10 +218,13 @@ gathering and no crafting level, and forging always works.
 - **Fame (M):** quests are the main way to earn it.
 - **Kingdom Wars (H):** guild-vs-guild PvP.
 
-**Us:** no titles or fame. Duels are with computer-run adventurers in 9 danger zones.
+**Us:** no titles or fame. Duels are with computer-run adventurers in 9 danger zones; a beaten
+adventurer drops everything they carry (the goods they'd sell you that day).
 
 ## Unverified, or only our own repo says so
 
+- **PK drops:** a player beaten in PvP drops their items. From a playtester's memory (2026-10-04);
+  not in any source reachable from a cloud session. Check on the ToM wiki.
 - **Level cap 200; rebirth from level 101** (+5 levels per earlier rebirth) for 20,000 gold × (rebirths + 1),
   keeping 8 levels of growth per rebirth. FO does have rebirth (the 2026 video); the numbers are ours.
 - **Capture rules:** at 20% HP or less, on the last monster standing.

@@ -862,6 +862,15 @@ final class GameSession {
             + carried.compactMap { offer(.theySell, $0, max(1, $0.price * 11 / 10)) }
     }
 
+    /// Beat an adventurer and they drop everything they carry: today's goods (what they'd have sold
+    /// you) go into your bag, and those deals are gone. Returns what you got.
+    func takeSpoils(from adventurer: Adventurer) -> [ItemDef] {
+        let goods = tradeOffers(with: adventurer).filter { $0.kind == .theySell }
+        for offer in goods { addItem(offer.item.id) }
+        data.tradesDone = Array((data.tradesDone ?? []).suffix(200)) + goods.map(\.id)
+        return goods.map(\.item)
+    }
+
     /// Makes a deal. Returns false if you can't (not enough gold, or the item's gone).
     @discardableResult
     func trade(_ offer: TradeOffer) -> Bool {

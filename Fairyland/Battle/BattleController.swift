@@ -41,6 +41,8 @@ final class BattleController {
     @ObservationIgnored var onFinish: (@MainActor (BattleOutcome) -> Void)?
     private let engine: BattleEngine
     @ObservationIgnored private var pending: Pending?
+    /// The adventurer you're duelling: beaten, they drop what they carry.
+    @ObservationIgnored private var rival: Adventurer?
 
     init(engine: BattleEngine, session: GameSession, intro: String? = nil) {
         self.engine = engine
@@ -124,7 +126,9 @@ final class BattleController {
         }
         let engine = BattleEngine(party: party(for: session), enemies: enemies, content: session.content)
         let intro = rival.hostile ? "\(rival.name) picks a fight with you!" : "You challenge \(rival.name) to a duel!"
-        return BattleController(engine: engine, session: session, intro: intro)
+        let controller = BattleController(engine: engine, session: session, intro: intro)
+        controller.rival = rival
+        return controller
     }
 
     /// A boss waiting on the map.
@@ -518,11 +522,17 @@ final class BattleController {
         var gold = 0
         for foe in engine.combatants where foe.side == .enemies && !foe.isCaptured && !foe.hasFled {
             if case .rival = foe.source {
-                // The adventurer pays out for the duel; their companion comes along for free.
+                // The adventurer pays out for the duel, and drops everything they carry; their
+                // companion comes along for free.
                 if foe.art.hasPrefix("adv:") {
                     exp += 14 * foe.level
                     gold += 10 * foe.level
                     lines.append("You won the duel against \(foe.name)!")
+                    if let rival {
+                        let spoils = session.takeSpoils(from: rival)
+                        for item in spoils { loot[item.id, default: 0] += 1 }
+                        if !spoils.isEmpty { lines.append("\(foe.name) dropped everything they carried!") }
+                    }
                 }
                 continue
             }

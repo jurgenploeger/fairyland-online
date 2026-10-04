@@ -240,6 +240,13 @@ final class GameCoordinator {
         world.startDuel(with: adventurer)
     }
 
+    #if DEBUG
+    /// Debug launches (`duel`): a duel starts at once, without walking up to anyone.
+    func duelForDebug(_ rival: Adventurer) {
+        startDuel(with: rival, backdrop: nil)
+    }
+    #endif
+
     private func endBattle(_ outcome: BattleOutcome) {
         battle = nil
         battleScene = nil
