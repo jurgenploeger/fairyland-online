@@ -707,6 +707,35 @@ final class BattleController {
         message = text
     }
 
+    /// Everyone one blow knocked out, at once: one sound and one line for them all.
+    func applyDefeats(_ ids: [Int]) {
+        guard ids.count > 1 else {
+            if let id = ids.first { apply(.defeated(id)) }
+            return
+        }
+        let foes = ids.filter { id in combatants.first { $0.id == id }?.side == .enemies }
+        let friends = ids.filter { !foes.contains($0) }
+        SoundEffects.shared.play(foes.isEmpty ? .faint : .poof)
+        var lines: [String] = []
+        if !foes.isEmpty { lines.append("\(Self.tally(foes.map { name($0) })) \(foes.count == 1 ? "is" : "are") defeated!") }
+        if !friends.isEmpty { lines.append("\(Self.tally(friends.map { name($0) })) fainted!") }
+        message = lines.joined(separator: " ")
+    }
+
+    /// Names in the order they fell, a repeated one counted: "Dark Beetle ×2 and Fire Rat".
+    static func tally(_ names: [String]) -> String {
+        var order: [String] = []
+        var counts: [String: Int] = [:]
+        for name in names {
+            if counts[name] == nil { order.append(name) }
+            counts[name, default: 0] += 1
+        }
+        return GameSession.listed(order.map { name in
+            let count = counts[name, default: 1]
+            return count > 1 ? "\(name) ×\(count)" : name
+        })
+    }
+
     private func damage(_ hit: Hit) {
         mutate(hit.target) { $0.hp = max(0, $0.hp - hit.amount) }
     }

@@ -68,8 +68,9 @@ final class Crowd {
 
     /// Friends you've made (and who aren't travelling with you) now and then turn up on a map with
     /// other adventurers about, if it suits their level, so you can meet them again and invite them.
-    /// `market`: what the town's traders (`crowd.traders`) have, if it has any.
-    init(def: MapDef, map: WorldMap, world: SKNode, friends: [Adventurer] = [], market: Market? = nil) {
+    /// `heroLevel`: yours, which a town's adventurers are about. `market`: what the town's traders
+    /// (`crowd.traders`) have, if it has any.
+    init(def: MapDef, map: WorldMap, world: SKNode, heroLevel: Int = 1, friends: [Adventurer] = [], market: Market? = nil) {
         self.map = map
         self.market = market
         let options = Content.shared.crowd
@@ -78,7 +79,10 @@ final class Crowd {
         var adventurerNames = options.adventurerNames.shuffled()
         var villagerNames = options.villagerNames.shuffled()
 
-        let levels = def.encounters.map { ($0.levels.first ?? 1)...(($0.levels.last ?? 1) + 3) } ?? 1...8
+        // Out in the wild adventurers suit the monsters; a town draws all sorts, about your level
+        // (so they wear the armour of your stage of the game, and anyone you invite fits in).
+        let levels = def.encounters.map { ($0.levels.first ?? 1)...(($0.levels.last ?? 1) + 3) }
+            ?? max(1, heroLevel - 12)...max(8, heroLevel + 8)
         // Fewer computer-run adventurers as real players arrive (crowd.json `botDensity`).
         let density = max(0, options.botDensity ?? 1)
         let count = Int((Double(def.crowd?.adventurers ?? 0) * density).rounded())
@@ -104,8 +108,8 @@ final class Crowd {
         for _ in 0..<(def.crowd?.villagers ?? 0) {
             guard let home = map.strollTarget(near: map.center, radius: spread, using: &rng) else { continue }
             let name = villagerNames.popLast() ?? "Villager"
-            let look = Self.randomLook()
-            let walker = Self.person(name, race: Content.shared.races.randomElement()?.id ?? "human", look: look, color: .white)
+            let race = Content.shared.races.randomElement()?.id ?? "human"
+            let walker = Self.person(name, art: GameSession.registerPerson(race: race, look: Self.randomLook(race: race)), color: .white)
             walker.walkSpeed = .random(in: 50...66)
             add(Member(name: name, kind: .villager, walker: walker, pet: nil, home: home, roam: 5, lines: options.villagerLines), to: world)
         }
@@ -115,7 +119,7 @@ final class Crowd {
     static let friendVisitChance = 0.35
 
     private func addAdventurer(_ profile: Adventurer, home: GridPoint, roam: Int, world: SKNode, trades: Bool = false) {
-        let walker = Self.person(profile.name, race: profile.raceID, look: profile.look,
+        let walker = Self.person(profile.name, art: GameSession.registerAdventurer(profile),
                                  color: profile.hostile ? Self.hostileColor : Self.adventurerColor, badge: .bot)
         walker.walkSpeed = .random(in: 72...92)
         var pet: Walker?
@@ -169,29 +173,33 @@ final class Crowd {
         }
     }
 
-    /// A random adventurer: level to suit the area, a class once they're past Novice, and
-    /// often a companion. In danger zones some are troublemakers.
+    /// A random adventurer: level to suit the area, a class once they're past Novice (and armour
+    /// to match, `GameSession.armor(for:)`), and often a companion. In danger zones some are
+    /// troublemakers.
     private static func profile(named name: String, levels: ClosedRange<Int>, danger: Bool) -> Adventurer {
         let content = Content.shared
         let level = Int.random(in: levels)
         let classID = level < content.classChoiceLevel ? "novice" : (content.classes.filter { $0.id != "novice" }.randomElement()?.id ?? "novice")
         let pets = content.crowd.companions.compactMap { art in content.monsters.first { $0.art == art }?.id }
-        return Adventurer(name: name, raceID: content.races.randomElement()?.id ?? "human", classID: classID, level: level,
-                          look: randomLook(), petSpecies: Bool.random() ? pets.randomElement() : nil,
+        let race = content.races.randomElement()?.id ?? "human"
+        return Adventurer(name: name, raceID: race, classID: classID, level: level,
+                          look: randomLook(race: race), petSpecies: Bool.random() ? pets.randomElement() : nil,
                           hostile: danger && Int.random(in: 0..<5) < 2)
     }
 
-    private static func randomLook() -> Look {
+    /// Colours, gender and a hairstyle that suits that race and gender's walk sheet.
+    private static func randomLook(race raceID: String) -> Look {
         let options = Content.shared.appearance
+        let gender = options.genders.randomElement()?.id
+        let sheet = Content.shared.race(raceID).sheet(for: gender)
         return Look(hair: options.hair.randomElement()?.id ?? Look.standard.hair,
                     outfit: options.outfits.randomElement()?.id ?? Look.standard.outfit,
                     skin: options.skin.randomElement()?.id ?? Look.standard.skin,
-                    gender: options.genders.randomElement()?.id)
+                    gender: gender, style: options.styles(for: sheet).randomElement()?.id)
     }
 
-    /// Someone of a race and look, drawn like a customised hero.
-    private static func person(_ name: String, race raceID: String, look: Look, color: UIColor, badge: PlayerBadge? = nil) -> Walker {
-        let id = GameSession.registerAdventurer(race: raceID, look: look)
+    /// A walker for someone drawn like a customised hero (art from `GameSession.registerPerson`).
+    private static func person(_ name: String, art id: String, color: UIColor, badge: PlayerBadge? = nil) -> Walker {
         let walker = Walker(cycle: ArtLibrary.shared.walkCycle(id), label: name, labelColor: color, badge: badge)
         walker.tagMode = .onDemand
         return walker

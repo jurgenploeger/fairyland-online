@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.27",
+      "date": "2026-10-04",
+      "title": "Dressed for their level",
+      "notes": [
+        "Other adventurers wear armour now, like players would: what their class can wear at their level, mostly the best of it. Chain mail, plate, robes, jackets, ranger cloaks, dragon mail and snow cloaks, and speed boots on some, where before everyone wore the same tunic. Your party friends dress up too, and their gear gets better as they level with you.",
+        "Towns are full of adventurers about your level instead of beginners, each with a class and the gear to match, and with all sorts of hairstyles.",
+        "Monsters knocked out by the same blow fall together, with one line for all of them (\"Jelly ×2 and Fire Rat are defeated!\"), so a sweep that wins the fight doesn't wait on each one in turn."
+      ]
+    },
+    {
       "version": "0.3.26",
       "date": "2026-10-04",
       "title": "Caves stay dark in a fight",

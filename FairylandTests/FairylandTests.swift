@@ -1008,6 +1008,53 @@ struct RulesTests {
         #expect(offers.contains { shout.contains($0.item.name) && shout.contains("\($0.price)") })
     }
 
+    @Test func botsWearArmourForTheirClassAndLevel() {
+        func bot(_ classID: String, _ level: Int) -> Adventurer {
+            Adventurer(name: "Momo", raceID: "elf", classID: classID, level: level, look: .standard)
+        }
+        var worn: Set<String> = []
+        for _ in 0..<60 {
+            for (classID, level) in [("novice", 5), ("fighter", 45), ("mage", 45), ("tamer", 70), ("fighter", 90)] {
+                let someone = bot(classID, level)
+                let armor = GameSession.armor(for: someone)
+                #expect(armor?.type == .armor)
+                #expect((armor?.level ?? 1) <= level, "\(armor?.id ?? "-") is above level \(level)")
+                #expect(armor?.classes?.contains(classID) ?? true, "a \(classID) can't wear \(armor?.id ?? "-")")
+                // The same adventurer always wears the same.
+                #expect(GameSession.armor(for: someone)?.id == armor?.id)
+                if let armor { worn.insert(armor.id) }
+            }
+        }
+        // ...but the crowd doesn't all wear the same, and past their first steps it isn't a tunic.
+        #expect(worn.count >= 8)
+        #expect((GameSession.armor(for: bot("fighter", 45))?.level ?? 1) >= 14)
+        #expect(!GameSession.wearsBoots(bot("fighter", 30)))
+    }
+
+    @Test func monstersBeatenTogetherFallTogether() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 200, mp: 100, attack: 60, defense: 10, magic: 20, speed: 999)
+        var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 40, element: .neutral,
+                             stats: stats, hp: 200, mp: 100, skills: ["whirlwind"], captureRate: 0)
+        hero.skillLevels = ["whirlwind": 1]
+        let foes = (10..<13).map { id -> Combatant in
+            Combatant(id: id, side: .enemies, source: .wild("jelly"), name: id == 11 ? "Fire Rat" : "Jelly", art: jelly.art, level: 1,
+                      element: jelly.element, stats: jelly.stats(at: 1), hp: 1, mp: 0, skills: [], captureRate: 0)
+        }
+        let engine = BattleEngine(party: [hero], enemies: foes, content: content, seed: 5)
+        let events = engine.resolveRound(heroAction: .skill("whirlwind", target: 10))
+        let defeats = events.indices.filter { index in
+            if case .defeated = events[index] { return true }
+            return false
+        }
+        // The sweep's knock-outs come one after another, so the battle plays them as one.
+        #expect(defeats.count == 3)
+        #expect(defeats == Array((defeats.first ?? 0)..<((defeats.first ?? 0) + 3)))
+        #expect(BattleController.tally(foes.map(\.name)) == "Jelly ×2 and Fire Rat")
+        #expect(BattleController.tally(["Fire Rat"]) == "Fire Rat")
+    }
+
     @Test func questsUnlockLooksAndRoads() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let pink = Content.shared.appearance.hair.first { $0.id == "pink" }!

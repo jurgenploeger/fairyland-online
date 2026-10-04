@@ -277,10 +277,34 @@ final class BattleScene: SKScene {
     // MARK: - Playback
 
     func play(_ events: [BattleEvent]) async {
-        for event in events {
-            await animate(event)
+        var index = 0
+        while index < events.count {
+            // Everyone one blow knocks out (a sweep, a spell and its splash) falls at once.
+            var fallen: [Int] = []
+            while index < events.count, case .defeated(let id) = events[index] {
+                fallen.append(id)
+                index += 1
+            }
+            if fallen.isEmpty {
+                await animate(events[index])
+                index += 1
+            } else {
+                await defeat(fallen)
+            }
             refreshBars()
         }
+    }
+
+    /// Fighters knocked out together fall together: a puff of black smoke each and one fade, so a
+    /// sweep that wins the fight doesn't wait on every monster in turn.
+    private func defeat(_ ids: [Int]) async {
+        controller.applyDefeats(ids)
+        let fallen = ids.compactMap { actors[$0] }
+        for actor in fallen {
+            SkillEffects.smoke(at: actor.center, in: stage)
+            actor.run(.group([.fadeOut(withDuration: 0.4), .moveBy(x: 0, y: 14, duration: 0.4)]), withKey: "defeat")
+        }
+        await pause(fallen.isEmpty ? 0.2 : 0.6)
     }
 
     private func animate(_ event: BattleEvent) async {
@@ -341,12 +365,7 @@ final class BattleScene: SKScene {
             await pause(0.6)
 
         case .defeated(let id):
-            controller.apply(event)
-            if let actor = actors[id] {
-                SkillEffects.smoke(at: actor.center, in: stage)
-                await actor.run(.group([.fadeOut(withDuration: 0.4), .moveBy(x: 0, y: 14, duration: 0.4)]))
-            }
-            await pause(0.2)
+            await defeat([id])
 
         case .message:
             controller.apply(event)

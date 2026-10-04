@@ -178,7 +178,8 @@ final class WorldScene: SKScene {
         let market = Crowd.Market(sign: { [weak session] in session?.marketSign(for: $0) },
                                   shout: { [weak session] in session?.marketShout(for: $0) },
                                   level: session.data.hero.level)
-        crowd = Crowd(def: def, map: map, world: world, friends: session.friends.filter { !session.isInParty($0) }, market: market)
+        crowd = Crowd(def: def, map: map, world: world, heroLevel: session.data.hero.level,
+                      friends: session.friends.filter { !session.isInParty($0) }, market: market)
         crowd?.onChat = { [weak session] speaker, text, kind in session?.postChat(text, from: speaker, kind: kind) }
         crowd?.onChallenge = { [weak self] rival in
             guard let self, !self.isInputLocked else { return }
