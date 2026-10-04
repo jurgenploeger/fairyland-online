@@ -25,6 +25,8 @@ import Foundation
 ///   win            with battle, duel or boss: the foes fall at once and the victory plays out
 ///   duel           start in a duel with an adventurer of your level (with win: their dropped goods)
 ///   boss=<npc>     once the map is on screen, fight that boss (as if you'd pressed Fight)
+///   invite=n       once the map is on screen, the n nearest adventurers come over, become friends
+///                  and join your party, through the same steps as their card's buttons
 ///   wave=<n>       with boss: the fight opens at that wave (3: the boss's own)
 ///   orders         with battle: the hero picks Attack on the first monster, so your companion's turn shows
 ///   afflict        with battle: the first monster poisoned, the next one cursed, and the hero poisoned
@@ -258,6 +260,26 @@ enum DebugLaunch {
                     if flags["win"] != nil, let battle = coordinator.battle {
                         try? await Task.sleep(for: .seconds(2))
                         battle.winForDebug()
+                    }
+                    return
+                }
+            }
+        }
+        // `invite=1`: like walking up to the nearest adventurers and pressing Befriend, then Invite.
+        if let count = flags["invite"].flatMap({ Int($0) }) {
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard coordinator.isReady, coordinator.world.view != nil else { continue }
+                    try? await Task.sleep(for: .seconds(1))
+                    let newcomers = coordinator.world.summonAdventurersForDebug(count)
+                    // The map notes who's around every 0.4 s; inviting needs them counted.
+                    try? await Task.sleep(for: .seconds(1))
+                    for adventurer in newcomers {
+                        coordinator.befriend(adventurer)
+                        try? await Task.sleep(for: .seconds(1))
+                        coordinator.invite(adventurer)
+                        try? await Task.sleep(for: .seconds(1))
                     }
                     return
                 }

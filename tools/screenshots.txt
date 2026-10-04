@@ -1,5 +1,8 @@
 # Scenes for tools/screenshots.sh (and the Screenshots GitHub Action).
 # name | FAIRYLAND_DEBUG flags (see Fairyland/App/DebugLaunch.swift) | seconds to settle after the first frame
+# Inviting through the cards' buttons (debug invite=n), first so a crash shows early in the log.
+invite_town  | newgame,level=49,class=fighter,pet=pineapple,friends=3,map=goldburg,invite=1 | 12
+invite_cave  | newgame,level=49,class=fighter,pet=pineapple,friends=3,map=rat_cavern,invite=1 | 12
 title        |                                   | 6
 meadowbrook  | newgame                           | 8
 sunny_meadow | newgame,map=sunny_meadow          | 15

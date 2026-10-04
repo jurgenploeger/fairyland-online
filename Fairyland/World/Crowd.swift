@@ -289,6 +289,24 @@ final class Crowd {
 
     // MARK: - Meeting people
 
+    #if DEBUG
+    /// Debug launches (`invite=n`): the `count` friendly adventurers nearest `point` walk straight
+    /// over to stand around it, so they're near enough to befriend and invite.
+    func summonForDebug(_ count: Int, to point: CGPoint) -> [Adventurer] {
+        let chosen = members
+            .filter { member in member.profile.map { !$0.hostile } == true }
+            .sorted { $0.walker.position.distance(to: point) < $1.walker.position.distance(to: point) }
+            .prefix(count)
+        for (index, member) in chosen.enumerated() {
+            let angle = Double(index) * 2 * .pi / Double(max(1, chosen.count)) + 0.4
+            member.walker.path = []
+            member.walker.position = point + CGVector(dx: cos(angle) * 70, dy: sin(angle) * 45)
+            member.pet?.position = member.walker.position + CGVector(dx: -26, dy: -6)
+        }
+        return chosen.compactMap(\.profile)
+    }
+    #endif
+
     /// The adventurer standing closest to `point`, if anyone is within reach.
     func adventurer(near point: CGPoint, within reach: CGFloat) -> Adventurer? {
         members
