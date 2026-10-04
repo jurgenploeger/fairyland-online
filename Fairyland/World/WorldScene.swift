@@ -518,12 +518,9 @@ final class WorldScene: SKScene {
             }
         }
         placeTerraces()
-        for building in def.buildings ?? [] {
-            let anchor = map.offset(building.x, building.y)
-            for dc in -1...1 {
-                for dr in 0...1 { map.occupy(GridPoint(col: anchor.col + dc, row: anchor.row + dr), blocking: true) }
-            }
-            addScenery(art.sprite(building.art), at: anchor)
+        // The map's own buildings, already set down clear of the roads (WorldMap.placeOwnBuildings).
+        for building in map.buildings {
+            addScenery(art.sprite(building.art), at: building.anchor)
         }
     }
 

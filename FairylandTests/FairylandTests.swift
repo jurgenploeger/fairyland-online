@@ -136,6 +136,27 @@ struct ContentTests {
         }
     }
 
+    @Test func housesStandOffTheRoads() {
+        for def in content.maps {
+            let map = WorldMap(def: def)
+            #expect(map.buildings.count == (def.buildings ?? []).count, "map \(def.id) lost a building")
+            // The map's own buildings and the shops along the streets: on plain ground or a terrace's
+            // paved top, never on a road, and never on each other.
+            let houses = map.buildings.map { ($0.art, $0.anchor) } + map.lots.map { ($0.art, $0.anchor) }
+            var taken: Set<GridPoint> = []
+            for (art, anchor) in houses {
+                for dc in -1...1 {
+                    for dr in 0...1 {
+                        let cell = GridPoint(col: anchor.col + dc, row: anchor.row + dr)
+                        let ground = map.ground[cell.row][cell.col]
+                        #expect(ground == .ground || ground == .accent, "map \(def.id): \(art) stands on \(ground) at \(cell)")
+                        #expect(taken.insert(cell).inserted, "map \(def.id): \(art) overlaps another building at \(cell)")
+                    }
+                }
+            }
+        }
+    }
+
     @Test func announcementsAndTradersHaveSomethingToSay() {
         let notices = content.announcements
         #expect(!notices.dawn.isEmpty && !notices.dusk.isEmpty && !notices.community.isEmpty)
