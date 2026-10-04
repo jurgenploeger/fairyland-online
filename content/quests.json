@@ -338,7 +338,7 @@
           "potion"
         ]
       },
-      "minLevel": 2
+      "minLevel": 4
     },
     {
       "id": "shell_snatchers",
@@ -357,7 +357,7 @@
           "hi_potion"
         ]
       },
-      "minLevel": 3
+      "minLevel": 8
     },
     {
       "id": "three_little_pigs",
@@ -376,7 +376,7 @@
           "ether"
         ]
       },
-      "minLevel": 5
+      "minLevel": 14
     },
     {
       "id": "moonlight_thieves",
@@ -395,7 +395,7 @@
           "hi_ether"
         ]
       },
-      "minLevel": 6
+      "minLevel": 18
     },
     {
       "id": "frog_prince",
@@ -414,7 +414,7 @@
           "ruby_ring"
         ]
       },
-      "minLevel": 7
+      "minLevel": 21
     },
     {
       "id": "ugly_duckling",
@@ -434,7 +434,7 @@
           "hi_potion"
         ]
       },
-      "minLevel": 8
+      "minLevel": 24
     },
     {
       "id": "lion_and_mouse",
@@ -454,7 +454,7 @@
           "hi_potion"
         ]
       },
-      "minLevel": 11
+      "minLevel": 35
     },
     {
       "id": "puss_in_boots",
@@ -475,7 +475,7 @@
           "hi_ether"
         ]
       },
-      "minLevel": 17
+      "minLevel": 55
     },
     {
       "id": "stormy_crystals",
@@ -495,7 +495,7 @@
           "hi_ether"
         ]
       },
-      "minLevel": 21
+      "minLevel": 68
     },
     {
       "id": "melting_friends",
@@ -515,7 +515,7 @@
           "hi_ether"
         ]
       },
-      "minLevel": 22
+      "minLevel": 71
     },
     {
       "id": "night_flight",
@@ -534,7 +534,7 @@
           "star_charm"
         ]
       },
-      "minLevel": 26
+      "minLevel": 85
     },
     {
       "id": "slime_gold",
