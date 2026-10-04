@@ -12,6 +12,7 @@ import Foundation
 ///   equip=a+b      start wearing these items (ids from content/items.json, joined with +)
 ///   bag=a+b        put these items in the bag
 ///   change=<slot>  open the Character tab's list for weapon | armor | accessory (with menu=character)
+///   customize      open the Character tab's look editor (with menu=character)
 ///   race=<id>      play this race (content/classes.json)
 ///   style=<id>     wear this hairstyle (content/appearance.json `styles`)
 ///   hair=<id>      dye the hair this colour (content/appearance.json `hair`)
@@ -21,6 +22,7 @@ import Foundation
 ///   menu=<tab>     open character | companions | bag | quests
 ///   bottom         open the menu scrolled to the end
 ///   npc=<id>       open an NPC dialog
+///   info=<item>    with npc=<a shop>: open that item's info card
 ///   worldmap       open the world map
 ///   book           open the Monster Book, with the first 24 monsters already met
 ///   landscape      lock the app to landscape
@@ -57,6 +59,9 @@ enum DebugLaunch {
     /// `change=armor`: the Character tab opens with that slot's list of things to wear.
     static var changingSlot: ItemType? { flags["change"].flatMap(ItemType.init(rawValue:)) }
     static var opensMenuAtBottom: Bool { flags["bottom"] != nil }
+    static var opensCustomize: Bool { flags["customize"] != nil }
+    /// `info=iron_axe`: the shop's info card for that item opens with the dialog.
+    static var itemInfo: ItemDef? { flags["info"].flatMap { Content.shared.item($0) } }
     /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).
     static var introPage: Int? { flags["intro"].map { Int($0).map { $0 - 1 } ?? 0 } }
 

@@ -100,6 +100,7 @@ final class GameSession {
         var slotted = data
         slotted.slot = UUID().uuidString   // every new game gets its own save
         slotted.skillLevelsDoubled = true  // already on the 10-step skill scale
+        slotted.levelsRescaled = true      // and on the 200-level scale (a debug level isn't stretched)
         let session = GameSession(data: slotted)
         session.restoreHero()
         // Like Fairyland, your first companion comes from an egg in the first quest.
@@ -127,8 +128,8 @@ final class GameSession {
     /// Art id of the hero as customised: a recoloured copy of player_walk.
     static let heroArt = "hero"
 
-    /// A whole sheet's colours (the body layer's too). Worn armour takes over the outfit's colours
-    /// (leather, steel, silk…).
+    /// A whole sheet's colours (other adventurers; the hero's hood or helmet). Worn armour takes
+    /// over the outfit's colours (leather, steel, silk…).
     static func rules(for look: Look, armor: ItemDef? = nil) -> [RecolorRule] {
         let options = Content.shared.appearance
         let skin: [RecolorRule] = options.skin.first { $0.id == look.skin }?.recolor ?? []
@@ -140,6 +141,13 @@ final class GameSession {
     private static func outfitRules(for look: Look, armor: ItemDef?) -> [RecolorRule] {
         if let worn = armor?.recolor, !worn.isEmpty { return worn }
         return Content.shared.appearance.outfits.first { $0.id == look.outfit }?.recolor ?? []
+    }
+
+    /// The bald body's colours: skin and outfit. Its hair is on the hair and locks layers, so a dye
+    /// leaves the rest alone (ginger boots and belts keep their colour).
+    static func bodyRules(for look: Look, armor: ItemDef? = nil) -> [RecolorRule] {
+        let skin: [RecolorRule] = Content.shared.appearance.skin.first { $0.id == look.skin }?.recolor ?? []
+        return skin + outfitRules(for: look, armor: armor)
     }
 
     /// The hair and locks layers hold nothing but hair, so the hair colour's rules widen to the
@@ -154,9 +162,18 @@ final class GameSession {
         return hair + outfitRules(for: look, armor: armor)
     }
 
+    /// The hairstyle a hero wears: their pick if it suits their walk sheet, else the sheet's own hair
+    /// (a gender's: a ponytail, braids), else their race's.
+    static func style(for look: Look, race: RaceDef) -> String {
+        let styles = Content.shared.appearance.styles(for: race.sheet(for: look.gender))
+        if let picked = look.style, styles.contains(where: { $0.id == picked }) { return picked }
+        if let own = styles.first(where: { $0.sheet != nil }) { return own.id }
+        return race.hair ?? styles.first?.id ?? "spiky"
+    }
+
     /// The hero as paper-doll layers (art/sprites, made by tools/hero_layers.py): the bald body, the
-    /// locks it keeps (a lock over the shoulder, a beard), then the hairstyle, or a helmet or hood
-    /// instead (so no hair pokes through). Locks and hair take the hair colour on every shade.
+    /// locks it keeps (a beard), then the hairstyle, or a helmet or hood instead (so no hair pokes
+    /// through). Locks and hair take the hair colour on every shade; the body only skin and outfit.
     /// Armour with its own walk sheet for the race (items.json `sheets`) replaces the lot.
     static func layers(race: RaceDef, look: Look, armor: ItemDef? = nil) -> [ArtLayer] {
         if let sheet = armor?.sheets?[race.id] { return [ArtLayer(id: sheet)] }
@@ -165,11 +182,12 @@ final class GameSession {
         case "cloak": "hood"
         default: nil
         }
-        let style = look.style ?? race.hair ?? Content.shared.appearance.styles.first?.id ?? "spiky"
+        let style = Self.style(for: look, race: race)
         // Each gender's walk sheet has its own set; the race's default sheet keeps the plain names.
         let body = look.gender.flatMap { race.sheets?[$0] != nil ? "\(race.id)_\($0)" : nil } ?? race.id
         let hair = hairLayerRules(for: look, armor: armor)
-        return [ArtLayer(id: "body_\(body)"), ArtLayer(id: "locks_\(body)", recolor: hair),
+        let bald = ArtLayer(id: "body_\(body)", recolor: bodyRules(for: look, armor: armor))
+        return [bald, ArtLayer(id: "locks_\(body)", recolor: hair),
                 headgear.map { ArtLayer(id: "\($0)_\(body)") } ?? ArtLayer(id: "hair_\(style)_\(body)", recolor: hair)]
     }
 

@@ -4,6 +4,8 @@ import SwiftUI
 struct SmithPanel: View {
     let session: GameSession
     @Binding var reply: String?
+    /// Tap a weapon for everything about it (who can use it, how it compares with yours).
+    @Binding var info: ItemDef?
     @State private var line: String?
 
     private struct WeaponLine: Identifiable {
@@ -43,7 +45,7 @@ struct SmithPanel: View {
                 EmptyNote("Nothing to forge in this line at your level.")
             }
             ForEach(shown) { item in
-                SmithRecipeRow(session: session, item: item, reply: $reply)
+                SmithRecipeRow(session: session, item: item, reply: $reply, info: $info)
             }
         }
     }
@@ -53,29 +55,22 @@ private struct SmithRecipeRow: View {
     let session: GameSession
     let item: ItemDef
     @Binding var reply: String?
+    @Binding var info: ItemDef?
 
     var body: some View {
         let ready = session.canCraft(item)
         HStack(alignment: .top, spacing: 10) {
-            ItemIcon(item: item, size: 36)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("\(item.name)  ·  Lv \(item.level ?? 1)")
-                Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
-                HStack(spacing: 8) {
-                    ForEach(session.ingredients(of: item)) { part in
-                        HStack(spacing: 3) {
-                            ItemIcon(item: part.material, size: 16)
-                            Text("\(part.material.name) \(part.owned)/\(part.needed)")
-                                .foregroundStyle(part.owned >= part.needed ? HUDStyle.green : HUDStyle.dim)
-                        }
-                    }
+            // Tap the weapon for everything about it (who can use it, how it compares with yours).
+            Button { info = item } label: {
+                HStack(alignment: .top, spacing: 10) {
+                    ItemIcon(item: item, size: 36)
+                    details
+                    Spacer(minLength: 0)
                 }
-                .font(HUDStyle.font(10))
-                if let issue = session.equipIssue(item) {
-                    Text(issue).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
-                }
+                .contentShape(Rectangle())
             }
-            Spacer()
+            .buttonStyle(.plain)
+            .accessibilityHint("Shows what it does and who can use it")
             Button("Forge") {
                 if session.craft(item.id) {
                     session.post("Forged a \(item.name)!", .reward)
@@ -88,5 +83,26 @@ private struct SmithRecipeRow: View {
             .buttonStyle(PixelButtonStyle(tint: ready ? HUDStyle.gold : HUDStyle.dim, compact: true))
         }
         .font(HUDStyle.font(12))
+    }
+
+    /// Name and level, stats, the materials it takes (what you have of each), and what stops you using it.
+    private var details: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("\(item.name)  ·  Lv \(item.level ?? 1)")
+            Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
+            HStack(spacing: 8) {
+                ForEach(session.ingredients(of: item)) { part in
+                    HStack(spacing: 3) {
+                        ItemIcon(item: part.material, size: 16)
+                        Text("\(part.material.name) \(part.owned)/\(part.needed)")
+                            .foregroundStyle(part.owned >= part.needed ? HUDStyle.green : HUDStyle.dim)
+                    }
+                }
+            }
+            .font(HUDStyle.font(10))
+            if let issue = session.equipIssue(item) {
+                Text(issue).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.orange)
+            }
+        }
     }
 }

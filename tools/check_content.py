@@ -62,13 +62,25 @@ for race in classes["races"]:
     for gender, sheet in (race.get("sheets") or {}).items():
         check(gender in gender_ids, f"race {race['id']} → unknown gender {gender}")
         check(sheet in art, f"race {race['id']} ({gender}) → unknown art {sheet}")
-styles = {style["id"] for style in appearance["styles"]}
+# Styles anyone can wear, and a sheet's own hair (a gender's), worn only on that walk sheet.
+shared = {style["id"] for style in appearance["styles"] if not style.get("sheet")}
+own_style = {style["sheet"]: style["id"] for style in appearance["styles"] if style.get("sheet")}
+hero_sheets = {race.get("art", "player_walk") for race in classes["races"]} | {
+    sheet for race in classes["races"] for sheet in (race.get("sheets") or {}).values()}
+for style in appearance["styles"]:
+    if style.get("sheet"):
+        check(style["sheet"] in hero_sheets, f"hairstyle {style['id']} → sheet {style['sheet']} isn't a race's walk sheet")
+check(len(own_style) == sum(1 for style in appearance["styles"] if style.get("sheet")),
+      "appearance styles → one style of its own per walk sheet at most")
 for race in classes["races"]:
-    check(race.get("hair") in styles, f"race {race['id']} → unknown hairstyle {race.get('hair')}")
+    check(race.get("hair") in shared, f"race {race['id']} → hairstyle {race.get('hair')} must be one anyone can wear")
     # The paper-doll layers the hero is stacked from (GameSession.layers): one set per walk sheet,
     # the race's own plus one for each gender with its own sheet.
-    for body in [race["id"]] + [f"{race['id']}_{gender}" for gender in (race.get("sheets") or {})]:
-        layers = [f"body_{body}", f"locks_{body}", f"hood_{body}", f"helmet_{body}"] + [f"hair_{style}_{body}" for style in styles]
+    bodies = [(race["id"], race.get("art", "player_walk"))] + [
+        (f"{race['id']}_{gender}", sheet) for gender, sheet in (race.get("sheets") or {}).items()]
+    for body, sheet in bodies:
+        worn = sorted(shared) + ([own_style[sheet]] if sheet in own_style else [])
+        layers = [f"body_{body}", f"locks_{body}", f"hood_{body}", f"helmet_{body}"] + [f"hair_{style}_{body}" for style in worn]
         for layer in layers:
             check((ROOT / "art" / "sprites" / f"{layer}.png").exists(),
                   f"race {race['id']} → art/sprites/{layer}.png is missing (python3 tools/hero_layers.py)")

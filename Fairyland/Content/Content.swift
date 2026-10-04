@@ -603,6 +603,9 @@ nonisolated struct GenderOption: Decodable, Identifiable, Sendable {
 nonisolated struct HairStyle: Decodable, Identifiable, Sendable {
     let id: String
     let name: String
+    /// A walk sheet's own hair (a gender's: a ponytail, braids), worn only on that sheet and the
+    /// hair it starts with; nil for the styles anyone can wear.
+    let sheet: String?
 }
 
 nonisolated struct AppearanceOptions: Decodable, Sendable {
@@ -614,6 +617,11 @@ nonisolated struct AppearanceOptions: Decodable, Sendable {
     let hair: [LookPreset]
     let outfits: [LookPreset]
     let skin: [LookPreset]
+
+    /// The hairstyles a walk sheet can wear: its own hair first, then the ones anyone can.
+    func styles(for sheet: String) -> [HairStyle] {
+        styles.filter { $0.sheet == sheet } + styles.filter { $0.sheet == nil }
+    }
 }
 
 // MARK: - Loading

@@ -10,6 +10,8 @@ struct NPCDialogView: View {
     @State private var reply: String?
     /// A quest just handed in: its reward card covers the dialog until you continue.
     @State private var finished: FinishedQuest?
+    /// An item tapped in the shop or at the smith, for a closer look.
+    @State private var info: ItemDef? = DebugLaunch.itemInfo
 
     var body: some View {
         GeometryReader { proxy in
@@ -36,9 +38,16 @@ struct NPCDialogView: View {
                         .frame(width: proxy.size.width, height: proxy.size.height)
                         .transition(.opacity)
                 }
+
+                if let info {
+                    ItemInfoCard(session: session, item: info) { self.info = nil }
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .transition(.opacity)
+                }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
             .animation(.easeOut(duration: 0.2), value: finished?.quest.id)
+            .animation(.easeOut(duration: 0.15), value: info?.id)
         }
         .ignoresSafeArea()
     }
@@ -55,12 +64,12 @@ struct NPCDialogView: View {
                     Group {
                         switch npc.role {
                         case .healer: HealerPanel(session: session, reply: $reply)
-                        case .shop: ShopPanel(session: session, stock: npc.stock ?? [], reply: $reply)
+                        case .shop: ShopPanel(session: session, stock: npc.stock ?? [], reply: $reply, info: $info)
                         case .quests: QuestGiverPanel(session: session, giver: npc.id, reply: $reply, finished: $finished)
                         case .guild: GuildPanel(session: session, classID: npc.classId ?? "", reply: $reply)
                         case .chest: EmptyView()   // opened straight from the map (GameCoordinator.open)
                         case .boss: BossPanel(session: session, boss: npc, onFight: onFight)
-                        case .smith: SmithPanel(session: session, reply: $reply)
+                        case .smith: SmithPanel(session: session, reply: $reply, info: $info)
                         }
                         if npc.rebirth == true {
                             RebirthPanel(session: session, reply: $reply)
@@ -163,6 +172,8 @@ private struct ShopPanel: View {
     let session: GameSession
     let stock: [String]
     @Binding var reply: String?
+    /// Tap an item for everything about it (who can use it, from what level).
+    @Binding var info: ItemDef?
     @State private var selling = false
 
     var body: some View {
@@ -188,16 +199,23 @@ private struct ShopPanel: View {
     private var buyList: some View {
         ForEach(stock.compactMap { session.content.item($0) }) { item in
             HStack(spacing: 10) {
-                ItemIcon(item: item, size: 36)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(item.name)
-                    let detail = item.type == .consumable ? (item.description ?? "") : "\(item.type.displayName) · \(item.stats?.bonusSummary ?? "")"
-                    Text(detail).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
-                    if item.type != .consumable, let issue = session.equipIssue(item) {
-                        Text(issue).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                Button { info = item } label: {
+                    HStack(spacing: 10) {
+                        ItemIcon(item: item, size: 36)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(item.name)
+                            let detail = item.type == .consumable ? (item.description ?? "") : "\(item.type.displayName) · \(item.stats?.bonusSummary ?? "")"
+                            Text(detail).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
+                            if item.type != .consumable, let issue = session.equipIssue(item) {
+                                Text(issue).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.orange)
+                            }
+                        }
+                        Spacer(minLength: 0)
                     }
+                    .contentShape(Rectangle())
                 }
-                Spacer()
+                .buttonStyle(.plain)
+                .accessibilityHint("Shows what it does and who can use it")
                 if session.count(of: item.id) > 0 {
                     Text("own \(session.count(of: item.id))").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                 }
@@ -226,14 +244,21 @@ private struct ShopPanel: View {
         }
         ForEach(items) { item in
             HStack(spacing: 10) {
-                ItemIcon(item: item, size: 36)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(item.name)
-                    Text("\(item.type.displayName) · you have \(session.count(of: item.id))")
-                        .font(HUDStyle.font(10))
-                        .foregroundStyle(HUDStyle.dim)
+                Button { info = item } label: {
+                    HStack(spacing: 10) {
+                        ItemIcon(item: item, size: 36)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(item.name)
+                            Text("\(item.type.displayName) · you have \(session.count(of: item.id))")
+                                .font(HUDStyle.font(10))
+                                .foregroundStyle(HUDStyle.dim)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .contentShape(Rectangle())
                 }
-                Spacer()
+                .buttonStyle(.plain)
+                .accessibilityHint("Shows what it does and who can use it")
                 Button("Sell \(GameSession.sellPrice(of: item))g") {
                     if let paid = session.sell(item.id) {
                         session.post("Sold \(item.name) for \(paid) gold.", .reward)

@@ -53,7 +53,7 @@ nonisolated struct Look: Codable, Equatable, Sendable {
     /// male | female | other (content/appearance.json `genders`); nil in older saves, which
     /// keep their race's original sheet.
     var gender: String? = nil
-    /// Hairstyle; nil means the race's own (saves from before styles were a choice).
+    /// Hairstyle; nil means the walk sheet's own hair, else the race's (GameSession.style).
     var style: String? = nil
 
     static let standard = Look(hair: "ginger", outfit: "green", skin: "fair")

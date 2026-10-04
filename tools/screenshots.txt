@@ -24,6 +24,13 @@ hood_dwarf   | newgame,race=dwarf,level=30,equip=ranger_cloak                 | 
 hair_blue    | newgame,hair=blue                                              | 8
 hair_elf_male | newgame,race=elf,gender=male,hair=black,menu=character        | 8
 hair_dwarf_female | newgame,race=dwarf,gender=female,hair=white                | 8
+look_other_human | newgame,gender=other,menu=character,customize                 | 8
+look_other_elf | newgame,race=elf,gender=other,hair=black,menu=character,customize | 8
+look_female_dwarf | newgame,race=dwarf,gender=female,hair=blue,menu=character,customize | 8
+elf_crop     | newgame,race=elf,style=crop,hair=brown                          | 8
+item_info    | newgame,level=12,npc=shop,info=iron_axe                           | 8
+item_info_fighter | newgame,level=40,class=fighter,equip=iron_axe,npc=rainbow_shop,info=steel_sword | 8
+item_info_material | newgame,npc=shop,info=bronze_ingot                         | 8
 equip_change | newgame,equip=leather_vest,bag=cloth_tunic,menu=character,change=armor | 8
 skills       | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+whirlwind,menu=character,bottom | 8
 skills_learn | newgame,level=20,class=mage,menu=character,bottom                 | 8
@@ -34,8 +41,8 @@ twilight     | newgame,level=40,map=twilight_woods                 | 15
 battle_big   | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+whirlwind,hp=0.3,map=genie_desert,battle=10 | 15
 battle_arrange | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+whirlwind,map=genie_desert,battle=10,arrange | 15
 battle_big_landscape | newgame,level=60,map=genie_desert,battle=10,landscape | 15
-levelup      | newgame,level=9,levelup,map=sunny_meadow,battle=1,win           | 15
-levelup_landscape | newgame,level=9,levelup,map=sunny_meadow,battle=1,win,landscape | 15
+levelup      | newgame,level=9,levelup,map=sunny_meadow,battle=1,win           | 30
+levelup_landscape | newgame,level=9,levelup,map=sunny_meadow,battle=1,win,landscape | 30
 quests       | newgame,menu=quests                                 | 8
 worldmap     | newgame,worldmap                                    | 8
 monster_book | newgame,book                                        | 8
