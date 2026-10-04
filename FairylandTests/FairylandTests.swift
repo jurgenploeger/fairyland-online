@@ -939,7 +939,7 @@ struct RulesTests {
         // Both are still in your party, but they don't fight until you come back for them.
         #expect(session.partyMembers.count == 2 && session.friendsAtYourSide.isEmpty)
         let encounters = try #require(meadow.encounters)
-        #expect(!BattleController.encounter(encounters, session: session).party.contains(where: \.isAlly))
+        #expect(!BattleController.encounter(encounters, session: session).party.contains { $0.isAlly })
         session.rejoin(maple.id)
         #expect(session.friendsAtYourSide.map(\.name) == ["Maple"])
 
