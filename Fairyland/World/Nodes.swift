@@ -193,8 +193,10 @@ final class HealthBar: SKNode {
         fill.position.x = -width / 2
         fill.zPosition = 1
         parts += [background, fill]
+        // The MP bar's middle, under the HP bar's frame.
+        let manaY = -(thick + 2) / 2 - 3
         if mana {
-            let y = -(thick + 2) / 2 - 3
+            let y = manaY
             let back = SKSpriteNode(color: UIColor(white: 0, alpha: 0.6), size: CGSize(width: width + 2, height: 5))
             back.position.y = y
             let blue = SKSpriteNode(color: UIColor(red: 0.24, green: 0.52, blue: 0.95, alpha: 1), size: CGSize(width: width, height: 3))
@@ -212,7 +214,11 @@ final class HealthBar: SKNode {
             let overlap: CGFloat = 3
             let shift = (badge.size.width - overlap) / 2
             badge.position.x = -width / 2 - badge.size.width / 2 + overlap + shift
-            badge.position.y = mana ? -1 : 0
+            // Centred on the bars together: from the HP frame's top to the MP bar's bottom (to the
+            // nearest point, so the chip stays crisp).
+            let top = (thick + 2) / 2
+            let bottom = mana ? manaY - 2.5 : -top
+            badge.position.y = ((top + bottom) / 2).rounded()
             badge.zPosition = 2
             addChild(badge)
             parts.forEach { $0.position.x += shift }
