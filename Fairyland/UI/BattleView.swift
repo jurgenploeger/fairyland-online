@@ -41,6 +41,7 @@ struct BattleView: View {
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.phase)
+        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.choosingForCompanion)
         .onAppear { controller.startTurnClock() }
     }
 
@@ -48,9 +49,33 @@ struct BattleView: View {
     private var commandArea: some View {
         switch controller.phase {
         case .command:
-            CommandPad(controller: controller)
-                .padding(.top, 64)   // clear of the log line
-                .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
+            if controller.choosingForCompanion {
+                CompanionPad(controller: controller)
+                    .padding(.top, 64)
+                    .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
+            } else {
+                CommandPad(controller: controller)
+                    .padding(.top, 64)   // clear of the log line
+                    .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
+            }
+        case .skills where controller.choosingForCompanion:
+            ChoiceCard(title: "\(controller.companion?.name ?? "Companion")'s skills", icon: .paw, onBack: controller.back) {
+                if controller.companionSkills.isEmpty {
+                    EmptyNote("No skills yet.")
+                }
+                ForEach(controller.companionSkills) { skill in
+                    let price = controller.companionCost(of: skill)
+                    ChoiceRow(action: { controller.useSkill(skill) }, enabled: (controller.companion?.mp ?? 0) >= price) {
+                        SkillIcon(skill: skill, size: 26)
+                        Text(skill.name)
+                        Text("Lv\(controller.companionLevel(of: skill))").font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
+                        if let element = skill.element { ElementBadge(element: element) }
+                        Spacer()
+                        Text("\(price) MP").foregroundStyle(HUDStyle.mp)
+                    }
+                }
+            }
+            .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
         case .skills:
             ChoiceCard(title: "Skills", icon: .sparkles, onBack: controller.back) {
                 if controller.skills.isEmpty {
@@ -406,6 +431,46 @@ private struct CommandPad: View {
         case "capture": controller.capture()
         default: break
         }
+    }
+}
+
+/// Your companion's turn, after the hero's choice: Attack in the big button's spot, its Skills,
+/// Guard, and Auto to let it decide for itself. The chip on top shows whose turn it is and goes
+/// back to the hero's choice.
+private struct CompanionPad: View {
+    let controller: BattleController
+
+    var body: some View {
+        VStack(alignment: .trailing, spacing: 16) {
+            HStack(spacing: 8) {
+                Button(action: controller.backToHero) {
+                    Label(controller.hero?.name ?? "Back", icon: .arrowLeft, size: 12)
+                }
+                .buttonStyle(PixelButtonStyle(compact: true))
+                if let companion = controller.companion {
+                    SpriteImage(art: companion.art, size: 30)
+                    Text("\(companion.name)'s turn")
+                        .font(HUDStyle.font(13))
+                        .foregroundStyle(HUDStyle.cream)
+                }
+            }
+            .padding(.leading, 6)
+            .padding(.trailing, 12)
+            .padding(.vertical, 5)
+            .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.gold.opacity(0.7), lineWidth: 1.5)))
+
+            HStack(alignment: .bottom, spacing: 14) {
+                HStack(alignment: .bottom, spacing: 10) {
+                    RoundCommandButton(title: "Auto", icon: .paw, size: 56, tint: .quiet) { controller.letCompanionDecide() }
+                    RoundCommandButton(title: "Guard", icon: .shield, size: 56, tint: .normal) { controller.defend() }
+                    if !controller.companionSkills.isEmpty {
+                        RoundCommandButton(title: "Skills", icon: .sparkles, size: 56, tint: .normal) { controller.openSkills() }
+                    }
+                }
+                RoundCommandButton(title: "Attack", icon: .tooth, size: 88, tint: .primary) { controller.attack() }
+            }
+        }
+        .padding(.leading, 14)
     }
 }
 

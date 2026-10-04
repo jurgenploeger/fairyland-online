@@ -139,12 +139,20 @@
           "level": 10
         },
         {
+          "skill": "curse",
+          "level": 12
+        },
+        {
           "skill": "fire_bolt",
           "level": 15
         },
         {
           "skill": "bridge_of_light",
           "level": 20
+        },
+        {
+          "skill": "poison",
+          "level": 25
         },
         {
           "skill": "stone_spike",

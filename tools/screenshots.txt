@@ -40,6 +40,8 @@ boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 
 boss_fight   | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne | 25
 boss_story   | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne,win | 35
 boss_story_landscape | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne,win,landscape | 35
+battle_companion | newgame,level=30,class=tamer,pet=pineapple,map=sunny_meadow,battle=2,orders | 15
+battle_afflict | newgame,level=30,class=mage,map=sunny_meadow,battle=3,afflict | 15
 talk_npc     | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=lotus_land,npc=thumbelina | 15
 edge_fog     | newgame,map=sunny_meadow,at=80_0                 | 15
 edge_town    | newgame,map=meadowbrook,at=0_-28                  | 8

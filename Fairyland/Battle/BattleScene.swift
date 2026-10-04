@@ -287,6 +287,19 @@ final class BattleScene: SKScene {
         case .message:
             controller.apply(event)
             await pause(0.8)
+
+        case .afflicted(let targetID, let effect, _):
+            controller.apply(event)
+            if let actor = actors[targetID] { SkillEffects.afflicted(actor, effect: effect, in: stage) }
+            await pause(0.55)
+
+        case .ailmentDamage(let targetID, _, let amount):
+            controller.apply(event)
+            if let actor = actors[targetID] {
+                SkillEffects.poisonBite(on: actor, in: stage)
+                Effects.damageBurst("\(amount)", style: .poison, at: actor.top, in: stage)
+            }
+            await pause(0.45)
         }
     }
 
@@ -397,6 +410,24 @@ final class BattleScene: SKScene {
                 SkillEffects.ultimateFinale(on: targets, style: "holy", color: color, size: size, in: stage)
                 await pause(0.7)
             }
+            return
+        }
+
+        // Curses and poisons: a dark mote flies to the foe and sinks in (a mist spreads over all of
+        // them at once). Each mark shows as it takes hold, in the events after this one.
+        if skill.kind == .curse {
+            let poison = skill.inflicts?.effect == .poison
+            if skill.target != .allEnemies, let first = targets.first {
+                await SkillEffects.projectile(from: actors[actorID]?.center, to: first.center, color: color, level: level, trail: true, in: stage)
+            }
+            for target in targets {
+                if poison {
+                    SkillEffects.poisonCloud(on: target, level: level, in: stage)
+                } else {
+                    SkillEffects.curseSpell(on: target, level: level, in: stage)
+                }
+            }
+            await pause(0.35)
             return
         }
 
@@ -704,9 +735,12 @@ final class BattleScene: SKScene {
         ]))
     }
 
-    private func refreshBars() {
+    /// Bars, and the marks of any poison or curse with the rounds it has left.
+    func refreshBars() {
         for fighter in controller.combatants {
             actors[fighter.id]?.setHealth(fighter.hpFraction, mana: fighter.mpFraction)
+            // A curse counts the round it's in too; show the rounds still to come.
+            actors[fighter.id]?.setAilments(poison: fighter.poisonRounds, curse: max(0, fighter.curseRounds - 1))
         }
     }
 
@@ -837,6 +871,44 @@ final class BattleActor: SKNode {
     func setHealth(_ fraction: Double, mana: Double) {
         bar.fraction = CGFloat(fraction)
         bar.manaFraction = CGFloat(mana)
+    }
+
+    /// Poison's green drop and a curse's violet arrow beside the HP bar, each with its rounds left.
+    private let marks = SKNode()
+    private var shownPoison = 0
+    private var shownCurse = 0
+
+    func setAilments(poison: Int, curse: Int) {
+        guard poison != shownPoison || curse != shownCurse else { return }
+        shownPoison = poison
+        shownCurse = curse
+        if marks.parent == nil {
+            marks.position = CGPoint(x: bar.position.x + 30, y: bar.position.y)
+            addChild(marks)
+        }
+        marks.removeAllChildren()
+        var x: CGFloat = 0
+        for (rounds, effect) in [(poison, Ailment.poison), (curse, Ailment.curse)] where rounds > 0 {
+            let tint = SkillEffects.color(of: effect)
+            let icon: SKNode
+            if let texture = SkillEffects.fxTexture(effect == .poison ? "status_poison" : "status_curse") {
+                icon = SKSpriteNode(texture: texture, size: texture.size() * 2)
+            } else {
+                let dot = SKShapeNode(circleOfRadius: 5)
+                dot.fillColor = tint
+                dot.strokeColor = UIColor(white: 0, alpha: 0.7)
+                icon = dot
+            }
+            icon.position = CGPoint(x: x, y: 0)
+            marks.addChild(icon)
+            let count = SKLabelNode()
+            count.attributedText = Nodes.outlined("\(rounds)", size: 9, color: tint)
+            count.verticalAlignmentMode = .center
+            count.horizontalAlignmentMode = .left
+            count.position = CGPoint(x: x + 9, y: -1)
+            marks.addChild(count)
+            x += 24
+        }
     }
 
     func setHighlighted(_ highlighted: Bool) {

@@ -6314,6 +6314,26 @@
       "kind": "icon"
     },
     {
+      "id": "skill_curse",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_poison",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_venom_bite",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_poison_mist",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_evil_eye",
+      "kind": "icon"
+    },
+    {
       "id": "item_crimson_ranger_cloak",
       "kind": "item",
       "derive": {

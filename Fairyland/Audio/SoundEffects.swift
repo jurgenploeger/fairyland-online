@@ -10,11 +10,14 @@ nonisolated enum GameSettings {
     static let hapticsKey = "haptics"
     /// The top-left HUD folds a party of three or more into one row (WorldHUD); the player can unfold it.
     static let partyFoldedKey = "partyFolded"
+    /// Battles ask what your companion should do after the hero's choice; off, it fights on its own.
+    static let commandCompanionKey = "commandCompanion"
 
     static var musicVolume: Double { value(musicVolumeKey, fallback: 1) }
     static var soundVolume: Double { value(soundVolumeKey, fallback: 1) }
     static var footsteps: Bool { value(footstepsKey, fallback: true) }
     static var haptics: Bool { value(hapticsKey, fallback: true) }
+    static var commandCompanion: Bool { value(commandCompanionKey, fallback: true) }
 
     private static func value<T>(_ key: String, fallback: T) -> T {
         UserDefaults.standard.object(forKey: key) as? T ?? fallback

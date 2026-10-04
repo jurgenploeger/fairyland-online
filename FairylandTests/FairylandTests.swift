@@ -529,6 +529,74 @@ struct RulesTests {
         #expect(engine.outcome == .victory || engine.outcome == .fled)
     }
 
+    @Test func companionsFollowOrders() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 200, mp: 20, attack: 30, defense: 10, magic: 10, speed: 20)
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 5, element: .neutral,
+                             stats: stats, hp: 200, mp: 20, skills: [], captureRate: 0)
+        let pet = Combatant(id: 1, side: .party, source: .pet(UUID()), name: "Pet", art: jelly.art, level: 5, element: jelly.element,
+                            stats: stats, hp: 200, mp: 20, skills: jelly.skills, captureRate: 0)
+        let foeStats = jelly.stats(at: 30)
+        let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 30, element: jelly.element,
+                            stats: foeStats, hp: foeStats.hp, mp: foeStats.mp, skills: [], captureRate: 0)
+        let engine = BattleEngine(party: [hero, pet], enemies: [foe], content: content, seed: 7)
+        // Told to guard, it guards; left to itself, it would have gone for the monster.
+        let events = engine.resolveRound(heroAction: .defend, orders: [1: .defend])
+        let guards = events.filter { event in
+            if case .defend(let actor) = event { return actor == 1 }
+            return false
+        }
+        let attacks = events.filter { event in
+            if case .attack(let actor, _) = event { return actor == 1 }
+            return false
+        }
+        #expect(guards.count == 1)
+        #expect(attacks.isEmpty)
+    }
+
+    @Test func poisonBitesEachRoundAndCursesWeaken() throws {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 500, mp: 200, attack: 30, defense: 10, magic: 40, speed: 50)
+        var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 20, element: .neutral,
+                             stats: stats, hp: 500, mp: 200, skills: ["poison", "curse"], captureRate: 0)
+        hero.skillLevels = ["poison": 1, "curse": 1]
+        let foeStats = jelly.stats(at: 20)
+        // Plenty of HP, so it lasts the whole test.
+        let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 20, element: jelly.element,
+                            stats: foeStats, hp: foeStats.hp * 20, mp: 0, skills: [], captureRate: 0)
+        let engine = BattleEngine(party: [hero], enemies: [foe], content: content, seed: 3)
+        func bites(_ events: [BattleEvent]) -> [Int] {
+            events.compactMap { event in
+                if case .ailmentDamage(let target, _, let amount) = event, target == 10 { return amount }
+                return nil
+            }
+        }
+
+        // Poison takes hold and bites at the end of the round it lands in, then once a round: 3 bites.
+        let first = engine.resolveRound(heroAction: .skill("poison", target: 10))
+        let tookHold = first.contains { event in
+            if case .afflicted(let target, let effect, _) = event { return target == 10 && effect == .poison }
+            return false
+        }
+        #expect(tookHold)
+        let bite = try #require(bites(first).first)
+        #expect(bite > 0)
+        #expect(bites(engine.resolveRound(heroAction: .defend)) == [bite])
+        #expect(bites(engine.resolveRound(heroAction: .defend)) == [bite])
+        #expect(bites(engine.resolveRound(heroAction: .defend)).isEmpty)
+
+        // A curse takes a fifth of the force out of its hits for the rest of the round and 3 more.
+        _ = engine.resolveRound(heroAction: .skill("curse", target: 10))
+        let cursed = try #require(engine.combatant(10))
+        #expect(abs(cursed.hitFactor - 0.8) < 0.001)
+        for _ in 0..<3 { _ = engine.resolveRound(heroAction: .defend) }
+        #expect(abs((engine.combatant(10)?.hitFactor ?? 0) - 0.8) < 0.001)
+        _ = engine.resolveRound(heroAction: .defend)
+        #expect(engine.combatant(10)?.hitFactor == 1)
+    }
+
     @Test func reviveWakesAFaintedCompanionAndBlessHelps() {
         let content = Content.shared
         let jelly = content.monster("jelly")!

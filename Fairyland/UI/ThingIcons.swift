@@ -75,6 +75,7 @@ extension SkillDef {
         return switch kind {
         case .heal, .revive: UIColor(red: 0.3, green: 0.72, blue: 0.45, alpha: 1)
         case .buff: UIColor(red: 0.3, green: 0.55, blue: 0.85, alpha: 1)
+        case .curse: UIColor(red: 0.45, green: 0.28, blue: 0.62, alpha: 1)
         case .field: UIColor(red: 0.85, green: 0.65, blue: 0.25, alpha: 1)
         case .magic: UIColor(red: 0.55, green: 0.42, blue: 0.9, alpha: 1)
         case .physical: UIColor(red: 0.85, green: 0.42, blue: 0.32, alpha: 1)

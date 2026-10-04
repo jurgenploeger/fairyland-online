@@ -9,7 +9,8 @@ Stone: rock spikes in four cuts (tall, mid, low, thin) with three faces and soil
 chunks, a dust puff that billows and thins (4 frames), the ground cracking open. Fire: a fireball
 that flickers (4 frames), a blast that blooms and burns out into smoke (6 frames), a flame tongue
 (4 frames), a scorch mark. Wood: leaves in three colours, a petal, a wind streak. Water: a droplet,
-an orb that wobbles (2 frames), a splash crown (4 frames), a bubble. Everything has a dark outline
+an orb that wobbles (2 frames), a splash crown (4 frames), a bubble. The marks of poison (a green drop)
+and a curse (a violet arrow) by a fighter's HP bar. Everything has a dark outline
 except light, smoke, wind and the marks on the ground.
 """
 
@@ -501,6 +502,40 @@ def bubble():
     return c
 
 
+# ---------------------------------------------------------------- the dark arts' marks
+
+POISON = [hexc("1e4a14"), hexc("4a9a2a"), hexc("8ee04a"), hexc("d4ff9a")]   # line, dark, mid, light
+CURSE = [hexc("2a1240"), hexc("5a2e8a"), hexc("9a62d8"), hexc("dcc0ff")]
+
+
+def status_poison():
+    """Poison's mark by a fighter's HP bar: a sickly green drop."""
+    return pixels([
+        "...o...",
+        "..oMo..",
+        ".oMMMo.",
+        "oMLMMDo",
+        "oLMMMDo",
+        "oMMMDDo",
+        ".oDDDo.",
+        "..ooo..",
+    ], {"o": POISON[0], "D": POISON[1], "M": POISON[2], "L": POISON[3]})
+
+
+def status_curse():
+    """A curse's mark: a violet arrow pointing down, for weaker hits."""
+    return pixels([
+        "..ooo..",
+        "..oLo..",
+        "..oMo..",
+        "oooMooo",
+        "oLMMMDo",
+        ".oMMDo.",
+        "..oDo..",
+        "...o...",
+    ], {"o": CURSE[0], "D": CURSE[1], "M": CURSE[2], "L": CURSE[3]})
+
+
 # ---------------------------------------------------------------- all of it
 
 def sprites():
@@ -521,6 +556,8 @@ def sprites():
         "fx_wind": wind(),
         "fx_drop": droplet(),
         "fx_bubble": bubble(),
+        "fx_status_poison": status_poison(),
+        "fx_status_curse": status_curse(),
     }
     for frame in range(4):
         out[f"fx_dust_{frame}"] = dust(frame)

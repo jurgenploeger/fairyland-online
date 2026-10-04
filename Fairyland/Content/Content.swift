@@ -114,12 +114,37 @@ nonisolated struct ClassDef: Decodable, Identifiable, Sendable {
 }
 
 nonisolated enum SkillKind: String, Decodable, Sendable {
-    /// `revive` wakes a fainted ally, `buff` raises strength and defense for a few turns, and
-    /// `field` spells are cast from the Character screen outside battle (Bridge of Light).
-    case physical, magic, heal, revive, buff, field
+    /// `revive` wakes a fainted ally, `buff` raises strength and defense for a few turns, `curse`
+    /// lays its `inflicts` on foes without hurting them (Curse, Poison), and `field` spells are cast
+    /// from the Character screen outside battle (Bridge of Light).
+    case physical, magic, heal, revive, buff, curse, field
 
-    /// Hurts the other side (what monsters and companions pick when they attack).
+    /// Hurts the other side with a hit.
     var isAttack: Bool { self == .physical || self == .magic }
+    /// Aimed at the other side: an attack or a curse (what monsters and companions pick to fight with).
+    var isHostile: Bool { isAttack || self == .curse }
+}
+
+/// What a skill leaves on the fighters it reaches, for a few rounds (`inflicts` in skills.json).
+nonisolated struct Affliction: Decodable, Sendable {
+    let effect: Ailment
+    /// Poison: how many times it bites, at the end of the round it lands in and the ones after.
+    /// Curse: how many rounds it lasts after the one it lands in.
+    let rounds: Int
+    /// Poison: each round's bite, as a share of a hit from the caster (magic for spells, strength
+    /// for bites). Curse: how much weaker the target's own hits get (0.2 = 20%). Both grow with
+    /// the skill's level, like its damage would.
+    let power: Double
+    /// The odds it takes hold (always, unless set).
+    let chance: Double?
+}
+
+/// Fairyland's dark arts (the Acolyte of Dark's Curse and Poison): lingering harm, not a hit.
+nonisolated enum Ailment: String, Decodable, Sendable {
+    /// Loses HP at the end of every round.
+    case poison
+    /// Hits for less.
+    case curse
 }
 
 nonisolated enum SkillTarget: String, Decodable, Sendable {
@@ -146,6 +171,8 @@ nonisolated struct SkillDef: Decodable, Identifiable, Sendable {
     /// Spells: the share of damage that also hits the target's neighbours once mastered (level 10);
     /// 60% of that from level 5, growing each step, none below.
     let splash: Double?
+    /// A poison or curse it leaves on whoever it reaches (not the splash).
+    let inflicts: Affliction?
 }
 
 nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {

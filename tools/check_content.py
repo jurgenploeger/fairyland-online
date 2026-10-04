@@ -96,6 +96,26 @@ for skill in skills.values():
         check(skill["art"] in art, f"skill {skill['id']} → unknown art {skill['art']}")
         check((ROOT / "art" / "sprites" / f"{skill['art']}.png").exists(),
               f"skill {skill['id']} → art/sprites/{skill['art']}.png is missing (python3 tools/skill_art.py)")
+    check(skill["kind"] in ("physical", "magic", "heal", "revive", "buff", "curse", "field"),
+          f"skill {skill['id']} → unknown kind {skill['kind']}")
+    # Poison and curses: what a skill leaves on the foes it reaches.
+    inflicts = skill.get("inflicts")
+    if skill["kind"] == "curse":
+        check(inflicts is not None, f"skill {skill['id']} → a curse needs `inflicts` (what it leaves on its target)")
+    if inflicts is not None:
+        where = f"skill {skill['id']} → inflicts"
+        check(isinstance(inflicts, dict) and set(inflicts) <= {"effect", "rounds", "power", "chance"}, f"{where} has unknown keys")
+        effect = inflicts.get("effect") if isinstance(inflicts, dict) else None
+        check(effect in ("poison", "curse"), f"{where} → effect must be poison or curse")
+        if isinstance(inflicts, dict):
+            check(isinstance(inflicts.get("rounds"), int) and 1 <= inflicts["rounds"] <= 6, f"{where} → rounds must be 1 to 6")
+            top = 2 if effect == "poison" else 0.5   # a curse never takes more than half (BattleEngine.maxCurse)
+            power = inflicts.get("power")
+            check(isinstance(power, (int, float)) and 0 < power <= top, f"{where} → power must be above 0 and at most {top}")
+            chance = inflicts.get("chance", 1)
+            check(isinstance(chance, (int, float)) and 0 < chance <= 1, f"{where} → chance must be in (0, 1]")
+        check(skill["kind"] in ("physical", "magic", "curse") and skill["target"] in ("enemy", "allEnemies"),
+              f"{where} → only skills aimed at foes leave a poison or curse")
 
 for monster in monsters.values():
     check(monster["art"] in art, f"monster {monster['id']} → unknown art {monster['art']}")

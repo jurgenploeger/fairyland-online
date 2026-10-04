@@ -121,8 +121,8 @@ No advanced classes.
 - **Acolyte of Light (H, from the wiki's skill list):** Recovery, Revive, Bless, Holy Light, Holy Glow,
   Guardianship, Holy Blast, Rain of Grace.
 - **Acolyte of Dark:**
-  - Curse (level 1)
-  - Poison (5)
+  - Curse (level 1, 10 MP): lowers the target's attack, both its damage and its hit rate.
+  - Poison (5, 10 MP): the target's HP drops a little every turn. Lethal Poison (20) drops it faster.
   - Fear (10): enemies flee in terror.
   - Vampirism
   - Life Altar
@@ -131,9 +131,16 @@ No advanced classes.
 - **Trader:** Dodge, Hide, Invisible, bribery and collection.
 
 **Us:**
-- 14 hero skills.
-- Our Mage carries Recovery, Revive and Bless, which FO gives the Acolyte of Light.
-- No status effects: only Bless (a buff) and Guard.
+- 16 hero skills.
+- Our Mage carries Recovery, Revive and Bless, which FO gives the Acolyte of Light, and Curse (level 12) and
+  Poison (level 25), the Acolyte of Dark's.
+- Status effects (since 0.3.14): Bless and Guard, plus:
+  - Poison: HP lost at the end of each round, 3 times.
+  - Curse: hits 20% weaker (up to 36% as the skill grows) for 3 rounds.
+  - With no hit rate, Curse only weakens damage.
+  - No Lethal Poison, Fear or cures yet. Every status ends with the battle.
+- Monsters use them too: Venom Bite (snakes and widows, 40% chance to poison), Poison Mist (the Poison
+  Skeleton, the whole party) and Evil Eye (phantoms and Idreus, a curse).
 
 ## Elements
 
@@ -168,6 +175,12 @@ FO's exact chart (the reverse multiplier, light and dark) is still **?**.
 - The pet you take along feeds on your MP. If you can't spare it, the pet won't come.
 - Intimacy grows with feeding and walks, and drops when the pet wanders off screen.
 
+**In battle (H):** you command your pet each round: whom it attacks and which skill it uses. How well it
+obeys depends on intimacy:
+- At 30, it doesn't always attack the one you pick, and telling it to use a skill can make it attack you or
+  a party member.
+- At 50, it always does as it's told.
+
 **EXP (H):** only pets in a mode other than Normal or Walk share battle EXP.
 
 **Growth (H):** 7 stat points per level.
@@ -197,6 +210,8 @@ Full Heal.
 - Capture uses one kind of Seal Stone (60 gold, used up only when it works), on the last monster standing at
   20% HP or less.
 - Companions grow as species base + growth × (level − 1) and have a fixed skill list.
+- Each round, after your own choice, you pick your companion's: Attack, one of its skills, Guard, or Auto (it
+  decides itself). It always obeys, since there's no intimacy. A Settings switch leaves it to fight on its own.
 - None of the modes, fusions, intimacy, upkeep, toys or carts exist.
 
 ## Work skills and crafting (H)
@@ -278,6 +293,7 @@ Read through search-engine snippets on 2026-10-03:
   - [beastmaster](https://wmomusic.org/fl1/Ironwolves2020/Guides/oldbeastmasterguide.php)
   - [trader](https://wmomusic.org/fl1/Ironwolves2020/Guides/oldtraderguide.php)
 - Fairyland Fansite: [Diviner skills](http://flguide.blogspot.com/2007/11/diviner-skills.html)
+- Ironwolves [Diviner skill list](https://wmomusic.org/fl1/Ironwolves2020/Skill_Pages/skills-diviner.php) (Curse and Poison, read 2026-10-04)
 - Overviews and reviews:
   - [MMORPG.com](https://www.mmorpg.com/fairyland-online)
   - [MMO Reviews](https://www.mmoreviews.com/fairyland-online/)

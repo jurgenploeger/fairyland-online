@@ -24,6 +24,8 @@ import Foundation
 ///   win            with battle, duel or boss: the foes fall at once and the victory plays out
 ///   duel           start in a duel with an adventurer of your level (with win: their dropped goods)
 ///   boss=<npc>     once the map is on screen, fight that boss (as if you'd pressed Fight)
+///   orders         with battle: the hero picks Attack on the first monster, so your companion's turn shows
+///   afflict        with battle: the first monster poisoned, the next one cursed, and the hero poisoned
 ///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
 ///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
 ///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
@@ -177,6 +179,21 @@ enum DebugLaunch {
                 Task {
                     try? await Task.sleep(for: .seconds(2))
                     battle.winForDebug()
+                }
+            }
+            // `orders`: the hero goes for the first monster, and it's your companion's turn.
+            if flags["orders"] != nil, let battle = coordinator.battle {
+                Task {
+                    try? await Task.sleep(for: .seconds(2))
+                    battle.attack()
+                    if let first = battle.enemies.first(where: \.isAlive) { battle.select(first.id) }
+                }
+            }
+            // `afflict`: poison and a curse on the field, so their marks show.
+            if flags["afflict"] != nil, let battle = coordinator.battle {
+                Task {
+                    try? await Task.sleep(for: .seconds(1.5))
+                    battle.afflictForDebug()
                 }
             }
             // `cast=stone_spike:5`: once the battle is on screen and everyone is in, the hero casts.
