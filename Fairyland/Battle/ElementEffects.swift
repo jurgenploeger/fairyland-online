@@ -232,7 +232,8 @@ extension SkillEffects {
         glow.alpha = 0.8
         ball.addChild(glow)
         parent.addChild(ball)
-        ball.run(.repeatForever(.animate(with: frames, timePerFrame: 0.05)))
+        // In an async function a plain run(_:) is SpriteKit's awaiting one: these go by key.
+        ball.run(.repeatForever(.animate(with: frames, timePerFrame: 0.05)), withKey: "flicker")
         let back = CGVector(dx: -cos(heading), dy: -sin(heading))
         let count = 1 + level / 2
         ball.run(.repeatForever(.sequence([
@@ -245,7 +246,7 @@ extension SkillEffects {
                 }
             },
             .wait(forDuration: 0.02),
-        ])))
+        ])), withKey: "embers")
         let travel = SKAction.move(to: end, duration: 0.3)
         travel.timingMode = .easeIn
         await ball.run(travel)
@@ -465,14 +466,14 @@ extension SkillEffects {
         orb.position = start
         orb.zPosition = 18_200
         parent.addChild(orb)
-        orb.run(.repeatForever(.animate(with: frames, timePerFrame: 0.08)))
+        orb.run(.repeatForever(.animate(with: frames, timePerFrame: 0.08)), withKey: "wobble")
         orb.run(.repeatForever(.sequence([
             .run { [weak orb] in
                 guard let orb, let drop = SkillEffects.fxTexture("drop") else { return }
                 SkillEffects.drip(drop, at: orb.position, in: parent)
             },
             .wait(forDuration: 0.045),
-        ])))
+        ])), withKey: "drips")
         let top = CGPoint(x: (start.x + end.x) / 2, y: max(start.y, end.y) + 40)
         let duration: TimeInterval = 0.34
         let lob = SKAction.customAction(withDuration: duration) { node, elapsed in
