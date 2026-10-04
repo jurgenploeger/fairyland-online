@@ -69,7 +69,6 @@ final class BattleController {
         if let rare = engine.alive(on: .enemies).first(where: \.isRare) {
             message += " ✦ A rare \(rare.name)!"
         }
-        engine.canSeal = session.sealStones > 0
         for foe in engine.alive(on: .enemies) {
             if let id = foe.speciesID { session.sawMonster(id, level: foe.level) }
         }
@@ -644,7 +643,6 @@ final class BattleController {
         combatants = engine.combatants
         // The marks count down at the start of a round (curses) as well as with each bite.
         scene?.refreshBars()
-        engine.canSeal = session.sealStones > 0
         switch engine.outcome {
         case .ongoing:
             phase = .command

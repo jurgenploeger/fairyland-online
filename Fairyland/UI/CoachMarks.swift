@@ -43,7 +43,7 @@ private struct CoachStep {
 
     static let all: [CoachStep] = [
         CoachStep(target: .status, icon: .heart, title: "Health and magic",
-                  text: "H is your health, M your magic and P your companion's health. The round badge shows your level."),
+                  text: "H is your health and M your magic. The round badge shows your level. Once you have a companion, its face and bars show under yours."),
         CoachStep(target: .joystick, icon: .tap, title: "Walking",
                   text: "Drag the stick to walk, or tap the ground and your hero walks there."),
         CoachStep(target: .minimap, icon: .map, title: "Where you are",

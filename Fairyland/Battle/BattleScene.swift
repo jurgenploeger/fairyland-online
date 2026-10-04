@@ -14,6 +14,8 @@ final class BattleScene: SKScene {
     private var ground: SKNode?
     private var actors: [Int: BattleActor] = [:]
     private var markers: [SKNode] = []
+    /// Fainted friends shown faintly while you choose who to revive.
+    private var ghosts: Set<Int> = []
 
     init(controller: BattleController, size: CGSize, backdrop: SKTexture?) {
         self.controller = controller
@@ -213,8 +215,15 @@ final class BattleScene: SKScene {
     func showTargets(_ ids: [Int]) {
         markers.forEach { $0.removeFromParent() }
         markers = []
+        for id in ghosts where !ids.contains(id) { actors[id]?.alpha = 0 }
+        ghosts = ghosts.filter { ids.contains($0) }
         for id in ids {
             guard let actor = actors[id] else { continue }
+            // A fainted friend (for Revive) has faded away: show it as a ghost to tap.
+            if controller.combatants.first(where: { $0.id == id })?.isFallen == true {
+                actor.alpha = 0.45
+                ghosts.insert(id)
+            }
             let arrow = SKLabelNode()
             arrow.attributedText = Nodes.outlined("▼", size: 20, color: UIColor(red: 1, green: 0.55, blue: 0.15, alpha: 1))
             // Above the name over the fighter's head.
@@ -232,7 +241,8 @@ final class BattleScene: SKScene {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let point = touches.first?.location(in: self) else { return }
-        let candidates = actors.values.filter { $0.alpha > 0.1 && controller.validTargets.contains($0.fighterID) }
+        // Fainted friends count too: they're who Revive is for.
+        let candidates = actors.values.filter { controller.validTargets.contains($0.fighterID) }
         guard let tapped = candidates.min(by: { $0.center.distance(to: point) < $1.center.distance(to: point) }),
               tapped.center.distance(to: point) < 80
         else { return }
@@ -395,10 +405,10 @@ final class BattleScene: SKScene {
         }
         // A mastered skill gets the whole stage: its name in gold, the field dims, a magic circle
         // and a pillar of light at the caster; the finale plays after the skill lands.
-        // Your side and bosses only: wild monsters master their skills by level 18, and a show on
-        // every one of their turns would drag every battle out.
+        // Your hero's and bosses' only: monsters, companions and friends master their skills by
+        // level 18, and a show on every one of their turns would drag every battle out.
         let isBoss = fighter?.speciesID.flatMap { Content.shared.monster($0)?.boss } == true
-        let mastered = level >= GameSession.maxSkillLevel && (fighter?.side == .party || isBoss)
+        let mastered = level >= GameSession.maxSkillLevel && (fighter?.isHero == true || isBoss)
         var dimmer: SKNode?
         if mastered {
             SkillEffects.masterBanner(skill.name, level: level, size: size, in: self)

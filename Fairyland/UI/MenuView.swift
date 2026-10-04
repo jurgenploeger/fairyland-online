@@ -207,7 +207,9 @@ private struct CharacterTab: View {
                     EmptyNote(session.skillHint, size: 11)
                 }
                 SkillChoices(session: session)
-                let upcoming = session.heroClass.skills.filter { $0.level > hero.level }
+                // Reborn heroes keep the skills they learned, so those aren't "still locked".
+                let learned = Set(hero.learnedSkills ?? [])
+                let upcoming = session.heroClass.skills.filter { $0.level > hero.level && !learned.contains($0.skill) }
                 ForEach(upcoming, id: \.skill) { unlock in
                     if let skill = session.content.skill(unlock.skill) {
                         // Still locked: a faded tile, with the level it unlocks at.
@@ -298,7 +300,7 @@ private struct EquipmentRow: View {
                     HStack(spacing: Self.spacing) {
                         ItemIcon(item: item, size: Self.iconSize)
                         VStack(alignment: .leading, spacing: 1) {
-                            Text(item.name)
+                            Text("\(item.name)\(session.spareCount(item))")
                             Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
                         }
                         Spacer()
@@ -390,6 +392,14 @@ extension View {
     }
 }
 
+private extension GameSession {
+    /// " ×2" after gear you have more than one of, as potions and materials show.
+    func spareCount(_ item: ItemDef) -> String {
+        let owned = count(of: item.id)
+        return owned > 1 ? " ×\(owned)" : ""
+    }
+}
+
 /// The gem an element's badges are cut from, lit from the top: a light top, its colour, a shaded
 /// lower edge and a deep rim. Its shape sits on it in white with a deep drop, or engraved in a dark
 /// tone on the pale gems (gold light, silver metal, pearl neutral), where white wouldn't show.
@@ -461,11 +471,11 @@ private struct CompanionsTab: View {
 
     private var companions: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Companions fight beside you and earn a share of battle EXP. Weaken the last wild monster standing to \(Int((BattleEngine.captureThreshold * 100).rounded()))% HP or less and use Capture to befriend it (up to \(GameSession.maxPets)).")
+            Text("Companions fight beside you and earn a share of battle EXP. Weaken the last wild monster standing to \(Int((BattleEngine.captureThreshold * 100).rounded()))% HP or less, then throw a Seal Stone at it with Capture to befriend it (up to \(GameSession.maxPets)). Trader Bo in Meadowbrook sells Seal Stones.")
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
             if session.data.pets.isEmpty {
-                EmptyNote("No companions yet.\nFinish the Hope of Meadowbrook quest for an egg.")
+                EmptyNote("No companions yet.\nElder Oak in Meadowbrook gives you an egg with the first quest: hatch it from your Bag.")
             }
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: 10)], spacing: 10) {
                 ForEach(session.data.pets) { pet in
@@ -683,18 +693,23 @@ private struct BagTab: View {
                         Button {
                             hatching = true
                             hatched = session.hatch(item.id)
+                            if hatched == nil, session.data.pets.count >= GameSession.maxPets {
+                                note = "No room: you have \(GameSession.maxPets) companions."
+                            }
                             session.save()
                         } label: {
                             Label("Hatch", icon: .egg)
                         }
                         .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
-                    } else {
+                    } else if (item.heal ?? 0) > 0 || (item.mp ?? 0) > 0 {
                         Button("Hero") { note = session.use(item.id) }
                             .buttonStyle(PixelButtonStyle(compact: true))
                         if let pet = session.activePet {
                             Button(pet.name) { note = session.use(item.id, onPet: pet.id) }
                                 .buttonStyle(PixelButtonStyle(compact: true))
                         }
+                    } else if item.capture == true {
+                        Text("For battle").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                     }
                 }
                 .font(HUDStyle.font(12))
@@ -712,7 +727,7 @@ private struct BagTab: View {
                 HStack(spacing: 10) {
                     ItemIcon(item: item, size: 36)
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("\(item.name)  ·  \(item.type.displayName)")
+                        Text("\(item.name)\(session.spareCount(item))  ·  \(item.type.displayName)")
                         Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
                     }
                     Spacer()
