@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Sound, feel and game options. A tab in the menu, and a panel on the title screen (where
 /// there's no game to save or leave, so `session` is nil).
@@ -15,6 +16,9 @@ struct SettingsView: View {
     @State private var justSaved = false
     @State private var confirmQuit = false
     @State private var confirmDelete = false
+    @State private var backup: SaveBackup?
+    @State private var exporting = false
+    @State private var backedUp = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -74,6 +78,24 @@ struct SettingsView: View {
                     Text("Your progress also saves by itself every few seconds.")
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.dim)
+                    Button {
+                        session.save()
+                        if let contents = try? JSONEncoder().encode(session.data) {
+                            backup = SaveBackup(contents: contents)
+                            exporting = true
+                        }
+                    } label: {
+                        Label(backedUp ? "Backed up" : "Back up to Files", icon: backedUp ? .check : .arrowUp)
+                    }
+                    .buttonStyle(PixelButtonStyle(compact: true))
+                    .fileExporter(isPresented: $exporting, document: backup, contentType: .json,
+                                  defaultFilename: SaveBackup.fileName(for: session.data)) { result in
+                        if case .success = result { backedUp = true }
+                    }
+                    Text("Keep a copy in Files or iCloud Drive, for a new phone or in case the app is deleted. Bring it back with Import a backup on the title screen.")
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.dim)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
 

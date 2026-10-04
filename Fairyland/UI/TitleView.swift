@@ -1,5 +1,6 @@
 import SpriteKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Title screen: continue a saved game, or create a hero (name + race, like Fairyland).
 struct TitleView: View {
@@ -14,6 +15,9 @@ struct TitleView: View {
     @State private var selectedSlot: String?
     @State private var showingChangelog = false
     @State private var showingSettings = false
+    /// Import a backup: the file picker, and what came of it.
+    @State private var importing = false
+    @State private var importNote: String?
     /// The story pages: before a new hero is made, or read from the title menu.
     @State private var intro: IntroRequest? = DebugLaunch.introPage.map { IntroRequest(startPage: $0, thenCreate: false) }
     /// The game the carousel is showing.
@@ -76,6 +80,32 @@ struct TitleView: View {
             }
         }
         .onAppear { MusicPlayer.shared.play("title") }
+        .fileImporter(isPresented: $importing, allowedContentTypes: [.json]) { result in
+            importBackup(result)
+        }
+        .alert(importNote ?? "", isPresented: Binding(get: { importNote != nil }, set: { if !$0 { importNote = nil } })) {
+            Button("OK", role: .cancel) {}
+        }
+    }
+
+    /// A backup from Files becomes a game of its own on the carousel (never over another one).
+    private func importBackup(_ result: Result<URL, Error>) {
+        guard case .success(let url) = result else { return }
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        guard let raw = try? Data(contentsOf: url), let game = try? SaveStore.imported(raw) else {
+            importNote = "That file isn't a Fairyland backup."
+            return
+        }
+        SaveStore.save(game)
+        saves = SaveStore.all()
+        // A copy of a game you still have doesn't show up twice (SaveStore.all keeps the first).
+        if saves.contains(where: { $0.slot == game.slot }) {
+            selectedSlot = game.slot
+            importNote = "\(game.hero.name), level \(game.hero.level), is back!"
+        } else {
+            importNote = "You already have this game."
+        }
     }
 
     private var menu: some View {
@@ -114,6 +144,12 @@ struct TitleView: View {
                 showingSettings = true
             } label: {
                 Label("Settings", icon: .settings)
+            }
+            .buttonStyle(PixelButtonStyle(compact: true))
+            Button {
+                importing = true
+            } label: {
+                Label("Import a backup", icon: .arrowDown)
             }
             .buttonStyle(PixelButtonStyle(compact: true))
             Button {

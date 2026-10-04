@@ -1162,6 +1162,13 @@ final class WorldScene: SKScene {
         if session.nearbyAdventurer?.id == id { session.nearbyAdventurer = nil }
     }
 
+    #if DEBUG
+    /// Debug launches (`invite=n`): the nearest friendly adventurers, brought over to stand by you.
+    func summonAdventurersForDebug(_ count: Int) -> [Adventurer] {
+        crowd?.summonForDebug(count, to: player.position) ?? []
+    }
+    #endif
+
     func adventurerSays(_ line: String, _ id: UUID) {
         crowd?.say(line, from: id)
     }

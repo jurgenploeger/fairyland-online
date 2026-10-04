@@ -6,7 +6,7 @@ name: Screenshots
 on:
   push:
     branches: ["claude/**"]
-    paths: ["Fairyland/**", "content/**", "art/**", "project.yml", "tools/screenshots.*", ".github/workflows/screenshots.yml"]
+    paths: ["Fairyland/**", "FairylandTests/**", "content/**", "art/**", "project.yml", "tools/screenshots.*", ".github/workflows/screenshots.yml"]
   workflow_dispatch:
     inputs:
       scenes:
@@ -22,10 +22,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The unit tests (FairylandTests) on a simulator, alongside the screenshots: their own check,
+  # red or green in a few minutes.
+  tests:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Run the tests
+        run: |
+          UDID=$(xcrun simctl list devices available | grep -m1 -E 'iPhone 1[6-9] Pro \(' | grep -oE '[0-9A-F-]{36}')
+          test -n "$UDID" || { xcrun simctl list devices available; exit 1; }
+          mkdir -p build
+          status=0
+          xcodebuild test -project Fairyland.xcodeproj -scheme Fairyland -destination "id=$UDID" \
+            -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO > build/tests.log 2>&1 || status=$?
+          # How long each map takes to build (PerformanceTests), pass or fail.
+          grep '⏱' build/tests.log || true
+          if [ "$status" -ne 0 ]; then
+            grep -E '✘|Fatal error|error:' build/tests.log | sort -u | head -40 | while IFS= read -r line; do echo "::error::$line"; done
+            tools/ci_errors.sh build/tests.log; exit 1
+          fi
+          grep -E 'Test run with|Executed' build/tests.log | tail -3
+
   screenshots:
     runs-on: macos-26
-    # A full run of 72 scenes takes about an hour; this leaves room for more.
-    timeout-minutes: 80
+    # A full run of 75 scenes takes about an hour; this leaves room for more.
+    timeout-minutes: 85
     steps:
       - uses: actions/checkout@v4
 

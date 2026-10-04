@@ -2,6 +2,40 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.31",
+      "date": "2026-10-04",
+      "title": "Back up your game",
+      "notes": [
+        "Settings has a Back up to Files button: it saves your game as a file in Files or iCloud Drive. Bring it back with Import a backup on the title screen, on a new phone or after deleting the app. It comes back as a game of its own and never overwrites another.",
+        "Your games were already in your phone's own iCloud Backup; this is a copy you keep yourself."
+      ]
+    },
+    {
+      "version": "0.3.30",
+      "date": "2026-10-04",
+      "title": "Faster fights, and Auto",
+      "notes": [
+        "A 2× button at the top left of every fight plays it twice as fast. Your 10 seconds to choose stay the same. It's kept for the next fights.",
+        "Auto, next to it, fights for you against monsters at least 5 levels below you: your hero does what a friend would (wake a fallen friend, heal one in trouble, or go for the weakest monster, now and then with a skill), and your companion fights on its own. It stays on from fight to fight until you switch it off, hands back to you when you're badly hurt, and never plays in a boss fight or a duel."
+      ]
+    },
+    {
+      "version": "0.3.29",
+      "date": "2026-10-04",
+      "title": "Friends can join again",
+      "notes": [
+        "Inviting a friend to your party no longer crashes the game. Since 0.3.21 every invite did, whatever the size of your party: up to four friends and their companions can travel with you, ten of you in all."
+      ]
+    },
+    {
+      "version": "0.3.28",
+      "date": "2026-10-04",
+      "title": "No take-backs",
+      "notes": [
+        "Once you've chosen what you do in a fight, that's that: your companion's turn no longer has a button back to your own choice, which also started your clock over."
+      ]
+    },
+    {
       "version": "0.3.27",
       "date": "2026-10-04",
       "title": "Dressed for their level",

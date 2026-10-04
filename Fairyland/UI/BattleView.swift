@@ -40,13 +40,21 @@ struct BattleView: View {
                 .padding(.bottom, 14)
                 .allowsHitTesting(controller.phase != .animating)
 
+            // Top left, across from the chat: how fast the fight plays, and Auto.
+            if controller.phase != .finished {
+                PaceControls(controller: controller)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .padding(.top, 66)
+                    .padding(.leading, 14)
+            }
+
             if controller.phase == .finished, let result = controller.result {
                 ResultPanel(result: result, session: controller.session, onContinue: controller.leave)
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.phase)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.choosingForCompanion)
-        .onAppear { controller.startTurnClock() }
+        .onAppear { controller.begin() }
     }
 
     @ViewBuilder
@@ -468,30 +476,80 @@ private struct CommandPad: View {
     }
 }
 
+/// The fight's pace: 2× plays it twice as fast (your time to choose stays the same), and Auto lets
+/// the hero and companion fight on their own against monsters well below you. Both are kept for
+/// the next fights. Auto shows only in wild fights, dimmed where the monsters are too strong for it.
+private struct PaceControls: View {
+    let controller: BattleController
+
+    var body: some View {
+        HStack(spacing: 8) {
+            let fast = controller.speed > 1
+            PaceButton(title: fast ? "2×" : "1×", lit: fast,
+                       label: fast ? "Battle speed: double. Tap for normal." : "Battle speed: normal. Tap for double.") {
+                controller.toggleSpeed()
+            }
+            if controller.isWild {
+                PaceButton(title: "AUTO", lit: controller.isAuto, enabled: controller.isAuto || controller.canAuto,
+                           label: controller.isAuto ? "Auto is on. Tap to choose yourself." : "Auto: fight on your own.") {
+                    controller.toggleAuto()
+                }
+            }
+        }
+    }
+}
+
+/// A small lit-or-not switch for the pace controls.
+private struct PaceButton: View {
+    let title: String
+    let lit: Bool
+    var enabled = true
+    let label: String
+    let action: () -> Void
+
+    var body: some View {
+        Button {
+            SoundEffects.shared.play(.tap, volume: 0.7)
+            action()
+        } label: {
+            Text(title)
+                .font(HUDStyle.font(12))
+                .foregroundStyle(lit ? HUDStyle.ink : HUDStyle.cream)
+                .frame(minWidth: 40, minHeight: 30)
+                .padding(.horizontal, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 9)
+                        .fill(lit ? HUDStyle.gold : HUDStyle.ink.opacity(0.85))
+                        .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(lit ? Color.white.opacity(0.9) : HUDStyle.cream.opacity(0.55), lineWidth: 2))
+                )
+                .opacity(enabled ? 1 : 0.45)
+        }
+        .buttonStyle(PressScaleStyle())
+        .accessibilityLabel(label)
+        .accessibilityAddTraits(lit ? .isSelected : [])
+    }
+}
+
 /// Your companion's turn, after the hero's choice: Attack in the big button's spot, its Skills,
-/// Guard, and Auto to let it decide for itself. The chip on top shows whose turn it is and goes
-/// back to the hero's choice.
+/// Guard, and Auto to let it decide for itself. The chip on top shows whose turn it is. The hero's
+/// choice is made by then, so there's no going back to it (that would start their clock over).
 private struct CompanionPad: View {
     let controller: BattleController
 
     var body: some View {
         VStack(alignment: .trailing, spacing: 16) {
-            HStack(spacing: 8) {
-                Button(action: controller.backToHero) {
-                    Label(controller.hero?.name ?? "Back", icon: .arrowLeft, size: 12)
-                }
-                .buttonStyle(PixelButtonStyle(compact: true))
-                if let companion = controller.companion {
+            if let companion = controller.companion {
+                HStack(spacing: 8) {
                     SpriteImage(art: companion.art, size: 30)
                     Text("\(companion.name)'s turn")
                         .font(HUDStyle.font(13))
                         .foregroundStyle(HUDStyle.cream)
                 }
+                .padding(.leading, 8)
+                .padding(.trailing, 12)
+                .padding(.vertical, 5)
+                .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.gold.opacity(0.7), lineWidth: 1.5)))
             }
-            .padding(.leading, 6)
-            .padding(.trailing, 12)
-            .padding(.vertical, 5)
-            .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.gold.opacity(0.7), lineWidth: 1.5)))
 
             HStack(alignment: .bottom, spacing: 14) {
                 HStack(alignment: .bottom, spacing: 10) {

@@ -41,8 +41,14 @@ final class BattleScene: SKScene {
 
     override func didMove(to view: SKView) {
         MusicPlayer.shared.play(controller.music)
+        setPace(controller.speed)
         layout()
         enter()
+    }
+
+    /// How fast everything on the field plays (BattleController.speed: 1, or 2 with the 2× button).
+    func setPace(_ value: Double) {
+        speed = CGFloat(value)
     }
 
     /// Both sides march in from off-stage at the start, monsters hopping into place.

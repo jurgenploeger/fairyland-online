@@ -16,6 +16,8 @@ grep -vE '^\s*(#|$)' "$SCENES" | while IFS='|' read -r name flags wait; do
   name=$(echo "$name" | xargs); flags=$(echo "$flags" | xargs); wait=$(echo "$wait" | xargs)
   if [ -n "$ONLY" ] && [[ ",$ONLY," != *",$name,"* ]]; then continue; fi
   echo "▶ $name ($flags)"
+  # Crash reports written after this are this scene's (see the end of the loop).
+  touch "$OUT/.scene-start"
   xcrun simctl terminate "$SIM" "$BUNDLE" 2>/dev/null || true
   # Fresh data for every scene, so the title screen never shows a leftover save.
   xcrun simctl uninstall "$SIM" "$BUNDLE" && xcrun simctl install "$SIM" "$APP"
@@ -54,4 +56,23 @@ grep -vE '^\s*(#|$)' "$SCENES" | while IFS='|' read -r name flags wait; do
   xcrun simctl io "$SIM" screenshot --type=png "$OUT/$name.png"
   # The simulator stays in portrait, so a landscape-locked app comes out sideways; turn it upright.
   if [[ ",$flags," == *",landscape,"* ]]; then sips -r 270 "$OUT/$name.png" >/dev/null; fi
+  # A crash shows as the home screen; say so, with why and where (the crashed thread's frames).
+  find ~/Library/Logs/DiagnosticReports -name 'Fairyland*.ips' -newer "$OUT/.scene-start" 2>/dev/null | while read -r report; do
+    echo "::error::$name: the app crashed ($(basename "$report"))"
+    python3 - "$report" <<'PY' || head -c 6000 "$report"
+import json, sys
+text = open(sys.argv[1]).read()
+body = json.loads(text.split("\n", 1)[1])
+print("  exception:", body.get("exception"), "| termination:", (body.get("termination") or {}).get("indicator"))
+for source, lines in (body.get("asi") or {}).items():
+    print("  ", source, lines)
+images = body.get("usedImages") or []
+thread = (body.get("threads") or [{}])[body.get("faultingThread", 0)]
+for frame in (thread.get("frames") or [])[:30]:
+    index = frame.get("imageIndex")
+    image = images[index].get("name", "?") if index is not None and index < len(images) else "?"
+    where = f"{frame.get('sourceFile', '')}:{frame.get('sourceLine', '')}" if frame.get("sourceFile") else ""
+    print(f"    {image:<28} {frame.get('symbol', hex(frame.get('imageOffset', 0)))} {where}")
+PY
+  done || true
 done
