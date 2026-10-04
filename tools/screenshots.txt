@@ -35,6 +35,7 @@ equip_change | newgame,equip=leather_vest,bag=cloth_tunic,menu=character,change=
 skills       | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+whirlwind,menu=character,bottom | 8
 skills_learn | newgame,level=20,class=mage,menu=character,bottom                 | 8
 boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 15
+talk_npc     | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=lotus_land,npc=thumbelina | 15
 edge_fog     | newgame,map=sunny_meadow,at=80_0                 | 15
 edge_town    | newgame,map=meadowbrook,at=0_-28                  | 8
 twilight     | newgame,level=40,map=twilight_woods                 | 15

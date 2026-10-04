@@ -2,11 +2,13 @@ import SwiftUI
 
 /// On-map HUD in Fairyland Online's style: round faces with HP/MP for you, your companion and
 /// your party, and the calendar plate top-left, a framed minimap top-right, the system log, joystick bottom-left and
-/// a glossy toolbar bottom-right.
+/// a glossy toolbar bottom-right. While you're talking to someone (or any window is open over the map)
+/// the controls step aside, so nothing peeks out from behind the conversation.
 struct WorldHUD: View {
     let coordinator: GameCoordinator
 
     private var session: GameSession { coordinator.session }
+    private var controlsHidden: Bool { coordinator.overlay != nil }
 
     var body: some View {
         ZStack {
@@ -40,12 +42,14 @@ struct WorldHUD: View {
                     }
                     .coachTarget(.chat)
                 }
+                .stepsAside(controlsHidden)
                 SavedBadge(lastSaved: session.lastSaved)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
 
             JoystickView(input: coordinator.input)
                 .coachTarget(.joystick)
+                .stepsAside(controlsHidden)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                 .padding(.leading, 8)
                 .padding(.bottom, 10)
@@ -81,6 +85,7 @@ struct WorldHUD: View {
             .padding(.bottom, 14)
             .animation(.spring(response: 0.3, dampingFraction: 0.75), value: session.nearbyNPC)
             .animation(.spring(response: 0.3, dampingFraction: 0.75), value: session.nearbyAdventurer?.id)
+            .stepsAside(controlsHidden)
         }
         .padding(.horizontal, 8)
         .padding(.top, 4)
@@ -476,6 +481,15 @@ private struct SavedBadge: View {
                 }
             }
             .accessibilityHidden(true)
+    }
+}
+
+private extension View {
+    /// Fades a control out, and stops it taking taps, while a conversation or window covers the map.
+    func stepsAside(_ hidden: Bool) -> some View {
+        opacity(hidden ? 0 : 1)
+            .allowsHitTesting(!hidden)
+            .animation(.easeOut(duration: 0.2), value: hidden)
     }
 }
 
