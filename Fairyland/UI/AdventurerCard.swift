@@ -15,8 +15,13 @@ struct AdventurerCard: View {
         let danger = coordinator.world.def.danger == true
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
-                SpriteImage(art: session.artID(for: adventurer), size: 46)
-                    .background(Circle().fill(.white.opacity(0.08)))
+                // Their picture opens their stats.
+                Button { coordinator.open(.profile(.adventurer(adventurer))) } label: {
+                    SpriteImage(art: session.artID(for: adventurer), size: 46)
+                        .background(Circle().fill(.white.opacity(0.08)))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("\(adventurer.name)'s stats")
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
                         Text(adventurer.name)

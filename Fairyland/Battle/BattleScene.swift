@@ -47,7 +47,13 @@ final class BattleScene: SKScene {
 
     /// Both sides march in from off-stage at the start, monsters hopping into place.
     private func enter() {
-        for (index, actor) in actors.values.sorted(by: { $0.fighterID < $1.fighterID }).enumerated() {
+        march(actors.values.sorted(by: { $0.fighterID < $1.fighterID }))
+    }
+
+    /// Fighters walk in from off-stage to their places, one after another (a boss fight's next
+    /// wave comes in the same way).
+    private func march(_ group: [BattleActor]) {
+        for (index, actor) in group.enumerated() {
             let isEnemy = controller.enemies.contains { $0.id == actor.fighterID }
             let offset = isPortrait
                 ? CGVector(dx: isEnemy ? -60 : 60, dy: isEnemy ? 160 : -160)
@@ -56,14 +62,14 @@ final class BattleScene: SKScene {
             actor.alpha = 0
             // Track `home` every frame: the layout can still change while they walk in.
             let duration = 0.5
-            let march = SKAction.customAction(withDuration: duration) { node, elapsed in
+            let walkIn = SKAction.customAction(withDuration: duration) { node, elapsed in
                 guard let actor = node as? BattleActor else { return }
                 let t = min(1, elapsed / duration)
                 let eased = 1 - (1 - t) * (1 - t)
                 actor.position = actor.home + offset * (1 - eased)
                 actor.alpha = min(1, t * 2)
             }
-            actor.run(.sequence([.wait(forDuration: 0.08 * Double(index)), march]), withKey: "enter")
+            actor.run(.sequence([.wait(forDuration: 0.08 * Double(index)), walkIn]), withKey: "enter")
         }
     }
 
@@ -87,10 +93,10 @@ final class BattleScene: SKScene {
             // Monsters up on the left looking down-right at your party, which stands lower on the
             // right looking back up-left; both lines sit around the middle of the screen.
             // A wide gap between the sides, so it reads as two lines facing off.
-            arrange(controller.enemies, around: CGPoint(x: area.midX - 50, y: area.minY + area.height * 0.64), facing: .down)
+            arrange(controller.enemiesOnField, around: CGPoint(x: area.midX - 50, y: area.minY + area.height * 0.64), facing: .down)
             arrangeParty(around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.1), facing: .up)
         } else {
-            arrange(controller.enemies, around: CGPoint(x: area.minX + area.width * 0.28, y: area.midY + 4), facing: .right)
+            arrange(controller.enemiesOnField, around: CGPoint(x: area.minX + area.width * 0.28, y: area.midY + 4), facing: .right)
             arrangeParty(around: CGPoint(x: area.minX + area.width * 0.6, y: area.midY - 24), facing: .left)
         }
         showTargets(controller.validTargets)
@@ -339,6 +345,23 @@ final class BattleScene: SKScene {
                 Effects.damageBurst("\(amount)", style: .poison, at: actor.top, in: stage)
             }
             await pause(0.45)
+
+        case .wave(_, _, let arrivals):
+            controller.apply(event)
+            // The beaten wave has left the field; the next marches in to take its place.
+            for foe in controller.enemies where foe.wave < controller.wave {
+                actors.removeValue(forKey: foe.id)?.removeFromParent()
+            }
+            var arriving: [BattleActor] = []
+            for fighter in arrivals {
+                let actor = BattleActor(fighter: fighter, art: art)
+                actors[fighter.id] = actor
+                stage.addChild(actor)
+                arriving.append(actor)
+            }
+            layout()
+            march(arriving)
+            await pause(0.9 + 0.08 * Double(arriving.count))
         }
     }
 
@@ -798,7 +821,7 @@ final class BattleScene: SKScene {
             actor.position = actor.home
             actor.alpha = 1
         }
-        let foes = controller.enemies.map(\.id)
+        let foes = controller.enemiesOnField.map(\.id)
         let targets = skill.target == .allEnemies ? foes : Array(foes.prefix(1))
         let hits = targets.map { Hit(target: $0, amount: 12, effectiveness: 1, critical: false) }
         if let stopAt {

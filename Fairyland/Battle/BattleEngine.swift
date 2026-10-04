@@ -50,6 +50,8 @@ struct Combatant: Identifiable {
     /// People only: their class and race, so each fights in their own style (BattleScene).
     var classID: String?
     var raceID: String?
+    /// Which wave of a boss fight it comes in with (1 for everyone else).
+    var wave = 1
 
     /// Strength and defense with any Bless on top.
     var attack: Double { Double(stats.attack) * (blessRounds > 0 ? 1 + blessPower : 1) }
@@ -132,6 +134,8 @@ enum BattleEvent {
     case afflicted(target: Int, effect: Ailment, rounds: Int)
     /// A poison's bite at the end of a round.
     case ailmentDamage(target: Int, effect: Ailment, amount: Int)
+    /// A boss fight's next wave steps onto the field (`number` of `of`), the last with the boss.
+    case wave(number: Int, of: Int, arrivals: [Combatant])
 }
 
 enum BattleOutcome: Equatable {
@@ -160,6 +164,14 @@ final class BattleEngine {
     private(set) var round = 0
     /// Whether the hero throws a Seal Stone this round (everyone else holds back from the monster).
     private var sealing = false
+    /// A boss fight comes in waves: the waves still to come, each stepping in once the one on the
+    /// field is beaten. The last brings the boss.
+    private var waves: [[Combatant]]
+    /// The wave on the field, and how many there are in all (1 for an ordinary fight).
+    private(set) var wave = 1
+    let waveCount: Int
+    /// No monster runs from a fight with a boss or an adventurer in it, or still to come.
+    private let standsGround: Bool
 
     /// How many rounds Bless lasts after the one it's cast in.
     static let blessLength = 3
@@ -170,11 +182,19 @@ final class BattleEngine {
     /// Like Fairyland's capsules: only below 20% HP.
     static let captureThreshold = 0.2
 
-    init(party: [Combatant], enemies: [Combatant], content: Content, captureBonus: Double = 1, seed: UInt64 = .random(in: 0...UInt64.max)) {
+    /// `enemies` is the first wave; `waves` are the ones still to come (a boss fight's).
+    init(party: [Combatant], enemies: [Combatant], content: Content, captureBonus: Double = 1,
+         seed: UInt64 = .random(in: 0...UInt64.max), waves: [[Combatant]] = []) {
         combatants = party + enemies
         self.content = content
         self.captureBonus = captureBonus
         rng = SeededRandom(seed: seed)
+        self.waves = waves
+        // Numbered by the fighters themselves, so a fight can open at a later wave (debug launches).
+        let first = enemies.first?.wave ?? 1
+        wave = first
+        waveCount = first + waves.count
+        standsGround = (enemies + waves.joined()).contains { $0.captureRate == 0 }
     }
 
     var hero: Combatant? { combatants.first(where: \.isHero) }
@@ -213,9 +233,9 @@ final class BattleEngine {
 
     /// A nearly beaten monster on its own may bolt.
     private func fleeChance(of monster: Combatant) -> Double {
-        // Bosses (who can't be captured) stand their ground, and so do the monsters at their side,
+        // Bosses (who can't be captured) stand their ground, and so do the monsters in their waves,
         // so beating the boss always wins the fight.
-        guard monster.captureRate > 0, !combatants.contains(where: { $0.side == .enemies && $0.captureRate == 0 }),
+        guard monster.captureRate > 0, !standsGround,
               alive(on: .enemies).count == 1, monster.hpFraction <= Self.captureThreshold else { return 0 }
         let panic = (Self.captureThreshold - monster.hpFraction) / Self.captureThreshold
         return min(0.4, 0.05 + 0.15 * panic + 0.02 * Double(round))
@@ -249,6 +269,8 @@ final class BattleEngine {
 
         var events: [BattleEvent] = []
         for actorID in order {
+            // A wave beaten mid-round: nobody's left to fight until the next one steps in.
+            if !waves.isEmpty, alive(on: .enemies).isEmpty { break }
             guard outcome == .ongoing, let actor = combatant(actorID), actor.isAlive else { continue }
             let action: BattleAction = switch actor.source {
             case .hero: heroAction
@@ -265,6 +287,13 @@ final class BattleEngine {
             mutate(fighter.id) { $0.poisonRounds -= 1 }
             applyDamage(Hit(target: fighter.id, amount: fighter.poisonDamage, effectiveness: 1, critical: false), events: &events)
             updateOutcome()
+        }
+        // The wave on the field is beaten: the next one steps in for the next round.
+        if outcome == .ongoing, alive(on: .enemies).isEmpty, !waves.isEmpty {
+            let arrivals = waves.removeFirst()
+            wave += 1
+            combatants += arrivals
+            events.append(.wave(number: wave, of: waveCount, arrivals: arrivals))
         }
         return events
     }
@@ -535,7 +564,8 @@ final class BattleEngine {
 
     private func updateOutcome() {
         guard outcome == .ongoing else { return }
-        if alive(on: .enemies).isEmpty {
+        // A beaten wave with another to come isn't a win yet (the next one steps in at the round's end).
+        if alive(on: .enemies).isEmpty, waves.isEmpty {
             outcome = combatants.contains { $0.side == .enemies && $0.hasFled } ? .fled : .victory
         } else if hero?.isAlive != true {
             outcome = .defeat
@@ -543,8 +573,10 @@ final class BattleEngine {
     }
 
     #if DEBUG
-    /// Debug launches (`win`): every monster drops at once.
+    /// Debug launches (`win`): every monster drops at once, the waves still to come too.
     func defeatEnemiesForDebug() -> [BattleEvent] {
+        for arrivals in waves { combatants += arrivals }
+        waves = []
         var events: [BattleEvent] = []
         for index in combatants.indices where combatants[index].side == .enemies && combatants[index].isAlive {
             combatants[index].hp = 0

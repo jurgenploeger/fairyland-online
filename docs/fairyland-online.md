@@ -264,6 +264,11 @@ adventurer drops everything they carry (the goods they'd sell you that day).
   - Past five, the battle line splits: people in front, companions in a row behind.
 - **Battle layout:** battle rows (the Blademan's row attack suggests there were rows), equipment slots, and
   the full list of status effects.
+- **Boss fights in waves:** ours, asked for in playtesting (2026-10-04); whether FO's bosses came in waves
+  isn't in any source reachable from a cloud session.
+  - Us (since 0.3.18): two waves of the map's monsters, then the boss with its minions. HP and MP carry
+    over, each wave stands a few levels closer to the boss's, and the boss always has the highest level.
+  - `waves` and `minions` on the boss NPC (content/maps.json) tune it per boss.
 - **Selling products:** Logistics Trading Officers in the three capitals pay more for products than ordinary
   shops.
 

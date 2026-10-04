@@ -236,7 +236,7 @@ private struct CharacterTab: View {
     }
 }
 
-private struct StatCell: View {
+struct StatCell: View {
     let name: String
     let value: Int
 

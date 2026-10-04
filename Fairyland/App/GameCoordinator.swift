@@ -31,6 +31,8 @@ final class GameCoordinator {
         case chat
         /// Swapping goods with an adventurer you're standing next to.
         case trade(Adventurer)
+        /// Someone's stats: tapped on the map, or their face in the top-left corner.
+        case profile(Profile)
     }
 
     let session: GameSession
@@ -125,6 +127,7 @@ final class GameCoordinator {
         scene.onTalk = { [weak self] npc in self?.open(.npc(npc.id)) }
         scene.onTravel = { [weak self] exit in self?.travel(through: exit) }
         scene.onDuel = { [weak self] rival, backdrop in self?.startDuel(with: rival, backdrop: backdrop) }
+        scene.onInspect = { [weak self] profile in self?.open(.profile(profile)) }
     }
 
     // MARK: Maps

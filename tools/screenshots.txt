@@ -42,6 +42,7 @@ skills       | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+wh
 skills_learn | newgame,level=20,class=mage,menu=character,bottom                 | 8
 boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 15
 boss_fight   | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne | 25
+boss_wave    | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne,wave=3 | 25
 boss_story   | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne,win | 35
 boss_story_landscape | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne,win,landscape | 35
 battle_companion | newgame,level=30,class=tamer,pet=pineapple,map=sunny_meadow,battle=2,orders | 15
@@ -49,6 +50,8 @@ battle_afflict | newgame,level=30,class=mage,map=sunny_meadow,battle=3,afflict |
 party_full   | newgame,level=43,class=fighter,pet=pineapple,friends=4,map=twilight_woods | 15
 battle_party | newgame,level=43,class=fighter,pet=pineapple,friends=4,map=sunny_meadow,battle=3 | 15
 party_menu   | newgame,level=43,class=fighter,pet=pineapple,friends=4,menu=companions,bottom | 8
+profile_hero | newgame,level=30,class=fighter,equip=iron_axe+leather_vest,pet=pineapple,profile=hero | 8
+profile_friend | newgame,level=43,class=fighter,pet=pineapple,friends=4,unfold,profile=friend | 8
 talk_npc     | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=lotus_land,npc=thumbelina | 15
 edge_fog     | newgame,map=sunny_meadow,at=80_0                 | 15
 edge_town    | newgame,map=meadowbrook,at=0_-28                  | 8

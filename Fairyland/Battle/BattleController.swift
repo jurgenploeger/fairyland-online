@@ -42,6 +42,9 @@ final class BattleController {
     private(set) var prompt = ""
     private(set) var validTargets: [Int] = []
     private(set) var result: BattleResult?
+    /// A boss fight comes in waves: the one on the field, out of how many (1 of 1 otherwise).
+    private(set) var wave = 1
+    let waveCount: Int
 
     let session: GameSession
     /// What plays during the fight: the map's battle theme, or the boss theme.
@@ -58,6 +61,8 @@ final class BattleController {
     init(engine: BattleEngine, session: GameSession, intro: String? = nil) {
         self.engine = engine
         self.session = session
+        wave = engine.wave
+        waveCount = engine.waveCount
         // Like Fairyland Online, a foe 5+ levels above you gets the tougher battle theme.
         let toughest = engine.alive(on: .enemies).map(\.level).max() ?? 0
         music = toughest >= session.data.hero.level + 5
@@ -142,45 +147,82 @@ final class BattleController {
         return controller
     }
 
-    /// A boss waiting on the map, with a few of the map's own monsters at its side (`minions` on
-    /// the NPC, 2 unless it says otherwise), a little weaker than the boss. It stands in the middle.
+    /// A boss waiting on the map. The fight comes in waves (`waves` on the NPC, 3 unless it says
+    /// otherwise): first waves of the map's own monsters, then the boss with a few at its side
+    /// (`minions`, 2 unless set), standing in the middle. Each wave is a little stronger than the
+    /// one before, and the boss outranks them all. Your HP and MP carry from wave to wave.
     static func boss(_ npc: NPCDef, encounters: MapDef.Encounters? = nil, session: GameSession) -> BattleController? {
-        guard let id = npc.monster, let species = session.content.monster(id) else { return nil }
-        let level = npc.level ?? 10
-        let stats = species.stats(at: level)
-        let boss = Combatant(id: 10, side: .enemies, source: .wild(id), name: species.name, art: species.art,
-                             level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp,
-                             skills: species.skills, captureRate: 0)
-        var minions: [Combatant] = []
-        if let encounters {
-            let low = encounters.levels.first ?? 1
-            let high = max(low, encounters.levels.last ?? low)
-            let top = max(low, min(high, level - 1))
-            let bottom = min(top, max(low, level - 8))
-            for index in 0..<max(0, npc.minions ?? 2) {
-                guard let kindID = pick(from: encounters.monsters), let kind = session.content.monster(kindID) else { continue }
-                let minionLevel = Int.random(in: bottom...top)
-                let minionStats = kind.stats(at: minionLevel)
-                var minion = Combatant(
-                    id: 11 + index, side: .enemies, source: .wild(kindID), name: kind.name, art: kind.art,
-                    level: minionLevel, element: kind.element, stats: minionStats, hp: minionStats.hp, mp: minionStats.mp,
-                    skills: kind.skills, captureRate: kind.captureRate
-                )
-                minion.isRare = kind.rare == true
-                minions.append(minion)
-            }
+        guard let id = npc.monster, let species = session.content.monster(id),
+              var waves = bossWaves(npc, encounters: encounters, session: session), !waves.isEmpty else { return nil }
+        // Debug launches (`wave=n`, screenshots): the fight opens at that wave.
+        if let start = DebugLaunch.bossWave, start > 1 { waves.removeFirst(min(start - 1, waves.count - 1)) }
+        let engine = BattleEngine(party: party(for: session), enemies: waves[0], content: session.content,
+                                  captureBonus: session.heroClass.captureBonus ?? 1, waves: Array(waves.dropFirst()))
+        let intro = if engine.waveCount > 1 && engine.wave < engine.waveCount {
+            "\(species.name) sends its followers! Wave \(engine.wave) of \(engine.waveCount)."
+        } else if engine.waveCount > 1 {
+            "Final wave: \(species.name) steps forward!"
+        } else if waves[0].count > 1 {
+            "\(species.name) and its followers block your way!"
+        } else {
+            "\(species.name) blocks your way!"
         }
-        let half = (minions.count + 1) / 2
-        let enemies = Array(minions.prefix(half)) + [boss] + Array(minions.dropFirst(half))
-        let engine = BattleEngine(party: party(for: session), enemies: enemies, content: session.content,
-                                  captureBonus: session.heroClass.captureBonus ?? 1)
-        let intro = minions.isEmpty ? "\(species.name) blocks your way!" : "\(species.name) and its followers block your way!"
         let controller = BattleController(engine: engine, session: session, intro: intro)
         controller.music = "boss"
         if !session.isDefeated(npc), let victory = npc.victory {
             controller.story = BossStory(art: species.art, title: victory.title, paragraphs: victory.story)
         }
         return controller
+    }
+
+    /// A boss fight's waves, in order: as many of the map's monsters as the boss has minions (at
+    /// least one) in each wave before the boss's own, where it stands in the middle of its minions.
+    /// Levels climb three a wave: the boss's minions are 1 to 8 levels below it, the wave before 4 to
+    /// 11, and so on, within the map's range but never up to the boss's level. Wave n's fighters
+    /// have ids from 10 × n.
+    static func bossWaves(_ npc: NPCDef, encounters: MapDef.Encounters?, session: GameSession) -> [[Combatant]]? {
+        guard let id = npc.monster, let species = session.content.monster(id) else { return nil }
+        let level = npc.level ?? 10
+        let followers = max(0, npc.minions ?? 2)
+        // Waves of monsters need the map's own; without them the boss stands alone.
+        let count = (encounters?.monsters.isEmpty ?? true) ? 1 : max(1, npc.waves ?? 3)
+        // The map's level range, kept below the boss's own.
+        let mapTop = encounters.map { max($0.levels.first ?? 1, $0.levels.last ?? 1) } ?? level
+        let highest = max(1, min(mapTop, level - 1))
+        let lowest = min(encounters?.levels.first ?? 1, highest)
+
+        func monsters(_ amount: Int, wave: Int) -> [Combatant] {
+            guard let encounters, amount > 0 else { return [] }
+            let back = 3 * (count - wave)
+            let top = max(lowest, min(highest, level - 1 - back))
+            let bottom = max(lowest, min(top, level - 8 - back))
+            var group: [Combatant] = []
+            for index in 0..<amount {
+                guard let kindID = pick(from: encounters.monsters), let kind = session.content.monster(kindID) else { continue }
+                let kindLevel = Int.random(in: bottom...top)
+                let stats = kind.stats(at: kindLevel)
+                var monster = Combatant(
+                    id: 10 * wave + 1 + index, side: .enemies, source: .wild(kindID), name: kind.name, art: kind.art,
+                    level: kindLevel, element: kind.element, stats: stats, hp: stats.hp, mp: stats.mp,
+                    skills: kind.skills, captureRate: kind.captureRate
+                )
+                monster.isRare = kind.rare == true
+                monster.wave = wave
+                group.append(monster)
+            }
+            return group
+        }
+
+        var waves: [[Combatant]] = (1..<count).map { monsters(max(1, followers), wave: $0) }
+        let stats = species.stats(at: level)
+        var boss = Combatant(id: 10 * count, side: .enemies, source: .wild(id), name: species.name, art: species.art,
+                             level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp,
+                             skills: species.skills, captureRate: 0)
+        boss.wave = count
+        let minions = monsters(followers, wave: count)
+        let half = (minions.count + 1) / 2
+        waves.append(Array(minions.prefix(half)) + [boss] + Array(minions.dropFirst(half)))
+        return waves
     }
 
     /// Builds a random encounter for the current map.
@@ -235,6 +277,8 @@ final class BattleController {
     var hero: Combatant? { combatants.first(where: \.isHero) }
     var party: [Combatant] { combatants.filter { $0.side == .party } }
     var enemies: [Combatant] { combatants.filter { $0.side == .enemies } }
+    /// The wave on the field (a boss fight's beaten waves have left it).
+    var enemiesOnField: [Combatant] { enemies.filter { $0.wave == wave } }
     /// Skills usable in battle (Bridge of Light and other field spells are cast from the menu).
     var skills: [SkillDef] { session.heroSkills.filter { $0.kind != .field } }
     var items: [ItemDef] { session.battleItems }
@@ -623,6 +667,20 @@ final class BattleController {
             SoundEffects.shared.play(.hit, volume: 0.6)
             Haptics.impact(.light)
             message = "\(name(target)) is hurt by the poison!"
+        case .wave(let number, let total, let arrivals):
+            combatants += arrivals
+            wave = number
+            for foe in arrivals {
+                if let id = foe.speciesID { session.sawMonster(id, level: foe.level) }
+            }
+            SoundEffects.shared.play(.encounter)
+            Haptics.impact(.medium)
+            if number == total, let boss = arrivals.first(where: { $0.captureRate == 0 }) {
+                message = "Final wave: \(boss.name) steps forward!"
+            } else {
+                message = "Wave \(number) of \(total): \(arrivals.count) more monster\(arrivals.count == 1 ? "" : "s")!"
+            }
+            if let rare = arrivals.first(where: \.isRare) { message += " ✦ A rare \(rare.name)!" }
         }
     }
 

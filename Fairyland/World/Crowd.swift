@@ -228,6 +228,14 @@ final class Crowd {
             .profile
     }
 
+    /// The adventurer you tapped (or their companion), if any.
+    func adventurer(at point: CGPoint) -> Adventurer? {
+        func hit(_ node: SKNode) -> Bool { (node.position + CGVector(dx: 0, dy: 24)).distance(to: point) < 30 }
+        return members.first { member in
+            member.profile != nil && (hit(member.walker) || member.pet.map { hit($0) } == true)
+        }?.profile
+    }
+
     /// Every adventurer within reach of `point`.
     func adventurers(near point: CGPoint, within reach: CGFloat) -> Set<UUID> {
         Set(members.compactMap { member in

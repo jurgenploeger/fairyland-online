@@ -12,7 +12,7 @@ Built with SwiftUI + SpriteKit. Art is generated with [Retro Diffusion](https://
   105–200 lands beyond: the Secret Plain, Hachoo Island, Rosen Lake, the Water Temple, the Mysterious Cave and
   the Emerald Road. Quests open the roads onward.
 - **Random encounters** in the wild (no monsters on the map), with **turn-based battles** fought where you
-  stand. Big spells splash onto nearby monsters. Fourteen bosses wait on their maps, up to the Emerald Dragon at level 200.
+  stand. Big spells splash onto nearby monsters. Fourteen bosses wait on their maps behind two waves of their followers, up to the Emerald Dragon at level 200.
 - **105 monsters** across seven elements, including rare, tougher colour variants.
 - **Capture like Fairyland Online:** throw a Seal Stone at the last monster standing once it's below 20% HP.
   It may break free or run away. Keep up to 5 companions; your first hatches from the starter quest's egg.

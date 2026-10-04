@@ -17,6 +17,8 @@ final class WorldScene: SKScene {
     var onFirstFrame: (@MainActor () -> Void)?
     /// A duel with another adventurer is starting (you challenged them, or they picked a fight).
     var onDuel: (@MainActor (Adventurer, SKTexture?) -> Void)?
+    /// Someone was tapped: an adventurer, a friend in your party (or their companion), or your companion.
+    var onInspect: (@MainActor (Profile) -> Void)?
     /// Set while menus, dialogs or transitions are up.
     var isInputLocked = false
 
@@ -999,6 +1001,13 @@ final class WorldScene: SKScene {
         }
         talkTarget = nil
         signTarget = nil
+        // Tapping someone shows who they are and how strong (they turn and say hello first).
+        if let profile = profile(at: point) {
+            crowd?.greet(at: point, from: player.position)
+            player.path = []
+            onInspect?(profile)
+            return
+        }
         // Tapping a signpost reads it, walking over first if it's too far to make out.
         if let index = signs.firstIndex(where: { ($0.base + CGVector(dx: 0, dy: 22)).distance(to: point) < 30 }) {
             if signs[index].base.distance(to: player.position) <= signRange {
@@ -1012,6 +1021,20 @@ final class WorldScene: SKScene {
         if let destination = player.path.last {
             Effects.tapMarker(at: destination, in: world)
         }
+    }
+
+    /// Who's standing where you tapped: a friend in your party or their companion, your companion,
+    /// or an adventurer on the map (or theirs). Villagers just say hello.
+    private func profile(at point: CGPoint) -> Profile? {
+        func hit(_ node: SKNode) -> Bool { !node.isHidden && (node.position + CGVector(dx: 0, dy: 24)).distance(to: point) < 30 }
+        if let ally = allies.first(where: { ally in hit(ally.node) || ally.pet.map { hit($0) } == true }),
+           let friend = session.partyMembers.first(where: { $0.id == ally.id }) {
+            return .adventurer(friend)
+        }
+        if let follower, hit(follower), let pet = session.activePet {
+            return .pet(pet.id)
+        }
+        return crowd?.adventurer(at: point).map { .adventurer($0) }
     }
 
     /// Keeps the walking party in sync with who's in it.
