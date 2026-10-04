@@ -2973,8 +2973,74 @@
         "from": "monster_tree_snake",
         "recolor": [
           {
+            "hue": [
+              124,
+              170
+            ],
             "minSaturation": 0.2,
-            "shift": -80
+            "to": 10,
+            "saturation": 1.1,
+            "value": 0.88
+          },
+          {
+            "hue": [
+              115,
+              124
+            ],
+            "minSaturation": 0.2,
+            "to": 14,
+            "saturation": 1.05,
+            "value": 0.9
+          },
+          {
+            "hue": [
+              104,
+              115
+            ],
+            "minSaturation": 0.2,
+            "to": 19,
+            "saturation": 1.0,
+            "value": 0.92
+          },
+          {
+            "hue": [
+              93,
+              104
+            ],
+            "minSaturation": 0.2,
+            "to": 23,
+            "saturation": 0.95,
+            "value": 0.93
+          },
+          {
+            "hue": [
+              84,
+              93
+            ],
+            "minSaturation": 0.2,
+            "to": 27,
+            "saturation": 0.88,
+            "value": 0.93
+          },
+          {
+            "hue": [
+              74,
+              84
+            ],
+            "minSaturation": 0.2,
+            "to": 32,
+            "saturation": 0.78,
+            "value": 0.93
+          },
+          {
+            "hue": [
+              55,
+              74
+            ],
+            "minSaturation": 0.2,
+            "to": 39,
+            "saturation": 0.9,
+            "value": 0.96
           }
         ]
       }
@@ -2986,8 +3052,74 @@
         "from": "monster_tree_snake",
         "recolor": [
           {
+            "hue": [
+              124,
+              170
+            ],
             "minSaturation": 0.2,
-            "shift": -60
+            "to": 28,
+            "saturation": 1.0,
+            "value": 1.0
+          },
+          {
+            "hue": [
+              115,
+              124
+            ],
+            "minSaturation": 0.2,
+            "to": 32,
+            "saturation": 0.95,
+            "value": 1.05
+          },
+          {
+            "hue": [
+              104,
+              115
+            ],
+            "minSaturation": 0.2,
+            "to": 36,
+            "saturation": 0.9,
+            "value": 1.1
+          },
+          {
+            "hue": [
+              93,
+              104
+            ],
+            "minSaturation": 0.2,
+            "to": 40,
+            "saturation": 0.8,
+            "value": 1.15
+          },
+          {
+            "hue": [
+              84,
+              93
+            ],
+            "minSaturation": 0.2,
+            "to": 43,
+            "saturation": 0.65,
+            "value": 1.18
+          },
+          {
+            "hue": [
+              74,
+              84
+            ],
+            "minSaturation": 0.2,
+            "to": 46,
+            "saturation": 0.45,
+            "value": 1.15
+          },
+          {
+            "hue": [
+              55,
+              74
+            ],
+            "minSaturation": 0.2,
+            "to": 50,
+            "saturation": 0.35,
+            "value": 1.05
           }
         ]
       }
