@@ -49,8 +49,10 @@ appearance = load("content/appearance.json")
 art = {a["id"]: a for a in load("art/assets.json")["assets"]}
 npcs = {n["id"]: n for m in maps.values() for n in m.get("npcs", [])}
 
-# Icons are the GameIcon cases, which mirror tools/icons.py.
-icon_names = set(re.findall(r'^\s+"([a-z0-9-]+)": \(', (ROOT / "tools/icons.py").read_text(), re.M))
+# Icons are the GameIcon cases: what tools/icons.py put in the asset catalog (Iconaut's and our own).
+icon_names = {path.name.removeprefix("icon-").removesuffix(".imageset")
+              for path in (ROOT / "Fairyland/Resources/Assets.xcassets/Icons").glob("icon-*.imageset")
+              if not path.name.endswith("-16.imageset")}
 
 for cls in classes["classes"]:
     for unlock in cls["skills"]:

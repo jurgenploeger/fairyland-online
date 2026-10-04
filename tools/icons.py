@@ -4,7 +4,8 @@
 Each icon lands in Fairyland/Resources/Assets.xcassets/Icons/ as a template SVG, twice:
 `icon-<name>` is Iconaut's 24px drawing and `icon-<name>-16` its simplified 16px one, so
 small icons stay crisp. The Swift side is `GameIcon` in Fairyland/UI/GameIcon.swift; keep
-the names here and there in sync.
+the names here and there in sync. A few are our own drawings instead (`OWN`, from
+art/icons/<name>-24.svg and -16.svg), where Iconaut has no shape that works.
 
     python3 tools/icons.py                 # download the pinned release from GitHub
     python3 tools/icons.py --source DIR    # use a local clone instead
@@ -82,17 +83,24 @@ ICONS = {
     "hammer": ("home/hammer", "solid"),
     "first-aid": ("health/first-aid", "solid"),
     "tornado": ("weather/tornado", "solid"),
-    "flame": ("nature/flame", "solid"),
     "mountain": ("nature/mountain", "solid"),
     "leaf": ("nature/leaf", "solid"),
     "droplet": ("weather/droplet", "solid"),
     "pine-tree": ("nature/pine-tree", "solid"),
     "tooth": ("health/tooth", "solid"),
     "bounce": ("arrows/chevron-double-up", "solid"),
-    # Elements (the rest are flame, droplet, leaf, mountain, sun and moon above)
+    # Elements (the rest are droplet, leaf, mountain, sun and moon above, and flame in OWN)
     "magnet": ("education/magnet", "solid"),
     "circle-dashed": ("essential/circle-dashed", "solid"),
 }
+
+# Our own drawings in art/icons/, on Iconaut's 24-unit grid.
+OWN_DIR = ROOT / "art/icons"
+OWN = [
+    # Fire: a flame with three tongues. Iconaut's flame is a teardrop with a small side
+    # tongue, which at badge size read as water's droplet.
+    "flame",
+]
 
 
 def read(source, path):
@@ -132,10 +140,13 @@ def main():
     for name, (path, style) in ICONS.items():
         imageset(f"icon-{name}", read(args.source, f"icons/{path}/24/{style}.svg"))
         imageset(f"icon-{name}-16", read(args.source, f"icons/{path}/16/{style}.svg"))
+    for name in OWN:
+        imageset(f"icon-{name}", (OWN_DIR / f"{name}-24.svg").read_bytes())
+        imageset(f"icon-{name}-16", (OWN_DIR / f"{name}-16.svg").read_bytes())
 
     LICENSE_OUT.parent.mkdir(parents=True, exist_ok=True)
     LICENSE_OUT.write_bytes(read(args.source, "LICENSE"))
-    print(f"Vendored {len(ICONS)} Iconaut icons into {OUT.relative_to(ROOT)}")
+    print(f"Vendored {len(ICONS)} Iconaut icons and {len(OWN)} of our own into {OUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

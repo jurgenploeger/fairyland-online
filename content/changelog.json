@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.32",
+      "date": "2026-10-04",
+      "title": "Fire looks like fire",
+      "notes": [
+        "Fire's badge has a new flame with three tongues. The old one was a teardrop, and on the small badges it looked just like water's droplet. The fire skills' buttons show the new flame too."
+      ]
+    },
+    {
       "version": "0.3.31",
       "date": "2026-10-04",
       "title": "Back up your game",
