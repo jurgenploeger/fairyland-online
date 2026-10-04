@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.42",
+      "date": "2026-10-04",
+      "title": "One spacing for both sides",
+      "notes": [
+        "In battle, your line and the monsters' are spaced alike: five of yours stand exactly as far apart as five monsters, and every other line in the fight follows the same spacing. It's the widest that still fits the most crowded line, a companion at its end included."
+      ]
+    },
+    {
       "version": "0.3.41",
       "date": "2026-10-04",
       "title": "Spells that raise you up",

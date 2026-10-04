@@ -91,6 +91,9 @@ final class BattleScene: SKScene {
     private var isPortrait: Bool { size.height > size.width }
     /// How far a portrait line climbs for each point it runs right (26 up for 108 across).
     private static let portraitSlope: CGFloat = 26.0 / 108.0
+    /// How far apart neighbours stand in a portrait line: the same in every line on both sides, so
+    /// five of yours stand as far apart as five monsters (`layout` works it out).
+    private var lineSpacing: CGFloat = 108
 
     private func layout() {
         guard size.width > 1, size.height > 1 else { return }
@@ -98,6 +101,7 @@ final class BattleScene: SKScene {
         // Leave room for the HUD: the log line on top, the command wheel bottom-right.
         let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (130, 240) : (70, 40)
         let area = CGRect(x: 0, y: insets.bottom, width: size.width, height: max(120, size.height - insets.top - insets.bottom))
+        lineSpacing = sharedSpacing()
         if isPortrait {
             // Monsters up on the left looking down-right at your party, which stands lower on the
             // right looking back up-left; both lines sit around the middle of the screen.
@@ -125,9 +129,7 @@ final class BattleScene: SKScene {
         }
         let leaders = group.filter { fighter in !followers.contains { $0.id == fighter.id } }
         let front = rowShift(depth: 0.5, facing: facing)
-        let backRow = rowShift(depth: -0.5, facing: facing)
-        // From a fighter to the spot behind them, one row back.
-        let behind = CGVector(dx: backRow.dx - front.dx, dy: backRow.dy - front.dy)
+        let behind = companionOffset(facing: facing)
         let escorted = Set(leaders.indices.filter { index in followers.contains { $0.ownerID == leaders[index].id } })
         let points = linePoints(count: leaders.count, around: center + front, facing: facing, trailing: behind, escorted: escorted)
         for (fighter, point) in zip(leaders, points) {
@@ -145,6 +147,38 @@ final class BattleScene: SKScene {
             let depth = CGFloat(index) - CGFloat(rows.count - 1) / 2
             arrangeLine(row, around: center + rowShift(depth: depth, facing: facing), facing: facing)
         }
+    }
+
+    /// From a fighter to the companion standing behind them, one row back.
+    private func companionOffset(facing: Direction) -> CGVector {
+        let front = rowShift(depth: 0.5, facing: facing)
+        let back = rowShift(depth: -0.5, facing: facing)
+        return CGVector(dx: back.dx - front.dx, dy: back.dy - front.dy)
+    }
+
+    /// The lines a side stands in, as `arrange` lays them out: its people in one (their companions
+    /// a row back) or, with no companions, rows of up to five; and how far a companion behind the
+    /// first or last one sticks out past the end.
+    private func lines(of group: [Combatant], facing: Direction) -> [(count: Int, overhang: CGFloat)] {
+        let ids = Set(group.map(\.id))
+        let followers = group.filter { fighter in fighter.ownerID.map { ids.contains($0) } == true }
+        guard !followers.isEmpty else {
+            return stride(from: 0, to: group.count, by: 5).map { (count: min(5, group.count - $0), overhang: 0) }
+        }
+        let leaders = group.filter { fighter in !followers.contains { $0.id == fighter.id } }
+        let behind = companionOffset(facing: facing)
+        let end = behind.dx < 0 ? leaders.first : leaders.last
+        let escorted = end.map { leader in followers.contains { $0.ownerID == leader.id } } ?? false
+        return [(count: leaders.count, overhang: escorted ? abs(behind.dx) : 0)]
+    }
+
+    /// One spacing for every portrait line in the fight, both sides: the widest (up to 108) that
+    /// still fits the most crowded line on screen, with any companion at its end.
+    private func sharedSpacing() -> CGFloat {
+        let all = lines(of: controller.enemiesOnField, facing: .down) + lines(of: controller.party, facing: .up)
+        return all.filter { $0.count > 1 }
+            .map { (size.width - 100 - $0.overhang) / CGFloat($0.count - 1) }
+            .reduce(108, min)
     }
 
     /// Where a row stands from the middle of the formation, `depth` rows toward the other side
@@ -179,12 +213,12 @@ final class BattleScene: SKScene {
     private func linePoints(count: Int, around center: CGPoint, facing: Direction, trailing: CGVector = .zero,
                             escorted: Set<Int> = []) -> [CGPoint] {
         // Only a companion behind the first or last one sticks out past the end of the line, so
-        // room is kept for it only then: a full line without spreads across the screen, centred.
+        // room is kept for it only then: a line without spreads across the screen, centred.
         let extraLeft = trailing.dx < 0 && escorted.contains(0) ? -trailing.dx : 0
         let extraRight = trailing.dx > 0 && escorted.contains(count - 1) ? trailing.dx : 0
-        // In portrait a long line closes up and slides over so everyone stays on screen.
-        let room = size.width - 100 - extraLeft - extraRight
-        let spacing = isPortrait ? min(108, room / CGFloat(max(1, count - 1))) : 56
+        // Every line in the fight is spaced alike, closed up enough for the longest to fit; in
+        // portrait a line then slides over so everyone stays on screen.
+        let spacing = isPortrait ? lineSpacing : 56
         var center = center
         if isPortrait, count > 1 {
             let half = spacing * CGFloat(count - 1) / 2
