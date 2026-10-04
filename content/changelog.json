@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.40",
+      "date": "2026-10-04",
+      "title": "A proper speech bubble",
+      "notes": [
+        "When you talk to someone, the window's tail is part of the bubble now: the glass and the light-blue border run out round it, where it used to be a dark triangle stuck over the border. It points at the speaker's face instead of their chest."
+      ]
+    },
+    {
       "version": "0.3.39",
       "date": "2026-10-04",
       "title": "Spells of light",

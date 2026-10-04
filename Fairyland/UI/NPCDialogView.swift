@@ -18,6 +18,7 @@ struct NPCDialogView: View {
             // Fairyland-style: the character stands big in the bottom-right corner, cut off by the
             // edge of the screen, and talks from a speech bubble on their left.
             let portrait = min(proxy.size.width * 0.5, proxy.size.height * 0.6, 300)
+            let bottom = max(16, proxy.safeAreaInsets.bottom)
             ZStack(alignment: .bottomTrailing) {
                 Color.black.opacity(0.35)
                     .onTapGesture(perform: onClose)
@@ -27,11 +28,13 @@ struct NPCDialogView: View {
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
 
-                bubble(maxHeight: proxy.size.height * 0.5)
+                // The tail points at the speaker's mouth, about a third of the picture's height up
+                // from the bottom of the screen.
+                bubble(maxHeight: proxy.size.height * 0.5, tailY: portrait * 0.34 - bottom)
                     .frame(maxWidth: 520)
                     .padding(.leading, 12)
                     .padding(.trailing, portrait * 0.62)
-                    .padding(.bottom, max(16, proxy.safeAreaInsets.bottom))
+                    .padding(.bottom, bottom)
 
                 if let finished {
                     QuestCompleteCard(session: session, finished: finished) { self.finished = nil }
@@ -52,7 +55,7 @@ struct NPCDialogView: View {
         .ignoresSafeArea()
     }
 
-    private func bubble(maxHeight: CGFloat) -> some View {
+    private func bubble(maxHeight: CGFloat, tailY: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             FLTitleBar(title: npc.name, onClose: onClose)
             VStack(alignment: .leading, spacing: 10) {
@@ -82,28 +85,76 @@ struct NPCDialogView: View {
             .padding(12)
         }
         .foregroundStyle(HUDStyle.cream)
-        .background(HUDStyle.panel)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        // The bubble's tail points at the speaker on the right.
-        .overlay(alignment: .bottomTrailing) {
-            BubbleTail()
-                .fill(Color(red: 0.05, green: 0.17, blue: 0.35).opacity(0.95))
-                .frame(width: 18, height: 22)
-                .offset(x: 16, y: -28)
-                .accessibilityHidden(true)
-        }
+        // The title bar's corners round with the window's.
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        // The window is a speech bubble: its glass and bevel run out round the tail.
+        .background(HUDStyle.panel(shape: SpeechBubble(tailY: tailY)))
     }
 }
 
-/// A small triangle pointing right, for the speech bubble.
-private nonisolated struct BubbleTail: Shape {
+/// A rounded window with a tail on its right edge pointing at the speaker: its middle `tailY`
+/// points up from the bottom edge, the tip a little higher. The tail stands out past the frame.
+/// Insetting moves its sides in too, so a bevel drawn with `strokeBorder` follows it.
+private nonisolated struct SpeechBubble: InsettableShape {
+    var cornerRadius: CGFloat = 10
+    var tailY: CGFloat
+    var tailBase: CGFloat = 24
+    var tailLength: CGFloat = 16
+    var tailRise: CGFloat = 5
+    var insetAmount: CGFloat = 0
+
     func path(in rect: CGRect) -> Path {
+        let box = rect.insetBy(dx: insetAmount, dy: insetAmount)
+        let radius = max(0, cornerRadius - insetAmount)
+        // The tail at no inset, its base clear of the corners...
+        let half = tailBase / 2
+        let middle = min(max(rect.maxY - tailY, rect.minY + cornerRadius + half), rect.maxY - cornerRadius - half)
+        let upper = CGPoint(x: rect.maxX, y: middle - half)
+        let lower = CGPoint(x: rect.maxX, y: middle + half)
+        let tip = CGPoint(x: rect.maxX + tailLength, y: middle - tailRise)
+        // ...then each side moved in by the inset, meeting the other and the inset edge.
+        let top = Self.side(from: upper, to: tip, moved: insetAmount, toward: lower)
+        let bottom = Self.side(from: lower, to: tip, moved: insetAmount, toward: upper)
+        let edge: Line = (CGPoint(x: box.maxX, y: box.minY), CGVector(dx: 0, dy: 1))
+
         var path = Path()
-        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.move(to: CGPoint(x: box.midX, y: box.minY))
+        path.addArc(tangent1End: CGPoint(x: box.maxX, y: box.minY), tangent2End: CGPoint(x: box.maxX, y: box.maxY), radius: radius)
+        path.addLine(to: Self.crossing(top, edge) ?? upper)
+        path.addLine(to: Self.crossing(top, bottom) ?? tip)
+        path.addLine(to: Self.crossing(bottom, edge) ?? lower)
+        path.addArc(tangent1End: CGPoint(x: box.maxX, y: box.maxY), tangent2End: CGPoint(x: box.minX, y: box.maxY), radius: radius)
+        path.addArc(tangent1End: CGPoint(x: box.minX, y: box.maxY), tangent2End: CGPoint(x: box.minX, y: box.minY), radius: radius)
+        path.addArc(tangent1End: CGPoint(x: box.minX, y: box.minY), tangent2End: CGPoint(x: box.maxX, y: box.minY), radius: radius)
         path.closeSubpath()
         return path
+    }
+
+    func inset(by amount: CGFloat) -> SpeechBubble {
+        var shape = self
+        shape.insetAmount += amount
+        return shape
+    }
+
+    private typealias Line = (point: CGPoint, direction: CGVector)
+
+    /// The line from `start` to `end`, moved `distance` towards `inside`.
+    private static func side(from start: CGPoint, to end: CGPoint, moved distance: CGFloat, toward inside: CGPoint) -> Line {
+        let direction = CGVector(dx: end.x - start.x, dy: end.y - start.y)
+        let length = max((direction.dx * direction.dx + direction.dy * direction.dy).squareRoot(), 0.001)
+        var normal = CGVector(dx: -direction.dy / length, dy: direction.dx / length)
+        if normal.dx * (inside.x - start.x) + normal.dy * (inside.y - start.y) < 0 {
+            normal = CGVector(dx: -normal.dx, dy: -normal.dy)
+        }
+        return (CGPoint(x: start.x + normal.dx * distance, y: start.y + normal.dy * distance), direction)
+    }
+
+    /// Where two lines cross, or nil when they run side by side.
+    private static func crossing(_ a: Line, _ b: Line) -> CGPoint? {
+        let cross = a.direction.dx * b.direction.dy - a.direction.dy * b.direction.dx
+        guard abs(cross) > 0.000_001 else { return nil }
+        let along = ((b.point.x - a.point.x) * b.direction.dy - (b.point.y - a.point.y) * b.direction.dx) / cross
+        return CGPoint(x: a.point.x + a.direction.dx * along, y: a.point.y + a.direction.dy * along)
     }
 }
 
