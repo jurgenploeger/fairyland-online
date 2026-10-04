@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.39",
+      "date": "2026-10-04",
+      "title": "Spells of light",
+      "notes": [
+        "The elemental spells are drawn in light and colour like the rest of the battle's effects, no more pixel art, and each glows in its own element's colours: Fire Bolt and Ember are a blazing orange fireball that bursts into flame, Jelly Splash, Bubble and Frost Breath a blue orb that splashes into a crown of droplets, Leaf Storm and Vine Whip a cyclone of green light, and Stone Spike, Mud Shot and Rock Throw shards of ochre light bursting out of glowing ground.",
+        "Every glow keeps its colour on bright ground too: a soft tint of the element's deep shade sits under the light, so the desert doesn't wash it out to white."
+      ]
+    },
+    {
       "version": "0.3.38",
       "date": "2026-10-04",
       "title": "Tap a monster to attack",

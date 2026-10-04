@@ -4,8 +4,8 @@ import UIKit
 /// Battle effects, one per skill `animation` in content/skills.json. Every effect grows in five
 /// tiers (`level` 1–5, one per two skill levels, see BattleScene): longer beams, more particles,
 /// bigger explosions; on top of that, upgraded skills gather power first and land in glory
-/// (`charge`, `glory`, `masterBanner`). The elemental spells are pixel art (ElementEffects.swift);
-/// the glow versions here are their fallbacks.
+/// (`charge`, `glory`, `masterBanner`). The elemental spells (fire, water, wood, stone) are in
+/// ElementEffects.swift, drawn in the same light, layered in each element's own colours.
 enum SkillEffects {
     static let healGreen = UIColor(red: 0.55, green: 1, blue: 0.6, alpha: 1)
 
@@ -107,65 +107,6 @@ enum SkillEffects {
                 ]))
             }
         }
-    }
-
-    /// Stone spikes erupting from the ground under the target.
-    static func spikes(under target: BattleActor, level: Int, in parent: SKNode) {
-        let count = 1 + (level + 1) / 2
-        for index in 0..<count {
-            let height = 34 + CGFloat(level) * 10 - CGFloat(index) * 6
-            let path = CGMutablePath()
-            path.move(to: CGPoint(x: -9, y: 0))
-            path.addLine(to: CGPoint(x: 0, y: height))
-            path.addLine(to: CGPoint(x: 9, y: 0))
-            path.closeSubpath()
-            let spike = SKShapeNode(path: path)
-            spike.fillColor = UIColor(red: 0.62, green: 0.48, blue: 0.32, alpha: 1)
-            spike.strokeColor = UIColor(red: 0.3, green: 0.2, blue: 0.12, alpha: 1)
-            spike.lineWidth = 2
-            let spread = CGFloat(index) - CGFloat(count - 1) / 2
-            spike.position = target.position + CGVector(dx: spread * 16, dy: -4 - abs(spread) * 4)
-            spike.zPosition = target.zPosition + 1
-            spike.yScale = 0.05
-            parent.addChild(spike)
-            spike.run(.sequence([
-                .wait(forDuration: Double(index) * 0.06),
-                .scaleY(to: 1.1, duration: 0.1), .scaleY(to: 1, duration: 0.05),
-                .wait(forDuration: 0.35), .fadeOut(withDuration: 0.25), .removeFromParent(),
-            ]))
-        }
-        burst(at: target.position, color: UIColor(red: 0.75, green: 0.62, blue: 0.45, alpha: 1), count: 6 + level * 3, speed: 50, in: parent)
-    }
-
-    static func leafStorm(around target: BattleActor, level: Int, in parent: SKNode) {
-        let count = 8 + level * 5
-        for index in 0..<count {
-            let leaf = SKSpriteNode(texture: SoftTextures.leaf, size: CGSize(width: 10, height: 8))
-            leaf.color = index % 3 == 0 ? UIColor(red: 0.95, green: 0.9, blue: 0.4, alpha: 1) : UIColor(red: 0.4, green: 0.85, blue: 0.35, alpha: 1)
-            leaf.colorBlendFactor = 0.85
-            leaf.zPosition = 18_000
-            let radius = CGFloat.random(in: 26...(40 + CGFloat(level) * 6))
-            let path = UIBezierPath(ovalIn: CGRect(x: -radius, y: -radius * 0.5, width: radius * 2, height: radius)).cgPath
-            leaf.position = target.center
-            parent.addChild(leaf)
-            leaf.run(.sequence([
-                .wait(forDuration: Double(index) * 0.015),
-                .group([.follow(path, asOffset: true, orientToPath: true, duration: 0.5), .moveBy(x: 0, y: 30, duration: 0.5)]),
-                .fadeOut(withDuration: 0.15),
-                .removeFromParent(),
-            ]))
-        }
-    }
-
-    static func splash(on target: BattleActor, level: Int, in parent: SKNode) {
-        burst(at: target.center, color: UIColor(red: 0.5, green: 0.8, blue: 1, alpha: 1), count: 10 + level * 4, speed: 70, in: parent)
-        let ripple = SKShapeNode(ellipseOf: CGSize(width: 40, height: 16))
-        ripple.strokeColor = UIColor(red: 0.6, green: 0.85, blue: 1, alpha: 0.9)
-        ripple.lineWidth = 2
-        ripple.position = target.position
-        ripple.zPosition = target.zPosition - 1
-        parent.addChild(ripple)
-        ripple.run(.sequence([.group([.scale(to: 2 + CGFloat(level) * 0.3, duration: 0.4), .fadeOut(withDuration: 0.4)]), .removeFromParent()]))
     }
 
     /// A beam of light from the sky (Blessing).
@@ -525,9 +466,7 @@ extension SkillEffects {
                 for drop in 0..<3 {
                     let point = target.center + CGVector(dx: .random(in: -24...24), dy: .random(in: -10...10))
                     let delay = Double(index) * 0.08 + Double(drop) * 0.12
-                    if !fireMeteor(onto: point, delay: delay, size: size, in: parent) {
-                        meteor(onto: point, color: color, delay: delay, size: size, in: parent)
-                    }
+                    meteor(onto: point, color: color, delay: delay, size: size, in: parent)
                 }
             }
         case "water":
