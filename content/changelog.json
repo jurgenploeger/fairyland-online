@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.23",
+      "date": "2026-10-04",
+      "title": "Ten seconds to choose",
+      "notes": [
+        "Battles give you 10 seconds to choose each turn instead of 5, and your companion gets its own 10 when you command it. When the bar runs out you still attack the monster you last hit."
+      ]
+    },
+    {
       "version": "0.3.22",
       "date": "2026-10-04",
       "title": "A busier world",

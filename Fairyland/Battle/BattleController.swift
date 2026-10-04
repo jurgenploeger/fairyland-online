@@ -522,7 +522,7 @@ final class BattleController {
     static var turnSeconds: TimeInterval? {
         if let seconds = DebugLaunch.turnSeconds { return seconds }
         if DebugLaunch.isActive || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil { return nil }
-        return 5
+        return 10
     }
 
     /// When the time to choose runs out; nil while no clock is ticking.
