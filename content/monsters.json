@@ -743,7 +743,8 @@
       "gold": 9,
       "captureRate": 0.45,
       "skills": [
-        "vine_whip"
+        "vine_whip",
+        "venom_bite"
       ],
       "motion": "sway"
     },
@@ -773,7 +774,8 @@
       "gold": 14,
       "captureRate": 0.27,
       "skills": [
-        "vine_whip"
+        "vine_whip",
+        "venom_bite"
       ],
       "motion": "sway",
       "rare": true,
@@ -1501,7 +1503,7 @@
       "captureRate": 0.3,
       "skills": [
         "web_shot",
-        "shadow_bite"
+        "venom_bite"
       ],
       "motion": "squish"
     },
@@ -1532,7 +1534,7 @@
       "captureRate": 0.18,
       "skills": [
         "web_shot",
-        "shadow_bite"
+        "venom_bite"
       ],
       "motion": "squish",
       "rare": true,
@@ -1942,7 +1944,8 @@
       "gold": 38,
       "captureRate": 0.25,
       "skills": [
-        "shadow_bite"
+        "shadow_bite",
+        "evil_eye"
       ],
       "motion": "sway"
     },
@@ -1972,7 +1975,8 @@
       "gold": 58,
       "captureRate": 0.15,
       "skills": [
-        "shadow_bite"
+        "shadow_bite",
+        "evil_eye"
       ],
       "motion": "sway",
       "rare": true,
@@ -2067,7 +2071,7 @@
       "captureRate": 0.25,
       "skills": [
         "shadow_bite",
-        "web_shot"
+        "poison_mist"
       ],
       "motion": "hop"
     },
@@ -2098,7 +2102,7 @@
       "captureRate": 0.15,
       "skills": [
         "shadow_bite",
-        "web_shot"
+        "poison_mist"
       ],
       "motion": "hop",
       "rare": true,
@@ -2380,7 +2384,8 @@
       "gold": 20,
       "captureRate": 0.41,
       "skills": [
-        "mud_shot"
+        "mud_shot",
+        "venom_bite"
       ],
       "motion": "sway",
       "variantOf": "tree_snake"
@@ -2411,7 +2416,8 @@
       "gold": 29,
       "captureRate": 0.41,
       "skills": [
-        "flash"
+        "flash",
+        "venom_bite"
       ],
       "motion": "sway",
       "variantOf": "tree_snake"
@@ -2874,7 +2880,8 @@
       "gold": 38,
       "captureRate": 0.25,
       "skills": [
-        "shadow_bite"
+        "shadow_bite",
+        "evil_eye"
       ],
       "motion": "sway"
     },
@@ -2935,7 +2942,7 @@
       "captureRate": 0.3,
       "skills": [
         "web_shot",
-        "shadow_bite"
+        "venom_bite"
       ],
       "motion": "squish"
     },
@@ -3071,7 +3078,7 @@
       "name": "Rock Monster",
       "art": "boss_rock_monster",
       "element": "earth",
-      "lore": "A mountain of rock that woke up angry. It's the reason Sleepy Town can't sleep.",
+      "lore": "A mountain of rock that snores in the cave by Sleepy Town. Its snoring has kept the whole town dreaming for a year.",
       "base": {
         "hp": 295,
         "mp": 62,
@@ -3125,7 +3132,8 @@
       "captureRate": 0,
       "skills": [
         "ember",
-        "roar"
+        "roar",
+        "evil_eye"
       ],
       "motion": "breathe",
       "boss": true

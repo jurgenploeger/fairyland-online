@@ -21,6 +21,10 @@ nonisolated struct RecolorRule: Decodable, Sendable {
     let to: Double?
     /// …or rotate it by this many degrees.
     let shift: Double?
+    /// With `to` and a `hue` window, keeps the shading's hue shift: each hue lands its distance
+    /// from the window's middle times this away from `to`. 0 (the default) paints one flat hue;
+    /// a negative spread flips the ramp, so shadows that leaned blue in a green lean red in a brown.
+    let spread: Double?
     /// Multipliers for saturation and brightness.
     let saturation: Double?
     let value: Double?
@@ -31,11 +35,20 @@ nonisolated struct RecolorRule: Decodable, Sendable {
         return range[0] <= range[1] ? (h >= range[0] && h <= range[1]) : (h >= range[0] || h <= range[1])
     }
 
+    /// How far hue `h` lies from the middle of the `hue` window, in degrees (negative below it).
+    func distanceFromMiddle(of h: Double) -> Double {
+        guard let range = hue, range.count == 2 else { return 0 }
+        let width = range[0] <= range[1] ? range[1] - range[0] : range[1] + 360 - range[0]
+        var distance = (h - range[0] - width / 2).truncatingRemainder(dividingBy: 360)
+        if distance > 180 { distance -= 360 } else if distance < -180 { distance += 360 }
+        return distance
+    }
+
     /// The same change, made wherever `window` matches (its hue, saturations and values) instead.
     func within(_ window: RecolorRule) -> RecolorRule {
         RecolorRule(hue: window.hue, minSaturation: window.minSaturation, maxSaturation: window.maxSaturation,
                     minValue: window.minValue, maxValue: window.maxValue,
-                    to: to, shift: shift, saturation: saturation, value: value)
+                    to: to, shift: shift, spread: spread, saturation: saturation, value: value)
     }
 }
 
@@ -80,7 +93,8 @@ enum Recolor {
             let r = Double(pixels[index]) / alpha, g = Double(pixels[index + 1]) / alpha, b = Double(pixels[index + 2]) / alpha
             var (h, s, v) = hsv(r, g, b)
             guard let rule = rules.first(where: { $0.matches(hue: h, saturation: s, value: v) }) else { continue }
-            if let to = rule.to { h = to } else if let shift = rule.shift { h = (h + shift).truncatingRemainder(dividingBy: 360) }
+            if let to = rule.to { h = to + (rule.spread ?? 0) * rule.distanceFromMiddle(of: h) } else if let shift = rule.shift { h += shift }
+            h = h.truncatingRemainder(dividingBy: 360)
             if h < 0 { h += 360 }
             s = min(1, s * (rule.saturation ?? 1))
             v = min(1, v * (rule.value ?? 1))

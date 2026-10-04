@@ -372,7 +372,7 @@ private struct CompanionsTab: View {
             }
 
             SectionTitle(text: "Party & friends")
-            Text("Befriend adventurers you meet (walk up to one). Up to \(GameSession.maxAllies) friends can travel and fight with you.")
+            Text("Befriend adventurers you meet (walk up to one). Up to \(GameSession.maxAllies) friends can travel and fight with you, and they bring their companions.")
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
             if session.friends.isEmpty {
@@ -391,8 +391,15 @@ private struct FriendRow: View {
 
     var body: some View {
         let inParty = session.isInParty(friend)
+        let pet = friend.petSpecies.flatMap(session.content.monster)
         HStack(spacing: 10) {
+            // Their companion at their feet.
             SpriteImage(art: session.artID(for: friend), size: 44)
+                .overlay(alignment: .bottomTrailing) {
+                    if let pet {
+                        SpriteImage(art: pet.art, size: 24).offset(x: 12, y: 4)
+                    }
+                }
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(friend.name)
@@ -408,6 +415,11 @@ private struct FriendRow: View {
                 Text("Lv \(friend.level) \(session.content.race(friend.raceID).name) \(session.content.classDef(friend.classID).name)")
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
+                if let pet {
+                    Text("with their \(pet.name)")
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.green)
+                }
             }
             Spacer()
             if inParty {
@@ -421,6 +433,10 @@ private struct FriendRow: View {
             } else if session.partyMembers.count < GameSession.maxAllies {
                 Button("Invite") { session.invite(friend.id) }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+            } else {
+                Text("Party full")
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.dim)
             }
         }
         .font(HUDStyle.font(12))
@@ -433,6 +449,13 @@ private struct CompanionCard: View {
     let session: GameSession
     let pet: Pet
     @State private var editing = false
+
+    /// The gentlest potion in the bag that would wake a fainted companion.
+    private var potion: ItemDef? {
+        session.content.items
+            .filter { $0.type == .consumable && ($0.heal ?? 0) > 0 && session.count(of: $0.id) > 0 }
+            .min { ($0.heal ?? 0) < ($1.heal ?? 0) }
+    }
 
     var body: some View {
         let species = session.species(of: pet)
@@ -460,9 +483,19 @@ private struct CompanionCard: View {
                     .foregroundStyle(HUDStyle.gold)
                 StatBar(label: "HP", value: pet.hp, maximum: stats.hp, color: HUDStyle.hp)
                 if pet.hp <= 0 {
-                    Text("Fainted: use a potion or visit a healer.")
+                    // A fainted companion stays off the map and out of fights until it's healed.
+                    Text(isActive ? "Fainted: it can't follow you or fight until it's healed." : "Fainted: heal it before it comes along.")
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if let potion {
+                        Button("Give it a \(potion.name) (\(session.count(of: potion.id)) left)") { session.use(potion.id, onPet: pet.id) }
+                            .buttonStyle(PixelButtonStyle(tint: HUDStyle.green, compact: true))
+                    } else {
+                        Text("No potions in your bag: a healer in town can help.")
+                            .font(HUDStyle.font(10))
+                            .foregroundStyle(HUDStyle.dim)
+                    }
                 }
                 StatBar(label: "EXP", value: pet.exp, maximum: GameSession.expToNext(level: pet.level), color: HUDStyle.exp)
                 Text("ATK \(stats.attack) · DEF \(stats.defense) · MAG \(stats.magic) · SPD \(stats.speed)")
@@ -482,10 +515,15 @@ private struct CompanionCard: View {
                     }
                 }
                 HStack(spacing: 8) {
-                    if isActive {
+                    if isActive, pet.hp > 0 {
                         Label("Following you", icon: .checkCircle)
                             .font(HUDStyle.font(11))
                             .foregroundStyle(HUDStyle.green)
+                    } else if isActive {
+                        // Still your choice: it comes along again once it's healed.
+                        Label("Chosen, resting", icon: .heart)
+                            .font(HUDStyle.font(11))
+                            .foregroundStyle(HUDStyle.orange)
                     } else {
                         Button("Bring along") { session.setActivePet(pet.id) }
                             .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))

@@ -1,5 +1,5 @@
 {
-  "_about": "Maps. Walk off an edge listed in `exits` to travel to that map. `theme` picks ground tiles, ponds, fairy rings and scenery (art ids from art/assets.json); props with `cluster` grow in groups, `sway` ones move in the breeze. `ambience` adds particles (petals | leaves | fireflies | sparkles), butterflies, cloud shadows and a colour tint. Maps with `encounters` have random battles; `music` is a song id from music.json. Building/decor/NPC x,y are tile offsets from the map centre (y up).",
+  "_about": "Maps. Walk off an edge listed in `exits` to travel to that map. `theme` picks ground tiles, ponds, fairy rings and scenery (art ids from art/assets.json); props with `cluster` grow in groups, `sway` ones move in the breeze. `ambience` adds particles (petals | leaves | fireflies | sparkles), butterflies, cloud shadows and a colour tint. Maps with `encounters` have random battles; `music` is a song id from music.json. Building/decor/NPC x,y are tile offsets from the map centre (y up). Boss NPCs name their `monster` and `level`, `minions` (how many of the map's own monsters fight beside it, 2 unless set) and a `victory` story (a title and 1 to 3 short paragraphs), told the first time you beat it.",
   "start": "meadowbrook",
   "maps": [
     {
@@ -2477,7 +2477,8 @@
                 50,
                 75
               ],
-              "shift": 18,
+              "to": 67.5,
+              "spread": 1.4,
               "saturation": 1.1
             },
             {
@@ -2635,7 +2636,14 @@
           "y": -13,
           "greeting": "Hrmph. Stop smiling at me. STOP IT.",
           "monster": "grumpy_oak",
-          "level": 28
+          "level": 28,
+          "victory": {
+            "title": "The Forest Smiles Again",
+            "story": [
+              "The Grumpy Old Oak creaks, sags, and lets out a sigh a thousand years long. Then, slowly, the corners of its bark curl up.",
+              "It will never admit it, but it rather likes the Wood Monkeys swinging in its branches. The Smiling Forest lives up to its name again."
+            ]
+          }
         }
       ]
     },
@@ -3824,7 +3832,14 @@
           "y": 27,
           "greeting": "Grrr… what big eyes you have. All the better to FIGHT you with!",
           "monster": "big_bad_wolf",
-          "level": 92
+          "level": 92,
+          "victory": {
+            "title": "Nobody's Afraid Anymore",
+            "story": [
+              "The Big Bad Wolf huffs, puffs and runs off into the snow with its tail between its legs. It won't be blowing any houses down.",
+              "Red hoods can walk Snow White Forest without looking over their shoulders. Mayor Poppy will want to hear, and Rainbow City is buzzing with news from Moonglow."
+            ]
+          }
         },
         {
           "id": "mister_frost",
@@ -4559,7 +4574,14 @@
           "y": 15,
           "greeting": "Ooooh, follow the pretty light... just a little further... hee hee!",
           "monster": "great_wisp",
-          "level": 48
+          "level": 48,
+          "victory": {
+            "title": "The Light Goes Out",
+            "story": [
+              "The Great Wisp flickers, giggles one last time and goes out like a candle. All over the valley, the little lights fade with it.",
+              "Travellers can keep to the road again; the Valley of Fear is only a dark valley now. Only the cavern to the east still squeaks."
+            ]
+          }
         }
       ]
     },
@@ -4754,7 +4776,14 @@
           "y": 20,
           "greeting": "Squeak! Who dares enter MY cavern? Bow to the king!",
           "monster": "rat_king",
-          "level": 58
+          "level": 58,
+          "victory": {
+            "title": "The Rat King Falls",
+            "story": [
+              "The Rat King's crown rolls across the cavern floor and spins to a stop. The rats look at it, look at each other, and scatter.",
+              "With no king in the way, the dwarves of Goldburg aren't cut off anymore. Tell Elder Oak: the road south through the Valley of Fear can open at last."
+            ]
+          }
         }
       ],
       "encounters": {
@@ -5732,7 +5761,14 @@
           "y": 18,
           "greeting": "*hic* Heyyy… you wanna piece of this? *hic*",
           "monster": "drunk_dragon",
-          "level": 78
+          "level": 78,
+          "victory": {
+            "title": "A Dragon Sobers Up",
+            "story": [
+              "The Drunk Dragon hiccups out one last puff of smoke, lies down by the oasis and starts to snore. It's going to wake up with a terrible headache.",
+              "The caravans can come back to the oasis, and Goldburg's trade with them. Chief Brom will want to hear, and with the desert safe, the roads out of Goldburg can open."
+            ]
+          }
         },
         {
           "id": "puss_in_boots",
@@ -6455,7 +6491,14 @@
           "y": -16,
           "greeting": "Who stole my moon-mochi? Was it YOU? Hop to it and face me!",
           "monster": "moon_rabbit_queen",
-          "level": 105
+          "level": 105,
+          "victory": {
+            "title": "The Queen Hops Home",
+            "story": [
+              "The Moon Rabbit Queen sits down with a bump, ears drooping. Then a small rabbit peeks out from behind the throne, cheeks full, whiskers dusted with mochi.",
+              "Mystery solved. The queen scoops up the little thief and hops back up to the moon, and Moonglow can sleep under a quiet full moon again."
+            ]
+          }
         }
       ]
     },
@@ -7113,7 +7156,14 @@
           "y": 14,
           "greeting": "The Golden God's treasure is mine! Mine, mine, MINE!",
           "monster": "golden_grunt",
-          "level": 20
+          "level": 20,
+          "victory": {
+            "title": "Fool's Gold",
+            "story": [
+              "The Grunt topples back into its hoard, and the hoard goes clink. Pebbles. Painted gold, every last one.",
+              "If the Golden God was ever here, it left long ago. With no one to shout at them, the Golden Slimes go back to bouncing, and Elder Oak will have a good laugh."
+            ]
+          }
         }
       ],
       "world": [
@@ -7821,7 +7871,14 @@
           "y": 18,
           "greeting": "Grrr... the sheep's lambs are ours. Turn back, little hero.",
           "monster": "wolf_leader",
-          "level": 36
+          "level": 36,
+          "victory": {
+            "title": "The Lambs Come Home",
+            "story": [
+              "The Wolf Leader limps off into the dark, and the pack slinks after it. Behind a rock, something small says baa.",
+              "Mother Sheep's lambs are free, and they know the way home over Candy Mountain. Linns the Tailor will be glad: no wool is finer than a happy lamb's."
+            ]
+          }
         }
       ],
       "world": [
@@ -8781,8 +8838,8 @@
           "recolor": [
             {
               "hue": [
-                40,
-                100
+                51,
+                115
               ],
               "to": 128,
               "saturation": 0.75,
@@ -9122,7 +9179,14 @@
           "y": 18,
           "greeting": "Dance! Dance for your king, forever and ever!",
           "monster": "puppet_king",
-          "level": 62
+          "level": 62,
+          "victory": {
+            "title": "The Strings Are Cut",
+            "story": [
+              "The Puppet King's strings go slack. All over the hill the puppets stop mid-step and sit down, as if someone finally told them they could rest.",
+              "Hermit Will says they used to dance for children. Maybe one day they will again, but only when they want to. The animals can come home to Puppet Hill."
+            ]
+          }
         }
       ],
       "world": [
@@ -9684,7 +9748,14 @@
           "y": 18,
           "greeting": "Rrrrmmmbbllle... sleep... everyone... sleep...",
           "monster": "rock_monster",
-          "level": 86
+          "level": 86,
+          "victory": {
+            "title": "Sleepy Town Wakes Up",
+            "story": [
+              "The Rock Monster crumbles into a heap of quiet stones. The snoring that filled the cave for a whole year stops.",
+              "In town, someone yawns, then someone else. For the first time in a year, Sophia's eyes open, and Thomas has a whole year of news to tell."
+            ]
+          }
         }
       ],
       "world": [
@@ -9960,7 +10031,14 @@
           "y": 20,
           "greeting": "The goddess's treasure has a guardian, and it is me.",
           "monster": "idreus",
-          "level": 125
+          "level": 125,
+          "victory": {
+            "title": "The Goddess's Treasure",
+            "story": [
+              "Idreus sinks to one knee. “Then guard it well,” it rumbles, and fades into the grass like a shadow at noon.",
+              "Where it stood, Fantasy Ore glows in the earth, bright as a golem's heart. Hamini the Wise will want to hear, but the ore's trail runs on, south to Hachoo Island."
+            ]
+          }
         }
       ],
       "world": [
@@ -10743,7 +10821,14 @@
           "y": 20,
           "greeting": "The lake keeps its secrets. So will your bones.",
           "monster": "tide_dragon",
-          "level": 170
+          "level": 170,
+          "victory": {
+            "title": "The Tide Turns",
+            "story": [
+              "The Tide Dragon sinks into the deepest pool of the temple, and the water goes still for the first time in an age.",
+              "The Water Temple still keeps its secrets, but no longer with teeth. The Temple Keeper can walk its halls again, and boats can cross Rosen Lake without fear."
+            ]
+          }
         }
       ],
       "world": [
@@ -10979,7 +11064,14 @@
           "y": 14,
           "greeting": "The Silver Demon sends his regards.",
           "monster": "silver_lieutenant",
-          "level": 185
+          "level": 185,
+          "victory": {
+            "title": "The Way Is Open",
+            "story": [
+              "The Lieutenant's silver armour clatters to the cave floor, empty. Whatever was inside has fled, back to the master it served.",
+              "Travellers can pass through the Mysterious Cave to the Emerald Road again. The Emerald Guard will want to hear. And somewhere far away, the Silver Demon knows your name."
+            ]
+          }
         }
       ],
       "world": [
@@ -11435,7 +11527,14 @@
           "y": 22,
           "greeting": "At the end of the road, a dragon. Of course there is.",
           "monster": "emerald_dragon",
-          "level": 200
+          "level": 200,
+          "victory": {
+            "title": "The Emerald Gates",
+            "story": [
+              "The Emerald Dragon lowers its great head and steps aside. Behind it, the gates of the Emerald City shine green in the evening light.",
+              "From a wooden sword in Meadowbrook to the gates of the Emerald City, you've walked the longest road in Fairyland. The Emerald Guard will hardly believe it."
+            ]
+          }
         }
       ],
       "world": [

@@ -41,6 +41,12 @@ struct Combatant: Identifiable {
     /// Bless: rounds left, and how much it raises strength and defense (0.25 = +25%).
     var blessRounds = 0
     var blessPower = 0.0
+    /// Poison: bites left (one at the end of each round), and how much each takes.
+    var poisonRounds = 0
+    var poisonDamage = 0
+    /// Curse: rounds left, and how much weaker its hits are (0.2 = 20%).
+    var curseRounds = 0
+    var cursePower = 0.0
     /// People only: their class and race, so each fights in their own style (BattleScene).
     var classID: String?
     var raceID: String?
@@ -48,6 +54,8 @@ struct Combatant: Identifiable {
     /// Strength and defense with any Bless on top.
     var attack: Double { Double(stats.attack) * (blessRounds > 0 ? 1 + blessPower : 1) }
     var defense: Double { Double(stats.defense) * (blessRounds > 0 ? 1 + blessPower : 1) }
+    /// How hard its hits land: a curse takes some of the force out of them.
+    var hitFactor: Double { curseRounds > 0 ? 1 - cursePower : 1 }
     /// Fainted, but still on the field to be revived (not sealed or run off).
     var isFallen: Bool { hp <= 0 && !isCaptured && !hasFled }
 
@@ -90,6 +98,12 @@ enum BattleAction {
     case escape
     /// Wild monsters only: run away when nearly beaten.
     case flee
+
+    /// Running away: nobody else needs telling what to do.
+    var isEscape: Bool {
+        if case .escape = self { return true }
+        return false
+    }
 }
 
 struct Hit {
@@ -114,6 +128,10 @@ enum BattleEvent {
     case fled(Int)
     case defeated(Int)
     case message(String)
+    /// A poison or curse took hold: poison bites `rounds` times, a curse lasts `rounds` rounds after this one.
+    case afflicted(target: Int, effect: Ailment, rounds: Int)
+    /// A poison's bite at the end of a round.
+    case ailmentDamage(target: Int, effect: Ailment, amount: Int)
 }
 
 enum BattleOutcome: Equatable {
@@ -129,8 +147,9 @@ enum CaptureStatus: Equatable {
     case impossible
 }
 
-/// Fairyland-style turn-based battle rules, with no UI. Each round the player picks the
-/// hero's action; companions and monsters decide for themselves; everyone acts in speed order.
+/// Fairyland-style turn-based battle rules, with no UI. Each round the player picks the hero's
+/// action and can give their companion orders; everyone else decides for themselves; everyone
+/// acts in speed order.
 final class BattleEngine {
     private(set) var combatants: [Combatant]
     private(set) var outcome: BattleOutcome = .ongoing
@@ -144,6 +163,9 @@ final class BattleEngine {
 
     /// How many rounds Bless lasts after the one it's cast in.
     static let blessLength = 3
+
+    /// A curse never takes more than half the force out of a fighter's hits.
+    static let maxCurse = 0.5
 
     /// Like Fairyland's capsules: only below 20% HP.
     static let captureThreshold = 0.2
@@ -197,16 +219,23 @@ final class BattleEngine {
         return min(0.4, 0.05 + 0.15 * panic + 0.02 * Double(round))
     }
 
-    func resolveRound(heroAction: BattleAction) -> [BattleEvent] {
+    /// `orders`: what the player told their companion to do, by fighter id (Fairyland let you
+    /// command your pet each round). A companion without orders decides for itself.
+    func resolveRound(heroAction: BattleAction, orders: [Int: BattleAction] = [:]) -> [BattleEvent] {
         guard outcome == .ongoing else { return [] }
         round += 1
         for index in combatants.indices {
             combatants[index].isDefending = false
             if combatants[index].blessRounds > 0 { combatants[index].blessRounds -= 1 }
+            if combatants[index].curseRounds > 0 { combatants[index].curseRounds -= 1 }
         }
-        // Guarding protects for the whole round, even against faster monsters.
+        // Guarding protects for the whole round, even against faster monsters (a companion told to
+        // guard too).
         if case .defend = heroAction, let heroID = hero?.id {
             mutate(heroID) { $0.isDefending = true }
+        }
+        for (id, order) in orders {
+            if case .defend = order { mutate(id) { $0.isDefending = true } }
         }
 
         var initiative: [(id: Int, roll: Double)] = []
@@ -220,11 +249,18 @@ final class BattleEngine {
             guard outcome == .ongoing, let actor = combatant(actorID), actor.isAlive else { continue }
             let action: BattleAction = switch actor.source {
             case .hero: heroAction
-            case .pet: companionAction(for: actor)
+            case .pet: orders[actor.id] ?? companionAction(for: actor)
             case .wild: monsterAction(for: actor)
             case .ally, .rival: adventurerAction(for: actor)
             }
             perform(action, by: actor, events: &events)
+            updateOutcome()
+        }
+        // Poison bites at the end of the round.
+        for fighter in combatants where outcome == .ongoing && fighter.isAlive && fighter.poisonRounds > 0 {
+            events.append(.ailmentDamage(target: fighter.id, effect: .poison, amount: fighter.poisonDamage))
+            mutate(fighter.id) { $0.poisonRounds -= 1 }
+            applyDamage(Hit(target: fighter.id, amount: fighter.poisonDamage, effectiveness: 1, critical: false), events: &events)
             updateOutcome()
         }
         return events
@@ -257,7 +293,7 @@ final class BattleEngine {
                 case .heal: return Hit(target: target.id, amount: Int(Double(healAmount(actor, skill)) * boost), effectiveness: 1, critical: false)
                 // Revive: back on their feet with a share of their HP (more at higher levels).
                 case .revive: return Hit(target: target.id, amount: max(1, Int(Double(target.stats.hp) * skill.power * boost)), effectiveness: 1, critical: false)
-                case .buff, .field: return Hit(target: target.id, amount: 0, effectiveness: 1, critical: false)
+                case .buff, .curse, .field: return Hit(target: target.id, amount: 0, effectiveness: 1, critical: false)
                 }
             }
             // Big spells spill over: the chosen target takes the full blast, the rest a share.
@@ -283,8 +319,14 @@ final class BattleEngine {
                     }
                 case .physical, .magic:
                     applyDamage(hit, events: &events)
-                case .field:
+                case .curse, .field:
                     break
+                }
+            }
+            // What it leaves behind on everyone it reached (the splash only hurts).
+            if let affliction = skill.inflicts {
+                for target in chosen {
+                    afflict(target.id, with: affliction, from: actor, skill: skill, boost: boost, events: &events)
                 }
             }
 
@@ -341,7 +383,7 @@ final class BattleEngine {
         guard let weakest = alive(on: .enemies).min(by: { $0.hp < $1.hp }) else { return .defend }
         // Don't finish off a monster you could seal.
         if canSeal, case .ready = captureStatus(of: weakest.id) { return .defend }
-        let attacks = usableSkills(of: pet).filter(\.kind.isAttack)
+        let attacks = usableSkills(of: pet).filter(\.kind.isHostile)
         if let skill = attacks.randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.35 {
             return .skill(skill.id, target: weakest.id)
         }
@@ -367,7 +409,7 @@ final class BattleEngine {
         guard let weakest = alive(on: fighter.side.opposite).min(by: { $0.hp < $1.hp }) else { return .defend }
         // Friends leave a monster you could seal to you.
         if fighter.side == .party, canSeal, case .ready = captureStatus(of: weakest.id) { return .defend }
-        let attacks = skills.filter(\.kind.isAttack)
+        let attacks = skills.filter(\.kind.isHostile)
         if let skill = attacks.randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.45 {
             return .skill(skill.id, target: weakest.id)
         }
@@ -416,7 +458,7 @@ final class BattleEngine {
 
     private func physicalHit(from attacker: Combatant, to defender: Combatant, power: Double) -> Hit {
         let k = armorConstant(for: defender)
-        var damage = attacker.attack * power * k / (k + defender.defense)
+        var damage = attacker.attack * attacker.hitFactor * power * k / (k + defender.defense)
         damage *= Double.random(in: 0.9...1.1, using: &rng)
         let critical = Double.random(in: 0..<1, using: &rng) < 0.08
         if critical { damage *= 1.5 }
@@ -427,10 +469,44 @@ final class BattleEngine {
     private func magicHit(from attacker: Combatant, to defender: Combatant, skill: SkillDef, boost: Double) -> Hit {
         let effectiveness = (skill.element ?? .neutral).multiplier(against: defender.element)
         let k = armorConstant(for: defender)
-        var damage = Double(attacker.stats.magic) * skill.power * boost * k / (k + defender.defense / 2)
+        var damage = Double(attacker.stats.magic) * attacker.hitFactor * skill.power * boost * k / (k + defender.defense / 2)
         damage *= effectiveness * Double.random(in: 0.9...1.1, using: &rng)
         if defender.isDefending { damage *= 0.5 }
         return Hit(target: defender.id, amount: max(1, Int(damage.rounded())), effectiveness: effectiveness, critical: false)
+    }
+
+    /// Lays a poison or curse on a fighter still standing, if it takes hold. A second dose doesn't
+    /// stack: it lasts as long, and bites as hard, as the stronger of the two.
+    private func afflict(_ id: Int, with affliction: Affliction, from caster: Combatant, skill: SkillDef, boost: Double,
+                         events: inout [BattleEvent]) {
+        guard let target = combatant(id), target.isAlive,
+              Double.random(in: 0..<1, using: &rng) < (affliction.chance ?? 1) else { return }
+        switch affliction.effect {
+        case .poison:
+            let damage = poisonDamage(from: caster, to: target, skill: skill, power: affliction.power * boost)
+            mutate(id) {
+                $0.poisonRounds = max($0.poisonRounds, affliction.rounds)
+                $0.poisonDamage = max($0.poisonDamage, damage)
+            }
+        case .curse:
+            // Like Bless: the rest of this round and the ones after.
+            let power = min(Self.maxCurse, affliction.power * boost)
+            mutate(id) {
+                $0.curseRounds = max($0.curseRounds, affliction.rounds + 1)
+                $0.cursePower = max($0.cursePower, power)
+            }
+        }
+        events.append(.afflicted(target: id, effect: affliction.effect, rounds: affliction.rounds))
+    }
+
+    /// Each round's poison bite, fixed when it lands: a share of a hit from the caster, magic for
+    /// spells and strength for bites, of the skill's element. Guard doesn't keep it out.
+    private func poisonDamage(from caster: Combatant, to target: Combatant, skill: SkillDef, power: Double) -> Int {
+        let k = armorConstant(for: target)
+        let force = skill.kind == .physical ? caster.attack : Double(caster.stats.magic)
+        let effectiveness = (skill.element ?? .neutral).multiplier(against: target.element)
+        let damage = force * caster.hitFactor * power * effectiveness * k / (k + target.defense / 2)
+        return max(1, Int(damage.rounded()))
     }
 
     private func healAmount(_ caster: Combatant, _ skill: SkillDef) -> Int {
@@ -467,6 +543,30 @@ final class BattleEngine {
         }
         updateOutcome()
         return events
+    }
+
+    /// Debug launches (`afflict`): the first monster is poisoned, the next one cursed, and the
+    /// hero poisoned, so the screenshot shows the marks.
+    func afflictForDebug() {
+        let foes = alive(on: .enemies)
+        if let first = foes.first {
+            mutate(first.id) {
+                $0.poisonRounds = 3
+                $0.poisonDamage = 6
+            }
+        }
+        if foes.count > 1 {
+            mutate(foes[1].id) {
+                $0.curseRounds = 3
+                $0.cursePower = 0.2
+            }
+        }
+        if let hero {
+            mutate(hero.id) {
+                $0.poisonRounds = 2
+                $0.poisonDamage = 4
+            }
+        }
     }
     #endif
 }

@@ -165,6 +165,19 @@ struct LookTests {
         }
     }
 
+    @Test func spreadMeasuresFromTheWindowsMiddle() throws {
+        // A green ramp (highlights 70, shadows 150) turned brown keeps its shading's hue shift:
+        // the middle lands on `to` and each hue stays its distance from the middle times `spread`.
+        let green = try JSONDecoder().decode(RecolorRule.self, from: Data(#"{"hue": [70, 150], "to": 25, "spread": -0.3}"#.utf8))
+        #expect(green.distanceFromMiddle(of: 110) == 0)
+        #expect(green.distanceFromMiddle(of: 150) == 40)
+        #expect(green.distanceFromMiddle(of: 70) == -40)
+        // A window that wraps round red has its middle at 355.
+        let pink = try JSONDecoder().decode(RecolorRule.self, from: Data(#"{"hue": [330, 20], "to": 200}"#.utf8))
+        #expect(pink.distanceFromMiddle(of: 10) == 15)
+        #expect(pink.distanceFromMiddle(of: 340) == -15)
+    }
+
     @Test func customisingTheHeroAndCompanion() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let options = Content.shared.appearance
@@ -412,6 +425,41 @@ struct RulesTests {
         #expect(Content.shared.monsters.allSatisfy { !($0.lore ?? "").isEmpty })
     }
 
+    @Test func bossesBringMinions() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let map = try #require(Content.shared.maps.first { $0.npcs?.contains { $0.monster == "rat_king" } == true })
+        let npc = try #require(map.npcs?.first { $0.monster == "rat_king" })
+        let battle = try #require(BattleController.boss(npc, encounters: map.encounters, session: session))
+        // Two of the map's own monsters, a little weaker, with the boss in the middle.
+        #expect(battle.enemies.count == 3)
+        #expect(battle.enemies[1].speciesID == "rat_king")
+        let minions = battle.enemies.filter { $0.speciesID != "rat_king" }
+        #expect(minions.allSatisfy { map.encounters?.monsters[$0.speciesID ?? ""] != nil })
+        #expect(minions.allSatisfy { $0.level < (npc.level ?? 0) })
+        // Without the map's monsters it fights alone.
+        let alone = try #require(BattleController.boss(npc, session: session))
+        #expect(alone.enemies.count == 1)
+    }
+
+    #if DEBUG
+    @Test func bossesTellTheirStoryTheFirstTimeOnly() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let npc = try #require(Content.shared.boss(fighting: "rat_king"))
+        let victory = try #require(npc.victory)
+        let first = try #require(BattleController.boss(npc, session: session))
+        first.winForDebug()
+        #expect(first.result?.outcome == .victory)
+        #expect(first.result?.story?.title == victory.title)
+        #expect(first.result?.story?.paragraphs == victory.story)
+        // Beaten once, a rematch is just a fight (the story stays in the Monster Book).
+        session.defeatBoss(npc)
+        let rematch = try #require(BattleController.boss(npc, session: session))
+        rematch.winForDebug()
+        #expect(rematch.result?.outcome == .victory)
+        #expect(rematch.result?.story == nil)
+    }
+    #endif
+
     @Test func shopsBuyBackAndAdventurersTrade() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let potion = try #require(Content.shared.item("potion"))
@@ -492,6 +540,74 @@ struct RulesTests {
         }
         // A nearly beaten monster may run off instead of going down.
         #expect(engine.outcome == .victory || engine.outcome == .fled)
+    }
+
+    @Test func companionsFollowOrders() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 200, mp: 20, attack: 30, defense: 10, magic: 10, speed: 20)
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 5, element: .neutral,
+                             stats: stats, hp: 200, mp: 20, skills: [], captureRate: 0)
+        let pet = Combatant(id: 1, side: .party, source: .pet(UUID()), name: "Pet", art: jelly.art, level: 5, element: jelly.element,
+                            stats: stats, hp: 200, mp: 20, skills: jelly.skills, captureRate: 0)
+        let foeStats = jelly.stats(at: 30)
+        let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 30, element: jelly.element,
+                            stats: foeStats, hp: foeStats.hp, mp: foeStats.mp, skills: [], captureRate: 0)
+        let engine = BattleEngine(party: [hero, pet], enemies: [foe], content: content, seed: 7)
+        // Told to guard, it guards; left to itself, it would have gone for the monster.
+        let events = engine.resolveRound(heroAction: .defend, orders: [1: .defend])
+        let guards = events.filter { event in
+            if case .defend(let actor) = event { return actor == 1 }
+            return false
+        }
+        let attacks = events.filter { event in
+            if case .attack(let actor, _) = event { return actor == 1 }
+            return false
+        }
+        #expect(guards.count == 1)
+        #expect(attacks.isEmpty)
+    }
+
+    @Test func poisonBitesEachRoundAndCursesWeaken() throws {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 500, mp: 200, attack: 30, defense: 10, magic: 40, speed: 50)
+        var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 20, element: .neutral,
+                             stats: stats, hp: 500, mp: 200, skills: ["poison", "curse"], captureRate: 0)
+        hero.skillLevels = ["poison": 1, "curse": 1]
+        let foeStats = jelly.stats(at: 20)
+        // Plenty of HP, so it lasts the whole test.
+        let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 20, element: jelly.element,
+                            stats: foeStats, hp: foeStats.hp * 20, mp: 0, skills: [], captureRate: 0)
+        let engine = BattleEngine(party: [hero], enemies: [foe], content: content, seed: 3)
+        func bites(_ events: [BattleEvent]) -> [Int] {
+            events.compactMap { event in
+                if case .ailmentDamage(let target, _, let amount) = event, target == 10 { return amount }
+                return nil
+            }
+        }
+
+        // Poison takes hold and bites at the end of the round it lands in, then once a round: 3 bites.
+        let first = engine.resolveRound(heroAction: .skill("poison", target: 10))
+        let tookHold = first.contains { event in
+            if case .afflicted(let target, let effect, _) = event { return target == 10 && effect == .poison }
+            return false
+        }
+        #expect(tookHold)
+        let bite = try #require(bites(first).first)
+        #expect(bite > 0)
+        #expect(bites(engine.resolveRound(heroAction: .defend)) == [bite])
+        #expect(bites(engine.resolveRound(heroAction: .defend)) == [bite])
+        #expect(bites(engine.resolveRound(heroAction: .defend)).isEmpty)
+
+        // A curse takes a fifth of the force out of its hits for the rest of the round and 3 more.
+        _ = engine.resolveRound(heroAction: .skill("curse", target: 10))
+        let cursed = try #require(engine.combatant(10))
+        #expect(abs(cursed.hitFactor - 0.8) < 0.001)
+        for _ in 0..<3 { _ = engine.resolveRound(heroAction: .defend) }
+        #expect(abs((engine.combatant(10)?.hitFactor ?? 0) - 0.8) < 0.001)
+        _ = engine.resolveRound(heroAction: .defend)
+        #expect(engine.combatant(10)?.hitFactor == 1)
     }
 
     @Test func reviveWakesAFaintedCompanionAndBlessHelps() {
@@ -607,13 +723,63 @@ struct RulesTests {
         #expect(session.partyMembers[0].level == 5)
         let controller = BattleController.duel(with: grump, session: session)
         #expect(controller.party.contains { $0.name == "Momo" })
-        // Momo's companion comes along.
-        #expect(controller.party.contains { $0.name == "Jelly Puff" && $0.petID != nil })
+        // Momo's companion comes along, named for Momo.
+        #expect(controller.party.contains { $0.name == "Momo's Jelly Puff" && $0.petID != nil })
         #expect(controller.party.first { $0.name == "Momo" }?.classID == "mage")
         #expect(controller.enemies.map(\.name) == ["Grump"])
         session.leaveParty(momo.id)
         #expect(session.partyMembers.isEmpty)
         #expect(session.friends.count == 1)
+    }
+
+    @Test func theOldSaveMovesInOnceAndCopiesCollapse() throws {
+        let manager = FileManager.default
+        try? manager.removeItem(at: SaveStore.folder)
+        defer {
+            try? manager.removeItem(at: SaveStore.folder)
+            try? manager.removeItem(at: SaveStore.legacyURL)
+        }
+        // A save from before the folder (no slot), in Application Support: a path with a space.
+        var old = GameSession.newGame(name: "Old", raceID: "human").data
+        old.slot = nil
+        try manager.createDirectory(at: SaveStore.legacyURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try JSONEncoder().encode(old).write(to: SaveStore.legacyURL)
+        // However often the title screen looks, it moves in once, and the old file goes.
+        for _ in 0..<3 { _ = SaveStore.all() }
+        #expect(SaveStore.all().filter { $0.hero.name == "Old" }.count == 1)
+        #expect(!manager.fileExists(atPath: SaveStore.legacyURL.path(percentEncoded: false)))
+        // Copies that differ only in their slot (what the old bug left behind) collapse to one.
+        var copy = old
+        for _ in 0..<2 {
+            copy.slot = UUID().uuidString
+            SaveStore.save(copy)
+        }
+        #expect(SaveStore.all().filter { $0.hero.name == "Old" }.count == 1)
+        // A copy you played on is a game of its own, and stays.
+        copy.slot = UUID().uuidString
+        copy.gold += 100
+        SaveStore.save(copy)
+        #expect(SaveStore.all().filter { $0.hero.name == "Old" }.count == 2)
+    }
+
+    @Test func aFullPartyBringsItsCompanions() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let friends = (0..<5).map { index in
+            Adventurer(name: "Friend \(index)", raceID: "elf", classID: "mage", level: 4, look: .standard, petSpecies: "jelly")
+        }
+        for friend in friends { #expect(session.befriend(friend)) }
+        session.adventurersAround = Set(friends.map(\.id))
+        for friend in friends { session.invite(friend.id) }
+        // Four friends travel with you; the fifth waits for a place.
+        #expect(GameSession.maxAllies == 4)
+        #expect(session.partyMembers.count == 4)
+        let rival = Adventurer(name: "Grump", raceID: "dwarf", classID: "fighter", level: 7, look: .standard, hostile: true)
+        let controller = BattleController.duel(with: rival, session: session)
+        // Each brings their companion, and nobody on your side shares an id with the other (10 and up).
+        #expect(controller.party.filter { $0.petID != nil }.count == 4)
+        let ids = controller.party.map(\.id)
+        #expect(Set(ids).count == ids.count)
+        #expect(ids.allSatisfy { $0 < 10 })
     }
 
     @Test func questsUnlockLooksAndRoads() {

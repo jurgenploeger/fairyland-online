@@ -193,8 +193,10 @@ final class HealthBar: SKNode {
         fill.position.x = -width / 2
         fill.zPosition = 1
         parts += [background, fill]
+        // The MP bar's middle, under the HP bar's frame.
+        let manaY = -(thick + 2) / 2 - 3
         if mana {
-            let y = -(thick + 2) / 2 - 3
+            let y = manaY
             let back = SKSpriteNode(color: UIColor(white: 0, alpha: 0.6), size: CGSize(width: width + 2, height: 5))
             back.position.y = y
             let blue = SKSpriteNode(color: UIColor(red: 0.24, green: 0.52, blue: 0.95, alpha: 1), size: CGSize(width: width, height: 3))
@@ -212,7 +214,11 @@ final class HealthBar: SKNode {
             let overlap: CGFloat = 3
             let shift = (badge.size.width - overlap) / 2
             badge.position.x = -width / 2 - badge.size.width / 2 + overlap + shift
-            badge.position.y = mana ? -1 : 0
+            // Centred on the bars together: from the HP frame's top to the MP bar's bottom (to the
+            // nearest point, so the chip stays crisp).
+            let top = (thick + 2) / 2
+            let bottom = mana ? manaY - 2.5 : -top
+            badge.position.y = ((top + bottom) / 2).rounded()
             badge.zPosition = 2
             addChild(badge)
             parts.forEach { $0.position.x += shift }
@@ -278,9 +284,9 @@ enum Effects {
         ]))
     }
 
-    /// How a hit looks: an ordinary blow, a critical, a splash on a neighbour, or a heal.
+    /// How a hit looks: an ordinary blow, a critical, a splash on a neighbour, a heal, or poison's bite.
     enum BurstStyle {
-        case normal, critical, heal, splash
+        case normal, critical, heal, splash, poison
     }
 
     /// A hit lands: a fireball blooms where it struck (hot white core, orange flame, flying embers,
@@ -289,6 +295,7 @@ enum Effects {
         let impact = point + CGVector(dx: .random(in: -6...6), dy: -14)
         switch style {
         case .heal: healGlow(at: impact, in: parent)
+        case .poison: healGlow(at: impact, in: parent, texture: poisonGlow)
         case .normal: fireball(at: impact, in: parent, power: 1)
         case .critical: fireball(at: impact, in: parent, power: 1.6)
         case .splash: fireball(at: impact, in: parent, power: 0.6)
@@ -310,6 +317,11 @@ enum Effects {
     private static let greenGlow = SoftTextures.radial(size: 64, colors: [
         UIColor(red: 0.9, green: 1, blue: 0.9, alpha: 1), UIColor(red: 0.45, green: 0.95, blue: 0.5, alpha: 0.7),
         UIColor(red: 0.2, green: 0.8, blue: 0.35, alpha: 0),
+    ])
+    /// Sickly yellow-green fading to violet.
+    private static let poisonGlow = SoftTextures.radial(size: 64, colors: [
+        UIColor(red: 0.85, green: 1, blue: 0.6, alpha: 1), UIColor(red: 0.55, green: 0.9, blue: 0.3, alpha: 0.7),
+        UIColor(red: 0.55, green: 0.3, blue: 0.85, alpha: 0),
     ])
 
     private static func fireball(at point: CGPoint, in parent: SKNode, power: CGFloat) {
@@ -366,8 +378,8 @@ enum Effects {
         }
     }
 
-    private static func healGlow(at point: CGPoint, in parent: SKNode) {
-        let glow = SKSpriteNode(texture: greenGlow, size: CGSize(width: 60, height: 60))
+    private static func healGlow(at point: CGPoint, in parent: SKNode, texture: SKTexture? = nil) {
+        let glow = SKSpriteNode(texture: texture ?? greenGlow, size: CGSize(width: 60, height: 60))
         glow.position = point
         glow.zPosition = 20_600
         glow.blendMode = .add
@@ -383,6 +395,7 @@ enum Effects {
         case .critical: UIColor(red: 1, green: 0.62, blue: 0.2, alpha: 1)
         case .heal: UIColor(red: 0.6, green: 1, blue: 0.62, alpha: 1)
         case .splash: UIColor(red: 0.88, green: 0.88, blue: 0.95, alpha: 1)
+        case .poison: UIColor(red: 0.78, green: 1, blue: 0.45, alpha: 1)
         }
         let size: CGFloat = switch style {
         case .critical: 30

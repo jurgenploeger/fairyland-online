@@ -8,7 +8,9 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
   sources, and where we differ. Read it before inventing a system; add facts you verify, with their source.
 - `content/*.json`: all game data (maps, monsters, skills, items, quests, music, looks, crowd). Data-driven;
   most features are a JSON edit.
-- `art/assets.json` + `art/sprites/`: every sprite. `derive` makes free palette swaps of existing art.
+- `art/assets.json` + `art/sprites/`: every sprite. `derive` makes free palette swaps of existing art. Recolour a whole
+  colour family with one `to` + `spread` rule (`RecolorRule` in `Fairyland/Art/Recolor.swift`) so it keeps its hue-shifted
+  shading; a bare `shift` lands on a different colour for every base, and a window that cuts a ramp splits it in two.
 - `Fairyland/`: Swift code (World = maps and walking, Battle = combat, UI = SwiftUI HUD and menus).
 - `tools/item_art.py`: draws every item's 32×32 sprite in code (free); rerun it after editing a drawing.
 - `tools/skill_art.py`: the same for every skill's icon (`art/sprites/skill_<id>.png`).

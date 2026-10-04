@@ -37,6 +37,13 @@ def hsv2rgb(h, s, v):
     r = np.select(conds, [c, x, z, z, x], c); g = np.select(conds, [x, c, c, x, z], z); b = np.select(conds, [z, z, x, c, c], x)
     return np.stack([r + m, g + m, b + m], -1)
 
+def from_middle(h, rule):
+    """How far each hue lies from the middle of the rule's hue window (RecolorRule.distanceFromMiddle)."""
+    if 'hue' not in rule: return np.zeros_like(h)
+    lo, hi = rule['hue']
+    width = hi - lo if lo <= hi else hi + 360 - lo
+    return (h - lo - width / 2 + 180) % 360 - 180
+
 def recolor(img, rules):
     """img float RGBA 0..1 (straight alpha)."""
     rgb = img[..., :3]; a = img[..., 3]
@@ -49,7 +56,7 @@ def recolor(img, rules):
             lo, hi = r['hue']
             m &= ((h >= lo) & (h <= hi)) if lo <= hi else ((h >= lo) | (h <= hi))
         m &= ~done
-        if 'to' in r: nh = np.where(m, r['to'], nh)
+        if 'to' in r: nh = np.where(m, (r['to'] + r.get('spread', 0) * from_middle(h, r)) % 360, nh)
         elif 'shift' in r: nh = np.where(m, (h + r['shift']) % 360, nh)
         ns = np.where(m, np.minimum(1, s * r.get('saturation', 1)), ns)
         nv = np.where(m, np.minimum(1, v * r.get('value', 1)), nv)

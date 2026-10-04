@@ -14,8 +14,9 @@ final class GameSession {
     var nearbyAdventurer: Adventurer?
     /// Adventurers walking around near you on this map: only they can be invited along.
     var adventurersAround: Set<UUID> = []
-    /// Up to two friends can travel with you.
-    static let maxAllies = 2
+    /// Up to four friends can travel with you, a party of five, each with their companion. (In a
+    /// battle, friends take ids 2…5 and their companions 6…9, below the monsters' 10 and up.)
+    static let maxAllies = 4
 
     var data: SaveData
     /// Name of the map the player is on, for the HUD.
@@ -111,6 +112,7 @@ final class GameSession {
         guard !isDeleted else { return }
         data.position = playerPosition.map { [Double($0.x), Double($0.y)] }
         if !seen.isEmpty { data.explored = (data.explored ?? [:]).merging(seen) { $1 } }
+        data.savedAt = Date()
         SaveStore.save(data)
         lastSaved = Date()
     }

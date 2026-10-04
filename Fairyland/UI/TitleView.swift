@@ -248,6 +248,12 @@ private struct SavedHeroCard: View {
             Text("Lv \(save.hero.level) \(content.classDef(save.hero.classID).name) · \(content.map(save.mapID)?.name ?? "")")
                 .font(HUDStyle.font(10))
                 .foregroundStyle(HUDStyle.ink.opacity(0.65))
+            // When you last played it, so you can tell your games apart.
+            if let savedAt = save.savedAt {
+                Text("Played \(savedAt.formatted(.relative(presentation: .named)))")
+                    .font(HUDStyle.font(9))
+                    .foregroundStyle(HUDStyle.ink.opacity(0.5))
+            }
         }
         .padding(.bottom, 28)   // room for the page dots
     }

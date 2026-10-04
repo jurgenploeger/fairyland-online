@@ -10,6 +10,7 @@ struct SettingsView: View {
     @AppStorage(GameSettings.soundVolumeKey) private var soundVolume = 1.0
     @AppStorage(GameSettings.footstepsKey) private var footsteps = true
     @AppStorage(GameSettings.hapticsKey) private var haptics = true
+    @AppStorage(GameSettings.commandCompanionKey) private var commandCompanion = true
     @State private var music = MusicPlayer.shared
     @State private var justSaved = false
     @State private var confirmQuit = false
@@ -32,6 +33,13 @@ struct SettingsView: View {
             section("Feel", icon: .tap) {
                 Toggle("Vibration on hits and rewards", isOn: $haptics)
                     .onChange(of: haptics) { _, on in if on { Haptics.impact(.medium) } }
+            }
+
+            section("Battle", icon: .paw) {
+                Toggle("Choose your companion's moves", isOn: $commandCompanion)
+                Text("After your own choice, tell your companion what to do. Off, it fights on its own.")
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.dim)
             }
 
             if let session {

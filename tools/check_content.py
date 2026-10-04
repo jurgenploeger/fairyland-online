@@ -96,6 +96,26 @@ for skill in skills.values():
         check(skill["art"] in art, f"skill {skill['id']} → unknown art {skill['art']}")
         check((ROOT / "art" / "sprites" / f"{skill['art']}.png").exists(),
               f"skill {skill['id']} → art/sprites/{skill['art']}.png is missing (python3 tools/skill_art.py)")
+    check(skill["kind"] in ("physical", "magic", "heal", "revive", "buff", "curse", "field"),
+          f"skill {skill['id']} → unknown kind {skill['kind']}")
+    # Poison and curses: what a skill leaves on the foes it reaches.
+    inflicts = skill.get("inflicts")
+    if skill["kind"] == "curse":
+        check(inflicts is not None, f"skill {skill['id']} → a curse needs `inflicts` (what it leaves on its target)")
+    if inflicts is not None:
+        where = f"skill {skill['id']} → inflicts"
+        check(isinstance(inflicts, dict) and set(inflicts) <= {"effect", "rounds", "power", "chance"}, f"{where} has unknown keys")
+        effect = inflicts.get("effect") if isinstance(inflicts, dict) else None
+        check(effect in ("poison", "curse"), f"{where} → effect must be poison or curse")
+        if isinstance(inflicts, dict):
+            check(isinstance(inflicts.get("rounds"), int) and 1 <= inflicts["rounds"] <= 6, f"{where} → rounds must be 1 to 6")
+            top = 2 if effect == "poison" else 0.5   # a curse never takes more than half (BattleEngine.maxCurse)
+            power = inflicts.get("power")
+            check(isinstance(power, (int, float)) and 0 < power <= top, f"{where} → power must be above 0 and at most {top}")
+            chance = inflicts.get("chance", 1)
+            check(isinstance(chance, (int, float)) and 0 < chance <= 1, f"{where} → chance must be in (0, 1]")
+        check(skill["kind"] in ("physical", "magic", "curse") and skill["target"] in ("enemy", "allEnemies"),
+              f"{where} → only skills aimed at foes leave a poison or curse")
 
 for monster in monsters.values():
     check(monster["art"] in art, f"monster {monster['id']} → unknown art {monster['art']}")
@@ -180,6 +200,26 @@ for map_def in maps.values():
             check(npc.get("gives") in items, f"chest {npc['id']} → unknown item {npc.get('gives')}")
         if npc["role"] == "boss":
             check(monsters.get(npc.get("monster"), {}).get("boss") is True, f"boss {npc['id']} → unknown boss {npc.get('monster')}")
+            # Its minions come from the map's encounter table.
+            if npc.get("minions", 2) > 0:
+                check(bool((map_def.get("encounters") or {}).get("monsters")), f"boss {npc['id']} → minions need the map's encounters")
+        if "minions" in npc:
+            check(npc["role"] == "boss" and isinstance(npc["minions"], int) and 0 <= npc["minions"] <= 4,
+                  f"npc {npc['id']} → minions is for bosses, 0 to 4")
+        # What beating a boss means: told the first time you win, and kept in the Monster Book.
+        if npc["role"] == "boss":
+            check("victory" in npc, f"boss {npc['id']} → needs a victory story (title and story)")
+        if "victory" in npc:
+            victory = npc["victory"]
+            where = f"npc {npc['id']} → victory"
+            check(npc["role"] == "boss", f"{where} is for bosses")
+            check(isinstance(victory, dict) and set(victory) <= {"title", "story"}, f"{where} has only a title and a story")
+            title = victory.get("title") if isinstance(victory, dict) else None
+            check(isinstance(title, str) and 0 < len(title.strip()) <= 32, f"{where} → title must be 1 to 32 characters")
+            story = victory.get("story") if isinstance(victory, dict) else None
+            check(isinstance(story, list) and 1 <= len(story) <= 3
+                  and all(isinstance(p, str) and 0 < len(p.strip()) <= 220 for p in story),
+                  f"{where} → story must be 1 to 3 paragraphs of up to 220 characters (it fits one card)")
 
 # Every monster can be met somewhere: on a map's encounter table, or standing there as a boss.
 met = {monster for m in maps.values() for monster in (m.get("encounters") or {}).get("monsters", {})}
@@ -236,7 +276,23 @@ for map_def in maps.values():
         spread = prop.get("spread", 1)
         check(isinstance(spread, int) and spread > 0, f"map {map_def['id']} prop {prop['art']} → spread must be a positive whole number")
 
-rule_keys = {"hue", "minSaturation", "maxSaturation", "minValue", "maxValue", "to", "shift", "saturation", "value"}
+rule_keys = {"hue", "minSaturation", "maxSaturation", "minValue", "maxValue", "to", "shift", "spread", "saturation", "value"}
+def check_rules(rules, where):
+    """Recolour rules (Recolor.swift): known keys, a hue window in degrees, and `spread` only with
+    `to` and a window narrow enough to have a middle."""
+    for rule in rules:
+        check(set(rule) <= rule_keys, f"{where} → unknown recolor keys {set(rule) - rule_keys}")
+        hue = rule.get("hue")
+        check(hue is None or (isinstance(hue, list) and len(hue) == 2 and all(0 <= h <= 360 for h in hue)),
+              f"{where} → hue must be [from, to] in degrees")
+        check(not ("to" in rule and "shift" in rule), f"{where} → a rule sets the hue (to) or turns it (shift), not both")
+        if "spread" in rule and hue:
+            width = hue[1] - hue[0] if hue[0] <= hue[1] else hue[1] + 360 - hue[0]
+            check("to" in rule and width <= 180 and -1.5 <= rule["spread"] <= 1.5,
+                  f"{where} → spread needs `to`, a hue window up to 180 degrees wide and a value from -1.5 to 1.5")
+        else:
+            check("spread" not in rule, f"{where} → spread needs a hue window to find the middle of")
+
 for map_def in maps.values():
     palette = map_def["theme"].get("palette")
     if not palette:
@@ -253,8 +309,7 @@ for map_def in maps.values():
     for key in ("lightStrength", "variation"):
         if key in palette:
             check(isinstance(palette[key], (int, float)) and 0 <= palette[key] <= 1, f"{where} → {key} must be between 0 and 1")
-    for rule in palette.get("recolor", []):
-        check(set(rule) <= rule_keys, f"{where} → unknown recolor keys {set(rule) - rule_keys}")
+    check_rules(palette.get("recolor", []), where)
 
 ambience_keys = {"particles", "butterflies", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground", "focus", "darkness"}
 for map_def in maps.values():
@@ -290,6 +345,7 @@ for map_def in maps.values():
 
 for kind in ("hair", "outfits", "skin"):
     for preset in appearance[kind]:
+        check_rules(preset["recolor"], f"look {preset['id']}")
         if "unlock" in preset:
             check(preset["unlock"] in quests, f"look {preset['id']} → unknown quest {preset['unlock']}")
 # The window hair colours widen to on the hero's hair and locks layers (GameSession.hairLayerRules).
@@ -321,6 +377,9 @@ for map_def in maps.values():
 for asset in art.values():
     if "derive" in asset:
         check(asset["derive"]["from"] in art, f"art {asset['id']} → unknown base {asset['derive']['from']}")
+        check_rules(asset["derive"]["recolor"], f"art {asset['id']} derive")
+for item in items.values():
+    check_rules((item.get("recolor") or []) + (item.get("tint") or []), f"item {item['id']}")
 
 changelog = load("content/changelog.json")["releases"]
 versions = [r["version"] for r in changelog]

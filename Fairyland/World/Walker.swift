@@ -161,7 +161,8 @@ final class Walker: SKNode {
             if gap > 200 { footsteps = [] }
         }
         footsteps.insert(position, at: 0)
-        if footsteps.count > 24 { footsteps.removeLast() }
+        // Enough for a full party in single file (about 400 px).
+        if footsteps.count > 64 { footsteps.removeLast() }
     }
 
     /// The point `distance` back along its footsteps. Where they don't go back that far (it's only
@@ -181,12 +182,19 @@ final class Walker: SKNode {
     /// Trails behind `leader` like a companion: close enough to feel together, never on top. It keeps
     /// to ground it can stand on: when its place beside the leader is in water or a wall, or one is in
     /// the way, it walks to `footstep` instead (its place in single file on the trail of whoever leads
-    /// the line), and it slides along whatever's in its way like the hero does.
-    func follow(_ leader: Walker, dt: TimeInterval, footstep: CGPoint, canStand: (CGPoint) -> Bool) {
+    /// the line), and it slides along whatever's in its way like the hero does. `beside`: at the
+    /// leader's side instead (a friend's companion, with the next friend walking behind them).
+    func follow(_ leader: Walker, dt: TimeInterval, footstep: CGPoint, canStand: (CGPoint) -> Bool, beside: Bool = false) {
         let behind = leader.facing.vector * -1
-        var goal = leader.facing.isHorizontal
-            ? leader.position + behind * 34 + CGVector(dx: 0, dy: 6)
-            : leader.position + behind * 14 + CGVector(dx: -30, dy: 0)
+        var goal: CGPoint
+        if beside {
+            let side = CGVector(dx: -behind.dy, dy: behind.dx)
+            goal = leader.position + side * 26 + behind * 8
+        } else if leader.facing.isHorizontal {
+            goal = leader.position + behind * 34 + CGVector(dx: 0, dy: 6)
+        } else {
+            goal = leader.position + behind * 14 + CGVector(dx: -30, dy: 0)
+        }
         // Once blocked, it keeps to the footsteps a moment, so it doesn't dither along a ragged shore.
         if !Self.isClear(from: position, to: goal, canStand) { trailing = 0.6 }
         if trailing > 0 {

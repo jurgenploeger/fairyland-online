@@ -12,6 +12,15 @@ struct BattleResult {
     var loot: [(id: String, count: Int)] = []
     /// How many levels the win was worth (the level-up banner adds up what they raised).
     var levelsGained = 0
+    /// A boss beaten for the first time: what it means, told before the pay.
+    var story: BossStory?
+}
+
+/// A boss's `victory` story (content/maps.json), with the boss to draw above it.
+struct BossStory {
+    let art: String
+    let title: String
+    let paragraphs: [String]
 }
 
 /// Runs one battle: turns the player's menu choices into engine actions, feeds the
@@ -43,6 +52,8 @@ final class BattleController {
     @ObservationIgnored private var pending: Pending?
     /// The adventurer you're duelling: beaten, they drop what they carry.
     @ObservationIgnored private var rival: Adventurer?
+    /// A boss you've never beaten: winning tells its story.
+    @ObservationIgnored private var story: BossStory?
 
     init(engine: BattleEngine, session: GameSession, intro: String? = nil) {
         self.engine = engine
@@ -85,12 +96,13 @@ final class BattleController {
         }
         for (index, friend) in session.partyMembers.enumerated() {
             party.append(adventurer(friend, id: 2 + index, side: .party, session: session))
-            // A friend's companion fights beside them (a step below their level, like a rival's).
+            // A friend's companion fights beside them (a step below their level, like a rival's),
+            // named for its owner so it's never mistaken for yours.
             if let speciesID = friend.petSpecies, let species = session.content.monster(speciesID) {
                 let level = max(1, friend.level - 1)
                 let stats = species.stats(at: level)
                 party.append(Combatant(
-                    id: 2 + GameSession.maxAllies + index, side: .party, source: .pet(UUID()), name: species.name, art: species.art,
+                    id: 2 + GameSession.maxAllies + index, side: .party, source: .pet(UUID()), name: "\(friend.name)'s \(species.name)", art: species.art,
                     level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp, skills: species.skills, captureRate: 0
                 ))
             }
@@ -131,17 +143,44 @@ final class BattleController {
         return controller
     }
 
-    /// A boss waiting on the map.
-    static func boss(_ npc: NPCDef, session: GameSession) -> BattleController? {
+    /// A boss waiting on the map, with a few of the map's own monsters at its side (`minions` on
+    /// the NPC, 2 unless it says otherwise), a little weaker than the boss. It stands in the middle.
+    static func boss(_ npc: NPCDef, encounters: MapDef.Encounters? = nil, session: GameSession) -> BattleController? {
         guard let id = npc.monster, let species = session.content.monster(id) else { return nil }
         let level = npc.level ?? 10
         let stats = species.stats(at: level)
         let boss = Combatant(id: 10, side: .enemies, source: .wild(id), name: species.name, art: species.art,
                              level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp,
                              skills: species.skills, captureRate: 0)
-        let engine = BattleEngine(party: party(for: session), enemies: [boss], content: session.content)
-        let controller = BattleController(engine: engine, session: session, intro: "\(species.name) blocks your way!")
+        var minions: [Combatant] = []
+        if let encounters {
+            let low = encounters.levels.first ?? 1
+            let high = max(low, encounters.levels.last ?? low)
+            let top = max(low, min(high, level - 1))
+            let bottom = min(top, max(low, level - 8))
+            for index in 0..<max(0, npc.minions ?? 2) {
+                guard let kindID = pick(from: encounters.monsters), let kind = session.content.monster(kindID) else { continue }
+                let minionLevel = Int.random(in: bottom...top)
+                let minionStats = kind.stats(at: minionLevel)
+                var minion = Combatant(
+                    id: 11 + index, side: .enemies, source: .wild(kindID), name: kind.name, art: kind.art,
+                    level: minionLevel, element: kind.element, stats: minionStats, hp: minionStats.hp, mp: minionStats.mp,
+                    skills: kind.skills, captureRate: kind.captureRate
+                )
+                minion.isRare = kind.rare == true
+                minions.append(minion)
+            }
+        }
+        let half = (minions.count + 1) / 2
+        let enemies = Array(minions.prefix(half)) + [boss] + Array(minions.dropFirst(half))
+        let engine = BattleEngine(party: party(for: session), enemies: enemies, content: session.content,
+                                  captureBonus: session.heroClass.captureBonus ?? 1)
+        let intro = minions.isEmpty ? "\(species.name) blocks your way!" : "\(species.name) and its followers block your way!"
+        let controller = BattleController(engine: engine, session: session, intro: intro)
         controller.music = "boss"
+        if !session.isDefeated(npc), let victory = npc.victory {
+            controller.story = BossStory(art: species.art, title: victory.title, paragraphs: victory.story)
+        }
         return controller
     }
 
@@ -222,10 +261,51 @@ final class BattleController {
     private var aliveEnemyIDs: [Int] { enemies.filter(\.isAlive).map(\.id) }
     private var aliveAllyIDs: [Int] { party.filter(\.isAlive).map(\.id) }
 
+    // MARK: - Your companion's turn
+
+    /// Your own companion while it's standing (friends' companions fight on their own).
+    var companion: Combatant? {
+        guard let id = session.activePet?.id else { return nil }
+        return combatants.first { $0.petID == id && $0.isAlive }
+    }
+
+    /// True while you choose what your companion does, after the hero's choice. Like Fairyland,
+    /// you command your pet every round (unless `GameSettings.commandCompanion` is off).
+    private(set) var choosingForCompanion = false
+    /// The hero's choice, waiting while you choose the companion's.
+    @ObservationIgnored private var heroChoice: BattleAction?
+
+    /// Its skills, for the Skills list on its turn.
+    var companionSkills: [SkillDef] { companion?.skills.compactMap { session.content.skill($0) } ?? [] }
+    func companionLevel(of skill: SkillDef) -> Int { companion?.skillLevel(skill.id) ?? 1 }
+    func companionCost(of skill: SkillDef) -> Int { GameSession.mpCost(of: skill, level: companionLevel(of: skill)) }
+
+    /// Auto: the companion decides for itself this round.
+    func letCompanionDecide() {
+        guard choosingForCompanion else { return }
+        stopTurnClock()
+        clearTargets()
+        choosingForCompanion = false
+        resolve(heroChoice ?? .defend, orders: [:])
+    }
+
+    /// From the companion's turn back to the hero's choice.
+    func backToHero() {
+        guard choosingForCompanion else { return }
+        stopTurnClock()
+        clearTargets()
+        choosingForCompanion = false
+        heroChoice = nil
+        phase = .command
+        message = "What will \(hero?.name ?? "you") do?"
+        startTurnClock()
+    }
+
     // MARK: - Commands
 
     func attack() {
-        beginTargeting(.attack, targets: aliveEnemyIDs, prompt: "Attack which monster?")
+        let prompt = choosingForCompanion ? "\(companion?.name ?? "It") attacks which monster?" : "Attack which monster?"
+        beginTargeting(.attack, targets: aliveEnemyIDs, prompt: prompt)
     }
 
     func openSkills() {
@@ -239,9 +319,7 @@ final class BattleController {
     }
 
     func back() {
-        pending = nil
-        validTargets = []
-        scene?.showTargets([])
+        clearTargets()
         phase = .command
     }
 
@@ -266,7 +344,9 @@ final class BattleController {
     func cost(of skill: SkillDef) -> Int { GameSession.mpCost(of: skill, level: level(of: skill)) }
 
     func useSkill(_ skill: SkillDef) {
-        guard let hero, hero.mp >= cost(of: skill) else {
+        let user = choosingForCompanion ? companion : hero
+        let price = choosingForCompanion ? companionCost(of: skill) : cost(of: skill)
+        guard let user, user.mp >= price else {
             message = "Not enough MP for \(skill.name)."
             return
         }
@@ -333,18 +413,43 @@ final class BattleController {
         scene?.showTargets(targets)
     }
 
-    private func submit(_ action: BattleAction) {
+    /// The choice for whoever's turn it is. After the hero's, your companion gets its turn (unless
+    /// it fights on its own, or you're running away); after the companion's, the round plays.
+    private func submit(_ action: BattleAction, askCompanion: Bool = true) {
         stopTurnClock()
+        clearTargets()
+        if choosingForCompanion {
+            choosingForCompanion = false
+            resolve(heroChoice ?? .defend, orders: companion.map { [$0.id: action] } ?? [:])
+            return
+        }
         switch action {
         case .attack(let target): lastTarget = target
         case .skill(_, let target) where aliveEnemyIDs.contains(target): lastTarget = target
         default: break
         }
+        if askCompanion, GameSettings.commandCompanion, let companion, !action.isEscape {
+            heroChoice = action
+            choosingForCompanion = true
+            phase = .command
+            message = "What will \(companion.name) do?"
+            startTurnClock()
+            return
+        }
+        resolve(action, orders: [:])
+    }
+
+    private func clearTargets() {
         pending = nil
         validTargets = []
         scene?.showTargets([])
+    }
+
+    /// Plays the round with everyone's choices.
+    private func resolve(_ heroAction: BattleAction, orders: [Int: BattleAction]) {
+        heroChoice = nil
         phase = .animating
-        let events = engine.resolveRound(heroAction: action)
+        let events = engine.resolveRound(heroAction: heroAction, orders: orders)
         Task {
             if let scene {
                 await scene.play(events)
@@ -421,14 +526,20 @@ final class BattleController {
         heldTime = nil
     }
 
-    /// Out of time: the hero attacks the monster they last went for, or the first one standing.
+    /// Out of time: the hero attacks the monster they last went for, or the first one standing, and
+    /// the companion fights on its own. On the companion's turn, it decides for itself.
     private func timeIsUp() {
         turnClock = nil
         guard isChoosing, holds.isEmpty else { return }
+        if choosingForCompanion {
+            message = "Time's up! \(companion?.name ?? "Your companion") fights on its own."
+            letCompanionDecide()
+            return
+        }
         let standing = aliveEnemyIDs
         guard let target = lastTarget.flatMap({ standing.contains($0) ? $0 : nil }) ?? standing.first else { return }
         message = "Time's up! \(hero?.name ?? "You") attacks."
-        submit(.attack(target: target))
+        submit(.attack(target: target), askCompanion: false)
     }
 
     // MARK: - Playback
@@ -443,12 +554,12 @@ final class BattleController {
             message = "\(name(actor)) attacks \(name(hit.target))!" + (hit.critical ? " Critical hit!" : "")
         case .skill(let actor, let skill, let level, let hits):
             mutate(actor) { $0.mp = max(0, $0.mp - GameSession.mpCost(of: skill, level: level)) }
-            SoundEffects.shared.play(skill.kind.isAttack ? .magic : .heal)
+            SoundEffects.shared.play(skill.kind.isHostile ? .magic : .heal)
             for hit in hits {
                 switch skill.kind {
                 case .heal, .revive: mutate(hit.target) { $0.hp = min($0.stats.hp, $0.hp + hit.amount) }
                 case .physical, .magic: damage(hit)
-                case .buff, .field: break
+                case .buff, .curse, .field: break
                 }
             }
             var text = "\(name(actor)) uses \(skill.name)!"
@@ -493,6 +604,26 @@ final class BattleController {
             message = fighter?.side == .enemies ? "\(name(id)) is defeated!" : "\(name(id)) fainted!"
         case .message(let text):
             message = text
+        case .afflicted(let target, let effect, let rounds):
+            mutate(target) {
+                switch effect {
+                case .poison: $0.poisonRounds = max($0.poisonRounds, rounds)
+                case .curse: $0.curseRounds = max($0.curseRounds, rounds + 1)
+                }
+            }
+            SoundEffects.shared.play(.faint, volume: 0.5)
+            message = switch effect {
+            case .poison: "\(name(target)) is poisoned!"
+            case .curse: "\(name(target)) is cursed and hits for less!"
+            }
+        case .ailmentDamage(let target, _, let amount):
+            mutate(target) {
+                $0.hp = max(0, $0.hp - amount)
+                $0.poisonRounds = max(0, $0.poisonRounds - 1)
+            }
+            SoundEffects.shared.play(.hit, volume: 0.6)
+            Haptics.impact(.light)
+            message = "\(name(target)) is hurt by the poison!"
         }
     }
 
@@ -511,6 +642,8 @@ final class BattleController {
 
     private func roundFinished() {
         combatants = engine.combatants
+        // The marks count down at the start of a round (curses) as well as with each bite.
+        scene?.refreshBars()
         engine.canSeal = session.sealStones > 0
         switch engine.outcome {
         case .ongoing:
@@ -539,7 +672,8 @@ final class BattleController {
         // The card shows a level-up as a banner of its own; its line goes to the log.
         let levelText = newLevel.map { levelLine($0) }
         result = BattleResult(outcome: outcome, lines: lines.filter { $0 != levelText }, newLevel: newLevel,
-                              exp: rewardEXP, gold: rewardGold, loot: found, levelsGained: levelsGained)
+                              exp: rewardEXP, gold: rewardGold, loot: found, levelsGained: levelsGained,
+                              story: outcome == .victory ? story : nil)
         let won = outcome == .victory || outcome == .fled
         // The log gets it all in words; the result card shows the pay as icons.
         var logged = lines
@@ -580,6 +714,13 @@ final class BattleController {
         phase = .animating
         for event in engine.defeatEnemiesForDebug() { apply(event) }
         roundFinished()
+    }
+
+    /// Debug launches (`afflict`): poison and a curse on the field, so their marks show.
+    func afflictForDebug() {
+        engine.afflictForDebug()
+        combatants = engine.combatants
+        scene?.refreshBars()
     }
     #endif
 

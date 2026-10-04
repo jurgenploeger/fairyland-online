@@ -323,6 +323,63 @@ def draw_bridge_of_light(c):
     c.disc(16, 10, 2.2, WHITE)
 
 
+POISON = [hexc("2e6a1e"), hexc("6ab83a"), hexc("b8f070")]
+GUMS = [hexc("3a1a2a"), hexc("7a2a4a"), hexc("b05a7a")]
+INK = hexc("1e2a14")
+
+
+def draw_curse(c):
+    swirl(c, 16, 17, SHADOW[1], turns=1.8, r0=2, grow=0.18, width=1.4)   # dark magic behind
+    c.line(4, 4, 7, 7, LEATHER[1], width=2)                              # a sword, snapped in two
+    c.line(4, 10, 10, 4, GOLD[1], width=2)
+    c.line(9, 9, 14, 14, STEEL[1], width=3)
+    c.line(9, 8, 14, 13, STEEL[2])
+    c.line(18, 17, 24, 23, STEEL[1], width=3)
+    c.line(18, 16, 24, 22, STEEL[2])
+    c.poly([(23, 25), (27, 27), (25, 23)], STEEL[1])
+    for (x, y) in ((15, 20), (21, 11), (8, 21)):
+        c.disc(x, y, 1.3, SHADOW[2])                                     # wisps
+
+
+def draw_poison(c):
+    c.poly([(16, 3), (23, 13), (25, 19), (22, 26), (16, 28), (10, 26), (7, 19), (9, 13)], POISON[1])   # a drop of venom
+    c.shade(lambda x, y, col: col == POISON[1] and x > 18 and y > 15, POISON[0])
+    c.disc(12, 15, 1.8, POISON[2])
+    c.disc(13, 19, 1.5, INK)                                             # a sickly face
+    c.disc(19, 19, 1.5, INK)
+    c.line(13, 24, 19, 24, INK)
+    for (x, y) in ((26, 6), (28, 11), (5, 7)):
+        c.ring(x, y, 2.2, 1.1, POISON[2])                                # bubbles
+
+
+def draw_venom_bite(c):
+    c.disc(16, 16, 12, hexc("1e3a14", 160))
+    fangs(c, 16, 8, GUMS)
+    for (x, y) in ((10, 25), (16, 28), (22, 25)):
+        c.poly([(x - 1.4, y - 3), (x + 1.4, y - 3), (x, y + 1.5)], POISON[1])   # venom dripping
+        c.set(x - 0.5, y - 2, POISON[2])
+
+
+def draw_poison_mist(c):
+    for (x, y, r) in ((10, 19, 6), (17, 14, 7.5), (23, 19, 6), (16, 22, 6)):
+        c.disc(x, y, r, POISON[1])                                       # a cloud
+    c.shade(lambda x, y, col: col == POISON[1] and y > 21, POISON[0])
+    for (x, y, r) in ((11, 17, 2.6), (17, 11, 3)):
+        c.disc(x, y, r, POISON[2])
+    for (x, y) in ((5, 8), (26, 7), (21, 3)):
+        c.ring(x, y, 2.2, 1.1, VIOLET[2])                                # bubbles
+
+
+def draw_evil_eye(c):
+    c.poly([(3, 16), (9, 10), (16, 8), (23, 10), (29, 16), (23, 22), (16, 24), (9, 22)], hexc("efe8ff"))   # the eye
+    c.disc(16, 16, 6, SHADOW[1])                                         # a violet iris
+    c.disc(16, 16, 3.2, SHADOW[0])
+    c.rect(15.5, 12, 16.5, 20, hexc("ff5a7a"))                           # a red slit
+    c.disc(13.5, 13.5, 1.2, WHITE)
+    for (x0, y0, x1, y1) in ((16, 5, 16, 2), (8, 7, 6, 4), (24, 7, 26, 4), (8, 25, 6, 28), (24, 25, 26, 28)):
+        c.line(x0, y0, x1, y1, SHADOW[2])                                # a dark glare
+
+
 SKILLS = {name[5:]: fn for name, fn in dict(globals()).items() if name.startswith("draw_")}
 
 

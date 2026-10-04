@@ -21,8 +21,11 @@ import Foundation
 ///   hair=<id>      dye the hair this colour (content/appearance.json `hair`)
 ///   gender=<id>    male | female | other (picks the race's matching sheet)
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
-///   win            with battle or duel: the foes fall at once and the victory plays out
+///   win            with battle, duel or boss: the foes fall at once and the victory plays out
 ///   duel           start in a duel with an adventurer of your level (with win: their dropped goods)
+///   boss=<npc>     once the map is on screen, fight that boss (as if you'd pressed Fight)
+///   orders         with battle: the hero picks Attack on the first monster, so your companion's turn shows
+///   afflict        with battle: the first monster poisoned, the next one cursed, and the hero poisoned
 ///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
 ///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
 ///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
@@ -111,9 +114,14 @@ enum DebugLaunch {
             session.data.activePetID = pet.id
         }
         if let count = flags["friends"].flatMap({ Int($0) }) {
-            let people: [(name: String, race: String, classID: String)] = [("Dumpling", "human", "fighter"), ("Sprout", "elf", "mage")]
+            // Most bring a companion, as friends do.
+            let people: [(name: String, race: String, classID: String, pet: String?)] = [
+                ("Dumpling", "human", "fighter", "jelly"), ("Sprout", "elf", "mage", nil),
+                ("Clover", "dwarf", "tamer", "bunny"), ("Maple", "human", "mage", "hedgehog"),
+            ]
             let friends = people.prefix(min(count, GameSession.maxAllies)).map { person in
-                Adventurer(name: person.name, raceID: person.race, classID: person.classID, level: session.data.hero.level, look: .standard)
+                Adventurer(name: person.name, raceID: person.race, classID: person.classID, level: session.data.hero.level,
+                           look: .standard, petSpecies: person.pet)
             }
             session.data.friends = (session.data.friends ?? []) + friends
             session.data.partyIDs = (session.data.partyIDs ?? []) + friends.map(\.id)
@@ -178,6 +186,21 @@ enum DebugLaunch {
                     battle.winForDebug()
                 }
             }
+            // `orders`: the hero goes for the first monster, and it's your companion's turn.
+            if flags["orders"] != nil, let battle = coordinator.battle {
+                Task {
+                    try? await Task.sleep(for: .seconds(2))
+                    battle.attack()
+                    if let first = battle.enemies.first(where: \.isAlive) { battle.select(first.id) }
+                }
+            }
+            // `afflict`: poison and a curse on the field, so their marks show.
+            if flags["afflict"] != nil, let battle = coordinator.battle {
+                Task {
+                    try? await Task.sleep(for: .seconds(1.5))
+                    battle.afflictForDebug()
+                }
+            }
             // `cast=stone_spike:5`: once the battle is on screen and everyone is in, the hero casts.
             if let cast = flags["cast"], let skillID = cast.split(separator: ":").first.map(String.init),
                let battle = coordinator.battle {
@@ -196,6 +219,22 @@ enum DebugLaunch {
             #endif
         }
         #if DEBUG
+        if let id = flags["boss"], let npc = Content.shared.npc(id) {
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard coordinator.isReady, coordinator.world.view != nil else { continue }
+                    try? await Task.sleep(for: .seconds(1))
+                    coordinator.fightBoss(npc)
+                    // With `win`: the boss and its minions fall, and the first win's story is told.
+                    if flags["win"] != nil, let battle = coordinator.battle {
+                        try? await Task.sleep(for: .seconds(2))
+                        battle.winForDebug()
+                    }
+                    return
+                }
+            }
+        }
         if flags["duel"] != nil {
             let level = coordinator.session.data.hero.level
             coordinator.duelForDebug(Adventurer(name: "Hazel", raceID: "elf", classID: "tamer", level: level, look: .standard))

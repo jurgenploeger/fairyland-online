@@ -209,10 +209,11 @@ final class GameCoordinator {
     private var boss: NPCDef?
 
     func fightBoss(_ npc: NPCDef) {
-        guard let controller = BattleController.boss(npc, session: session) else { return }
+        guard let controller = BattleController.boss(npc, encounters: world.def.encounters, session: session) else { return }
         overlay = nil
         controller.onFinish = { [weak self] outcome in self?.endBattle(outcome) }
-        battleScene = BattleScene(controller: controller, size: world.size, backdrop: nil)
+        // The map you're standing on, like any fight (without the boss: it's in the battle now).
+        battleScene = BattleScene(controller: controller, size: world.size, backdrop: world.battleBackdrop(hiding: npc.id))
         input.move = .zero
         boss = npc
         battle = controller

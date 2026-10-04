@@ -86,10 +86,10 @@ final class BattleScene: SKScene {
             // right looking back up-left; both lines sit around the middle of the screen.
             // A wide gap between the sides, so it reads as two lines facing off.
             arrange(controller.enemies, around: CGPoint(x: area.midX - 50, y: area.minY + area.height * 0.64), facing: .down)
-            arrange(controller.party, around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.1), facing: .up)
+            arrangeParty(around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.1), facing: .up)
         } else {
             arrange(controller.enemies, around: CGPoint(x: area.minX + area.width * 0.28, y: area.midY + 4), facing: .right)
-            arrange(controller.party, around: CGPoint(x: area.minX + area.width * 0.6, y: area.midY - 24), facing: .left)
+            arrangeParty(around: CGPoint(x: area.minX + area.width * 0.6, y: area.midY - 24), facing: .left)
         }
         showTargets(controller.validTargets)
     }
@@ -98,6 +98,23 @@ final class BattleScene: SKScene {
     /// group forms a second row behind the first.
     private func arrange(_ group: [Combatant], around center: CGPoint, facing: Direction) {
         let rows = stride(from: 0, to: group.count, by: 5).map { Array(group[$0..<min($0 + 5, group.count)]) }
+        arrange(rows: rows, around: center, facing: facing)
+    }
+
+    /// Your side: up to five stand in one line; a bigger party puts the people in front and the
+    /// companions in a row behind them, each line in the order they joined.
+    private func arrangeParty(around center: CGPoint, facing: Direction) {
+        let party = controller.party
+        guard party.count > 5 else {
+            arrange(party, around: center, facing: facing)
+            return
+        }
+        let people = party.filter { $0.petID == nil }
+        let companions = party.filter { $0.petID != nil }
+        arrange(rows: [companions, people].filter { !$0.isEmpty }, around: center, facing: facing)
+    }
+
+    private func arrange(rows: [[Combatant]], around center: CGPoint, facing: Direction) {
         for (index, row) in rows.enumerated() {
             // The first row stands at the back, away from the other side.
             let depth = CGFloat(index) - CGFloat(rows.count - 1) / 2
@@ -107,6 +124,18 @@ final class BattleScene: SKScene {
                 ? CGVector(dx: depth * 36 * (facing == .down ? 1 : -1), dy: depth * 74 * (facing == .down ? -1 : 1))
                 : CGVector(dx: depth * 70 * toward, dy: -depth * 20)
             arrangeLine(row, around: CGPoint(x: center.x + shift.dx, y: center.y + shift.dy), facing: facing)
+        }
+    }
+
+    /// Which way fighters look: across at the other side in profile, as in Fairyland's battles. In
+    /// portrait the two lines face off up and down the screen, but people still turn sideways, your
+    /// party to the left toward the monsters up on the left and those to the right, instead of
+    /// showing their backs. (Monsters have only a front view, so they look the same either way.)
+    private static func profile(_ facing: Direction) -> Direction {
+        switch facing {
+        case .up: .left
+        case .down: .right
+        default: facing
         }
     }
 
@@ -130,7 +159,7 @@ final class BattleScene: SKScene {
         for (index, fighter) in group.enumerated() {
             let offset = CGFloat(index) - CGFloat(group.count - 1) / 2
             let point = CGPoint(x: center.x + offset * spacing, y: center.y + offset * rise)
-            actors[fighter.id]?.place(at: point, facing: facing)
+            actors[fighter.id]?.place(at: point, facing: Self.profile(facing))
         }
     }
 
@@ -287,6 +316,19 @@ final class BattleScene: SKScene {
         case .message:
             controller.apply(event)
             await pause(0.8)
+
+        case .afflicted(let targetID, let effect, _):
+            controller.apply(event)
+            if let actor = actors[targetID] { SkillEffects.afflicted(actor, effect: effect, in: stage) }
+            await pause(0.55)
+
+        case .ailmentDamage(let targetID, _, let amount):
+            controller.apply(event)
+            if let actor = actors[targetID] {
+                SkillEffects.poisonBite(on: actor, in: stage)
+                Effects.damageBurst("\(amount)", style: .poison, at: actor.top, in: stage)
+            }
+            await pause(0.45)
         }
     }
 
@@ -397,6 +439,24 @@ final class BattleScene: SKScene {
                 SkillEffects.ultimateFinale(on: targets, style: "holy", color: color, size: size, in: stage)
                 await pause(0.7)
             }
+            return
+        }
+
+        // Curses and poisons: a dark mote flies to the foe and sinks in (a mist spreads over all of
+        // them at once). Each mark shows as it takes hold, in the events after this one.
+        if skill.kind == .curse {
+            let poison = skill.inflicts?.effect == .poison
+            if skill.target != .allEnemies, let first = targets.first {
+                await SkillEffects.projectile(from: actors[actorID]?.center, to: first.center, color: color, level: level, trail: true, in: stage)
+            }
+            for target in targets {
+                if poison {
+                    SkillEffects.poisonCloud(on: target, level: level, in: stage)
+                } else {
+                    SkillEffects.curseSpell(on: target, level: level, in: stage)
+                }
+            }
+            await pause(0.35)
             return
         }
 
@@ -704,9 +764,12 @@ final class BattleScene: SKScene {
         ]))
     }
 
-    private func refreshBars() {
+    /// Bars, and the marks of any poison or curse with the rounds it has left.
+    func refreshBars() {
         for fighter in controller.combatants {
             actors[fighter.id]?.setHealth(fighter.hpFraction, mana: fighter.mpFraction)
+            // A curse counts the round it's in too; show the rounds still to come.
+            actors[fighter.id]?.setAilments(poison: fighter.poisonRounds, curse: max(0, fighter.curseRounds - 1))
         }
     }
 
@@ -837,6 +900,44 @@ final class BattleActor: SKNode {
     func setHealth(_ fraction: Double, mana: Double) {
         bar.fraction = CGFloat(fraction)
         bar.manaFraction = CGFloat(mana)
+    }
+
+    /// Poison's green drop and a curse's violet arrow beside the HP bar, each with its rounds left.
+    private let marks = SKNode()
+    private var shownPoison = 0
+    private var shownCurse = 0
+
+    func setAilments(poison: Int, curse: Int) {
+        guard poison != shownPoison || curse != shownCurse else { return }
+        shownPoison = poison
+        shownCurse = curse
+        if marks.parent == nil {
+            marks.position = CGPoint(x: bar.position.x + 30, y: bar.position.y)
+            addChild(marks)
+        }
+        marks.removeAllChildren()
+        var x: CGFloat = 0
+        for (rounds, effect) in [(poison, Ailment.poison), (curse, Ailment.curse)] where rounds > 0 {
+            let tint = SkillEffects.color(of: effect)
+            let icon: SKNode
+            if let texture = SkillEffects.fxTexture(effect == .poison ? "status_poison" : "status_curse") {
+                icon = SKSpriteNode(texture: texture, size: texture.size() * 2)
+            } else {
+                let dot = SKShapeNode(circleOfRadius: 5)
+                dot.fillColor = tint
+                dot.strokeColor = UIColor(white: 0, alpha: 0.7)
+                icon = dot
+            }
+            icon.position = CGPoint(x: x, y: 0)
+            marks.addChild(icon)
+            let count = SKLabelNode()
+            count.attributedText = Nodes.outlined("\(rounds)", size: 9, color: tint)
+            count.verticalAlignmentMode = .center
+            count.horizontalAlignmentMode = .left
+            count.position = CGPoint(x: x + 9, y: -1)
+            marks.addChild(count)
+            x += 24
+        }
     }
 
     func setHighlighted(_ highlighted: Bool) {

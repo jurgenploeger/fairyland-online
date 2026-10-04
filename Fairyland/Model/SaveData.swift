@@ -127,6 +127,8 @@ nonisolated struct SaveData: Codable, Sendable {
     var explored: [String: Data]?
     /// Which save file this game lives in (SaveStore keeps one per game).
     var slot: String?
+    /// When the game was last saved; the title screen shows it so you can tell your games apart.
+    var savedAt: Date?
 }
 
 /// Another adventurer (Fairyland's other players): met on the map, befriended, and maybe
@@ -174,21 +176,49 @@ enum SaveStore {
 
     static var exists: Bool { !all().isEmpty }
 
+    /// The slot the save from before the folder moves into, when it had none.
+    static let legacySlot = "first-game"
+
     /// Every saved game, the most recently played first.
     static func all() -> [SaveData] {
         moveLegacySave()
-        let files = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: [.contentModificationDateKey])) ?? []
-        return files
+        let manager = FileManager.default
+        let files = (try? manager.contentsOfDirectory(at: folder, includingPropertiesForKeys: [.contentModificationDateKey])) ?? []
+        var games = files
             .filter { $0.pathExtension == "json" }
-            .compactMap { file -> (SaveData, Date)? in
+            .compactMap { file -> (file: URL, data: SaveData, played: Date)? in
                 guard let raw = try? Data(contentsOf: file), var data = try? JSONDecoder().decode(SaveData.self, from: raw) else { return nil }
                 data.slot = data.slot ?? file.deletingPathExtension().lastPathComponent
                 let played = (try? file.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? .distantPast
-                return (data, played)
+                return (file, data, played)
             }
-            .sorted { $0.1 > $1.1 }
-            .map(\.0)
+            .sorted { $0.played < $1.played }
+        // Until 0.3.14 the save from before the folder moved in again every time the title screen
+        // looked, each time as a "new" game. Of games that are the same but for their slot, only the
+        // oldest copy stays, so it doesn't push ahead of the games you actually played.
+        var seen = Set<Data>()
+        games.removeAll { game in
+            var plain = game.data
+            plain.slot = nil
+            plain.savedAt = nil
+            guard let key = try? comparer.encode(plain) else { return false }
+            if seen.insert(key).inserted { return false }
+            try? manager.removeItem(at: game.file)
+            return true
+        }
+        return games.reversed().map { game in
+            var data = game.data
+            data.savedAt = data.savedAt ?? game.played
+            return data
+        }
     }
+
+    /// Sorted keys, so two copies of one game encode exactly alike.
+    private static let comparer: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        return encoder
+    }()
 
     /// The most recently played game.
     static func load() -> SaveData? { all().first }
@@ -206,12 +236,20 @@ enum SaveStore {
         try? FileManager.default.removeItem(at: url(for: slot))
     }
 
+    /// Moves the single save from before the folder into it, once. It always lands in the same slot
+    /// and never over a game that's already there, and the old file goes as soon as it has.
     private static func moveLegacySave() {
-        guard let raw = try? Data(contentsOf: legacyURL), var data = try? JSONDecoder().decode(SaveData.self, from: raw) else { return }
-        data.slot = data.slot ?? UUID().uuidString
-        save(data)
-        if FileManager.default.fileExists(atPath: url(for: data.slot ?? "game").path()) {
-            try? FileManager.default.removeItem(at: legacyURL)
+        let manager = FileManager.default
+        // `path()` would escape the space in "Application Support" and find nothing: that's how the
+        // old file used to stay behind and move in again and again.
+        guard manager.fileExists(atPath: legacyURL.path(percentEncoded: false)),
+              let raw = try? Data(contentsOf: legacyURL), var data = try? JSONDecoder().decode(SaveData.self, from: raw) else { return }
+        let slot = data.slot ?? legacySlot
+        data.slot = slot
+        let destination = url(for: slot).path(percentEncoded: false)
+        if !manager.fileExists(atPath: destination) { save(data) }
+        if manager.fileExists(atPath: destination) {
+            try? manager.removeItem(at: legacyURL)
         }
     }
 }
