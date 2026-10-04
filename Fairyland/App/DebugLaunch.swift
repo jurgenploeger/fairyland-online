@@ -19,6 +19,8 @@ import Foundation
 ///   gender=<id>    male | female | other (picks the race's matching sheet)
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
 ///   win            with battle: the monsters fall at once and the victory plays out
+///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
+///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
 ///   menu=<tab>     open character | companions | bag | quests
 ///   bottom         open the menu scrolled to the end
 ///   npc=<id>       open an NPC dialog
@@ -151,6 +153,21 @@ enum DebugLaunch {
                 Task {
                     try? await Task.sleep(for: .seconds(2))
                     battle.winForDebug()
+                }
+            }
+            // `cast=stone_spike:5`: once the battle is on screen and everyone is in, the hero casts.
+            if let cast = flags["cast"], let skillID = cast.split(separator: ":").first.map(String.init),
+               let battle = coordinator.battle {
+                let level = cast.split(separator: ":").dropFirst().first.flatMap { Int($0) } ?? 1
+                let stop = flags["fxstop"].flatMap(Double.init)
+                Task {
+                    for _ in 0..<240 {
+                        try? await Task.sleep(for: .milliseconds(500))
+                        guard let scene = battle.scene, scene.view != nil else { continue }
+                        try? await Task.sleep(for: .seconds(2))
+                        scene.castForDebug(skillID, level: level, stopAt: stop)
+                        return
+                    }
                 }
             }
             #endif

@@ -2,6 +2,18 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.13",
+      "date": "2026-10-04",
+      "title": "Spells that land",
+      "notes": [
+        "Stone Spike bursts out of the ground in real rock: the earth cracks, shaded spikes shoot up round the target (tall ones behind, short ones in front), throwing rocks and dust and knocking it off its feet, then sink back. The more you train it, the more spikes, up to a giant one at the top.",
+        "Fire Bolt is a flickering fireball trailing embers that bursts into a blast, burns out into smoke and scorches the ground. Stronger casts set flames licking round the target and send a column of fire up through it.",
+        "Leaf Storm whips leaves, and petals as it grows, into a cyclone round every foe, passing in front of them and behind with gusts of wind.",
+        "Monsters' water spells (Bubble, Jelly Splash, Frost Breath) lob a wobbling orb of water that bursts in a splash and a spray of drops.",
+        "Mastered spells finish with the new art too: a rain of fireball meteors, a forest of stone spikes, a hurricane of leaves."
+      ]
+    },
+    {
       "version": "0.3.12",
       "date": "2026-10-04",
       "title": "Hair that fits",
