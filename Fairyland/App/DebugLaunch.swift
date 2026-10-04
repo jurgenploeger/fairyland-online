@@ -23,6 +23,7 @@ import Foundation
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
 ///   win            with battle or duel: the foes fall at once and the victory plays out
 ///   duel           start in a duel with an adventurer of your level (with win: their dropped goods)
+///   boss=<npc>     once the map is on screen, fight that boss (as if you'd pressed Fight)
 ///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
 ///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
 ///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
@@ -196,6 +197,17 @@ enum DebugLaunch {
             #endif
         }
         #if DEBUG
+        if let id = flags["boss"], let npc = Content.shared.npc(id) {
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard coordinator.isReady, coordinator.world.view != nil else { continue }
+                    try? await Task.sleep(for: .seconds(1))
+                    coordinator.fightBoss(npc)
+                    return
+                }
+            }
+        }
         if flags["duel"] != nil {
             let level = coordinator.session.data.hero.level
             coordinator.duelForDebug(Adventurer(name: "Hazel", raceID: "elf", classID: "tamer", level: level, look: .standard))

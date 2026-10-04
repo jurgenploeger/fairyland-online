@@ -1224,10 +1224,16 @@ final class WorldScene: SKScene {
 
     /// What's on screen right now, for the battle backdrop (Fairyland fights where you stand).
     private func snapshot() -> SKTexture? {
+        battleBackdrop()
+    }
+
+    /// The map as it looks right now, for behind a battle. The party (and a boss, `npcID`) are
+    /// drawn by the battle itself, so they're left out, with tap markers and a cave's dark.
+    func battleBackdrop(hiding npcID: String? = nil) -> SKTexture? {
         let visible = CGRect(x: cam.position.x - size.width / 2, y: cam.position.y - size.height / 2, width: size.width, height: size.height)
-        // The party is drawn by the battle itself, so leave them (and tap markers) out of the backdrop.
-        let hidden: [SKNode] = [player, follower].compactMap { $0 } + world.children.filter { $0.name == Effects.tapMarkerName }
-            + (lantern?.nodes ?? [])
+        let boss: [SKNode] = npcs.filter { $0.def.id == npcID }.map(\.node)
+        let hidden: [SKNode] = [player, follower].compactMap { $0 } + allies.map(\.node) + boss
+            + world.children.filter { $0.name == Effects.tapMarkerName } + (lantern?.nodes ?? [])
         hidden.forEach { $0.isHidden = true }
         defer { hidden.forEach { $0.isHidden = false } }
         return view?.texture(from: world, crop: visible)

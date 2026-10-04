@@ -304,9 +304,11 @@ nonisolated struct NPCDef: Decodable, Identifiable, Sendable {
     /// Chests: the item inside, and the quest that unlocks them.
     let gives: String?
     let quest: String?
-    /// Bosses: which monster, at what level.
+    /// Bosses: which monster, at what level, and how many of the map's own monsters fight at its
+    /// side (2 unless set; 0 for none).
     let monster: String?
     let level: Int?
+    let minions: Int?
     /// Offers rebirth once you're strong enough (Elder Oak).
     let rebirth: Bool?
 }

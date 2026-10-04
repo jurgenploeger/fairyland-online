@@ -180,6 +180,12 @@ for map_def in maps.values():
             check(npc.get("gives") in items, f"chest {npc['id']} → unknown item {npc.get('gives')}")
         if npc["role"] == "boss":
             check(monsters.get(npc.get("monster"), {}).get("boss") is True, f"boss {npc['id']} → unknown boss {npc.get('monster')}")
+            # Its minions come from the map's encounter table.
+            if npc.get("minions", 2) > 0:
+                check(bool((map_def.get("encounters") or {}).get("monsters")), f"boss {npc['id']} → minions need the map's encounters")
+        if "minions" in npc:
+            check(npc["role"] == "boss" and isinstance(npc["minions"], int) and 0 <= npc["minions"] <= 4,
+                  f"npc {npc['id']} → minions is for bosses, 0 to 4")
 
 # Every monster can be met somewhere: on a map's encounter table, or standing there as a boss.
 met = {monster for m in maps.values() for monster in (m.get("encounters") or {}).get("monsters", {})}

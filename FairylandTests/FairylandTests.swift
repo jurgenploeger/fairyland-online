@@ -412,6 +412,22 @@ struct RulesTests {
         #expect(Content.shared.monsters.allSatisfy { !($0.lore ?? "").isEmpty })
     }
 
+    @Test func bossesBringMinions() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let map = try #require(Content.shared.maps.first { $0.npcs?.contains { $0.monster == "rat_king" } == true })
+        let npc = try #require(map.npcs?.first { $0.monster == "rat_king" })
+        let battle = try #require(BattleController.boss(npc, encounters: map.encounters, session: session))
+        // Two of the map's own monsters, a little weaker, with the boss in the middle.
+        #expect(battle.enemies.count == 3)
+        #expect(battle.enemies[1].speciesID == "rat_king")
+        let minions = battle.enemies.filter { $0.speciesID != "rat_king" }
+        #expect(minions.allSatisfy { map.encounters?.monsters[$0.speciesID ?? ""] != nil })
+        #expect(minions.allSatisfy { $0.level < (npc.level ?? 0) })
+        // Without the map's monsters it fights alone.
+        let alone = try #require(BattleController.boss(npc, session: session))
+        #expect(alone.enemies.count == 1)
+    }
+
     @Test func shopsBuyBackAndAdventurersTrade() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let potion = try #require(Content.shared.item("potion"))

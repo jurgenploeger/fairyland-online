@@ -131,16 +131,40 @@ final class BattleController {
         return controller
     }
 
-    /// A boss waiting on the map.
-    static func boss(_ npc: NPCDef, session: GameSession) -> BattleController? {
+    /// A boss waiting on the map, with a few of the map's own monsters at its side (`minions` on
+    /// the NPC, 2 unless it says otherwise), a little weaker than the boss. It stands in the middle.
+    static func boss(_ npc: NPCDef, encounters: MapDef.Encounters? = nil, session: GameSession) -> BattleController? {
         guard let id = npc.monster, let species = session.content.monster(id) else { return nil }
         let level = npc.level ?? 10
         let stats = species.stats(at: level)
         let boss = Combatant(id: 10, side: .enemies, source: .wild(id), name: species.name, art: species.art,
                              level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp,
                              skills: species.skills, captureRate: 0)
-        let engine = BattleEngine(party: party(for: session), enemies: [boss], content: session.content)
-        let controller = BattleController(engine: engine, session: session, intro: "\(species.name) blocks your way!")
+        var minions: [Combatant] = []
+        if let encounters {
+            let low = encounters.levels.first ?? 1
+            let high = max(low, encounters.levels.last ?? low)
+            let top = max(low, min(high, level - 1))
+            let bottom = min(top, max(low, level - 8))
+            for index in 0..<max(0, npc.minions ?? 2) {
+                guard let kindID = pick(from: encounters.monsters), let kind = session.content.monster(kindID) else { continue }
+                let minionLevel = Int.random(in: bottom...top)
+                let minionStats = kind.stats(at: minionLevel)
+                var minion = Combatant(
+                    id: 11 + index, side: .enemies, source: .wild(kindID), name: kind.name, art: kind.art,
+                    level: minionLevel, element: kind.element, stats: minionStats, hp: minionStats.hp, mp: minionStats.mp,
+                    skills: kind.skills, captureRate: kind.captureRate
+                )
+                minion.isRare = kind.rare == true
+                minions.append(minion)
+            }
+        }
+        let half = (minions.count + 1) / 2
+        let enemies = Array(minions.prefix(half)) + [boss] + Array(minions.dropFirst(half))
+        let engine = BattleEngine(party: party(for: session), enemies: enemies, content: session.content,
+                                  captureBonus: session.heroClass.captureBonus ?? 1)
+        let intro = minions.isEmpty ? "\(species.name) blocks your way!" : "\(species.name) and its followers block your way!"
+        let controller = BattleController(engine: engine, session: session, intro: intro)
         controller.music = "boss"
         return controller
     }
