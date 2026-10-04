@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.21",
+      "date": "2026-10-04",
+      "title": "Fainting splits the party",
+      "notes": [
+        "When you faint, a fight isn't over while a friend is still standing: they fight on without you, and a friend who knows Revive wakes you up, you first. It's lost once nobody's left standing (your companion doesn't fight on alone).",
+        "Whoever is down when the fight ends wakes up at their own checkpoint. You wake at yours, even if your friends won, and get no EXP from that fight, like a fainted companion. A friend who fainted wakes at theirs: the last checkpoint they reached with you.",
+        "Friends still standing when you fell wait for you where the fight was. They stay in your party but sit out fights, greyed out in the top-left corner, and their stats say where they are. Walk up to them and they set off with you again."
+      ]
+    },
+    {
       "version": "0.3.20",
       "date": "2026-10-04",
       "title": "A clearer stats window",

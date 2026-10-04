@@ -79,7 +79,7 @@ final class BattleController {
         }
     }
 
-    /// You, your companion and the friends in your party.
+    /// You, your companion and the friends in your party who are at your side.
     private static func party(for session: GameSession) -> [Combatant] {
         var hero = Combatant(
             id: 0, side: .party, source: .hero, name: session.data.hero.name, art: GameSession.heroArt,
@@ -98,7 +98,7 @@ final class BattleController {
                 hp: pet.hp, mp: pet.mp, skills: species.skills, captureRate: 0
             ))
         }
-        for (index, friend) in session.partyMembers.enumerated() {
+        for (index, friend) in session.friendsAtYourSide.enumerated() {
             party.append(adventurer(friend, id: 2 + index, side: .party, session: session))
             // A friend's companion fights beside them (a step below their level, like a rival's),
             // named for its owner so it's never mistaken for yours.
@@ -702,24 +702,51 @@ final class BattleController {
         // The marks count down at the start of a round (curses) as well as with each bite.
         scene?.refreshBars()
         switch engine.outcome {
+        case .ongoing where heroIsDown:
+            fightOnWithoutYou()
         case .ongoing:
             phase = .command
             message = "What will \(hero?.name ?? "you") do?"
             startTurnClock()
         case .victory:
-            finish(.victory, lines: concludeVictory())
+            finish(.victory, lines: concludeVictory() + afterTheFight())
         case .fled:
             let runaway = engine.combatants.first { $0.hasFled }?.name ?? "The monster"
-            finish(.fled, lines: ["\(runaway) ran away!"] + concludeVictory())
+            finish(.fled, lines: ["\(runaway) ran away!"] + concludeVictory() + afterTheFight())
         case .defeat:
-            session.faint()
-            session.save()
-            finish(.defeat, lines: ["\(hero?.name ?? "You") fainted…", "You wake up at \(session.checkpointName(session.checkpoint)), a little bruised."])
+            finish(.defeat, lines: ["\(hero?.name ?? "You") fainted…"] + afterTheFight())
         case .escaped:
             syncParty()
-            session.save()
-            finish(.escaped, lines: ["You got away safely."])
+            finish(.escaped, lines: ["You got away safely."] + afterTheFight())
         }
+    }
+
+    /// The hero has fainted: the fight goes on without them while a friend still stands.
+    var heroIsDown: Bool { engine.hero?.isAlive == false }
+
+    /// While you lie fainted, the friends still standing fight on. The rounds play by themselves
+    /// (your companion decides for itself), a moment apart so you can follow, until the fight is won
+    /// or lost or someone wakes you. The chat holds them, as it holds the turn clock.
+    private func fightOnWithoutYou() {
+        let standing = party.filter { $0.isAlly && $0.isAlive }.map(\.name)
+        message = "\(hero?.name ?? "You") fainted! \(GameSession.listed(standing)) \(standing.count == 1 ? "fights" : "fight") on…"
+        Task {
+            if scene != nil { try? await Task.sleep(for: .milliseconds(900)) }
+            while !holds.isEmpty { try? await Task.sleep(for: .milliseconds(250)) }
+            resolve(.defend, orders: [:])
+        }
+    }
+
+    /// Whoever fainted wakes up at their own checkpoint, you included even when your friends won,
+    /// and friends still standing when you fell stay where the fight was (`GameSession.partWays`).
+    private func afterTheFight() -> [String] {
+        let fainted = Set(engine.combatants.compactMap { fighter -> UUID? in
+            guard case .ally(let id) = fighter.source, !fighter.isAlive else { return nil }
+            return id
+        })
+        let lines = session.partWays(fainted: fainted, heroFainted: heroIsDown)
+        session.save()
+        return lines
     }
 
     private func finish(_ outcome: BattleOutcome, lines: [String]) {
@@ -733,7 +760,10 @@ final class BattleController {
         let won = outcome == .victory || outcome == .fled
         // The log gets it all in words; the result card shows the pay as icons.
         var logged = lines
-        if rewardEXP > 0 || rewardGold > 0 { logged.insert("+\(rewardEXP) EXP    +\(rewardGold) gold", at: min(1, logged.count)) }
+        var pay: [String] = []
+        if rewardEXP > 0 { pay.append("+\(rewardEXP) EXP") }
+        if rewardGold > 0 { pay.append("+\(rewardGold) gold") }
+        if !pay.isEmpty { logged.insert(pay.joined(separator: "    "), at: min(1, logged.count)) }
         for item in found {
             let name = session.content.item(item.id)?.name ?? item.id
             logged.append(item.count > 1 ? "Found \(name) ×\(item.count)!" : "Found \(name)!")
@@ -777,6 +807,22 @@ final class BattleController {
         engine.afflictForDebug()
         combatants = engine.combatants
         scene?.refreshBars()
+    }
+
+    /// Debug launches (`herodown`): the hero faints where they stand, and any friends fight on.
+    func knockOutHeroForDebug() {
+        guard phase == .command, !choosingForCompanion else { return }
+        stopTurnClock()
+        phase = .animating
+        let events = engine.knockOutHeroForDebug()
+        Task {
+            if let scene {
+                await scene.play(events)
+            } else {
+                for event in events { apply(event) }
+            }
+            roundFinished()
+        }
     }
     #endif
 
@@ -824,21 +870,26 @@ final class BattleController {
             session.beatMonster(id, level: foe.level)
         }
         session.data.gold += gold
-        rewardEXP = exp
         rewardGold = gold
         session.growParty()
 
-        let learnableBefore = Set(session.learnableSkills.map(\.id))
-        let levels = session.gainHeroEXP(exp)
-        if levels > 0 {
-            newLevel = session.data.hero.level
-            levelsGained = levels
-            lines.append(levelLine(session.data.hero.level))
-            for skill in session.learnableSkills where !learnableBefore.contains(skill.id) {
-                lines.append("New skill to learn: \(skill.name)!")
-            }
-            if session.canChooseClass {
-                lines.append("You can choose a path now! Visit a guild master in town.")
+        if heroIsDown {
+            // Out cold, you learn nothing from it, like a fainted companion. The spoils are shared.
+            lines.append("Your friends won while you were out cold: no EXP for you this time.")
+        } else {
+            rewardEXP = exp
+            let learnableBefore = Set(session.learnableSkills.map(\.id))
+            let levels = session.gainHeroEXP(exp)
+            if levels > 0 {
+                newLevel = session.data.hero.level
+                levelsGained = levels
+                lines.append(levelLine(session.data.hero.level))
+                for skill in session.learnableSkills where !learnableBefore.contains(skill.id) {
+                    lines.append("New skill to learn: \(skill.name)!")
+                }
+                if session.canChooseClass {
+                    lines.append("You can choose a path now! Visit a guild master in town.")
+                }
             }
         }
 

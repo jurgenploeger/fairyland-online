@@ -930,8 +930,11 @@ private struct ResultPanel: View {
         VStack(spacing: 10) {
             if result.exp > 0 || result.gold > 0 {
                 HStack(spacing: 18) {
-                    Label { Text("+\(result.exp) EXP") } icon: {
-                        IconImage(.star, size: 18).foregroundStyle(HUDStyle.exp)
+                    // None when you were out cold at the end (your friends won it).
+                    if result.exp > 0 {
+                        Label { Text("+\(result.exp) EXP") } icon: {
+                            IconImage(.star, size: 18).foregroundStyle(HUDStyle.exp)
+                        }
                     }
                     Label { Text("+\(result.gold)") } icon: {
                         IconImage(.coins, size: 18).foregroundStyle(HUDStyle.gold)

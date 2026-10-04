@@ -192,7 +192,10 @@ struct ProfileCard: View {
             var facts = Facts(name: person.name, icon: .user, art: session.artID(for: person),
                               kind: "Lv \(person.level) · \(content.race(person.raceID).name) \(content.classDef(person.classID).name)",
                               stats: stats, hp: stats.hp, mp: stats.mp)
-            if session.isInParty(person) {
+            if let place = session.whereabouts(of: person) {
+                facts.note = "Waiting for you at \(place)"
+                facts.noteColor = HUDStyle.orange
+            } else if session.isInParty(person) {
                 facts.note = "Travelling with you"
                 facts.noteColor = HUDStyle.green
             } else if session.isFriend(person) {

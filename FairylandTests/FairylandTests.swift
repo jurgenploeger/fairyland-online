@@ -725,6 +725,32 @@ struct RulesTests {
         #expect(blessed.attack > Double(heroStats.attack))
     }
 
+    @Test func friendsFightOnAfterYouFallAndWakeYou() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 200, mp: 100, attack: 30, defense: 10, magic: 20, speed: 10)
+        // You've fallen; a friend who knows Revive is still standing.
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 40, element: .neutral,
+                             stats: stats, hp: 0, mp: 20, skills: [], captureRate: 0)
+        var friend = Combatant(id: 2, side: .party, source: .ally(UUID()), name: "Maple", art: "player_walk", level: 40, element: .neutral,
+                               stats: stats, hp: 200, mp: 100, skills: ["revive"], captureRate: 0)
+        friend.skillLevels = ["revive": 1]
+        let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
+                            stats: jelly.stats(at: 1), hp: 9_999, mp: 0, skills: [], captureRate: 0)
+        let engine = BattleEngine(party: [hero, friend], enemies: [foe], content: content, seed: 4)
+        _ = engine.resolveRound(heroAction: .defend)
+        // The fight goes on without you, and your friend wakes you.
+        #expect(engine.outcome == .ongoing)
+        #expect(engine.combatant(0)!.hp > 0)
+
+        // With only your companion standing, a fall loses the fight: companions don't fight on alone.
+        let pet = Combatant(id: 1, side: .party, source: .pet(UUID()), name: "Pet", art: jelly.art, level: 40, element: .neutral,
+                            stats: stats, hp: 200, mp: 0, skills: [], captureRate: 0)
+        let alone = BattleEngine(party: [hero, pet], enemies: [foe], content: content, seed: 4)
+        _ = alone.resolveRound(heroAction: .defend)
+        #expect(alone.outcome == .defeat)
+    }
+
     @Test func captureNeedsALoneWeakenedMonster() {
         let content = Content.shared
         let jelly = content.monster("jelly")!
@@ -871,6 +897,43 @@ struct RulesTests {
         let ids = controller.party.map(\.id)
         #expect(Set(ids).count == ids.count)
         #expect(ids.allSatisfy { $0 < 10 })
+    }
+
+    @Test func thePartySplitsWhenSomeoneFaints() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let maple = Adventurer(name: "Maple", raceID: "human", classID: "mage", level: 10, look: .standard)
+        let kip = Adventurer(name: "Kip", raceID: "elf", classID: "fighter", level: 10, look: .standard)
+        for friend in [maple, kip] { #expect(session.befriend(friend)) }
+        session.adventurersAround = [maple.id, kip.id]
+        session.invite(maple.id)
+        session.invite(kip.id)
+        // Out in Sunny Meadow, in from Meadowbrook on the west: everyone's checkpoint is that entrance.
+        let meadow = try #require(Content.shared.map("sunny_meadow"))
+        session.data.mapID = meadow.id
+        session.reachCheckpoint(meadow, entry: .west)
+        session.playerPosition = CGPoint(x: 100, y: 50)
+        let entrance = Spot(mapID: meadow.id, entry: .west)
+
+        // Kip faints, but the fight is won: Kip wakes up at the entrance and waits there.
+        _ = session.partWays(fainted: [kip.id], heroFainted: false)
+        #expect(session.friendsAtYourSide.map(\.name) == ["Maple"])
+        #expect(session.friends.first { $0.id == kip.id }?.waitingAt == entrance)
+
+        // You fall with Maple still standing: you wake up at your checkpoint, and Maple waits where you fell.
+        let lines = session.partWays(fainted: [], heroFainted: true)
+        #expect(lines == ["You wake up at the Sunny Meadow entrance, a little bruised.", "Maple waits for you where you fell."])
+        #expect(session.friends.first { $0.id == maple.id }?.waitingAt == Spot(mapID: meadow.id, position: [100, 50]))
+        // Both are still in your party, but they don't fight until you come back for them.
+        #expect(session.partyMembers.count == 2 && session.friendsAtYourSide.isEmpty)
+        let encounters = try #require(meadow.encounters)
+        #expect(!BattleController.encounter(encounters, session: session).party.contains(where: \.isAlly))
+        session.rejoin(maple.id)
+        #expect(session.friendsAtYourSide.map(\.name) == ["Maple"])
+
+        // Falling together, a friend who saved where you did wakes up beside you.
+        let together = session.partWays(fainted: [maple.id], heroFainted: true)
+        #expect(together.first == "You and Maple wake up at the Sunny Meadow entrance, a little bruised.")
+        #expect(session.friendsAtYourSide.map(\.name) == ["Maple"])
     }
 
     @Test func questsUnlockLooksAndRoads() {

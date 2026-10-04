@@ -578,6 +578,10 @@ final class GameSession {
         (data.partyIDs ?? []).compactMap { id in friends.first { $0.id == id } }
     }
 
+    /// The friends in your party who are with you, not waiting somewhere for you to come back for
+    /// them: they walk and fight beside you.
+    var friendsAtYourSide: [Adventurer] { partyMembers.filter { $0.waitingAt == nil } }
+
     func isFriend(_ adventurer: Adventurer) -> Bool { friends.contains { $0.id == adventurer.id } }
     func isInParty(_ adventurer: Adventurer) -> Bool { data.partyIDs?.contains(adventurer.id) == true }
 
@@ -596,10 +600,12 @@ final class GameSession {
     func invite(_ id: UUID) {
         guard let friend = friends.first(where: { $0.id == id }), !isInParty(friend), partyMembers.count < Self.maxAllies,
               adventurersAround.contains(id) else { return }
-        // Friends keep up with you.
+        // Friends keep up with you, and save where you last did.
         let level = max(friend.level, data.hero.level - 1)
         if let index = data.friends?.firstIndex(where: { $0.id == id }) {
             data.friends?[index].level = level
+            data.friends?[index].waitingAt = nil
+            data.friends?[index].checkpoint = checkpoint
         }
         data.partyIDs = (data.partyIDs ?? []) + [id]
         post("\(friend.name) joined your party!", .reward)
@@ -609,8 +615,28 @@ final class GameSession {
     func leaveParty(_ id: UUID) {
         guard let friend = friends.first(where: { $0.id == id }) else { return }
         data.partyIDs?.removeAll { $0 == id }
+        if let index = data.friends?.firstIndex(where: { $0.id == id }) {
+            data.friends?[index].waitingAt = nil
+        }
         post("\(friend.name) left the party. See you around!")
         save()
+    }
+
+    /// A friend who was waiting for you: you've found them, and off you go together again.
+    func rejoin(_ id: UUID) {
+        guard let index = data.friends?.firstIndex(where: { $0.id == id }), let friend = data.friends?[index],
+              friend.waitingAt != nil else { return }
+        data.friends?[index].waitingAt = nil
+        post("\(friend.name) is back with you!", .reward)
+        save()
+    }
+
+    /// Where a friend in your party is waiting for you ("the Sunny Meadow entrance", "Meadowbrook"),
+    /// or nil while they're at your side.
+    func whereabouts(of friend: Adventurer) -> String? {
+        guard let spot = friends.first(where: { $0.id == friend.id })?.waitingAt else { return nil }
+        if spot.position == nil { return checkpointName(Checkpoint(mapID: spot.mapID, entry: spot.entry)) }
+        return content.map(spot.mapID)?.name ?? "somewhere"
     }
 
     func unfriend(_ id: UUID) {
@@ -702,9 +728,17 @@ final class GameSession {
         data.checkpoint ?? Checkpoint(mapID: content.startMap, entry: nil)
     }
 
-    /// Walking into a map makes its entrance your checkpoint; towns revive you in the square.
+    /// Walking into a map makes its entrance your checkpoint; towns revive you in the square. The
+    /// friends at your side save there with you.
     func reachCheckpoint(_ map: MapDef, entry: Edge?) {
         let point = Checkpoint(mapID: map.id, entry: map.fence == true ? nil : entry)
+        let beside = Set(friendsAtYourSide.map(\.id))
+        if var friends = data.friends, friends.contains(where: { beside.contains($0.id) && $0.checkpoint != point }) {
+            for index in friends.indices where beside.contains(friends[index].id) {
+                friends[index].checkpoint = point
+            }
+            data.friends = friends
+        }
         guard point != data.checkpoint else { return }
         data.checkpoint = point
         post("Checkpoint saved at \(checkpointName(point)).", .quest)
@@ -713,6 +747,47 @@ final class GameSession {
     func checkpointName(_ point: Checkpoint) -> String {
         let name = content.map(point.mapID)?.name ?? "town"
         return point.entry == nil ? name : "the \(name) entrance"
+    }
+
+    /// After a fight, the party may split up. Whoever fainted wakes up at their own checkpoint: you at
+    /// yours (`faint()`), each friend at theirs. Friends still standing when you fell stay where the
+    /// fight was. Either way they wait there until you come back for them (`rejoin`); a friend who
+    /// wakes up where you do is right beside you again. Returns what happened, for the battle log.
+    func partWays(fainted: Set<UUID>, heroFainted: Bool) -> [String] {
+        let here = Spot(mapID: data.mapID, position: playerPosition.map { [Double($0.x), Double($0.y)] })
+        var lines: [String] = []
+        var wokeWithYou: [String] = []
+        var stayed: [String] = []
+        for friend in friendsAtYourSide {
+            guard let index = data.friends?.firstIndex(where: { $0.id == friend.id }) else { continue }
+            if fainted.contains(friend.id) {
+                let home = friend.checkpoint ?? checkpoint
+                if heroFainted && home == checkpoint {
+                    wokeWithYou.append(friend.name)
+                } else {
+                    data.friends?[index].waitingAt = Spot(mapID: home.mapID, entry: home.entry)
+                    lines.append("\(friend.name) fainted and wakes up at \(checkpointName(home)).")
+                }
+            } else if heroFainted {
+                data.friends?[index].waitingAt = here
+                stayed.append(friend.name)
+            }
+        }
+        if heroFainted {
+            faint()
+            let place = checkpointName(checkpoint)
+            lines.insert("\(Self.listed(["You"] + wokeWithYou)) wake up at \(place), a little bruised.", at: 0)
+        }
+        if !stayed.isEmpty {
+            lines.append("\(Self.listed(stayed)) \(stayed.count == 1 ? "waits" : "wait") for you where you fell.")
+        }
+        return lines
+    }
+
+    /// "Maple", "Maple and Kip", "Maple, Kip and Sprout".
+    static func listed(_ names: [String]) -> String {
+        guard let last = names.last else { return "" }
+        return names.count > 1 ? names.dropLast().joined(separator: ", ") + " and " + last : last
     }
 
     /// Lost a battle: wake up at the last checkpoint, bruised.
