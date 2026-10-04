@@ -497,10 +497,10 @@ struct RulesTests {
         let npc = try #require(map.npcs?.first { $0.monster == "rat_king" })
         let level = try #require(npc.level)
         let waves = try #require(BattleController.bossWaves(npc, encounters: map.encounters, session: session))
-        // Two waves of ten of the map's own monsters, then the boss in front of nine more (the
-        // middle of the second row of five, the one nearest you).
+        // Two waves of ten of the map's own monsters, then the boss behind nine more (the middle
+        // of the first row of five, the one furthest from you).
         #expect(waves.map(\.count) == [10, 10, 10])
-        #expect(waves[2][7].speciesID == "rat_king" && waves[2][7].level == level)
+        #expect(waves[2][2].speciesID == "rat_king" && waves[2][2].level == level)
         #expect(waves[2].filter { $0.speciesID == "rat_king" }.count == 1)
         let monsters = waves.joined().filter { $0.speciesID != "rat_king" }
         #expect(monsters.allSatisfy { map.encounters?.monsters[$0.speciesID ?? ""] != nil })

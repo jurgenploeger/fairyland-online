@@ -179,7 +179,7 @@ final class BattleController {
 
     /// A boss waiting on the map. The fight comes in waves (`waves` on the NPC, 3 unless it says
     /// otherwise): first waves of `waveSize` of the map's own monsters, then the boss with its
-    /// minions (`minions`, enough to make `waveSize` unless set), standing in front. Each wave is a little stronger than the
+    /// minions (`minions`, enough to make `waveSize` unless set), standing at the back. Each wave is a little stronger than the
     /// one before, and the boss outranks them all. Your HP and MP carry from wave to wave.
     static func boss(_ npc: NPCDef, encounters: MapDef.Encounters? = nil, session: GameSession) -> BattleController? {
         guard let id = npc.monster, let species = session.content.monster(id),
@@ -211,7 +211,7 @@ final class BattleController {
     static let levelStep = 6
 
     /// A boss fight's waves, in order: `waveSize` of the map's monsters in each wave before the
-    /// boss's own, where it stands in the middle of the front row of its minions. Levels climb
+    /// boss's own, where it stands in the middle of the back row, behind its minions. Levels climb
     /// `levelStep` a wave: the boss's minions are 1 to 8 levels below it, the wave before 7 to 14,
     /// the one before that 13 to 20, within the map's range but never up to the boss's level. Wave n's fighters have ids from 100 × n.
     static func bossWaves(_ npc: NPCDef, encounters: MapDef.Encounters?, session: GameSession) -> [[Combatant]]? {
@@ -254,11 +254,9 @@ final class BattleController {
                              skills: species.skills, captureRate: 0)
         boss.wave = count
         var lastWave = monsters(followers, wave: count)
-        // The battle stands a side in rows of five, the last one nearest you: the boss takes the
-        // middle of that row.
-        let total = lastWave.count + 1
-        let frontRow = (total - 1) / 5 * 5
-        lastWave.insert(boss, at: frontRow + (total - frontRow) / 2)
+        // The battle stands a side in rows of five, the first one furthest from you: the boss takes
+        // the middle of that row, behind its minions.
+        lastWave.insert(boss, at: min(5, lastWave.count + 1) / 2)
         waves.append(lastWave)
         return waves
     }
