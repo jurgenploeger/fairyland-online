@@ -100,6 +100,7 @@ final class GameSession {
         var slotted = data
         slotted.slot = UUID().uuidString   // every new game gets its own save
         slotted.skillLevelsDoubled = true  // already on the 10-step skill scale
+        slotted.levelsRescaled = true      // and on the 200-level scale (a debug level isn't stretched)
         let session = GameSession(data: slotted)
         session.restoreHero()
         // Like Fairyland, your first companion comes from an egg in the first quest.

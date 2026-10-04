@@ -485,19 +485,13 @@ final class BattleController {
     }
 
     #if DEBUG
-    /// Debug launches (`win`): every monster falls at once, and the win plays out as usual.
+    /// Debug launches (`win`): every monster falls at once (no falling animation: a CI simulator
+    /// draws a frame every couple of seconds), and the win plays out as usual.
     func winForDebug() {
         guard phase == .command else { return }
         phase = .animating
-        let events = engine.defeatEnemiesForDebug()
-        Task {
-            if let scene {
-                await scene.play(events)
-            } else {
-                for event in events { apply(event) }
-            }
-            roundFinished()
-        }
+        for event in engine.defeatEnemiesForDebug() { apply(event) }
+        roundFinished()
     }
     #endif
 
