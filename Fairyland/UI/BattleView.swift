@@ -132,10 +132,9 @@ struct BattleView: View {
                 }
                 ForEach(controller.items) { item in
                     ChoiceRow(action: { controller.useItem(item) }, enabled: true) {
-                        ItemIcon(item: item, size: 26)
+                        ItemIcon(item: item, size: 26, count: controller.session.count(of: item.id))
                         Text(item.name)
                         Spacer()
-                        Text("×\(controller.session.count(of: item.id))").foregroundStyle(HUDStyle.frameDark)
                     }
                 }
             }
@@ -190,7 +189,8 @@ private struct WaveTracker: View {
 }
 
 /// The time left to choose, draining under the log line, red for the last two seconds. When it
-/// runs out the hero attacks.
+/// runs out the hero attacks. Narrow enough (about 144 points) to stay clear of the 1× and AUTO
+/// buttons below it, even on a 375-point-wide phone.
 private struct TurnClockBar: View {
     let deadline: Date
     let total: TimeInterval
@@ -202,13 +202,13 @@ private struct TurnClockBar: View {
             HStack(spacing: 6) {
                 IconImage(.sword, size: 12)
                 GlossyBar(fraction: CGFloat(min(1, left / total)), color: urgent ? HUDStyle.hp : HUDStyle.gold, height: 7)
-                    .frame(width: 140)
+                    .frame(width: 80)
                 Text("\(Int(left.rounded(.up)))s")
                     .font(HUDStyle.mono(10))
                     .frame(width: 24, alignment: .leading)
             }
             .foregroundStyle(urgent ? HUDStyle.hp : HUDStyle.cream)
-            .padding(.horizontal, 10)
+            .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(Capsule().fill(HUDStyle.ink.opacity(0.8)))
         }
@@ -1004,6 +1004,9 @@ private struct ResultPanel: View {
             if let level = result.newLevel {
                 LevelUpBanner(level: level, gains: session.heroClass.growth * result.levelsGained)
             }
+            if !result.others.isEmpty {
+                PartyLevelUps(others: result.others)
+            }
             if !result.loot.isEmpty {
                 LootGrid(loot: result.loot)
             }
@@ -1156,17 +1159,7 @@ struct LootGrid: View {
                 ForEach(Array(loot.enumerated()), id: \.offset) { _, entry in
                     if let item = Content.shared.item(entry.id) {
                         VStack(spacing: 3) {
-                            ItemIcon(item: item, size: 40)
-                                .overlay(alignment: .bottomTrailing) {
-                                    if entry.count > 1 {
-                                        Text("×\(entry.count)")
-                                            .font(HUDStyle.font(10))
-                                            .foregroundStyle(HUDStyle.ink)
-                                            .padding(.horizontal, 4)
-                                            .background(Capsule().fill(HUDStyle.gold))
-                                            .offset(x: 6, y: 4)
-                                    }
-                                }
+                            ItemIcon(item: item, size: 40, count: entry.count)
                             Text(item.name)
                                 .font(HUDStyle.font(10))
                                 .foregroundStyle(HUDStyle.cream)
@@ -1182,6 +1175,42 @@ struct LootGrid: View {
         .padding(10)
         .frame(maxWidth: .infinity)
         .background(RoundedRectangle(cornerRadius: 12).fill(.white.opacity(0.06)))
+    }
+}
+
+/// Friends and your companion who went up a level with the win, each with their new level, in a
+/// gold box like the hero's banner.
+private struct PartyLevelUps: View {
+    let others: [LevelUp]
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Text(others.count == 1 ? "Level up!" : "Level ups!")
+                .font(HUDStyle.font(14))
+                .foregroundStyle(HUDStyle.gold)
+            CenteredRows(spacing: 6, rowSpacing: 6) {
+                ForEach(Array(others.enumerated()), id: \.offset) { _, other in
+                    HStack(spacing: 4) {
+                        IconImage(.arrowUp, size: 11)
+                            .foregroundStyle(HUDStyle.gold)
+                        Text(other.name)
+                            .foregroundStyle(HUDStyle.cream)
+                        Text("Lv \(other.level)")
+                            .foregroundStyle(HUDStyle.gold)
+                    }
+                    .font(HUDStyle.font(12))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Capsule().fill(HUDStyle.gold.opacity(0.14)))
+                }
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+        .background(RoundedRectangle(cornerRadius: 12).fill(HUDStyle.gold.opacity(0.08)))
+        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(HUDStyle.gold.opacity(0.4), lineWidth: 1))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(others.map { "\($0.name) reached level \($0.level)" }.joined(separator: ". "))
     }
 }
 

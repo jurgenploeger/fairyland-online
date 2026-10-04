@@ -35,15 +35,27 @@ enum HUDStyle {
 
     static let bevel = LinearGradient(colors: [frameLight, frameMid, frameDark], startPoint: .top, endPoint: .bottom)
 
+    /// The deep-blue glass of the windows.
+    static let glass = LinearGradient(
+        colors: [Color(red: 0.13, green: 0.32, blue: 0.56).opacity(0.93), Color(red: 0.05, green: 0.17, blue: 0.35).opacity(0.95)],
+        startPoint: .top, endPoint: .bottom
+    )
+
     /// A deep-blue glass window with a glossy light-blue bevel.
     static var panel: some View {
         RoundedRectangle(cornerRadius: 10)
-            .fill(LinearGradient(
-                colors: [Color(red: 0.13, green: 0.32, blue: 0.56).opacity(0.93), Color(red: 0.05, green: 0.17, blue: 0.35).opacity(0.95)],
-                startPoint: .top, endPoint: .bottom
-            ))
+            .fill(glass)
             .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(bevel, lineWidth: 3))
             .overlay(RoundedRectangle(cornerRadius: 7).inset(by: 3).strokeBorder(.white.opacity(0.22), lineWidth: 1))
+            .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 2)
+    }
+
+    /// The same window in another shape (a speech bubble's), its bevel running all the way round.
+    static func panel(shape: some InsettableShape) -> some View {
+        shape
+            .fill(glass)
+            .overlay(shape.strokeBorder(bevel, lineWidth: 3))
+            .overlay(shape.inset(by: 3).strokeBorder(.white.opacity(0.22), lineWidth: 1))
             .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 2)
     }
 

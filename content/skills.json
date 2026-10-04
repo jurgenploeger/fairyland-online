@@ -1,5 +1,5 @@
 {
-  "_about": "Skills and spells. `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift); `art` is its pixel icon, drawn by tools/skill_art.py. kind: physical | magic | heal | revive (wakes a fainted ally with `power` of their HP) | buff (raises strength and defense by `power` for 3 turns) | curse (lays `inflicts` on foes without hurting them) | field (cast from the Character screen outside battle). target: enemy | allEnemies | ally | allAllies | fallenAlly. animation picks the battle effect (slash, whirlwind, fire, stone, leaves, water, heal, holy, wild, needles, bounce, bite); it grows with the skill's level (1–10, raised with skill points; mastered at 10). Elements: metal, wood, water, fire, earth, light, dark. `splash`: from skill level 5 the spell also hits everyone else on the target's side for 60% of this share of the damage, growing to the full share when mastered (level 10). `inflicts`: what it leaves on whoever it reaches (not the splash): effect poison (bites `rounds` times, at the end of the round it lands in and the ones after: `power` × a hit from the caster, magic for spells, strength for physical skills) or curse (hits for less, `power` 0.2 = 20% and at most 50%, for the rest of the round and `rounds` more), with `chance` (always unless set). Its power grows with the skill's level like damage does. Fairyland's Acolyte of Dark cast Curse and Poison.",
+  "_about": "Skills and spells. `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift); `art` is its pixel icon, drawn by tools/skill_art.py. kind: physical | magic | heal | revive (wakes a fainted ally with `power` of their HP) | buff (raises the stats in `raises` for the rest of the round and `rounds` more, 3 unless set: {\"attack\": 0.25} is ATK +25%, growing with the skill's level like damage; any in `lowers` drop in return and stay put. Stats: attack, defense, magic, speed) | curse (lays `inflicts` on foes without hurting them) | field (cast from the Character screen outside battle). target: enemy | allEnemies | ally | allAllies | fallenAlly. animation picks the battle effect, and every skill used in battle has its own (tools/check_content.py lists them: slash, smash, whirlwind, fire, embers, stone, mud, boulder, leaves, vine, water, bubbles, frost, wild, roar, needles, web, bounce, bite, shadow_bite, venom_bite, gold_spin, gust, flash, curse, glare, poison, mist, first_aid, heart, paw, rain, revive, and for buffs bless, shield, glow, ward, spur, boost, rage); it grows with the skill's level (1–10, raised with skill points; mastered at 10). Elements: metal, wood, water, fire, earth, light, dark. `splash`: from skill level 5 the spell also hits everyone else on the target's side for 60% of this share of the damage, growing to the full share when mastered (level 10). `inflicts`: what it leaves on whoever it reaches (not the splash): effect poison (bites `rounds` times, at the end of the round it lands in and the ones after: `power` × a hit from the caster, magic for spells, strength for physical skills) or curse (lowers the target's `stats`, attack and magic unless set, by `power`: 0.2 = 20% and at most 50%, for the rest of the round and `rounds` more), with `chance` (always unless set). Its power grows with the skill's level like damage does. Fairyland's Acolyte of Dark cast Curse and Poison. Fairyland's Warrior had Protection, its Acolyte of Light Bless, Holy Glow and Guardianship, its Beast Master Animal Training, and its pets Boost and Berserk; what ours do is our own.",
   "skills": [
     {
       "id": "bash",
@@ -11,7 +11,7 @@
       "power": 1.6,
       "target": "enemy",
       "description": "A heavy swing.",
-      "animation": "slash"
+      "animation": "smash"
     },
     {
       "id": "first_aid",
@@ -23,7 +23,7 @@
       "power": 1.2,
       "target": "ally",
       "description": "Patch up one ally.",
-      "animation": "heal"
+      "animation": "first_aid"
     },
     {
       "id": "power_strike",
@@ -100,7 +100,7 @@
       "power": 1.0,
       "target": "allAllies",
       "description": "Healing water washes over the whole party.",
-      "animation": "holy"
+      "animation": "rain"
     },
     {
       "id": "recovery",
@@ -112,7 +112,7 @@
       "power": 1.5,
       "target": "ally",
       "description": "Light mends one ally's wounds.",
-      "animation": "holy"
+      "animation": "heart"
     },
     {
       "id": "revive",
@@ -124,7 +124,7 @@
       "power": 0.3,
       "target": "fallenAlly",
       "description": "Wake a fainted ally with some of their HP.",
-      "animation": "holy"
+      "animation": "revive"
     },
     {
       "id": "bless",
@@ -133,10 +133,108 @@
       "name": "Bless",
       "mp": 8,
       "kind": "buff",
-      "power": 0.25,
+      "power": 0,
       "target": "ally",
-      "description": "Raise an ally's strength and defense for 3 turns.",
-      "animation": "holy"
+      "description": "Raise an ally's ATK and DEF by 25% for 3 rounds.",
+      "animation": "bless",
+      "raises": {
+        "attack": 0.25,
+        "defense": 0.25
+      }
+    },
+    {
+      "id": "protection",
+      "icon": "shield-check",
+      "art": "skill_protection",
+      "name": "Protection",
+      "mp": 6,
+      "kind": "buff",
+      "power": 0,
+      "target": "ally",
+      "description": "Shield an ally: DEF +40% for 3 rounds.",
+      "animation": "shield",
+      "raises": {
+        "defense": 0.4
+      }
+    },
+    {
+      "id": "holy_glow",
+      "icon": "sun",
+      "art": "skill_holy_glow",
+      "name": "Holy Glow",
+      "mp": 10,
+      "kind": "buff",
+      "power": 0,
+      "target": "ally",
+      "description": "Fill an ally with light: MAG +30% for 3 rounds, for stronger spells and heals.",
+      "animation": "glow",
+      "raises": {
+        "magic": 0.3
+      }
+    },
+    {
+      "id": "guardianship",
+      "icon": "shield-star",
+      "art": "skill_guardianship",
+      "name": "Guardianship",
+      "mp": 18,
+      "kind": "buff",
+      "power": 0,
+      "target": "allAllies",
+      "description": "A ward over the whole party: DEF +20% for 3 rounds.",
+      "animation": "ward",
+      "raises": {
+        "defense": 0.2
+      }
+    },
+    {
+      "id": "animal_training",
+      "icon": "paw",
+      "art": "skill_animal_training",
+      "name": "Animal Training",
+      "mp": 7,
+      "kind": "buff",
+      "power": 0,
+      "target": "ally",
+      "description": "Spur an ally on: ATK +20% and SPD +30% for 3 rounds.",
+      "animation": "spur",
+      "raises": {
+        "attack": 0.2,
+        "speed": 0.3
+      }
+    },
+    {
+      "id": "boost",
+      "icon": "arrow-up",
+      "art": "skill_boost",
+      "name": "Boost",
+      "mp": 0,
+      "kind": "buff",
+      "power": 0,
+      "target": "ally",
+      "description": "Powers up: ATK +20% for 3 rounds, more as it grows stronger.",
+      "animation": "boost",
+      "raises": {
+        "attack": 0.2
+      }
+    },
+    {
+      "id": "berserk",
+      "icon": "flame",
+      "art": "skill_berserk",
+      "name": "Berserk",
+      "mp": 0,
+      "kind": "buff",
+      "power": 0,
+      "target": "ally",
+      "description": "A wild rage: ATK +30% for 3 rounds (more as it grows stronger), but DEF −25%.",
+      "animation": "rage",
+      "raises": {
+        "attack": 0.3
+      },
+      "lowers": {
+        "defense": 0.25
+      }
     },
     {
       "id": "bridge_of_light",
@@ -171,7 +269,7 @@
       "power": 2.0,
       "target": "ally",
       "description": "A strong heal, perfect for companions.",
-      "animation": "heal"
+      "animation": "paw"
     },
     {
       "id": "nibble",
@@ -228,7 +326,7 @@
       "power": 1.5,
       "target": "enemy",
       "description": "A dazzling spinning tackle.",
-      "animation": "whirlwind",
+      "animation": "gold_spin",
       "element": "metal"
     },
     {
@@ -241,7 +339,7 @@
       "power": 1.5,
       "target": "enemy",
       "description": "A burst of blinding light.",
-      "animation": "holy",
+      "animation": "flash",
       "element": "light"
     },
     {
@@ -254,7 +352,7 @@
       "power": 1.6,
       "target": "enemy",
       "description": "Fangs made of darkness.",
-      "animation": "bite",
+      "animation": "shadow_bite",
       "element": "dark"
     },
     {
@@ -267,7 +365,7 @@
       "power": 1.5,
       "target": "enemy",
       "description": "A little ball of fire.",
-      "animation": "fire",
+      "animation": "embers",
       "element": "fire"
     },
     {
@@ -280,7 +378,7 @@
       "power": 1.5,
       "target": "enemy",
       "description": "A splat of heavy mud.",
-      "animation": "stone",
+      "animation": "mud",
       "element": "earth"
     },
     {
@@ -293,7 +391,7 @@
       "power": 1.6,
       "target": "enemy",
       "description": "Lashes with a leafy vine.",
-      "animation": "leaves",
+      "animation": "vine",
       "element": "wood"
     },
     {
@@ -306,7 +404,7 @@
       "power": 1.4,
       "target": "enemy",
       "description": "Pops a bubble in your face.",
-      "animation": "water",
+      "animation": "bubbles",
       "element": "water"
     },
     {
@@ -319,7 +417,7 @@
       "power": 1.0,
       "target": "allEnemies",
       "description": "Sprays sticky webs everywhere.",
-      "animation": "needles",
+      "animation": "web",
       "element": "dark"
     },
     {
@@ -332,7 +430,7 @@
       "power": 1.2,
       "target": "allEnemies",
       "description": "An icy gust that chills the party.",
-      "animation": "water",
+      "animation": "frost",
       "element": "water"
     },
     {
@@ -345,7 +443,7 @@
       "power": 1.1,
       "target": "allEnemies",
       "description": "A mighty roar that shakes everyone.",
-      "animation": "wild"
+      "animation": "roar"
     },
     {
       "id": "gust",
@@ -357,7 +455,7 @@
       "power": 1.1,
       "target": "allEnemies",
       "description": "Wings whip up a gale.",
-      "animation": "whirlwind"
+      "animation": "gust"
     },
     {
       "id": "rock_throw",
@@ -369,7 +467,7 @@
       "power": 1.8,
       "target": "enemy",
       "description": "Hurls a boulder.",
-      "animation": "stone",
+      "animation": "boulder",
       "element": "earth"
     },
     {
@@ -418,7 +516,7 @@
       "power": 1.2,
       "target": "enemy",
       "description": "Fangs that can leave poison behind.",
-      "animation": "bite",
+      "animation": "venom_bite",
       "inflicts": {
         "effect": "poison",
         "rounds": 3,
@@ -436,7 +534,7 @@
       "power": 0,
       "target": "allEnemies",
       "description": "A choking cloud that can poison everyone it reaches.",
-      "animation": "poison",
+      "animation": "mist",
       "element": "dark",
       "inflicts": {
         "effect": "poison",
@@ -455,7 +553,7 @@
       "power": 0,
       "target": "enemy",
       "description": "A cold glare that saps a foe's strength for 3 rounds.",
-      "animation": "curse",
+      "animation": "glare",
       "element": "dark",
       "inflicts": {
         "effect": "curse",

@@ -39,10 +39,15 @@ struct IconTile: View {
 struct ItemIcon: View {
     let item: ItemDef
     var size: CGFloat = 32
+    /// How many there are: from two up, a blue badge in the top-right corner says so.
+    var count = 1
 
     var body: some View {
         IconTile(icon: item.icon.flatMap(GameIcon.init) ?? .gift, tint: tint, size: size,
                  picture: item.art.flatMap(ArtLibrary.shared.artImage))
+            .overlay(alignment: .topTrailing) {
+                if count > 1 { CountBadge(count: count).offset(x: 5, y: -5) }
+            }
     }
 
     private var tint: Color {
@@ -53,6 +58,24 @@ struct ItemIcon: View {
         case .accessory: Color(red: 0.62, green: 0.4, blue: 0.85)
         case .material: Color(red: 0.55, green: 0.6, blue: 0.4)
         }
+    }
+}
+
+/// How many of an item there are, as a small blue badge with a white rim, like an app's badge.
+struct CountBadge: View {
+    let count: Int
+
+    var body: some View {
+        Text("\(count)")
+            .font(HUDStyle.font(10))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .padding(.horizontal, 4)
+            .frame(minWidth: 17, minHeight: 17)
+            .background(Capsule().fill(Color(red: 0.16, green: 0.47, blue: 0.95)))
+            .overlay(Capsule().strokeBorder(.white, lineWidth: 1.5))
+            .shadow(color: .black.opacity(0.35), radius: 1, x: 0, y: 1)
+            .fixedSize()
     }
 }
 

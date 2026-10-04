@@ -29,6 +29,9 @@ final class BattleScene: SKScene {
             let actor = BattleActor(fighter: fighter, art: art)
             if fighter.isHero {
                 actor.setGear(weapon: controller.session.equipped(.weapon), accessory: controller.session.equipped(.accessory))
+            } else if let person = controller.person(behind: fighter) {
+                // Friends and rivals fight with a weapon of their own, as you do.
+                actor.setGear(weapon: GameSession.weapon(for: person), accessory: nil)
             }
             actors[fighter.id] = actor
             stage.addChild(actor)
@@ -88,6 +91,9 @@ final class BattleScene: SKScene {
     private var isPortrait: Bool { size.height > size.width }
     /// How far a portrait line climbs for each point it runs right (26 up for 108 across).
     private static let portraitSlope: CGFloat = 26.0 / 108.0
+    /// How far apart neighbours stand in a portrait line: the same in every line on both sides, so
+    /// five of yours stand as far apart as five monsters (`layout` works it out).
+    private var lineSpacing: CGFloat = 108
 
     private func layout() {
         guard size.width > 1, size.height > 1 else { return }
@@ -95,6 +101,7 @@ final class BattleScene: SKScene {
         // Leave room for the HUD: the log line on top, the command wheel bottom-right.
         let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (130, 240) : (70, 40)
         let area = CGRect(x: 0, y: insets.bottom, width: size.width, height: max(120, size.height - insets.top - insets.bottom))
+        lineSpacing = sharedSpacing()
         if isPortrait {
             // Monsters up on the left looking down-right at your party, which stands lower on the
             // right looking back up-left; both lines sit around the middle of the screen.
@@ -122,10 +129,9 @@ final class BattleScene: SKScene {
         }
         let leaders = group.filter { fighter in !followers.contains { $0.id == fighter.id } }
         let front = rowShift(depth: 0.5, facing: facing)
-        let backRow = rowShift(depth: -0.5, facing: facing)
-        // From a fighter to the spot behind them, one row back.
-        let behind = CGVector(dx: backRow.dx - front.dx, dy: backRow.dy - front.dy)
-        let points = linePoints(count: leaders.count, around: center + front, facing: facing, trailing: behind)
+        let behind = companionOffset(facing: facing)
+        let escorted = Set(leaders.indices.filter { index in followers.contains { $0.ownerID == leaders[index].id } })
+        let points = linePoints(count: leaders.count, around: center + front, facing: facing, trailing: behind, escorted: escorted)
         for (fighter, point) in zip(leaders, points) {
             actors[fighter.id]?.place(at: point, facing: Self.profile(facing))
         }
@@ -141,6 +147,38 @@ final class BattleScene: SKScene {
             let depth = CGFloat(index) - CGFloat(rows.count - 1) / 2
             arrangeLine(row, around: center + rowShift(depth: depth, facing: facing), facing: facing)
         }
+    }
+
+    /// From a fighter to the companion standing behind them, one row back.
+    private func companionOffset(facing: Direction) -> CGVector {
+        let front = rowShift(depth: 0.5, facing: facing)
+        let back = rowShift(depth: -0.5, facing: facing)
+        return CGVector(dx: back.dx - front.dx, dy: back.dy - front.dy)
+    }
+
+    /// The lines a side stands in, as `arrange` lays them out: its people in one (their companions
+    /// a row back) or, with no companions, rows of up to five; and how far a companion behind the
+    /// first or last one sticks out past the end.
+    private func lines(of group: [Combatant], facing: Direction) -> [(count: Int, overhang: CGFloat)] {
+        let ids = Set(group.map(\.id))
+        let followers = group.filter { fighter in fighter.ownerID.map { ids.contains($0) } == true }
+        guard !followers.isEmpty else {
+            return stride(from: 0, to: group.count, by: 5).map { (count: min(5, group.count - $0), overhang: 0) }
+        }
+        let leaders = group.filter { fighter in !followers.contains { $0.id == fighter.id } }
+        let behind = companionOffset(facing: facing)
+        let end = behind.dx < 0 ? leaders.first : leaders.last
+        let escorted = end.map { leader in followers.contains { $0.ownerID == leader.id } } ?? false
+        return [(count: leaders.count, overhang: escorted ? abs(behind.dx) : 0)]
+    }
+
+    /// One spacing for every portrait line in the fight, both sides: the widest (up to 108) that
+    /// still fits the most crowded line on screen, with any companion at its end.
+    private func sharedSpacing() -> CGFloat {
+        let all = lines(of: controller.enemiesOnField, facing: .down) + lines(of: controller.party, facing: .up)
+        return all.filter { $0.count > 1 }
+            .map { (size.width - 100 - $0.overhang) / CGFloat($0.count - 1) }
+            .reduce(108, min)
     }
 
     /// Where a row stands from the middle of the formation, `depth` rows toward the other side
@@ -170,16 +208,21 @@ final class BattleScene: SKScene {
         }
     }
 
-    /// Spots for a line of `count` fighters around `center`. `trailing`: from each one to the
-    /// companion standing behind them, kept on screen too.
-    private func linePoints(count: Int, around center: CGPoint, facing: Direction, trailing: CGVector = .zero) -> [CGPoint] {
-        // In portrait a long line closes up and slides over so everyone stays on screen.
-        let room = size.width - 100 - abs(trailing.dx)
-        let spacing = isPortrait ? min(108, room / CGFloat(max(1, count - 1))) : 56
+    /// Spots for a line of `count` fighters around `center`, evenly spaced. `trailing`: from each one
+    /// to the companion standing behind them; `escorted`: which of them have one, kept on screen too.
+    private func linePoints(count: Int, around center: CGPoint, facing: Direction, trailing: CGVector = .zero,
+                            escorted: Set<Int> = []) -> [CGPoint] {
+        // Only a companion behind the first or last one sticks out past the end of the line, so
+        // room is kept for it only then: a line without spreads across the screen, centred.
+        let extraLeft = trailing.dx < 0 && escorted.contains(0) ? -trailing.dx : 0
+        let extraRight = trailing.dx > 0 && escorted.contains(count - 1) ? trailing.dx : 0
+        // Every line in the fight is spaced alike, closed up enough for the longest to fit; in
+        // portrait a line then slides over so everyone stays on screen.
+        let spacing = isPortrait ? lineSpacing : 56
         var center = center
         if isPortrait, count > 1 {
             let half = spacing * CGFloat(count - 1) / 2
-            center.x = min(max(center.x, 50 + half + max(0, -trailing.dx)), size.width - 50 - half - max(0, trailing.dx))
+            center.x = min(max(center.x, 50 + half + extraLeft), size.width - 50 - half - extraRight)
         }
         // Each fighter stands a step up from the last, at the same angle on both sides however
         // many stand in a line (a fixed step tilted a packed line of five more than a line of two).
@@ -291,11 +334,24 @@ final class BattleScene: SKScene {
                 fallen.append(id)
                 index += 1
             }
-            if fallen.isEmpty {
+            if !fallen.isEmpty {
+                await defeat(fallen)
+                refreshBars()
+                continue
+            }
+            // Likewise everyone one spell raises or lowers shows it at once (a ward over the party).
+            var changed = 0
+            while index < events.count, case .statsChanged(let id, let changes, _) = events[index] {
+                controller.apply(events[index])
+                if let actor = actors[id] { SkillEffects.statChanges(changes, on: actor, in: stage) }
+                changed += 1
+                index += 1
+            }
+            if changed > 0 {
+                await pause(0.75)
+            } else {
                 await animate(events[index])
                 index += 1
-            } else {
-                await defeat(fallen)
             }
             refreshBars()
         }
@@ -387,8 +443,15 @@ final class BattleScene: SKScene {
             if let actor = actors[targetID] {
                 SkillEffects.poisonBite(on: actor, in: stage)
                 Effects.damageBurst("\(amount)", style: .poison, at: actor.top, in: stage)
+                // Named, so it's clear the HP went to the poison and not to a blow.
+                Effects.floatingText("Poison", color: SkillEffects.poisonGreen, at: actor.top + CGVector(dx: 0, dy: 24), in: stage, size: 12)
             }
-            await pause(0.45)
+            await pause(0.55)
+
+        case .statsChanged(let targetID, let changes, _):
+            controller.apply(event)
+            if let actor = actors[targetID] { SkillEffects.statChanges(changes, on: actor, in: stage) }
+            await pause(0.75)
 
         case .wave(_, _, let arrivals):
             controller.apply(event)
@@ -462,8 +525,11 @@ final class BattleScene: SKScene {
         let targets = hits.compactMap { actors[$0.target] }
         let heal = skill.kind == .heal || skill.kind == .revive
         let blessBlue = UIColor(red: 0.6, green: 0.85, blue: 1, alpha: 1)
-        let color = skill.element?.color ?? (heal ? SkillEffects.healGreen : skill.kind == .buff ? blessBlue : .white)
+        // Every skill has a look of its own (`animation` in content/skills.json; the checker keeps
+        // them apart), and its colour where it has one (frost's ice, a rage's red), else its element's.
         let style = skill.animation ?? (heal ? "heal" : skill.kind == .magic ? "fire" : "slash")
+        let color = SkillEffects.styleColor(style) ?? skill.element?.color
+            ?? (heal ? SkillEffects.healGreen : skill.kind == .buff ? blessBlue : .white)
         actors[actorID]?.sprite.flash(color)
         // People gather themselves in their own way (class and race).
         let fighter = controller.combatants.first { $0.id == actorID }
@@ -492,25 +558,29 @@ final class BattleScene: SKScene {
             if hold > 0 { await pause(hold) }
         }
         if level >= 3 { SkillEffects.screenFlash(color: color, strength: 0.18 + 0.08 * CGFloat(level - 3), size: size, in: self) }
-        // Revive and Bless: a pillar of light on the ally. A revived fighter rises back into view.
-        if skill.kind == .revive || skill.kind == .buff {
+        // Revive: a pillar of light on the fallen ally, who rises back into view.
+        if skill.kind == .revive {
             for target in targets {
-                if skill.kind == .revive {
-                    target.run(.group([.fadeIn(withDuration: 0.5), .move(to: target.home, duration: 0.5)]), withKey: "revive")
-                }
+                target.run(.group([.fadeIn(withDuration: 0.5), .move(to: target.home, duration: 0.5)]), withKey: "revive")
                 SkillEffects.lightPillar(on: target, level: level, in: stage)
             }
             await pause(0.4)
             for hit in hits {
                 guard let target = actors[hit.target] else { continue }
-                if skill.kind == .revive {
-                    SkillEffects.sparkles(on: target, color: SkillEffects.healGreen, level: 2, in: stage)
-                    Effects.damageBurst("+\(hit.amount)", style: .heal, at: target.top, in: stage)
-                } else {
-                    SkillEffects.shield(on: target, in: stage)
-                    Effects.floatingText("STR & DEF up!", color: blessBlue, at: target.top, in: stage, size: 13)
-                }
+                SkillEffects.sparkles(on: target, color: SkillEffects.healGreen, level: 2, in: stage)
+                Effects.damageBurst("+\(hit.amount)", style: .heal, at: target.top, in: stage)
             }
+            for target in targets { SkillEffects.glory(on: target, color: color, level: level, in: stage) }
+            if mastered {
+                SkillEffects.ultimateFinale(on: targets, style: "holy", color: color, size: size, in: stage)
+                await pause(0.7)
+            }
+            return
+        }
+        // Buffs, each in its own way (Bless's pillar, Protection's shield, Berserk's flames...);
+        // what it raised, and by how much, shows in the events after this one.
+        if skill.kind == .buff {
+            await pause(SkillEffects.buff(style, on: targets, level: level, in: stage))
             for target in targets { SkillEffects.glory(on: target, color: color, level: level, in: stage) }
             if mastered {
                 SkillEffects.ultimateFinale(on: targets, style: "holy", color: color, size: size, in: stage)
@@ -521,19 +591,29 @@ final class BattleScene: SKScene {
 
         // Curses and poisons: a dark mote flies to the foe and sinks in (a mist spreads over all of
         // them at once). Each mark shows as it takes hold, in the events after this one.
+        // Evil Eye glares from a great eye instead, and Poison Mist rolls in as a fog.
         if skill.kind == .curse {
-            let poison = skill.inflicts?.effect == .poison
-            if skill.target != .allEnemies, let first = targets.first {
-                await SkillEffects.projectile(from: actors[actorID]?.center, to: first.center, color: color, level: level, trail: true, in: stage)
-            }
-            for target in targets {
-                if poison {
-                    SkillEffects.poisonCloud(on: target, level: level, in: stage)
-                } else {
-                    SkillEffects.curseSpell(on: target, level: level, in: stage)
+            switch style {
+            case "glare":
+                for target in targets { SkillEffects.evilEye(on: target, in: stage) }
+                await pause(0.55)
+            case "mist":
+                SkillEffects.poisonMist(on: targets, in: stage)
+                await pause(0.6)
+            default:
+                let poison = skill.inflicts?.effect == .poison
+                if skill.target != .allEnemies, let first = targets.first {
+                    await SkillEffects.projectile(from: actors[actorID]?.center, to: first.center, color: color, level: level, trail: true, in: stage)
                 }
+                for target in targets {
+                    if poison {
+                        SkillEffects.poisonCloud(on: target, level: level, in: stage)
+                    } else {
+                        SkillEffects.curseSpell(on: target, level: level, in: stage)
+                    }
+                }
+                await pause(0.35)
             }
-            await pause(0.35)
             return
         }
 
@@ -595,6 +675,79 @@ final class BattleScene: SKScene {
                 for target in targets { SkillEffects.bite(on: target, in: self.stage) }
                 self.impactAll(hits, heal: false)
             }
+        case "shadow_bite":
+            await lunge(actorID, toward: hits.first?.target ?? actorID) {
+                for target in targets { SkillEffects.shadowBite(on: target, in: self.stage) }
+                self.impactAll(hits, heal: false)
+            }
+        case "venom_bite":
+            await lunge(actorID, toward: hits.first?.target ?? actorID) {
+                for target in targets { SkillEffects.venomBite(on: target, in: self.stage) }
+                self.impactAll(hits, heal: false)
+            }
+        case "smash":
+            await lunge(actorID, toward: hits.first?.target ?? actorID) {
+                for target in targets { SkillEffects.smash(on: target, level: level, in: self.stage) }
+                self.shake(strength: 3 + CGFloat(level))
+                self.impactAll(hits, heal: false)
+            }
+        case "frost":
+            await pause(SkillEffects.frostBreath(from: actors[actorID]?.center, on: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "bubbles":
+            await pause(SkillEffects.bubbleStream(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "embers":
+            await pause(SkillEffects.emberSpray(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "mud":
+            await pause(SkillEffects.mudShot(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "boulder":
+            await pause(SkillEffects.rockThrow(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            shake(strength: 3 + CGFloat(level))
+            impactAll(hits, heal: false)
+        case "vine":
+            await pause(SkillEffects.vineWhip(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "gold_spin":
+            if let actor = actors[actorID] {
+                await actor.run(.rotate(byAngle: .pi * 2, duration: 0.25))
+                actor.zRotation = 0
+            }
+            await pause(SkillEffects.goldenSpin(from: actors[actorID]?.center, to: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "gust":
+            await pause(SkillEffects.gust(from: actors[actorID]?.center, on: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "roar":
+            await pause(SkillEffects.roar(from: actors[actorID], on: targets, level: level, in: stage))
+            shake(strength: 3 + CGFloat(level))
+            impactAll(hits, heal: false)
+        case "web":
+            await pause(SkillEffects.webShot(from: actors[actorID]?.center, on: targets, level: level, in: stage))
+            impactAll(hits, heal: false)
+        case "flash":
+            for target in targets { SkillEffects.flashBurst(on: target, level: level, in: stage) }
+            SkillEffects.screenFlash(color: .white, strength: 0.3, size: size, in: self)
+            await pause(0.2)
+            impactAll(hits, heal: false)
+        case "first_aid":
+            for target in targets { SkillEffects.firstAid(on: target, in: stage) }
+            await pause(0.3)
+            impactAll(hits, heal: true)
+        case "heart":
+            for target in targets { SkillEffects.healingHeart(on: target, in: stage) }
+            await pause(0.4)
+            impactAll(hits, heal: true)
+        case "paw":
+            for target in targets { SkillEffects.pawPrints(on: target, in: stage) }
+            await pause(0.55)
+            impactAll(hits, heal: true)
+        case "rain":
+            SkillEffects.lightRain(on: targets, level: level, in: stage)
+            await pause(0.4)
+            impactAll(hits, heal: true)
         default:
             for target in targets { SkillEffects.sparkles(on: target, color: color, level: level, in: stage) }
             await pause(0.3)
@@ -604,7 +757,7 @@ final class BattleScene: SKScene {
         if level >= 4, !heal { shake(strength: CGFloat(level - 2) * 3) }
         if mastered {
             await pause(0.2)
-            SkillEffects.ultimateFinale(on: targets, style: style, color: color, size: size, in: stage)
+            SkillEffects.ultimateFinale(on: targets, style: SkillEffects.finale(for: style), color: color, size: size, in: stage)
             await pause(0.35)
             SkillEffects.screenFlash(color: .white, strength: 0.55, size: size, in: self)
             if !heal { shake(strength: 14) }
@@ -841,12 +994,45 @@ final class BattleScene: SKScene {
         ]))
     }
 
+    /// A friend or your companion went up a level with the win: light pours down on them in gold,
+    /// they hop, and "LEVEL UP!" stands over their head with the new level (the hero's fills the
+    /// field). A new level restores them, so their bars fill up.
+    func celebrateLevelUp(of id: Int, to level: Int) {
+        guard let actor = actors[id] else { return }
+        let gold = Nodes.gold
+        actor.setHealth(1, mana: 1)
+        SkillEffects.lightPillar(on: actor, level: 3, in: stage)
+        SkillEffects.glory(on: actor, color: gold, level: 4, in: stage)
+        SkillEffects.burst(at: actor.center, color: gold, count: 14, speed: 90, in: stage)
+        actor.sprite.run(.sequence([.moveBy(x: 0, y: 14, duration: 0.15), .moveBy(x: 0, y: -14, duration: 0.18)]), withKey: "cheer")
+
+        let tag = SKNode()
+        tag.position = actor.top + CGVector(dx: 0, dy: 16)
+        tag.zPosition = 30_500
+        let title = NameTag("LEVEL UP!", color: gold, size: 15, alignment: .center)
+        let subtitle = NameTag("Lv \(level)", color: .white, size: 12, alignment: .center)
+        subtitle.position.y = -16
+        tag.addChild(title)
+        tag.addChild(subtitle)
+        tag.setScale(0.4)
+        tag.alpha = 0
+        stage.addChild(tag)
+        tag.run(.sequence([
+            .group([.fadeIn(withDuration: 0.12), .scale(to: 1.15, duration: 0.18)]),
+            .scale(to: 1, duration: 0.1),
+            .wait(forDuration: 1.1),
+            .group([.fadeOut(withDuration: 0.3), .moveBy(x: 0, y: 16, duration: 0.3)]),
+            .removeFromParent(),
+        ]))
+    }
+
     /// Bars, and the marks of any poison or curse with the rounds it has left.
     func refreshBars() {
         for fighter in controller.combatants {
             actors[fighter.id]?.setHealth(fighter.hpFraction, mana: fighter.mpFraction)
-            // A curse counts the round it's in too; show the rounds still to come.
-            actors[fighter.id]?.setAilments(poison: fighter.poisonRounds, curse: max(0, fighter.curseRounds - 1))
+            // Raises and drops count the round they're in too; show the rounds still to come.
+            actors[fighter.id]?.setMarks(poison: fighter.poisonRounds, lowered: max(0, fighter.loweredRounds - 1),
+                                         raised: max(0, fighter.raisedRounds - 1))
         }
     }
 
@@ -979,25 +1165,28 @@ final class BattleActor: SKNode {
         bar.manaFraction = CGFloat(mana)
     }
 
-    /// Poison's green drop and a curse's violet arrow beside the HP bar, each with its rounds left.
+    /// Beside the HP bar, each with its rounds left: poison's green drop, a violet arrow down for
+    /// lowered stats (a curse) and a blue arrow up for raised ones (Bless, Protection...).
     private let marks = SKNode()
-    private var shownPoison = 0
-    private var shownCurse = 0
+    private var shownMarks = [0, 0, 0]
 
-    func setAilments(poison: Int, curse: Int) {
-        guard poison != shownPoison || curse != shownCurse else { return }
-        shownPoison = poison
-        shownCurse = curse
+    func setMarks(poison: Int, lowered: Int, raised: Int) {
+        guard [poison, lowered, raised] != shownMarks else { return }
+        shownMarks = [poison, lowered, raised]
         if marks.parent == nil {
             marks.position = CGPoint(x: bar.position.x + 30, y: bar.position.y)
             addChild(marks)
         }
         marks.removeAllChildren()
         var x: CGFloat = 0
-        for (rounds, effect) in [(poison, Ailment.poison), (curse, Ailment.curse)] where rounds > 0 {
-            let tint = SkillEffects.color(of: effect)
+        let kinds: [(rounds: Int, art: String, tint: UIColor)] = [
+            (poison, "status_poison", SkillEffects.color(of: .poison)),
+            (lowered, "status_curse", SkillEffects.color(of: .curse)),
+            (raised, "status_raise", SkillEffects.raiseBlue),
+        ]
+        for (rounds, art, tint) in kinds where rounds > 0 {
             let icon: SKNode
-            if let texture = SkillEffects.fxTexture(effect == .poison ? "status_poison" : "status_curse") {
+            if let texture = SkillEffects.fxTexture(art) {
                 icon = SKSpriteNode(texture: texture, size: texture.size() * 2)
             } else {
                 let dot = SKShapeNode(circleOfRadius: 5)

@@ -136,6 +136,27 @@ struct ContentTests {
         }
     }
 
+    @Test func housesStandOffTheRoads() {
+        for def in content.maps {
+            let map = WorldMap(def: def)
+            #expect(map.buildings.count == (def.buildings ?? []).count, "map \(def.id) lost a building")
+            // The map's own buildings and the shops along the streets: on plain ground or a terrace's
+            // paved top, never on a road, and never on each other.
+            let houses = map.buildings.map { ($0.art, $0.anchor) } + map.lots.map { ($0.art, $0.anchor) }
+            var taken: Set<GridPoint> = []
+            for (art, anchor) in houses {
+                for dc in -1...1 {
+                    for dr in 0...1 {
+                        let cell = GridPoint(col: anchor.col + dc, row: anchor.row + dr)
+                        let ground = map.ground[cell.row][cell.col]
+                        #expect(ground == .ground || ground == .accent, "map \(def.id): \(art) stands on \(ground) at \(cell)")
+                        #expect(taken.insert(cell).inserted, "map \(def.id): \(art) overlaps another building at \(cell)")
+                    }
+                }
+            }
+        }
+    }
+
     @Test func announcementsAndTradersHaveSomethingToSay() {
         let notices = content.announcements
         #expect(!notices.dawn.isEmpty && !notices.dusk.isEmpty && !notices.community.isEmpty)
@@ -381,6 +402,37 @@ struct RulesTests {
             let drop = session.materialDrop(level: 1)
             #expect(drop == nil || (drop?.level ?? 1) <= 1)
         }
+    }
+
+    @Test func monstersDropGearFromUpToTheirLevel() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.data.hero.classID = "fighter"
+        let bossDrops = Set(Content.shared.monsters.flatMap { $0.drops ?? [] }.map(\.item))
+        var usable = 0
+        for _ in 0..<400 {
+            let gear = try #require(session.equipmentDrop(level: 40))
+            #expect(ItemType.equipmentSlots.contains(gear.type))
+            #expect((29...40).contains(gear.level ?? 1), "\(gear.id) is level \(gear.level ?? 1)")
+            #expect(!bossDrops.contains(gear.id), "\(gear.id) is a boss's own drop")
+            if gear.classes?.contains("fighter") ?? true { usable += 1 }
+        }
+        // Mostly gear your class can use (three in four, plus what the rest happens to hit).
+        #expect(usable > 240)
+        for _ in 0..<100 {
+            let best = try #require(session.equipmentDrop(level: 40, best: true))
+            #expect((35...40).contains(best.level ?? 1))
+        }
+        // Past the best gear there is, drops come from the top.
+        let top = try #require(Content.shared.items.compactMap(\.level).max())
+        #expect((session.equipmentDrop(level: top + 50)?.level ?? 0) > top - 12)
+        // Stronger fights drop gear more often; a rare monster often, a boss always.
+        let even = GameSession.equipmentDropChance(level: 30, heroLevel: 30, rare: false, boss: false)
+        let above = GameSession.equipmentDropChance(level: 45, heroLevel: 30, rare: false, boss: false)
+        let below = GameSession.equipmentDropChance(level: 10, heroLevel: 30, rare: false, boss: false)
+        #expect(below < even && even < above)
+        #expect(abs(above - 0.16) < 1e-9 && abs(below - 0.02) < 1e-9)
+        #expect(GameSession.equipmentDropChance(level: 30, heroLevel: 30, rare: true, boss: false) > above)
+        #expect(GameSession.equipmentDropChance(level: 30, heroLevel: 30, rare: false, boss: true) == 1)
     }
 
     @Test func levelsStopAtTheCap() {
@@ -656,14 +708,23 @@ struct RulesTests {
         #expect(bites(engine.resolveRound(heroAction: .defend)) == [bite])
         #expect(bites(engine.resolveRound(heroAction: .defend)).isEmpty)
 
-        // A curse takes a fifth of the force out of its hits for the rest of the round and 3 more.
-        _ = engine.resolveRound(heroAction: .skill("curse", target: 10))
+        // A curse lowers the stats behind its hits (attack and magic) by a fifth for the rest of the
+        // round and 3 more, and says by how much.
+        let cursing = engine.resolveRound(heroAction: .skill("curse", target: 10))
+        let shown = cursing.contains { event in
+            if case .statsChanged(10, let changes, 3) = event {
+                return changes.map(\.stat) == [.attack, .magic] && changes.allSatisfy { abs($0.amount + 0.2) < 0.001 }
+            }
+            return false
+        }
+        #expect(shown)
         let cursed = try #require(engine.combatant(10))
-        #expect(abs(cursed.hitFactor - 0.8) < 0.001)
+        #expect(abs(cursed.factor(.attack) - 0.8) < 0.001 && abs(cursed.factor(.magic) - 0.8) < 0.001)
         for _ in 0..<3 { _ = engine.resolveRound(heroAction: .defend) }
-        #expect(abs((engine.combatant(10)?.hitFactor ?? 0) - 0.8) < 0.001)
+        #expect(abs((engine.combatant(10)?.factor(.attack) ?? 0) - 0.8) < 0.001)
         _ = engine.resolveRound(heroAction: .defend)
-        #expect(engine.combatant(10)?.hitFactor == 1)
+        #expect(engine.combatant(10)?.factor(.attack) == 1)
+        #expect(engine.combatant(10)?.lowered.isEmpty == true)
     }
 
     @Test func aBossesMinionsStandTheirGround() {
@@ -735,8 +796,73 @@ struct RulesTests {
         #expect(engine.combatant(0)!.mp < 100)
         _ = engine.resolveRound(heroAction: .skill("bless", target: 0))
         let blessed = engine.combatant(0)!
-        #expect(blessed.blessRounds == BattleEngine.blessLength + 1)
+        #expect(blessed.raised[.attack]?.rounds == BattleEngine.buffLength + 1)
+        #expect(blessed.raised[.defense]?.rounds == BattleEngine.buffLength + 1)
         #expect(blessed.attack > Double(heroStats.attack))
+    }
+
+    @Test func buffsRaiseStatsForAWhileAndSayByHowMuch() throws {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 500, mp: 200, attack: 30, defense: 40, magic: 20, speed: 50)
+        var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 40, element: .neutral,
+                             stats: stats, hp: 500, mp: 200, skills: ["protection", "berserk", "guardianship"], captureRate: 0)
+        hero.skillLevels = ["protection": 1, "berserk": 1, "guardianship": 1]
+        let friend = Combatant(id: 2, side: .party, source: .ally(UUID()), name: "Momo", art: "player_walk", level: 40, element: .neutral,
+                               stats: Stats(hp: 500, mp: 0, attack: 20, defense: 20, magic: 0, speed: 1), hp: 500, mp: 0,
+                               skills: [], captureRate: 0)
+        let foeStats = jelly.stats(at: 1)
+        let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
+                            stats: foeStats, hp: 9_999, mp: 0, skills: [], captureRate: 0)
+        let engine = BattleEngine(party: [hero, friend], enemies: [foe], content: content, seed: 9)
+
+        // Protection: DEF +40%, said with the amount, for this round and 3 more.
+        let shielding = engine.resolveRound(heroAction: .skill("protection", target: 0))
+        #expect(shielding.contains { event in
+            if case .statsChanged(0, let changes, 3) = event { return changes == [StatChange(stat: .defense, amount: 0.4)] }
+            return false
+        })
+        let shielded = try #require(engine.combatant(0))
+        #expect(abs(shielded.defense - 56) < 0.001)
+        for _ in 0..<3 { _ = engine.resolveRound(heroAction: .defend) }
+        #expect(engine.combatant(0)?.raised[.defense] != nil)
+        _ = engine.resolveRound(heroAction: .defend)
+        #expect(engine.combatant(0)?.raised[.defense] == nil)
+
+        // Berserk trades defense for attack.
+        _ = engine.resolveRound(heroAction: .skill("berserk", target: 0))
+        let raging = try #require(engine.combatant(0))
+        #expect(abs(raging.factor(.attack) - 1.3) < 0.001)
+        #expect(abs(raging.factor(.defense) - 0.75) < 0.001)
+
+        // Guardianship wards everyone on your side.
+        let ward = engine.resolveRound(heroAction: .skill("guardianship", target: 0))
+        let warded = Set(ward.compactMap { event -> Int? in
+            if case .statsChanged(let target, _, _) = event { return target }
+            return nil
+        })
+        #expect(warded == [0, 2])
+        #expect(engine.combatant(2)?.raised[.defense] != nil)
+    }
+
+    @Test func monstersPowerThemselvesUp() throws {
+        let content = Content.shared
+        let wolf = try #require(content.monster("werewolf"))
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 60, element: .neutral,
+                             stats: Stats(hp: 99_999, mp: 0, attack: 1, defense: 999, magic: 1, speed: 1), hp: 99_999, mp: 0,
+                             skills: [], captureRate: 0)
+        let stats = wolf.stats(at: 20)
+        let foe = Combatant(id: 10, side: .enemies, source: .wild("werewolf"), name: "Werewolf", art: wolf.art, level: 20, element: wolf.element,
+                            stats: stats, hp: stats.hp, mp: stats.mp, skills: wolf.skills, captureRate: wolf.captureRate)
+        let engine = BattleEngine(party: [hero], enemies: [foe], content: content, seed: 21)
+        var raged = false
+        for _ in 0..<30 where !raged {
+            raged = engine.resolveRound(heroAction: .defend).contains { event in
+                if case .statsChanged(10, let changes, _) = event { return changes.contains { $0.stat == .attack && $0.amount > 0 } }
+                return false
+            }
+        }
+        #expect(raged)
     }
 
     @Test func friendsFightOnAfterYouFallAndWakeYou() {
@@ -863,6 +989,24 @@ struct RulesTests {
         session.leaveParty(momo.id)
         #expect(session.partyMembers.isEmpty)
         #expect(session.friends.count == 1)
+    }
+
+    @Test func friendsSayWhenTheyGoUpALevelWithYou() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.data.hero.level = 30
+        let momo = Adventurer(name: "Momo", raceID: "elf", classID: "mage", level: 27, look: .standard)
+        let pip = Adventurer(name: "Pip", raceID: "human", classID: "fighter", level: 40, look: .standard)
+        #expect(session.befriend(momo))
+        #expect(session.befriend(pip))
+        session.adventurersAround = [momo.id, pip.id]
+        session.invite(momo.id)
+        session.invite(pip.id)
+        // You go up a level: Momo keeps a level behind you and says so; Pip, already past you, doesn't.
+        session.data.hero.level = 31
+        let grown = session.growParty()
+        #expect(grown.map { $0.name } == ["Momo"])
+        #expect(grown.first?.level == 30)
+        #expect(session.growParty().isEmpty)
     }
 
     @Test func theOldSaveMovesInOnceAndCopiesCollapse() throws {
@@ -1034,6 +1178,23 @@ struct RulesTests {
         #expect(!GameSession.wearsBoots(bot("fighter", 30)))
     }
 
+    @Test func botsFightWithAWeaponForTheirClassAndLevel() {
+        var held: Set<String> = []
+        for _ in 0..<60 {
+            for (classID, level) in [("novice", 5), ("fighter", 45), ("mage", 45), ("tamer", 70), ("fighter", 90)] {
+                let someone = Adventurer(name: "Momo", raceID: "elf", classID: classID, level: level, look: .standard)
+                let weapon = GameSession.weapon(for: someone)
+                #expect(weapon?.type == .weapon)
+                #expect((weapon?.level ?? 1) <= level, "\(weapon?.id ?? "-") is above level \(level)")
+                #expect(weapon?.classes?.contains(classID) ?? true, "a \(classID) can't hold \(weapon?.id ?? "-")")
+                // The same adventurer always holds the same.
+                #expect(GameSession.weapon(for: someone)?.id == weapon?.id)
+                if let weapon { held.insert(weapon.id) }
+            }
+        }
+        #expect(held.count >= 8)
+    }
+
     @Test func aBackupComesBackAsAGameOfItsOwn() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.data.hero.level = 12
@@ -1078,6 +1239,51 @@ struct RulesTests {
             return
         }
         #expect(skill == "first_aid" && target == 2)
+    }
+
+    /// Friends (and you on Auto) weigh their moves: a plain blow for a monster it would finish off,
+    /// a sweep for a crowd, a spell's element where it's a weak spot.
+    @Test func adventurersMakeEducatedChoices() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        func hero(_ skills: [String], stats: Stats) -> Combatant {
+            var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 30, element: .neutral,
+                                 stats: stats, hp: stats.hp, mp: stats.mp, skills: skills, captureRate: 0)
+            hero.skillLevels = Dictionary(uniqueKeysWithValues: skills.map { ($0, 1) })
+            return hero
+        }
+        func foe(_ id: Int, hp: Int, element: Element = .water) -> Combatant {
+            Combatant(id: id, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 30, element: element,
+                      stats: Stats(hp: 1_000, mp: 0, attack: 5, defense: 10, magic: 5, speed: 1), hp: hp, mp: 0, skills: [], captureRate: 0)
+        }
+        let fighter = Stats(hp: 500, mp: 100, attack: 30, defense: 10, magic: 5, speed: 10)
+
+        // A monster one plain blow would beat isn't worth MP.
+        let finishing = BattleEngine(party: [hero(["power_strike"], stats: fighter)], enemies: [foe(10, hp: 1)], content: content, seed: 1)
+        guard case .attack(let target) = finishing.autoAction(for: 0) else {
+            Issue.record("expected a plain blow on the nearly beaten monster")
+            return
+        }
+        #expect(target == 10)
+
+        // A crowd is swept.
+        let crowd = (10..<14).map { foe($0, hp: 1_000) }
+        let sweeping = BattleEngine(party: [hero(["whirlwind", "bash"], stats: fighter)], enemies: crowd, content: content, seed: 1)
+        guard case .skill(let sweep, _) = sweeping.autoAction(for: 0) else {
+            Issue.record("expected Whirlwind on the crowd")
+            return
+        }
+        #expect(sweep == "whirlwind")
+
+        // Fire goes where it's a weak spot (metal), not where it's resisted (water).
+        let mage = Stats(hp: 500, mp: 100, attack: 10, defense: 10, magic: 60, speed: 10)
+        let aiming = BattleEngine(party: [hero(["fire_bolt"], stats: mage)], enemies: [foe(10, hp: 1_000, element: .water), foe(11, hp: 1_000, element: .metal)],
+                                  content: content, seed: 1)
+        guard case .skill(let spell, let mark) = aiming.autoAction(for: 0) else {
+            Issue.record("expected Fire Bolt")
+            return
+        }
+        #expect(spell == "fire_bolt" && mark == 11)
     }
 
     @Test func monstersBeatenTogetherFallTogether() {

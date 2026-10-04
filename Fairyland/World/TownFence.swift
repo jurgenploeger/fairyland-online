@@ -82,6 +82,28 @@ enum TownFence {
         }
     }
 
+    /// One cell's stretch of a railing picture that has a post at each end (`posts`: how far across
+    /// the cropped picture their centres sit, 0...1), slanted along the edge it stands on: west to
+    /// east (`alongColumns`) or north to south, left to right on screen either way. Its posts land
+    /// on the cell's edges, where the next cell's posts land too, so a run reads as one railing.
+    /// The anchor is the middle of its foot, to go on the cell's centre.
+    static func railing(_ image: CGImage, posts: (CGFloat, CGFloat), height: CGFloat,
+                        alongColumns: Bool) -> (texture: SKTexture, size: CGSize, anchor: CGPoint)? {
+        guard let picture = cropped(image), posts.1 > posts.0 else { return nil }
+        let c = CGFloat(0.5).squareRoot(), tile = WorldMap.tileSize
+        // One cell along the edge: east climbs to the right, south drops to the right.
+        let cell = CGVector(dx: c * tile, dy: alongColumns ? c * tile / 2 : -c * tile / 2)
+        let full = cell * (1 / (posts.1 - posts.0))
+        let pad: CGFloat = 2
+        let size = CGSize(width: full.dx + pad * 2, height: abs(full.dy) + height + pad * 2)
+        let origin = CGPoint(x: pad, y: pad + max(0, -full.dy))
+        let texture = render(size: size) { context in
+            draw(picture, in: context, from: origin, along: full, part: nil, height: height)
+        }
+        let middle = origin + full * ((posts.0 + posts.1) / 2)
+        return (texture, size, CGPoint(x: middle.x / size.width, y: middle.y / size.height))
+    }
+
     /// `image` slanted along `along` from `origin` (its bottom edge follows the line, its sides
     /// stay upright). `part` 0 or 1 draws only the first or second half of it.
     private static func draw(_ image: CGImage, in context: CGContext, from origin: CGPoint, along: CGVector, part: Int?, height: CGFloat) {

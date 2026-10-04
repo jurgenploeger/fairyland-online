@@ -2,6 +2,114 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.43",
+      "date": "2026-10-04",
+      "title": "A look for every skill, and bots that think",
+      "notes": [
+        "Every skill now has a look of its own. Frost Breath is an icy breath that grows crystals of ice and drifts snow, no longer Bubble's water orb; Bubble sends a stream of bubbles that pop. Ember sprays little embers, Mud Shot lobs a gob that splats, Rock Throw hurls a tumbling boulder, Vine Whip lashes, Golden Spin flings a spinning gold disc, Gust blows streaks of wind, Roar sends out shockwaves, and Web Shot throws webs. Bash slams down from above, Shadow Bite and Venom Bite bite in violet and green, Evil Eye opens a great glaring eye, Poison Mist rolls in as a fog, and Flash bursts into a blinding star.",
+        "Heals and buffs too: First Aid raises a white cross, Recovery a beating heart, Mend Beast paw prints, Blessing a rain of light; Protection forms a shield, Holy Glow an orb of rosy light, Guardianship a dome over the party, Animal Training paw prints and speed lines, Boost rising arrows and Berserk red flames.",
+        "Friends no longer copy you. They weigh every move: a plain blow to finish off a monster rather than spending MP, a sweep when there's a crowd, a spell where it hits a weak spot and never where it's resisted, their best skill on the toughest monster, a heal or a buff when it pays, and MP kept back if they're the healer. They rarely use the skill you just used, and on Auto you fight the same thoughtful way."
+      ]
+    },
+    {
+      "version": "0.3.42",
+      "date": "2026-10-04",
+      "title": "One spacing for both sides",
+      "notes": [
+        "In battle, your line and the monsters' are spaced alike: five of yours stand exactly as far apart as five monsters, and every other line in the fight follows the same spacing. It's the widest that still fits the most crowded line, a companion at its end included."
+      ]
+    },
+    {
+      "version": "0.3.41",
+      "date": "2026-10-04",
+      "title": "Spells that raise you up",
+      "notes": [
+        "New spells raise stats for a while: Protection for Fighters (an ally's DEF +40%, from level 12), Holy Glow (an ally's MAG +30%, level 40) and Guardianship (the whole party's DEF +20%, level 60) for Mages, and Animal Training for Beast Tamers (ATK +20% and SPD +30%, level 25). They grow stronger with their skill level, and Bless now raises ATK and DEF the same way.",
+        "Whenever a spell raises or lowers a stat, the fighter shows which and by how much (\"DEF +40%\" in blue, \"ATK −20%\" in violet), and an arrow by their HP bar counts the rounds it has left.",
+        "A curse now lowers ATK and MAG, shown on the cursed fighter, and poison's bite each round is marked \"Poison\" so you can see what took the HP.",
+        "Some monsters power themselves up now: golden hamsters, wood hogs, red bulls and earth lions Boost their ATK, and werewolves, fire bears and black kongs go Berserk (more ATK, less DEF). Companions of those kinds do it for you, and friends cast their buffs on whoever they'd help most.",
+        "When a friend or your companion goes up a level with a win, light pours down on them on the field with \"LEVEL UP!\", and the victory card lists them. Friends now keep pace in the same win you level up in, if they were still standing.",
+        "What's new: only the newest release is open; tap any other to read it."
+      ]
+    },
+    {
+      "version": "0.3.40",
+      "date": "2026-10-04",
+      "title": "A proper speech bubble",
+      "notes": [
+        "When you talk to someone, the window's tail is part of the bubble now: the glass and the light-blue border run out round it, where it used to be a dark triangle stuck over the border. It points at the speaker's face instead of their chest."
+      ]
+    },
+    {
+      "version": "0.3.39",
+      "date": "2026-10-04",
+      "title": "Spells of light",
+      "notes": [
+        "The elemental spells are drawn in light and colour like the rest of the battle's effects, no more pixel art, and each glows in its own element's colours: Fire Bolt and Ember are a blazing orange fireball that bursts into flame, Jelly Splash, Bubble and Frost Breath a blue orb that splashes into a crown of droplets, Leaf Storm and Vine Whip a cyclone of green light, and Stone Spike, Mud Shot and Rock Throw shards of ochre light bursting out of glowing ground.",
+        "Every glow keeps its colour on bright ground too: a soft tint of the element's deep shade sits under the light, so the desert doesn't wash it out to white."
+      ]
+    },
+    {
+      "version": "0.3.38",
+      "date": "2026-10-04",
+      "title": "Tap a monster to attack",
+      "notes": [
+        "Attack is already chosen when your turn starts, and your companion's: tap a monster and you attack it, no Attack button first. Pick a skill, an item or Capture to do something else instead."
+      ]
+    },
+    {
+      "version": "0.3.37",
+      "date": "2026-10-04",
+      "title": "Armed friends, a tidy line, honest roads",
+      "notes": [
+        "Your friends and the other adventurers hold a weapon for their class and level, on the map and in battle, and their card shows what they hold and wear.",
+        "Friends and companions walking behind you show their walk the whole way instead of sliding along.",
+        "In battle, your line stays evenly spaced and now spreads across the screen: it only keeps room at the end for a companion when there is one.",
+        "The world map shows quest gates the way the game has them: a road is dashed with a lock at the end it's closed from, and it's open coming the other way. Tap a place to read which road is closed and which quest opens it."
+      ]
+    },
+    {
+      "version": "0.3.36",
+      "date": "2026-10-04",
+      "title": "A slimmer turn clock",
+      "notes": [
+        "The clock under the battle log is narrower, so it no longer reaches over the 1× and AUTO buttons."
+      ]
+    },
+    {
+      "version": "0.3.35",
+      "date": "2026-10-04",
+      "title": "No more houses on the roads",
+      "notes": [
+        "Some houses in Goldburg, Rainbow City and Meadowbrook stood right on a street, blocking it. Each has moved to the nearest clear plot beside the road, most of them a step or three. Meadowbrook's windmill and Rainbow City's guild hall stay on their terraces, just off the street that leads up to them."
+      ]
+    },
+    {
+      "version": "0.3.34",
+      "date": "2026-10-04",
+      "title": "Railings that follow the terraces",
+      "notes": [
+        "The stone railings along the raised terraces in Meadowbrook, Rainbow City, Goldburg and Bluebird run along the terrace edges at the map's angle, as one railing, instead of stepping down them like stairs."
+      ]
+    },
+    {
+      "version": "0.3.33",
+      "date": "2026-10-04",
+      "title": "Gear from battles",
+      "notes": [
+        "Monsters drop equipment now: weapons, armour and accessories from up to their own level, mostly for your class. Stronger fights pay better: a monster at your level drops a piece 6% of the time, ten levels above you 16%, well below you 2%. A rare monster drops one a third of the time, and a boss always does, on top of its own rare drops. Two pieces at most a fight.",
+        "How many you have of an item shows as a small blue badge on its picture: in your bag, on the Character tab, in battle's item list and in what a win turned up."
+      ]
+    },
+    {
+      "version": "0.3.32",
+      "date": "2026-10-04",
+      "title": "Fire looks like fire",
+      "notes": [
+        "Fire's badge has a new flame with three tongues. The old one was a teardrop, and on the small badges it looked just like water's droplet. The fire skills' buttons show the new flame too."
+      ]
+    },
+    {
       "version": "0.3.31",
       "date": "2026-10-04",
       "title": "Back up your game",

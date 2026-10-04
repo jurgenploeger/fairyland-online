@@ -209,28 +209,48 @@ extension TitleView {
     }
 }
 
-/// Release notes from content/changelog.json, newest first.
+/// Release notes from content/changelog.json, newest first. Only the newest is open; tap any
+/// other to read it.
 private struct ChangelogPanel: View {
     let onClose: () -> Void
+    @State private var open: Set<String> = Set(Content.shared.releases.prefix(1).map(\.id))
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             FLTitleBar(title: "What's new", icon: .book, onClose: onClose)
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
                 ForEach(Content.shared.releases) { release in
+                    let isOpen = open.contains(release.id)
                     VStack(alignment: .leading, spacing: 6) {
-                        HStack(alignment: .firstTextBaseline) {
-                            Text("v\(release.version)").font(HUDStyle.font(16)).foregroundStyle(HUDStyle.gold)
-                            Spacer()
-                            Text(release.date).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
-                        }
-                        Text(release.title).font(HUDStyle.font(13))
-                        ForEach(release.notes, id: \.self) { note in
-                            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                                Text("•").foregroundStyle(HUDStyle.gold)
-                                Text(note).fixedSize(horizontal: false, vertical: true)
+                        Button {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                if isOpen { open.remove(release.id) } else { open.insert(release.id) }
                             }
-                            .font(HUDStyle.font(11))
+                        } label: {
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack(alignment: .firstTextBaseline) {
+                                    Text("v\(release.version)").font(HUDStyle.font(16)).foregroundStyle(HUDStyle.gold)
+                                    Spacer()
+                                    Text(release.date).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                                    IconImage(isOpen ? .chevronUp : .chevronDown, size: 12)
+                                        .foregroundStyle(HUDStyle.dim)
+                                }
+                                Text(release.title).font(HUDStyle.font(13))
+                                    .multilineTextAlignment(.leading)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityHint(isOpen ? "Hides the notes" : "Shows the notes")
+                        if isOpen {
+                            ForEach(release.notes, id: \.self) { note in
+                                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                    Text("•").foregroundStyle(HUDStyle.gold)
+                                    Text(note).fixedSize(horizontal: false, vertical: true)
+                                }
+                                .font(HUDStyle.font(11))
+                            }
                         }
                     }
                 }

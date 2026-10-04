@@ -121,6 +121,8 @@ final class Crowd {
     private func addAdventurer(_ profile: Adventurer, home: GridPoint, roam: Int, world: SKNode, trades: Bool = false) {
         let walker = Self.person(profile.name, art: GameSession.registerAdventurer(profile),
                                  color: profile.hostile ? Self.hostileColor : Self.adventurerColor, badge: .bot)
+        // A weapon in hand for their class and level, like yours (`GameSession.weapon(for:)`).
+        walker.setGear(weapon: GameSession.weapon(for: profile), accessory: nil)
         walker.walkSpeed = .random(in: 72...92)
         var pet: Walker?
         if let species = profile.petSpecies.flatMap(Content.shared.monster) {

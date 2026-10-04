@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// The game's UI icons: Iconaut's solid set (MIT, iconaut.design), vendored into
-/// Assets.xcassets/Icons by tools/icons.py. Keep the cases in sync with the script's list.
+/// Assets.xcassets/Icons by tools/icons.py, plus a few of our own (art/icons: the flame).
+/// Keep the cases in sync with the script's lists.
 enum GameIcon: String, CaseIterable {
     case sword, sparkles, backpack, shield, wind, heart, heartPlus = "heart-plus", more, close
     case check, checkCircle = "check-circle", badgeCheck = "badge-check", plus
@@ -45,8 +46,9 @@ struct IconImage: View {
 }
 
 extension Element {
-    /// The element's shape, so it reads without its colour: a flame, a droplet, a leaf, a mountain,
-    /// a magnet for metal, the sun, the moon, and a dashed ring for none.
+    /// The element's shape, so it reads without its colour: a flame with three tongues (a teardrop
+    /// flame read as water's droplet), a droplet, a leaf, a mountain, a magnet for metal, the sun,
+    /// the moon, and a dashed ring for none.
     var icon: GameIcon {
         switch self {
         case .fire: .flame

@@ -10,7 +10,7 @@ final class Walker: SKNode {
     var path: [CGPoint] = []
 
     private(set) var facing: Direction = .down
-    private var isWalking = false
+    private(set) var isWalking = false
     private var cycle: WalkCycle
     private var tag: NameTag?
     /// When the name tag shows: the party's while standing still, everyone else's up close or when tapped.
@@ -208,9 +208,12 @@ final class Walker: SKNode {
         }
         let offset = goal - position
         let distance = offset.length
+        // While the leader walks it walks too, right up to its place. Followers are quicker than
+        // you, so they caught up, stopped within a few points of their place and stepped on again:
+        // every stop and start began the walk from its first frame, so they seemed to slide.
         if distance > 300 {
             position = goal
-        } else if distance > 6 {
+        } else if distance > 6 || (leader.isWalking && distance > 0.5) {
             let step = min(distance, max(walkSpeed, distance * 2) * CGFloat(dt))
             let move = offset * (step / distance)
             var next = position + move

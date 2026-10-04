@@ -518,12 +518,9 @@ final class WorldScene: SKScene {
             }
         }
         placeTerraces()
-        for building in def.buildings ?? [] {
-            let anchor = map.offset(building.x, building.y)
-            for dc in -1...1 {
-                for dr in 0...1 { map.occupy(GridPoint(col: anchor.col + dc, row: anchor.row + dr), blocking: true) }
-            }
-            addScenery(art.sprite(building.art), at: anchor)
+        // The map's own buildings, already set down clear of the roads (WorldMap.placeOwnBuildings).
+        for building in map.buildings {
+            addScenery(art.sprite(building.art), at: building.anchor)
         }
     }
 
@@ -532,6 +529,11 @@ final class WorldScene: SKScene {
     /// corners, and stairs break the front wall where you can climb up.
     private func placeTerraces() {
         let rail = art.sprite("stone_balustrade"), pillar = art.sprite("wall_pillar"), steps = art.sprite("stone_stairs")
+        // The balustrade picture is face on: set down a cell at a time, it stepped along a slanted
+        // edge like stairs, so it's slanted to follow the edge. Its posts sit 11% and 89% across it.
+        let picture = rail.texture.cgImage()
+        let rising = TownFence.railing(picture, posts: (0.108, 0.912), height: 16, alongColumns: true)
+        let falling = TownFence.railing(picture, posts: (0.108, 0.912), height: 16, alongColumns: false)
         let stone = art.tileTexture(def.theme.accent ?? "tile_scree")
         let tile = WorldMap.tileSize
         let wallHeight: CGFloat = 22
@@ -584,6 +586,15 @@ final class WorldScene: SKScene {
                     let cell = GridPoint(col: col, row: row)
                     guard col == o.col || row == o.row || col == last.col || row == last.row else { continue }
                     let corner = (col == o.col || col == last.col) && (row == o.row || row == last.row)
+                    if !corner, !terrace.stairs.contains(cell),
+                       let slanted = row == o.row || row == last.row ? rising : falling {
+                        let node = SKSpriteNode(texture: slanted.texture, size: slanted.size)
+                        node.anchorPoint = slanted.anchor
+                        node.position = map.center(of: cell)
+                        node.zPosition = -node.position.y
+                        world.addChild(node)
+                        continue
+                    }
                     let sprite = terrace.stairs.contains(cell) ? steps : corner ? pillar : rail
                     let node = SKSpriteNode(texture: sprite.texture, size: sprite.size * (corner ? 0.6 : 0.7))
                     node.anchorPoint = CGPoint(x: 0.5, y: 0.1)
@@ -1080,6 +1091,7 @@ final class WorldScene: SKScene {
                 return existing
             }
             let node = Walker(cycle: art.walkCycle(session.artID(for: friend)), label: friend.name, labelColor: HUDStyle.partyGreen, badge: .bot)
+            node.setGear(weapon: GameSession.weapon(for: friend), accessory: nil)
             node.walkSpeed = 105
             node.tagMode = .whenStill
             if let spot = friend.waitingAt {

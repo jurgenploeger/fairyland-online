@@ -51,6 +51,9 @@ final class WorldMap {
     private(set) var ponds: [[GridPoint]] = []
     /// Town planning results: where each building and bit of street furniture goes.
     private(set) var lots: [(art: String, anchor: GridPoint)] = []
+    /// The map's own buildings (`buildings` in maps.json), each where it was put or, if that's on a
+    /// road or another building, on the nearest clear plot (`placeOwnBuildings`).
+    private(set) var buildings: [(art: String, anchor: GridPoint)] = []
     private(set) var streetDecor: [(art: String, cell: GridPoint)] = []
     /// Raised terraces: their rectangles in grid cells (min corner inclusive), and stair cells.
     private(set) var terraces: [(origin: GridPoint, width: Int, height: Int, stairs: [GridPoint])] = []
@@ -94,7 +97,11 @@ final class WorldMap {
             if let ponds { digPonds(ponds, &rng) }
             digCave(cave, &rng)
         }
-        if let town = def.town { planTown(town, &rng) }
+        if let town = def.town {
+            planTown(town, &rng)
+        } else {
+            placeOwnBuildings()
+        }
         if def.theme.cave == nil, let ponds { digPonds(ponds, &rng) }
         if def.theme.accent != nil {
             if let patches = def.theme.accentPatches {
@@ -720,6 +727,8 @@ final class WorldMap {
             paintRoad(around: CGPoint(x: CGFloat(center.col) + 0.5, y: CGFloat(center.row) + 0.5), radius: CGFloat(radius) + 0.3)
         }
         for terrace in town.terraces ?? [] { raiseTerrace(terrace) }
+        // The town's own buildings first, so the shops below keep clear of them.
+        placeOwnBuildings()
 
         // Shops along the streets: a 3×2 plot just off a street, clear of everything else.
         let frontage = streetFrontage(&rng)
@@ -744,6 +753,45 @@ final class WorldMap {
                 occupy(cell, blocking: true)
                 streetDecor.append((art, cell))
             }
+        }
+    }
+
+    /// Sets down the map's own buildings (a 3×2 footprint above the anchor, like the shops) where
+    /// maps.json puts them. One that would stand on a road, water, the town fence, a terrace's wall,
+    /// an NPC or another building (maps.json put some right on a street) moves to the nearest plot
+    /// that's clear, ring by ring, up to 8 cells away. A terrace's paved top is fine to build on.
+    private func placeOwnBuildings() {
+        let npcs = Set((def.npcs ?? []).map { offset($0.x, $0.y) })
+        let fence = Set(fenceCells)
+        func fits(_ anchor: GridPoint) -> Bool {
+            for dc in -1...1 {
+                for dr in 0...1 {
+                    let cell = GridPoint(col: anchor.col + dc, row: anchor.row + dr)
+                    guard contains(cell), [.ground, .accent].contains(ground[cell.row][cell.col]),
+                          !occupied.contains(cell), !fence.contains(cell), !npcs.contains(cell) else { return false }
+                }
+            }
+            return true
+        }
+        for building in def.buildings ?? [] {
+            let wanted = offset(building.x, building.y)
+            var plot: GridPoint?
+            search: for radius in 0...8 {
+                for dr in -radius...radius {
+                    for dc in -radius...radius where max(abs(dc), abs(dr)) == radius {
+                        let candidate = GridPoint(col: wanted.col + dc, row: wanted.row + dr)
+                        if fits(candidate) {
+                            plot = candidate
+                            break search
+                        }
+                    }
+                }
+            }
+            guard let plot else { continue }
+            for dc in -1...1 {
+                for dr in 0...1 { occupy(GridPoint(col: plot.col + dc, row: plot.row + dr), blocking: true) }
+            }
+            buildings.append((building.art, plot))
         }
     }
 

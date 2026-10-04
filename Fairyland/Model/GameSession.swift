@@ -744,6 +744,22 @@ final class GameSession {
         return choices[Int((seed / 3) % UInt64(choices.count))]
     }
 
+    /// The weapon an adventurer fights with, in their hand on the map and in battle: one for their
+    /// class, of the best kind they're old enough for (a kind lower for a third of them), the same
+    /// one every time, like their armour.
+    static func weapon(for adventurer: Adventurer) -> ItemDef? {
+        let usable = Content.shared.items.filter {
+            $0.type == .weapon && ($0.level ?? 1) <= adventurer.level && ($0.classes?.contains(adventurer.classID) ?? true)
+        }
+        let tiers = Set(usable.map { $0.level ?? 1 }).sorted(by: >)
+        guard let best = tiers.first else { return nil }
+        // A different draw from their armour's, so the two don't always step down together.
+        let seed = Self.seed(adventurer.id) / 11
+        let tier = tiers.count > 1 && seed % 3 == 0 ? tiers[1] : best
+        let choices = usable.filter { ($0.level ?? 1) == tier }
+        return choices[Int((seed / 3) % UInt64(choices.count))]
+    }
+
     /// Speed boots, on a third of the adventurers old enough to wear them.
     static func wearsBoots(_ adventurer: Adventurer) -> Bool {
         guard let boots = Content.shared.items.first(where: { $0.wear == "boots" }) else { return false }
@@ -757,15 +773,22 @@ final class GameSession {
         return hash
     }
 
-    /// Party friends grow with you: a share of every win.
-    func growParty() {
+    /// Party friends grow with you: after every win, the ones at your side keep up to a level behind
+    /// you (with `standing`, only those still on their feet at the end; out cold, they learn nothing
+    /// from it, like you). Returns who went up, with their new level.
+    @discardableResult
+    func growParty(standing: Set<UUID>? = nil) -> [(id: UUID, name: String, level: Int)] {
         let level = data.hero.level - 1
         let party = Set(data.partyIDs ?? [])
-        guard var friends = data.friends else { return }
-        for index in friends.indices where party.contains(friends[index].id) {
-            friends[index].level = max(friends[index].level, level)
+        guard var friends = data.friends else { return [] }
+        var grown: [(id: UUID, name: String, level: Int)] = []
+        for index in friends.indices where party.contains(friends[index].id) && friends[index].waitingAt == nil
+            && standing?.contains(friends[index].id) != false && friends[index].level < level {
+            friends[index].level = level
+            grown.append((id: friends[index].id, name: friends[index].name, level: level))
         }
         data.friends = friends
+        return grown
     }
 
     /// Full party: `id` stays behind (it may be the newcomer), and the newcomer takes its place.
@@ -1166,6 +1189,40 @@ final class GameSession {
             .sorted { ($0.level ?? 1) > ($1.level ?? 1) }
         guard !options.isEmpty else { return nil }
         return Double.random(in: 0..<1) < 0.3 && options.count > 1 ? options[1] : options[0]
+    }
+
+    /// How likely a beaten wild monster is to drop a piece of equipment: 6%, a point more for each
+    /// level it has over you (up to 16%) and a point less for each below (down to 2%), so stronger
+    /// fights pay better; a rare monster 35%, and a boss always.
+    static func equipmentDropChance(level: Int, heroLevel: Int, rare: Bool, boss: Bool) -> Double {
+        if boss { return 1 }
+        if rare { return 0.35 }
+        return min(0.16, max(0.02, 0.06 + 0.01 * Double(level - heroLevel)))
+    }
+
+    /// The piece of equipment a beaten monster of `level` drops: a weapon, armour or accessory from
+    /// the twelve levels up to its own (the top six from a rare monster or a boss), the higher ones
+    /// more often. Three times in four it's something your class can use. Bosses' own rare drops
+    /// aren't in it; those stay theirs.
+    func equipmentDrop(level: Int, best: Bool = false) -> ItemDef? {
+        let span = best ? 6 : 12
+        // Past the best gear there is, a monster drops from the top.
+        let top = min(level, content.items.compactMap(\.level).max() ?? level)
+        let bossDrops = Set(content.monsters.flatMap { $0.drops ?? [] }.map(\.item))
+        let pool = content.items.filter {
+            ItemType.equipmentSlots.contains($0.type) && !bossDrops.contains($0.id)
+                && ($0.level ?? 1) <= top && ($0.level ?? 1) > top - span
+        }
+        let yours = pool.filter { $0.classes?.contains(data.hero.classID) ?? true }
+        let choices = !yours.isEmpty && Double.random(in: 0..<1) < 0.75 ? yours : pool
+        // An item at the top of the range is `span` times as likely as one at the bottom.
+        let weights = choices.map { Double(($0.level ?? 1) - (top - span)) }
+        var roll = Double.random(in: 0..<max(1, weights.reduce(0, +)))
+        for (item, weight) in zip(choices, weights) {
+            if roll < weight { return item }
+            roll -= weight
+        }
+        return choices.last
     }
 
     /// Uses a potion or ether outside battle, on the hero or a companion. Returns a message.

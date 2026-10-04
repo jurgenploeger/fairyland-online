@@ -2,8 +2,9 @@ import SwiftUI
 
 /// The whole world at a glance, like Fairyland's world map: every place on the roads between
 /// them, turned like the game's isometric view so north points up-left and east up-right, the way
-/// you walk out of a map on screen. A compass in the corner says so. Places you haven't been to show as "???", and roads a quest hasn't opened
-/// yet show a lock. Tap a place to read about it.
+/// you walk out of a map on screen. A compass in the corner says so. Places you haven't been to show as "???". A quest
+/// closes a road one way only (the way back is always open, so you can't get stuck), so a closed road is dashed from the
+/// end it's closed at, with a lock there, as the fence stands at that end in the game. Tap a place to read about it.
 struct WorldAtlas: View {
     let session: GameSession
     @State private var selected: String?
@@ -17,7 +18,8 @@ struct WorldAtlas: View {
     private struct Road: Identifiable {
         let a: MapDef
         let b: MapDef
-        let locked: Bool
+        /// The ends it's closed from (a quest barricades the exit there); it's open the other way.
+        let closedFrom: [String]
         let known: Bool
         var id: String { a.id + "|" + b.id }
     }
@@ -60,18 +62,22 @@ struct WorldAtlas: View {
         let size = CGSize(width: CGFloat(maxAcross - minAcross + 1) * cell.width, height: CGFloat(maxUp - minUp + 1) * cell.height)
         return ZStack(alignment: .topLeading) {
             ForEach(roads) { road in
-                Path { path in
-                    path.move(to: center(of: road.a))
-                    path.addLine(to: center(of: road.b))
-                }
-                .stroke(road.known ? HUDStyle.plate : HUDStyle.plate.opacity(0.35),
-                        style: StrokeStyle(lineWidth: 5, lineCap: .round, dash: road.locked ? [5, 7] : []))
-                if road.locked {
-                    IconImage(.lock, size: 12)
-                        .foregroundStyle(HUDStyle.ink)
-                        .frame(width: 20, height: 20)
-                        .background(Circle().fill(HUDStyle.gold))
-                        .position(midpoint(road))
+                // Each half on its own: dashed from an end it's closed at, with the lock on it.
+                ForEach([road.a, road.b]) { end in
+                    let closed = road.closedFrom.contains(end.id)
+                    Path { path in
+                        path.move(to: center(of: end))
+                        path.addLine(to: midpoint(road))
+                    }
+                    .stroke(road.known ? HUDStyle.plate : HUDStyle.plate.opacity(0.35),
+                            style: StrokeStyle(lineWidth: 5, lineCap: .round, dash: closed ? [5, 7] : []))
+                    if closed {
+                        IconImage(.lock, size: 12)
+                            .foregroundStyle(HUDStyle.ink)
+                            .frame(width: 20, height: 20)
+                            .background(Circle().fill(HUDStyle.gold))
+                            .position(point(on: road, from: end, at: 0.36))
+                    }
                 }
             }
             ForEach(maps) { map in
@@ -101,14 +107,25 @@ struct WorldAtlas: View {
         guard let map = Content.shared.map(selected ?? session.data.mapID) else { return "" }
         switch status(of: map) {
         case .here:
-            return "You are here: \(map.name)\(levels(map))"
+            return "You are here: \(map.name)\(levels(map))" + closedRoads(from: map)
         case .visited:
-            return "\(map.name)\(levels(map))"
+            return "\(map.name)\(levels(map))" + closedRoads(from: map)
         case .undiscovered:
             return "Not discovered yet. Follow the roads to find it."
         case .locked(let quest):
             return "Locked. Finish “\(quest ?? "a quest")” to open the road."
         }
+    }
+
+    /// The roads out of `map` a quest still closes, a line each (the way back in is open).
+    private func closedRoads(from map: MapDef) -> String {
+        map.exits.compactMap { exit -> String? in
+            guard !session.canTravel(exit), let other = Content.shared.map(exit.to), other.world?.count == 2 else { return nil }
+            let place = session.hasVisited(other.id) ? other.name : "an undiscovered place"
+            let quest = exit.requires.flatMap { session.content.quest($0)?.title } ?? "a quest"
+            return "\nThe road to \(place) opens after “\(quest)”; it's open coming the other way."
+        }
+        .joined()
     }
 
     private func levels(_ map: MapDef) -> String {
@@ -137,9 +154,11 @@ struct WorldAtlas: View {
                 let key = [map.id, other.id].sorted().joined(separator: "|")
                 guard seen.insert(key).inserted else { continue }
                 let back = other.exits.filter { $0.to == map.id }
-                let locked = !session.canTravel(exit) || back.contains { !session.canTravel($0) }
+                var closedFrom: [String] = []
+                if !session.canTravel(exit) { closedFrom.append(map.id) }
+                if back.contains(where: { !session.canTravel($0) }) { closedFrom.append(other.id) }
                 let known = session.hasVisited(map.id) || session.hasVisited(other.id)
-                result.append(Road(a: map, b: other, locked: locked, known: known))
+                result.append(Road(a: map, b: other, closedFrom: closedFrom, known: known))
             }
         }
         return result
@@ -156,6 +175,12 @@ struct WorldAtlas: View {
     private func midpoint(_ road: Road) -> CGPoint {
         let a = center(of: road.a), b = center(of: road.b)
         return CGPoint(x: (a.x + b.x) / 2, y: (a.y + b.y) / 2)
+    }
+
+    /// The point `fraction` of the way along `road` from `end` toward its other end.
+    private func point(on road: Road, from end: MapDef, at fraction: CGFloat) -> CGPoint {
+        let start = center(of: end), finish = center(of: end.id == road.a.id ? road.b : road.a)
+        return CGPoint(x: start.x + (finish.x - start.x) * fraction, y: start.y + (finish.y - start.y) * fraction)
     }
 }
 

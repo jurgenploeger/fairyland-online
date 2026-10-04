@@ -14,15 +14,17 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 - `Fairyland/`: Swift code (World = maps and walking, Battle = combat, UI = SwiftUI HUD and menus).
 - `tools/item_art.py`: draws every item's 32×32 sprite in code (free); rerun it after editing a drawing.
 - `tools/skill_art.py`: the same for every skill's icon (`art/sprites/skill_<id>.png`).
-- `tools/fx_art.py`: the same for the spell effects' pixel art (`art/sprites/fx_*.png`: spikes, fireball, blast,
-  leaves, splash...), which `Fairyland/Battle/ElementEffects.swift` animates. `--sheet out.png` writes a contact sheet.
+- `tools/fx_art.py`: the same for the few battle marks that aren't light (`art/sprites/fx_*.png`: poison's bubble,
+  the poison mark and the arrows for lowered and raised stats). `--sheet out.png` writes a contact sheet. Spells are light, not sprites:
+  `Fairyland/Battle/ElementEffects.swift` layers soft glows in each element's colours (`ElementLight`).
 - `tools/hero_layers.py`: splits each race's walk sheet into paper-doll layers (bald `body_<race>`,
   `locks_<race>` for a beard, `hair_<style>_<race>` for every hairstyle in that sheet's own hair colour, a
   gender sheet's own hair as a style of its own (appearance.json `styles` with `sheet`), `hood_`/`helmet_<race>`
   in magenta that GearOverlay paints in the armour's colours). The game stacks them (`GameSession.layers`) and
   dyes every shade of the locks and hair (appearance.json `hairLayer`), never the body. Rerun after changing a
   race's sheet, and look at `--preview` before committing.
-- `tools/rd.py`: Retro Diffusion client. `tools/icons.py`: vendors Iconaut icons (MIT).
+- `tools/rd.py`: Retro Diffusion client. `tools/icons.py`: vendors Iconaut icons (MIT), plus our own drawings in
+  `art/icons/` where Iconaut has no shape that works (fire's three-tongued flame).
   `tools/check_content.py`: validates the game data.
 - `theme.palette` in `content/maps.json` colour-grades each map's ground, scenery and buildings at load time.
   `tools/palette_preview.py` (needs pillow + numpy) renders every map with and without it, to tune without a Mac.
@@ -38,6 +40,10 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 - **Retro Diffusion costs money.** Always run `python3 tools/rd.py generate <ids> --dry-run` (free) and get
   the user's OK before generating. Paid runs are logged in `art/spend-log.jsonl`. Never commit `.env` or the
   API key (`RETRO_DIFFUSION_API_KEY`).
+- **Every skill looks different** (a playtest rule): each skill used in battle has its own `animation` in
+  `content/skills.json`, drawn by `Fairyland/Battle/SkillStyles.swift` (or `ElementEffects.swift` for the elemental
+  spells) and dispatched in `BattleScene.castSkill`. `check_content.py` rejects a shared or unknown one, so a new skill
+  needs a new effect, in light and its own colours.
 - **Versions:** `MARKETING_VERSION` in `project.yml` and the top entry of `content/changelog.json` move together
   (the checker enforces it). Add a changelog entry when shipping a user-visible change. 1.0.0 = App Store launch.
 - **Screenshots and tests:** pushes to `claude/**` branches run `.github/workflows/screenshots.yml` (macOS
