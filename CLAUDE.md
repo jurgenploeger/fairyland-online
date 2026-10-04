@@ -6,7 +6,7 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 ## Layout
 - `docs/fairyland-online.md`: how the original game (and Tales of Mysteria, its 2026 relaunch) worked, with
   sources, and where we differ. Read it before inventing a system; add facts you verify, with their source.
-- `content/*.json`: all game data (maps, monsters, skills, items, quests, music, looks, crowd). Data-driven;
+- `content/*.json`: all game data (maps, monsters, skills, items, quests, music, looks, crowd, announcements). Data-driven;
   most features are a JSON edit.
 - `art/assets.json` + `art/sprites/`: every sprite. `derive` makes free palette swaps of existing art. Recolour a whole
   colour family with one `to` + `spread` rule (`RecolorRule` in `Fairyland/Art/Recolor.swift`) so it keeps its hue-shifted

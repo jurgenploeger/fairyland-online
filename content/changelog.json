@@ -2,6 +2,17 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.22",
+      "date": "2026-10-04",
+      "title": "A busier world",
+      "notes": [
+        "Every computer-run adventurer wears a BOT tag: over their head, in the chat, on their card and stats, and in your friends list. They stand in for other players until Fairyland goes online.",
+        "Towns are busier: Meadowbrook has twice the adventurers it had, and Rainbow City and Bluebird 14 each instead of 8. Goldburg's main square is a market: traders stand about under signs showing what they sell today, call out their deals in the chat, and trade with you when you walk up.",
+        "The chat has announcements on a gold banner: dawn and dusk, a word when you arrive somewhere, news of other adventurers, and rare monster sightings. A sighting is real: for 20 minutes that rare monster turns up far more often on its map.",
+        "Moderators get a red MOD tag and a World channel in the chat to message everyone in the game. Their messages show on a red banner, on every map."
+      ]
+    },
+    {
       "version": "0.3.21",
       "date": "2026-10-04",
       "title": "Fainting splits the party",

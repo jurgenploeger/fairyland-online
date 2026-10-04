@@ -267,6 +267,35 @@ struct SpriteImage: View {
 extension HUDStyle {
     /// Name colour for friends travelling in your party.
     static let partyGreen = UIColor(red: 0.55, green: 1, blue: 0.55, alpha: 1)
+    /// A moderator's World channel messages, and their MOD tag.
+    static let mod = Color(uiColor: PlayerBadge.mod.uiColor)
+}
+
+extension PlayerBadge {
+    /// Its pill's colour: slate for BOT, red for MOD.
+    var uiColor: UIColor {
+        switch self {
+        case .bot: UIColor(red: 0.42, green: 0.5, blue: 0.64, alpha: 1)
+        case .mod: UIColor(red: 0.9, green: 0.24, blue: 0.34, alpha: 1)
+        }
+    }
+}
+
+/// BOT or MOD in a little pill after someone's name, as on their name tag over their head.
+struct NameBadge: View {
+    let badge: PlayerBadge
+
+    var body: some View {
+        Text(badge.rawValue)
+            .font(.system(size: 8, weight: .black, design: .rounded))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 5)
+            .padding(.vertical, 1.5)
+            .background(Capsule().fill(Color(uiColor: badge.uiColor)))
+            .overlay(Capsule().strokeBorder(.black.opacity(0.35), lineWidth: 0.5))
+            .fixedSize()
+            .accessibilityLabel(badge == .mod ? "moderator" : "bot")
+    }
 }
 
 struct PixelButtonStyle: ButtonStyle {

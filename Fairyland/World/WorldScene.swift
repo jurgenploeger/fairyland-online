@@ -174,7 +174,11 @@ final class WorldScene: SKScene {
         placeDecor()
         await reached(0.8, progress)
         placeNPCs()
-        crowd = Crowd(def: def, map: map, world: world, friends: session.friends.filter { !session.isInParty($0) })
+        // A town's market traders sell what they have today, around your level.
+        let market = Crowd.Market(sign: { [weak session] in session?.marketSign(for: $0) },
+                                  shout: { [weak session] in session?.marketShout(for: $0) },
+                                  level: session.data.hero.level)
+        crowd = Crowd(def: def, map: map, world: world, friends: session.friends.filter { !session.isInParty($0) }, market: market)
         crowd?.onChat = { [weak session] speaker, text, kind in session?.postChat(text, from: speaker, kind: kind) }
         crowd?.onChallenge = { [weak self] rival in
             guard let self, !self.isInputLocked else { return }
@@ -985,14 +989,15 @@ final class WorldScene: SKScene {
         follower = node
     }
 
-    /// Picks up a new look or name from the Character screen.
+    /// Picks up a new look or name from the Character screen, and moderator mode's MOD tag.
     private func refreshHero() {
-        let key = "\(session.data.hero.name)|\(session.heroLookKey)"
+        let key = "\(session.data.hero.name)|\(session.heroLookKey)|\(session.isModerator)"
         guard key != heroKey else { return }
         if heroKey != nil {
             player.setCycle(art.walkCycle(GameSession.heroArt))
             player.setLabel(session.data.hero.name)
         }
+        player.setBadge(session.isModerator ? .mod : nil)
         player.setGear(weapon: session.equipped(.weapon), accessory: session.equipped(.accessory))
         heroKey = key
     }
@@ -1073,7 +1078,7 @@ final class WorldScene: SKScene {
                 existing.waiting = friend.waitingAt
                 return existing
             }
-            let node = Walker(cycle: art.walkCycle(session.artID(for: friend)), label: friend.name, labelColor: HUDStyle.partyGreen)
+            let node = Walker(cycle: art.walkCycle(session.artID(for: friend)), label: friend.name, labelColor: HUDStyle.partyGreen, badge: .bot)
             node.walkSpeed = 105
             node.tagMode = .whenStill
             if let spot = friend.waitingAt {
@@ -1158,6 +1163,11 @@ final class WorldScene: SKScene {
 
     func adventurerSays(_ line: String, _ id: UUID) {
         crowd?.say(line, from: id)
+    }
+
+    /// A moderator's World message: a few adventurers here answer in the chat.
+    func answerModerator() {
+        crowd?.answerModerator()
     }
 
     /// You said something in the Chat window: a bubble over your head, and maybe an answer.

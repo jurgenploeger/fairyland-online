@@ -136,6 +136,17 @@ struct ContentTests {
         }
     }
 
+    @Test func announcementsAndTradersHaveSomethingToSay() {
+        let notices = content.announcements
+        #expect(!notices.dawn.isEmpty && !notices.dusk.isEmpty && !notices.community.isEmpty)
+        for id in notices.arrival.keys {
+            #expect(content.map(id) != nil, "announcements arrival → unknown map \(id)")
+        }
+        let lines = content.crowd.traderLines ?? []
+        #expect(lines.contains { $0.contains("{item}") } && lines.contains { $0.contains("{buy}") })
+        #expect(!(content.crowd.modReplies ?? []).isEmpty)
+    }
+
     @Test func everyMapHasAPaletteThatGrades() throws {
         let url = try #require(Bundle.main.url(forResource: "tile_grass", withExtension: "png", subdirectory: "art/sprites"))
         let image = try #require(UIImage(contentsOfFile: url.path)?.cgImage)
@@ -934,6 +945,65 @@ struct RulesTests {
         let together = session.partWays(fainted: [maple.id], heroFainted: true)
         #expect(together.first == "You and Maple wake up at the Sunny Meadow entrance, a little bruised.")
         #expect(session.friendsAtYourSide.map(\.name) == ["Maple"])
+    }
+
+    @Test func botsAndModeratorsAreTagged() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.postChat("hi!", from: "Momo", kind: .adventurer)
+        #expect(session.chat.last?.badge == .bot)
+        session.isModerator = false
+        session.postChat("hello", from: "Test", kind: .you)
+        #expect(session.chat.last?.badge == nil)
+        session.isModerator = true
+        session.postChat("hello", from: "Test", kind: .you)
+        #expect(session.chat.last?.badge == .mod)
+        session.postChat("Welcome!", from: "Elder Oak", kind: .npc)
+        #expect(session.chat.last?.badge == nil)
+        // Only the moderator code switches it on (its hash is in the source, never the code).
+        #expect(!Moderation.unlock(with: "not the code"))
+    }
+
+    @Test func worldMessagesAndAnnouncementsFollowYouFromMapToMap() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.isModerator = true
+        session.startChat(on: "Meadowbrook")
+        session.postWorld("Welcome, everyone!")
+        session.announce("Dawn breaks over Mysteria.")
+        session.postChat("lol", from: "Momo", kind: .adventurer)
+        session.startChat(on: "Goldburg")
+        // What's said to everyone stays; the map's own chatter starts over.
+        #expect(session.chat.map(\.kind) == [.world, .announcement, .system])
+        #expect(session.chat.first?.badge == .mod)
+        #expect(session.log.contains { $0.kind == .world } && session.log.contains { $0.kind == .announcement })
+    }
+
+    @Test func aRareSightingMakesItTurnUpMoreOften() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let meadow = try #require(Content.shared.map("sunny_meadow"))
+        let encounters = try #require(meadow.encounters)
+        let rare = try #require(encounters.monsters.keys.first { Content.shared.monster($0)?.rare == true })
+        let base = try #require(encounters.monsters[rare])
+        session.data.mapID = meadow.id
+        #expect(BattleController.encounterWeights(encounters, session: session)[rare] == base)
+        session.sighting = GameSession.Sighting(mapID: meadow.id, monsterID: rare, boost: 6, until: Date().addingTimeInterval(60))
+        #expect(BattleController.encounterWeights(encounters, session: session)[rare] == base * 6)
+        // Only on its own map, and only until it's over.
+        session.data.mapID = "meadowbrook"
+        #expect(BattleController.encounterWeights(encounters, session: session)[rare] == base)
+        session.data.mapID = meadow.id
+        session.sighting = GameSession.Sighting(mapID: meadow.id, monsterID: rare, boost: 6, until: Date().addingTimeInterval(-1))
+        #expect(BattleController.encounterWeights(encounters, session: session)[rare] == base)
+    }
+
+    @Test func marketTradersCallOutTheirDeals() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let trader = Adventurer(name: "Momo", raceID: "dwarf", classID: "fighter", level: 30, look: .standard)
+        let offers = session.tradeOffers(with: trader)
+        // The sign shows something they really sell today, and what they call out is a real deal.
+        let sign = try #require(session.marketSign(for: trader))
+        #expect(offers.contains { $0.kind == .theySell && sign == "\($0.item.name) · \($0.price)g" })
+        let shout = try #require(session.marketShout(for: trader))
+        #expect(offers.contains { shout.contains($0.item.name) && shout.contains("\($0.price)") })
     }
 
     @Test func questsUnlockLooksAndRoads() {

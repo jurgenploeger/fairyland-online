@@ -225,10 +225,22 @@ final class BattleController {
         return waves
     }
 
+    /// How often each monster turns up on the current map: its encounter table, with a rare one
+    /// sighted here (an announcement, `GameSession.sighting`) `boost` times as often until it's over.
+    static func encounterWeights(_ encounters: MapDef.Encounters, session: GameSession) -> [String: Int] {
+        var weights = encounters.monsters
+        if let sighting = session.sighting, sighting.mapID == session.data.mapID, sighting.until > Date(),
+           let weight = weights[sighting.monsterID] {
+            weights[sighting.monsterID] = weight * sighting.boost
+        }
+        return weights
+    }
+
     /// Builds a random encounter for the current map.
     static func encounter(_ encounters: MapDef.Encounters, session: GameSession) -> BattleController {
         let content = session.content
         let party = party(for: session)
+        let weights = encounterWeights(encounters, session: session)
 
         let low = encounters.groupSize.first ?? 1
         let high = max(low, encounters.groupSize.last ?? low)
@@ -238,7 +250,7 @@ final class BattleController {
         let count = min(high, low + Int(pow(Double.random(in: 0..<1), 2) * Double(high - low + 1)))
         var enemies: [Combatant] = []
         for index in 0..<count {
-            guard let id = pick(from: encounters.monsters), let species = content.monster(id) else { continue }
+            guard let id = pick(from: weights), let species = content.monster(id) else { continue }
             let level = Int.random(in: minLevel...maxLevel)
             let stats = species.stats(at: level)
             var enemy = Combatant(
@@ -798,7 +810,10 @@ final class BattleController {
     func winForDebug() {
         guard phase == .command else { return }
         phase = .animating
-        for event in engine.defeatEnemiesForDebug() { apply(event) }
+        let events = engine.defeatEnemiesForDebug()
+        // The later waves of a boss fight join the field all at once, so they have names in the log.
+        combatants = engine.combatants
+        for event in events { apply(event) }
         roundFinished()
     }
 

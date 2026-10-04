@@ -352,7 +352,8 @@ private struct CalendarPlate: View {
     }
 }
 
-/// Fairyland's yellow system messages, fading after a few seconds.
+/// Fairyland's yellow system messages, fading after a few seconds. The game's announcements and a
+/// moderator's World messages stand out on banners of their own.
 private struct SystemLog: View {
     let lines: [GameSession.LogLine]
 
@@ -360,15 +361,41 @@ private struct SystemLog: View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
             VStack(alignment: .leading, spacing: 1) {
                 ForEach(lines.filter { context.date.timeIntervalSince($0.time) < 12 }.suffix(4)) { line in
-                    Text(line.text)
-                        .font(HUDStyle.mono(10))
-                        .foregroundStyle(color(for: line.kind))
-                        .shadow(color: .black, radius: 0, x: 1, y: 1)
+                    row(line)
                         .transition(.opacity)
                 }
             }
             .frame(width: 240, alignment: .leading)
             .animation(.easeOut(duration: 0.3), value: lines.count)
+        }
+    }
+
+    @ViewBuilder
+    private func row(_ line: GameSession.LogLine) -> some View {
+        switch line.kind {
+        case .announcement, .world:
+            let world = line.kind == .world
+            HStack(alignment: .top, spacing: 5) {
+                IconImage(world ? .shieldStar : .sparkles, size: 12)
+                Text(line.text)
+                    .font(HUDStyle.mono(10))
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .foregroundStyle(world ? .white : HUDStyle.gold)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(world ? HUDStyle.mod.opacity(0.85) : HUDStyle.ink.opacity(0.8))
+                    .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(world ? Color.white.opacity(0.7) : HUDStyle.gold.opacity(0.75), lineWidth: 1))
+            )
+            .padding(.vertical, 1)
+        case .system, .quest, .battle, .reward:
+            Text(line.text)
+                .font(HUDStyle.mono(10))
+                .foregroundStyle(color(for: line.kind))
+                .shadow(color: .black, radius: 0, x: 1, y: 1)
         }
     }
 
@@ -378,6 +405,8 @@ private struct SystemLog: View {
         case .quest: Color(red: 0.55, green: 0.95, blue: 1)
         case .battle: .white
         case .reward: HUDStyle.green
+        case .announcement: HUDStyle.gold
+        case .world: .white
         }
     }
 }

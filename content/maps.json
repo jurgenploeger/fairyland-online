@@ -6,7 +6,7 @@
       "id": "meadowbrook",
       "name": "Meadowbrook",
       "crowd": {
-        "adventurers": 6,
+        "adventurers": 12,
         "villagers": 10
       },
       "width": 80,
@@ -2762,7 +2762,7 @@
       "music": "rainbow",
       "fence": true,
       "crowd": {
-        "adventurers": 8,
+        "adventurers": 14,
         "villagers": 10
       },
       "theme": {
@@ -4989,8 +4989,9 @@
       "music": "goldburg",
       "fence": true,
       "crowd": {
-        "adventurers": 6,
-        "villagers": 8
+        "adventurers": 12,
+        "villagers": 8,
+        "traders": 16
       },
       "theme": {
         "ground": "tile_desert",
@@ -8193,7 +8194,7 @@
       "music": "town",
       "fence": true,
       "crowd": {
-        "adventurers": 8,
+        "adventurers": 14,
         "villagers": 10
       },
       "theme": {

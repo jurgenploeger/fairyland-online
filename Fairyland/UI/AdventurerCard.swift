@@ -26,6 +26,8 @@ struct AdventurerCard: View {
                     HStack(spacing: 6) {
                         Text(adventurer.name)
                             .foregroundStyle(Color(uiColor: adventurer.hostile ? Crowd.hostileColor : Crowd.adventurerColor))
+                        // Computer-run for now, and says so.
+                        NameBadge(badge: .bot)
                         Text("Lv \(adventurer.level)").foregroundStyle(HUDStyle.gold)
                         if session.isFriend(adventurer) {
                             IconImage(.heart, size: 12).foregroundStyle(HUDStyle.hp)
