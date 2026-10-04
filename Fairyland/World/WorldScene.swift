@@ -38,6 +38,8 @@ final class WorldScene: SKScene {
     private var noticeTimer: TimeInterval = 0
     private var hasLeft = false
     private var ambience: Ambience?
+    /// Bunnies, frogs and crabs about the map, and birds crossing the sky.
+    private var critters: Critters?
     private var lighting: Lighting?
     /// On a dark map (a cave): the light round the hero, and the dark beyond it.
     private var lantern: Lantern?
@@ -183,6 +185,7 @@ final class WorldScene: SKScene {
         cam.addChild(edgeFade)
         ambience = Ambience(def.ambience, world: world, camera: cam, bounds: map.bounds, seed: def.id)
         ambience?.resize(to: size)
+        critters = Critters(def.ambience, world: world, map: map, seed: def.id)
         lighting = Lighting(def.ambience, world: world, camera: cam, bounds: map.bounds, seed: def.id)
         lighting?.resize(to: size)
         lighting?.follow(cam.position)
@@ -632,6 +635,12 @@ final class WorldScene: SKScene {
                         scale = CGFloat(Double.random(in: range[0]...range[1], using: &rng))
                     }
                     let node = addScenery(sprite, at: cell, sway: placement.sway == true, jitter: true, scale: scale)
+                    if placement.bob == true {
+                        // Unseeded, so the map's layout stays what it was.
+                        let rise = SKAction.moveBy(x: 0, y: 3, duration: .random(in: 1.3...2))
+                        rise.timingMode = .easeInEaseOut
+                        node.run(.repeatForever(.sequence([rise, rise.reversed()])), withKey: "bob")
+                    }
                     if placement.shadow == true { Lighting.shadow(under: node, in: world) }
                     if let hex = placement.glow, let color = UIColor(hex: hex) {
                         Lighting.glow(behind: node, color: color, in: world, rng: &rng)
@@ -687,8 +696,9 @@ final class WorldScene: SKScene {
     }
 
     private func placeLilyPads() {
-        // Frozen ponds don't grow lily pads.
-        guard !(def.theme.water ?? "").contains("ice") else { return }
+        // Frozen ponds and chocolate ones don't grow lily pads.
+        let water = def.theme.water ?? ""
+        guard !water.contains("ice"), !water.contains("chocolate") else { return }
         let sprite = art.sprite("lily_pad")
         var padRNG = SeededRandom(text: def.id + "/lilies")
         for pond in map.ponds {
@@ -1117,6 +1127,8 @@ final class WorldScene: SKScene {
             leader = ally.node
         }
         crowd?.update(dt: dt, player: player.position)
+        let visible = CGRect(x: cam.position.x - size.width / 2, y: cam.position.y - size.height / 2, width: size.width, height: size.height)
+        critters?.update(dt: dt, player: player.position, visible: visible, canStand: standable)
         noticeTimer -= dt
         if noticeTimer <= 0 {
             noticeTimer = 0.4

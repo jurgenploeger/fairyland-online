@@ -2,6 +2,18 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.15",
+      "date": "2026-10-04",
+      "title": "A livelier world",
+      "notes": [
+        "Candy Mountain is made of candy now: a pink sugar path, milk-chocolate ponds, groves of cotton-candy trees in lemon, peach and sky blue, giant lollipops in five flavours and presents in the grass, with candy sprinkles drifting down.",
+        "New things to find: candy canes, gumdrops, giant cupcakes and gingerbread houses on Candy Mountain; paper lanterns and mochi in Moonglow; marionettes, toy blocks and jack-in-the-boxes on Puppet Hill; a sleeping cat and big pillows in Sleepy Town; flying carpets floating over the Genie Desert and the Secret Plain, with genie lamps; poppy fields on Emerald Road; giant ladybugs in Lotus Land; garden gnomes, scarecrows and bird baths in the meadows; treasure chests and messages in bottles on the beaches; and apple trees in the Smiling Forest, along Emerald Road and in the Snow White Forest, frosted blue there.",
+        "Little animals live on the maps: bunnies in the meadows and forests (the snowy ones too), frogs by the ponds of Frog Swamp, Lotus Land, Swan Lake and Twilight Woods, and crabs on the beaches. They hop about, and hop off when you come close.",
+        "Now and then birds fly over the meadows and towns, gulls over the beaches and lakes, and bats over the Valley of Fear, the Big Bad Wolf's Lair and Puppet Hill, their shadows sweeping over the ground.",
+        "More in the air: dandelion fluff over the grasslands, bubbles rising in Frog Swamp, Lotus Land and the Water Temple, paper lanterns floating up over Moonglow, sleepy Z's over Sleepy Town and music-box notes over Puppet Hill. Magic lanterns and star crystals bob gently where they float."
+      ]
+    },
+    {
       "version": "0.3.14",
       "date": "2026-10-04",
       "title": "Bosses with a story",

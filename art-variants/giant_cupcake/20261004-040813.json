@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "giant cupcake with pink frosting, sprinkles and a cherry on top",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 32,
+    "height": 32,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1791086891,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 44.881,
+    "request_id": "b1088434-09a8-4632-96ab-7d38a31ca376",
+    "outputs_retained_until": 1791173267
+  }
+}

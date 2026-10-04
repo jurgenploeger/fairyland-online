@@ -1,0 +1,337 @@
+import SpriteKit
+
+/// Little animals living on a map (`ambience.critters`): bunnies in the meadows, frogs by the
+/// ponds, crabs on the beach. They sit about near home, hop now and then, and hop off when you come
+/// close. Now and then a flock (`ambience.birds`) crosses the sky, its shadows sweeping over the ground.
+final class Critters {
+    private final class Critter {
+        let node = SKNode()
+        let body: SKSpriteNode
+        /// Sitting, then mid-hop (a crab's claws down, then up).
+        let frames: [SKTexture]
+        let home: CGPoint
+        /// How far one hop goes, how high it jumps (0 for a scuttle) and how long it takes.
+        let reach: CGFloat
+        let height: CGFloat
+        let time: TimeInterval
+        /// Seconds until it fancies another hop, and until the hop it's in lands.
+        var rest: TimeInterval
+        var busy: TimeInterval = 0
+
+        init(frames: [SKTexture], at point: CGPoint, reach: CGFloat, height: CGFloat, time: TimeInterval, rest: TimeInterval) {
+            self.frames = frames
+            self.reach = reach
+            self.height = height
+            self.time = time
+            self.rest = rest
+            home = point
+            body = SKSpriteNode(texture: frames[0])
+            body.anchorPoint = CGPoint(x: 0.5, y: 0.1)
+            body.zPosition = 0.5
+            let shadow = SKSpriteNode(texture: SoftTextures.glow, size: CGSize(width: body.size.width * 0.9, height: 5))
+            shadow.color = .black
+            shadow.colorBlendFactor = 1
+            shadow.alpha = 0.3
+            shadow.zPosition = -0.5
+            node.addChild(shadow)
+            node.addChild(body)
+            node.position = point
+        }
+    }
+
+    private let world: SKNode
+    private var critters: [Critter] = []
+    private let birds: String?
+    private var untilFlock: TimeInterval
+
+    init(_ def: MapDef.Ambience?, world: SKNode, map: WorldMap, seed: String) {
+        self.world = world
+        birds = def?.birds
+        var rng = SeededRandom(text: seed + "/critters")
+        untilFlock = .random(in: 4...10, using: &rng)
+        let water = map.ponds.flatMap { $0 }
+        for group in def?.critters ?? [] {
+            for _ in 0..<max(0, group.count) {
+                guard let cell = Self.home(for: group.kind, map: map, water: water, rng: &rng),
+                      let critter = Self.make(group.kind, at: map.base(of: cell), rng: &rng) else { continue }
+                critter.node.zPosition = -critter.node.position.y
+                world.addChild(critter.node)
+                critters.append(critter)
+            }
+        }
+    }
+
+    /// Critters hop about, and away from `player`; now and then a flock sets off across `visible`.
+    func update(dt: TimeInterval, player: CGPoint, visible: CGRect, canStand: (CGPoint) -> Bool) {
+        for critter in critters {
+            critter.busy -= dt
+            critter.rest -= dt
+            critter.node.zPosition = -critter.node.position.y
+            guard critter.busy <= 0 else { continue }
+            let away = critter.node.position - player
+            if away.length < 64 {
+                // Too close: off it goes, away from you.
+                hop(critter, along: away.length > 0 ? away.normalized : CGVector(dx: 1, dy: 0), running: true, canStand: canStand)
+            } else if critter.rest <= 0 {
+                critter.rest = .random(in: 1.2...5)
+                // A wander, drifting back home once it has strayed.
+                let homeward = critter.home - critter.node.position
+                let angle = CGFloat.random(in: 0..<(2 * CGFloat.pi))
+                let direction = homeward.length > 90 ? homeward.normalized : CGVector(dx: cos(angle), dy: sin(angle) * 0.6)
+                hop(critter, along: direction, running: false, canStand: canStand)
+            }
+        }
+        guard birds != nil else { return }
+        untilFlock -= dt
+        if untilFlock <= 0 {
+            untilFlock = .random(in: 16...34)
+            launchFlock(across: visible)
+        }
+    }
+
+    // MARK: Critters
+
+    /// Where one lives: frogs and crabs by the water, bunnies anywhere in the open.
+    private static func home(for kind: String, map: WorldMap, water: [GridPoint], rng: inout SeededRandom) -> GridPoint? {
+        if kind != "bunny", !water.isEmpty {
+            for _ in 0..<30 {
+                let pond = water[Int.random(in: 0..<water.count, using: &rng)]
+                let cell = GridPoint(col: pond.col + Int.random(in: -2...2, using: &rng), row: pond.row + Int.random(in: -2...2, using: &rng))
+                if map.isFreeForScenery(cell, blocking: false) { return cell }
+            }
+        }
+        return map.randomFreeCell(blocking: false, using: &rng)
+    }
+
+    private static func make(_ kind: String, at point: CGPoint, rng: inout SeededRandom) -> Critter? {
+        switch kind {
+        case "bunny":
+            let furs: [(fur: UInt32, light: UInt32, dark: UInt32)] = [
+                (0xB98A62, 0xE2C29F, 0x7D5A3F), (0xEDDCC2, 0xFFF6E8, 0xB8A386),
+                (0xA9A9B0, 0xD8D8DE, 0x707078), (0xF4F4F4, 0xFFFFFF, 0xC0C0C8),
+            ]
+            let coat = furs[Int.random(in: 0..<furs.count, using: &rng)]
+            let frames = [false, true].map {
+                CritterArt.bunny(fur: PixelColor(coat.fur), light: PixelColor(coat.light), dark: PixelColor(coat.dark), hop: $0)
+            }
+            return Critter(frames: frames, at: point, reach: 26, height: 7, time: 0.3, rest: .random(in: 0.5...4, using: &rng))
+        case "frog":
+            return Critter(frames: [CritterArt.frog(hop: false), CritterArt.frog(hop: true)], at: point,
+                           reach: 34, height: 9, time: 0.34, rest: .random(in: 1...6, using: &rng))
+        case "crab":
+            return Critter(frames: [CritterArt.crab(up: false), CritterArt.crab(up: true)], at: point,
+                           reach: 22, height: 0, time: 0.5, rest: .random(in: 0.5...4, using: &rng))
+        default:
+            return nil
+        }
+    }
+
+    /// One hop (or scuttle) along `direction`, turning aside if that way is blocked; it stays put
+    /// if every way is.
+    private func hop(_ critter: Critter, along direction: CGVector, running: Bool, canStand: (CGPoint) -> Bool) {
+        let start = critter.node.position
+        let length = critter.reach * (running ? 1.4 : CGFloat.random(in: 0.6...1))
+        let time = critter.time * (running ? 0.8 : 1)
+        for turn in [0, 0.6, -0.6, 1.2, -1.2] as [CGFloat] {
+            let way = CGVector(dx: direction.dx * cos(turn) - direction.dy * sin(turn),
+                               dy: direction.dx * sin(turn) + direction.dy * cos(turn))
+            let target = start + way * length
+            guard canStand(target), canStand(start + way * (length / 2)) else { continue }
+            let move = SKAction.move(to: target, duration: time)
+            move.timingMode = .easeInEaseOut
+            critter.node.run(move, withKey: "hop")
+            if way.dx != 0 { critter.body.xScale = way.dx < 0 ? -1 : 1 }
+            if critter.height > 0 {
+                let up = SKAction.moveTo(y: critter.height, duration: time / 2)
+                up.timingMode = .easeOut
+                let down = SKAction.moveTo(y: 0, duration: time / 2)
+                down.timingMode = .easeIn
+                critter.body.run(.group([
+                    .sequence([up, down]),
+                    .sequence([.setTexture(critter.frames[1]), .wait(forDuration: time), .setTexture(critter.frames[0])]),
+                ]), withKey: "hop")
+            } else {
+                // A crab scuttles, claws clacking as it goes.
+                let clack = SKAction.animate(with: critter.frames, timePerFrame: 0.08)
+                critter.body.run(.sequence([.repeat(clack, count: max(1, Int(time / 0.16))), .setTexture(critter.frames[0])]), withKey: "hop")
+            }
+            critter.busy = time + (running ? 0.05 : 0.25)
+            return
+        }
+    }
+
+    // MARK: Birds
+
+    /// A few birds (gulls, bats) crossing the screen, with their shadows far below on the ground.
+    private func launchFlock(across visible: CGRect) {
+        guard let kind = birds else { return }
+        let fromLeft = Bool.random()
+        let count = kind == "gulls" ? Int.random(in: 1...3) : Int.random(in: 3...6)
+        let speed: CGFloat = kind == "gulls" ? 55 : (kind == "bats" ? 85 : 95)
+        let y = visible.minY + visible.height * CGFloat.random(in: 0.5...0.9)
+        let startX = fromLeft ? visible.minX - 60 : visible.maxX + 60
+        let endX = fromLeft ? visible.maxX + 160 : visible.minX - 160
+        let path = SKAction.moveBy(x: endX - startX, y: CGFloat.random(in: -60...60), duration: TimeInterval(abs(endX - startX) / speed))
+        let frames = [CritterArt.bird(kind, up: true), CritterArt.bird(kind, up: false)]
+        for index in 0..<count {
+            // A loose V behind the leader.
+            let back = CGFloat(index) * 16 * (fromLeft ? -1 : 1)
+            let side = CGFloat(index % 2 == 0 ? 1 : -1) * CGFloat((index + 1) / 2) * 9
+            let start = CGPoint(x: startX + back, y: y + side)
+            let bird = SKSpriteNode(texture: frames[0])
+            bird.xScale = fromLeft ? 2 : -2
+            bird.yScale = 2
+            bird.position = start
+            bird.zPosition = 33_000
+            bird.run(.repeatForever(.animate(with: frames, timePerFrame: kind == "gulls" ? 0.24 : 0.1)), withKey: "flap")
+            if kind == "bats" {
+                let flutter = SKAction.moveBy(x: 0, y: 6, duration: 0.25)
+                bird.run(.repeatForever(.sequence([flutter, flutter.reversed()])), withKey: "flutter")
+            }
+            bird.run(.sequence([path, .removeFromParent()]), withKey: "fly")
+            world.addChild(bird)
+            let shadow = SKSpriteNode(texture: SoftTextures.glow, size: CGSize(width: bird.size.width * 1.2, height: 6))
+            shadow.color = .black
+            shadow.colorBlendFactor = 1
+            shadow.alpha = 0.12
+            shadow.zPosition = 20_000
+            shadow.position = start + CGVector(dx: 0, dy: -150)
+            shadow.run(.sequence([path, .removeFromParent()]), withKey: "fly")
+            world.addChild(shadow)
+        }
+    }
+}
+
+/// The critters' and birds' pixel art, drawn facing right.
+enum CritterArt {
+    private static let ink = PixelColor(0x3B2A22)
+
+    static func bunny(fur: PixelColor, light: PixelColor, dark: PixelColor, hop: Bool) -> SKTexture {
+        var c = PixelCanvas(width: 15, height: 13)
+        let pink = PixelColor(0xF2A7B5)
+        let nose = PixelColor(0xE58A9A)
+        if hop {
+            c.ellipse(6.5, 7.4, 5.4, 3.0, fur)
+            c.ellipse(7.5, 8.4, 2.8, 1.5, light)
+            c.ellipse(11.2, 4.9, 2.7, 2.4, fur)
+            c.fill(8, 0, 2, 3, fur)
+            c.fill(10, 0, 2, 3, fur)
+            c[8, 1] = pink
+            c.ellipse(1.6, 6.6, 1.5, 1.5, .white)
+            c.fill(0, 9, 4, 1, dark)
+            c.fill(11, 9, 3, 1, dark)
+            c[12, 4] = ink
+            c[14, 5] = nose
+        } else {
+            c.ellipse(6.2, 8.6, 4.8, 3.6, fur)
+            c.ellipse(7.2, 9.6, 2.6, 1.9, light)
+            c.ellipse(10.6, 5.6, 2.8, 2.5, fur)
+            c.fill(9, 0, 2, 4, fur)
+            c.fill(12, 1, 2, 3, fur)
+            c[9, 1] = pink
+            c[9, 2] = pink
+            c.ellipse(1.8, 7.8, 1.5, 1.5, .white)
+            c.fill(3, 12, 3, 1, dark)
+            c.fill(8, 12, 2, 1, dark)
+            c[11, 5] = ink
+            c[13, 6] = nose
+        }
+        c.outline(ink)
+        return c.texture()
+    }
+
+    static func frog(hop: Bool) -> SKTexture {
+        let green = PixelColor(0x6DBE45), light = PixelColor(0x9BD86A), dark = PixelColor(0x3F8A2A), belly = PixelColor(0xD8EE9A)
+        var c = PixelCanvas(width: 13, height: 10)
+        if hop {
+            c.ellipse(6.2, 5.2, 5.2, 2.6, green)
+            c.ellipse(7.2, 6.2, 2.8, 1.3, belly)
+            c.ellipse(8.2, 2.4, 1.6, 1.6, green)
+            c.ellipse(10.8, 2.8, 1.6, 1.6, green)
+            c[8, 1] = .white
+            c[9, 1] = ink
+            c[11, 2] = .white
+            c[12, 2] = ink
+            c.fill(0, 6, 3, 1, dark)
+            c.fill(0, 7, 2, 1, dark)
+            c.fill(10, 7, 3, 1, dark)
+        } else {
+            c.ellipse(5.6, 6.6, 4.8, 3.0, green)
+            c.ellipse(6.8, 7.6, 2.8, 1.6, belly)
+            c.ellipse(3.2, 3.9, 1.8, 0.9, light)
+            c.ellipse(2.4, 8.2, 2.2, 1.4, dark)
+            c.ellipse(7.5, 3.2, 1.7, 1.7, green)
+            c.ellipse(10.4, 3.5, 1.7, 1.7, green)
+            c[7, 2] = .white
+            c[8, 2] = ink
+            c[10, 3] = .white
+            c[11, 3] = ink
+            c.fill(9, 6, 3, 1, dark)
+            c.fill(1, 9, 3, 1, dark)
+            c.fill(8, 9, 2, 1, dark)
+        }
+        c.outline(PixelColor(0x1F3A12))
+        return c.texture()
+    }
+
+    static func crab(up: Bool) -> SKTexture {
+        let red = PixelColor(0xE8603C), light = PixelColor(0xF89A6E), dark = PixelColor(0xA73A24)
+        var c = PixelCanvas(width: 15, height: 10)
+        let lift = up ? 1 : 0
+        let legs = up ? [(3, 8), (2, 9), (4, 9), (11, 8), (12, 9), (10, 9)] : [(3, 8), (3, 9), (5, 9), (11, 8), (11, 9), (9, 9)]
+        for (x, y) in legs { c[x, y] = dark }
+        c.ellipse(7.5, 6.6, 4.1, 2.5, red)
+        c.ellipse(7.5, 5.8, 2.4, 0.9, light)
+        // Arms and pincers, raised a little while it scuttles.
+        c[3, 6 - lift] = dark
+        c[11, 6 - lift] = dark
+        c.ellipse(1.9, 5.0 - Double(lift), 1.7, 1.6, red)
+        c.ellipse(13.1, 5.0 - Double(lift), 1.7, 1.6, red)
+        c[1, 4 - lift] = .clear
+        c[13, 4 - lift] = .clear
+        // Eyes on stalks.
+        c[6, 3] = dark
+        c[9, 3] = dark
+        c[6, 2] = ink
+        c[9, 2] = ink
+        c.outline(PixelColor(0x5A1E12))
+        return c.texture()
+    }
+
+    /// songbirds | gulls | bats, wings up or down.
+    static func bird(_ kind: String, up: Bool) -> SKTexture {
+        switch kind {
+        case "gulls":
+            let grey = PixelColor(0xC9D2DA), tip = PixelColor(0x4A4F57)
+            var c = PixelCanvas(width: 15, height: 6)
+            let wing = up ? [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (10, 3), (11, 2), (12, 1), (13, 1), (14, 0)]
+                : [(0, 3), (1, 3), (2, 3), (3, 3), (4, 3), (10, 3), (11, 3), (12, 3), (13, 3), (14, 3)]
+            for (x, y) in wing { c[x, y] = grey }
+            c[wing[0].0, wing[0].1] = tip
+            c[wing[9].0, wing[9].1] = tip
+            c.fill(5, 3, 5, 2, .white)
+            c[10, 4] = PixelColor(0xF2B33D)
+            return c.texture()
+        case "bats":
+            let wing = PixelColor(0x3A2A4A), body = PixelColor(0x261A30)
+            var c = PixelCanvas(width: 13, height: 6)
+            let spans: [(y: Int, from: Int, to: Int)] = up
+                ? [(0, 0, 1), (0, 11, 12), (1, 1, 4), (1, 8, 11), (2, 2, 5), (2, 7, 10), (3, 4, 5), (3, 7, 8)]
+                : [(2, 0, 4), (2, 8, 12), (3, 1, 4), (3, 8, 11), (4, 1, 1), (4, 3, 3), (4, 9, 9), (4, 11, 11)]
+            for span in spans { c.fill(span.from, span.y, span.to - span.from + 1, 1, wing) }
+            c.fill(5, 2, 3, 3, body)
+            c[5, 1] = body
+            c[7, 1] = body
+            return c.texture()
+        default:
+            let body = PixelColor(0x6B4E3A), wing = PixelColor(0x8C6A50)
+            var c = PixelCanvas(width: 9, height: 5)
+            let feathers = up ? [(0, 0), (1, 1), (2, 2), (6, 2), (7, 1), (8, 0)] : [(0, 3), (1, 2), (2, 2), (6, 2), (7, 2), (8, 3)]
+            for (x, y) in feathers { c[x, y] = wing }
+            c.fill(3, 2, 3, 1, body)
+            c[5, 1] = body
+            c[4, 3] = body
+            return c.texture()
+        }
+    }
+}

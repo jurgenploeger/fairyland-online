@@ -6995,6 +6995,489 @@
           }
         ]
       }
+    },
+    {
+      "id": "candy_tree_lemon",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 55.1,
+            "spread": -0.54,
+            "saturation": 0.55,
+            "value": 1.2
+          },
+          {
+            "hue": [
+              0,
+              54
+            ],
+            "minSaturation": 0.3,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "candy_tree_peach",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 21.1,
+            "spread": -0.54,
+            "saturation": 0.5,
+            "value": 1.2
+          },
+          {
+            "hue": [
+              0,
+              54
+            ],
+            "minSaturation": 0.3,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "candy_tree_sky",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 196.9,
+            "spread": 0.54,
+            "saturation": 0.45,
+            "value": 1.2
+          },
+          {
+            "hue": [
+              0,
+              54
+            ],
+            "minSaturation": 0.3,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "lollipop",
+      "kind": "prop",
+      "derive": {
+        "from": "beach_umbrella",
+        "recolor": []
+      }
+    },
+    {
+      "id": "lollipop_pink",
+      "kind": "prop",
+      "derive": {
+        "from": "beach_umbrella",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.4,
+            "to": 325.0,
+            "spread": 0.74
+          }
+        ]
+      }
+    },
+    {
+      "id": "lollipop_lemon",
+      "kind": "prop",
+      "derive": {
+        "from": "beach_umbrella",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.4,
+            "to": 43.0,
+            "spread": 0.74
+          }
+        ]
+      }
+    },
+    {
+      "id": "lollipop_berry",
+      "kind": "prop",
+      "derive": {
+        "from": "beach_umbrella",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.4,
+            "to": 280.0,
+            "spread": 0.74
+          }
+        ]
+      }
+    },
+    {
+      "id": "lollipop_sky",
+      "kind": "prop",
+      "derive": {
+        "from": "beach_umbrella",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.4,
+            "to": 210.0,
+            "spread": -0.74
+          }
+        ]
+      }
+    },
+    {
+      "id": "gift_box_blue",
+      "kind": "prop",
+      "derive": {
+        "from": "gift_box",
+        "recolor": [
+          {
+            "hue": [
+              325,
+              25
+            ],
+            "minSaturation": 0.45,
+            "to": 210.5,
+            "spread": -0.43
+          }
+        ]
+      }
+    },
+    {
+      "id": "gift_box_purple",
+      "kind": "prop",
+      "derive": {
+        "from": "gift_box",
+        "recolor": [
+          {
+            "hue": [
+              325,
+              25
+            ],
+            "minSaturation": 0.45,
+            "to": 284.5,
+            "spread": 0.43
+          }
+        ]
+      }
+    },
+    {
+      "id": "gift_box_gold",
+      "kind": "prop",
+      "derive": {
+        "from": "gift_box",
+        "recolor": [
+          {
+            "hue": [
+              325,
+              25
+            ],
+            "minSaturation": 0.45,
+            "to": 45.5,
+            "spread": 0.43
+          }
+        ]
+      }
+    },
+    {
+      "id": "tile_sugar_path",
+      "kind": "tile",
+      "derive": {
+        "from": "tile_path",
+        "recolor": [
+          {
+            "hue": [
+              20,
+              70
+            ],
+            "minSaturation": 0.1,
+            "to": 342.5,
+            "spread": 1.0,
+            "saturation": 0.95,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "tile_chocolate",
+      "kind": "tile",
+      "derive": {
+        "from": "tile_water",
+        "recolor": [
+          {
+            "to": 40,
+            "saturation": 1.0,
+            "value": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "candy_cane",
+      "kind": "prop",
+      "request": {
+        "prompt": "giant red and white striped candy cane stuck in the ground",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "gumdrops",
+      "kind": "prop",
+      "request": {
+        "prompt": "little pile of colorful sugar gumdrop candies",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "giant_cupcake",
+      "kind": "prop",
+      "request": {
+        "prompt": "giant cupcake with pink frosting, sprinkles and a cherry on top",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "gingerbread_house",
+      "kind": "prop",
+      "request": {
+        "prompt": "small gingerbread house with white icing and candy decorations",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "moon_lantern_post",
+      "kind": "prop",
+      "request": {
+        "prompt": "glowing paper lantern hanging from a short wooden post standing in the ground",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "mochi_stack",
+      "kind": "prop",
+      "request": {
+        "prompt": "stack of round white mochi rice cakes on a little wooden stand",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "marionette",
+      "kind": "prop",
+      "request": {
+        "prompt": "wooden marionette puppet dangling from strings on a cross bar",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "toy_blocks",
+      "kind": "prop",
+      "request": {
+        "prompt": "pile of colorful wooden toy alphabet blocks",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "jack_in_the_box",
+      "kind": "prop",
+      "request": {
+        "prompt": "jack in the box toy with a jester popping out on a spring",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "sleeping_cat",
+      "kind": "prop",
+      "request": {
+        "prompt": "cute cat curled up asleep on a round cushion",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "giant_pillow",
+      "kind": "prop",
+      "request": {
+        "prompt": "big fluffy striped pillow lying in the grass",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "flying_carpet",
+      "kind": "prop",
+      "request": {
+        "prompt": "small ornate red and gold flying carpet floating in the air",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "magic_lamp",
+      "kind": "prop",
+      "request": {
+        "prompt": "golden genie oil lamp with a wisp of magic smoke",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "poppy_patch",
+      "kind": "prop",
+      "request": {
+        "prompt": "patch of bright red poppy flowers",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "giant_ladybug",
+      "kind": "prop",
+      "request": {
+        "prompt": "giant cute ladybug sitting on a big green leaf",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "garden_gnome",
+      "kind": "prop",
+      "request": {
+        "prompt": "cute garden gnome with a red pointed hat and white beard",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "scarecrow",
+      "kind": "prop",
+      "request": {
+        "prompt": "friendly scarecrow with a straw hat and patched clothes",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 48,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "bird_bath",
+      "kind": "prop",
+      "request": {
+        "prompt": "stone bird bath with a little blue bird on the rim",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "treasure_chest",
+      "kind": "prop",
+      "request": {
+        "prompt": "small wooden treasure chest half buried in the sand, gold peeking out",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "message_bottle",
+      "kind": "prop",
+      "request": {
+        "prompt": "glass bottle with a rolled up message lying in the sand",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "apple_tree",
+      "kind": "prop",
+      "request": {
+        "prompt": "fairytale tree with shiny red apples",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 64,
+        "height": 64,
+        "remove_bg": true
+      }
     }
   ]
 }

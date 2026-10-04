@@ -4,6 +4,10 @@ title        |                                   | 6
 meadowbrook  | newgame                           | 8
 sunny_meadow | newgame,map=sunny_meadow          | 15
 smiling_forest | newgame,map=smiling_forest       | 15
+candy_mountain | newgame,map=candy_mountain       | 15
+frog_swamp   | newgame,map=frog_swamp            | 15
+pineapple_shore | newgame,map=pineapple_shore     | 15
+moonglow     | newgame,map=moonglow              | 15
 battle       | newgame,map=sunny_meadow,battle   | 15
 battle_timer | newgame,level=44,class=fighter,pin=bash+first_aid+power_strike+whirlwind,map=rat_cavern,battle=2,turntimer=40 | 15
 character    | newgame,menu=character            | 8

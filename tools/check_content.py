@@ -273,6 +273,8 @@ for map_def in maps.values():
         if "glow" in prop:
             check(bool(hex_colour.match(prop["glow"])), f"map {map_def['id']} prop {prop['art']} → glow must be a #RRGGBB colour")
         check(isinstance(prop.get("shadow", False), bool), f"map {map_def['id']} prop {prop['art']} → shadow must be true or false")
+        for key in ("sway", "bob"):
+            check(isinstance(prop.get(key, False), bool), f"map {map_def['id']} prop {prop['art']} → {key} must be true or false")
         spread = prop.get("spread", 1)
         check(isinstance(spread, int) and spread > 0, f"map {map_def['id']} prop {prop['art']} → spread must be a positive whole number")
 
@@ -311,7 +313,7 @@ for map_def in maps.values():
             check(isinstance(palette[key], (int, float)) and 0 <= palette[key] <= 1, f"{where} → {key} must be between 0 and 1")
     check_rules(palette.get("recolor", []), where)
 
-ambience_keys = {"particles", "butterflies", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground", "focus", "darkness"}
+ambience_keys = {"particles", "butterflies", "critters", "birds", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground", "focus", "darkness"}
 for map_def in maps.values():
     ambience = map_def.get("ambience") or {}
     where = f"map {map_def['id']} ambience"
@@ -324,7 +326,15 @@ for map_def in maps.values():
             lights = ambience[key]
             check(bool(hex_colour.match(lights.get("color", ""))) and isinstance(lights.get("count"), int), f"{where} → {key} needs a colour and a count")
     for kind in (ambience.get("particles") or "").split("+") if ambience.get("particles") else []:
-        check(kind in {"petals", "leaves", "fireflies", "sparkles", "snow", "dust", "motes"}, f"{where} → unknown particles {kind}")
+        check(kind in {"petals", "leaves", "fireflies", "sparkles", "snow", "dust", "motes", "bubbles", "dandelions", "sprinkles", "lanterns", "zzz", "notes"},
+              f"{where} → unknown particles {kind}")
+    # Required by the app's Ambience.Critter: a missing kind or count stops maps.json loading.
+    for critter in ambience.get("critters", []):
+        check(critter.get("kind") in {"bunny", "frog", "crab"}, f"{where} critters → kind must be bunny, frog or crab: {critter.get('kind')}")
+        count = critter.get("count")
+        check(isinstance(count, int) and not isinstance(count, bool) and 1 <= count <= 30, f"{where} critters → count must be 1 to 30")
+    if "birds" in ambience:
+        check(ambience["birds"] in {"songbirds", "gulls", "bats"}, f"{where} → birds must be songbirds, gulls or bats")
     if "focus" in ambience:
         focus = ambience["focus"]
         check(set(focus) <= {"blur", "band", "near"}, f"{where} focus → unknown keys {set(focus) - {'blur', 'band', 'near'}}")

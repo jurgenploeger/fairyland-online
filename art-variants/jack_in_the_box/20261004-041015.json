@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "jack in the box toy with a jester popping out on a spring",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 32,
+    "height": 32,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1791087013,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 44.521,
+    "request_id": "31d157f0-a511-43f9-8b37-372a7115852c",
+    "outputs_retained_until": 1791173382
+  }
+}
