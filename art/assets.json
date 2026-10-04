@@ -6628,6 +6628,30 @@
       "kind": "icon"
     },
     {
+      "id": "skill_protection",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_holy_glow",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_guardianship",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_animal_training",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_boost",
+      "kind": "icon"
+    },
+    {
+      "id": "skill_berserk",
+      "kind": "icon"
+    },
+    {
       "id": "skill_bridge_of_light",
       "kind": "icon"
     },

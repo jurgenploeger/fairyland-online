@@ -1,7 +1,8 @@
 import SpriteKit
 
 /// Poison and curses (Fairyland's dark arts): the spell sinking into its target, the word as it
-/// takes hold, and poison's bite at the end of each round. The marks by the HP bar are BattleActor's.
+/// takes hold, and poison's bite at the end of each round; and any stat a spell raises or lowers
+/// (a buff, a curse), by how much. The marks by the HP bar are BattleActor's.
 extension SkillEffects {
     static let poisonGreen = UIColor(red: 0.62, green: 0.92, blue: 0.32, alpha: 1)
     static let poisonViolet = UIColor(red: 0.72, green: 0.45, blue: 0.95, alpha: 1)
@@ -51,6 +52,53 @@ extension SkillEffects {
         target.run(.sequence([
             .moveBy(x: 3, y: 0, duration: 0.05), .moveBy(x: -6, y: 0, duration: 0.08), .moveBy(x: 3, y: 0, duration: 0.05),
         ]), withKey: "shudder")
+    }
+
+    /// Raised stats: the blue of the up-arrow mark by the HP bar.
+    static let raiseBlue = UIColor(red: 0.45, green: 0.8, blue: 1, alpha: 1)
+    /// Lowered stats: the curse's violet, lighter so it reads on the field.
+    static let lowerViolet = UIColor(red: 0.8, green: 0.6, blue: 1, alpha: 1)
+
+    /// Stats raised or lowered: each by name and by how much over the fighter's head ("ATK +25%"
+    /// in blue, "DEF −20%" in violet), held long enough to read, with motes of light rising off
+    /// them for a raise and sinking for a drop.
+    static func statChanges(_ changes: [StatChange], on target: BattleActor, in parent: SKNode) {
+        guard !changes.isEmpty else { return }
+        for (index, change) in changes.enumerated() {
+            let line = NameTag("\(change.stat.short) \(BattleController.percent(change.amount))",
+                               color: change.amount > 0 ? raiseBlue : lowerViolet, size: 14, alignment: .center)
+            line.position = target.top + CGVector(dx: 0, dy: 30 + CGFloat(index) * 17)
+            line.zPosition = 21_500
+            line.setScale(0.4)
+            line.alpha = 0
+            parent.addChild(line)
+            line.run(.sequence([
+                .wait(forDuration: Double(index) * 0.08),
+                .group([.fadeIn(withDuration: 0.1), .scale(to: 1.1, duration: 0.14)]),
+                .scale(to: 1, duration: 0.08),
+                .wait(forDuration: 0.9),
+                .group([.moveBy(x: 0, y: 14, duration: 0.35), .fadeOut(withDuration: 0.35)]),
+                .removeFromParent(),
+            ]))
+        }
+        let up = changes.contains { $0.amount > 0 }
+        let tint = up ? raiseBlue : lowerViolet
+        target.sprite.flash(tint)
+        for index in 0..<8 {
+            let mote = glowSprite(tint, size: CGSize(width: 7, height: 7))
+            let start: CGFloat = up ? .random(in: 0...12) : target.height * .random(in: 0.6...0.9)
+            mote.position = target.position + CGVector(dx: .random(in: -20...20), dy: start)
+            mote.alpha = 0
+            parent.addChild(mote)
+            let drift = SKAction.moveBy(x: 0, y: up ? 40 : -34, duration: 0.6)
+            drift.timingMode = .easeOut
+            mote.run(.sequence([
+                .wait(forDuration: Double(index) * 0.04),
+                .fadeIn(withDuration: 0.06),
+                .group([drift, .scale(to: 0.4, duration: 0.6), .sequence([.wait(forDuration: 0.3), .fadeOut(withDuration: 0.3)])]),
+                .removeFromParent(),
+            ]))
+        }
     }
 
     /// Little green (and now and then violet) bubbles rising off a fighter and popping.

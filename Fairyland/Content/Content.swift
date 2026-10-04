@@ -114,9 +114,9 @@ nonisolated struct ClassDef: Decodable, Identifiable, Sendable {
 }
 
 nonisolated enum SkillKind: String, Decodable, Sendable {
-    /// `revive` wakes a fainted ally, `buff` raises strength and defense for a few turns, `curse`
-    /// lays its `inflicts` on foes without hurting them (Curse, Poison), and `field` spells are cast
-    /// from the Character screen outside battle (Bridge of Light).
+    /// `revive` wakes a fainted ally, `buff` raises the stats in its `raises` for a few rounds,
+    /// `curse` lays its `inflicts` on foes without hurting them (Curse, Poison), and `field` spells
+    /// are cast from the Character screen outside battle (Bridge of Light).
     case physical, magic, heal, revive, buff, curse, field
 
     /// Hurts the other side with a hit.
@@ -132,11 +132,14 @@ nonisolated struct Affliction: Decodable, Sendable {
     /// Curse: how many rounds it lasts after the one it lands in.
     let rounds: Int
     /// Poison: each round's bite, as a share of a hit from the caster (magic for spells, strength
-    /// for bites). Curse: how much weaker the target's own hits get (0.2 = 20%). Both grow with
-    /// the skill's level, like its damage would.
+    /// for bites). Curse: how much it lowers the target's stats (0.2 = 20%, at most half). Both
+    /// grow with the skill's level, like its damage would.
     let power: Double
     /// The odds it takes hold (always, unless set).
     let chance: Double?
+    /// Curse: the stats it lowers ("attack", "defense", "magic", "speed"); attack and magic, the
+    /// force behind every hit, unless set.
+    let stats: [String]?
 }
 
 /// Fairyland's dark arts (the Acolyte of Dark's Curse and Poison): lingering harm, not a hit.
@@ -173,6 +176,13 @@ nonisolated struct SkillDef: Decodable, Identifiable, Sendable {
     let splash: Double?
     /// A poison or curse it leaves on whoever it reaches (not the splash).
     let inflicts: Affliction?
+    /// Buffs: the stats it raises and by how much at skill level 1 ("attack": 0.25 = +25%), more
+    /// as the skill grows like damage does; and any it lowers in return (Berserk's guard), which
+    /// stay put.
+    let raises: [String: Double]?
+    let lowers: [String: Double]?
+    /// Buffs: how many rounds it lasts after the one it's cast in (3 unless set).
+    let rounds: Int?
 }
 
 nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {

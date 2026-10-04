@@ -2,7 +2,8 @@
 """Pixel art for the few battle marks that aren't light, drawn in code like tools/item_art.py (free):
 writes art/sprites/fx_<name>.png. The elemental spells themselves are drawn in light and colour
 (Fairyland/Battle/ElementEffects.swift); these are poison's bubbles (AilmentEffects.swift) and the
-marks of poison (a green drop) and a curse (a violet arrow) by a fighter's HP bar.
+marks by a fighter's HP bar: poison (a green drop), lowered stats (a violet arrow down, a curse's)
+and raised ones (a blue arrow up, a buff's).
 
     python3 tools/fx_art.py                  # every sprite
     python3 tools/fx_art.py --sheet out.png  # also a 4x contact sheet to look at
@@ -66,6 +67,7 @@ def bubble():
 
 POISON = [hexc("1e4a14"), hexc("4a9a2a"), hexc("8ee04a"), hexc("d4ff9a")]   # line, dark, mid, light
 CURSE = [hexc("2a1240"), hexc("5a2e8a"), hexc("9a62d8"), hexc("dcc0ff")]
+RAISE = [hexc("103a6a"), hexc("2a78c8"), hexc("5cbcff"), hexc("d0f0ff")]
 
 
 def status_poison():
@@ -83,7 +85,7 @@ def status_poison():
 
 
 def status_curse():
-    """A curse's mark: a violet arrow pointing down, for weaker hits."""
+    """A curse's mark: a violet arrow pointing down, for lowered stats."""
     return pixels([
         "..ooo..",
         "..oLo..",
@@ -96,6 +98,20 @@ def status_curse():
     ], {"o": CURSE[0], "D": CURSE[1], "M": CURSE[2], "L": CURSE[3]})
 
 
+def status_raise():
+    """A buff's mark: a blue arrow pointing up, for raised stats."""
+    return pixels([
+        "...o...",
+        "..oLo..",
+        ".oLMMo.",
+        "oLMMMDo",
+        "oooMooo",
+        "..oMo..",
+        "..oDo..",
+        "..ooo..",
+    ], {"o": RAISE[0], "D": RAISE[1], "M": RAISE[2], "L": RAISE[3]})
+
+
 # ---------------------------------------------------------------- all of it
 
 def sprites():
@@ -103,6 +119,7 @@ def sprites():
         "fx_bubble": bubble(),
         "fx_status_poison": status_poison(),
         "fx_status_curse": status_curse(),
+        "fx_status_raise": status_raise(),
     }
 
 

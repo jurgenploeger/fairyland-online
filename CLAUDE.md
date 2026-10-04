@@ -15,7 +15,7 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 - `tools/item_art.py`: draws every item's 32×32 sprite in code (free); rerun it after editing a drawing.
 - `tools/skill_art.py`: the same for every skill's icon (`art/sprites/skill_<id>.png`).
 - `tools/fx_art.py`: the same for the few battle marks that aren't light (`art/sprites/fx_*.png`: poison's bubble,
-  the poison and curse marks). `--sheet out.png` writes a contact sheet. Spells are light, not sprites:
+  the poison mark and the arrows for lowered and raised stats). `--sheet out.png` writes a contact sheet. Spells are light, not sprites:
   `Fairyland/Battle/ElementEffects.swift` layers soft glows in each element's colours (`ElementLight`).
 - `tools/hero_layers.py`: splits each race's walk sheet into paper-doll layers (bald `body_<race>`,
   `locks_<race>` for a beard, `hair_<style>_<race>` for every hairstyle in that sheet's own hair colour, a

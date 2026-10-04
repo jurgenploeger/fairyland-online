@@ -37,6 +37,8 @@ def check(condition: bool, message: str) -> None:
 
 classes = load("content/classes.json")
 skills = {s["id"]: s for s in load("content/skills.json")["skills"]}
+# The stats spells raise and lower in battle (BattleStat in Fairyland/Battle/BattleEngine.swift).
+BATTLE_STATS = {"attack", "defense", "magic", "speed"}
 monsters = {m["id"]: m for m in load("content/monsters.json")["monsters"]}
 items = {i["id"]: i for i in load("content/items.json")["items"]}
 quests = {q["id"]: q for q in load("content/quests.json")["quests"]}
@@ -106,7 +108,7 @@ for skill in skills.values():
         check(inflicts is not None, f"skill {skill['id']} → a curse needs `inflicts` (what it leaves on its target)")
     if inflicts is not None:
         where = f"skill {skill['id']} → inflicts"
-        check(isinstance(inflicts, dict) and set(inflicts) <= {"effect", "rounds", "power", "chance"}, f"{where} has unknown keys")
+        check(isinstance(inflicts, dict) and set(inflicts) <= {"effect", "rounds", "power", "chance", "stats"}, f"{where} has unknown keys")
         effect = inflicts.get("effect") if isinstance(inflicts, dict) else None
         check(effect in ("poison", "curse"), f"{where} → effect must be poison or curse")
         if isinstance(inflicts, dict):
@@ -116,8 +118,33 @@ for skill in skills.values():
             check(isinstance(power, (int, float)) and 0 < power <= top, f"{where} → power must be above 0 and at most {top}")
             chance = inflicts.get("chance", 1)
             check(isinstance(chance, (int, float)) and 0 < chance <= 1, f"{where} → chance must be in (0, 1]")
+            if "stats" in inflicts:
+                stats = inflicts["stats"]
+                check(effect == "curse", f"{where} → only a curse lowers `stats`")
+                check(isinstance(stats, list) and stats and set(stats) <= BATTLE_STATS,
+                      f"{where} → stats must be some of {sorted(BATTLE_STATS)}")
         check(skill["kind"] in ("physical", "magic", "curse") and skill["target"] in ("enemy", "allEnemies"),
               f"{where} → only skills aimed at foes leave a poison or curse")
+    # Buffs: the stats they raise (and any they lower in return) for a few rounds (BattleEngine.statChanges).
+    where = f"skill {skill['id']}"
+    if skill["kind"] == "buff":
+        raises = skill.get("raises")
+        check(isinstance(raises, dict) and raises, f"{where} → a buff needs `raises` (stat → share, 0.25 = +25%)")
+        for key, changes in (("raises", raises), ("lowers", skill.get("lowers"))):
+            if changes is None:
+                continue
+            check(isinstance(changes, dict) and set(changes) <= BATTLE_STATS, f"{where} → {key} must name some of {sorted(BATTLE_STATS)}")
+            if isinstance(changes, dict):
+                for stat, amount in changes.items():
+                    check(isinstance(amount, (int, float)) and 0 < amount <= (1 if key == "raises" else 0.5),
+                          f"{where} → {key} {stat} must be above 0 and at most {1 if key == 'raises' else 0.5}")
+        if isinstance(raises, dict) and isinstance(skill.get("lowers"), dict):
+            check(not set(raises) & set(skill["lowers"]), f"{where} → raises and lowers the same stat")
+        rounds = skill.get("rounds", 3)
+        check(isinstance(rounds, int) and 1 <= rounds <= 6, f"{where} → rounds must be 1 to 6")
+        check(skill["target"] in ("ally", "allAllies"), f"{where} → a buff is for your own side (ally or allAllies)")
+    else:
+        check(not {"raises", "lowers", "rounds"} & set(skill), f"{where} → only buffs have raises, lowers or rounds")
 
 for monster in monsters.values():
     check(monster["art"] in art, f"monster {monster['id']} → unknown art {monster['art']}")

@@ -6,6 +6,34 @@ nonisolated enum BattleSide: Sendable {
     var opposite: BattleSide { self == .party ? .enemies : .party }
 }
 
+/// A stat that spells raise or lower for a few rounds in battle (Bless, Protection, a curse...).
+nonisolated enum BattleStat: String, CaseIterable, Sendable {
+    case attack, defense, magic, speed
+
+    /// Its short name, as the menus write it.
+    var short: String {
+        switch self {
+        case .attack: "ATK"
+        case .defense: "DEF"
+        case .magic: "MAG"
+        case .speed: "SPD"
+        }
+    }
+}
+
+/// A change to a stat: +0.25 raises it by a quarter, -0.2 lowers it by a fifth.
+nonisolated struct StatChange: Equatable, Sendable {
+    let stat: BattleStat
+    let amount: Double
+}
+
+/// A stat raised or lowered for a while: by how much (0.25 = 25%) and the rounds it has left,
+/// counting the one it's in.
+nonisolated struct StatEffect: Equatable, Sendable {
+    var amount: Double
+    var rounds: Int
+}
+
 /// One fighter in a battle: the hero, a companion, or a wild monster.
 struct Combatant: Identifiable {
     enum Source: Equatable {
@@ -38,15 +66,13 @@ struct Combatant: Identifiable {
     var isRare = false
     /// Skill id → level for the hero; monsters and companions scale with their own level.
     var skillLevels: [String: Int] = [:]
-    /// Bless: rounds left, and how much it raises strength and defense (0.25 = +25%).
-    var blessRounds = 0
-    var blessPower = 0.0
+    /// Stats raised for a while (Bless, Protection, Boost...) and lowered (a curse, Berserk's
+    /// guard), each by how much and for how many rounds.
+    var raised: [BattleStat: StatEffect] = [:]
+    var lowered: [BattleStat: StatEffect] = [:]
     /// Poison: bites left (one at the end of each round), and how much each takes.
     var poisonRounds = 0
     var poisonDamage = 0
-    /// Curse: rounds left, and how much weaker its hits are (0.2 = 20%).
-    var curseRounds = 0
-    var cursePower = 0.0
     /// People only: their class and race, so each fights in their own style (BattleScene).
     var classID: String?
     var raceID: String?
@@ -55,11 +81,45 @@ struct Combatant: Identifiable {
     /// A companion: the fighter it came with, who it stands behind.
     var ownerID: Int?
 
-    /// Strength and defense with any Bless on top.
-    var attack: Double { Double(stats.attack) * (blessRounds > 0 ? 1 + blessPower : 1) }
-    var defense: Double { Double(stats.defense) * (blessRounds > 0 ? 1 + blessPower : 1) }
-    /// How hard its hits land: a curse takes some of the force out of them.
-    var hitFactor: Double { curseRounds > 0 ? 1 - cursePower : 1 }
+    /// How spells change a stat now: ×1.25 raised by a quarter, ×0.8 cursed by a fifth.
+    func factor(_ stat: BattleStat) -> Double {
+        (1 + (raised[stat]?.amount ?? 0)) * (1 - (lowered[stat]?.amount ?? 0))
+    }
+
+    /// The stats as they stand, raised and lowered.
+    var attack: Double { Double(stats.attack) * factor(.attack) }
+    var defense: Double { Double(stats.defense) * factor(.defense) }
+    var magic: Double { Double(stats.magic) * factor(.magic) }
+    var speed: Double { Double(stats.speed) * factor(.speed) }
+    /// Rounds left on its longest raise and its longest drop (the marks by the HP bar).
+    var raisedRounds: Int { raised.values.map(\.rounds).max() ?? 0 }
+    var loweredRounds: Int { lowered.values.map(\.rounds).max() ?? 0 }
+
+    /// Raises and lowers stats for `rounds`, counting this one. A second spell on a stat doesn't
+    /// stack: it lasts as long, and works as hard, as the stronger of the two. A drop never takes
+    /// more than half a stat (`BattleEngine.maxCurse`).
+    mutating func change(_ changes: [StatChange], rounds: Int) {
+        for change in changes where change.amount != 0 {
+            if change.amount > 0 {
+                let old = raised[change.stat]
+                raised[change.stat] = StatEffect(amount: max(old?.amount ?? 0, change.amount), rounds: max(old?.rounds ?? 0, rounds))
+            } else {
+                let old = lowered[change.stat]
+                lowered[change.stat] = StatEffect(amount: min(BattleEngine.maxCurse, max(old?.amount ?? 0, -change.amount)),
+                                                  rounds: max(old?.rounds ?? 0, rounds))
+            }
+        }
+    }
+
+    /// A new round: every raise and drop has one fewer to go, and the spent ones end.
+    mutating func countDownStats() {
+        for (stat, effect) in raised {
+            raised[stat] = effect.rounds > 1 ? StatEffect(amount: effect.amount, rounds: effect.rounds - 1) : nil
+        }
+        for (stat, effect) in lowered {
+            lowered[stat] = effect.rounds > 1 ? StatEffect(amount: effect.amount, rounds: effect.rounds - 1) : nil
+        }
+    }
     /// Fainted, but still on the field to be revived (not sealed or run off).
     var isFallen: Bool { hp <= 0 && !isCaptured && !hasFled }
 
@@ -141,6 +201,9 @@ enum BattleEvent {
     case afflicted(target: Int, effect: Ailment, rounds: Int)
     /// A poison's bite at the end of a round.
     case ailmentDamage(target: Int, effect: Ailment, amount: Int)
+    /// Spells changed a fighter's stats (a buff raises them, a curse lowers them): where each
+    /// stands now (+0.3 = 30% up), for `rounds` more rounds after this one.
+    case statsChanged(target: Int, changes: [StatChange], rounds: Int)
     /// A boss fight's next wave steps onto the field (`number` of `of`), the last with the boss.
     case wave(number: Int, of: Int, arrivals: [Combatant])
 }
@@ -180,10 +243,10 @@ final class BattleEngine {
     /// No monster runs from a fight with a boss or an adventurer in it, or still to come.
     private let standsGround: Bool
 
-    /// How many rounds Bless lasts after the one it's cast in.
-    static let blessLength = 3
+    /// How many rounds a buff lasts after the one it's cast in, unless the skill says.
+    static let buffLength = 3
 
-    /// A curse never takes more than half the force out of a fighter's hits.
+    /// A curse (or any drop) never takes more than half a stat.
     static let maxCurse = 0.5
 
     /// Like Fairyland's capsules: only below 20% HP.
@@ -238,6 +301,16 @@ final class BattleEngine {
         return splash * (0.6 + 0.4 * Double(min(level, GameSession.maxSkillLevel) - 5) / Double(GameSession.maxSkillLevel - 5))
     }
 
+    /// What a buff does at `level`, in stat order: what it raises, by more as the skill grows (×1.8
+    /// mastered, like damage), and what it lowers in return (Berserk's guard), which stays put.
+    static func statChanges(of skill: SkillDef, level: Int) -> [StatChange] {
+        BattleStat.allCases.compactMap { stat in
+            if let up = skill.raises?[stat.rawValue] { return StatChange(stat: stat, amount: up * skillBoost(level)) }
+            if let down = skill.lowers?[stat.rawValue] { return StatChange(stat: stat, amount: -down) }
+            return nil
+        }
+    }
+
     /// A nearly beaten monster on its own may bolt.
     private func fleeChance(of monster: Combatant) -> Double {
         // Bosses (who can't be captured) stand their ground, and so do the monsters in their waves,
@@ -256,8 +329,7 @@ final class BattleEngine {
         if case .capture = heroAction { sealing = true } else { sealing = false }
         for index in combatants.indices {
             combatants[index].isDefending = false
-            if combatants[index].blessRounds > 0 { combatants[index].blessRounds -= 1 }
-            if combatants[index].curseRounds > 0 { combatants[index].curseRounds -= 1 }
+            combatants[index].countDownStats()
         }
         // Guarding protects for the whole round, even against faster monsters (a companion told to
         // guard too).
@@ -270,7 +342,7 @@ final class BattleEngine {
 
         var initiative: [(id: Int, roll: Double)] = []
         for fighter in combatants where fighter.isAlive {
-            initiative.append((fighter.id, Double(fighter.stats.speed) + Double.random(in: 0..<4, using: &rng)))
+            initiative.append((fighter.id, fighter.speed + Double.random(in: 0..<4, using: &rng)))
         }
         let order = initiative.sorted { $0.roll > $1.roll }.map { $0.id }
 
@@ -350,12 +422,9 @@ final class BattleEngine {
                 case .heal, .revive:
                     mutate(hit.target) { $0.hp = min($0.stats.hp, $0.hp + hit.amount) }
                 case .buff:
-                    let power = skill.power * boost
-                    // Lasts this round and the next three.
-                    mutate(hit.target) {
-                        $0.blessRounds = Self.blessLength + 1
-                        $0.blessPower = power
-                    }
+                    // This round and the next ones (three unless the skill says).
+                    changeStats(of: hit.target, Self.statChanges(of: skill, level: level),
+                                rounds: (skill.rounds ?? Self.buffLength) + 1, events: &events)
                 case .physical, .magic:
                     applyDamage(hit, events: &events)
                 case .curse, .field:
@@ -422,6 +491,7 @@ final class BattleEngine {
         guard let weakest = alive(on: .enemies).min(by: { $0.hp < $1.hp }) else { return .defend }
         // Don't finish off the monster you're sealing.
         if sealing, case .ready = captureStatus(of: weakest.id) { return .defend }
+        if let buff = selfBuff(for: pet) { return buff }
         let attacks = usableSkills(of: pet).filter(\.kind.isHostile)
         if let skill = attacks.randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.35 {
             return .skill(skill.id, target: weakest.id)
@@ -432,10 +502,50 @@ final class BattleEngine {
     private func monsterAction(for monster: Combatant) -> BattleAction {
         guard let target = alive(on: .party).randomElement(using: &rng) else { return .defend }
         if Double.random(in: 0..<1, using: &rng) < fleeChance(of: monster) { return .flee }
-        if let skill = usableSkills(of: monster).randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.3 {
+        if let buff = selfBuff(for: monster) { return buff }
+        if let skill = usableSkills(of: monster).filter(\.kind.isHostile).randomElement(using: &rng),
+           Double.random(in: 0..<1, using: &rng) < 0.3 {
             return .skill(skill.id, target: target.id)
         }
         return .attack(target: target.id)
+    }
+
+    /// Monsters and companions power themselves up now and then (Boost, Berserk): a buff they have
+    /// the MP for, on themselves, while it would raise something not raised already.
+    private func selfBuff(for fighter: Combatant) -> BattleAction? {
+        let buffs = usableSkills(of: fighter).filter { skill in
+            skill.kind == .buff && Self.statChanges(of: skill, level: 1).contains { $0.amount > 0 && fighter.raised[$0.stat] == nil }
+        }
+        guard let skill = buffs.randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.3 else { return nil }
+        return .skill(skill.id, target: fighter.id)
+    }
+
+    /// Adventurers cast their buffs now and then: on the friend it helps most who isn't raised
+    /// already (strength for the hardest hitter, magic for the strongest caster, defense for
+    /// whoever is worst hurt), or over the whole party once most of it could use it.
+    private func buffToCast(by fighter: Combatant) -> BattleAction? {
+        let side = alive(on: fighter.side)
+        var options: [BattleAction] = []
+        for skill in usableSkills(of: fighter) where skill.kind == .buff {
+            let raises = Self.statChanges(of: skill, level: 1).filter { $0.amount > 0 }.map(\.stat)
+            guard let first = raises.first else { continue }
+            let needs = side.filter { friend in raises.contains { friend.raised[$0] == nil } }
+            switch skill.target {
+            case .allAllies:
+                if needs.count * 2 >= side.count { options.append(.skill(skill.id, target: fighter.id)) }
+            case .ally:
+                let best: Combatant? = switch first {
+                case .attack: needs.max { $0.stats.attack < $1.stats.attack }
+                case .magic: needs.max { $0.stats.magic < $1.stats.magic }
+                case .defense, .speed: needs.min { $0.hpFraction < $1.hpFraction }
+                }
+                if let best { options.append(.skill(skill.id, target: best.id)) }
+            default:
+                break
+            }
+        }
+        guard let pick = options.randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.3 else { return nil }
+        return pick
     }
 
     /// What the hero does on Auto: what a friend in your party would.
@@ -460,6 +570,7 @@ final class BattleEngine {
         guard let weakest = alive(on: fighter.side.opposite).min(by: { $0.hp < $1.hp }) else { return .defend }
         // Friends leave the monster you're sealing to you.
         if fighter.side == .party, sealing, case .ready = captureStatus(of: weakest.id) { return .defend }
+        if let buff = buffToCast(by: fighter) { return buff }
         let attacks = skills.filter(\.kind.isHostile)
         if let skill = attacks.randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.45 {
             return .skill(skill.id, target: weakest.id)
@@ -509,7 +620,7 @@ final class BattleEngine {
 
     private func physicalHit(from attacker: Combatant, to defender: Combatant, power: Double) -> Hit {
         let k = armorConstant(for: defender)
-        var damage = attacker.attack * attacker.hitFactor * power * k / (k + defender.defense)
+        var damage = attacker.attack * power * k / (k + defender.defense)
         damage *= Double.random(in: 0.9...1.1, using: &rng)
         let critical = Double.random(in: 0..<1, using: &rng) < 0.08
         if critical { damage *= 1.5 }
@@ -520,7 +631,7 @@ final class BattleEngine {
     private func magicHit(from attacker: Combatant, to defender: Combatant, skill: SkillDef, boost: Double) -> Hit {
         let effectiveness = (skill.element ?? .neutral).multiplier(against: defender.element)
         let k = armorConstant(for: defender)
-        var damage = Double(attacker.stats.magic) * attacker.hitFactor * skill.power * boost * k / (k + defender.defense / 2)
+        var damage = attacker.magic * skill.power * boost * k / (k + defender.defense / 2)
         damage *= effectiveness * Double.random(in: 0.9...1.1, using: &rng)
         if defender.isDefending { damage *= 0.5 }
         return Hit(target: defender.id, amount: max(1, Int(damage.rounded())), effectiveness: effectiveness, critical: false)
@@ -540,28 +651,44 @@ final class BattleEngine {
                 $0.poisonDamage = max($0.poisonDamage, damage)
             }
         case .curse:
-            // Like Bless: the rest of this round and the ones after.
-            let power = min(Self.maxCurse, affliction.power * boost)
-            mutate(id) {
-                $0.curseRounds = max($0.curseRounds, affliction.rounds + 1)
-                $0.cursePower = max($0.cursePower, power)
-            }
+            break
         }
         events.append(.afflicted(target: id, effect: affliction.effect, rounds: affliction.rounds))
+        if affliction.effect == .curse {
+            // It lowers the stats behind its target's hits (attack and magic, unless it names
+            // others), like a buff the other way: the rest of this round and the ones after.
+            let stats = affliction.stats?.compactMap(BattleStat.init(rawValue:)) ?? [.attack, .magic]
+            let power = affliction.power * boost
+            changeStats(of: id, stats.map { StatChange(stat: $0, amount: -power) }, rounds: affliction.rounds + 1, events: &events)
+        }
+    }
+
+    /// Raises and lowers a fighter's stats for `rounds` (counting this one), and tells the scene
+    /// where they stand now (a weaker second spell leaves the stronger first one in place).
+    private func changeStats(of id: Int, _ changes: [StatChange], rounds: Int, events: inout [BattleEvent]) {
+        guard !changes.isEmpty, combatant(id)?.isAlive == true else { return }
+        mutate(id) { $0.change(changes, rounds: rounds) }
+        guard let fighter = combatant(id) else { return }
+        let now = changes.map { change in
+            StatChange(stat: change.stat, amount: change.amount > 0
+                ? fighter.raised[change.stat]?.amount ?? 0
+                : -(fighter.lowered[change.stat]?.amount ?? 0))
+        }
+        events.append(.statsChanged(target: id, changes: now, rounds: rounds - 1))
     }
 
     /// Each round's poison bite, fixed when it lands: a share of a hit from the caster, magic for
     /// spells and strength for bites, of the skill's element. Guard doesn't keep it out.
     private func poisonDamage(from caster: Combatant, to target: Combatant, skill: SkillDef, power: Double) -> Int {
         let k = armorConstant(for: target)
-        let force = skill.kind == .physical ? caster.attack : Double(caster.stats.magic)
+        let force = skill.kind == .physical ? caster.attack : caster.magic
         let effectiveness = (skill.element ?? .neutral).multiplier(against: target.element)
-        let damage = force * caster.hitFactor * power * effectiveness * k / (k + target.defense / 2)
+        let damage = force * power * effectiveness * k / (k + target.defense / 2)
         return max(1, Int(damage.rounded()))
     }
 
     private func healAmount(_ caster: Combatant, _ skill: SkillDef) -> Int {
-        Int((Double(caster.stats.magic) * skill.power + 8).rounded())
+        Int((caster.magic * skill.power + 8).rounded())
     }
 
     private func applyDamage(_ hit: Hit, events: inout [BattleEvent]) {
@@ -570,8 +697,8 @@ final class BattleEngine {
         if combatants[index].hp == 0 {
             // Fainting ends poison, curses and blessings; a revived fighter starts clean.
             combatants[index].poisonRounds = 0
-            combatants[index].curseRounds = 0
-            combatants[index].blessRounds = 0
+            combatants[index].raised = [:]
+            combatants[index].lowered = [:]
             events.append(.defeated(hit.target))
         }
     }
@@ -617,7 +744,7 @@ final class BattleEngine {
     }
 
     /// Debug launches (`afflict`): the first monster is poisoned, the next one cursed, and the
-    /// hero poisoned, so the screenshot shows the marks.
+    /// hero poisoned and protected (DEF up), so the screenshot shows the marks.
     func afflictForDebug() {
         let foes = alive(on: .enemies)
         if let first = foes.first {
@@ -627,15 +754,13 @@ final class BattleEngine {
             }
         }
         if foes.count > 1 {
-            mutate(foes[1].id) {
-                $0.curseRounds = 3
-                $0.cursePower = 0.2
-            }
+            mutate(foes[1].id) { $0.change([StatChange(stat: .attack, amount: -0.2), StatChange(stat: .magic, amount: -0.2)], rounds: 3) }
         }
         if let hero {
             mutate(hero.id) {
                 $0.poisonRounds = 2
                 $0.poisonDamage = 4
+                $0.change([StatChange(stat: .defense, amount: 0.4)], rounds: 3)
             }
         }
     }

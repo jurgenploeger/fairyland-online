@@ -300,11 +300,24 @@ final class BattleScene: SKScene {
                 fallen.append(id)
                 index += 1
             }
-            if fallen.isEmpty {
+            if !fallen.isEmpty {
+                await defeat(fallen)
+                refreshBars()
+                continue
+            }
+            // Likewise everyone one spell raises or lowers shows it at once (a ward over the party).
+            var changed = 0
+            while index < events.count, case .statsChanged(let id, let changes, _) = events[index] {
+                controller.apply(events[index])
+                if let actor = actors[id] { SkillEffects.statChanges(changes, on: actor, in: stage) }
+                changed += 1
+                index += 1
+            }
+            if changed > 0 {
+                await pause(0.75)
+            } else {
                 await animate(events[index])
                 index += 1
-            } else {
-                await defeat(fallen)
             }
             refreshBars()
         }
@@ -396,8 +409,15 @@ final class BattleScene: SKScene {
             if let actor = actors[targetID] {
                 SkillEffects.poisonBite(on: actor, in: stage)
                 Effects.damageBurst("\(amount)", style: .poison, at: actor.top, in: stage)
+                // Named, so it's clear the HP went to the poison and not to a blow.
+                Effects.floatingText("Poison", color: SkillEffects.poisonGreen, at: actor.top + CGVector(dx: 0, dy: 24), in: stage, size: 12)
             }
-            await pause(0.45)
+            await pause(0.55)
+
+        case .statsChanged(let targetID, let changes, _):
+            controller.apply(event)
+            if let actor = actors[targetID] { SkillEffects.statChanges(changes, on: actor, in: stage) }
+            await pause(0.75)
 
         case .wave(_, _, let arrivals):
             controller.apply(event)
@@ -516,8 +536,8 @@ final class BattleScene: SKScene {
                     SkillEffects.sparkles(on: target, color: SkillEffects.healGreen, level: 2, in: stage)
                     Effects.damageBurst("+\(hit.amount)", style: .heal, at: target.top, in: stage)
                 } else {
+                    // What it raised, and by how much, shows in the events after this one.
                     SkillEffects.shield(on: target, in: stage)
-                    Effects.floatingText("STR & DEF up!", color: blessBlue, at: target.top, in: stage, size: 13)
                 }
             }
             for target in targets { SkillEffects.glory(on: target, color: color, level: level, in: stage) }
@@ -850,12 +870,45 @@ final class BattleScene: SKScene {
         ]))
     }
 
+    /// A friend or your companion went up a level with the win: light pours down on them in gold,
+    /// they hop, and "LEVEL UP!" stands over their head with the new level (the hero's fills the
+    /// field). A new level restores them, so their bars fill up.
+    func celebrateLevelUp(of id: Int, to level: Int) {
+        guard let actor = actors[id] else { return }
+        let gold = Nodes.gold
+        actor.setHealth(1, mana: 1)
+        SkillEffects.lightPillar(on: actor, level: 3, in: stage)
+        SkillEffects.glory(on: actor, color: gold, level: 4, in: stage)
+        SkillEffects.burst(at: actor.center, color: gold, count: 14, speed: 90, in: stage)
+        actor.sprite.run(.sequence([.moveBy(x: 0, y: 14, duration: 0.15), .moveBy(x: 0, y: -14, duration: 0.18)]), withKey: "cheer")
+
+        let tag = SKNode()
+        tag.position = actor.top + CGVector(dx: 0, dy: 16)
+        tag.zPosition = 30_500
+        let title = NameTag("LEVEL UP!", color: gold, size: 15, alignment: .center)
+        let subtitle = NameTag("Lv \(level)", color: .white, size: 12, alignment: .center)
+        subtitle.position.y = -16
+        tag.addChild(title)
+        tag.addChild(subtitle)
+        tag.setScale(0.4)
+        tag.alpha = 0
+        stage.addChild(tag)
+        tag.run(.sequence([
+            .group([.fadeIn(withDuration: 0.12), .scale(to: 1.15, duration: 0.18)]),
+            .scale(to: 1, duration: 0.1),
+            .wait(forDuration: 1.1),
+            .group([.fadeOut(withDuration: 0.3), .moveBy(x: 0, y: 16, duration: 0.3)]),
+            .removeFromParent(),
+        ]))
+    }
+
     /// Bars, and the marks of any poison or curse with the rounds it has left.
     func refreshBars() {
         for fighter in controller.combatants {
             actors[fighter.id]?.setHealth(fighter.hpFraction, mana: fighter.mpFraction)
-            // A curse counts the round it's in too; show the rounds still to come.
-            actors[fighter.id]?.setAilments(poison: fighter.poisonRounds, curse: max(0, fighter.curseRounds - 1))
+            // Raises and drops count the round they're in too; show the rounds still to come.
+            actors[fighter.id]?.setMarks(poison: fighter.poisonRounds, lowered: max(0, fighter.loweredRounds - 1),
+                                         raised: max(0, fighter.raisedRounds - 1))
         }
     }
 
@@ -988,25 +1041,28 @@ final class BattleActor: SKNode {
         bar.manaFraction = CGFloat(mana)
     }
 
-    /// Poison's green drop and a curse's violet arrow beside the HP bar, each with its rounds left.
+    /// Beside the HP bar, each with its rounds left: poison's green drop, a violet arrow down for
+    /// lowered stats (a curse) and a blue arrow up for raised ones (Bless, Protection...).
     private let marks = SKNode()
-    private var shownPoison = 0
-    private var shownCurse = 0
+    private var shownMarks = [0, 0, 0]
 
-    func setAilments(poison: Int, curse: Int) {
-        guard poison != shownPoison || curse != shownCurse else { return }
-        shownPoison = poison
-        shownCurse = curse
+    func setMarks(poison: Int, lowered: Int, raised: Int) {
+        guard [poison, lowered, raised] != shownMarks else { return }
+        shownMarks = [poison, lowered, raised]
         if marks.parent == nil {
             marks.position = CGPoint(x: bar.position.x + 30, y: bar.position.y)
             addChild(marks)
         }
         marks.removeAllChildren()
         var x: CGFloat = 0
-        for (rounds, effect) in [(poison, Ailment.poison), (curse, Ailment.curse)] where rounds > 0 {
-            let tint = SkillEffects.color(of: effect)
+        let kinds: [(rounds: Int, art: String, tint: UIColor)] = [
+            (poison, "status_poison", SkillEffects.color(of: .poison)),
+            (lowered, "status_curse", SkillEffects.color(of: .curse)),
+            (raised, "status_raise", SkillEffects.raiseBlue),
+        ]
+        for (rounds, art, tint) in kinds where rounds > 0 {
             let icon: SKNode
-            if let texture = SkillEffects.fxTexture(effect == .poison ? "status_poison" : "status_curse") {
+            if let texture = SkillEffects.fxTexture(art) {
                 icon = SKSpriteNode(texture: texture, size: texture.size() * 2)
             } else {
                 let dot = SKShapeNode(circleOfRadius: 5)

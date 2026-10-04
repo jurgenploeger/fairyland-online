@@ -1004,6 +1004,9 @@ private struct ResultPanel: View {
             if let level = result.newLevel {
                 LevelUpBanner(level: level, gains: session.heroClass.growth * result.levelsGained)
             }
+            if !result.others.isEmpty {
+                PartyLevelUps(others: result.others)
+            }
             if !result.loot.isEmpty {
                 LootGrid(loot: result.loot)
             }
@@ -1172,6 +1175,42 @@ struct LootGrid: View {
         .padding(10)
         .frame(maxWidth: .infinity)
         .background(RoundedRectangle(cornerRadius: 12).fill(.white.opacity(0.06)))
+    }
+}
+
+/// Friends and your companion who went up a level with the win, each with their new level, in a
+/// gold box like the hero's banner.
+private struct PartyLevelUps: View {
+    let others: [LevelUp]
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Text(others.count == 1 ? "Level up!" : "Level ups!")
+                .font(HUDStyle.font(14))
+                .foregroundStyle(HUDStyle.gold)
+            CenteredRows(spacing: 6, rowSpacing: 6) {
+                ForEach(Array(others.enumerated()), id: \.offset) { _, other in
+                    HStack(spacing: 4) {
+                        IconImage(.arrowUp, size: 11)
+                            .foregroundStyle(HUDStyle.gold)
+                        Text(other.name)
+                            .foregroundStyle(HUDStyle.cream)
+                        Text("Lv \(other.level)")
+                            .foregroundStyle(HUDStyle.gold)
+                    }
+                    .font(HUDStyle.font(12))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Capsule().fill(HUDStyle.gold.opacity(0.14)))
+                }
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+        .background(RoundedRectangle(cornerRadius: 12).fill(HUDStyle.gold.opacity(0.08)))
+        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(HUDStyle.gold.opacity(0.4), lineWidth: 1))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(others.map { "\($0.name) reached level \($0.level)" }.joined(separator: ". "))
     }
 }
 

@@ -12,8 +12,20 @@ struct BattleResult {
     var loot: [(id: String, count: Int)] = []
     /// How many levels the win was worth (the level-up banner adds up what they raised).
     var levelsGained = 0
+    /// Friends and your companion who went up a level with the win.
+    var others: [LevelUp] = []
     /// A boss beaten for the first time: what it means, told before the pay.
     var story: BossStory?
+}
+
+/// Someone else in the party who went up a level with a win: a friend or your companion.
+struct LevelUp {
+    let name: String
+    let level: Int
+    /// What the log says about it.
+    let line: String
+    /// Their fighter, to celebrate on the field (nil when they weren't standing at the end).
+    let fighterID: Int?
 }
 
 /// A boss's `victory` story (content/maps.json), with the boss to draw above it.
@@ -302,6 +314,8 @@ final class BattleController {
     /// Set when the hero levels up during the victory payout.
     private var newLevel: Int?
     private var levelsGained = 0
+    /// Friends and your companion who went up a level with the win.
+    private var othersLevelled: [LevelUp] = []
     private var rewardEXP = 0
     private var rewardGold = 0
     /// Item id → how many were found after a win.
@@ -750,7 +764,6 @@ final class BattleController {
             }
             var text = "\(name(actor)) uses \(skill.name)!"
             if skill.kind == .revive, let hit = hits.first { text += " \(name(hit.target)) is back on their feet!" }
-            if skill.kind == .buff, let hit = hits.first { text += " \(name(hit.target)) feels stronger." }
             if hits.contains(where: { $0.effectiveness > 1 }) { text += " A weak spot!" }
             if hits.contains(where: { $0.effectiveness < 1 }) { text += " It was resisted…" }
             message = text
@@ -791,17 +804,18 @@ final class BattleController {
         case .message(let text):
             message = text
         case .afflicted(let target, let effect, let rounds):
-            mutate(target) {
-                switch effect {
-                case .poison: $0.poisonRounds = max($0.poisonRounds, rounds)
-                case .curse: $0.curseRounds = max($0.curseRounds, rounds + 1)
-                }
+            // A curse's drops come in the event after this one (`statsChanged`).
+            if effect == .poison {
+                mutate(target) { $0.poisonRounds = max($0.poisonRounds, rounds) }
             }
             SoundEffects.shared.play(.faint, volume: 0.5)
             message = switch effect {
             case .poison: "\(name(target)) is poisoned!"
-            case .curse: "\(name(target)) is cursed and hits for less!"
+            case .curse: "\(name(target)) is cursed!"
             }
+        case .statsChanged(let target, let changes, let rounds):
+            mutate(target) { $0.change(changes, rounds: rounds + 1) }
+            message = Self.statLine(name(target), changes, rounds: rounds)
         case .ailmentDamage(let target, _, let amount):
             mutate(target) {
                 $0.hp = max(0, $0.hp - amount)
@@ -844,6 +858,18 @@ final class BattleController {
         if !foes.isEmpty { lines.append("\(Self.tally(foes.map { name($0) })) \(foes.count == 1 ? "is" : "are") defeated!") }
         if !friends.isEmpty { lines.append("\(Self.tally(friends.map { name($0) })) fainted!") }
         message = lines.joined(separator: " ")
+    }
+
+    /// "Maple's ATK +25% and DEF +25% for 3 rounds!"
+    static func statLine(_ name: String, _ changes: [StatChange], rounds: Int) -> String {
+        let parts = changes.map { "\($0.stat.short) \(percent($0.amount))" }
+        return "\(name)'s \(GameSession.listed(parts)) for \(rounds) round\(rounds == 1 ? "" : "s")!"
+    }
+
+    /// A stat change as the battle shows it: "+25%", "−20%".
+    static func percent(_ amount: Double) -> String {
+        let value = Int((abs(amount) * 100).rounded())
+        return amount >= 0 ? "+\(value)%" : "\u{2212}\(value)%"
     }
 
     /// Names in the order they fell, a repeated one counted: "Dark Beetle ×2 and Fire Rat".
@@ -928,11 +954,12 @@ final class BattleController {
     private func finish(_ outcome: BattleOutcome, lines: [String]) {
         stopTurnClock()
         let found = loot.sorted { $0.key < $1.key }.map { (id: $0.key, count: $0.value) }
-        // The card shows a level-up as a banner of its own; its line goes to the log.
+        // The card shows level-ups as banners of their own; their lines go to the log.
         let levelText = newLevel.map { levelLine($0) }
-        result = BattleResult(outcome: outcome, lines: lines.filter { $0 != levelText }, newLevel: newLevel,
+        let othersText = Set(othersLevelled.map(\.line))
+        result = BattleResult(outcome: outcome, lines: lines.filter { $0 != levelText && !othersText.contains($0) }, newLevel: newLevel,
                               exp: rewardEXP, gold: rewardGold, loot: found, levelsGained: levelsGained,
-                              story: outcome == .victory ? story : nil)
+                              others: othersLevelled, story: outcome == .victory ? story : nil)
         let won = outcome == .victory || outcome == .fled
         // The log gets it all in words; the result card shows the pay as icons.
         var logged = lines
@@ -947,16 +974,21 @@ final class BattleController {
         for line in logged { session.post(line, won ? .reward : .battle) }
         MusicPlayer.shared.play(won ? "victory" : nil)
         if outcome == .defeat { SoundEffects.shared.play(.lose) }
-        guard let newLevel else {
+        guard newLevel != nil || !othersLevelled.isEmpty else {
             phase = .finished
             return
         }
         // A level-up gets its own moment on the field before the card: after the first notes of
-        // the victory fanfare, light pours down on the hero with the level-up jingle.
-        message = levelLine(newLevel)
+        // the victory fanfare, light pours down on the hero with the level-up jingle, and on every
+        // friend and companion who went up with them.
+        message = ([newLevel.map { levelLine($0) }].compactMap { $0 } + othersLevelled.map(\.line)).joined(separator: " ")
+        let others = othersLevelled
         Task {
             await breather(450)
-            scene?.celebrateLevelUp(to: newLevel)
+            if let newLevel { scene?.celebrateLevelUp(to: newLevel) }
+            for other in others {
+                if let id = other.fighterID { scene?.celebrateLevelUp(of: id, to: other.level) }
+            }
             SoundEffects.shared.play(.levelUp)
             Haptics.success()
             await breather(1500)
@@ -1050,7 +1082,6 @@ final class BattleController {
         }
         session.data.gold += gold
         rewardGold = gold
-        session.growParty()
 
         if heroIsDown {
             // Out cold, you learn nothing from it, like a fainted companion. The spoils are shared.
@@ -1072,6 +1103,19 @@ final class BattleController {
             }
         }
 
+        // Your friends still standing keep up with you, a level behind: whoever went up celebrates
+        // with you.
+        let standing = Set(engine.combatants.compactMap { fighter -> UUID? in
+            guard case .ally(let id) = fighter.source, fighter.isAlive else { return nil }
+            return id
+        })
+        for friend in session.growParty(standing: standing) {
+            let fighter = engine.combatants.first { $0.source == .ally(friend.id) }
+            let line = "\(friend.name) reached level \(friend.level)!"
+            othersLevelled.append(LevelUp(name: friend.name, level: friend.level, line: line, fighterID: fighter?.id))
+            lines.append(line)
+        }
+
         if let fighter = engine.combatants.first(where: { $0.petID != nil }), let petID = fighter.petID,
            let pet = session.data.pets.first(where: { $0.id == petID }) {
             if fighter.hp <= 0 {
@@ -1080,7 +1124,9 @@ final class BattleController {
             } else {
                 let share = Int((Double(exp) * (session.heroClass.petExpShare ?? 0.5)).rounded())
                 if session.gainPetEXP(petID, share) > 0, let updated = session.data.pets.first(where: { $0.id == petID }) {
-                    lines.append("\(pet.name) grew to level \(updated.level)!")
+                    let line = "\(pet.name) grew to level \(updated.level)!"
+                    othersLevelled.append(LevelUp(name: pet.name, level: updated.level, line: line, fighterID: fighter.id))
+                    lines.append(line)
                 }
             }
         }

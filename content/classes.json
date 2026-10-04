@@ -107,6 +107,10 @@
           "level": 1
         },
         {
+          "skill": "protection",
+          "level": 12
+        },
+        {
           "skill": "power_strike",
           "level": 20
         },
@@ -163,12 +167,20 @@
           "level": 35
         },
         {
+          "skill": "holy_glow",
+          "level": 40
+        },
+        {
           "skill": "bless",
           "level": 45
         },
         {
           "skill": "leaf_storm",
           "level": 50
+        },
+        {
+          "skill": "guardianship",
+          "level": 60
         },
         {
           "skill": "blessing",
@@ -203,6 +215,10 @@
         {
           "skill": "wild_call",
           "level": 20
+        },
+        {
+          "skill": "animal_training",
+          "level": 25
         },
         {
           "skill": "revive",

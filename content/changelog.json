@@ -2,6 +2,19 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.41",
+      "date": "2026-10-04",
+      "title": "Spells that raise you up",
+      "notes": [
+        "New spells raise stats for a while: Protection for Fighters (an ally's DEF +40%, from level 12), Holy Glow (an ally's MAG +30%, level 40) and Guardianship (the whole party's DEF +20%, level 60) for Mages, and Animal Training for Beast Tamers (ATK +20% and SPD +30%, level 25). They grow stronger with their skill level, and Bless now raises ATK and DEF the same way.",
+        "Whenever a spell raises or lowers a stat, the fighter shows which and by how much (\"DEF +40%\" in blue, \"ATK −20%\" in violet), and an arrow by their HP bar counts the rounds it has left.",
+        "A curse now lowers ATK and MAG, shown on the cursed fighter, and poison's bite each round is marked \"Poison\" so you can see what took the HP.",
+        "Some monsters power themselves up now: golden hamsters, wood hogs, red bulls and earth lions Boost their ATK, and werewolves, fire bears and black kongs go Berserk (more ATK, less DEF). Companions of those kinds do it for you, and friends cast their buffs on whoever they'd help most.",
+        "When a friend or your companion goes up a level with a win, light pours down on them on the field with \"LEVEL UP!\", and the victory card lists them. Friends now keep pace in the same win you level up in, if they were still standing.",
+        "What's new: only the newest release is open; tap any other to read it."
+      ]
+    },
+    {
       "version": "0.3.40",
       "date": "2026-10-04",
       "title": "A proper speech bubble",

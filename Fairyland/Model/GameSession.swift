@@ -773,15 +773,22 @@ final class GameSession {
         return hash
     }
 
-    /// Party friends grow with you: a share of every win.
-    func growParty() {
+    /// Party friends grow with you: after every win, the ones at your side keep up to a level behind
+    /// you (with `standing`, only those still on their feet at the end; out cold, they learn nothing
+    /// from it, like you). Returns who went up, with their new level.
+    @discardableResult
+    func growParty(standing: Set<UUID>? = nil) -> [(id: UUID, name: String, level: Int)] {
         let level = data.hero.level - 1
         let party = Set(data.partyIDs ?? [])
-        guard var friends = data.friends else { return }
-        for index in friends.indices where party.contains(friends[index].id) {
-            friends[index].level = max(friends[index].level, level)
+        guard var friends = data.friends else { return [] }
+        var grown: [(id: UUID, name: String, level: Int)] = []
+        for index in friends.indices where party.contains(friends[index].id) && friends[index].waitingAt == nil
+            && standing?.contains(friends[index].id) != false && friends[index].level < level {
+            friends[index].level = level
+            grown.append((id: friends[index].id, name: friends[index].name, level: level))
         }
         data.friends = friends
+        return grown
     }
 
     /// Full party: `id` stays behind (it may be the newcomer), and the newcomer takes its place.

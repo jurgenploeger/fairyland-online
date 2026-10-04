@@ -312,6 +312,61 @@ def draw_bless(c):
     c.disc(15, 14, 1.6, GOLD[2])
 
 
+def draw_protection(c):
+    c.poly([(6, 5), (26, 5), (26, 15), (16, 28), (6, 15)], STEEL[1])     # a steel shield
+    c.poly([(6, 5), (16, 5), (16, 28), (6, 15)], STEEL[2])
+    c.poly([(9, 8), (23, 8), (23, 15), (16, 24), (9, 15)], STEEL[0])
+    c.line(9, 8, 23, 8, GOLD[1], width=2)                                # a gold rim along the top
+    c.disc(16, 15, 4, GOLD[1])                                           # and a gold boss
+    c.disc(15, 14, 1.6, GOLD[2])
+
+
+def draw_holy_glow(c):
+    for i in range(12):                                                  # rays of light round...
+        t = i * math.pi / 6
+        reach = 14 if i % 2 == 0 else 10
+        c.line(16 + 7 * math.cos(t), 16 + 7 * math.sin(t), 16 + reach * math.cos(t), 16 + reach * math.sin(t),
+               hexc("ffe0f8") if i % 2 else GOLD[2], width=2)
+    c.disc(16, 16, 7, hexc("f070c0"))                                    # ...an orb of rosy magic
+    c.disc(16, 16, 5, hexc("ffb0e0"))
+    c.disc(14.5, 14.5, 2, WHITE)
+
+
+def draw_guardianship(c):
+    c.ring(16, 24, 14, 11.5, SNOW[1])                                    # a dome of light...
+    c.ring(16, 24, 11.5, 10.5, SNOW[2])
+    for y in range(25, 32):                                              # (its top half)
+        for x in range(32):
+            c.px[y][x] = None
+    c.rect(2, 24, 30, 26, SNOW[0])                                       # ...over the ground
+    c.poly([(11, 11), (21, 11), (21, 17), (16, 23), (11, 17)], BLUE[1])  # and a shield inside
+    c.poly([(11, 11), (16, 11), (16, 23), (11, 17)], BLUE[2])
+    star_shape(c, 16, 16, 3.4, GOLD[1])
+
+
+def draw_animal_training(c):
+    paw(c, 12, 18, LEATHER)
+    c.poly([(24, 3), (30, 10), (26.5, 10), (26.5, 19), (21.5, 19), (21.5, 10), (18, 10)], GOLD[1])   # an arrow up
+    c.poly([(24, 3), (24, 19), (21.5, 19), (21.5, 10), (18, 10)], GOLD[2])
+    for y in (22, 25, 28):                                               # speed lines
+        c.line(20, y, 28, y, WHITE)
+
+
+def draw_boost(c):
+    c.poly([(16, 2), (28, 14), (21.5, 14), (21.5, 28), (10.5, 28), (10.5, 14), (4, 14)], ORANGE[1])  # a big arrow up
+    c.poly([(16, 2), (16, 28), (10.5, 28), (10.5, 14), (4, 14)], ORANGE[2])
+    c.line(16, 6, 16, 26, hexc("fff0c0"))
+    for (x, y) in ((5, 22), (27, 21), (26, 26)):
+        star_shape(c, x, y, 2.6, WHITE, inner=0.35)                     # sparks
+
+
+def draw_berserk(c):
+    flame(c, 16, 18, 10, colors=[RED[0], RED[1], ORANGE[2]])             # a blaze of rage...
+    c.line(10, 17, 14, 19, hexc("231834"), width=2)                      # ...with angry eyes
+    c.line(22, 17, 18, 19, hexc("231834"), width=2)
+    c.disc(13, 21, 1.2, WHITE)
+    c.disc(19, 21, 1.2, WHITE)
+
 def draw_bridge_of_light(c):
     for r, color in ((14, GOLD[1]), (11.5, WHITE), (9, hexc("9ccaff"))):  # a rainbow arch of light
         c.ring(16, 26, r, r - 2.2, color)

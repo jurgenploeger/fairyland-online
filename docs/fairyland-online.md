@@ -144,15 +144,25 @@ No advanced classes.
 - **Trader:** Dodge, Hide, Invisible, bribery and collection.
 
 **Us:**
-- 16 hero skills.
-- Our Mage carries Recovery, Revive and Bless, which FO gives the Acolyte of Light, and Curse (level 12) and
-  Poison (level 25), the Acolyte of Dark's.
+- 20 hero skills.
+- Our Mage carries Recovery, Revive, Bless, Holy Glow and Guardianship, which FO gives the Acolyte of Light,
+  and Curse (level 12) and Poison (level 25), the Acolyte of Dark's.
 - Like FO's Mage, whose list starts with Fireball, ours learns Fire Bolt on joining the guild at level 10
   (since 0.3.17).
-- Status effects (since 0.3.14): Bless and Guard, plus:
-  - Poison: HP lost at the end of each round, 3 times.
-  - Curse: hits 20% weaker (up to 36% as the skill grows) for 3 rounds.
-  - With no hit rate, Curse only weakens damage.
+- Status effects (since 0.3.14): Guard, Poison and spells that raise or lower stats (since 0.3.41).
+  - Poison: HP lost at the end of each round, 3 times, shown as a green number marked "Poison".
+  - Raised or lowered stats (ATK, DEF, MAG, SPD) last the round they land in and 3 more. Each change pops
+    up over the fighter with its amount ("DEF +40%"), and a blue arrow up or a violet arrow down by the HP
+    bar counts the rounds left. A second spell on a stat doesn't stack; the stronger one counts.
+  - Buffs, FO's skill names with our own effects (FO's aren't in any source reachable from a cloud session):
+    Protection (Fighter 12, one ally DEF +40%), Holy Glow (Mage 40, one ally MAG +30%), Bless (Mage 45, ATK
+    and DEF +25%), Guardianship (Mage 60, the whole party DEF +20%) and Animal Training (Beast Tamer 25,
+    ATK +20% and SPD +30%). Raises grow with the skill's level like damage, ×1.8 when mastered.
+  - Monsters and companions: Boost (ATK +20%; golden hamsters, wood hogs, red bulls, earth lions) and Berserk
+    (ATK +30% but DEF −25%; werewolves, fire bears, black kongs), FO's pet skills. They cast them on
+    themselves now and then; friends cast theirs on whoever they'd help most.
+  - Curse: lowers ATK and MAG by 20% (up to 36% as the skill grows), so hits and heals both weaken. FO's
+    Curse lowers attack and its hit rate; we have no hit rate.
   - No Lethal Poison, Fear or cures yet. Every status ends with the battle.
 - Monsters use them too: Venom Bite (snakes and widows, 40% chance to poison), Poison Mist (the Poison
   Skeleton, the whole party) and Evil Eye (phantoms and Idreus, a curse).
