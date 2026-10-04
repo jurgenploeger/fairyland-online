@@ -151,6 +151,21 @@ private struct MonsterPage: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
+            // A boss you've beaten keeps the story of its fall here, to read again.
+            if monster.boss == true, let boss = session.content.boss(fighting: monster.id), session.isDefeated(boss),
+               let victory = boss.victory {
+                section(victory.title) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(Array(victory.story.enumerated()), id: \.offset) { _, paragraph in
+                            Text(paragraph)
+                                .font(HUDStyle.font(11))
+                                .foregroundStyle(HUDStyle.cream)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+            }
+
             section("Element") {
                 // Light and Dark hurt each other: say that once instead of "strong against" and "weak to" the same thing.
                 let element = monster.element

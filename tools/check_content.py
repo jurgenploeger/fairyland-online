@@ -186,6 +186,20 @@ for map_def in maps.values():
         if "minions" in npc:
             check(npc["role"] == "boss" and isinstance(npc["minions"], int) and 0 <= npc["minions"] <= 4,
                   f"npc {npc['id']} → minions is for bosses, 0 to 4")
+        # What beating a boss means: told the first time you win, and kept in the Monster Book.
+        if npc["role"] == "boss":
+            check("victory" in npc, f"boss {npc['id']} → needs a victory story (title and story)")
+        if "victory" in npc:
+            victory = npc["victory"]
+            where = f"npc {npc['id']} → victory"
+            check(npc["role"] == "boss", f"{where} is for bosses")
+            check(isinstance(victory, dict) and set(victory) <= {"title", "story"}, f"{where} has only a title and a story")
+            title = victory.get("title") if isinstance(victory, dict) else None
+            check(isinstance(title, str) and 0 < len(title.strip()) <= 32, f"{where} → title must be 1 to 32 characters")
+            story = victory.get("story") if isinstance(victory, dict) else None
+            check(isinstance(story, list) and 1 <= len(story) <= 3
+                  and all(isinstance(p, str) and 0 < len(p.strip()) <= 220 for p in story),
+                  f"{where} → story must be 1 to 3 paragraphs of up to 220 characters (it fits one card)")
 
 # Every monster can be met somewhere: on a map's encounter table, or standing there as a boss.
 met = {monster for m in maps.values() for monster in (m.get("encounters") or {}).get("monsters", {})}

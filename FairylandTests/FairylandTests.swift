@@ -428,6 +428,25 @@ struct RulesTests {
         #expect(alone.enemies.count == 1)
     }
 
+    #if DEBUG
+    @Test func bossesTellTheirStoryTheFirstTimeOnly() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let npc = try #require(Content.shared.boss(fighting: "rat_king"))
+        let victory = try #require(npc.victory)
+        let first = try #require(BattleController.boss(npc, session: session))
+        first.winForDebug()
+        #expect(first.result?.outcome == .victory)
+        #expect(first.result?.story?.title == victory.title)
+        #expect(first.result?.story?.paragraphs == victory.story)
+        // Beaten once, a rematch is just a fight (the story stays in the Monster Book).
+        session.defeatBoss(npc)
+        let rematch = try #require(BattleController.boss(npc, session: session))
+        rematch.winForDebug()
+        #expect(rematch.result?.outcome == .victory)
+        #expect(rematch.result?.story == nil)
+    }
+    #endif
+
     @Test func shopsBuyBackAndAdventurersTrade() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let potion = try #require(Content.shared.item("potion"))

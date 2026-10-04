@@ -3071,7 +3071,7 @@
       "name": "Rock Monster",
       "art": "boss_rock_monster",
       "element": "earth",
-      "lore": "A mountain of rock that woke up angry. It's the reason Sleepy Town can't sleep.",
+      "lore": "A mountain of rock that snores in the cave by Sleepy Town. Its snoring has kept the whole town dreaming for a year.",
       "base": {
         "hp": 295,
         "mp": 62,

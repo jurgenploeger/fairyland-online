@@ -12,6 +12,15 @@ struct BattleResult {
     var loot: [(id: String, count: Int)] = []
     /// How many levels the win was worth (the level-up banner adds up what they raised).
     var levelsGained = 0
+    /// A boss beaten for the first time: what it means, told before the pay.
+    var story: BossStory?
+}
+
+/// A boss's `victory` story (content/maps.json), with the boss to draw above it.
+struct BossStory {
+    let art: String
+    let title: String
+    let paragraphs: [String]
 }
 
 /// Runs one battle: turns the player's menu choices into engine actions, feeds the
@@ -43,6 +52,8 @@ final class BattleController {
     @ObservationIgnored private var pending: Pending?
     /// The adventurer you're duelling: beaten, they drop what they carry.
     @ObservationIgnored private var rival: Adventurer?
+    /// A boss you've never beaten: winning tells its story.
+    @ObservationIgnored private var story: BossStory?
 
     init(engine: BattleEngine, session: GameSession, intro: String? = nil) {
         self.engine = engine
@@ -166,6 +177,9 @@ final class BattleController {
         let intro = minions.isEmpty ? "\(species.name) blocks your way!" : "\(species.name) and its followers block your way!"
         let controller = BattleController(engine: engine, session: session, intro: intro)
         controller.music = "boss"
+        if !session.isDefeated(npc), let victory = npc.victory {
+            controller.story = BossStory(art: species.art, title: victory.title, paragraphs: victory.story)
+        }
         return controller
     }
 
@@ -563,7 +577,8 @@ final class BattleController {
         // The card shows a level-up as a banner of its own; its line goes to the log.
         let levelText = newLevel.map { levelLine($0) }
         result = BattleResult(outcome: outcome, lines: lines.filter { $0 != levelText }, newLevel: newLevel,
-                              exp: rewardEXP, gold: rewardGold, loot: found, levelsGained: levelsGained)
+                              exp: rewardEXP, gold: rewardGold, loot: found, levelsGained: levelsGained,
+                              story: outcome == .victory ? story : nil)
         let won = outcome == .victory || outcome == .fled
         // The log gets it all in words; the result card shows the pay as icons.
         var logged = lines

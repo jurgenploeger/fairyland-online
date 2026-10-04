@@ -21,7 +21,7 @@ import Foundation
 ///   hair=<id>      dye the hair this colour (content/appearance.json `hair`)
 ///   gender=<id>    male | female | other (picks the race's matching sheet)
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
-///   win            with battle or duel: the foes fall at once and the victory plays out
+///   win            with battle, duel or boss: the foes fall at once and the victory plays out
 ///   duel           start in a duel with an adventurer of your level (with win: their dropped goods)
 ///   boss=<npc>     once the map is on screen, fight that boss (as if you'd pressed Fight)
 ///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
@@ -204,6 +204,11 @@ enum DebugLaunch {
                     guard coordinator.isReady, coordinator.world.view != nil else { continue }
                     try? await Task.sleep(for: .seconds(1))
                     coordinator.fightBoss(npc)
+                    // With `win`: the boss and its minions fall, and the first win's story is told.
+                    if flags["win"] != nil, let battle = coordinator.battle {
+                        try? await Task.sleep(for: .seconds(2))
+                        battle.winForDebug()
+                    }
                     return
                 }
             }

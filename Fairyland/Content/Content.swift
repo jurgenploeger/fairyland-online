@@ -309,8 +309,16 @@ nonisolated struct NPCDef: Decodable, Identifiable, Sendable {
     let monster: String?
     let level: Int?
     let minions: Int?
+    /// Bosses: what beating it means, told the first time you win (and kept in the Monster Book).
+    let victory: Victory?
     /// Offers rebirth once you're strong enough (Elder Oak).
     let rebirth: Bool?
+
+    nonisolated struct Victory: Decodable, Sendable {
+        let title: String
+        /// A few short paragraphs, shown one after another.
+        let story: [String]
+    }
 }
 
 nonisolated struct MapDef: Decodable, Identifiable, Sendable {
@@ -718,6 +726,11 @@ final class Content {
 
     func npc(_ id: String) -> NPCDef? {
         maps.lazy.compactMap { $0.npcs?.first { $0.id == id } }.first
+    }
+
+    /// The boss that fights as this monster, if it's one.
+    func boss(fighting monsterID: String) -> NPCDef? {
+        maps.lazy.compactMap { $0.npcs?.first { $0.role == .boss && $0.monster == monsterID } }.first
     }
 
     /// The map a character lives on.
