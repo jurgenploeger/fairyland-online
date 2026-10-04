@@ -251,13 +251,13 @@ final class BattleController {
                              level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp,
                              skills: species.skills, captureRate: 0)
         boss.wave = count
-        var final = monsters(followers, wave: count)
+        var lastWave = monsters(followers, wave: count)
         // The battle stands a side in rows of five, the last one nearest you: the boss takes the
         // middle of that row.
-        let total = final.count + 1
+        let total = lastWave.count + 1
         let frontRow = (total - 1) / 5 * 5
-        final.insert(boss, at: frontRow + (total - frontRow) / 2)
-        waves.append(final)
+        lastWave.insert(boss, at: frontRow + (total - frontRow) / 2)
+        waves.append(lastWave)
         return waves
     }
 

@@ -11,7 +11,7 @@ final class Lighting {
     private var flare: [(node: SKSpriteNode, size: CGFloat, along: CGFloat)] = []
     private var haze: SKSpriteNode?
     /// The sunbeams and the sun's flare, faded together at night and under cloud (`Sky.sunlight`).
-    private let beams = SKNode()
+    private let beamLayer = SKNode()
     private let sunGlow = SKNode()
     private let foreground = SKNode()
     /// Foreground scenery moves this much faster than the world.
@@ -19,7 +19,7 @@ final class Lighting {
 
     init(_ def: MapDef.Ambience?, world: SKNode, camera: SKCameraNode, bounds: CGRect, seed: String) {
         var rng = SeededRandom(text: seed + "/light")
-        world.addChild(beams)
+        world.addChild(beamLayer)
         camera.addChild(sunGlow)
 
         if let patches = def?.lightPatches, let color = UIColor(hex: patches.color) {
@@ -51,7 +51,7 @@ final class Lighting {
                     .fadeAlpha(to: alpha, duration: duration), .wait(forDuration: duration), .fadeAlpha(to: alpha * 0.2, duration: duration),
                 ])
                 node.run(.sequence([.wait(forDuration: wait), .repeatForever(shimmer)]))
-                beams.addChild(node)
+                beamLayer.addChild(node)
             }
         }
 
@@ -112,9 +112,9 @@ final class Lighting {
 
     /// How much the sun shines, 0...1: its flare and the sunbeams fade with it.
     func sunlight(_ amount: CGFloat) {
-        beams.alpha = amount
+        beamLayer.alpha = amount
         sunGlow.alpha = amount
-        beams.isHidden = amount <= 0.01
+        beamLayer.isHidden = amount <= 0.01
         sunGlow.isHidden = amount <= 0.01
     }
 
