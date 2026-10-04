@@ -296,7 +296,14 @@ private struct QuestGiverPanel: View {
                             session.save()
                             reply = "Thank you! You've been a great help."
                             let reached = session.data.hero.level
-                            finished = FinishedQuest(quest: quest, newLevel: reached > level ? reached : nil)
+                            finished = FinishedQuest(quest: quest, newLevel: reached > level ? reached : nil, levelsGained: reached - level)
+                            if reached > level {
+                                // The level-up jingle after the quest's own little fanfare.
+                                Task {
+                                    try? await Task.sleep(for: .milliseconds(600))
+                                    SoundEffects.shared.play(.levelUp)
+                                }
+                            }
                         }
                         .buttonStyle(PixelButtonStyle(tint: HUDStyle.green, compact: true))
                     default:
@@ -388,11 +395,12 @@ private struct BossPanel: View {
 struct FinishedQuest {
     let quest: QuestDef
     let newLevel: Int?
+    var levelsGained = 0
 }
 
 /// "Quest complete!": what the quest paid, laid out like the victory card after a battle (EXP with
-/// a star, gold with coins, items as tiles), then new looks and roads. A level-up follows with the
-/// skill card, as after a battle.
+/// a star, gold with coins, the level-up banner, items as tiles), then new looks and roads. A
+/// level-up follows with the skill card, as after a battle.
 private struct QuestCompleteCard: View {
     let session: GameSession
     let finished: FinishedQuest
@@ -460,6 +468,29 @@ private struct QuestCompleteCard: View {
                     .foregroundStyle(HUDStyle.cream)
                     .multilineTextAlignment(.center)
             }
+            // Scrolls only when it can't all fit (a phone on its side after a big quest).
+            ViewThatFits(in: .vertical) {
+                rewards
+                ScrollView { rewards }
+                    .scrollBounceBehavior(.basedOnSize)
+            }
+            Button("Continue", action: advance)
+                .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
+                .padding(.top, 6)
+        }
+        .padding(22)
+        .frame(maxWidth: 420)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(HUDStyle.ink.opacity(0.92))
+                .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(HUDStyle.gold.opacity(0.9), lineWidth: 2))
+        )
+        .padding(20)
+    }
+
+    /// EXP and gold, the level-up, items, then new looks and roads.
+    private var rewards: some View {
+        VStack(spacing: 10) {
             let gold = quest.reward.gold ?? 0
             let exp = quest.reward.exp ?? 0
             if gold > 0 || exp > 0 {
@@ -477,6 +508,9 @@ private struct QuestCompleteCard: View {
                 }
                 .font(HUDStyle.font(16))
                 .foregroundStyle(HUDStyle.cream)
+            }
+            if let level = finished.newLevel {
+                LevelUpBanner(level: level, gains: session.heroClass.growth * finished.levelsGained)
             }
             if !loot.isEmpty {
                 LootGrid(loot: loot, title: "Got")
@@ -502,22 +536,6 @@ private struct QuestCompleteCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(RoundedRectangle(cornerRadius: 12).fill(.white.opacity(0.06)))
             }
-            if let level = finished.newLevel {
-                Text("Level up! You're now level \(level).")
-                    .font(HUDStyle.font(13))
-                    .foregroundStyle(HUDStyle.gold)
-            }
-            Button("Continue", action: advance)
-                .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
-                .padding(.top, 6)
         }
-        .padding(22)
-        .frame(maxWidth: 420)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(HUDStyle.ink.opacity(0.92))
-                .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(HUDStyle.gold.opacity(0.9), lineWidth: 2))
-        )
-        .padding(20)
     }
 }

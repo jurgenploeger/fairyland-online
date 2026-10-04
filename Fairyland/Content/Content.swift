@@ -608,6 +608,9 @@ nonisolated struct HairStyle: Decodable, Identifiable, Sendable {
 nonisolated struct AppearanceOptions: Decodable, Sendable {
     let genders: [GenderOption]
     let styles: [HairStyle]
+    /// The window a hair preset's rules widen to on the hero's hair and locks layers, which hold
+    /// nothing but hair (only `hue`, the saturations and the values are read).
+    let hairLayer: RecolorRule?
     let hair: [LookPreset]
     let outfits: [LookPreset]
     let skin: [LookPreset]

@@ -72,6 +72,8 @@ final class BattleScene: SKScene {
     // MARK: - Layout
 
     private var isPortrait: Bool { size.height > size.width }
+    /// How far a portrait line climbs for each point it runs right (26 up for 108 across).
+    private static let portraitSlope: CGFloat = 26.0 / 108.0
 
     private func layout() {
         guard size.width > 1, size.height > 1 else { return }
@@ -116,18 +118,18 @@ final class BattleScene: SKScene {
             let half = spacing * CGFloat(group.count - 1) / 2
             center.x = min(max(center.x, 50 + half), size.width - 50 - half)
         }
+        // Each fighter stands a step up from the last, at the same angle on both sides however
+        // many stand in a line (a fixed step tilted a packed line of five more than a line of two).
+        let rise = isPortrait ? spacing * Self.portraitSlope : -76
         // Only your party needs lifting clear of the command wheel; monsters stay where they are
         // so a long line (and a second row behind it) doesn't climb off the top.
         if isPortrait, group.count > 1, facing == .up {
-            // The line steps up to the right, across the way the sides face; lift it so its lowest
-            // fighter stands where one alone would, clear of the command wheel.
-            center.y += 13 * CGFloat(group.count - 1)
+            // Its lowest fighter stands where one alone would.
+            center.y += rise * CGFloat(group.count - 1) / 2
         }
         for (index, fighter) in group.enumerated() {
             let offset = CGFloat(index) - CGFloat(group.count - 1) / 2
-            let point = isPortrait
-                ? CGPoint(x: center.x + offset * spacing, y: center.y + offset * 26)
-                : CGPoint(x: center.x + offset * spacing, y: center.y - offset * 76)
+            let point = CGPoint(x: center.x + offset * spacing, y: center.y + offset * rise)
             actors[fighter.id]?.place(at: point, facing: facing)
         }
     }
@@ -660,6 +662,41 @@ final class BattleScene: SKScene {
         dim.removeFromParent()
     }
 
+    /// The hero levelled up with the win: light pours down on them in a burst of gold, "LEVEL UP!"
+    /// fills the field, and their bars fill up (a new level restores HP and MP, so a hero who
+    /// fell gets back up for it).
+    func celebrateLevelUp(to level: Int) {
+        guard let id = controller.hero?.id, let hero = actors[id] else { return }
+        let gold = Nodes.gold
+        hero.run(.group([.fadeIn(withDuration: 0.4), .move(to: hero.home, duration: 0.4)]), withKey: "revive")
+        hero.setHealth(1, mana: 1)
+        SkillEffects.screenFlash(color: gold, strength: 0.3, size: size, in: self)
+        SkillEffects.lightPillar(on: hero, level: 5, in: stage)
+        SkillEffects.glory(on: hero, color: gold, level: 5, in: stage)
+        SkillEffects.burst(at: hero.center, color: gold, count: 24, speed: 130, in: stage)
+        hero.sprite.run(.sequence([.moveBy(x: 0, y: 18, duration: 0.16), .moveBy(x: 0, y: -18, duration: 0.2)]), withKey: "cheer")
+
+        let banner = SKNode()
+        banner.position = CGPoint(x: size.width / 2, y: size.height * 0.58)
+        banner.zPosition = 31_000
+        let title = NameTag("LEVEL UP!", color: gold, size: 36, alignment: .center)
+        let subtitle = NameTag("Level \(level)", color: .white, size: 18, alignment: .center)
+        subtitle.position.y = -36
+        banner.addChild(title)
+        banner.addChild(subtitle)
+        banner.setScale(0.3)
+        banner.alpha = 0
+        addChild(banner)
+        SkillEffects.rays(at: banner.position, color: gold, count: 14, length: 150, width: 10, z: 30_900, in: self)
+        banner.run(.sequence([
+            .group([.fadeIn(withDuration: 0.12), .scale(to: 1.2, duration: 0.2)]),
+            .scale(to: 1, duration: 0.12),
+            .wait(forDuration: 1),
+            .group([.fadeOut(withDuration: 0.3), .moveBy(x: 0, y: 24, duration: 0.3)]),
+            .removeFromParent(),
+        ]))
+    }
+
     private func refreshBars() {
         for fighter in controller.combatants {
             actors[fighter.id]?.setHealth(fighter.hpFraction, mana: fighter.mpFraction)
@@ -688,7 +725,10 @@ final class BattleActor: SKNode {
         sprite.anchorPoint = CGPoint(x: 0.5, y: 0.05)
         // Everyone with MP shows it in a blue bar under their HP.
         bar = HealthBar(width: 44, level: fighter.level, mana: fighter.stats.mp > 0)
-        ring = SKShapeNode(ellipseOf: CGSize(width: max(64, size.width * 0.85), height: 26))
+        // Every ground circle is seen from the same angle: its height keeps to its width, so a
+        // wide hero's circle isn't flatter than a monster's.
+        let ringWidth = max(64, size.width * 0.85)
+        ring = SKShapeNode(ellipseOf: CGSize(width: ringWidth, height: ringWidth * Self.ringAspect))
         super.init()
         ring.strokeColor = UIColor(white: 1, alpha: 0.55)
         ring.lineWidth = 2
@@ -718,6 +758,8 @@ final class BattleActor: SKNode {
     /// Just over the head (the turn arrow points down at it).
     private(set) var nameHeight: CGFloat = 0
     private static let nameGap: CGFloat = 4
+    /// A ground circle's height for its width (a monster's 68-wide circle stays 26 tall).
+    private static let ringAspect: CGFloat = 26.0 / 68.0
 
     /// The share of `texture`'s height that's empty above the art.
     private static func emptyTop(of texture: SKTexture?) -> CGFloat {

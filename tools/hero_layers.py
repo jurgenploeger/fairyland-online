@@ -2,12 +2,16 @@
 """Splits each race's walk sheets into paper-doll layers, like Fairyland Online dressed its heroes:
 
     art/sprites/body_<race>.png          the body, bald (the hair taken off, the scalp drawn in)
+    art/sprites/locks_<race>.png         hair that stays with the body whatever the style: a lock
+                                         over the shoulder, a beard (copied, so the body stays whole)
     art/sprites/hair_<style>_<race>.png  every hairstyle, fitted to every race's head
     art/sprites/hood_<race>.png          a hood and a helmet sized to the bare head; the game
     art/sprites/helmet_<race>.png        colours them like the armour (see MARKERS below)
 
-The game stacks body + hair (or body + hood/helmet: no hair pokes through) and then recolours
-skin, hair and outfit exactly as before. A gender with its own sheet (classes.json `sheets`) gets
+The game stacks body + locks + hair (or body + locks + hood/helmet: no hair pokes through). The
+body is recoloured like the whole sheet used to be (skin, hair, outfit); the locks and hair layers
+hold nothing but hair, so the hair colour reaches every shade of them (appearance.json
+`hairLayer`). A gender with its own sheet (classes.json `sheets`) gets
 the same set with a _<gender> suffix (body_elf_male.png, ...). Rerun after changing a walk sheet:
 
     python3 tools/hero_layers.py            # writes the PNGs
@@ -41,6 +45,8 @@ MARK_HUE = 300 / 360
 # Sheets whose hair rises well above the skull (a bun): the top of the head is the first row with
 # this many hair pixels instead of four, so the bald scalp sits on the real head, not the bun.
 TUFTS = {"human_female_walk": 8}
+# Locks are looked for down to this many rows below the brow (over the shoulders, not the belt).
+LOCK_DEPTH = 14
 
 
 def hsv(p):
@@ -79,6 +85,20 @@ def hairish(p):
         return False
     h, s, v = hsv(p)
     return 5 <= h * 360 <= 62 and s >= 0.3 and v >= 0.2
+
+
+def lockish(p):
+    """Any shade of hair: gold to deep red, highlight to shadow. Bright reds only when strong (an
+    auburn highlight), so pink ears and cheeks stay skin."""
+    if not opaque(p) or is_skin(p):
+        return False
+    h, s, v = hsv(p)
+    h *= 360
+    if 5 <= h <= 62:
+        return s >= 0.3 and v >= 0.12
+    if h >= 345 or h < 5:
+        return s >= (0.6 if v >= 0.6 else 0.4) and v >= 0.12
+    return False
 
 
 def dark(p):
@@ -178,6 +198,7 @@ class Race:
         self.heads = {}
         self.body = self.sheet.copy()
         self.hair = np.zeros_like(self.sheet)
+        self.locks = np.zeros_like(self.sheet)
         for row, facing in enumerate(DIRS):
             for col in range(self.sheet.shape[1] // F):
                 self._split(row, col, facing)
@@ -226,6 +247,28 @@ class Race:
             body[:max(0, int(head.cy - head.ry) - 1)] = 0
         self._scalp(body, head)
         self._patch(body, head, take, row, col)
+        self._locks(f, body, head, take, row, col)
+
+    def _locks(self, f, body, head, taken, row, col):
+        """Hair the body keeps (a lock over the shoulder, a beard): every hair-coloured pixel still
+        joined to the hair that came off, down to the shoulders. Copied, not cut, so the body
+        stays whole; the game draws them over it in the hair colour."""
+        candidate = np.zeros((F, F), bool)
+        for y in range(min(F, head.brow + LOCK_DEPTH + 1)):
+            for x in range(F):
+                candidate[y, x] = lockish(f[y, x]) and np.array_equal(body[y, x], f[y, x])
+        seeds = [(y, x) for y, x in zip(*np.nonzero(candidate)) if any(taken[q] for q in neighbours8(y, x))]
+        locks = np.zeros((F, F), bool)
+        stack = list(seeds)
+        for y, x in stack:
+            locks[y, x] = True
+        while stack:
+            y, x = stack.pop()
+            for q in neighbours8(y, x):
+                if candidate[q] and not locks[q]:
+                    locks[q] = True
+                    stack.append(q)
+        frame(self.locks, row, col)[locks] = f[locks]
 
     def _scalp(self, body, head):
         """Draws the bare skull round the face, shaded, with an outline, and joins the ears to it."""
@@ -410,6 +453,7 @@ def build():
     layers = {}
     for rid, race in races.items():
         layers[f"body_{rid}"] = race.body
+        layers[f"locks_{rid}"] = race.locks
         layers[f"hood_{rid}"] = headgear(race, "hood")
         layers[f"helmet_{rid}"] = headgear(race, "helmet")
         for style, source in STYLES.items():
@@ -443,7 +487,8 @@ def main():
     sheet = Image.new("RGB", (len(combos) * 4 * F * zoom, len(races) * F * zoom), (80, 130, 80))
     for r, (rid, race) in enumerate(races.items()):
         for k, (name, style) in enumerate(combos):
-            img = layers[f"body_{rid}"] if name == "body" else stack(layers[f"body_{rid}"], layers[f"{name}_{rid}"])
+            under = (layers[f"body_{rid}"], layers[f"locks_{rid}"])
+            img = stack(*under) if name == "body" else stack(*under, layers[f"{name}_{rid}"])
             im = to_image(img)
             for c, row in enumerate((2, 1, 0, 3)):
                 fr = im.crop((0, row * F, F, row * F + F)).resize((F * zoom, F * zoom), Image.NEAREST)

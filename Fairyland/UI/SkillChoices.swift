@@ -17,6 +17,11 @@ struct SkillChoices: View {
     }
 }
 
+/// "Bash (12 MP)": a skill's name with what it costs.
+private func skillTitle(_ skill: SkillDef, mp: Int) -> Text {
+    Text(skill.name) + Text(" (\(mp) MP)").foregroundStyle(HUDStyle.mp)
+}
+
 /// A skill your class just unlocked: learn it for a point.
 struct LearnSkillRow: View {
     let session: GameSession
@@ -27,7 +32,7 @@ struct LearnSkillRow: View {
             SkillIcon(skill: skill, size: 36)
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
-                    Text(skill.name)
+                    skillTitle(skill, mp: GameSession.mpCost(of: skill, level: 1))
                     Text("NEW")
                         .font(HUDStyle.font(9))
                         .foregroundStyle(HUDStyle.ink)
@@ -43,7 +48,6 @@ struct LearnSkillRow: View {
                 }
             }
             Spacer()
-            Text("\(GameSession.mpCost(of: skill, level: 1)) MP").foregroundStyle(HUDStyle.mp)
             Button("Learn") { session.learnSkill(skill.id) }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                 .disabled(session.unspentSkillPoints == 0)
@@ -65,18 +69,17 @@ struct SkillRow: View {
             SkillIcon(skill: skill, size: 36)
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
-                    Text(skill.name)
+                    skillTitle(skill, mp: GameSession.mpCost(of: skill, level: level))
                     if let element = skill.element {
                         ElementBadge(element: element)
                     }
                 }
-                SkillGauge(level: level)
                 if let description = skill.description {
                     Text(description).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                 }
             }
             Spacer()
-            Text("\(GameSession.mpCost(of: skill, level: level)) MP").foregroundStyle(HUDStyle.mp)
+            SkillGauge(level: level)
             // Field spells are cast from here, outside battle.
             if skill.kind == .field, let cast = session.onCastField {
                 let affordable = session.data.hero.mp >= GameSession.mpCost(of: skill, level: level)
@@ -144,7 +147,8 @@ struct LevelUpCard: View {
 }
 
 /// A skill's progress to mastery: ten segments in a little bar that fill as you raise it, warming
-/// from bronze through silver to gold, and glowing in rainbow colours once mastered.
+/// from bronze through silver to gold, and glowing in rainbow colours once mastered. Its level
+/// sits under it, so the bar fits at the end of a skill's row.
 struct SkillGauge: View {
     let level: Int
 
@@ -164,7 +168,7 @@ struct SkillGauge: View {
                                   Color(red: 0.75, green: 0.55, blue: 1)]
 
     var body: some View {
-        HStack(spacing: 6) {
+        VStack(alignment: .trailing, spacing: 3) {
             HStack(spacing: 1.5) {
                 ForEach(1...GameSession.maxSkillLevel, id: \.self) { step in
                     RoundedRectangle(cornerRadius: 1.5)

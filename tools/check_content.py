@@ -68,7 +68,7 @@ for race in classes["races"]:
     # The paper-doll layers the hero is stacked from (GameSession.layers): one set per walk sheet,
     # the race's own plus one for each gender with its own sheet.
     for body in [race["id"]] + [f"{race['id']}_{gender}" for gender in (race.get("sheets") or {})]:
-        layers = [f"body_{body}", f"hood_{body}", f"helmet_{body}"] + [f"hair_{style}_{body}" for style in styles]
+        layers = [f"body_{body}", f"locks_{body}", f"hood_{body}", f"helmet_{body}"] + [f"hair_{style}_{body}" for style in styles]
         for layer in layers:
             check((ROOT / "art" / "sprites" / f"{layer}.png").exists(),
                   f"race {race['id']} → art/sprites/{layer}.png is missing (python3 tools/hero_layers.py)")
@@ -272,6 +272,15 @@ for kind in ("hair", "outfits", "skin"):
     for preset in appearance[kind]:
         if "unlock" in preset:
             check(preset["unlock"] in quests, f"look {preset['id']} → unknown quest {preset['unlock']}")
+# The window hair colours widen to on the hero's hair and locks layers (GameSession.hairLayerRules).
+window = appearance.get("hairLayer")
+if window is not None:
+    hue = window.get("hue")
+    check(set(window) <= {"hue", "minSaturation", "maxSaturation", "minValue", "maxValue"},
+          f"appearance hairLayer → only a window (hue, saturations, values): {set(window)}")
+    check(hue is None or (isinstance(hue, list) and len(hue) == 2 and all(0 <= h <= 360 for h in hue)),
+          "appearance hairLayer → hue must be [from, to] in degrees")
+    check(all(0 <= window[k] <= 1 for k in window if k != "hue"), "appearance hairLayer → saturations and values are 0...1")
 
 # Road routes: hubs, exit waypoints and trails stay inside the map (offsets from the centre, y north).
 for map_def in maps.values():

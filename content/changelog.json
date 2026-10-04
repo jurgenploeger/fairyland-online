@@ -2,6 +2,20 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.11",
+      "date": "2026-10-03",
+      "title": "Every hair",
+      "notes": [
+        "Dyeing your hair now colours all of it. The darker and redder strands at the edges kept their ginger before, and so did much of an elf's long hair; now every shade takes the new colour.",
+        "Hair that falls over the shoulders, side locks and beards (a female dwarf's long hair, a male elf's beard) take the colour too.",
+        "Changing your gear: Unequip now sits beside the item you're wearing, Done closes the list from below it, and the items to choose from line up with the one you're wearing.",
+        "Skills on the Character screen show their MP after the name, like Bash (12 MP), with the mastery bar at the right end of the row.",
+        "The coins next to your gold on the calendar plate are easy to see: a deeper gold with a dark edge, as big as the sun and moon.",
+        "In battle every ground circle is seen from the same angle (heroes stood on flatter circles than monsters), and both sides line up at the same slope however many fight on each side.",
+        "Levelling up is a big moment now: light pours down on your hero and LEVEL UP! fills the battlefield with the jingle, then the victory card (and the quest card) shows your new level on a gold medal with the stats it raised."
+      ]
+    },
+    {
       "version": "0.3.10",
       "date": "2026-10-03",
       "title": "Rare finds",

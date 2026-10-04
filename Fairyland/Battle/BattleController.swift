@@ -10,6 +10,8 @@ struct BattleResult {
     var exp = 0
     var gold = 0
     var loot: [(id: String, count: Int)] = []
+    /// How many levels the win was worth (the level-up banner adds up what they raised).
+    var levelsGained = 0
 }
 
 /// Runs one battle: turns the player's menu choices into engine actions, feeds the
@@ -182,6 +184,7 @@ final class BattleController {
 
     /// Set when the hero levels up during the victory payout.
     private var newLevel: Int?
+    private var levelsGained = 0
     private var rewardEXP = 0
     private var rewardGold = 0
     /// Item id → how many were found after a win.
@@ -445,7 +448,10 @@ final class BattleController {
 
     private func finish(_ outcome: BattleOutcome, lines: [String]) {
         let found = loot.sorted { $0.key < $1.key }.map { (id: $0.key, count: $0.value) }
-        result = BattleResult(outcome: outcome, lines: lines, newLevel: newLevel, exp: rewardEXP, gold: rewardGold, loot: found)
+        // The card shows a level-up as a banner of its own; its line goes to the log.
+        let levelText = newLevel.map { levelLine($0) }
+        result = BattleResult(outcome: outcome, lines: lines.filter { $0 != levelText }, newLevel: newLevel,
+                              exp: rewardEXP, gold: rewardGold, loot: found, levelsGained: levelsGained)
         let won = outcome == .victory || outcome == .fled
         // The log gets it all in words; the result card shows the pay as icons.
         var logged = lines
@@ -455,18 +461,45 @@ final class BattleController {
             logged.append(item.count > 1 ? "Found \(name) ×\(item.count)!" : "Found \(name)!")
         }
         for line in logged { session.post(line, won ? .reward : .battle) }
-        phase = .finished
         MusicPlayer.shared.play(won ? "victory" : nil)
         if outcome == .defeat { SoundEffects.shared.play(.lose) }
-        if newLevel != nil {
-            // After the first notes of the victory fanfare.
-            Task {
-                try? await Task.sleep(for: .milliseconds(700))
-                SoundEffects.shared.play(.levelUp)
-                Haptics.success()
-            }
+        guard let newLevel else {
+            phase = .finished
+            return
+        }
+        // A level-up gets its own moment on the field before the card: after the first notes of
+        // the victory fanfare, light pours down on the hero with the level-up jingle.
+        message = levelLine(newLevel)
+        Task {
+            try? await Task.sleep(for: .milliseconds(450))
+            scene?.celebrateLevelUp(to: newLevel)
+            SoundEffects.shared.play(.levelUp)
+            Haptics.success()
+            if scene != nil { try? await Task.sleep(for: .milliseconds(1500)) }
+            phase = .finished
         }
     }
+
+    private func levelLine(_ level: Int) -> String {
+        "\(session.data.hero.name) reached level \(level)!"
+    }
+
+    #if DEBUG
+    /// Debug launches (`win`): every monster falls at once, and the win plays out as usual.
+    func winForDebug() {
+        guard phase == .command else { return }
+        phase = .animating
+        let events = engine.defeatEnemiesForDebug()
+        Task {
+            if let scene {
+                await scene.play(events)
+            } else {
+                for event in events { apply(event) }
+            }
+            roundFinished()
+        }
+    }
+    #endif
 
     /// Writes battle damage back to the hero and companion.
     private func syncParty() {
@@ -511,9 +544,11 @@ final class BattleController {
         session.growParty()
 
         let learnableBefore = Set(session.learnableSkills.map(\.id))
-        if session.gainHeroEXP(exp) > 0 {
+        let levels = session.gainHeroEXP(exp)
+        if levels > 0 {
             newLevel = session.data.hero.level
-            lines.append("\(session.data.hero.name) reached level \(session.data.hero.level)!")
+            levelsGained = levels
+            lines.append(levelLine(session.data.hero.level))
             for skill in session.learnableSkills where !learnableBefore.contains(skill.id) {
                 lines.append("New skill to learn: \(skill.name)!")
             }

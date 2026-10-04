@@ -1,5 +1,5 @@
 {
-  "_about": "Look customisation for the hero. Each preset is a palette swap (recolor rules, same format as `derive` in art/assets.json) applied to the hero's walk sheet. Companions keep their species' colours. `swatch` is the colour shown in the picker. The first preset in each list is the default. `unlock` names a quest that has to be finished before the look can be picked. `genders` pick which of a race's walk sheets you use (classes.json `sheets`). `styles` are hairstyles: art/sprites/hair_<style>_<race>.png (or hair_<style>_<race>_<gender>.png for a gender's own sheet), drawn over the bald body_<race>.png (tools/hero_layers.py makes both). Each race starts with its own (`hair` in classes.json); any style fits any race.",
+  "_about": "Look customisation for the hero. Each preset is a palette swap (recolor rules, same format as `derive` in art/assets.json) applied to the hero's walk sheet. Companions keep their species' colours. `swatch` is the colour shown in the picker. The first preset in each list is the default. `unlock` names a quest that has to be finished before the look can be picked. `genders` pick which of a race's walk sheets you use (classes.json `sheets`). `styles` are hairstyles: art/sprites/hair_<style>_<race>.png (or hair_<style>_<race>_<gender>.png for a gender's own sheet), drawn over the bald body_<race>.png (tools/hero_layers.py makes both). Each race starts with its own (`hair` in classes.json); any style fits any race. A hair preset's `recolor` only reaches the bright ginger when it recolours a whole sheet (other adventurers, and the hero's body layer). The hero's locks_<race>.png and hair layers hold nothing but hair, so there the preset's window widens to `hairLayer`: every shade of the ginger, from the deep red shadows to the pale tips, takes the new colour.",
   "genders": [
     { "id": "male", "name": "Male" },
     { "id": "female", "name": "Female" },
@@ -10,6 +10,7 @@
     { "id": "long", "name": "Long" },
     { "id": "crop", "name": "Crop" }
   ],
+  "hairLayer": { "hue": [340, 70], "minSaturation": 0.3, "minValue": 0.12 },
   "hair": [
     { "id": "ginger", "name": "Ginger", "swatch": "#EB871E", "recolor": [] },
     { "id": "blonde", "name": "Blonde", "swatch": "#F7D774", "recolor": [{ "hue": [12, 58], "minSaturation": 0.55, "minValue": 0.55, "to": 48, "saturation": 0.6, "value": 1.12 }] },

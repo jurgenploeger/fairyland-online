@@ -5,15 +5,21 @@ import Foundation
 ///
 ///   newgame        skip the title screen with a fresh hero
 ///   level=5        start at a level
+///   levelup        start one EXP short of the next level
 ///   hp=0.2         start with this fraction of HP left
 ///   map=<id>       start on a map from content/maps.json
 ///   at=x_y         start at this offset from the map's centre (e.g. at=0_14)
 ///   equip=a+b      start wearing these items (ids from content/items.json, joined with +)
+///   bag=a+b        put these items in the bag
+///   change=<slot>  open the Character tab's list for weapon | armor | accessory (with menu=character)
 ///   race=<id>      play this race (content/classes.json)
 ///   style=<id>     wear this hairstyle (content/appearance.json `styles`)
+///   hair=<id>      dye the hair this colour (content/appearance.json `hair`)
 ///   gender=<id>    male | female | other (picks the race's matching sheet)
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
+///   win            with battle: the monsters fall at once and the victory plays out
 ///   menu=<tab>     open character | companions | bag | quests
+///   bottom         open the menu scrolled to the end
 ///   npc=<id>       open an NPC dialog
 ///   worldmap       open the world map
 ///   book           open the Monster Book, with the first 24 monsters already met
@@ -48,6 +54,9 @@ enum DebugLaunch {
     }
     static var showsCoachMarks: Bool { flags["coach"] != nil }
     static var opensMonsterBook: Bool { flags["book"] != nil }
+    /// `change=armor`: the Character tab opens with that slot's list of things to wear.
+    static var changingSlot: ItemType? { flags["change"].flatMap(ItemType.init(rawValue:)) }
+    static var opensMenuAtBottom: Bool { flags["bottom"] != nil }
     /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).
     static var introPage: Int? { flags["intro"].map { Int($0).map { $0 - 1 } ?? 0 } }
 
@@ -59,6 +68,9 @@ enum DebugLaunch {
         if let level = flags["level"].flatMap(Int.init), level > 1 {
             session.data.hero.level = level
             session.restoreHero()
+        }
+        if flags["levelup"] != nil {
+            session.data.hero.exp = GameSession.expToNext(level: session.data.hero.level) - 1
         }
         if let fraction = flags["hp"].flatMap(Double.init) {
             session.data.hero.hp = max(1, Int(Double(session.heroStats.hp) * fraction))
@@ -76,6 +88,9 @@ enum DebugLaunch {
                 session.data.hero.equipment[item.type] = id
             }
         }
+        for id in flags["bag"]?.split(separator: "+").map(String.init) ?? [] where Content.shared.item(id) != nil {
+            session.addItem(id)
+        }
         if let style = flags["style"] {
             var look = session.data.hero.look ?? .standard
             look.style = style
@@ -84,6 +99,11 @@ enum DebugLaunch {
         if let gender = flags["gender"] {
             var look = session.data.hero.look ?? .standard
             look.gender = gender
+            session.data.hero.look = look
+        }
+        if let hair = flags["hair"] {
+            var look = session.data.hero.look ?? .standard
+            look.hair = hair
             session.data.hero.look = look
         }
         session.applyLook()
@@ -120,6 +140,15 @@ enum DebugLaunch {
             } else if let encounters {
                 coordinator.startBattle(encounters)
             }
+            #if DEBUG
+            // `win`: once everyone has marched in, the monsters fall and the victory plays out.
+            if flags["win"] != nil, let battle = coordinator.battle {
+                Task {
+                    try? await Task.sleep(for: .seconds(2))
+                    battle.winForDebug()
+                }
+            }
+            #endif
         }
         if let tab = flags["menu"].flatMap({ MenuTab(rawValue: $0.capitalized) }) {
             coordinator.open(.menu(tab))

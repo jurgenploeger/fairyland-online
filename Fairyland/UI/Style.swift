@@ -6,6 +6,8 @@ import SwiftUI
 enum HUDStyle {
     static let cream = Color(red: 1, green: 0.97, blue: 0.88)
     static let gold = Color(red: 1, green: 0.84, blue: 0.28)
+    /// Coins on the tan plates, where `gold` all but disappears.
+    static let coin = Color(red: 0.93, green: 0.6, blue: 0.08)
     static let nameYellow = Color(red: 1, green: 0.95, blue: 0.35)
     static let hp = Color(red: 0.93, green: 0.22, blue: 0.2)
     static let mp = Color(red: 0.24, green: 0.52, blue: 0.95)

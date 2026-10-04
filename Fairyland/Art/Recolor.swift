@@ -30,6 +30,13 @@ nonisolated struct RecolorRule: Decodable, Sendable {
         guard let range = hue, range.count == 2 else { return true }
         return range[0] <= range[1] ? (h >= range[0] && h <= range[1]) : (h >= range[0] || h <= range[1])
     }
+
+    /// The same change, made wherever `window` matches (its hue, saturations and values) instead.
+    func within(_ window: RecolorRule) -> RecolorRule {
+        RecolorRule(hue: window.hue, minSaturation: window.minSaturation, maxSaturation: window.maxSaturation,
+                    minValue: window.minValue, maxValue: window.maxValue,
+                    to: to, shift: shift, saturation: saturation, value: value)
+    }
 }
 
 /// A map's colour mood (`theme.palette` in content/maps.json), applied to its ground, scenery and

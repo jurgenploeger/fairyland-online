@@ -51,6 +51,8 @@ struct MenuView: View {
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                // Debug `bottom`: opens at the end of the page (screenshots of the skills).
+                .defaultScrollAnchor(DebugLaunch.opensMenuAtBottom ? .bottom : nil)
             }
             .frame(maxWidth: 760)
             .background(HUDStyle.panel)
@@ -94,7 +96,7 @@ private struct SectionTitle: View {
 
 private struct CharacterTab: View {
     let session: GameSession
-    @State private var changingSlot: ItemType?
+    @State private var changingSlot: ItemType? = DebugLaunch.changingSlot
     @State private var editing = false
     @State private var draftName = ""
     @State private var draftLook = Look.standard
@@ -245,16 +247,20 @@ private struct EquipmentRow: View {
     let isChanging: Bool
     let toggle: () -> Void
 
+    private static let labelWidth: CGFloat = 80
+    private static let spacing: CGFloat = 8
+    private static let iconSize: CGFloat = 30
+
     var body: some View {
         let equipped = session.data.hero.equipment[slot].flatMap { session.content.item($0) }
         let options = session.bagEquipment.filter { $0.type == slot }
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
+            HStack(spacing: Self.spacing) {
                 Text(slot.displayName)
                     .foregroundStyle(HUDStyle.dim)
-                    .frame(width: 80, alignment: .leading)
+                    .frame(width: Self.labelWidth, alignment: .leading)
                 if let equipped {
-                    ItemIcon(item: equipped, size: 30)
+                    ItemIcon(item: equipped, size: Self.iconSize)
                 }
                 VStack(alignment: .leading, spacing: 1) {
                     Text(equipped?.name ?? "—")
@@ -263,17 +269,24 @@ private struct EquipmentRow: View {
                     }
                 }
                 Spacer()
-                if !options.isEmpty || equipped != nil {
-                    Button(isChanging ? "Done" : "Change", action: toggle)
+                if isChanging {
+                    // Unequip sits beside the item it takes off; Done closes the list from below.
+                    if equipped != nil {
+                        Button("Unequip") { session.unequip(slot) }
+                            .buttonStyle(PixelButtonStyle(compact: true))
+                    }
+                } else if !options.isEmpty || equipped != nil {
+                    Button("Change", action: toggle)
                         .buttonStyle(PixelButtonStyle(compact: true))
                 }
             }
             .font(HUDStyle.font(12))
 
             if isChanging {
+                // The choices line up with the worn item: same icon size, same column.
                 ForEach(options) { item in
-                    HStack(spacing: 8) {
-                        ItemIcon(item: item, size: 28)
+                    HStack(spacing: Self.spacing) {
+                        ItemIcon(item: item, size: Self.iconSize)
                         VStack(alignment: .leading, spacing: 1) {
                             Text(item.name)
                             Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
@@ -287,13 +300,11 @@ private struct EquipmentRow: View {
                         }
                     }
                     .font(HUDStyle.font(12))
-                    .padding(.leading, 80)
+                    .padding(.leading, Self.labelWidth + Self.spacing)
                 }
-                if equipped != nil {
-                    Button("Unequip") { session.unequip(slot) }
-                        .buttonStyle(PixelButtonStyle(compact: true))
-                        .padding(.leading, 80)
-                }
+                Button("Done", action: toggle)
+                    .buttonStyle(PixelButtonStyle(compact: true))
+                    .padding(.leading, Self.labelWidth + Self.spacing)
             }
         }
         .padding(8)

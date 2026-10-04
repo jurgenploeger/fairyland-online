@@ -456,4 +456,17 @@ final class BattleEngine {
             outcome = .defeat
         }
     }
+
+    #if DEBUG
+    /// Debug launches (`win`): every monster drops at once.
+    func defeatEnemiesForDebug() -> [BattleEvent] {
+        var events: [BattleEvent] = []
+        for index in combatants.indices where combatants[index].side == .enemies && combatants[index].isAlive {
+            combatants[index].hp = 0
+            events.append(.defeated(combatants[index].id))
+        }
+        updateOutcome()
+        return events
+    }
+    #endif
 }
