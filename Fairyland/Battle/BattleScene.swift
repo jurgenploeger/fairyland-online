@@ -127,6 +127,18 @@ final class BattleScene: SKScene {
         }
     }
 
+    /// Which way fighters look: across at the other side in profile, as in Fairyland's battles. In
+    /// portrait the two lines face off up and down the screen, but people still turn sideways, your
+    /// party to the left toward the monsters up on the left and those to the right, instead of
+    /// showing their backs. (Monsters have only a front view, so they look the same either way.)
+    private static func profile(_ facing: Direction) -> Direction {
+        switch facing {
+        case .up: .left
+        case .down: .right
+        default: facing
+        }
+    }
+
     private func arrangeLine(_ group: [Combatant], around center: CGPoint, facing: Direction) {
         // In portrait a long line closes up and slides over so everyone stays on screen.
         let spacing = isPortrait ? min(108, (size.width - 100) / CGFloat(max(1, group.count - 1))) : 56
@@ -147,7 +159,7 @@ final class BattleScene: SKScene {
         for (index, fighter) in group.enumerated() {
             let offset = CGFloat(index) - CGFloat(group.count - 1) / 2
             let point = CGPoint(x: center.x + offset * spacing, y: center.y + offset * rise)
-            actors[fighter.id]?.place(at: point, facing: facing)
+            actors[fighter.id]?.place(at: point, facing: Self.profile(facing))
         }
     }
 
