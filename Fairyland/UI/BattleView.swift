@@ -469,29 +469,25 @@ private struct CommandPad: View {
 }
 
 /// Your companion's turn, after the hero's choice: Attack in the big button's spot, its Skills,
-/// Guard, and Auto to let it decide for itself. The chip on top shows whose turn it is and goes
-/// back to the hero's choice.
+/// Guard, and Auto to let it decide for itself. The chip on top shows whose turn it is. The hero's
+/// choice is made by then, so there's no going back to it (that would start their clock over).
 private struct CompanionPad: View {
     let controller: BattleController
 
     var body: some View {
         VStack(alignment: .trailing, spacing: 16) {
-            HStack(spacing: 8) {
-                Button(action: controller.backToHero) {
-                    Label(controller.hero?.name ?? "Back", icon: .arrowLeft, size: 12)
-                }
-                .buttonStyle(PixelButtonStyle(compact: true))
-                if let companion = controller.companion {
+            if let companion = controller.companion {
+                HStack(spacing: 8) {
                     SpriteImage(art: companion.art, size: 30)
                     Text("\(companion.name)'s turn")
                         .font(HUDStyle.font(13))
                         .foregroundStyle(HUDStyle.cream)
                 }
+                .padding(.leading, 8)
+                .padding(.trailing, 12)
+                .padding(.vertical, 5)
+                .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.gold.opacity(0.7), lineWidth: 1.5)))
             }
-            .padding(.leading, 6)
-            .padding(.trailing, 12)
-            .padding(.vertical, 5)
-            .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.gold.opacity(0.7), lineWidth: 1.5)))
 
             HStack(alignment: .bottom, spacing: 14) {
                 HStack(alignment: .bottom, spacing: 10) {

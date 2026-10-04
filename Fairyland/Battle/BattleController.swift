@@ -332,7 +332,8 @@ final class BattleController {
     }
 
     /// True while you choose what your companion does, after the hero's choice. Like Fairyland,
-    /// you command your pet every round (unless `GameSettings.commandCompanion` is off).
+    /// you command your pet every round (unless `GameSettings.commandCompanion` is off). The hero's
+    /// choice stands: there's no taking it back on the companion's turn.
     private(set) var choosingForCompanion = false
     /// The hero's choice, waiting while you choose the companion's.
     @ObservationIgnored private var heroChoice: BattleAction?
@@ -349,18 +350,6 @@ final class BattleController {
         clearTargets()
         choosingForCompanion = false
         resolve(heroChoice ?? .defend, orders: [:])
-    }
-
-    /// From the companion's turn back to the hero's choice.
-    func backToHero() {
-        guard choosingForCompanion else { return }
-        stopTurnClock()
-        clearTargets()
-        choosingForCompanion = false
-        heroChoice = nil
-        phase = .command
-        message = "What will \(hero?.name ?? "you") do?"
-        startTurnClock()
     }
 
     // MARK: - Commands

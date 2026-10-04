@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.28",
+      "date": "2026-10-04",
+      "title": "No take-backs",
+      "notes": [
+        "Once you've chosen what you do in a fight, that's that: your companion's turn no longer has a button back to your own choice, which also started your clock over."
+      ]
+    },
+    {
       "version": "0.3.27",
       "date": "2026-10-04",
       "title": "Dressed for their level",
