@@ -112,6 +112,7 @@ final class GameSession {
         guard !isDeleted else { return }
         data.position = playerPosition.map { [Double($0.x), Double($0.y)] }
         if !seen.isEmpty { data.explored = (data.explored ?? [:]).merging(seen) { $1 } }
+        data.savedAt = Date()
         SaveStore.save(data)
         lastSaved = Date()
     }

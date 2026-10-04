@@ -719,6 +719,36 @@ struct RulesTests {
         #expect(session.friends.count == 1)
     }
 
+    @Test func theOldSaveMovesInOnceAndCopiesCollapse() throws {
+        let manager = FileManager.default
+        try? manager.removeItem(at: SaveStore.folder)
+        defer {
+            try? manager.removeItem(at: SaveStore.folder)
+            try? manager.removeItem(at: SaveStore.legacyURL)
+        }
+        // A save from before the folder (no slot), in Application Support: a path with a space.
+        var old = GameSession.newGame(name: "Old", raceID: "human").data
+        old.slot = nil
+        try manager.createDirectory(at: SaveStore.legacyURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try JSONEncoder().encode(old).write(to: SaveStore.legacyURL)
+        // However often the title screen looks, it moves in once, and the old file goes.
+        for _ in 0..<3 { _ = SaveStore.all() }
+        #expect(SaveStore.all().filter { $0.hero.name == "Old" }.count == 1)
+        #expect(!manager.fileExists(atPath: SaveStore.legacyURL.path(percentEncoded: false)))
+        // Copies that differ only in their slot (what the old bug left behind) collapse to one.
+        var copy = old
+        for _ in 0..<2 {
+            copy.slot = UUID().uuidString
+            SaveStore.save(copy)
+        }
+        #expect(SaveStore.all().filter { $0.hero.name == "Old" }.count == 1)
+        // A copy you played on is a game of its own, and stays.
+        copy.slot = UUID().uuidString
+        copy.gold += 100
+        SaveStore.save(copy)
+        #expect(SaveStore.all().filter { $0.hero.name == "Old" }.count == 2)
+    }
+
     @Test func aFullPartyBringsItsCompanions() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let friends = (0..<5).map { index in

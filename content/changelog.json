@@ -14,7 +14,8 @@
         "Bigger parties: up to four friends can travel with you now, a party of five, and they bring their companions. Each companion walks at its friend's side, fights beside them, and shows next to them in the Companions list. In battle a party of more than five stands with the people in front and the companions in a row behind. A friend who's around while your party is full says so instead of showing nothing.",
         "A fainted companion's card no longer says it's following you: it says it can't follow you or fight until it's healed, with a button to give it a potion from your bag. In battle, friends' companions carry their owner's name (\"Sprout's Water Slug\"), so they're never mistaken for yours.",
         "In portrait battles, people stand in profile as they do in landscape: your party looks left toward the monsters instead of showing you their backs.",
-        "The level badge on a fighter's bars now sits centred against both the HP and the MP bar, not just the HP bar."
+        "The level badge on a fighter's bars now sits centred against both the HP and the MP bar, not just the HP bar.",
+        "Fixed your games list filling up with copies of one hero: the save from before you could keep several games was copied in again whenever the title screen opened, and Continue could pick up an old copy. It moves in once now, the untouched copies are cleared away (any you played on are kept, and can be deleted in Settings), and each game shows when you last played it."
       ]
     },
     {
