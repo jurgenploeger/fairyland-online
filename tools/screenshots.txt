@@ -24,6 +24,10 @@ hood_dwarf   | newgame,race=dwarf,level=30,equip=ranger_cloak                 | 
 hair_blue    | newgame,hair=blue                                              | 8
 hair_elf_male | newgame,race=elf,gender=male,hair=black,menu=character        | 8
 hair_dwarf_female | newgame,race=dwarf,gender=female,hair=white                | 8
+look_other_human | newgame,gender=other,menu=character,customize                 | 8
+look_other_elf | newgame,race=elf,gender=other,hair=black,menu=character,customize | 8
+look_female_dwarf | newgame,race=dwarf,gender=female,hair=blue,menu=character,customize | 8
+elf_crop     | newgame,race=elf,style=crop,hair=brown                          | 8
 equip_change | newgame,equip=leather_vest,bag=cloth_tunic,menu=character,change=armor | 8
 skills       | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+whirlwind,menu=character,bottom | 8
 skills_learn | newgame,level=20,class=mage,menu=character,bottom                 | 8

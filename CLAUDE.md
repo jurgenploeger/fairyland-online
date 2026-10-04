@@ -13,10 +13,11 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
 - `tools/item_art.py`: draws every item's 32×32 sprite in code (free); rerun it after editing a drawing.
 - `tools/skill_art.py`: the same for every skill's icon (`art/sprites/skill_<id>.png`).
 - `tools/hero_layers.py`: splits each race's walk sheet into paper-doll layers (bald `body_<race>`,
-  `locks_<race>` for hair the body keeps such as beards and shoulder locks, `hair_<style>_<race>` for every
-  hairstyle, `hood_`/`helmet_<race>` in magenta that GearOverlay paints in the armour's colours). The game
-  stacks them (`GameSession.layers`) and dyes every shade of the locks and hair (appearance.json `hairLayer`);
-  rerun after changing a race's sheet.
+  `locks_<race>` for a beard, `hair_<style>_<race>` for every hairstyle in that sheet's own hair colour, a
+  gender sheet's own hair as a style of its own (appearance.json `styles` with `sheet`), `hood_`/`helmet_<race>`
+  in magenta that GearOverlay paints in the armour's colours). The game stacks them (`GameSession.layers`) and
+  dyes every shade of the locks and hair (appearance.json `hairLayer`), never the body. Rerun after changing a
+  race's sheet, and look at `--preview` before committing.
 - `tools/rd.py`: Retro Diffusion client. `tools/icons.py`: vendors Iconaut icons (MIT).
   `tools/check_content.py`: validates the game data.
 - `theme.palette` in `content/maps.json` colour-grades each map's ground, scenery and buildings at load time.

@@ -2,17 +2,22 @@
 """Splits each race's walk sheets into paper-doll layers, like Fairyland Online dressed its heroes:
 
     art/sprites/body_<race>.png          the body, bald (the hair taken off, the scalp drawn in)
-    art/sprites/locks_<race>.png         hair that stays with the body whatever the style: a lock
-                                         over the shoulder, a beard (copied, so the body stays whole)
+    art/sprites/locks_<race>.png         a beard, which stays whatever the style (copied, so the
+                                         body stays whole; empty for the clean-shaven)
     art/sprites/hair_<style>_<race>.png  every hairstyle, fitted to every race's head
     art/sprites/hood_<race>.png          a hood and a helmet sized to the bare head; the game
     art/sprites/helmet_<race>.png        colours them like the armour (see MARKERS below)
 
+A gender with its own walk sheet (classes.json `sheets`) gets the same set with a _<gender> suffix
+(body_elf_male.png, ...), and its own hair (side locks, braids, a ponytail and all) is one more
+style for that sheet alone: appearance.json `styles` with a `sheet`.
+
 The game stacks body + locks + hair (or body + locks + hood/helmet: no hair pokes through). The
 body is recoloured like the whole sheet used to be (skin, hair, outfit); the locks and hair layers
 hold nothing but hair, so the hair colour reaches every shade of them (appearance.json
-`hairLayer`). A gender with its own sheet (classes.json `sheets`) gets
-the same set with a _<gender> suffix (body_elf_male.png, ...). Rerun after changing a walk sheet:
+`hairLayer`). A style moved onto another head is lined up with its skull and brow, kept off its
+face, opened where an elf's ears poke through, and painted in that sheet's own hair colours, so
+one head has one hair colour before any dye. Rerun after changing a walk sheet:
 
     python3 tools/hero_layers.py            # writes the PNGs
     python3 tools/hero_layers.py --preview /tmp/layers.png
@@ -35,7 +40,7 @@ import palette_preview as pp  # noqa: E402
 F = 48
 DIRS = ["up", "right", "down", "left"]
 OUTLINE = np.array([0.16, 0.12, 0.18])
-# Hairstyles, each taken from the race whose sheet it was drawn on.
+# Hairstyles anyone can wear, each taken from the race whose sheet it was drawn on.
 STYLES = {"spiky": "human", "long": "elf", "crop": "dwarf"}
 # Headgear is drawn in magenta, which no recolour touches (skin 5-45°, hair 12-58°, outfit 85-170°)
 # and no hero sheet uses. The game paints soft magenta (saturation 0.6) in the armour's colour,
@@ -45,8 +50,14 @@ MARK_HUE = 300 / 360
 # Sheets whose hair rises well above the skull (a bun): the top of the head is the first row with
 # this many hair pixels instead of four, so the bald scalp sits on the real head, not the bun.
 TUFTS = {"human_female_walk": 8}
-# Locks are looked for down to this many rows below the brow (over the shoulders, not the belt).
+# Hair hanging past the head (side locks, braids) is looked for down to this many rows below the brow.
 LOCK_DEPTH = 14
+# The bald skull's half-width in pixels, smallest and largest.
+SKULL = (6.0, 7.0)
+# Races with long pointed ears, which poke out through any hairstyle.
+EARED = {"elf"}
+# Brightness, for matching shades between two heads of hair.
+LUMA = np.array([0.299, 0.587, 0.114])
 
 
 def hsv(p):
@@ -131,16 +142,34 @@ def skin_run(f, y):
     return best
 
 
-def flood(f, seeds, ok):
+def reddish(p):
+    """The pink-red edge round an elf's ear (or a cheek): bright, red to orange-red. An elf's hair
+    is gold, so on an elf this is never hair."""
+    if not opaque(p):
+        return False
+    h, s, v = hsv(p)
+    h *= 360
+    return (h <= 25 or h >= 340) and s >= 0.3 and v >= 0.45
+
+
+def mask(f, test):
+    return np.array([[test(f[y, x]) for x in range(F)] for y in range(F)])
+
+
+def flood(f, seeds, ok, allowed=None, diagonal=False):
+    """Every pixel joined to the seeds through pixels that pass `ok` (and `allowed`, if given)."""
     m = np.zeros((F, F), bool)
-    stack = list(seeds)
+    stack = [q for q in seeds if allowed is None or allowed[q]]
     for y, x in stack:
         m[y, x] = True
+    steps = [(dy, dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if dy or dx] if diagonal \
+        else [(1, 0), (-1, 0), (0, 1), (0, -1)]
     while stack:
         y, x = stack.pop()
-        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+        for dy, dx in steps:
             yy, xx = y + dy, x + dx
-            if 0 <= yy < F and 0 <= xx < F and not m[yy, xx] and ok(f[yy, xx]):
+            if 0 <= yy < F and 0 <= xx < F and not m[yy, xx] and (allowed is None or allowed[yy, xx]) \
+                    and ok(f[yy, xx]):
                 m[yy, xx] = True
                 stack.append((yy, xx))
     return m
@@ -178,11 +207,102 @@ class Head:
         return ((x - self.cx) / (self.half + grow)) ** 2 + ((y - self.cy) / (self.ry + grow)) ** 2 <= 1
 
 
+def face_region(f, head):
+    """The face from the brow down to the chin: on each row, everything between its outermost skin
+    (joined to the middle of the face), so the eyes, blush and mouth it holds count as face."""
+    region = np.zeros((F, F), bool)
+    mid = (head.face[0] + head.face[1]) / 2 if head.face else head.cx
+    reach = np.zeros((F, F), bool)
+    for y in range(head.brow, min(F, head.brow + 10)):
+        for x in range(F):
+            reach[y, x] = abs(x - mid) <= head.half + 1
+    seeds = [(y, x) for y in range(head.brow, min(F, head.brow + 4)) for x in range(F)
+             if reach[y, x] and abs(x - mid) <= 2 and is_skin(f[y, x])]
+    skin = flood(f, seeds, is_skin, reach)
+    for y in range(F):
+        xs = np.nonzero(skin[y])[0]
+        if len(xs):
+            region[y, xs.min():xs.max() + 1] = True
+    return region
+
+
+def front_of_body(face, head):
+    """Below the chin, where hanging hair never is: down the middle of the chest seen from the
+    front, in front of the neck seen from the side. Buttons, a collar or a strap there that touch
+    the hair stay with the body."""
+    out = np.zeros((F, F), bool)
+    rows = [y for y in range(F) if face[y].any()]
+    if not rows or head.facing == "up":
+        return out
+    chin = rows[-1]
+    xs = np.nonzero(face[chin])[0]
+    mid, half = (xs.min() + xs.max()) / 2, (xs.max() - xs.min()) / 2
+    for y in range(chin + 1, F):
+        for x in range(F):
+            if head.facing == "down":
+                out[y, x] = abs(x - mid) <= half + 1
+            else:
+                out[y, x] = (x - mid) * (1 if head.facing == "right" else -1) >= -1
+    return out
+
+
+def ear_mask(f, head, face):
+    """An elf's ears: skin that isn't face, from above the brow to just under it, with the pink-red
+    edge drawn round it."""
+    ears = np.zeros((F, F), bool)
+    for y in range(max(0, head.brow - 6), min(F, head.brow + 2)):
+        for x in range(F):
+            ears[y, x] = is_skin(f[y, x]) and not face[y, x]
+    edge = np.zeros((F, F), bool)
+    for y, x in zip(*np.nonzero(ears)):
+        for q in neighbours8(y, x):
+            if not ears[q] and reddish(f[q]):
+                edge[q] = True
+    return ears | edge
+
+
+def grow(m, steps=1):
+    out = m.copy()
+    for _ in range(steps):
+        prev = out.copy()
+        for y, x in zip(*np.nonzero(prev)):
+            for q in neighbours8(y, x):
+                out[q] = True
+    return out
+
+
+def join_strands(f, hair, reach, gap=2):
+    """Pieces of hair cut off from the rest by a thin dark band (a braid's tie, the outline between
+    two locks) join it when they're within `gap` pixels, piece by piece."""
+    loose = mask(f, lockish) & reach & ~hair
+    pieces = []
+    while loose.any():
+        piece = flood(f, [tuple(np.argwhere(loose)[0])], lambda p: True, loose, diagonal=True)
+        pieces.append(piece)
+        loose &= ~piece
+    joined = True
+    while joined:
+        joined = False
+        near = grow(hair, gap)
+        for i, piece in enumerate(pieces):
+            if piece is not None and (piece & near).any():
+                hair = hair | piece
+                pieces[i] = None
+                joined = True
+    return hair
+
+
 class Race:
-    def __init__(self, race_id, sheet_id):
+    def __init__(self, race_id, sheet_id, template=None, sidehair=False):
+        """`template`: the body that patches what long hair hid (a back, shoulders). `sidehair`: hair
+        hanging past the head (side locks, braids) belongs to the style, so another style leaves
+        the shoulders clean."""
         self.id = race_id
+        self.sheet_id = sheet_id
         self.sheet = pp.raw(sheet_id)
         self.tuft = TUFTS.get(sheet_id, 4)
+        self.template = template
+        self.sidehair = sidehair
         down = frame(self.sheet, DIRS.index("down"), 0)
         top = crown(down, self.tuft)
         # The brow: the first row of face, i.e. skin carrying on into the row below (a stray
@@ -191,17 +311,26 @@ class Race:
                          if (r := skin_run(down, y)) and r[1] - r[0] >= 2
                          and (n := skin_run(down, y + 1)) and n[1] - n[0] >= 1)
         face = skin_run(down, top + self.drop + 1) or skin_run(down, top + self.drop)
-        self.half = (face[1] - face[0]) / 2 + 3.5
+        # The skull's half-width, from the face: eyes and a fringe can split the face's skin into a
+        # narrow run, which made some skulls far smaller than the hair drawn round them (and stretched
+        # an elf's ears into wings). Every sheet's hair is 15-19 pixels across, so keep it in SKULL.
+        self.half = min(SKULL[1], max(SKULL[0], (face[1] - face[0]) / 2 + 3.5))
         self.skin = np.median([down[y, x, :3] for y in range(top + self.drop, top + self.drop + 4)
                                for x in range(F) if is_skin(down[y, x])], axis=0)
         self.beard = self._bearded(down, top)
         self.heads = {}
+        self.faces = {}
+        self.ears = {}
         self.body = self.sheet.copy()
         self.hair = np.zeros_like(self.sheet)
         self.locks = np.zeros_like(self.sheet)
+        found = {}
         for row, facing in enumerate(DIRS):
             for col in range(self.sheet.shape[1] // F):
-                self._split(row, col, facing)
+                found[row, col] = self._find(row, col, facing)
+        self._steady(found)
+        for (row, col), (take, beard) in found.items():
+            self._cut(row, col, take, beard)
 
     def _bearded(self, down, top):
         brow = top + self.drop
@@ -212,63 +341,126 @@ class Race:
         return sum(hair[y, x] for y in range(chin, chin + 6) for x in range(F) if abs(x - cx) < 4) >= 12
 
     def is_beard(self, head, x, y):
-        if not self.beard or head.facing == "up" or y < head.brow + 3:
+        if not self.beard or head.facing == "up" or not head.brow + 3 <= y <= head.brow + 12:
             return False
         if head.facing == "down":
             return abs(x - head.cx) < head.half - 1
         side = 1 if head.facing == "right" else -1
         return (x - head.cx) * side > -2
 
-    def _split(self, row, col, facing):
+    def _find(self, row, col, facing):
+        """Which pixels of a frame are hair (with its outline), and where a beard would be."""
         f = frame(self.sheet, row, col)
-        body = frame(self.body, row, col)
-        hair_layer = frame(self.hair, row, col)
         head = Head(f, facing, self.drop, self.half, self.tuft)
         self.heads[row, col] = head
+        face = face_region(f, head)
+        ears = ear_mask(f, head, face) if self.id in EARED else np.zeros((F, F), bool)
+        self.faces[row, col] = face
+        self.ears[row, col] = ears
+        beard = np.array([[self.is_beard(head, x, y) for x in range(F)] for y in range(F)])
+        # What the hair never takes: the face from the eyes down (eyes, blush, a mouth), a beard,
+        # the front of the body under the chin (a collar, buttons), an elf's ears and the pink-red
+        # edge round them.
+        below_eyes = np.zeros((F, F), bool)
+        below_eyes[head.brow + 2:] = True
+        allowed = ~((face & below_eyes) | beard | ears | front_of_body(face, head))
+        if self.id in EARED:
+            allowed &= ~mask(f, reddish)
         # Seed from the very top of the hair, so a bun above the skull (TUFTS) comes off too.
-        hair = flood(f, [(y, x) for y in range(crown(f), head.brow) for x in range(F) if is_hair(f[y, x])], hairish)
-        for y in range(F):
-            for x in range(F):
-                if hair[y, x] and self.is_beard(head, x, y):
-                    hair[y, x] = False
-        # The hair's own outline goes with it: dark pixels that only touch hair (or nothing).
+        seeds = [(y, x) for y in range(crown(f), head.brow) for x in range(F) if is_hair(f[y, x])]
+        hair = flood(f, seeds, hairish, allowed)
+        if self.sidehair:
+            # Hair hanging past the head (side locks, braids, the ends of a bob): any shade of hair
+            # still joined to it, down to the shoulders, across a thin dark band (a braid's tie).
+            reach = allowed.copy()
+            reach[head.brow + LOCK_DEPTH + 1:] = False
+            hair |= flood(f, list(zip(*np.nonzero(hair))), lockish, reach, diagonal=True)
+            hair = join_strands(f, hair, reach)
+        # Pale highlights that look like skin, inside the hair (over the brow, or anywhere on the
+        # back of the head): hair too, or they'd keep their colour through a dye. Over the brow
+        # nothing is skin but an elf's ears, so there any touching the hair count.
+        if self.id not in EARED:
+            above = allowed.copy()
+            above[head.brow:] = False
+            hair |= flood(f, list(zip(*np.nonzero(hair))), lambda p: is_skin(p) or hairish(p), above)
+        limit = F if facing == "up" else head.brow
+        for _ in range(2):
+            for y in range(limit):
+                for x in range(F):
+                    if not hair[y, x] and allowed[y, x] and opaque(f[y, x]) and not dark(f[y, x]) and sum(
+                            hair[q] for q in ((y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1))
+                            if 0 <= q[0] < F and 0 <= q[1] < F) >= 3:
+                        hair[y, x] = True
+        # The hair's own outline goes with it: dark pixels touching nothing but hair, or outline
+        # that's already going (an outline two pixels thick).
         lines = np.zeros((F, F), bool)
-        for y in range(F):
-            for x in range(F):
-                if dark(f[y, x]) and not hair[y, x]:
-                    near = [q for q in neighbours8(y, x) if opaque(f[q]) and not dark(f[q])]
-                    if near and all(hair[q] for q in near) and y < head.brow + 12:
-                        lines[y, x] = True
-        take = hair | lines
-        hair_layer[take] = f[take]
+        for _ in range(3):
+            for y in range(min(F, head.brow + LOCK_DEPTH + 1)):
+                for x in range(F):
+                    if dark(f[y, x]) and not hair[y, x] and not lines[y, x] and allowed[y, x] \
+                            and not is_outfit(f[y, x]):
+                        near = [q for q in neighbours8(y, x) if opaque(f[q])]
+                        if all(hair[q] for q in near if not dark(f[q])) and any(hair[q] or lines[q] for q in near):
+                            lines[y, x] = True
+        if self.sidehair:
+            # Hanging hair shares its outline with the shoulders: it goes when it's mostly the hair's.
+            for y in range(head.brow + 2, min(F, head.brow + LOCK_DEPTH + 1)):
+                for x in range(F):
+                    if dark(f[y, x]) and not hair[y, x] and not lines[y, x] and allowed[y, x] \
+                            and not is_outfit(f[y, x]):
+                        near = [q for q in neighbours8(y, x) if opaque(f[q]) and not dark(f[q])]
+                        mine = sum(hair[q] for q in near)
+                        if mine >= 2 and mine * 2 >= len(near):
+                            lines[y, x] = True
+        return hair | lines, beard
+
+    def _steady(self, found):
+        """Hair below the eyes that no other step of the same walk has nearby (a buckle that touches
+        the hair in one frame only) stays with the body: as hair it would flicker in the hair colour."""
+        steps = self.sheet.shape[1] // F
+        for (row, col), (take, beard) in list(found.items()):
+            head = self.heads[row, col]
+            seen = np.zeros((F, F), bool)
+            for c in range(steps):
+                if c == col:
+                    continue
+                other, dy = found[row, c][0], self.heads[row, c].top - head.top
+                for y in range(F):
+                    if 0 <= y + dy < F:
+                        seen[y] |= other[y + dy]
+            lone = take & ~grow(seen) if steps > 1 else np.zeros((F, F), bool)
+            lone[:head.brow + 2] = False
+            # Whole clumps only: a lock's tip swaying a pixel stays hair.
+            f = frame(self.sheet, row, col)
+            while lone.any():
+                clump = flood(f, [tuple(np.argwhere(lone)[0])], lambda p: True, lone, diagonal=True)
+                lone &= ~clump
+                if clump.sum() >= 3:
+                    take = take & ~clump
+            found[row, col] = (take, beard)
+
+    def _cut(self, row, col, take, beard):
+        """Moves the hair to the hair layer and draws the bald head and what the hair hid."""
+        f = frame(self.sheet, row, col)
+        body = frame(self.body, row, col)
+        head = self.heads[row, col]
+        frame(self.hair, row, col)[take] = f[take]
         body[take] = 0
         if self.tuft != 4:
             # A bun's hair tie and highlights don't count as hair: clear whatever is left above the skull.
             body[:max(0, int(head.cy - head.ry) - 1)] = 0
         self._scalp(body, head)
         self._patch(body, head, take, row, col)
-        self._locks(f, body, head, take, row, col)
-
-    def _locks(self, f, body, head, taken, row, col):
-        """Hair the body keeps (a lock over the shoulder, a beard): every hair-coloured pixel still
-        joined to the hair that came off, down to the shoulders. Copied, not cut, so the body
-        stays whole; the game draws them over it in the hair colour."""
-        candidate = np.zeros((F, F), bool)
-        for y in range(min(F, head.brow + LOCK_DEPTH + 1)):
-            for x in range(F):
-                candidate[y, x] = lockish(f[y, x]) and np.array_equal(body[y, x], f[y, x])
-        seeds = [(y, x) for y, x in zip(*np.nonzero(candidate)) if any(taken[q] for q in neighbours8(y, x))]
-        locks = np.zeros((F, F), bool)
-        stack = list(seeds)
-        for y, x in stack:
-            locks[y, x] = True
-        while stack:
-            y, x = stack.pop()
-            for q in neighbours8(y, x):
-                if candidate[q] and not locks[q]:
-                    locks[q] = True
-                    stack.append(q)
-        frame(self.locks, row, col)[locks] = f[locks]
+        self._tidy(body, take)
+        if self.beard:
+            # A beard: hair-coloured pixels in the face's lower half and all that hangs from them (not
+            # a hand that wanders past). It stays on the body (copied) and takes the hair colour from
+            # the locks layer.
+            mid = (head.face[0] + head.face[1]) / 2 if head.face else head.cx
+            core = [(y, x) for y in range(head.brow + 3, head.brow + 7) for x in range(F)
+                    if beard[y, x] and abs(x - mid) <= 3 and lockish(f[y, x])]
+            locks = flood(f, core, lockish, beard, diagonal=True)
+            frame(self.locks, row, col)[locks] = f[locks]
 
     def _scalp(self, body, head):
         """Draws the bare skull round the face, shaded, with an outline, and joins the ears to it."""
@@ -304,32 +496,42 @@ class Race:
         outline(body, painted)
 
     def _patch(self, body, head, taken, row, col):
-        """Fills what the hair used to hide below the head (a long-haired back, the neck) with the
-        same part of the human body; anything outside it becomes see-through."""
-        if TEMPLATE is None or TEMPLATE is self:
+        """Fills what the hair used to hide below the head (a long-haired back, the shoulders) with
+        the same part of the template's body; anything outside it becomes see-through."""
+        if self.template is None:
             return
         holes = taken & np.array([[not opaque(body[y, x]) for x in range(F)] for y in range(F)])
         holes[:head.cy + 1] = False
         if not holes.any():
             return
-        t = frame(TEMPLATE.body, row, col)
+        t = frame(self.template.body, row, col)
         dx = int(round(centre_x(body) - centre_x(t)))
         dy = feet(body) - feet(t)
-        outfit_mid = np.median([p[:3] for p in body.reshape(-1, 4) if is_outfit(p)], axis=0)
-        t_mid = np.median([p[:3] for p in t.reshape(-1, 4) if is_outfit(p)], axis=0)
+        if not hasattr(self, "_outfit_to"):
+            # The template's outfit and skin, shade for shade in this sheet's own colours.
+            self._outfit_to = shade_map(colours(self.template.body, is_outfit), colours(self.sheet, is_outfit))
+            self._skin_to = shade_map(colours(self.template.body, is_skin), colours(self.sheet, is_skin))
         for y, x in zip(*np.nonzero(holes)):
             ty, tx = y - dy, x - dx
             if not (0 <= ty < F and 0 <= tx < F) or not opaque(t[ty, tx]):
                 continue
             p = t[ty, tx]
-            if is_outfit(p):
-                c = np.clip(outfit_mid * (max(p[:3]) / max(1e-3, max(t_mid))), 0, 1)
-            elif is_skin(p):
-                c = np.clip(self.skin * (max(p[:3]) / max(1e-3, max(TEMPLATE.skin))), 0, 1)
-            else:
-                c = p[:3]
-            body[y, x, :3] = c
+            body[y, x, :3] = self._outfit_to(p[:3]) if is_outfit(p) else self._skin_to(p[:3]) if is_skin(p) else p[:3]
             body[y, x, 3] = 1
+
+    def _tidy(self, body, taken):
+        """Bits the hair leaves floating (a braid's outline, a lock's shadow): small pieces near
+        where the hair was that no longer touch the body."""
+        solid = mask(body, opaque)
+        near = grow(taken, 2)
+        seen = np.zeros((F, F), bool)
+        for y, x in zip(*np.nonzero(solid & near)):
+            if seen[y, x]:
+                continue
+            piece = flood(body, [(y, x)], lambda p: True, solid, diagonal=True)
+            seen |= piece
+            if piece.sum() <= 12 and not (piece & ~near).any():
+                body[piece] = 0
 
 
 def mix(c, d, t):
@@ -356,19 +558,82 @@ def feet(f):
     return max(y for y in range(F) if any(opaque(f[y, x]) for x in range(F)))
 
 
-def fit_hair(source, target):
-    """The source race's hair, moved frame by frame onto the target race's head."""
+def style_source(race):
+    """A race's own hair, ready to move onto other heads: where an elf's ears poked through it, the
+    gaps are filled with the hair round them."""
+    out = race.hair.copy()
+    if race.id not in EARED:
+        return out
+    for (row, col) in race.heads:
+        o = frame(out, row, col)
+        gaps = grow(race.ears[row, col])
+        for _ in range(3):
+            fill = []
+            for y, x in zip(*np.nonzero(gaps & (o[:, :, 3] < 0.5))):
+                near = [o[q] for q in neighbours8(y, x) if o[q][3] >= 0.5]
+                if len(near) >= 3:
+                    fill.append((y, x, sorted(near, key=lambda p: p[:3] @ LUMA)[len(near) // 2]))
+            for y, x, p in fill:
+                o[y, x] = p
+    return out
+
+
+def colours(img, test):
+    """Every pixel of `img` that passes `test`, as RGB rows."""
+    return np.array([p[:3] for p in img.reshape(-1, 4) if test(p)])
+
+
+def shade_map(src, dst):
+    """Takes a colour from `src` (RGB rows) to `dst`'s colour at the same rank of brightness."""
+    ranks = np.sort(src @ LUMA)
+    shades = dst[np.argsort(dst @ LUMA, kind="stable")]
+
+    def to(c):
+        q = np.searchsorted(ranks, c @ LUMA) / max(1, len(ranks) - 1)
+        return shades[min(len(shades) - 1, int(round(q * (len(shades) - 1))))]
+    return to
+
+
+def crown_colours(race):
+    """The colours of the hair on top of the head (crown to brow, every frame): what every style has,
+    unlike a long style's shadowy back."""
+    rows = []
+    for (row, col), head in race.heads.items():
+        hair = frame(race.hair, row, col)
+        rows += [hair[y, x, :3] for y in range(head.top, head.brow) for x in range(F) if opaque(hair[y, x])]
+    return np.array(rows)
+
+
+def recolour_to(layer, source, target):
+    """Paints a moved hairstyle in the target sheet's own hair colours: each pixel takes the target's
+    colour at the rank of brightness it has on the source, crown matched to crown, so the shading
+    stays and one head has one hair colour."""
+    to = shade_map(crown_colours(source), crown_colours(target))
+    out = layer.copy()
+    for y, x in zip(*np.nonzero(layer[:, :, 3] > 0.5)):
+        out[y, x, :3] = to(layer[y, x, :3])
+    return out
+
+
+def fit_hair(layer, source, target):
+    """A style (`layer`, the source race's hair from style_source) moved frame by frame onto the
+    target's head: lined up by the skull's middle and the brow, kept off the face from the eyes
+    down, open where an elf's ears poke through, in the target's own hair colours."""
     out = np.zeros_like(target.sheet)
     for (row, col), head in target.heads.items():
         src = source.heads[row, col]
         dx = int(round(head.cx - src.cx))
         dy = head.brow - src.brow
-        s = frame(source.hair, row, col)
+        clear = target.faces[row, col].copy()
+        clear[:head.brow + 2] = False
+        clear |= target.ears[row, col]
+        s = frame(layer, row, col)
         o = frame(out, row, col)
         for y, x in zip(*np.nonzero(s[:, :, 3] > 0.5)):
-            if 0 <= y + dy < F and 0 <= x + dx < F:
-                o[y + dy, x + dx] = s[y, x]
-    return out
+            ty, tx = y + dy, x + dx
+            if 0 <= ty < F and 0 <= tx < F and not clear[ty, tx]:
+                o[ty, tx] = s[y, x]
+    return recolour_to(out, source, target)
 
 
 def marker(v, s=0.6):
@@ -434,22 +699,23 @@ def headgear(race, kind):
     return out
 
 
-TEMPLATE = None
-
-
 def build():
-    global TEMPLATE
     races_json = json.load(open(ROOT / "content" / "classes.json"))["races"]
-    sheets = {r["id"]: r.get("art") or "player_walk" for r in races_json}
+    styles_json = json.load(open(ROOT / "content" / "appearance.json"))["styles"]
     races = {}
-    TEMPLATE = races["human"] = Race("human", sheets["human"])
-    for rid, sheet in sheets.items():
-        if rid not in races:
-            races[rid] = Race(rid, sheet)
-    # A gender with its own walk sheet (classes.json `sheets`) gets its own set: <layer>_<race>_<gender>.
+    # The human body patches what long hair hid on the other races' backs; a gender's sheet is
+    # patched from its own race's.
+    human = next(r for r in races_json if r["id"] == "human")
+    races["human"] = Race("human", human.get("art") or "player_walk")
+    for r in races_json:
+        if r["id"] not in races:
+            races[r["id"]] = Race(r["id"], r.get("art") or "player_walk", template=races["human"], sidehair=True)
     for r in races_json:
         for gender, sheet in (r.get("sheets") or {}).items():
-            races[f"{r['id']}_{gender}"] = Race(r["id"], sheet)
+            races[f"{r['id']}_{gender}"] = Race(r["id"], sheet, template=races[r["id"]], sidehair=True)
+    # A gender's own hair is a style for its sheet alone (appearance.json styles with a `sheet`).
+    own = {s["sheet"]: s["id"] for s in styles_json if s.get("sheet")}
+    sources = {style: style_source(races[rid]) for style, rid in STYLES.items()}
     layers = {}
     for rid, race in races.items():
         layers[f"body_{rid}"] = race.body
@@ -457,7 +723,9 @@ def build():
         layers[f"hood_{rid}"] = headgear(race, "hood")
         layers[f"helmet_{rid}"] = headgear(race, "helmet")
         for style, source in STYLES.items():
-            layers[f"hair_{style}_{rid}"] = race.hair if source == rid else fit_hair(races[source], race)
+            layers[f"hair_{style}_{rid}"] = race.hair if source == rid else fit_hair(sources[style], races[source], race)
+        if race.sheet_id in own:
+            layers[f"hair_{own[race.sheet_id]}_{rid}"] = race.hair
     return races, layers
 
 
@@ -483,18 +751,21 @@ def main():
         print(f"wrote {len(layers)} layers to art/sprites/: {', '.join(sorted(layers))}")
         return
     zoom = 3
-    combos = [("body", None)] + [(f"hair_{s}", s) for s in STYLES] + [("hood", None), ("helmet", None)]
+    combos = ["body"] + [f"hair_{s}" for s in STYLES] + ["own", "hood", "helmet"]
     sheet = Image.new("RGB", (len(combos) * 4 * F * zoom, len(races) * F * zoom), (80, 130, 80))
     for r, (rid, race) in enumerate(races.items()):
-        for k, (name, style) in enumerate(combos):
+        own = next((name for name in layers if name.startswith("hair_") and name.endswith(f"_{rid}")
+                    and name[5:-len(rid) - 1] not in STYLES), None)
+        for k, name in enumerate(combos):
             under = (layers[f"body_{rid}"], layers[f"locks_{rid}"])
-            img = stack(*under) if name == "body" else stack(*under, layers[f"{name}_{rid}"])
+            top = own if name == "own" else f"{name}_{rid}"
+            img = stack(*under) if name == "body" or top is None else stack(*under, layers[top])
             im = to_image(img)
             for c, row in enumerate((2, 1, 0, 3)):
                 fr = im.crop((0, row * F, F, row * F + F)).resize((F * zoom, F * zoom), Image.NEAREST)
                 sheet.paste(fr, ((k * 4 + c) * F * zoom, r * F * zoom), fr)
     sheet.save(args.preview)
-    print(f"wrote {args.preview}: columns {', '.join(n for n, _ in combos)}; rows {', '.join(races)}")
+    print(f"wrote {args.preview}: columns {', '.join(combos)}; rows {', '.join(races)}")
 
 
 if __name__ == "__main__":

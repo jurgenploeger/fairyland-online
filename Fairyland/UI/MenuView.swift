@@ -101,6 +101,16 @@ private struct CharacterTab: View {
     @State private var draftName = ""
     @State private var draftLook = Look.standard
 
+    init(session: GameSession) {
+        self.session = session
+        // `customize` (debug launches): straight into the look editor.
+        if DebugLaunch.opensCustomize {
+            _editing = State(initialValue: true)
+            _draftName = State(initialValue: session.data.hero.name)
+            _draftLook = State(initialValue: session.data.hero.look ?? Look.standard)
+        }
+    }
+
     var body: some View {
         let hero = session.data.hero
         let stats = session.heroStats

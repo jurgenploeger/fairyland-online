@@ -27,7 +27,7 @@ struct LookEditor: View {
                         outfit: options.outfits.filter(isUnlocked).randomElement()?.id ?? look.outfit,
                         skin: options.skin.filter(isUnlocked).randomElement()?.id ?? look.skin,
                         gender: look.gender,
-                        style: options.styles.randomElement()?.id ?? look.style
+                        style: options.styles(for: race.sheet(for: look.gender)).randomElement()?.id ?? look.style
                     )
                 } label: {
                     Label("Surprise me", icon: .dice)
@@ -109,13 +109,14 @@ private struct GenderPicker: View {
     }
 }
 
-/// Hairstyles, each shown on your hero as they look right now. Any style suits any race.
+/// Hairstyles, each shown on your hero as they look right now: the walk sheet's own hair first (a
+/// gender's ponytail or braids), then the ones that suit any race.
 private struct StylePicker: View {
     @Binding var look: Look
     let race: RaceDef
 
-    private var styles: [HairStyle] { Content.shared.appearance.styles }
-    private var current: String? { look.style ?? race.hair ?? styles.first?.id }
+    private var styles: [HairStyle] { Content.shared.appearance.styles(for: race.sheet(for: look.gender)) }
+    private var current: String { GameSession.style(for: look, race: race) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
