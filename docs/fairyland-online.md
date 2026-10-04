@@ -68,6 +68,12 @@ three guilds (M): humans are balanced, elves lean to magic and dwarves to attack
 
 **Us:** the same three. Each has base HP/MP/ATK/DEF/MAG/SPD (`content/classes.json`) and no home capital.
 
+**Hairstyles (our decision, 2026-10-04):**
+- Spiky, Long and Crop fit every race and gender.
+- Each gender sheet's own hair stays with that sheet: Ponytail (human female), Bob (human other), Swept (elf
+  male), Shoulder (elf other), Braids (dwarf female) and Messy (dwarf other).
+- The playtester chose this over sharing them. Don't offer them to other genders.
+
 ## Attributes
 
 - **Six attributes: STR, CON, DEX, INT, LUK, CHA (H).** Monsters have them too, e.g. the Puppet (wood) has
