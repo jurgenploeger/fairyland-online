@@ -5,7 +5,7 @@ import UIKit
 /// circle of it, and beyond its edge everything sinks into the dark, so you see only as far as it
 /// reaches. It breathes a little, like a flame, and lays a soft glow on the ground round you.
 /// Glowing crystals and moss still shine faintly through the dark. It rides with the hero, over
-/// the map and everyone on it.
+/// the map and everyone on it, and into a fight's backdrop (`WorldScene.battleBackdrop`).
 final class Lantern {
     /// How far the light reaches, in points; the minimap shows what's fallen inside it.
     let radius: CGFloat
@@ -61,9 +61,6 @@ final class Lantern {
         glints.zPosition = 41_500
         world.addChild(glints)
     }
-
-    /// Everything it draws, to leave out of a battle's backdrop.
-    var nodes: [SKNode] { [veil, glints] }
 
     /// Keeps the light on the hero.
     func follow(_ point: CGPoint) {

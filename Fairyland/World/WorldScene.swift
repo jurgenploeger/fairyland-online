@@ -1353,12 +1353,13 @@ final class WorldScene: SKScene {
     }
 
     /// The map as it looks right now, for behind a battle. The party (and a boss, `npcID`) are
-    /// drawn by the battle itself, so they're left out, with tap markers and a cave's dark.
+    /// drawn by the battle itself, so they're left out, with tap markers. A cave's dark stays in:
+    /// a fight shows no more of the cave than your light did.
     func battleBackdrop(hiding npcID: String? = nil) -> SKTexture? {
         let visible = CGRect(x: cam.position.x - size.width / 2, y: cam.position.y - size.height / 2, width: size.width, height: size.height)
         let boss: [SKNode] = npcs.filter { $0.def.id == npcID }.map(\.node)
         var hidden: [SKNode] = [player, follower].compactMap { $0 } + allies.map(\.node) + boss
-            + world.children.filter { $0.name == Effects.tapMarkerName } + (lantern?.nodes ?? [])
+            + world.children.filter { $0.name == Effects.tapMarkerName }
         hidden += allies.compactMap(\.pet)
         hidden.forEach { $0.isHidden = true }
         defer { hidden.forEach { $0.isHidden = false } }

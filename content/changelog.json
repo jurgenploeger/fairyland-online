@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.26",
+      "date": "2026-10-04",
+      "title": "Caves stay dark in a fight",
+      "notes": [
+        "In Rat Cavern, Slime Cave and Mysterious Cave a fight keeps your light: behind the fighters the cave is lit only as far as it reached, and the rest stays dark, so a battle shows no more of the cave than your light does."
+      ]
+    },
+    {
       "version": "0.3.25",
       "date": "2026-10-04",
       "title": "Bots' hair, every shade",
