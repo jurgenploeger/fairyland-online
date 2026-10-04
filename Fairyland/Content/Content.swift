@@ -336,6 +336,9 @@ nonisolated struct NPCDef: Decodable, Identifiable, Sendable {
     let monster: String?
     let level: Int?
     let minions: Int?
+    /// Bosses: how many waves the fight comes in (3 unless set): waves of the map's monsters,
+    /// then the boss with its minions. 1 is the boss alone with its minions.
+    let waves: Int?
     /// Bosses: what beating it means, told the first time you win (and kept in the Monster Book).
     let victory: Victory?
     /// Offers rebirth once you're strong enough (Elder Oak).

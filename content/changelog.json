@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.18",
+      "date": "2026-10-04",
+      "title": "Bosses fight in waves",
+      "notes": [
+        "A boss fight comes in three waves. Its followers come at you first, two of the area's monsters at a time, and the boss steps forward with the third wave, in the middle of its last two followers.",
+        "Your HP and MP carry over from wave to wave, so pace your skills and potions. Each wave stands a few levels closer to the boss's, and the boss always has the highest level on the field.",
+        "A tracker under the battle message shows which wave you're on, with a star for the boss's. Every monster you beat pays out at the end, the boss's waves included."
+      ]
+    },
+    {
       "version": "0.3.17",
       "date": "2026-10-04",
       "title": "Fairer bosses, and fixes from a full playtest",

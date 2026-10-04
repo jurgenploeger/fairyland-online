@@ -24,7 +24,8 @@ concurrency:
 jobs:
   screenshots:
     runs-on: macos-26
-    timeout-minutes: 65
+    # A full run of 72 scenes takes about an hour; this leaves room for more.
+    timeout-minutes: 80
     steps:
       - uses: actions/checkout@v4
 

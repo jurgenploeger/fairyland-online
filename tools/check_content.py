@@ -206,6 +206,12 @@ for map_def in maps.values():
         if "minions" in npc:
             check(npc["role"] == "boss" and isinstance(npc["minions"], int) and 0 <= npc["minions"] <= 4,
                   f"npc {npc['id']} → minions is for bosses, 0 to 4")
+        # A boss fight comes in waves (3 unless set): the map's monsters first, the boss last.
+        if npc["role"] == "boss" and npc.get("waves", 3) > 1:
+            check(bool((map_def.get("encounters") or {}).get("monsters")), f"boss {npc['id']} → waves need the map's encounters")
+        if "waves" in npc:
+            check(npc["role"] == "boss" and isinstance(npc["waves"], int) and 1 <= npc["waves"] <= 5,
+                  f"npc {npc['id']} → waves is for bosses, 1 to 5")
         # What beating a boss means: told the first time you win, and kept in the Monster Book.
         if npc["role"] == "boss":
             check("victory" in npc, f"boss {npc['id']} → needs a victory story (title and story)")

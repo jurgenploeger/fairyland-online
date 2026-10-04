@@ -19,6 +19,10 @@ struct BattleView: View {
                     .frame(maxWidth: 520)
                     .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2)))
 
+                if controller.waveCount > 1 {
+                    WaveTracker(wave: controller.wave, total: controller.waveCount)
+                }
+
                 if let deadline = controller.turnDeadline, let total = BattleController.turnSeconds {
                     TurnClockBar(deadline: deadline, total: total)
                         .transition(.opacity)
@@ -144,6 +148,36 @@ struct BattleView: View {
         case .animating, .finished:
             EmptyView()
         }
+    }
+}
+
+/// A boss fight's waves: a pip for each, the boss's a star, gold once you've reached it.
+private struct WaveTracker: View {
+    let wave: Int
+    let total: Int
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Text(wave == total ? "Boss wave" : "Wave \(wave) of \(total)")
+                .font(HUDStyle.font(11))
+                .padding(.trailing, 2)
+            ForEach(1...total, id: \.self) { index in
+                Group {
+                    if index == total {
+                        IconImage(.star, size: 11)
+                    } else {
+                        Circle().frame(width: 7, height: 7)
+                    }
+                }
+                .foregroundStyle(index <= wave ? HUDStyle.gold : HUDStyle.cream.opacity(0.3))
+            }
+        }
+        .foregroundStyle(HUDStyle.cream)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(Capsule().fill(HUDStyle.ink.opacity(0.8)))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(wave == total ? "Boss wave, the last of \(total)" : "Wave \(wave) of \(total)")
     }
 }
 

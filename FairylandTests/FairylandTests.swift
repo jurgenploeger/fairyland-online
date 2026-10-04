@@ -425,20 +425,62 @@ struct RulesTests {
         #expect(Content.shared.monsters.allSatisfy { !($0.lore ?? "").isEmpty })
     }
 
-    @Test func bossesBringMinions() throws {
+    @Test func bossesComeInWavesAndOutrankThem() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let map = try #require(Content.shared.maps.first { $0.npcs?.contains { $0.monster == "rat_king" } == true })
         let npc = try #require(map.npcs?.first { $0.monster == "rat_king" })
+        let level = try #require(npc.level)
+        let waves = try #require(BattleController.bossWaves(npc, encounters: map.encounters, session: session))
+        // Two waves of two of the map's own monsters, then the boss in the middle of two more.
+        #expect(waves.map(\.count) == [2, 2, 3])
+        #expect(waves[2][1].speciesID == "rat_king" && waves[2][1].level == level)
+        let monsters = waves.joined().filter { $0.speciesID != "rat_king" }
+        #expect(monsters.allSatisfy { map.encounters?.monsters[$0.speciesID ?? ""] != nil })
+        // The boss outranks them all, and each wave stands a little closer to its level.
+        #expect(monsters.allSatisfy { $0.level < level })
+        #expect(waves[0].allSatisfy { $0.level <= level - 7 } && waves[1].allSatisfy { $0.level <= level - 4 })
+        for (index, wave) in waves.enumerated() { #expect(wave.allSatisfy { $0.wave == index + 1 }) }
+        let ids = waves.joined().map(\.id)
+        #expect(Set(ids).count == ids.count && ids.allSatisfy { $0 >= 10 })
+
+        // The fight opens with the first wave and knows how many follow.
         let battle = try #require(BattleController.boss(npc, encounters: map.encounters, session: session))
-        // Two of the map's own monsters, a little weaker, with the boss in the middle.
-        #expect(battle.enemies.count == 3)
-        #expect(battle.enemies[1].speciesID == "rat_king")
-        let minions = battle.enemies.filter { $0.speciesID != "rat_king" }
-        #expect(minions.allSatisfy { map.encounters?.monsters[$0.speciesID ?? ""] != nil })
-        #expect(minions.allSatisfy { $0.level < (npc.level ?? 0) })
-        // Without the map's monsters it fights alone.
+        #expect(battle.enemies.count == 2 && battle.wave == 1 && battle.waveCount == 3)
+        #expect(!battle.enemies.contains { $0.speciesID == "rat_king" })
+        #if DEBUG
+        // Debug wins (screenshots) take every wave down at once.
+        battle.winForDebug()
+        #expect(battle.result?.outcome == .victory)
+        #endif
+        // Without the map's monsters it fights alone, in one wave.
         let alone = try #require(BattleController.boss(npc, session: session))
-        #expect(alone.enemies.count == 1)
+        #expect(alone.enemies.count == 1 && alone.waveCount == 1)
+    }
+
+    @Test func theNextWaveStepsInWhenOneIsBeaten() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 30, element: .neutral,
+                             stats: Stats(hp: 500, mp: 20, attack: 60, defense: 50, magic: 10, speed: 99), hp: 500, mp: 20,
+                             skills: [], captureRate: 0)
+        let foeStats = jelly.stats(at: 1)
+        let first = Combatant(id: 11, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
+                              stats: foeStats, hp: 1, mp: 0, skills: [], captureRate: jelly.captureRate)
+        var boss = Combatant(id: 20, side: .enemies, source: .wild("jelly"), name: "Boss", art: jelly.art, level: 5, element: jelly.element,
+                             stats: foeStats, hp: foeStats.hp, mp: 0, skills: [], captureRate: 0)
+        boss.wave = 2
+        let engine = BattleEngine(party: [hero], enemies: [first], content: content, seed: 9, waves: [[boss]])
+        #expect(engine.wave == 1 && engine.waveCount == 2)
+        let events = engine.resolveRound(heroAction: .attack(target: 11))
+        // Beating the first wave isn't a win yet: the boss steps in for the next round.
+        #expect(engine.outcome == .ongoing)
+        #expect(engine.wave == 2)
+        #expect(engine.combatant(20)?.isAlive == true)
+        let steppedIn = events.contains { event in
+            if case .wave(let number, let total, let arrivals) = event { return number == 2 && total == 2 && arrivals.map(\.id) == [20] }
+            return false
+        }
+        #expect(steppedIn)
     }
 
     #if DEBUG
