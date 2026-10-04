@@ -49,6 +49,10 @@ fx_stone_top | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=stone_
 fx_fire      | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=fire_bolt:7,fxstop=0.95   | 58
 fx_leaves    | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=leaf_storm:5,fxstop=0.8   | 52
 fx_water     | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=bubble:5,fxstop=0.88      | 55
+party_folded | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=twilight_woods | 15
+party_open   | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=twilight_woods,unfold | 15
+party_pet    | newgame,level=43,class=fighter,pet=pineapple,map=twilight_woods | 15
+party_landscape | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=meadowbrook,landscape | 8
 quests       | newgame,menu=quests                                 | 8
 worldmap     | newgame,worldmap                                    | 8
 monster_book | newgame,book                                        | 8

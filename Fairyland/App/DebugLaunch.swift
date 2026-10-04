@@ -11,6 +11,9 @@ import Foundation
 ///   at=x_y         start at this offset from the map's centre (e.g. at=0_14)
 ///   equip=a+b      start wearing these items (ids from content/items.json, joined with +)
 ///   bag=a+b        put these items in the bag
+///   pet=<species>  a companion of that species (content/monsters.json), out with you
+///   friends=n      that many friends (up to GameSession.maxAllies) travelling in your party
+///   unfold         the top-left HUD shows a big party in full instead of folded into one row
 ///   change=<slot>  open the Character tab's list for weapon | armor | accessory (with menu=character)
 ///   customize      open the Character tab's look editor (with menu=character)
 ///   race=<id>      play this race (content/classes.json)
@@ -97,6 +100,21 @@ enum DebugLaunch {
         }
         for id in flags["bag"]?.split(separator: "+").map(String.init) ?? [] where Content.shared.item(id) != nil {
             session.addItem(id)
+        }
+        if let species = flags["pet"], let pet = session.makePet(species: species, level: max(1, session.data.hero.level - 15)) {
+            session.addPet(pet, countsForQuests: false)
+            session.data.activePetID = pet.id
+        }
+        if let count = flags["friends"].flatMap({ Int($0) }) {
+            let people: [(name: String, race: String, classID: String)] = [("Dumpling", "human", "fighter"), ("Sprout", "elf", "mage")]
+            let friends = people.prefix(min(count, GameSession.maxAllies)).map { person in
+                Adventurer(name: person.name, raceID: person.race, classID: person.classID, level: session.data.hero.level, look: .standard)
+            }
+            session.data.friends = (session.data.friends ?? []) + friends
+            session.data.partyIDs = (session.data.partyIDs ?? []) + friends.map(\.id)
+        }
+        if flags["unfold"] != nil {
+            UserDefaults.standard.set(false, forKey: GameSettings.partyFoldedKey)
         }
         if let style = flags["style"] {
             var look = session.data.hero.look ?? .standard

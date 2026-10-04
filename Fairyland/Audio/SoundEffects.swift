@@ -8,6 +8,8 @@ nonisolated enum GameSettings {
     static let soundVolumeKey = "soundVolume"
     static let footstepsKey = "footsteps"
     static let hapticsKey = "haptics"
+    /// The top-left HUD folds a party of three or more into one row (WorldHUD); the player can unfold it.
+    static let partyFoldedKey = "partyFolded"
 
     static var musicVolume: Double { value(musicVolumeKey, fallback: 1) }
     static var soundVolume: Double { value(soundVolumeKey, fallback: 1) }
