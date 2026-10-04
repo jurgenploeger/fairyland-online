@@ -94,45 +94,56 @@ final class BattleScene: SKScene {
             // right looking back up-left; both lines sit around the middle of the screen.
             // A wide gap between the sides, so it reads as two lines facing off.
             arrange(controller.enemiesOnField, around: CGPoint(x: area.midX - 50, y: area.minY + area.height * 0.64), facing: .down)
-            arrangeParty(around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.1), facing: .up)
+            arrange(controller.party, around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.1), facing: .up)
         } else {
             arrange(controller.enemiesOnField, around: CGPoint(x: area.minX + area.width * 0.28, y: area.midY + 4), facing: .right)
-            arrangeParty(around: CGPoint(x: area.minX + area.width * 0.6, y: area.midY - 24), facing: .left)
+            arrange(controller.party, around: CGPoint(x: area.minX + area.width * 0.6, y: area.midY - 24), facing: .left)
         }
         showTargets(controller.validTargets)
     }
 
     /// Fighters stand in diagonal lines of up to five, like Fairyland's battle formation; a bigger
-    /// group forms a second row behind the first.
+    /// group forms a second row behind the first. Companions stand right behind whoever they came
+    /// with (yours behind you, a friend's behind them, a rival's behind the rival): the people make
+    /// the line, and their companions a row back.
     private func arrange(_ group: [Combatant], around center: CGPoint, facing: Direction) {
-        let rows = stride(from: 0, to: group.count, by: 5).map { Array(group[$0..<min($0 + 5, group.count)]) }
-        arrange(rows: rows, around: center, facing: facing)
-    }
-
-    /// Your side: up to five stand in one line; a bigger party puts the people in front and the
-    /// companions in a row behind them, each line in the order they joined.
-    private func arrangeParty(around center: CGPoint, facing: Direction) {
-        let party = controller.party
-        guard party.count > 5 else {
-            arrange(party, around: center, facing: facing)
+        let ids = Set(group.map(\.id))
+        let followers = group.filter { fighter in fighter.ownerID.map { ids.contains($0) } == true }
+        guard !followers.isEmpty else {
+            let rows = stride(from: 0, to: group.count, by: 5).map { Array(group[$0..<min($0 + 5, group.count)]) }
+            arrange(rows: rows, around: center, facing: facing)
             return
         }
-        let people = party.filter { $0.petID == nil }
-        let companions = party.filter { $0.petID != nil }
-        arrange(rows: [companions, people].filter { !$0.isEmpty }, around: center, facing: facing)
+        let leaders = group.filter { fighter in !followers.contains { $0.id == fighter.id } }
+        let front = rowShift(depth: 0.5, facing: facing)
+        let backRow = rowShift(depth: -0.5, facing: facing)
+        // From a fighter to the spot behind them, one row back.
+        let behind = CGVector(dx: backRow.dx - front.dx, dy: backRow.dy - front.dy)
+        let points = linePoints(count: leaders.count, around: center + front, facing: facing, trailing: behind)
+        for (fighter, point) in zip(leaders, points) {
+            actors[fighter.id]?.place(at: point, facing: Self.profile(facing))
+        }
+        for follower in followers {
+            guard let index = leaders.firstIndex(where: { $0.id == follower.ownerID }) else { continue }
+            actors[follower.id]?.place(at: points[index] + behind, facing: Self.profile(facing))
+        }
     }
 
     private func arrange(rows: [[Combatant]], around center: CGPoint, facing: Direction) {
         for (index, row) in rows.enumerated() {
             // The first row stands at the back, away from the other side.
             let depth = CGFloat(index) - CGFloat(rows.count - 1) / 2
-            let toward: CGFloat = facing == .right || facing == .down ? 1 : -1
-            // Back rows stand further from the other side: up-left for monsters, down-right for you.
-            let shift = isPortrait
-                ? CGVector(dx: depth * 36 * (facing == .down ? 1 : -1), dy: depth * 74 * (facing == .down ? -1 : 1))
-                : CGVector(dx: depth * 70 * toward, dy: -depth * 20)
-            arrangeLine(row, around: CGPoint(x: center.x + shift.dx, y: center.y + shift.dy), facing: facing)
+            arrangeLine(row, around: center + rowShift(depth: depth, facing: facing), facing: facing)
         }
+    }
+
+    /// Where a row stands from the middle of the formation, `depth` rows toward the other side
+    /// (negative: back, away from it): up-left for monsters, down-right for you.
+    private func rowShift(depth: CGFloat, facing: Direction) -> CGVector {
+        let toward: CGFloat = facing == .right || facing == .down ? 1 : -1
+        return isPortrait
+            ? CGVector(dx: depth * 36 * (facing == .down ? 1 : -1), dy: depth * 74 * (facing == .down ? -1 : 1))
+            : CGVector(dx: depth * 70 * toward, dy: -depth * 20)
     }
 
     /// Which way fighters look: across at the other side in profile, as in Fairyland's battles. In
@@ -148,26 +159,34 @@ final class BattleScene: SKScene {
     }
 
     private func arrangeLine(_ group: [Combatant], around center: CGPoint, facing: Direction) {
+        for (fighter, point) in zip(group, linePoints(count: group.count, around: center, facing: facing)) {
+            actors[fighter.id]?.place(at: point, facing: Self.profile(facing))
+        }
+    }
+
+    /// Spots for a line of `count` fighters around `center`. `trailing`: from each one to the
+    /// companion standing behind them, kept on screen too.
+    private func linePoints(count: Int, around center: CGPoint, facing: Direction, trailing: CGVector = .zero) -> [CGPoint] {
         // In portrait a long line closes up and slides over so everyone stays on screen.
-        let spacing = isPortrait ? min(108, (size.width - 100) / CGFloat(max(1, group.count - 1))) : 56
+        let room = size.width - 100 - abs(trailing.dx)
+        let spacing = isPortrait ? min(108, room / CGFloat(max(1, count - 1))) : 56
         var center = center
-        if isPortrait, group.count > 1 {
-            let half = spacing * CGFloat(group.count - 1) / 2
-            center.x = min(max(center.x, 50 + half), size.width - 50 - half)
+        if isPortrait, count > 1 {
+            let half = spacing * CGFloat(count - 1) / 2
+            center.x = min(max(center.x, 50 + half + max(0, -trailing.dx)), size.width - 50 - half - max(0, trailing.dx))
         }
         // Each fighter stands a step up from the last, at the same angle on both sides however
         // many stand in a line (a fixed step tilted a packed line of five more than a line of two).
         let rise = isPortrait ? spacing * Self.portraitSlope : -76
         // Only your party needs lifting clear of the command wheel; monsters stay where they are
         // so a long line (and a second row behind it) doesn't climb off the top.
-        if isPortrait, group.count > 1, facing == .up {
+        if isPortrait, count > 1, facing == .up {
             // Its lowest fighter stands where one alone would.
-            center.y += rise * CGFloat(group.count - 1) / 2
+            center.y += rise * CGFloat(count - 1) / 2
         }
-        for (index, fighter) in group.enumerated() {
-            let offset = CGFloat(index) - CGFloat(group.count - 1) / 2
-            let point = CGPoint(x: center.x + offset * spacing, y: center.y + offset * rise)
-            actors[fighter.id]?.place(at: point, facing: Self.profile(facing))
+        return (0..<count).map { index in
+            let offset = CGFloat(index) - CGFloat(count - 1) / 2
+            return CGPoint(x: center.x + offset * spacing, y: center.y + offset * rise)
         }
     }
 

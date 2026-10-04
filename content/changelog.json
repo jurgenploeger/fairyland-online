@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.24",
+      "date": "2026-10-04",
+      "title": "Companions behind their owners",
+      "notes": [
+        "In battle every companion stands right behind the one it came with: yours behind you, each friend's behind that friend, a rival's behind the rival. The people stand in front, however small the party."
+      ]
+    },
+    {
       "version": "0.3.23",
       "date": "2026-10-04",
       "title": "Ten seconds to choose",

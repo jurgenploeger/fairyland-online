@@ -92,23 +92,28 @@ final class BattleController {
         hero.raceID = session.data.hero.raceID
         var party: [Combatant] = [hero]
         if let pet = session.activePet, pet.hp > 0, let species = session.species(of: pet) {
-            party.append(Combatant(
+            var companion = Combatant(
                 id: 1, side: .party, source: .pet(pet.id), name: pet.name, art: session.artID(for: pet),
                 level: pet.level, element: species.element, stats: session.stats(of: pet),
                 hp: pet.hp, mp: pet.mp, skills: species.skills, captureRate: 0
-            ))
+            )
+            // It stands right behind you.
+            companion.ownerID = hero.id
+            party.append(companion)
         }
         for (index, friend) in session.friendsAtYourSide.enumerated() {
             party.append(adventurer(friend, id: 2 + index, side: .party, session: session))
-            // A friend's companion fights beside them (a step below their level, like a rival's),
+            // A friend's companion fights behind them (a step below their level, like a rival's),
             // named for its owner so it's never mistaken for yours.
             if let speciesID = friend.petSpecies, let species = session.content.monster(speciesID) {
                 let level = max(1, friend.level - 1)
                 let stats = species.stats(at: level)
-                party.append(Combatant(
+                var companion = Combatant(
                     id: 2 + GameSession.maxAllies + index, side: .party, source: .pet(UUID()), name: "\(friend.name)'s \(species.name)", art: species.art,
                     level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp, skills: species.skills, captureRate: 0
-                ))
+                )
+                companion.ownerID = 2 + index
+                party.append(companion)
             }
         }
         return party
@@ -135,10 +140,12 @@ final class BattleController {
         if let speciesID = rival.petSpecies, let species = session.content.monster(speciesID) {
             let level = max(1, rival.level - 1)
             let stats = species.stats(at: level)
-            enemies.append(Combatant(
+            var companion = Combatant(
                 id: 11, side: .enemies, source: .rival(rival.id), name: "\(rival.name)'s \(species.name)", art: species.art,
                 level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp, skills: species.skills, captureRate: 0
-            ))
+            )
+            companion.ownerID = 10
+            enemies.append(companion)
         }
         let engine = BattleEngine(party: party(for: session), enemies: enemies, content: session.content)
         let intro = rival.hostile ? "\(rival.name) picks a fight with you!" : "You challenge \(rival.name) to a duel!"

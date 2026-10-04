@@ -851,8 +851,10 @@ struct RulesTests {
         #expect(session.partyMembers[0].level == 5)
         let controller = BattleController.duel(with: grump, session: session)
         #expect(controller.party.contains { $0.name == "Momo" })
-        // Momo's companion comes along, named for Momo.
+        // Momo's companion comes along, named for Momo, and stands behind Momo.
         #expect(controller.party.contains { $0.name == "Momo's Jelly Puff" && $0.petID != nil })
+        let momo = controller.party.first { $0.name == "Momo" }
+        #expect(momo != nil && controller.party.first { $0.name == "Momo's Jelly Puff" }?.ownerID == momo?.id)
         #expect(controller.party.first { $0.name == "Momo" }?.classID == "mage")
         #expect(controller.enemies.map(\.name) == ["Grump"])
         session.leaveParty(momo.id)
