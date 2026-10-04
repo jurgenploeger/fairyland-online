@@ -22,6 +22,7 @@ import Foundation
 ///   menu=<tab>     open character | companions | bag | quests
 ///   bottom         open the menu scrolled to the end
 ///   npc=<id>       open an NPC dialog
+///   info=<item>    with npc=<a shop>: open that item's info card
 ///   worldmap       open the world map
 ///   book           open the Monster Book, with the first 24 monsters already met
 ///   landscape      lock the app to landscape
@@ -59,6 +60,8 @@ enum DebugLaunch {
     static var changingSlot: ItemType? { flags["change"].flatMap(ItemType.init(rawValue:)) }
     static var opensMenuAtBottom: Bool { flags["bottom"] != nil }
     static var opensCustomize: Bool { flags["customize"] != nil }
+    /// `info=iron_axe`: the shop's info card for that item opens with the dialog.
+    static var itemInfo: ItemDef? { flags["info"].flatMap { Content.shared.item($0) } }
     /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).
     static var introPage: Int? { flags["intro"].map { Int($0).map { $0 - 1 } ?? 0 } }
 
