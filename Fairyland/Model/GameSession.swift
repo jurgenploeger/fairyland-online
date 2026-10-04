@@ -652,12 +652,15 @@ final class GameSession {
     func invite(_ id: UUID) {
         guard let friend = friends.first(where: { $0.id == id }), !isInParty(friend), partyMembers.count < Self.maxAllies,
               adventurersAround.contains(id) else { return }
-        // Friends keep up with you, and save where you last did.
+        // Friends keep up with you, and save where you last did. Read first, then write: the right
+        // side of an optional-chained write runs while the write holds `data`, so reading `data`
+        // there (`checkpoint` does) trips Swift's exclusivity check and the game aborts.
         let level = max(friend.level, data.hero.level - 1)
+        let saved = checkpoint
         if let index = data.friends?.firstIndex(where: { $0.id == id }) {
             data.friends?[index].level = level
             data.friends?[index].waitingAt = nil
-            data.friends?[index].checkpoint = checkpoint
+            data.friends?[index].checkpoint = saved
         }
         data.partyIDs = (data.partyIDs ?? []) + [id]
         post("\(friend.name) joined your party!", .reward)

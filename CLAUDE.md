@@ -40,8 +40,10 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
   API key (`RETRO_DIFFUSION_API_KEY`).
 - **Versions:** `MARKETING_VERSION` in `project.yml` and the top entry of `content/changelog.json` move together
   (the checker enforces it). Add a changelog entry when shipping a user-visible change. 1.0.0 = App Store launch.
-- **Screenshots:** pushes to `claude/**` branches run `.github/workflows/screenshots.yml` (macOS runner):
-  it builds for the simulator and shoots the scenes in `tools/screenshots.txt` (FAIRYLAND_DEBUG flags). Results
+- **Screenshots and tests:** pushes to `claude/**` branches run `.github/workflows/screenshots.yml` (macOS
+  runner): it builds for the simulator, runs the unit tests (a failure turns the run red at the end) and
+  shoots the scenes in `tools/screenshots.txt` (FAIRYLAND_DEBUG flags); a scene that crashes the app prints
+  its crash report in the log. Results
   land on the `screenshots` branch under `<branch>/`: `git fetch origin screenshots` and read the PNGs.
 - On a Mac: `make open` or `make sim`; tests with `xcodebuild test` (see README). Tests and debug launches use
   separate save files, so they never touch the player's save.

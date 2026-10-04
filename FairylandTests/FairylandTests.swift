@@ -853,8 +853,8 @@ struct RulesTests {
         #expect(controller.party.contains { $0.name == "Momo" })
         // Momo's companion comes along, named for Momo, and stands behind Momo.
         #expect(controller.party.contains { $0.name == "Momo's Jelly Puff" && $0.petID != nil })
-        let momo = controller.party.first { $0.name == "Momo" }
-        #expect(momo != nil && controller.party.first { $0.name == "Momo's Jelly Puff" }?.ownerID == momo?.id)
+        let fighter = controller.party.first { $0.name == "Momo" }
+        #expect(fighter != nil && controller.party.first { $0.name == "Momo's Jelly Puff" }?.ownerID == fighter?.id)
         #expect(controller.party.first { $0.name == "Momo" }?.classID == "mage")
         #expect(controller.enemies.map(\.name) == ["Grump"])
         session.leaveParty(momo.id)

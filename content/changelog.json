@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.29",
+      "date": "2026-10-04",
+      "title": "Friends can join again",
+      "notes": [
+        "Inviting a friend to your party no longer crashes the game. Since 0.3.21 every invite did, whatever the size of your party: up to four friends and their companions can travel with you, ten of you in all."
+      ]
+    },
+    {
       "version": "0.3.28",
       "date": "2026-10-04",
       "title": "No take-backs",
