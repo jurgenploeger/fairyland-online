@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "small ornate red and gold flying carpet floating in the air",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 32,
+    "height": 32,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1791087097,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 44.341,
+    "request_id": "4af4441b-3633-4ea4-9451-9a3c7c668bfc",
+    "outputs_retained_until": 1791173445
+  }
+}

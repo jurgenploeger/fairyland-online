@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "glass bottle with a rolled up message lying in the sand",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 32,
+    "height": 32,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1791087229,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 43.861,
+    "request_id": "2dc99926-b1b7-4208-8e3f-133808678d22",
+    "outputs_retained_until": 1791173609
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "request": {
+    "num_images": 1,
+    "prompt": "giant cute ladybug sitting on a big green leaf",
+    "prompt_style": "rd_tile__tile_object",
+    "width": 32,
+    "height": 32,
+    "remove_bg": true
+  },
+  "result": {
+    "created_at": 1791087133,
+    "credit_cost": 2,
+    "balance_cost": 0.06,
+    "output_urls": [],
+    "model": "rd_fast",
+    "remaining_credits": 0,
+    "remaining_balance": 44.161,
+    "request_id": "c0a2b11e-c407-4470-9a5b-a1fbc0e9b9a4",
+    "outputs_retained_until": 1791173523
+  }
+}

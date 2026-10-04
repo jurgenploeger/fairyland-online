@@ -59,7 +59,10 @@ capsule (H). Mining spots include Ilium, Kars Mountain and Siwa Oasis (H).
 - Fairy-tale fields echo the lands: Genie Desert, Lotus Land (with Thumbelina), Candy Mountain, Snow White
   Forest, Emerald Road.
 - Candy Mountain is our nod to the Candy House land (Hansel and Gretel's Grasha Village): a sugar path,
-  chocolate ponds, lollipops, cotton-candy trees and presents, all palette swaps of existing art.
+  chocolate ponds, lollipops, cotton-candy trees and presents (palette swaps), and candy canes, gumdrops,
+  cupcakes and gingerbread houses. Other fields nod to their lands too: flying carpets and genie lamps in
+  the Genie Desert (1001 Nights), poppy fields on Emerald Road (Wizard of Oz), giant ladybugs in Lotus Land
+  (Thumbelina), and apples in the Snow White Forest.
 - The animals about the maps (bunnies, frogs, crabs, birds, gulls, bats) and particles such as lanterns,
   bubbles and Z's are our own whimsy. No source we could reach describes ambient animals in Fairyland Online.
 - None of the other towns exist yet: Baghdad, Port Pebbles, Dreamland, Sheep Horn Village, Emerald City,
