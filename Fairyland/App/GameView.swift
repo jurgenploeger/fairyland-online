@@ -39,6 +39,8 @@ struct GameView: View {
                     TradeView(session: coordinator.session, adventurer: adventurer, onClose: coordinator.closeOverlay)
                 case .chat:
                     ChatView(session: coordinator.session, onSay: coordinator.say, onClose: coordinator.closeOverlay)
+                case .profile(let profile):
+                    ProfileCard(session: coordinator.session, profile: profile, onClose: coordinator.closeOverlay)
                 case .npc(let id):
                     if let npc = Content.shared.npc(id) {
                         NPCDialogView(npc: npc, session: coordinator.session, onClose: coordinator.closeOverlay, onFight: coordinator.fightBoss)

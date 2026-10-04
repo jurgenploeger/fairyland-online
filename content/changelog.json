@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.19",
+      "date": "2026-10-04",
+      "title": "See anyone's stats",
+      "notes": [
+        "Tap someone on the map to see their stats: an adventurer, a friend travelling with you, a friend's companion, or your own companion. The faces in the top-left corner open them too, yours included.",
+        "The window shows their level, race and class (or species and element), HP and MP, attack, defense, magic and speed, and their skills, with your gear and EXP on your own and a friend's companion on theirs."
+      ]
+    },
+    {
       "version": "0.3.18",
       "date": "2026-10-04",
       "title": "Bosses fight in waves",

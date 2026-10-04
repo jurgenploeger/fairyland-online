@@ -31,6 +31,7 @@ import Foundation
 ///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
 ///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
 ///   menu=<tab>     open character | companions | bag | quests
+///   profile=<who>  open someone's stats: hero | pet (with pet=) | friend (with friends=)
 ///   bottom         open the menu scrolled to the end
 ///   npc=<id>       open an NPC dialog
 ///   info=<item>    with npc=<a shop>: open that item's info card
@@ -254,6 +255,15 @@ enum DebugLaunch {
         }
         if let npc = flags["npc"] {
             coordinator.open(.npc(npc))
+        }
+        if let who = flags["profile"] {
+            let session = coordinator.session
+            let profile: Profile? = switch who {
+            case "pet": session.activePet.map { .pet($0.id) }
+            case "friend": session.partyMembers.first.map { .adventurer($0) }
+            default: .hero
+            }
+            if let profile { coordinator.open(.profile(profile)) }
         }
         if flags["book"] != nil {
             coordinator.open(.menu(.companions))

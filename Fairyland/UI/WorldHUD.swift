@@ -13,8 +13,9 @@ struct WorldHUD: View {
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 6) {
-                // Only the party's fold and unfold buttons take taps; the rest lets them through to the map.
-                StatusCluster(session: session)
+                // The faces open their stats, and the party folds and unfolds; the rest lets taps
+                // through to the map.
+                StatusCluster(session: session, onInspect: { coordinator.open(.profile($0)) })
                     .coachTarget(.status)
                 CalendarPlate(session: session)
                     .allowsHitTesting(false)
@@ -104,9 +105,11 @@ struct WorldHUD: View {
 /// Fairyland's top-left faces: you in a big round frame with your level, HP and MP; your companion
 /// underneath with its own; and the friends in your party, smaller. Once three or more of you travel
 /// together, the others fold into one row of small faces under yours so they don't cover the map:
-/// tap the row to see everyone in full, and the arrow by the last friend to fold them again.
+/// tap the row to see everyone in full, and the arrow by the last friend to fold them again. Tap a
+/// face to see their stats.
 private struct StatusCluster: View {
     let session: GameSession
+    let onInspect: (Profile) -> Void
     @AppStorage(GameSettings.partyFoldedKey) private var folded = true
 
     var body: some View {
@@ -116,33 +119,42 @@ private struct StatusCluster: View {
         let friends = session.partyMembers
         let crowded = (pet == nil ? 0 : 1) + friends.count >= 2
         VStack(alignment: .leading, spacing: 4) {
-            PortraitRow(face: ArtLibrary.shared.face(GameSession.heroArt), level: hero.level, name: hero.name,
-                        detail: session.heroClass.name, size: 52,
-                        glowing: session.canChooseClass || session.canSpendSkillPoint) {
-                TaggedBar(tag: "H", value: hero.hp, maximum: stats.hp, color: HUDStyle.hp)
-                TaggedBar(tag: "M", value: hero.mp, maximum: stats.mp, color: HUDStyle.mp)
+            Button { onInspect(.hero) } label: {
+                PortraitRow(face: ArtLibrary.shared.face(GameSession.heroArt), level: hero.level, name: hero.name,
+                            detail: session.heroClass.name, size: 52,
+                            glowing: session.canChooseClass || session.canSpendSkillPoint) {
+                    TaggedBar(tag: "H", value: hero.hp, maximum: stats.hp, color: HUDStyle.hp)
+                    TaggedBar(tag: "M", value: hero.mp, maximum: stats.mp, color: HUDStyle.mp)
+                }
             }
-            .allowsHitTesting(false)
+            .buttonStyle(.plain)
+            .accessibilityLabel("\(hero.name), level \(hero.level): stats")
             if crowded && folded {
                 FoldedParty(session: session, pet: pet, friends: friends) { setFolded(false) }
                     .transition(.opacity)
             } else {
                 if let pet {
                     let petStats = session.stats(of: pet)
-                    PortraitRow(face: ArtLibrary.shared.face(session.artID(for: pet)), level: pet.level, name: pet.name,
-                                detail: pet.hp > 0 ? nil : "Fainted", size: 38) {
-                        TaggedBar(tag: "H", value: pet.hp, maximum: petStats.hp, color: HUDStyle.hp)
-                        TaggedBar(tag: "M", value: pet.mp, maximum: petStats.mp, color: HUDStyle.mp)
+                    Button { onInspect(.pet(pet.id)) } label: {
+                        PortraitRow(face: ArtLibrary.shared.face(session.artID(for: pet)), level: pet.level, name: pet.name,
+                                    detail: pet.hp > 0 ? nil : "Fainted", size: 38) {
+                            TaggedBar(tag: "H", value: pet.hp, maximum: petStats.hp, color: HUDStyle.hp)
+                            TaggedBar(tag: "M", value: pet.mp, maximum: petStats.mp, color: HUDStyle.mp)
+                        }
                     }
-                    .allowsHitTesting(false)
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(pet.name), level \(pet.level): stats")
                 }
                 ForEach(friends) { friend in
                     HStack(spacing: 4) {
-                        PortraitRow(face: ArtLibrary.shared.face(session.artID(for: friend)), level: friend.level, name: friend.name,
-                                    detail: session.content.classDef(friend.classID).name, size: 30) {
-                            EmptyView()
+                        Button { onInspect(.adventurer(friend)) } label: {
+                            PortraitRow(face: ArtLibrary.shared.face(session.artID(for: friend)), level: friend.level, name: friend.name,
+                                        detail: session.content.classDef(friend.classID).name, size: 30) {
+                                EmptyView()
+                            }
                         }
-                        .allowsHitTesting(false)
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("\(friend.name), level \(friend.level): stats")
                         if crowded && friend.id == friends.last?.id {
                             Button { setFolded(true) } label: { FoldArrow(up: true) }
                                 .buttonStyle(.plain)
