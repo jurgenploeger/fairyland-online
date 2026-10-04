@@ -81,7 +81,7 @@ private struct TabLabelStyle: LabelStyle {
     }
 }
 
-private struct SectionTitle: View {
+struct SectionTitle: View {
     let text: String
 
     var body: some View {
@@ -244,7 +244,7 @@ struct StatCell: View {
         HStack {
             Text(name).foregroundStyle(HUDStyle.dim)
             Spacer()
-            Text("\(value)")
+            Text("\(value)").foregroundStyle(.white)
         }
         .font(HUDStyle.font(12))
         .padding(.horizontal, 8)
@@ -484,7 +484,7 @@ private struct CompanionsTab: View {
             }
 
             SectionTitle(text: "Party & friends")
-            Text("Befriend adventurers you meet (walk up to one). Up to \(GameSession.maxAllies) friends can travel and fight with you, and they bring their companions.")
+            Text("Befriend adventurers you meet (walk up to one). Up to \(GameSession.maxAllies) friends can travel and fight with you, and they bring their companions. They fight on if you faint, and wait where you fell; a friend who faints wakes up at their own checkpoint. Walk up to them to set off together again.")
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
             if session.friends.isEmpty {
@@ -531,6 +531,11 @@ private struct FriendRow: View {
                     Text("with their \(pet.name)")
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.green)
+                }
+                if let place = session.whereabouts(of: friend) {
+                    Text("Waiting for you at \(place)")
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.orange)
                 }
             }
             Spacer()

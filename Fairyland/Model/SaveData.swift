@@ -131,8 +131,6 @@ nonisolated struct SaveData: Codable, Sendable {
     var savedAt: Date?
 }
 
-/// Another adventurer (Fairyland's other players): met on the map, befriended, and maybe
-/// invited to travel and fight alongside you.
 /// A Monster Book entry: how many you've beaten and the levels you've met it at.
 nonisolated struct MonsterSighting: Codable, Equatable, Sendable {
     var defeated = 0
@@ -140,6 +138,8 @@ nonisolated struct MonsterSighting: Codable, Equatable, Sendable {
     var highestLevel: Int
 }
 
+/// Another adventurer (Fairyland's other players): met on the map, befriended, and maybe
+/// invited to travel and fight alongside you.
 nonisolated struct Adventurer: Codable, Equatable, Identifiable, Sendable {
     var id = UUID()
     var name: String
@@ -150,12 +150,26 @@ nonisolated struct Adventurer: Codable, Equatable, Identifiable, Sendable {
     var petSpecies: String?
     /// Red-named troublemakers in danger zones pick fights.
     var hostile = false
+    /// A friend in your party who isn't at your side: where they wait for you to come back for them
+    /// (where a fight you fainted in was, or their own checkpoint after one they fainted in).
+    var waitingAt: Spot?
+    /// Where they wake up after fainting: the last checkpoint they reached with you.
+    var checkpoint: Checkpoint?
 }
 
 /// A town square, or the entrance you last walked into a map through.
 nonisolated struct Checkpoint: Codable, Equatable, Sendable {
     var mapID: String
     /// nil: the map's centre (towns); otherwise just inside this edge.
+    var entry: Edge?
+}
+
+/// Somewhere on a map: a point on it, or a checkpoint's spot (an entrance, or a town's square).
+nonisolated struct Spot: Codable, Equatable, Sendable {
+    var mapID: String
+    /// Where on the map, in scene points like `SaveData.position`; nil: `entry`'s spot.
+    var position: [Double]?
+    /// Just inside this edge; with no position either, the map's centre.
     var entry: Edge?
 }
 

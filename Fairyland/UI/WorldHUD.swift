@@ -146,15 +146,20 @@ private struct StatusCluster: View {
                     .accessibilityLabel("\(pet.name), level \(pet.level): stats")
                 }
                 ForEach(friends) { friend in
+                    // A friend waiting somewhere for you to come back for them is greyed out.
+                    let away = session.whereabouts(of: friend)
+                    let waiting = away.map { ", waiting at \($0)" } ?? ""
                     HStack(spacing: 4) {
                         Button { onInspect(.adventurer(friend)) } label: {
                             PortraitRow(face: ArtLibrary.shared.face(session.artID(for: friend)), level: friend.level, name: friend.name,
-                                        detail: session.content.classDef(friend.classID).name, size: 30) {
+                                        detail: away == nil ? session.content.classDef(friend.classID).name : "Waiting", size: 30) {
                                 EmptyView()
                             }
+                            .saturation(away == nil ? 1 : 0)
+                            .opacity(away == nil ? 1 : 0.75)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("\(friend.name), level \(friend.level): stats")
+                        .accessibilityLabel("\(friend.name), level \(friend.level)\(waiting): stats")
                         if crowded && friend.id == friends.last?.id {
                             Button { setFolded(true) } label: { FoldArrow(up: true) }
                                 .buttonStyle(.plain)
@@ -172,7 +177,8 @@ private struct StatusCluster: View {
 }
 
 /// A big party folded into one row of small faces under yours: your companion's with a thin HP bar
-/// (grey once it has fainted), then your friends'. Tap it to see everyone in full.
+/// (grey once it has fainted), then your friends' (grey while they wait somewhere for you). Tap it to
+/// see everyone in full.
 private struct FoldedParty: View {
     let session: GameSession
     let pet: Pet?
@@ -194,6 +200,7 @@ private struct FoldedParty: View {
                 }
                 ForEach(friends) { friend in
                     Portrait(face: ArtLibrary.shared.face(session.artID(for: friend)), level: friend.level, size: 30)
+                        .saturation(friend.waitingAt == nil ? 1 : 0)
                 }
                 FoldArrow(up: false)
             }

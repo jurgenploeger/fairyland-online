@@ -269,6 +269,13 @@ adventurer drops everything they carry (the goods they'd sell you that day).
   - Us (since 0.3.18): two waves of the map's monsters, then the boss with its minions. HP and MP carry
     over, each wave stands a few levels closer to the boss's, and the boss always has the highest level.
   - `waves` and `minions` on the boss NPC (content/maps.json) tune it per boss.
+- **Fainting in a party:** ours, asked for in playtesting (2026-10-04). How FO handled a player fainting
+  mid-fight (whether the others fought on, and where everyone woke up) isn't in any source reachable from a
+  cloud session.
+  - Us (since 0.3.21): the fight goes on while a friend stands, and a friend who knows Revive wakes you
+    first. Whoever is down at the end wakes at their own checkpoint (you get no EXP if your friends won it),
+    and friends still standing when you fell wait where the fight was. Waiting friends stay in the party but
+    sit out fights until you walk up to them.
 - **Selling products:** Logistics Trading Officers in the three capitals pay more for products than ordinary
   shops.
 

@@ -52,7 +52,17 @@ final class WorldScene: SKScene {
     private var crowd: Crowd?
     private var caveWalls: CaveWalls?
     /// Friends in your party walk behind you in a little line, each with their companion at their side.
-    private var allies: [(id: UUID, node: Walker, pet: Walker?)] = []
+    /// Those waiting for you on this map (`Adventurer.waitingAt`) stand where they are instead, until
+    /// you walk up to them.
+    private struct Ally {
+        let id: UUID
+        let node: Walker
+        let pet: Walker?
+        var waiting: Spot?
+    }
+    private var allies: [Ally] = []
+    /// How close you come to a friend waiting for you before they set off with you again.
+    private let rejoinRange: CGFloat = 64
     /// Roads that stay closed until a quest is done: the barricade nodes and the cells they block.
     private var barricades: [(exit: MapDef.Exit, nodes: [SKNode], cells: Set<GridPoint>)] = []
     private var lastBlockedNotice = Date.distantPast
@@ -1037,29 +1047,43 @@ final class WorldScene: SKScene {
         return crowd?.adventurer(at: point).map { .adventurer($0) }
     }
 
-    /// Keeps the walking party in sync with who's in it.
+    /// Keeps the party on this map in sync with who's in it: friends at your side walk behind you,
+    /// and friends waiting for you here stand at their spot.
     private func refreshAllies() {
-        let members = session.partyMembers
-        guard members.map(\.id) != allies.map(\.id) else { return }
+        let members = session.partyMembers.filter { $0.waitingAt == nil || $0.waitingAt?.mapID == def.id }
+        guard members.map(\.id) != allies.map(\.id) || members.map(\.waitingAt) != allies.map(\.waiting) else { return }
         for ally in allies where !members.contains(where: { $0.id == ally.id }) {
-            if let friend = session.friends.first(where: { $0.id == ally.id }) {
+            if let friend = session.friends.first(where: { $0.id == ally.id }), !session.isInParty(friend) {
                 // Left the party but still a friend: they stay here, so you can invite them back.
                 crowd?.rejoin(friend, at: ally.node.position, world: world)
             } else {
+                // Gone: unfriended, or off to wait for you on another map.
                 SkillEffects.smoke(at: ally.node.position, in: world)
             }
             ally.node.removeFromParent()
             ally.pet?.removeFromParent()
         }
-        allies = members.map { friend in
-            if let existing = allies.first(where: { $0.id == friend.id }) { return existing }
+        allies = members.enumerated().map { index, friend in
+            if var existing = allies.first(where: { $0.id == friend.id }) {
+                // Fainted beside you: off to their checkpoint on this map, to wait for you there.
+                if let spot = friend.waitingAt, spot != existing.waiting {
+                    SkillEffects.smoke(at: existing.node.position, in: world)
+                    move(existing, to: point(for: spot, index: index))
+                }
+                existing.waiting = friend.waitingAt
+                return existing
+            }
             let node = Walker(cycle: art.walkCycle(session.artID(for: friend)), label: friend.name, labelColor: HUDStyle.partyGreen)
             node.walkSpeed = 105
             node.tagMode = .whenStill
-            // Recruited on this map: they start where they stood.
-            let beside = player.position + CGVector(dx: -40, dy: -10)
-            node.position = crowd?.position(of: friend.id) ?? (canStand(at: beside) ? beside : player.position)
-            crowd?.remove(friend.id, poof: false)
+            if let spot = friend.waitingAt {
+                node.position = point(for: spot, index: index)
+            } else {
+                // Recruited on this map: they start where they stood.
+                let beside = player.position + CGVector(dx: -40, dy: -10)
+                node.position = crowd?.position(of: friend.id) ?? (canStand(at: beside) ? beside : player.position)
+                crowd?.remove(friend.id, poof: false)
+            }
             world.addChild(node)
             // Their companion comes along too, at their side.
             var pet: Walker?
@@ -1072,7 +1096,40 @@ final class WorldScene: SKScene {
                 world.addChild(walker)
                 pet = walker
             }
-            return (friend.id, node, pet)
+            return Ally(id: friend.id, node: node, pet: pet, waiting: friend.waitingAt)
+        }
+    }
+
+    /// Puts a friend, and their companion, somewhere else on the map at once.
+    private func move(_ ally: Ally, to point: CGPoint) {
+        ally.node.position = point
+        ally.node.setWalking(false)
+        guard let pet = ally.pet else { return }
+        let side = point + CGVector(dx: 24, dy: 0)
+        pet.position = canStand(at: side) ? side : point
+        pet.setWalking(false)
+    }
+
+    /// Where a friend waiting for you stands: where they were left (a step apart from the others
+    /// there), or their checkpoint's spot, on ground they can stand on.
+    private func point(for spot: Spot, index: Int) -> CGPoint {
+        var anchor = map.center(of: map.center)
+        if let entry = spot.entry { anchor = map.center(of: map.entryCell(from: entry)) }
+        if let position = spot.position, position.count == 2 { anchor = CGPoint(x: position[0], y: position[1]) }
+        let apart = [CGVector(dx: -36, dy: 10), CGVector(dx: 36, dy: 10), CGVector(dx: -18, dy: -22), CGVector(dx: 18, dy: -22)]
+        let wanted = anchor + apart[index % apart.count]
+        if canStand(at: wanted) { return wanted }
+        if let open = map.nearestWalkable(to: map.cell(at: wanted)) { return map.center(of: open) }
+        return anchor
+    }
+
+    /// Friends waiting for you set off with you again once you reach them. Not while you can't walk:
+    /// after you faint, this map lingers under the loading card with you still where you fell.
+    private func rejoinWaitingFriends() {
+        guard !isInputLocked else { return }
+        for ally in allies where ally.waiting != nil && ally.node.position.distance(to: player.position) < rejoinRange {
+            session.rejoin(ally.id)
+            ally.node.say(["There you are!", "Let's go!", "Back together!"].randomElement() ?? "Let's go!")
         }
     }
 
@@ -1140,15 +1197,20 @@ final class WorldScene: SKScene {
         let standable: (CGPoint) -> Bool = { self.canStand(at: $0) }
         follower?.follow(player, dt: dt, footstep: player.footstep(behind: 36), canStand: standable)
         var leader: Walker = follower ?? player
-        for (index, ally) in allies.enumerated() {
-            let place = CGFloat(index + (follower == nil ? 1 : 2)) * 36
-            ally.node.follow(leader, dt: dt, footstep: player.footstep(behind: place), canStand: standable)
-            ally.node.zPosition = -ally.node.position.y
-            if let pet = ally.pet {
-                pet.follow(ally.node, dt: dt, footstep: player.footstep(behind: place + 18), canStand: standable, beside: true)
-                pet.zPosition = -pet.position.y
+        var place = follower == nil ? 1 : 2
+        for ally in allies {
+            if ally.waiting == nil {
+                let behind = CGFloat(place) * 36
+                ally.node.follow(leader, dt: dt, footstep: player.footstep(behind: behind), canStand: standable)
+                ally.pet?.follow(ally.node, dt: dt, footstep: player.footstep(behind: behind + 18), canStand: standable, beside: true)
+                leader = ally.node
+                place += 1
+            } else if ally.node.position.distance(to: player.position) < Walker.nameRange {
+                // Waiting for you: they stay put, and turn to watch you come.
+                ally.node.face(Direction(player.position - ally.node.position, current: ally.node.facing))
             }
-            leader = ally.node
+            ally.node.zPosition = -ally.node.position.y
+            if let pet = ally.pet { pet.zPosition = -pet.position.y }
         }
         crowd?.update(dt: dt, player: player.position)
         let visible = CGRect(x: cam.position.x - size.width / 2, y: cam.position.y - size.height / 2, width: size.width, height: size.height)
@@ -1159,6 +1221,7 @@ final class WorldScene: SKScene {
             updateNotices()
             refreshFollower()
             refreshHero()
+            rejoinWaitingFriends()
             refreshAllies()
             let nearby = crowd?.adventurer(near: player.position, within: 80)
             if session.nearbyAdventurer?.id != nearby?.id { session.nearbyAdventurer = nearby }
@@ -1300,6 +1363,7 @@ final class WorldScene: SKScene {
         input.move = .zero
         refreshHero()
         refreshFollower()
+        refreshAllies()
         updateNotices()
     }
 

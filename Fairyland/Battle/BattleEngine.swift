@@ -72,6 +72,11 @@ struct Combatant: Identifiable {
 
     var isAlive: Bool { hp > 0 && !isCaptured && !hasFled }
     var isHero: Bool { source == .hero }
+    /// A friend fighting on your side.
+    var isAlly: Bool {
+        if case .ally = source { return true }
+        return false
+    }
     var hpFraction: Double { stats.hp > 0 ? Double(hp) / Double(stats.hp) : 0 }
     var mpFraction: Double { stats.mp > 0 ? Double(mp) / Double(stats.mp) : 0 }
 
@@ -431,9 +436,15 @@ final class BattleEngine {
         return .attack(target: target.id)
     }
 
-    /// Adventurers fight like players: heal a friend in trouble, otherwise skills and attacks.
+    /// Adventurers fight like players: wake a fallen friend (you first), heal one in trouble,
+    /// otherwise skills and attacks.
     private func adventurerAction(for fighter: Combatant) -> BattleAction {
         let skills = usableSkills(of: fighter)
+        let fallen = combatants.filter { $0.side == .party && $0.isFallen && ($0.isHero || $0.isAlly) }
+        if fighter.side == .party, let revive = skills.first(where: { $0.kind == .revive }),
+           let down = fallen.first(where: \.isHero) ?? fallen.first {
+            return .skill(revive.id, target: down.id)
+        }
         if let heal = skills.filter({ $0.kind == .heal }).max(by: { $0.power < $1.power }),
            let hurt = alive(on: fighter.side).filter({ $0.hpFraction < 0.4 }).min(by: { $0.hpFraction < $1.hpFraction }) {
             return .skill(heal.id, target: hurt.id)
@@ -567,7 +578,9 @@ final class BattleEngine {
         // A beaten wave with another to come isn't a win yet (the next one steps in at the round's end).
         if alive(on: .enemies).isEmpty, waves.isEmpty {
             outcome = combatants.contains { $0.side == .enemies && $0.hasFled } ? .fled : .victory
-        } else if hero?.isAlive != true {
+        } else if !combatants.contains(where: { ($0.isHero || $0.isAlly) && $0.isAlive }) {
+            // Your friends fight on after you fall; it's lost once nobody is left standing
+            // (companions don't fight on by themselves).
             outcome = .defeat
         }
     }
@@ -582,6 +595,15 @@ final class BattleEngine {
             combatants[index].hp = 0
             events.append(.defeated(combatants[index].id))
         }
+        updateOutcome()
+        return events
+    }
+
+    /// Debug launches (`herodown`): the hero faints where they stand.
+    func knockOutHeroForDebug() -> [BattleEvent] {
+        guard let hero, hero.isAlive else { return [] }
+        var events: [BattleEvent] = []
+        applyDamage(Hit(target: hero.id, amount: hero.hp, effectiveness: 1, critical: false), events: &events)
         updateOutcome()
         return events
     }

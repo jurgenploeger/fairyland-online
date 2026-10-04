@@ -143,6 +143,8 @@ final class GameCoordinator {
 
     /// Shows the loading card first, then builds the (big) map behind it.
     private func go(to map: MapDef, entry: Edge?) {
+        // The map you're leaving stays on screen under the card for a moment: nothing more happens on it.
+        world.isInputLocked = true
         loadingMapName = map.name
         loadingStarted = Date()
         loadProgress = 0
@@ -252,14 +254,15 @@ final class GameCoordinator {
     #endif
 
     private func endBattle(_ outcome: BattleOutcome) {
+        let fainted = battle?.heroIsDown == true
         battle = nil
         battleScene = nil
         if let rival, outcome == .victory { world.dismissAdventurer(rival.id) }
         rival = nil
         if let boss, outcome == .victory { session.defeatBoss(boss) }
         boss = nil
-        if outcome == .defeat, let map = Content.shared.map(session.checkpoint.mapID) {
-            // Fainted: wake up at the checkpoint.
+        if fainted, let map = Content.shared.map(session.checkpoint.mapID) {
+            // Fainted (even if your friends won): wake up at the checkpoint.
             go(to: map, entry: session.checkpoint.entry)
         } else {
             world.resume()

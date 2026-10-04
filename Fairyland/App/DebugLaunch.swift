@@ -13,6 +13,7 @@ import Foundation
 ///   bag=a+b        put these items in the bag
 ///   pet=<species>  a companion of that species (content/monsters.json), out with you
 ///   friends=n      that many friends (up to GameSession.maxAllies) travelling in your party
+///   away=n         with friends: the first n of them wait for you a few steps east of where you start
 ///   unfold         the top-left HUD shows a big party in full instead of folded into one row
 ///   change=<slot>  open the Character tab's list for weapon | armor | accessory (with menu=character)
 ///   customize      open the Character tab's look editor (with menu=character)
@@ -27,6 +28,7 @@ import Foundation
 ///   wave=<n>       with boss: the fight opens at that wave (3: the boss's own)
 ///   orders         with battle: the hero picks Attack on the first monster, so your companion's turn shows
 ///   afflict        with battle: the first monster poisoned, the next one cursed, and the hero poisoned
+///   herodown       with battle: the hero faints at once, and any friends fight on without them
 ///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
 ///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
 ///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
@@ -166,6 +168,15 @@ enum DebugLaunch {
                 session.playerPosition = grid.center(of: grid.offset(parts[0], parts[1]))
             }
         }
+        // `away=1`: friends waiting for you to come back for them, a few steps east of you.
+        if let count = flags["away"].flatMap({ Int($0) }), let def = Content.shared.map(session.data.mapID) {
+            let grid = WorldMap(def: def)
+            let start = session.playerPosition ?? grid.center(of: grid.center)
+            for friend in session.partyMembers.prefix(count) {
+                guard let index = session.data.friends?.firstIndex(where: { $0.id == friend.id }) else { continue }
+                session.data.friends?[index].waitingAt = Spot(mapID: def.id, position: [Double(start.x) + 160, Double(start.y) + 20])
+            }
+        }
         return session
     }
 
@@ -203,6 +214,13 @@ enum DebugLaunch {
                 Task {
                     try? await Task.sleep(for: .seconds(1.5))
                     battle.afflictForDebug()
+                }
+            }
+            // `herodown`: once everyone has marched in, the hero faints and the friends fight on.
+            if flags["herodown"] != nil, let battle = coordinator.battle {
+                Task {
+                    try? await Task.sleep(for: .seconds(2))
+                    battle.knockOutHeroForDebug()
                 }
             }
             // `cast=stone_spike:5`: once the battle is on screen and everyone is in, the hero casts.
