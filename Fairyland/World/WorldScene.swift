@@ -1091,6 +1091,7 @@ final class WorldScene: SKScene {
                 return existing
             }
             let node = Walker(cycle: art.walkCycle(session.artID(for: friend)), label: friend.name, labelColor: HUDStyle.partyGreen, badge: .bot)
+            node.setGear(weapon: GameSession.weapon(for: friend), accessory: nil)
             node.walkSpeed = 105
             node.tagMode = .whenStill
             if let spot = friend.waitingAt {

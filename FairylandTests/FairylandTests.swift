@@ -1086,6 +1086,23 @@ struct RulesTests {
         #expect(!GameSession.wearsBoots(bot("fighter", 30)))
     }
 
+    @Test func botsFightWithAWeaponForTheirClassAndLevel() {
+        var held: Set<String> = []
+        for _ in 0..<60 {
+            for (classID, level) in [("novice", 5), ("fighter", 45), ("mage", 45), ("tamer", 70), ("fighter", 90)] {
+                let someone = Adventurer(name: "Momo", raceID: "elf", classID: classID, level: level, look: .standard)
+                let weapon = GameSession.weapon(for: someone)
+                #expect(weapon?.type == .weapon)
+                #expect((weapon?.level ?? 1) <= level, "\(weapon?.id ?? "-") is above level \(level)")
+                #expect(weapon?.classes?.contains(classID) ?? true, "a \(classID) can't hold \(weapon?.id ?? "-")")
+                // The same adventurer always holds the same.
+                #expect(GameSession.weapon(for: someone)?.id == weapon?.id)
+                if let weapon { held.insert(weapon.id) }
+            }
+        }
+        #expect(held.count >= 8)
+    }
+
     @Test func aBackupComesBackAsAGameOfItsOwn() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.data.hero.level = 12

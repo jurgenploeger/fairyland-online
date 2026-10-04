@@ -2,6 +2,17 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.37",
+      "date": "2026-10-04",
+      "title": "Armed friends, a tidy line, honest roads",
+      "notes": [
+        "Your friends and the other adventurers hold a weapon for their class and level, on the map and in battle, and their card shows what they hold and wear.",
+        "Friends and companions walking behind you show their walk the whole way instead of sliding along.",
+        "In battle, your line stays evenly spaced and now spreads across the screen: it only keeps room at the end for a companion when there is one.",
+        "The world map shows quest gates the way the game has them: a road is dashed with a lock at the end it's closed from, and it's open coming the other way. Tap a place to read which road is closed and which quest opens it."
+      ]
+    },
+    {
       "version": "0.3.36",
       "date": "2026-10-04",
       "title": "A slimmer turn clock",

@@ -134,6 +134,17 @@ final class BattleController {
         return fighter
     }
 
+    /// The adventurer a fighter is: a friend at your side or the rival you're duelling (not their
+    /// companions, who come from the same person).
+    func person(behind fighter: Combatant) -> Adventurer? {
+        guard fighter.art.hasPrefix("adv:") else { return nil }
+        switch fighter.source {
+        case .ally(let id): return session.friends.first { $0.id == id }
+        case .rival(let id): return rival?.id == id ? rival : nil
+        default: return nil
+        }
+    }
+
     /// A duel with another adventurer (and their companion) in a danger zone.
     static func duel(with rival: Adventurer, session: GameSession) -> BattleController {
         var enemies = [adventurer(rival, id: 10, side: .enemies, session: session)]

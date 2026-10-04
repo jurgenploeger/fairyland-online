@@ -744,6 +744,22 @@ final class GameSession {
         return choices[Int((seed / 3) % UInt64(choices.count))]
     }
 
+    /// The weapon an adventurer fights with, in their hand on the map and in battle: one for their
+    /// class, of the best kind they're old enough for (a kind lower for a third of them), the same
+    /// one every time, like their armour.
+    static func weapon(for adventurer: Adventurer) -> ItemDef? {
+        let usable = Content.shared.items.filter {
+            $0.type == .weapon && ($0.level ?? 1) <= adventurer.level && ($0.classes?.contains(adventurer.classID) ?? true)
+        }
+        let tiers = Set(usable.map { $0.level ?? 1 }).sorted(by: >)
+        guard let best = tiers.first else { return nil }
+        // A different draw from their armour's, so the two don't always step down together.
+        let seed = Self.seed(adventurer.id) / 11
+        let tier = tiers.count > 1 && seed % 3 == 0 ? tiers[1] : best
+        let choices = usable.filter { ($0.level ?? 1) == tier }
+        return choices[Int((seed / 3) % UInt64(choices.count))]
+    }
+
     /// Speed boots, on a third of the adventurers old enough to wear them.
     static func wearsBoots(_ adventurer: Adventurer) -> Bool {
         guard let boots = Content.shared.items.first(where: { $0.wear == "boots" }) else { return false }

@@ -29,6 +29,9 @@ final class BattleScene: SKScene {
             let actor = BattleActor(fighter: fighter, art: art)
             if fighter.isHero {
                 actor.setGear(weapon: controller.session.equipped(.weapon), accessory: controller.session.equipped(.accessory))
+            } else if let person = controller.person(behind: fighter) {
+                // Friends and rivals fight with a weapon of their own, as you do.
+                actor.setGear(weapon: GameSession.weapon(for: person), accessory: nil)
             }
             actors[fighter.id] = actor
             stage.addChild(actor)
@@ -125,7 +128,8 @@ final class BattleScene: SKScene {
         let backRow = rowShift(depth: -0.5, facing: facing)
         // From a fighter to the spot behind them, one row back.
         let behind = CGVector(dx: backRow.dx - front.dx, dy: backRow.dy - front.dy)
-        let points = linePoints(count: leaders.count, around: center + front, facing: facing, trailing: behind)
+        let escorted = Set(leaders.indices.filter { index in followers.contains { $0.ownerID == leaders[index].id } })
+        let points = linePoints(count: leaders.count, around: center + front, facing: facing, trailing: behind, escorted: escorted)
         for (fighter, point) in zip(leaders, points) {
             actors[fighter.id]?.place(at: point, facing: Self.profile(facing))
         }
@@ -170,16 +174,21 @@ final class BattleScene: SKScene {
         }
     }
 
-    /// Spots for a line of `count` fighters around `center`. `trailing`: from each one to the
-    /// companion standing behind them, kept on screen too.
-    private func linePoints(count: Int, around center: CGPoint, facing: Direction, trailing: CGVector = .zero) -> [CGPoint] {
+    /// Spots for a line of `count` fighters around `center`, evenly spaced. `trailing`: from each one
+    /// to the companion standing behind them; `escorted`: which of them have one, kept on screen too.
+    private func linePoints(count: Int, around center: CGPoint, facing: Direction, trailing: CGVector = .zero,
+                            escorted: Set<Int> = []) -> [CGPoint] {
+        // Only a companion behind the first or last one sticks out past the end of the line, so
+        // room is kept for it only then: a full line without spreads across the screen, centred.
+        let extraLeft = trailing.dx < 0 && escorted.contains(0) ? -trailing.dx : 0
+        let extraRight = trailing.dx > 0 && escorted.contains(count - 1) ? trailing.dx : 0
         // In portrait a long line closes up and slides over so everyone stays on screen.
-        let room = size.width - 100 - abs(trailing.dx)
+        let room = size.width - 100 - extraLeft - extraRight
         let spacing = isPortrait ? min(108, room / CGFloat(max(1, count - 1))) : 56
         var center = center
         if isPortrait, count > 1 {
             let half = spacing * CGFloat(count - 1) / 2
-            center.x = min(max(center.x, 50 + half + max(0, -trailing.dx)), size.width - 50 - half - max(0, trailing.dx))
+            center.x = min(max(center.x, 50 + half + extraLeft), size.width - 50 - half - extraRight)
         }
         // Each fighter stands a step up from the last, at the same angle on both sides however
         // many stand in a line (a fixed step tilted a packed line of five more than a line of two).
