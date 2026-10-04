@@ -276,7 +276,23 @@ for map_def in maps.values():
         spread = prop.get("spread", 1)
         check(isinstance(spread, int) and spread > 0, f"map {map_def['id']} prop {prop['art']} → spread must be a positive whole number")
 
-rule_keys = {"hue", "minSaturation", "maxSaturation", "minValue", "maxValue", "to", "shift", "saturation", "value"}
+rule_keys = {"hue", "minSaturation", "maxSaturation", "minValue", "maxValue", "to", "shift", "spread", "saturation", "value"}
+def check_rules(rules, where):
+    """Recolour rules (Recolor.swift): known keys, a hue window in degrees, and `spread` only with
+    `to` and a window narrow enough to have a middle."""
+    for rule in rules:
+        check(set(rule) <= rule_keys, f"{where} → unknown recolor keys {set(rule) - rule_keys}")
+        hue = rule.get("hue")
+        check(hue is None or (isinstance(hue, list) and len(hue) == 2 and all(0 <= h <= 360 for h in hue)),
+              f"{where} → hue must be [from, to] in degrees")
+        check(not ("to" in rule and "shift" in rule), f"{where} → a rule sets the hue (to) or turns it (shift), not both")
+        if "spread" in rule and hue:
+            width = hue[1] - hue[0] if hue[0] <= hue[1] else hue[1] + 360 - hue[0]
+            check("to" in rule and width <= 180 and -1.5 <= rule["spread"] <= 1.5,
+                  f"{where} → spread needs `to`, a hue window up to 180 degrees wide and a value from -1.5 to 1.5")
+        else:
+            check("spread" not in rule, f"{where} → spread needs a hue window to find the middle of")
+
 for map_def in maps.values():
     palette = map_def["theme"].get("palette")
     if not palette:
@@ -293,8 +309,7 @@ for map_def in maps.values():
     for key in ("lightStrength", "variation"):
         if key in palette:
             check(isinstance(palette[key], (int, float)) and 0 <= palette[key] <= 1, f"{where} → {key} must be between 0 and 1")
-    for rule in palette.get("recolor", []):
-        check(set(rule) <= rule_keys, f"{where} → unknown recolor keys {set(rule) - rule_keys}")
+    check_rules(palette.get("recolor", []), where)
 
 ambience_keys = {"particles", "butterflies", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground", "focus", "darkness"}
 for map_def in maps.values():
@@ -330,6 +345,7 @@ for map_def in maps.values():
 
 for kind in ("hair", "outfits", "skin"):
     for preset in appearance[kind]:
+        check_rules(preset["recolor"], f"look {preset['id']}")
         if "unlock" in preset:
             check(preset["unlock"] in quests, f"look {preset['id']} → unknown quest {preset['unlock']}")
 # The window hair colours widen to on the hero's hair and locks layers (GameSession.hairLayerRules).
@@ -361,6 +377,9 @@ for map_def in maps.values():
 for asset in art.values():
     if "derive" in asset:
         check(asset["derive"]["from"] in art, f"art {asset['id']} → unknown base {asset['derive']['from']}")
+        check_rules(asset["derive"]["recolor"], f"art {asset['id']} derive")
+for item in items.values():
+    check_rules((item.get("recolor") or []) + (item.get("tint") or []), f"item {item['id']}")
 
 changelog = load("content/changelog.json")["releases"]
 versions = [r["version"] for r in changelog]

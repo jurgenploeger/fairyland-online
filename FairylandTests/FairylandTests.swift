@@ -165,6 +165,19 @@ struct LookTests {
         }
     }
 
+    @Test func spreadMeasuresFromTheWindowsMiddle() throws {
+        // A green ramp (highlights 70, shadows 150) turned brown keeps its shading's hue shift:
+        // the middle lands on `to` and each hue stays its distance from the middle times `spread`.
+        let green = try JSONDecoder().decode(RecolorRule.self, from: Data(#"{"hue": [70, 150], "to": 25, "spread": -0.3}"#.utf8))
+        #expect(green.distanceFromMiddle(of: 110) == 0)
+        #expect(green.distanceFromMiddle(of: 150) == 40)
+        #expect(green.distanceFromMiddle(of: 70) == -40)
+        // A window that wraps round red has its middle at 355.
+        let pink = try JSONDecoder().decode(RecolorRule.self, from: Data(#"{"hue": [330, 20], "to": 200}"#.utf8))
+        #expect(pink.distanceFromMiddle(of: 10) == 15)
+        #expect(pink.distanceFromMiddle(of: 340) == -15)
+    }
+
     @Test func customisingTheHeroAndCompanion() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let options = Content.shared.appearance
