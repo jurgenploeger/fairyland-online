@@ -49,14 +49,30 @@ struct MonsterBook: View {
         return Button {
             element = value
         } label: {
-            Text(value?.displayName ?? "All")
+            // The chosen element lights up as its gem; the others wear a small one.
+            if let value, on {
+                HStack(spacing: 4) {
+                    IconImage(value.icon, size: 12)
+                    Text(value.displayName)
+                }
                 .font(HUDStyle.font(10))
+                .frame(height: 14)
+                .onElementGem(value, horizontal: 9, vertical: 4)
+            } else {
+                HStack(spacing: 4) {
+                    if let value { ElementIcon(element: value, size: 14).accessibilityHidden(true) }
+                    Text(value?.displayName ?? "All")
+                }
+                .font(HUDStyle.font(10))
+                .frame(height: 14)
                 .foregroundStyle(on ? HUDStyle.ink : HUDStyle.cream)
                 .padding(.horizontal, 9)
                 .padding(.vertical, 4)
-                .background(Capsule().fill(on ? (value.map { Color(uiColor: $0.color) } ?? HUDStyle.gold) : .white.opacity(0.1)))
+                .background(Capsule().fill(on ? HUDStyle.gold : .white.opacity(0.1)))
+            }
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(on ? .isSelected : [])
     }
 
     @ViewBuilder
@@ -81,7 +97,7 @@ struct MonsterBook: View {
                 .fill(.white.opacity(seen ? 0.08 : 0.03))
                 .overlay(alignment: .topTrailing) {
                     if seen {
-                        Circle().fill(Color(uiColor: monster.element.color)).frame(width: 8, height: 8).padding(5)
+                        ElementIcon(element: monster.element, size: 16).padding(4)
                     }
                 }
         )

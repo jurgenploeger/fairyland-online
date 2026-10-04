@@ -89,6 +89,9 @@ ICONS = {
     "pine-tree": ("nature/pine-tree", "solid"),
     "tooth": ("health/tooth", "solid"),
     "bounce": ("arrows/chevron-double-up", "solid"),
+    # Elements (the rest are flame, droplet, leaf, mountain, sun and moon above)
+    "magnet": ("education/magnet", "solid"),
+    "circle-dashed": ("essential/circle-dashed", "solid"),
 }
 
 
