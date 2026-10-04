@@ -322,36 +322,118 @@ private struct EquipmentRow: View {
     }
 }
 
+/// An element's shape and name on a glossy pill of its gem.
 struct ElementBadge: View {
     let element: Element
 
     var body: some View {
         HStack(spacing: 3) {
-            IconImage(element.icon, size: 9)
+            IconImage(element.icon, size: 10)
             Text(element.displayName)
         }
         .font(HUDStyle.font(9))
-        .foregroundStyle(HUDStyle.ink)
-        .padding(.horizontal, 6)
-        .padding(.vertical, 2)
-        .background(Capsule().fill(Color(uiColor: element.color)))
+        .onElementGem(element, horizontal: 7, vertical: 2.5)
     }
 }
 
-/// An element's shape on a disc of its colour, where there's no room for its name.
+/// An element's shape on a round gem, where there's no room for its name.
 struct ElementIcon: View {
     let element: Element
     var size: CGFloat = 16
 
     var body: some View {
+        let gem = ElementGem(element)
         ZStack {
-            Circle().fill(Color(uiColor: element.color))
-            IconImage(element.icon, size: (size * 0.62).rounded())
-                .foregroundStyle(HUDStyle.ink)
+            Circle()
+                .fill(RadialGradient(colors: [gem.light, gem.base, gem.shade], center: UnitPoint(x: 0.35, y: 0.3), startRadius: 0, endRadius: size * 0.75))
+                .shadow(color: .black.opacity(0.35), radius: 1, x: 0, y: 1)
+            Ellipse()
+                .fill(ElementGem.gloss)
+                .frame(width: size * 0.68, height: size * 0.46)
+                .offset(y: -size * 0.2)
+            Circle().strokeBorder(gem.deep, lineWidth: 1)
+            Circle().inset(by: 1).strokeBorder(ElementGem.bevel, lineWidth: 0.75)
+            IconImage(element.icon, size: (size * 0.6).rounded())
+                .foregroundStyle(gem.ink)
+                .shadow(color: gem.inkShadow, radius: 0, x: 0, y: gem.inkDrop)
         }
         .frame(width: size, height: size)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(element.displayName)
+    }
+}
+
+extension View {
+    /// Sets this shape and name on `element`'s gem, cut as a glossy pill.
+    func onElementGem(_ element: Element, horizontal: CGFloat, vertical: CGFloat) -> some View {
+        let gem = ElementGem(element)
+        return foregroundStyle(gem.ink)
+            .shadow(color: gem.inkShadow, radius: 0, x: 0, y: gem.inkDrop)
+            .padding(.horizontal, horizontal)
+            .padding(.vertical, vertical)
+            .background(
+                Capsule()
+                    .fill(LinearGradient(colors: [gem.light, gem.base, gem.shade], startPoint: .top, endPoint: .bottom))
+                    .overlay {
+                        // The shine across its top half.
+                        VStack(spacing: 0) {
+                            Capsule().fill(ElementGem.gloss)
+                            Color.clear
+                        }
+                        .padding(.horizontal, 3)
+                        .padding(.top, 1.5)
+                    }
+                    .overlay(Capsule().strokeBorder(gem.deep, lineWidth: 1))
+                    .overlay(Capsule().inset(by: 1).strokeBorder(ElementGem.bevel, lineWidth: 0.75))
+                    .shadow(color: .black.opacity(0.35), radius: 1, x: 0, y: 1)
+            )
+    }
+}
+
+/// The gem an element's badges are cut from, lit from the top: a light top, its colour, a shaded
+/// lower edge and a deep rim. Its shape sits on it in white with a deep drop, or engraved in a dark
+/// tone on the pale gems (gold light, silver metal, pearl neutral), where white wouldn't show.
+private struct ElementGem {
+    let light: Color
+    let base: Color
+    let shade: Color
+    let deep: Color
+    let ink: Color
+    let inkShadow: Color
+    let inkDrop: CGFloat
+
+    static let gloss = LinearGradient(colors: [.white.opacity(0.6), .white.opacity(0.08)], startPoint: .top, endPoint: .bottom)
+    /// A thin light edge just inside the rim, along the top.
+    static let bevel = LinearGradient(colors: [.white.opacity(0.65), .clear], startPoint: .top, endPoint: .center)
+
+    init(_ element: Element) {
+        switch element {
+        case .fire: self.init(light: (1, 0.78, 0.42), base: (0.92, 0.36, 0.1), deep: (0.55, 0.12, 0.02))
+        case .water: self.init(light: (0.6, 0.86, 1), base: (0.18, 0.48, 0.9), deep: (0.05, 0.2, 0.52))
+        case .wood: self.init(light: (0.7, 0.95, 0.45), base: (0.22, 0.56, 0.15), deep: (0.07, 0.3, 0.06))
+        case .earth: self.init(light: (0.92, 0.76, 0.5), base: (0.66, 0.43, 0.2), deep: (0.36, 0.2, 0.06))
+        case .metal: self.init(light: (1, 1, 1), base: (0.72, 0.76, 0.84), deep: (0.38, 0.42, 0.52), engraved: (0.25, 0.29, 0.4))
+        case .light: self.init(light: (1, 0.99, 0.8), base: (1, 0.82, 0.25), deep: (0.68, 0.45, 0), engraved: (0.52, 0.32, 0))
+        case .dark: self.init(light: (0.8, 0.64, 1), base: (0.48, 0.28, 0.76), deep: (0.2, 0.07, 0.4))
+        case .neutral: self.init(light: (1, 1, 1), base: (0.82, 0.84, 0.88), deep: (0.46, 0.49, 0.57), engraved: (0.3, 0.33, 0.4))
+        }
+    }
+
+    private typealias RGB = (Double, Double, Double)
+
+    private init(light: RGB, base: RGB, deep: RGB, engraved: RGB? = nil) {
+        self.light = Self.color(light)
+        self.base = Self.color(base)
+        self.deep = Self.color(deep)
+        // The lower edge leans 40% of the way to the deep tone.
+        shade = Self.color((base.0 + (deep.0 - base.0) * 0.4, base.1 + (deep.1 - base.1) * 0.4, base.2 + (deep.2 - base.2) * 0.4))
+        ink = engraved.map { Self.color($0) } ?? .white
+        inkShadow = engraved == nil ? Self.color(deep) : .white.opacity(0.55)
+        inkDrop = engraved == nil ? 1 : 0.75
+    }
+
+    private static func color(_ rgb: RGB) -> Color {
+        Color(red: rgb.0, green: rgb.1, blue: rgb.2)
     }
 }
 
