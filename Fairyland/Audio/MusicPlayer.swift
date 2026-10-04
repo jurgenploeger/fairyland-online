@@ -13,6 +13,8 @@ final class MusicPlayer {
     @ObservationIgnored private var synth: SongSynth?
     @ObservationIgnored private var tunes: [String: Tune] = [:]
     @ObservationIgnored private var current: String?
+    /// Unit tests run inside the app: no music then (like SoundEffects), so the synth leaves them the CPU.
+    @ObservationIgnored private let isEnabled = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil
 
     init() {
         isMuted = UserDefaults.standard.bool(forKey: "musicMuted")
@@ -49,7 +51,7 @@ final class MusicPlayer {
     }
 
     private func startIfNeeded() {
-        guard synth == nil else { return }
+        guard synth == nil, isEnabled else { return }
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.ambient)

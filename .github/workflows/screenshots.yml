@@ -40,10 +40,15 @@ jobs:
           UDID=$(xcrun simctl list devices available | grep -m1 -E 'iPhone 1[6-9] Pro \(' | grep -oE '[0-9A-F-]{36}')
           test -n "$UDID" || { xcrun simctl list devices available; exit 1; }
           mkdir -p build
+          status=0
           xcodebuild test -project Fairyland.xcodeproj -scheme Fairyland -destination "id=$UDID" \
-            -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO > build/tests.log 2>&1 \
-            || { grep -E '✘|Fatal error|error:' build/tests.log | sort -u | head -40 | while IFS= read -r line; do echo "::error::$line"; done
-                 tools/ci_errors.sh build/tests.log; exit 1; }
+            -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO > build/tests.log 2>&1 || status=$?
+          # How long each map takes to build (PerformanceTests), pass or fail.
+          grep '⏱' build/tests.log || true
+          if [ "$status" -ne 0 ]; then
+            grep -E '✘|Fatal error|error:' build/tests.log | sort -u | head -40 | while IFS= read -r line; do echo "::error::$line"; done
+            tools/ci_errors.sh build/tests.log; exit 1
+          fi
           grep -E 'Test run with|Executed' build/tests.log | tail -3
 
   screenshots:

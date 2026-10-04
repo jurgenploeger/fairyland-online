@@ -423,14 +423,17 @@ struct RulesTests {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         #expect(session.sighting(of: "rat_king") == nil)
         let npc = try #require(Content.shared.maps.flatMap { $0.npcs ?? [] }.first { $0.monster == "rat_king" })
+        let level = try #require(npc.level)
         _ = try #require(BattleController.boss(npc, session: session))
         let met = try #require(session.sighting(of: "rat_king"))
         #expect(met.defeated == 0)
+        #expect(met.lowestLevel == level && met.highestLevel == level)
+        // Beaten below and above the level it was met at, the book widens both ways.
         session.beatMonster("rat_king", level: 2)
-        session.beatMonster("rat_king", level: 40)
+        session.beatMonster("rat_king", level: level + 10)
         let beaten = try #require(session.sighting(of: "rat_king"))
         #expect(beaten.defeated == 2)
-        #expect(beaten.lowestLevel == 2 && beaten.highestLevel == 40)
+        #expect(beaten.lowestLevel == 2 && beaten.highestLevel == level + 10)
         #expect(Element.water.strongAgainst == [.fire])
         #expect(Element.water.weakTo == [.earth])
         #expect(Content.shared.monsters.allSatisfy { !($0.lore ?? "").isEmpty })
@@ -1123,7 +1126,17 @@ struct RulesTests {
 
 @MainActor
 struct PerformanceTests {
-    /// Big maps must still load quickly; this prints how long each one takes to build.
+    /// How long one map may take to build. An optimised build, like the App Store's, should do it in
+    /// a few seconds. A debug build runs this code many times slower: in the CI tests job (a simulator
+    /// on a shared runner) the biggest maps took up to 48 s, so there the bound only catches a map
+    /// that's become pathologically slow, and the job's log lists every map's time (⏱) to watch.
+    #if DEBUG
+    static let mapBuildLimit: Duration = .seconds(90)
+    #else
+    static let mapBuildLimit: Duration = .seconds(3)
+    #endif
+
+    /// Every map must build, and quickly; this prints how long each one takes.
     @Test func mapsBuildQuickly() async {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         for def in Content.shared.maps {
@@ -1136,7 +1149,7 @@ struct PerformanceTests {
             let sceneTime = clock.now - start
             #expect(scene.isBuilt)
             print("⏱ \(def.id): grid \(gridTime), scene \(sceneTime), cells \(grid!.columns * grid!.rows)")
-            #expect(sceneTime < .seconds(3), "\(def.id) took \(sceneTime) to build")
+            #expect(sceneTime < Self.mapBuildLimit, "\(def.id) took \(sceneTime) to build")
         }
     }
 }
