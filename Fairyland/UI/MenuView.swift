@@ -81,7 +81,7 @@ private struct TabLabelStyle: LabelStyle {
     }
 }
 
-private struct SectionTitle: View {
+struct SectionTitle: View {
     let text: String
 
     var body: some View {
@@ -244,7 +244,7 @@ struct StatCell: View {
         HStack {
             Text(name).foregroundStyle(HUDStyle.dim)
             Spacer()
-            Text("\(value)")
+            Text("\(value)").foregroundStyle(.white)
         }
         .font(HUDStyle.font(12))
         .padding(.horizontal, 8)

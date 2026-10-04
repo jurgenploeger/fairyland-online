@@ -10,7 +10,7 @@ enum Profile: Equatable {
 
 /// Fairyland's character window: tap someone on the map, or a face in the top-left corner, to see
 /// who they are and how strong: level, HP and MP, attack, defense, magic and speed, and what they
-/// fight with.
+/// fight with (their skills, your gear, a friend's companion), each with its picture.
 struct ProfileCard: View {
     let session: GameSession
     let profile: Profile
@@ -80,14 +80,62 @@ struct ProfileCard: View {
                 StatCell(name: "Magic", value: facts.stats.magic)
                 StatCell(name: "Speed", value: facts.stats.speed)
             }
-            ForEach(facts.lines, id: \.label) { line in
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(line.label).font(HUDStyle.font(9)).foregroundStyle(HUDStyle.dim)
-                    Text(line.text).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.cream)
-                        .fixedSize(horizontal: false, vertical: true)
+            if let gear = facts.gear {
+                SectionTitle(text: "Gear")
+                if gear.isEmpty {
+                    Text("Nothing worn").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                } else {
+                    LazyVGrid(columns: Self.tiles, alignment: .leading, spacing: 8) {
+                        ForEach(gear) { item in tile(name: item.name) { ItemIcon(item: item, size: 34) } }
+                    }
+                }
+            }
+            if let skills = facts.skills {
+                SectionTitle(text: "Skills")
+                if skills.isEmpty {
+                    Text("None yet").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                } else {
+                    LazyVGrid(columns: Self.tiles, alignment: .leading, spacing: 8) {
+                        ForEach(skills) { skill in tile(name: skill.name) { SkillIcon(skill: skill, size: 34) } }
+                    }
+                }
+            }
+            if let companion = facts.companion {
+                SectionTitle(text: "Companion")
+                HStack(spacing: 10) {
+                    WalkingSprite(art: companion.species.art, size: 50)
+                        .background(Circle().fill(.white.opacity(0.07)))
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(companion.species.name)
+                            .font(HUDStyle.font(12))
+                            .foregroundStyle(.white)
+                        HStack(spacing: 6) {
+                            Text("Lv \(companion.level)")
+                                .font(HUDStyle.font(11))
+                                .foregroundStyle(HUDStyle.gold)
+                            ElementBadge(element: companion.species.element)
+                        }
+                    }
                 }
             }
         }
+    }
+
+    /// Room for a picture with its name under it, as many to a row as fit.
+    private static let tiles = [GridItem(.adaptive(minimum: 66), spacing: 6, alignment: .top)]
+
+    private func tile<Picture: View>(name: String, @ViewBuilder picture: () -> Picture) -> some View {
+        VStack(spacing: 3) {
+            picture()
+            Text(name)
+                .font(HUDStyle.font(9))
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+        }
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
     }
 
     /// Everything the window shows about them, worked out once.
@@ -104,13 +152,10 @@ struct ProfileCard: View {
         var hp: Int
         var mp: Int
         var exp: (have: Int, need: Int)?
-        /// "Gear", "Skills", "Companion"…
-        var lines: [Line] = []
-    }
-
-    private struct Line {
-        let label: String
-        let text: String
+        /// What they fight with: your gear, their skills, a friend's companion (nil: not shown).
+        var gear: [ItemDef]?
+        var skills: [SkillDef]?
+        var companion: (species: MonsterDef, level: Int)?
     }
 
     private var facts: Facts? {
@@ -118,13 +163,12 @@ struct ProfileCard: View {
         switch profile {
         case .hero:
             let hero = session.data.hero
-            let worn = [ItemType.weapon, .armor, .accessory].compactMap { session.equipped($0)?.name }
             var facts = Facts(name: hero.name, icon: .user, art: GameSession.heroArt,
                               kind: "Lv \(hero.level) · \(content.race(hero.raceID).name) \(session.heroClass.name)",
                               stats: session.heroStats, hp: hero.hp, mp: hero.mp,
                               exp: (hero.exp, GameSession.expToNext(level: hero.level)))
             if session.rebirths > 0 { facts.note = "Reborn \(session.rebirths)×" }
-            facts.lines = [Line(label: "Gear", text: worn.isEmpty ? "Nothing worn" : worn.joined(separator: " · "))]
+            facts.gear = [ItemType.weapon, .armor, .accessory].compactMap { session.equipped($0) }
             return facts
 
         case .pet(let id):
@@ -139,7 +183,7 @@ struct ProfileCard: View {
                 facts.note = "Following you"
                 facts.noteColor = HUDStyle.green
             }
-            facts.lines = [Line(label: "Skills", text: Self.names(species.skills.compactMap { content.skill($0) }))]
+            facts.skills = species.skills.compactMap { content.skill($0) }
             return facts
 
         case .adventurer(let person):
@@ -158,15 +202,12 @@ struct ProfileCard: View {
                 facts.note = "Looking for trouble!"
                 facts.noteColor = Color(uiColor: Crowd.hostileColor)
             }
-            facts.lines = [Line(label: "Skills", text: Self.names(session.skills(of: person)))]
+            facts.skills = session.skills(of: person)
+            // Their companion fights a step below their level, as in battle.
             if let species = person.petSpecies.flatMap({ content.monster($0) }) {
-                facts.lines.append(Line(label: "Companion", text: "\(species.name), Lv \(max(1, person.level - 1)), \(species.element.displayName)"))
+                facts.companion = (species, max(1, person.level - 1))
             }
             return facts
         }
-    }
-
-    private static func names(_ skills: [SkillDef]) -> String {
-        skills.isEmpty ? "None yet" : skills.map(\.name).joined(separator: ", ")
     }
 }

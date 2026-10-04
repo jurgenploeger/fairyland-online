@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.20",
+      "date": "2026-10-04",
+      "title": "A clearer stats window",
+      "notes": [
+        "The stats window's numbers are white, so attack, defense, magic and speed stand out on the dark window (they came out dark there).",
+        "Skills show as their icons with names under them, your gear as item pictures, and a friend's companion with its picture, level and element gem."
+      ]
+    },
+    {
       "version": "0.3.19",
       "date": "2026-10-04",
       "title": "See anyone's stats",
