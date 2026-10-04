@@ -22,10 +22,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The unit tests (FairylandTests) on a simulator, alongside the screenshots: their own check,
+  # red or green in a few minutes.
+  tests:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Run the tests
+        run: |
+          UDID=$(xcrun simctl list devices available | grep -m1 -E 'iPhone 1[6-9] Pro \(' | grep -oE '[0-9A-F-]{36}')
+          test -n "$UDID" || { xcrun simctl list devices available; exit 1; }
+          mkdir -p build
+          xcodebuild test -project Fairyland.xcodeproj -scheme Fairyland -destination "id=$UDID" \
+            -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO > build/tests.log 2>&1 \
+            || { grep -E '✘|Fatal error|error:' build/tests.log | sort -u | head -40 | while IFS= read -r line; do echo "::error::$line"; done
+                 tools/ci_errors.sh build/tests.log; exit 1; }
+          grep -E 'Test run with|Executed' build/tests.log | tail -3
+
   screenshots:
     runs-on: macos-26
-    # The tests take a few minutes and a full run of 74 scenes about an hour; this leaves room for more.
-    timeout-minutes: 95
+    # A full run of 75 scenes takes about an hour; this leaves room for more.
+    timeout-minutes: 85
     steps:
       - uses: actions/checkout@v4
 
@@ -51,19 +75,6 @@ jobs:
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
           echo "udid=$UDID" >> "$GITHUB_OUTPUT"
-
-      # The unit tests (FairylandTests) on the same simulator. A failure doesn't hold up the
-      # screenshots; the last step fails the run for it.
-      - name: Run the tests
-        id: tests
-        continue-on-error: true
-        run: |
-          xcodebuild test -project Fairyland.xcodeproj -scheme Fairyland \
-            -destination "id=${{ steps.sim.outputs.udid }}" -derivedDataPath build/DerivedData \
-            CODE_SIGNING_ALLOWED=NO > build/tests.log 2>&1 \
-            || { grep -E '✘|Fatal error|error:' build/tests.log | sort -u | head -40 | while IFS= read -r line; do echo "::error::$line"; done
-                 tools/ci_errors.sh build/tests.log; exit 1; }
-          grep -E '✔ Test run|Test run with' build/tests.log | tail -2
 
       - name: Take screenshots
         run: |
@@ -110,9 +121,3 @@ jobs:
             echo "**${n%.png}**<br><img src=\"https://github.com/${GITHUB_REPOSITORY}/blob/screenshots/${BRANCH}/${n}?raw=true\" width=\"260\">" >> "$GITHUB_STEP_SUMMARY"
             echo >> "$GITHUB_STEP_SUMMARY"
           done
-
-      - name: Fail if the tests failed
-        if: steps.tests.outcome == 'failure'
-        run: |
-          echo "::error::The unit tests failed: see the Run the tests step."
-          exit 1
