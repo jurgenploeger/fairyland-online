@@ -68,6 +68,8 @@ struct GameView: View {
         }
         .animation(.easeOut(duration: 0.4), value: coordinator.isReady)
         .onChange(of: coordinator.battle == nil) { battleChat = false }
+        // The fight waits while you type, turn clock and all.
+        .onChange(of: battleChat) { coordinator.battle?.holdTurnClock(battleChat, for: "chat") }
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
     }

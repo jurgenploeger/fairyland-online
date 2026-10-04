@@ -406,6 +406,9 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let foreground: Foreground?
         /// Depth of field on the map's own scenery (on by default). See `DepthOfField`.
         let focus: Focus?
+        /// A dark map (a cave): you see only as far as your light reaches, and the minimap shows only
+        /// what you've seen. See `Lantern`.
+        let darkness: Darkness?
 
         nonisolated struct Lights: Decodable, Sendable {
             let color: String
@@ -423,6 +426,17 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
             /// Blur radius in texture pixels, and how many times bigger than the sprite.
             let blur: Double?
             let scale: Double?
+        }
+
+        nonisolated struct Darkness: Decodable, Sendable {
+            /// How far your light reaches, in points (default 190).
+            let radius: Double?
+            /// How dark it is beyond, 0...1 (default 0.9).
+            let alpha: Double?
+            /// The dark's colour (default "#03040A").
+            let color: String?
+            /// Your light's soft glow on the ground around you (none if unset).
+            let light: String?
         }
 
         nonisolated struct Focus: Decodable, Sendable {

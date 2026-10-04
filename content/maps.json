@@ -4792,7 +4792,12 @@
           "alpha": 0.14
         },
         "haze": "#102040",
-        "hazeAlpha": 0.3
+        "hazeAlpha": 0.3,
+        "darkness": {
+          "radius": 220,
+          "alpha": 0.9,
+          "light": "#FFC27A"
+        }
       },
       "hub": [
         -14,
@@ -7067,7 +7072,12 @@
           "alpha": 0.14
         },
         "haze": "#102040",
-        "hazeAlpha": 0.3
+        "hazeAlpha": 0.3,
+        "darkness": {
+          "radius": 220,
+          "alpha": 0.9,
+          "light": "#FFC27A"
+        }
       },
       "exits": [
         {
@@ -10922,7 +10932,12 @@
           "alpha": 0.14
         },
         "haze": "#102040",
-        "hazeAlpha": 0.3
+        "hazeAlpha": 0.3,
+        "darkness": {
+          "radius": 220,
+          "alpha": 0.9,
+          "light": "#FFC27A"
+        }
       },
       "danger": true,
       "exits": [

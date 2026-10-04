@@ -19,6 +19,11 @@ struct BattleView: View {
                     .frame(maxWidth: 520)
                     .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2)))
 
+                if let deadline = controller.turnDeadline, let total = BattleController.turnSeconds {
+                    TurnClockBar(deadline: deadline, total: total)
+                        .transition(.opacity)
+                }
+
                 Spacer()
             }
             .padding(.horizontal, 10)
@@ -36,6 +41,7 @@ struct BattleView: View {
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.phase)
+        .onAppear { controller.startTurnClock() }
     }
 
     @ViewBuilder
@@ -116,6 +122,34 @@ struct BattleView: View {
     }
 }
 
+/// The time left to choose, draining under the log line, red for the last two seconds. When it
+/// runs out the hero attacks.
+private struct TurnClockBar: View {
+    let deadline: Date
+    let total: TimeInterval
+
+    var body: some View {
+        TimelineView(.animation) { context in
+            let left = max(0, deadline.timeIntervalSince(context.date))
+            let urgent = left <= 2
+            HStack(spacing: 6) {
+                IconImage(.sword, size: 12)
+                GlossyBar(fraction: CGFloat(min(1, left / total)), color: urgent ? HUDStyle.hp : HUDStyle.gold, height: 7)
+                    .frame(width: 140)
+                Text("\(Int(left.rounded(.up)))s")
+                    .font(HUDStyle.mono(10))
+                    .frame(width: 24, alignment: .leading)
+            }
+            .foregroundStyle(urgent ? HUDStyle.hp : HUDStyle.cream)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(Capsule().fill(HUDStyle.ink.opacity(0.8)))
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Time left to choose before you attack")
+    }
+}
+
 // MARK: - Commands
 
 /// A big button in the corner (Attack unless you change it) with More on top of it, and to its left
@@ -150,6 +184,8 @@ private struct CommandPad: View {
         }
         .coordinateSpace(name: Self.space)
         .onAppear { if DebugLaunch.arrangesButtons, editing == nil { arrange() } }
+        // Moving the buttons around isn't choosing: the turn clock waits.
+        .onChange(of: editing == nil) { _, settled in controller.holdTurnClock(!settled, for: "arrange") }
     }
 
     /// Your order (`GameSession.battleButtons`), split into the big button, the column beside it

@@ -413,21 +413,28 @@ final class BattleScene: SKScene {
             }
             for target in targets { SkillEffects.whirl(on: target, level: level, in: stage) }
             impactAll(hits, heal: false)
+        case "fire" where skill.element == .fire:
+            await SkillEffects.fireball(from: actors[actorID]?.center, to: targets.first?.center, level: level, in: stage)
+            for target in targets { SkillEffects.fireBlast(on: target, level: level, in: stage) }
+            impactAll(hits, heal: false)
         case "fire":
+            // Magic of another element in the fire style: a glowing bolt in its own colour.
             await SkillEffects.projectile(from: actors[actorID]?.center, to: targets.first?.center, color: color, level: level, trail: true, in: stage)
             for target in targets { SkillEffects.explosion(on: target, color: color, level: level, in: stage) }
             impactAll(hits, heal: false)
         case "stone":
-            for target in targets { SkillEffects.spikes(under: target, level: level, in: stage) }
-            await pause(0.25)
+            var erupts: TimeInterval = 0.25
+            for target in targets { erupts = SkillEffects.stoneSpikes(under: target, level: level, in: stage) }
+            await pause(erupts)
+            shake(strength: 2 + CGFloat(level))
             impactAll(hits, heal: false)
         case "leaves":
-            for target in targets { SkillEffects.leafStorm(around: target, level: level, in: stage) }
+            for target in targets { SkillEffects.leafCyclone(around: target, level: level, in: stage) }
             await pause(0.45)
             impactAll(hits, heal: false)
         case "water":
-            await SkillEffects.projectile(from: actors[actorID]?.center, to: targets.first?.center, color: color, level: level, trail: false, in: stage)
-            for target in targets { SkillEffects.splash(on: target, level: level, in: stage) }
+            await SkillEffects.waterOrb(from: actors[actorID]?.center, to: targets.first?.center, level: level, in: stage)
+            for target in targets { SkillEffects.waterSplash(on: target, level: level, in: stage) }
             impactAll(hits, heal: false)
         case "holy":
             for target in targets { SkillEffects.lightPillar(on: target, level: level, in: stage) }
@@ -706,6 +713,29 @@ final class BattleScene: SKScene {
     private func pause(_ seconds: TimeInterval) async {
         await run(.wait(forDuration: seconds))
     }
+
+    #if DEBUG
+    /// Debug launches (`cast=`): the hero casts a skill at the monsters (all of them, or the first)
+    /// without playing a round. With `stopAt` the battle slows right down and freezes that many
+    /// seconds into the cast, so a screenshot catches the effect mid-flight.
+    func castForDebug(_ skillID: String, level: Int, stopAt: TimeInterval?) {
+        guard let skill = Content.shared.skill(skillID), let hero = controller.combatants.first(where: { $0.isHero }) else { return }
+        for actor in actors.values {
+            actor.removeAction(forKey: "enter")
+            actor.position = actor.home
+            actor.alpha = 1
+        }
+        let foes = controller.enemies.map(\.id)
+        let targets = skill.target == .allEnemies ? foes : Array(foes.prefix(1))
+        let hits = targets.map { Hit(target: $0, amount: 12, effectiveness: 1, critical: false) }
+        if let stopAt {
+            speed = 0.03
+            run(.sequence([.wait(forDuration: stopAt), .run { [weak self] in self?.isPaused = true }]))
+        }
+        shout(skill.name + "!", over: hero.id, color: skill.element?.color, skill: skill)
+        Task { await castSkill(skill, level: level, from: hero.id, hits: hits) }
+    }
+    #endif
 }
 
 /// One fighter on the battle stage, drawn at 2× on a Fairyland-style ground circle.

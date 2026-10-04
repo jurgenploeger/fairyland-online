@@ -5,10 +5,12 @@ meadowbrook  | newgame                           | 8
 sunny_meadow | newgame,map=sunny_meadow          | 15
 smiling_forest | newgame,map=smiling_forest       | 15
 battle       | newgame,map=sunny_meadow,battle   | 15
+battle_timer | newgame,level=44,class=fighter,pin=bash+first_aid+power_strike+whirlwind,map=rat_cavern,battle=2,turntimer=40 | 15
 character    | newgame,menu=character            | 8
 companions   | newgame,level=5,menu=companions   | 8
 landscape    | newgame,map=rainbow_city,landscape | 8
 rat_cavern   | newgame,map=rat_cavern            | 8
+cave_dark    | newgame,level=44,class=fighter,pet=pineapple,friends=2,map=rat_cavern | 15
 behind_wall  | newgame,map=rat_cavern,at=-3_3        | 8
 behind_tree  | newgame,map=smiling_forest,at=0_-14   | 15
 intro_story  | intro                             | 6
@@ -35,6 +37,7 @@ equip_change | newgame,equip=leather_vest,bag=cloth_tunic,menu=character,change=
 skills       | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+whirlwind,menu=character,bottom | 8
 skills_learn | newgame,level=20,class=mage,menu=character,bottom                 | 8
 boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 15
+talk_npc     | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=lotus_land,npc=thumbelina | 15
 edge_fog     | newgame,map=sunny_meadow,at=80_0                 | 15
 edge_town    | newgame,map=meadowbrook,at=0_-28                  | 8
 twilight     | newgame,level=40,map=twilight_woods                 | 15
@@ -43,6 +46,17 @@ battle_arrange | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+
 battle_big_landscape | newgame,level=60,map=genie_desert,battle=10,landscape | 15
 levelup      | newgame,level=9,levelup,map=sunny_meadow,battle=1,win           | 30
 levelup_landscape | newgame,level=9,levelup,map=sunny_meadow,battle=1,win,landscape | 30
+duel_spoils  | newgame,level=30,map=valley_of_fear,duel,win              | 30
+# Spell effects, frozen mid-cast (fxstop: seconds into the cast; the battle runs at 3% speed till then).
+fx_stone     | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=stone_spike:1,fxstop=0.36 | 38
+fx_stone_top | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=stone_spike:9,fxstop=0.92 | 56
+fx_fire      | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=fire_bolt:7,fxstop=0.95   | 58
+fx_leaves    | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=leaf_storm:5,fxstop=0.8   | 52
+fx_water     | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=bubble:5,fxstop=0.88      | 55
+party_folded | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=twilight_woods | 15
+party_open   | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=twilight_woods,unfold | 15
+party_pet    | newgame,level=43,class=fighter,pet=pineapple,map=twilight_woods | 15
+party_landscape | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=meadowbrook,landscape | 8
 quests       | newgame,menu=quests                                 | 8
 worldmap     | newgame,worldmap                                    | 8
 monster_book | newgame,book                                        | 8

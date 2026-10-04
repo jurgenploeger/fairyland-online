@@ -41,6 +41,8 @@ final class BattleController {
     @ObservationIgnored var onFinish: (@MainActor (BattleOutcome) -> Void)?
     private let engine: BattleEngine
     @ObservationIgnored private var pending: Pending?
+    /// The adventurer you're duelling: beaten, they drop what they carry.
+    @ObservationIgnored private var rival: Adventurer?
 
     init(engine: BattleEngine, session: GameSession, intro: String? = nil) {
         self.engine = engine
@@ -124,7 +126,9 @@ final class BattleController {
         }
         let engine = BattleEngine(party: party(for: session), enemies: enemies, content: session.content)
         let intro = rival.hostile ? "\(rival.name) picks a fight with you!" : "You challenge \(rival.name) to a duel!"
-        return BattleController(engine: engine, session: session, intro: intro)
+        let controller = BattleController(engine: engine, session: session, intro: intro)
+        controller.rival = rival
+        return controller
     }
 
     /// A boss waiting on the map.
@@ -330,6 +334,12 @@ final class BattleController {
     }
 
     private func submit(_ action: BattleAction) {
+        stopTurnClock()
+        switch action {
+        case .attack(let target): lastTarget = target
+        case .skill(_, let target) where aliveEnemyIDs.contains(target): lastTarget = target
+        default: break
+        }
         pending = nil
         validTargets = []
         scene?.showTargets([])
@@ -343,6 +353,82 @@ final class BattleController {
             }
             roundFinished()
         }
+    }
+
+    // MARK: - Turn clock
+
+    /// Seconds you get to choose each turn before the hero just attacks. None in tests and debug
+    /// launches (screenshots wait in battle for a while), unless `turntimer=` sets one.
+    static var turnSeconds: TimeInterval? {
+        if let seconds = DebugLaunch.turnSeconds { return seconds }
+        if DebugLaunch.isActive || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil { return nil }
+        return 5
+    }
+
+    /// When the time to choose runs out; nil while no clock is ticking.
+    private(set) var turnDeadline: Date?
+    @ObservationIgnored private var turnClock: Task<Void, Never>?
+    /// Time left on a clock that's on hold, and what's holding it (the chat, moving the buttons).
+    @ObservationIgnored private var heldTime: TimeInterval?
+    @ObservationIgnored private var holds: Set<String> = []
+    /// The monster you last went for: a timed-out attack goes for it again.
+    @ObservationIgnored private var lastTarget: Int?
+
+    private var isChoosing: Bool { [.command, .skills, .items, .target].contains(phase) }
+
+    /// Starts the clock for a turn: each new one, and the first once the battle is on screen.
+    func startTurnClock() {
+        guard let seconds = Self.turnSeconds, isChoosing, turnClock == nil, heldTime == nil else { return }
+        if holds.isEmpty {
+            runTurnClock(seconds)
+        } else {
+            heldTime = seconds
+        }
+    }
+
+    /// Holds the clock while something else has your attention, and starts it again where it was.
+    func holdTurnClock(_ held: Bool, for reason: String) {
+        if held {
+            let running = holds.isEmpty
+            holds.insert(reason)
+            guard running, let deadline = turnDeadline else { return }
+            heldTime = max(1, deadline.timeIntervalSinceNow)
+            turnClock?.cancel()
+            turnClock = nil
+            turnDeadline = nil
+        } else {
+            holds.remove(reason)
+            guard holds.isEmpty, let left = heldTime, isChoosing else { return }
+            heldTime = nil
+            runTurnClock(left)
+        }
+    }
+
+    private func runTurnClock(_ seconds: TimeInterval) {
+        turnClock?.cancel()
+        turnDeadline = Date().addingTimeInterval(seconds)
+        turnClock = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(seconds))
+            guard !Task.isCancelled else { return }
+            self?.timeIsUp()
+        }
+    }
+
+    private func stopTurnClock() {
+        turnClock?.cancel()
+        turnClock = nil
+        turnDeadline = nil
+        heldTime = nil
+    }
+
+    /// Out of time: the hero attacks the monster they last went for, or the first one standing.
+    private func timeIsUp() {
+        turnClock = nil
+        guard isChoosing, holds.isEmpty else { return }
+        let standing = aliveEnemyIDs
+        guard let target = lastTarget.flatMap({ standing.contains($0) ? $0 : nil }) ?? standing.first else { return }
+        message = "Time's up! \(hero?.name ?? "You") attacks."
+        submit(.attack(target: target))
     }
 
     // MARK: - Playback
@@ -430,6 +516,7 @@ final class BattleController {
         case .ongoing:
             phase = .command
             message = "What will \(hero?.name ?? "you") do?"
+            startTurnClock()
         case .victory:
             finish(.victory, lines: concludeVictory())
         case .fled:
@@ -447,6 +534,7 @@ final class BattleController {
     }
 
     private func finish(_ outcome: BattleOutcome, lines: [String]) {
+        stopTurnClock()
         let found = loot.sorted { $0.key < $1.key }.map { (id: $0.key, count: $0.value) }
         // The card shows a level-up as a banner of its own; its line goes to the log.
         let levelText = newLevel.map { levelLine($0) }
@@ -518,11 +606,17 @@ final class BattleController {
         var gold = 0
         for foe in engine.combatants where foe.side == .enemies && !foe.isCaptured && !foe.hasFled {
             if case .rival = foe.source {
-                // The adventurer pays out for the duel; their companion comes along for free.
+                // The adventurer pays out for the duel, and drops everything they carry; their
+                // companion comes along for free.
                 if foe.art.hasPrefix("adv:") {
                     exp += 14 * foe.level
                     gold += 10 * foe.level
                     lines.append("You won the duel against \(foe.name)!")
+                    if let rival {
+                        let spoils = session.takeSpoils(from: rival)
+                        for item in spoils { loot[item.id, default: 0] += 1 }
+                        if !spoils.isEmpty { lines.append("\(foe.name) dropped everything they carried!") }
+                    }
                 }
                 continue
             }

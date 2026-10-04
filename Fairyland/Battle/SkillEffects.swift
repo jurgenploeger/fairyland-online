@@ -4,11 +4,12 @@ import UIKit
 /// Battle effects, one per skill `animation` in content/skills.json. Every effect grows in five
 /// tiers (`level` 1–5, one per two skill levels, see BattleScene): longer beams, more particles,
 /// bigger explosions; on top of that, upgraded skills gather power first and land in glory
-/// (`charge`, `glory`, `masterBanner`).
+/// (`charge`, `glory`, `masterBanner`). The elemental spells are pixel art (ElementEffects.swift);
+/// the glow versions here are their fallbacks.
 enum SkillEffects {
     static let healGreen = UIColor(red: 0.55, green: 1, blue: 0.6, alpha: 1)
 
-    private static func glowSprite(_ color: UIColor, size: CGSize) -> SKSpriteNode {
+    static func glowSprite(_ color: UIColor, size: CGSize) -> SKSpriteNode {
         let sprite = SKSpriteNode(texture: SoftTextures.glow, size: size)
         sprite.color = color
         sprite.colorBlendFactor = 1
@@ -522,8 +523,11 @@ extension SkillEffects {
         case "fire":
             for (index, target) in targets.enumerated() {
                 for drop in 0..<3 {
-                    meteor(onto: target.center + CGVector(dx: .random(in: -24...24), dy: .random(in: -10...10)),
-                           color: color, delay: Double(index) * 0.08 + Double(drop) * 0.12, size: size, in: parent)
+                    let point = target.center + CGVector(dx: .random(in: -24...24), dy: .random(in: -10...10))
+                    let delay = Double(index) * 0.08 + Double(drop) * 0.12
+                    if !fireMeteor(onto: point, delay: delay, size: size, in: parent) {
+                        meteor(onto: point, color: color, delay: delay, size: size, in: parent)
+                    }
                 }
             }
         case "water":
@@ -533,15 +537,16 @@ extension SkillEffects {
             wave.alpha = 0.85
             parent.addChild(wave)
             wave.run(.sequence([.moveTo(x: size.width * 1.3, duration: 0.55), .removeFromParent()]))
-            for target in targets { splash(on: target, level: 5, in: parent) }
+            for target in targets { waterSplash(on: target, level: 5, in: parent) }
         case "stone":
+            // A forest of spikes: the full set under each target and a wider ring round it.
             for target in targets {
-                spikes(under: target, level: 5, in: parent)
-                burst(at: target.position, color: UIColor(red: 0.75, green: 0.6, blue: 0.4, alpha: 1), count: 18, speed: 110, in: parent)
+                stoneSpikes(under: target, level: 5, in: parent)
+                stoneSpikes(under: target, level: 3, spread: 1.9, delay: 0.12, in: parent)
             }
         case "leaves":
             for target in targets {
-                leafStorm(around: target, level: 5, in: parent)
+                leafCyclone(around: target, level: 5, in: parent)
                 whirl(on: target, level: 5, in: parent)
             }
         case "holy", "heal":

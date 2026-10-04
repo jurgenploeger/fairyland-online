@@ -196,7 +196,8 @@ final class Crowd {
             }
             walker.zPosition = -walker.position.y
             if let pet = member.pet {
-                pet.follow(walker, dt: dt)
+                walker.markFootstep()
+                pet.follow(walker, dt: dt, footstep: walker.footstep(behind: 36)) { self.map.isWalkable(self.map.rawCell(at: $0)) }
                 pet.zPosition = -pet.position.y
             }
         }

@@ -122,6 +122,9 @@ nonisolated struct SaveData: Codable, Sendable {
     var tradesDone: [String]?
     /// The Monster Book: every species met in battle, by id.
     var monsterBook: [String: MonsterSighting]?
+    /// Dark maps (caves): the cells you've seen by your light, one bit per cell (row by row from the
+    /// south-west corner), by map id. The minimap shows only these.
+    var explored: [String: Data]?
     /// Which save file this game lives in (SaveStore keeps one per game).
     var slot: String?
 }

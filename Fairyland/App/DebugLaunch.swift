@@ -11,6 +11,9 @@ import Foundation
 ///   at=x_y         start at this offset from the map's centre (e.g. at=0_14)
 ///   equip=a+b      start wearing these items (ids from content/items.json, joined with +)
 ///   bag=a+b        put these items in the bag
+///   pet=<species>  a companion of that species (content/monsters.json), out with you
+///   friends=n      that many friends (up to GameSession.maxAllies) travelling in your party
+///   unfold         the top-left HUD shows a big party in full instead of folded into one row
 ///   change=<slot>  open the Character tab's list for weapon | armor | accessory (with menu=character)
 ///   customize      open the Character tab's look editor (with menu=character)
 ///   race=<id>      play this race (content/classes.json)
@@ -18,7 +21,11 @@ import Foundation
 ///   hair=<id>      dye the hair this colour (content/appearance.json `hair`)
 ///   gender=<id>    male | female | other (picks the race's matching sheet)
 ///   battle[=n]     start in a random battle on the current map (n: exactly that many monsters)
-///   win            with battle: the monsters fall at once and the victory plays out
+///   win            with battle or duel: the foes fall at once and the victory plays out
+///   duel           start in a duel with an adventurer of your level (with win: their dropped goods)
+///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
+///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
+///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
 ///   menu=<tab>     open character | companions | bag | quests
 ///   bottom         open the menu scrolled to the end
 ///   npc=<id>       open an NPC dialog
@@ -42,6 +49,9 @@ enum DebugLaunch {
     }
 
     static var forcesLandscape: Bool { flags["landscape"] != nil }
+    /// `turntimer=40`: battles give you that many seconds to choose (debug launches have no clock
+    /// otherwise, so screenshots can wait in a battle).
+    static var turnSeconds: TimeInterval? { flags["turntimer"].flatMap(Double.init) }
     /// `arrange`: battles open with the buttons already wiggling, ready to rearrange.
     static var arrangesButtons: Bool { flags["arrange"] != nil }
 
@@ -95,6 +105,21 @@ enum DebugLaunch {
         }
         for id in flags["bag"]?.split(separator: "+").map(String.init) ?? [] where Content.shared.item(id) != nil {
             session.addItem(id)
+        }
+        if let species = flags["pet"], let pet = session.makePet(species: species, level: max(1, session.data.hero.level - 15)) {
+            session.addPet(pet, countsForQuests: false)
+            session.data.activePetID = pet.id
+        }
+        if let count = flags["friends"].flatMap({ Int($0) }) {
+            let people: [(name: String, race: String, classID: String)] = [("Dumpling", "human", "fighter"), ("Sprout", "elf", "mage")]
+            let friends = people.prefix(min(count, GameSession.maxAllies)).map { person in
+                Adventurer(name: person.name, raceID: person.race, classID: person.classID, level: session.data.hero.level, look: .standard)
+            }
+            session.data.friends = (session.data.friends ?? []) + friends
+            session.data.partyIDs = (session.data.partyIDs ?? []) + friends.map(\.id)
+        }
+        if flags["unfold"] != nil {
+            UserDefaults.standard.set(false, forKey: GameSettings.partyFoldedKey)
         }
         if let style = flags["style"] {
             var look = session.data.hero.look ?? .standard
@@ -153,8 +178,35 @@ enum DebugLaunch {
                     battle.winForDebug()
                 }
             }
+            // `cast=stone_spike:5`: once the battle is on screen and everyone is in, the hero casts.
+            if let cast = flags["cast"], let skillID = cast.split(separator: ":").first.map(String.init),
+               let battle = coordinator.battle {
+                let level = cast.split(separator: ":").dropFirst().first.flatMap { Int($0) } ?? 1
+                let stop = flags["fxstop"].flatMap(Double.init)
+                Task {
+                    for _ in 0..<240 {
+                        try? await Task.sleep(for: .milliseconds(500))
+                        guard let scene = battle.scene, scene.view != nil else { continue }
+                        try? await Task.sleep(for: .seconds(2))
+                        scene.castForDebug(skillID, level: level, stopAt: stop)
+                        return
+                    }
+                }
+            }
             #endif
         }
+        #if DEBUG
+        if flags["duel"] != nil {
+            let level = coordinator.session.data.hero.level
+            coordinator.duelForDebug(Adventurer(name: "Hazel", raceID: "elf", classID: "tamer", level: level, look: .standard))
+            if flags["win"] != nil, let battle = coordinator.battle {
+                Task {
+                    try? await Task.sleep(for: .seconds(2))
+                    battle.winForDebug()
+                }
+            }
+        }
+        #endif
         if let tab = flags["menu"].flatMap({ MenuTab(rawValue: $0.capitalized) }) {
             coordinator.open(.menu(tab))
         }

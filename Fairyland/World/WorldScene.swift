@@ -39,6 +39,10 @@ final class WorldScene: SKScene {
     private var hasLeft = false
     private var ambience: Ambience?
     private var lighting: Lighting?
+    /// On a dark map (a cave): the light round the hero, and the dark beyond it.
+    private var lantern: Lantern?
+    /// The minimap with only what you've seen, and which sighting it was drawn for.
+    private var fogged: (version: Int, image: UIImage)?
     /// Scenery softens toward the top and bottom of the screen.
     private let focus: DepthOfField
     private var crowd: Crowd?
@@ -138,6 +142,7 @@ final class WorldScene: SKScene {
         addChild(world)
         addChild(cam)
         camera = cam
+        if let darkness = def.ambience?.darkness { lantern = Lantern(darkness, in: world) }
         await reached(0.05, progress)
 
         world.addChild(makeGround())
@@ -191,6 +196,8 @@ final class WorldScene: SKScene {
             cam.position = player.position
         }
         session.playerPosition = player.position
+        lantern?.follow(player.position)
+        explore()
         isBuilt = true
         progress(1)
     }
@@ -626,7 +633,10 @@ final class WorldScene: SKScene {
                     }
                     let node = addScenery(sprite, at: cell, sway: placement.sway == true, jitter: true, scale: scale)
                     if placement.shadow == true { Lighting.shadow(under: node, in: world) }
-                    if let hex = placement.glow, let color = UIColor(hex: hex) { Lighting.glow(behind: node, color: color, in: world, rng: &rng) }
+                    if let hex = placement.glow, let color = UIColor(hex: hex) {
+                        Lighting.glow(behind: node, color: color, in: world, rng: &rng)
+                        lantern?.glint(at: node.position + CGVector(dx: 0, dy: node.size.height * 0.4), color: color, width: node.size.width * 1.6)
+                    }
                     inGroup += 1
                 }
                 placed += inGroup
@@ -860,6 +870,60 @@ final class WorldScene: SKScene {
         return foot
     }
 
+    /// On a dark map, notes the cells your light has fallen on, for the minimap.
+    private func explore() {
+        guard let lantern else { return }
+        let here = map.cell(at: player.position)
+        let reach = lantern.radius * 0.85
+        // Neighbouring cells' centres are at least 31 points apart on screen.
+        let span = Int(reach / 31) + 2
+        var cells: [GridPoint] = []
+        for row in (here.row - span)...(here.row + span) {
+            for col in (here.col - span)...(here.col + span) {
+                let cell = GridPoint(col: col, row: row)
+                if map.contains(cell), map.center(of: cell).distance(to: player.position) <= reach {
+                    cells.append(cell)
+                }
+            }
+        }
+        session.explore(cells, on: def.id, columns: map.columns, rows: map.rows)
+    }
+
+    /// The HUD's minimap. On a dark map it shows only the cells you've seen; `version` is the
+    /// session's count of new sightings (`exploredVersion`), so it's redrawn as you explore.
+    func minimapImage(explored version: Int) -> UIImage {
+        guard lantern != nil else { return minimap }
+        if let fogged, fogged.version == version { return fogged.image }
+        let image = Self.fog(minimap, seen: session.explored(def.id), columns: map.columns, rows: map.rows)
+        fogged = (version, image)
+        return image
+    }
+
+    /// `image` with every cell you haven't seen painted the minimap window's own dark blue.
+    private static func fog(_ image: UIImage, seen: Data?, columns: Int, rows: Int) -> UIImage {
+        guard let source = image.cgImage, source.width == columns, source.height == rows,
+              let context = CGContext(data: nil, width: columns, height: rows, bitsPerComponent: 8, bytesPerRow: columns * 4,
+                                      space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue),
+              let data = context.data
+        else { return image }
+        context.draw(source, in: CGRect(x: 0, y: 0, width: columns, height: rows))
+        let pixels = data.bindMemory(to: UInt8.self, capacity: columns * rows * 4)
+        for row in 0..<rows {
+            for col in 0..<columns {
+                let index = row * columns + col
+                if let seen, index / 8 < seen.count, seen[index / 8] & UInt8(1 << (index % 8)) != 0 { continue }
+                // The bitmap's rows run north to south; the grid's count up from the south.
+                let pixel = ((rows - 1 - row) * columns + col) * 4
+                pixels[pixel] = 13
+                pixels[pixel + 1] = 31
+                pixels[pixel + 2] = 56
+                pixels[pixel + 3] = 255
+            }
+        }
+        guard let output = context.makeImage() else { return image }
+        return UIImage(cgImage: output)
+    }
+
     /// One pixel per tile, for the HUD minimap.
     private(set) lazy var minimap: UIImage = {
         // The map's own (palette-graded) tiles, averaged: a purple wood looks purple here too.
@@ -892,7 +956,8 @@ final class WorldScene: SKScene {
         let node = Walker(cycle: art.walkCycle(session.artID(for: pet)), label: pet.name)
         node.motion = IdleMotion.of(art: session.artID(for: pet))
         node.tagMode = .whenStill
-        node.position = previous ?? player.position + CGVector(dx: -30, dy: 0)
+        let beside = player.position + CGVector(dx: -30, dy: 0)
+        node.position = previous ?? (canStand(at: beside) ? beside : player.position)
         node.walkSpeed = 110
         world.addChild(node)
         follower = node
@@ -957,7 +1022,8 @@ final class WorldScene: SKScene {
             node.walkSpeed = 105
             node.tagMode = .whenStill
             // Recruited on this map: they start where they stood.
-            node.position = crowd?.position(of: friend.id) ?? player.position + CGVector(dx: -40, dy: -10)
+            let beside = player.position + CGVector(dx: -40, dy: -10)
+            node.position = crowd?.position(of: friend.id) ?? (canStand(at: beside) ? beside : player.position)
             crowd?.remove(friend.id, poof: false)
             world.addChild(node)
             return (friend.id, node)
@@ -1022,10 +1088,15 @@ final class WorldScene: SKScene {
             checkTalkTarget()
             checkCell()
         }
-        follower?.follow(player, dt: dt)
+        // Companions and friends keep to ground they can stand on, never into water or through a
+        // wall. Where their places beside you are blocked, they line up in your footsteps.
+        player.markFootstep()
+        let standable: (CGPoint) -> Bool = { self.canStand(at: $0) }
+        follower?.follow(player, dt: dt, footstep: player.footstep(behind: 36), canStand: standable)
         var leader: Walker = follower ?? player
-        for ally in allies {
-            ally.node.follow(leader, dt: dt)
+        for (index, ally) in allies.enumerated() {
+            let place = CGFloat(index + (follower == nil ? 1 : 2)) * 36
+            ally.node.follow(leader, dt: dt, footstep: player.footstep(behind: place), canStand: standable)
             ally.node.zPosition = -ally.node.position.y
             leader = ally.node
         }
@@ -1045,6 +1116,7 @@ final class WorldScene: SKScene {
 
         player.zPosition = -player.position.y
         if let follower { follower.zPosition = -follower.position.y }
+        lantern?.follow(player.position)
         updateCamera(dt)
         updateEdgeFade(dt)
     }
@@ -1115,6 +1187,7 @@ final class WorldScene: SKScene {
         }
         session.playerPosition = player.position
         session.mapCell = cell
+        explore()
 
         if let exit = map.exit(at: cell), !hasLeft {
             hasLeft = true
@@ -1154,6 +1227,7 @@ final class WorldScene: SKScene {
         let visible = CGRect(x: cam.position.x - size.width / 2, y: cam.position.y - size.height / 2, width: size.width, height: size.height)
         // The party is drawn by the battle itself, so leave them (and tap markers) out of the backdrop.
         let hidden: [SKNode] = [player, follower].compactMap { $0 } + world.children.filter { $0.name == Effects.tapMarkerName }
+            + (lantern?.nodes ?? [])
         hidden.forEach { $0.isHidden = true }
         defer { hidden.forEach { $0.isHidden = false } }
         return view?.texture(from: world, crop: visible)

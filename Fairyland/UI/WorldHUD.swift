@@ -2,26 +2,30 @@ import SwiftUI
 
 /// On-map HUD in Fairyland Online's style: round faces with HP/MP for you, your companion and
 /// your party, and the calendar plate top-left, a framed minimap top-right, the system log, joystick bottom-left and
-/// a glossy toolbar bottom-right.
+/// a glossy toolbar bottom-right. While you're talking to someone (or any window is open over the map)
+/// the controls step aside, so nothing peeks out from behind the conversation.
 struct WorldHUD: View {
     let coordinator: GameCoordinator
 
     private var session: GameSession { coordinator.session }
+    private var controlsHidden: Bool { coordinator.overlay != nil }
 
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 6) {
+                // Only the party's fold and unfold buttons take taps; the rest lets them through to the map.
                 StatusCluster(session: session)
                     .coachTarget(.status)
                 CalendarPlate(session: session)
+                    .allowsHitTesting(false)
                 SystemLog(lines: session.log)
+                    .allowsHitTesting(false)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .allowsHitTesting(false)
 
             VStack(alignment: .trailing, spacing: 6) {
                 MinimapWindow(
-                    image: coordinator.world.minimap,
+                    image: coordinator.world.minimapImage(explored: session.exploredVersion),
                     name: session.mapName,
                     cell: session.mapCell,
                     columns: coordinator.world.def.width,
@@ -38,12 +42,14 @@ struct WorldHUD: View {
                     }
                     .coachTarget(.chat)
                 }
+                .stepsAside(controlsHidden)
                 SavedBadge(lastSaved: session.lastSaved)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
 
             JoystickView(input: coordinator.input)
                 .coachTarget(.joystick)
+                .stepsAside(controlsHidden)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                 .padding(.leading, 8)
                 .padding(.bottom, 10)
@@ -79,6 +85,7 @@ struct WorldHUD: View {
             .padding(.bottom, 14)
             .animation(.spring(response: 0.3, dampingFraction: 0.75), value: session.nearbyNPC)
             .animation(.spring(response: 0.3, dampingFraction: 0.75), value: session.nearbyAdventurer?.id)
+            .stepsAside(controlsHidden)
         }
         .padding(.horizontal, 8)
         .padding(.top, 4)
@@ -95,13 +102,19 @@ struct WorldHUD: View {
 }
 
 /// Fairyland's top-left faces: you in a big round frame with your level, HP and MP; your companion
-/// underneath with its own; and the friends in your party, smaller.
+/// underneath with its own; and the friends in your party, smaller. Once three or more of you travel
+/// together, the others fold into one row of small faces under yours so they don't cover the map:
+/// tap the row to see everyone in full, and the arrow by the last friend to fold them again.
 private struct StatusCluster: View {
     let session: GameSession
+    @AppStorage(GameSettings.partyFoldedKey) private var folded = true
 
     var body: some View {
         let hero = session.data.hero
         let stats = session.heroStats
+        let pet = session.activePet
+        let friends = session.partyMembers
+        let crowded = (pet == nil ? 0 : 1) + friends.count >= 2
         VStack(alignment: .leading, spacing: 4) {
             PortraitRow(face: ArtLibrary.shared.face(GameSession.heroArt), level: hero.level, name: hero.name,
                         detail: session.heroClass.name, size: 52,
@@ -109,21 +122,91 @@ private struct StatusCluster: View {
                 TaggedBar(tag: "H", value: hero.hp, maximum: stats.hp, color: HUDStyle.hp)
                 TaggedBar(tag: "M", value: hero.mp, maximum: stats.mp, color: HUDStyle.mp)
             }
-            if let pet = session.activePet {
-                let petStats = session.stats(of: pet)
-                PortraitRow(face: ArtLibrary.shared.face(session.artID(for: pet)), level: pet.level, name: pet.name,
-                            detail: pet.hp > 0 ? nil : "Fainted", size: 38) {
-                    TaggedBar(tag: "H", value: pet.hp, maximum: petStats.hp, color: HUDStyle.hp)
-                    TaggedBar(tag: "M", value: pet.mp, maximum: petStats.mp, color: HUDStyle.mp)
+            .allowsHitTesting(false)
+            if crowded && folded {
+                FoldedParty(session: session, pet: pet, friends: friends) { setFolded(false) }
+                    .transition(.opacity)
+            } else {
+                if let pet {
+                    let petStats = session.stats(of: pet)
+                    PortraitRow(face: ArtLibrary.shared.face(session.artID(for: pet)), level: pet.level, name: pet.name,
+                                detail: pet.hp > 0 ? nil : "Fainted", size: 38) {
+                        TaggedBar(tag: "H", value: pet.hp, maximum: petStats.hp, color: HUDStyle.hp)
+                        TaggedBar(tag: "M", value: pet.mp, maximum: petStats.mp, color: HUDStyle.mp)
+                    }
+                    .allowsHitTesting(false)
                 }
-            }
-            ForEach(session.partyMembers) { friend in
-                PortraitRow(face: ArtLibrary.shared.face(session.artID(for: friend)), level: friend.level, name: friend.name,
-                            detail: session.content.classDef(friend.classID).name, size: 30) {
-                    EmptyView()
+                ForEach(friends) { friend in
+                    HStack(spacing: 4) {
+                        PortraitRow(face: ArtLibrary.shared.face(session.artID(for: friend)), level: friend.level, name: friend.name,
+                                    detail: session.content.classDef(friend.classID).name, size: 30) {
+                            EmptyView()
+                        }
+                        .allowsHitTesting(false)
+                        if crowded && friend.id == friends.last?.id {
+                            Button { setFolded(true) } label: { FoldArrow(up: true) }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Fold your party into one row")
+                        }
+                    }
                 }
             }
         }
+    }
+
+    private func setFolded(_ value: Bool) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { folded = value }
+    }
+}
+
+/// A big party folded into one row of small faces under yours: your companion's with a thin HP bar
+/// (grey once it has fainted), then your friends'. Tap it to see everyone in full.
+private struct FoldedParty: View {
+    let session: GameSession
+    let pet: Pet?
+    let friends: [Adventurer]
+    let unfold: () -> Void
+
+    var body: some View {
+        Button(action: unfold) {
+            HStack(spacing: 6) {
+                if let pet {
+                    let stats = session.stats(of: pet)
+                    let health: CGFloat = stats.hp > 0 ? min(1, CGFloat(pet.hp) / CGFloat(stats.hp)) : 0
+                    VStack(spacing: 2) {
+                        Portrait(face: ArtLibrary.shared.face(session.artID(for: pet)), level: pet.level, size: 32)
+                            .saturation(pet.hp > 0 ? 1 : 0)
+                        GlossyBar(fraction: health, color: HUDStyle.hp, height: 5)
+                            .frame(width: 30)
+                    }
+                }
+                ForEach(friends) { friend in
+                    Portrait(face: ArtLibrary.shared.face(session.artID(for: friend)), level: friend.level, size: 30)
+                }
+                FoldArrow(up: false)
+            }
+            .padding(.horizontal, 7)
+            .padding(.vertical, 4)
+            .background(HUDStyle.panel)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Show your whole party")
+    }
+}
+
+/// The little orange arrow on the party's fold: down to unfold it, up to fold it again.
+private struct FoldArrow: View {
+    let up: Bool
+
+    var body: some View {
+        IconImage(up ? .chevronUp : .chevronDown, size: 12)
+            .font(.system(size: 9, weight: .black))
+            .foregroundStyle(.white)
+            .frame(width: 18, height: 18)
+            .background(Circle().fill(HUDStyle.orange).overlay(Circle().strokeBorder(.white.opacity(0.8), lineWidth: 1)))
+            .shadow(color: .black.opacity(0.35), radius: 1, y: 1)
+            .frame(width: 28, height: 28)
+            .contentShape(Rectangle())
     }
 }
 
@@ -398,6 +481,15 @@ private struct SavedBadge: View {
                 }
             }
             .accessibilityHidden(true)
+    }
+}
+
+private extension View {
+    /// Fades a control out, and stops it taking taps, while a conversation or window covers the map.
+    func stepsAside(_ hidden: Bool) -> some View {
+        opacity(hidden ? 0 : 1)
+            .allowsHitTesting(!hidden)
+            .animation(.easeOut(duration: 0.2), value: hidden)
     }
 }
 

@@ -145,25 +145,85 @@ final class Walker: SKNode {
         node.run(.sequence([pop, .wait(forDuration: duration), .fadeOut(withDuration: 0.3), .removeFromParent()]))
     }
 
-    /// Trails behind `leader` like a companion: close enough to feel together, never on top.
-    func follow(_ leader: Walker, dt: TimeInterval) {
+    /// Where this walker has just been, newest first, a step apart: ground it stood on, so a
+    /// follower can always walk there.
+    private var footsteps: [CGPoint] = []
+    /// How much longer a follower keeps to its leader's footsteps after its usual place was blocked.
+    private var trailing: TimeInterval = 0
+
+    /// Notes where it stands now. Call it every frame on anyone who's followed (the hero, an
+    /// adventurer with a pet).
+    func markFootstep() {
+        if let last = footsteps.first {
+            let gap = last.distance(to: position)
+            if gap < 6 { return }
+            // A jump (a new map, a road bounced back from): the old trail leads nowhere now.
+            if gap > 200 { footsteps = [] }
+        }
+        footsteps.insert(position, at: 0)
+        if footsteps.count > 24 { footsteps.removeLast() }
+    }
+
+    /// The point `distance` back along its footsteps. Where they don't go back that far (it's only
+    /// just arrived), the rest is straight back from the way it faces.
+    func footstep(behind distance: CGFloat) -> CGPoint {
+        var previous = position
+        var left = distance
+        for point in footsteps {
+            let gap = previous.distance(to: point)
+            if gap > 0, gap >= left { return previous + (point - previous) * (left / gap) }
+            left -= gap
+            previous = point
+        }
+        return previous + facing.vector * -left
+    }
+
+    /// Trails behind `leader` like a companion: close enough to feel together, never on top. It keeps
+    /// to ground it can stand on: when its place beside the leader is in water or a wall, or one is in
+    /// the way, it walks to `footstep` instead (its place in single file on the trail of whoever leads
+    /// the line), and it slides along whatever's in its way like the hero does.
+    func follow(_ leader: Walker, dt: TimeInterval, footstep: CGPoint, canStand: (CGPoint) -> Bool) {
         let behind = leader.facing.vector * -1
-        let goal = leader.facing.isHorizontal
+        var goal = leader.facing.isHorizontal
             ? leader.position + behind * 34 + CGVector(dx: 0, dy: 6)
             : leader.position + behind * 14 + CGVector(dx: -30, dy: 0)
+        // Once blocked, it keeps to the footsteps a moment, so it doesn't dither along a ragged shore.
+        if !Self.isClear(from: position, to: goal, canStand) { trailing = 0.6 }
+        if trailing > 0 {
+            trailing -= dt
+            goal = footstep
+        }
         let offset = goal - position
         let distance = offset.length
         if distance > 300 {
             position = goal
         } else if distance > 6 {
             let step = min(distance, max(walkSpeed, distance * 2) * CGFloat(dt))
-            position = position + offset * (step / distance)
+            let move = offset * (step / distance)
+            var next = position + move
+            // Stuck in a wall already (just arrived)? Then walk straight out; otherwise don't walk in.
+            if canStand(position), !canStand(next) {
+                let alongX = CGPoint(x: position.x + move.dx, y: position.y)
+                let alongY = CGPoint(x: position.x, y: position.y + move.dy)
+                next = canStand(alongX) ? alongX : canStand(alongY) ? alongY : position
+            }
+            position = next
             face(Direction(offset, current: facing))
             setWalking(true)
         } else {
             setWalking(false)
             face(leader.facing)
         }
+    }
+
+    /// Whether the way from `start` to `end`, and `end` itself, is all ground to stand on.
+    private static func isClear(from start: CGPoint, to end: CGPoint, _ canStand: (CGPoint) -> Bool) -> Bool {
+        let offset = end - start
+        let steps = max(1, Int(offset.length / 8))
+        for index in 1...steps where !canStand(start + offset * (CGFloat(index) / CGFloat(steps))) {
+            return false
+        }
+        return true
     }
 
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }

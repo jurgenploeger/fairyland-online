@@ -110,6 +110,7 @@ final class GameSession {
     func save() {
         guard !isDeleted else { return }
         data.position = playerPosition.map { [Double($0.x), Double($0.y)] }
+        if !seen.isEmpty { data.explored = (data.explored ?? [:]).merging(seen) { $1 } }
         SaveStore.save(data)
         lastSaved = Date()
     }
@@ -534,6 +535,39 @@ final class GameSession {
         return true
     }
 
+    // MARK: - Exploring dark maps
+
+    /// Cells seen on dark maps since the last save, kept out of `data` so exploring doesn't redraw
+    /// everything that shows the save; `save()` writes them in.
+    @ObservationIgnored private var seen: [String: Data] = [:]
+    /// Goes up whenever you see somewhere new on a dark map, so the minimap redraws.
+    private(set) var exploredVersion = 0
+
+    /// The cells you've seen on a dark map, one bit each (`SaveData.explored`).
+    func explored(_ mapID: String) -> Data? { seen[mapID] ?? data.explored?[mapID] }
+
+    /// Marks cells of a dark map as seen. Returns true if any of them is new.
+    @discardableResult
+    func explore(_ cells: [GridPoint], on mapID: String, columns: Int, rows: Int) -> Bool {
+        let size = (columns * rows + 7) / 8
+        var bits = explored(mapID) ?? Data()
+        // A map that changed size since: start afresh.
+        if bits.count != size { bits = Data(count: size) }
+        var fresh = false
+        for cell in cells where cell.col >= 0 && cell.row >= 0 && cell.col < columns && cell.row < rows {
+            let index = cell.row * columns + cell.col
+            let mask = UInt8(1 << (index % 8))
+            if bits[index / 8] & mask == 0 {
+                bits[index / 8] |= mask
+                fresh = true
+            }
+        }
+        guard fresh else { return false }
+        seen[mapID] = bits
+        exploredVersion += 1
+        return true
+    }
+
     // MARK: - Friends & party
 
     var friends: [Adventurer] { data.friends ?? [] }
@@ -860,6 +894,15 @@ final class GameSession {
         let carried = Array(goods.shuffled(using: &rng).prefix(3))
         return wanted.compactMap { offer(.theyBuy, $0, max(1, Self.sellPrice(of: $0) * 3 / 2)) }
             + carried.compactMap { offer(.theySell, $0, max(1, $0.price * 11 / 10)) }
+    }
+
+    /// Beat an adventurer and they drop everything they carry: today's goods (what they'd have sold
+    /// you) go into your bag, and those deals are gone. Returns what you got.
+    func takeSpoils(from adventurer: Adventurer) -> [ItemDef] {
+        let goods = tradeOffers(with: adventurer).filter { $0.kind == .theySell }
+        for offer in goods { addItem(offer.item.id) }
+        data.tradesDone = Array((data.tradesDone ?? []).suffix(200)) + goods.map(\.id)
+        return goods.map(\.item)
     }
 
     /// Makes a deal. Returns false if you can't (not enough gold, or the item's gone).
