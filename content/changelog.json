@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.34",
+      "date": "2026-10-04",
+      "title": "Railings that follow the terraces",
+      "notes": [
+        "The stone railings along the raised terraces in Meadowbrook, Rainbow City, Goldburg and Bluebird run along the terrace edges at the map's angle, as one railing, instead of stepping down them like stairs."
+      ]
+    },
+    {
       "version": "0.3.33",
       "date": "2026-10-04",
       "title": "Gear from battles",
