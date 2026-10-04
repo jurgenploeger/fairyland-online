@@ -6995,6 +6995,258 @@
           }
         ]
       }
+    },
+    {
+      "id": "candy_tree_lemon",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 55.1,
+            "spread": -0.54,
+            "saturation": 0.55,
+            "value": 1.2
+          },
+          {
+            "hue": [
+              0,
+              54
+            ],
+            "minSaturation": 0.3,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "candy_tree_peach",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 21.1,
+            "spread": -0.54,
+            "saturation": 0.5,
+            "value": 1.2
+          },
+          {
+            "hue": [
+              0,
+              54
+            ],
+            "minSaturation": 0.3,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "candy_tree_sky",
+      "kind": "prop",
+      "derive": {
+        "from": "tree",
+        "recolor": [
+          {
+            "hue": [
+              55,
+              160
+            ],
+            "minSaturation": 0.3,
+            "to": 196.9,
+            "spread": 0.54,
+            "saturation": 0.45,
+            "value": 1.2
+          },
+          {
+            "hue": [
+              0,
+              54
+            ],
+            "minSaturation": 0.3,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "lollipop",
+      "kind": "prop",
+      "derive": {
+        "from": "beach_umbrella",
+        "recolor": []
+      }
+    },
+    {
+      "id": "lollipop_pink",
+      "kind": "prop",
+      "derive": {
+        "from": "beach_umbrella",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.4,
+            "to": 325.0,
+            "spread": 0.74
+          }
+        ]
+      }
+    },
+    {
+      "id": "lollipop_lemon",
+      "kind": "prop",
+      "derive": {
+        "from": "beach_umbrella",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.4,
+            "to": 43.0,
+            "spread": 0.74
+          }
+        ]
+      }
+    },
+    {
+      "id": "lollipop_berry",
+      "kind": "prop",
+      "derive": {
+        "from": "beach_umbrella",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.4,
+            "to": 280.0,
+            "spread": 0.74
+          }
+        ]
+      }
+    },
+    {
+      "id": "lollipop_sky",
+      "kind": "prop",
+      "derive": {
+        "from": "beach_umbrella",
+        "recolor": [
+          {
+            "hue": [
+              330,
+              20
+            ],
+            "minSaturation": 0.4,
+            "to": 210.0,
+            "spread": -0.74
+          }
+        ]
+      }
+    },
+    {
+      "id": "gift_box_blue",
+      "kind": "prop",
+      "derive": {
+        "from": "gift_box",
+        "recolor": [
+          {
+            "hue": [
+              325,
+              25
+            ],
+            "minSaturation": 0.45,
+            "to": 210.5,
+            "spread": -0.43
+          }
+        ]
+      }
+    },
+    {
+      "id": "gift_box_purple",
+      "kind": "prop",
+      "derive": {
+        "from": "gift_box",
+        "recolor": [
+          {
+            "hue": [
+              325,
+              25
+            ],
+            "minSaturation": 0.45,
+            "to": 284.5,
+            "spread": 0.43
+          }
+        ]
+      }
+    },
+    {
+      "id": "gift_box_gold",
+      "kind": "prop",
+      "derive": {
+        "from": "gift_box",
+        "recolor": [
+          {
+            "hue": [
+              325,
+              25
+            ],
+            "minSaturation": 0.45,
+            "to": 45.5,
+            "spread": 0.43
+          }
+        ]
+      }
+    },
+    {
+      "id": "tile_sugar_path",
+      "kind": "tile",
+      "derive": {
+        "from": "tile_path",
+        "recolor": [
+          {
+            "hue": [
+              20,
+              70
+            ],
+            "minSaturation": 0.1,
+            "to": 342.5,
+            "spread": 1.0,
+            "saturation": 0.95,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
+      "id": "tile_chocolate",
+      "kind": "tile",
+      "derive": {
+        "from": "tile_water",
+        "recolor": [
+          {
+            "to": 40,
+            "saturation": 1.0,
+            "value": 0.5
+          }
+        ]
+      }
     }
   ]
 }

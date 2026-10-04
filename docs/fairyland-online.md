@@ -58,6 +58,10 @@ capsule (H). Mining spots include Ilium, Kars Mountain and Siwa Oasis (H).
 - Everyone starts in Meadowbrook, and all three guild masters are there.
 - Fairy-tale fields echo the lands: Genie Desert, Lotus Land (with Thumbelina), Candy Mountain, Snow White
   Forest, Emerald Road.
+- Candy Mountain is our nod to the Candy House land (Hansel and Gretel's Grasha Village): a sugar path,
+  chocolate ponds, lollipops, cotton-candy trees and presents, all palette swaps of existing art.
+- The animals about the maps (bunnies, frogs, crabs, birds, gulls, bats) and particles such as lanterns,
+  bubbles and Z's are our own whimsy. No source we could reach describes ambient animals in Fairyland Online.
 - None of the other towns exist yet: Baghdad, Port Pebbles, Dreamland, Sheep Horn Village, Emerald City,
   Grasha Village.
 

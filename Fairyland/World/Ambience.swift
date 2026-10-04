@@ -1,8 +1,9 @@
 import SpriteKit
 import UIKit
 
-/// The whimsy layer of a map: drifting petals or fireflies, butterflies, cloud shadows,
-/// a colour mood and a soft vignette. Driven by the `ambience` block in content/maps.json.
+/// The whimsy layer of a map: drifting petals, fireflies, bubbles or lanterns, butterflies, cloud
+/// shadows, a colour mood and a soft vignette. Driven by the `ambience` block in content/maps.json;
+/// the animals that live on a map are `Critters`.
 final class Ambience {
     private let tint: SKSpriteNode?
     private let vignette: SKSpriteNode?
@@ -12,12 +13,13 @@ final class Ambience {
 
         // One kind, or several joined with "+" (e.g. "snow+sparkles").
         for kind in (def?.particles ?? "").split(separator: "+").map(String.init) {
-            guard let emitter = Self.particles(kind) else { continue }
-            emitter.targetNode = world
-            emitter.zPosition = 30_000
-            camera.addChild(emitter)
-            // Already drifting when you arrive, instead of starting from an empty sky.
-            emitter.advanceSimulationTime(TimeInterval(emitter.particleLifetime))
+            for emitter in Self.emitters(kind) {
+                emitter.targetNode = world
+                emitter.zPosition = 30_000
+                camera.addChild(emitter)
+                // Already drifting when you arrive, instead of starting from an empty sky.
+                emitter.advanceSimulationTime(TimeInterval(emitter.particleLifetime))
+            }
             if kind == "snow" {
                 // Big close flakes that move with the camera, rushing past in front of the world.
                 let near = Self.nearSnow()
@@ -105,6 +107,36 @@ final class Ambience {
         return emitter
     }
 
+    /// The emitters for one kind of particle: candy sprinkles come in four colours, the rest in one.
+    private static func emitters(_ kind: String) -> [SKEmitterNode] {
+        guard kind == "sprinkles" else { return particles(kind).map { [$0] } ?? [] }
+        let colors = [
+            UIColor(red: 1, green: 0.56, blue: 0.78, alpha: 1), UIColor(red: 1, green: 0.89, blue: 0.48, alpha: 1),
+            UIColor(red: 0.56, green: 0.89, blue: 0.82, alpha: 1), UIColor(red: 0.66, green: 0.72, blue: 1, alpha: 1),
+        ]
+        return colors.map { color in
+            let emitter = SKEmitterNode()
+            emitter.particlePositionRange = CGVector(dx: 1200, dy: 1200)
+            emitter.particleTexture = SoftTextures.sprinkle
+            emitter.particleColor = color
+            emitter.particleColorBlendFactor = 1
+            emitter.particleBirthRate = 1.2
+            emitter.particleLifetime = 11
+            emitter.particleSpeed = 24
+            emitter.particleSpeedRange = 10
+            emitter.emissionAngle = -.pi * 0.62
+            emitter.emissionAngleRange = 0.5
+            emitter.yAcceleration = -4
+            emitter.particleRotationRange = .pi * 2
+            emitter.particleRotationSpeed = 2.2
+            emitter.particleScale = 1.6
+            emitter.particleScaleRange = 0.4
+            emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 1, 1, 0], times: [0, 0.1, 0.85, 1])
+            emitter.advanceSimulationTime(12)
+            return emitter
+        }
+    }
+
     private static func particles(_ kind: String) -> SKEmitterNode? {
         let emitter = SKEmitterNode()
         emitter.particlePositionRange = CGVector(dx: 1200, dy: 1200)
@@ -190,6 +222,84 @@ final class Ambience {
             emitter.particleScale = 0.3
             emitter.particleScaleRange = 0.15
             emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.8, 0.3, 0.8, 0], times: [0, 0.25, 0.5, 0.75, 1])
+        case "bubbles":
+            // Rising from the water, wobbling a little, gone at the top.
+            emitter.particleTexture = SoftTextures.bubble
+            emitter.particleBirthRate = 2.5
+            emitter.particleLifetime = 7
+            emitter.particleLifetimeRange = 2
+            emitter.particleSpeed = 16
+            emitter.particleSpeedRange = 8
+            emitter.emissionAngle = .pi / 2
+            emitter.emissionAngleRange = 0.5
+            emitter.xAcceleration = 1.5
+            emitter.particleScale = 1.6
+            emitter.particleScaleRange = 0.7
+            emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.8, 0.8, 0], times: [0, 0.15, 0.9, 1])
+        case "dandelions":
+            // Fluffy seeds riding the breeze.
+            emitter.particleTexture = SoftTextures.fluff
+            emitter.particleBirthRate = 1.4
+            emitter.particleLifetime = 15
+            emitter.particleSpeed = 18
+            emitter.particleSpeedRange = 8
+            emitter.emissionAngle = 0.25
+            emitter.emissionAngleRange = 0.5
+            emitter.yAcceleration = -0.6
+            emitter.particleRotationRange = 0.8
+            emitter.particleRotationSpeed = 0.3
+            emitter.particleScale = 1.5
+            emitter.particleScaleRange = 0.5
+            emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.95, 0.95, 0], times: [0, 0.1, 0.85, 1])
+        case "lanterns":
+            // Paper lanterns floating up into the night.
+            emitter.particleTexture = SoftTextures.lantern
+            emitter.particleBirthRate = 0.45
+            emitter.particleLifetime = 24
+            emitter.particleLifetimeRange = 4
+            emitter.particleSpeed = 11
+            emitter.particleSpeedRange = 4
+            emitter.emissionAngle = .pi / 2
+            emitter.emissionAngleRange = 0.35
+            emitter.particleScale = 1.8
+            emitter.particleScaleRange = 0.6
+            emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 1, 1, 0], times: [0, 0.1, 0.8, 1])
+        case "zzz":
+            // Sleepy Z's drifting up and fading.
+            emitter.particleTexture = SoftTextures.zee
+            emitter.particleColor = UIColor(red: 0.85, green: 0.82, blue: 1, alpha: 1)
+            emitter.particleColorBlendFactor = 1
+            emitter.particleBirthRate = 0.8
+            emitter.particleLifetime = 6
+            emitter.particleLifetimeRange = 2
+            emitter.particleSpeed = 10
+            emitter.particleSpeedRange = 4
+            emitter.emissionAngle = .pi / 2 + 0.2
+            emitter.emissionAngleRange = 0.4
+            emitter.particleRotationRange = 0.4
+            emitter.particleScale = 1.4
+            emitter.particleScaleRange = 0.4
+            emitter.particleScaleSpeed = 0.15
+            emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.9, 0.6, 0], times: [0, 0.2, 0.7, 1])
+        case "notes":
+            // A music-box tune drifting over the hill.
+            emitter.particleTexture = SoftTextures.note
+            emitter.particleColor = UIColor(red: 1, green: 0.82, blue: 0.95, alpha: 1)
+            emitter.particleColorBlendFactor = 1
+            emitter.particleColorGreenRange = 0.3
+            emitter.particleColorBlueRange = 0.3
+            emitter.particleBirthRate = 1
+            emitter.particleLifetime = 7
+            emitter.particleLifetimeRange = 2
+            emitter.particleSpeed = 12
+            emitter.particleSpeedRange = 5
+            emitter.emissionAngle = .pi / 2
+            emitter.emissionAngleRange = 0.8
+            emitter.particleRotationRange = 0.6
+            emitter.particleRotationSpeed = 0.4
+            emitter.particleScale = 1.5
+            emitter.particleScaleRange = 0.4
+            emitter.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.9, 0.9, 0], times: [0, 0.15, 0.75, 1])
         default:
             return nil
         }
@@ -289,6 +399,61 @@ enum SoftTextures {
     static let star: SKTexture = pixel(width: 5, height: 5) { c in
         c.fill(2, 0, 1, 5, .white)
         c.fill(0, 2, 5, 1, .white)
+    }
+
+    /// A soap bubble: a pale rim and a glint.
+    static let bubble: SKTexture = pixel(width: 7, height: 7) { c in
+        let rim = PixelColor(0xC9F1FF)
+        c.fill(2, 0, 3, 1, rim)
+        c.fill(2, 6, 3, 1, rim)
+        c.fill(0, 2, 1, 3, rim)
+        c.fill(6, 2, 1, 3, rim)
+        c[1, 1] = rim
+        c[5, 1] = rim
+        c[1, 5] = rim
+        c[5, 5] = rim
+        c[2, 2] = .white
+    }
+
+    /// A dandelion seed: a white puff on a little stem.
+    static let fluff: SKTexture = pixel(width: 7, height: 7) { c in
+        for (x, y) in [(1, 0), (3, 0), (5, 0), (0, 1), (2, 1), (3, 1), (4, 1), (6, 1), (1, 2), (2, 2), (3, 2), (4, 2), (5, 2)] {
+            c[x, y] = .white
+        }
+        c.fill(3, 3, 1, 3, PixelColor(0xD9D2C3))
+        c[3, 6] = PixelColor(0x8D6E52)
+    }
+
+    /// A candy sprinkle, tinted by its emitter.
+    static let sprinkle: SKTexture = pixel(width: 2, height: 4) { c in
+        c.fill(0, 0, 2, 4, .white)
+    }
+
+    /// A paper lantern glowing warm.
+    static let lantern: SKTexture = pixel(width: 5, height: 7) { c in
+        c.fill(0, 1, 5, 5, PixelColor(0xFF9E3D))
+        c.fill(1, 2, 3, 3, PixelColor(0xFFD27A))
+        c[2, 3] = PixelColor(0xFFF4CF)
+        c.fill(1, 0, 3, 1, PixelColor(0x7A2E1F))
+        c.fill(1, 6, 3, 1, PixelColor(0x7A2E1F))
+    }
+
+    /// A "Z" for sleepy places, tinted by its emitter.
+    static let zee: SKTexture = pixel(width: 5, height: 5) { c in
+        c.fill(0, 0, 5, 1, .white)
+        c[3, 1] = .white
+        c[2, 2] = .white
+        c[1, 3] = .white
+        c.fill(0, 4, 5, 1, .white)
+    }
+
+    /// A music note, tinted by its emitter.
+    static let note: SKTexture = pixel(width: 5, height: 7) { c in
+        c.fill(3, 0, 1, 6, .white)
+        c[4, 1] = .white
+        c[4, 2] = .white
+        c.fill(0, 5, 3, 2, .white)
+        c[0, 5] = .clear
     }
 
     static func butterfly(color: PixelColor, open: Bool) -> SKTexture {

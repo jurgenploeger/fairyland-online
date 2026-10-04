@@ -403,6 +403,8 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let shadow: Bool?
         /// Sways gently in the breeze.
         let sway: Bool?
+        /// Floats gently up and down (magic lanterns, floating crystals).
+        let bob: Bool?
         /// Plant only within this many cells of the map's centre, inside a town's fence too
         /// (flower beds around the square). Otherwise props go anywhere free (in towns: the border).
         let within: Int?
@@ -422,9 +424,14 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
 
     /// Whimsy: floating particles, butterflies, cloud shadows and a colour mood.
     nonisolated struct Ambience: Decodable, Sendable {
-        /// petals | leaves | fireflies | sparkles | snow | dust | motes, or several joined with "+".
+        /// petals | leaves | fireflies | sparkles | snow | dust | motes | bubbles | dandelions | sprinkles |
+        /// lanterns | zzz | notes, or several joined with "+".
         let particles: String?
         let butterflies: Int?
+        /// Little animals living on the map that hop off when you come close. See `Critters`.
+        let critters: [Critter]?
+        /// A flock crossing the sky now and then: songbirds | gulls | bats.
+        let birds: String?
         let clouds: Bool?
         /// Hex colour laid over the map, e.g. "#3A2A6B".
         let tint: String?
@@ -446,6 +453,12 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         /// A dark map (a cave): you see only as far as your light reaches, and the minimap shows only
         /// what you've seen. See `Lantern`.
         let darkness: Darkness?
+
+        nonisolated struct Critter: Decodable, Sendable {
+            /// bunny | frog | crab
+            let kind: String
+            let count: Int
+        }
 
         nonisolated struct Lights: Decodable, Sendable {
             let color: String
