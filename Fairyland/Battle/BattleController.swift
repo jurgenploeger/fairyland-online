@@ -207,11 +207,13 @@ final class BattleController {
 
     /// How many fighters each wave of a boss fight has, the boss's own included.
     static let waveSize = 10
+    /// How many levels lower each earlier wave of a boss fight stands, so ten at a time stays fair.
+    static let levelStep = 6
 
     /// A boss fight's waves, in order: `waveSize` of the map's monsters in each wave before the
-    /// boss's own, where it stands in the middle of the front row of its minions. Levels climb three
-    /// a wave: the boss's minions are 1 to 8 levels below it, the wave before 4 to 11, and so on,
-    /// within the map's range but never up to the boss's level. Wave n's fighters have ids from 100 × n.
+    /// boss's own, where it stands in the middle of the front row of its minions. Levels climb
+    /// `levelStep` a wave: the boss's minions are 1 to 8 levels below it, the wave before 7 to 14,
+    /// the one before that 13 to 20, within the map's range but never up to the boss's level. Wave n's fighters have ids from 100 × n.
     static func bossWaves(_ npc: NPCDef, encounters: MapDef.Encounters?, session: GameSession) -> [[Combatant]]? {
         guard let id = npc.monster, let species = session.content.monster(id) else { return nil }
         let level = npc.level ?? 10
@@ -225,7 +227,7 @@ final class BattleController {
 
         func monsters(_ amount: Int, wave: Int) -> [Combatant] {
             guard let encounters, amount > 0 else { return [] }
-            let back = 3 * (count - wave)
+            let back = levelStep * (count - wave)
             let top = max(lowest, min(highest, level - 1 - back))
             let bottom = max(lowest, min(top, level - 8 - back))
             var group: [Combatant] = []

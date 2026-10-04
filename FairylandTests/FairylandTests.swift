@@ -506,7 +506,7 @@ struct RulesTests {
         #expect(monsters.allSatisfy { map.encounters?.monsters[$0.speciesID ?? ""] != nil })
         // The boss outranks them all, and each wave stands a little closer to its level.
         #expect(monsters.allSatisfy { $0.level < level })
-        #expect(waves[0].allSatisfy { $0.level <= level - 7 } && waves[1].allSatisfy { $0.level <= level - 4 })
+        #expect(waves[0].allSatisfy { $0.level <= level - 13 } && waves[1].allSatisfy { $0.level <= level - 7 })
         for (index, wave) in waves.enumerated() { #expect(wave.allSatisfy { $0.wave == index + 1 }) }
         let ids = waves.joined().map(\.id)
         #expect(Set(ids).count == ids.count && ids.allSatisfy { $0 >= 10 })

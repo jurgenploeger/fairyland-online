@@ -283,7 +283,8 @@ adventurer drops everything they carry (the goods they'd sell you that day).
   - Us (since 0.3.18): two waves of the map's monsters, then the boss with its minions. HP and MP carry
     over, each wave stands a few levels closer to the boss's, and the boss always has the highest level.
   - Since 0.3.45 every wave is 10 strong: ten of the map's monsters, and in the last wave the boss with nine
-    minions, standing in the middle of the front row. Asked for in playtesting (2026-10-04).
+    minions, standing in the middle of the front row. Asked for in playtesting (2026-10-04). The earlier
+    waves stand 6 levels lower per wave (7 to 14 below the boss, then 13 to 20), within the map's range.
   - `waves` and `minions` on the boss NPC (content/maps.json) tune it per boss.
 - **Fainting in a party:** ours, asked for in playtesting (2026-10-04). How FO handled a player fainting
   mid-fight (whether the others fought on, and where everyone woke up) isn't in any source reachable from a
