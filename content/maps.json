@@ -1779,7 +1779,13 @@
             "count": 6
           }
         ],
-        "birds": "gulls"
+        "birds": "gulls",
+        "weather": {
+          "clear": 6,
+          "cloudy": 2,
+          "rain": 2,
+          "storm": 1
+        }
       },
       "hub": [
         30,
@@ -2176,7 +2182,13 @@
             "kind": "frog",
             "count": 3
           }
-        ]
+        ],
+        "weather": {
+          "clear": 4,
+          "cloudy": 2,
+          "rain": 2,
+          "fog": 3
+        }
       },
       "hub": [
         -12,
@@ -4036,7 +4048,13 @@
             "count": 5
           }
         ],
-        "birds": "songbirds"
+        "birds": "songbirds",
+        "weather": {
+          "clear": 5,
+          "cloudy": 2,
+          "fog": 1,
+          "snow": 3
+        }
       },
       "hub": [
         -27,
@@ -4381,7 +4399,14 @@
             "kind": "frog",
             "count": 8
           }
-        ]
+        ],
+        "weather": {
+          "clear": 3,
+          "cloudy": 2,
+          "rain": 3,
+          "storm": 1,
+          "fog": 3
+        }
       },
       "hub": [
         9,
@@ -4679,7 +4704,14 @@
         },
         "haze": "#3A2050",
         "hazeAlpha": 0.28,
-        "birds": "bats"
+        "birds": "bats",
+        "weather": {
+          "clear": 3,
+          "cloudy": 2,
+          "rain": 2,
+          "storm": 2,
+          "fog": 3
+        }
       },
       "hub": [
         6,
@@ -5446,7 +5478,12 @@
         "sun": "#FFD090",
         "haze": "#FFE0B0",
         "hazeAlpha": 0.18,
-        "birds": "songbirds"
+        "birds": "songbirds",
+        "weather": {
+          "clear": 8,
+          "cloudy": 2,
+          "rain": 1
+        }
       },
       "buildings": [
         {
@@ -5979,7 +6016,11 @@
         },
         "sun": "#FFC880",
         "haze": "#FFD8B0",
-        "hazeAlpha": 0.25
+        "hazeAlpha": 0.25,
+        "weather": {
+          "clear": 9,
+          "cloudy": 2
+        }
       },
       "hub": [
         -24,
@@ -6315,7 +6356,13 @@
         },
         "sun": "#F0E8FF",
         "haze": "#C8D0FF",
-        "hazeAlpha": 0.25
+        "hazeAlpha": 0.25,
+        "weather": {
+          "clear": 5,
+          "cloudy": 2,
+          "fog": 1,
+          "snow": 3
+        }
       },
       "hub": [
         0,
@@ -6624,7 +6671,13 @@
           "alpha": 0.16
         },
         "haze": "#303A80",
-        "hazeAlpha": 0.28
+        "hazeAlpha": 0.28,
+        "weather": {
+          "clear": 5,
+          "cloudy": 2,
+          "fog": 1,
+          "snow": 3
+        }
       },
       "hub": [
         9,
@@ -7814,7 +7867,12 @@
             "count": 6
           }
         ],
-        "birds": "songbirds"
+        "birds": "songbirds",
+        "weather": {
+          "clear": 7,
+          "cloudy": 2,
+          "rain": 1
+        }
       },
       "exits": [
         {
@@ -8134,7 +8192,14 @@
           "blur": 3,
           "scale": 3
         },
-        "birds": "bats"
+        "birds": "bats",
+        "weather": {
+          "clear": 3,
+          "cloudy": 2,
+          "rain": 2,
+          "storm": 2,
+          "fog": 2
+        }
       },
       "exits": [
         {
@@ -9506,7 +9571,14 @@
         },
         "haze": "#3A2050",
         "hazeAlpha": 0.28,
-        "birds": "bats"
+        "birds": "bats",
+        "weather": {
+          "clear": 4,
+          "cloudy": 2,
+          "rain": 2,
+          "storm": 1,
+          "fog": 2
+        }
       },
       "exits": [
         {
@@ -10124,6 +10196,11 @@
           "alpha": 0.5,
           "blur": 3,
           "scale": 3
+        },
+        "weather": {
+          "clear": 5,
+          "cloudy": 2,
+          "fog": 3
         }
       },
       "exits": [
@@ -10426,7 +10503,11 @@
         },
         "sun": "#FFC880",
         "haze": "#FFD8B0",
-        "hazeAlpha": 0.22
+        "hazeAlpha": 0.22,
+        "weather": {
+          "clear": 9,
+          "cloudy": 2
+        }
       },
       "danger": true,
       "exits": [
@@ -10697,7 +10778,13 @@
             "count": 6
           }
         ],
-        "birds": "gulls"
+        "birds": "gulls",
+        "weather": {
+          "clear": 6,
+          "cloudy": 2,
+          "rain": 2,
+          "storm": 1
+        }
       },
       "exits": [
         {
@@ -11003,7 +11090,13 @@
             "count": 3
           }
         ],
-        "birds": "gulls"
+        "birds": "gulls",
+        "weather": {
+          "clear": 5,
+          "cloudy": 2,
+          "fog": 1,
+          "snow": 3
+        }
       },
       "exits": [
         {
@@ -11254,7 +11347,12 @@
         },
         "sun": "#F0E8FF",
         "haze": "#C8D0FF",
-        "hazeAlpha": 0.25
+        "hazeAlpha": 0.25,
+        "weather": {
+          "clear": 6,
+          "cloudy": 2,
+          "fog": 2
+        }
       },
       "danger": true,
       "exits": [

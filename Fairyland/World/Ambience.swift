@@ -85,7 +85,7 @@ final class Ambience {
     // MARK: Particles
 
     /// The near layer of a snowfall: fewer, bigger, faster flakes in screen space, a little soft.
-    private static func nearSnow() -> SKEmitterNode {
+    static func nearSnow() -> SKEmitterNode {
         let emitter = SKEmitterNode()
         // Out of focus: a plain soft blur, faintly blue so it shows over snow.
         emitter.particleTexture = SoftTextures.glow
@@ -108,7 +108,7 @@ final class Ambience {
     }
 
     /// The emitters for one kind of particle: candy sprinkles come in four colours, the rest in one.
-    private static func emitters(_ kind: String) -> [SKEmitterNode] {
+    static func emitters(_ kind: String) -> [SKEmitterNode] {
         guard kind == "sprinkles" else { return particles(kind).map { [$0] } ?? [] }
         let colors = [
             UIColor(red: 1, green: 0.56, blue: 0.78, alpha: 1), UIColor(red: 1, green: 0.89, blue: 0.48, alpha: 1),

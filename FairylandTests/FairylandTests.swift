@@ -1112,12 +1112,39 @@ struct RulesTests {
         #expect(!Moderation.unlock(with: "not the code"))
     }
 
+    @Test func theWeatherHoldsForASpellAndFitsTheMap() throws {
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        let swamp = try #require(Content.shared.map("frog_swamp"))
+        let desert = try #require(Content.shared.map("genie_desert"))
+        let cave = try #require(Content.shared.map("rat_cavern"))
+        // A cave has no sky; everywhere else always has some weather.
+        #expect(Weather.on(cave, at: start, since: start) == nil)
+        var seen: Set<Weather> = []
+        for hour in 0..<(24 * 30) {
+            let date = start.addingTimeInterval(Double(hour) * 60)
+            let weather = try #require(Weather.on(swamp, at: date, since: start))
+            seen.insert(weather)
+            // The desert's sky never rains, fogs or snows.
+            let dry = try #require(Weather.on(desert, at: date, since: start))
+            #expect(dry == .clear || dry == .cloudy)
+            // The same moment gives the same weather, so walking off and back doesn't reroll it.
+            #expect(Weather.on(swamp, at: date, since: start) == weather)
+        }
+        // Over a month of in-game days the swamp sees more than one kind.
+        #expect(seen.count > 1)
+        #expect(seen.isSubset(of: [.clear, .cloudy, .rain, .storm, .fog]))
+        // The light follows the clock: the fractional hours agree with the calendar's hour.
+        let evening = start.addingTimeInterval(9.5 * 60)
+        #expect(GameClock.moment(at: evening, since: start).hour == 18)
+        #expect(abs(GameClock.hours(at: evening, since: start) - 18.5) < 0.001)
+    }
+
     @Test func worldMessagesAndAnnouncementsFollowYouFromMapToMap() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.isModerator = true
         session.startChat(on: "Meadowbrook")
         session.postWorld("Welcome, everyone!")
-        session.announce("Dawn breaks over Mysteria.")
+        session.announce("Dawn breaks over Fairyland.")
         session.postChat("lol", from: "Momo", kind: .adventurer)
         session.startChat(on: "Goldburg")
         // What's said to everyone stays; the map's own chatter starts over.

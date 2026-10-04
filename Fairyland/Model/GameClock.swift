@@ -16,10 +16,16 @@ enum GameClock {
     }
 
     static func moment(at date: Date = Date(), since start: Date?) -> Moment {
-        let origin = start ?? Date(timeIntervalSince1970: 1_790_000_000)
-        // Start mid-morning on day one, so a new game opens in daylight.
-        let hours = max(0, Int(date.timeIntervalSince(origin) / 60)) + 9
+        let hours = Int(self.hours(at: date, since: start))
         let days = hours / 24
         return Moment(year: 1001 + days / 300, month: months[(days / 60) % months.count], day: days % 60 + 1, hour: hours % 24)
+    }
+
+    /// In-game hours since the calendar began, with the minutes as a fraction (for light that
+    /// changes smoothly through the day). The hour of the day is this modulo 24.
+    static func hours(at date: Date = Date(), since start: Date?) -> Double {
+        let origin = start ?? Date(timeIntervalSince1970: 1_790_000_000)
+        // Start mid-morning on day one, so a new game opens in daylight.
+        return max(0, date.timeIntervalSince(origin) / 60) + 9
     }
 }

@@ -10,12 +10,17 @@ import UIKit
 final class Lighting {
     private var flare: [(node: SKSpriteNode, size: CGFloat, along: CGFloat)] = []
     private var haze: SKSpriteNode?
+    /// The sunbeams and the sun's flare, faded together at night and under cloud (`Sky.sunlight`).
+    private let beams = SKNode()
+    private let sunGlow = SKNode()
     private let foreground = SKNode()
     /// Foreground scenery moves this much faster than the world.
     private let parallax: CGFloat = 0.35
 
     init(_ def: MapDef.Ambience?, world: SKNode, camera: SKCameraNode, bounds: CGRect, seed: String) {
         var rng = SeededRandom(text: seed + "/light")
+        world.addChild(beams)
+        camera.addChild(sunGlow)
 
         if let patches = def?.lightPatches, let color = UIColor(hex: patches.color) {
             let alpha = CGFloat(patches.alpha ?? 0.2)
@@ -46,7 +51,7 @@ final class Lighting {
                     .fadeAlpha(to: alpha, duration: duration), .wait(forDuration: duration), .fadeAlpha(to: alpha * 0.2, duration: duration),
                 ])
                 node.run(.sequence([.wait(forDuration: wait), .repeatForever(shimmer)]))
-                world.addChild(node)
+                beams.addChild(node)
             }
         }
 
@@ -57,7 +62,7 @@ final class Lighting {
                 let node = Self.soft(color, size: .zero)
                 node.alpha = part.alpha
                 node.zPosition = 44_500
-                camera.addChild(node)
+                sunGlow.addChild(node)
                 flare.append((node, part.size, part.along))
             }
         }
@@ -103,6 +108,14 @@ final class Lighting {
             part.node.size = CGSize(width: side, height: side)
             part.node.position = CGPoint(x: sun.x * (1 - part.along), y: sun.y * (1 - part.along))
         }
+    }
+
+    /// How much the sun shines, 0...1: its flare and the sunbeams fade with it.
+    func sunlight(_ amount: CGFloat) {
+        beams.alpha = amount
+        sunGlow.alpha = amount
+        beams.isHidden = amount <= 0.01
+        sunGlow.isHidden = amount <= 0.01
     }
 
     /// Slides the foreground layer against the camera, so it passes faster than the world.

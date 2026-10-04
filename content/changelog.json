@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.44",
+      "date": "2026-10-04",
+      "title": "Day, night and weather",
+      "notes": [
+        "The world follows the clock now: the light warms at dawn and dusk, and at night the maps sink into deep blue. The sun's glow and its beams fade as it sets and come back in the morning. Caves stay as dark as ever.",
+        "Weather comes and goes, changing every few in-game hours: cloudy skies, rain with ripples on the ground, storms with lightning, banks of fog and snow flurries. Each place has its own: the swamp and the dark woods are often foggy and wet, the desert is nearly always clear, snowy lands get fresh snow and the shores the odd storm.",
+        "The game's own notices about sunrise and sunset now say Fairyland, like everywhere else."
+      ]
+    },
+    {
       "version": "0.3.43",
       "date": "2026-10-04",
       "title": "A look for every skill, and bots that think",

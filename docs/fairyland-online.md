@@ -290,6 +290,16 @@ adventurer drops everything they carry (the goods they'd sell you that day).
     first. Whoever is down at the end wakes at their own checkpoint (you get no EXP if your friends won it),
     and friends still standing when you fell wait where the fight was. Waiting friends stay in the party but
     sit out fights until you walk up to them.
+- **Day, night and weather:** FO's calendar line ("1001/Fire/12/13hr") and its dawn/dusk are what we built
+  the clock on. Whether FO's maps visibly darkened at night or had weather isn't in any source reachable from a
+  cloud session (a 2026-10-04 web search found nothing); asked for in playtesting (2026-10-04). Check the ToM
+  wiki.
+  - Us (since 0.3.44): `Sky` multiplies each map by the hour's light (warm at dawn and dusk, deep blue from
+    about 19:30 to 04:30) and fades the sun's flare and sunbeams with it. Weather (`Weather`) changes every
+    6 in-game hours, picked from the map's `ambience.weather` weights: clear, cloudy, rain, storm, fog, snow.
+    Caves have neither. The battle backdrop is the map without the sky.
+  - Our setting is called Fairyland in every in-game text. In FO the continent itself is Mysteria (above),
+    which is also the relaunch's name.
 - **Bots, moderators and announcements:** ours, asked for in playtesting (2026-10-04). FO's chat channels,
   GM notices and player stalls (players selling under a sign in town) aren't in any source reachable from a
   cloud session; check the ToM wiki.

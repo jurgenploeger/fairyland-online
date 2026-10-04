@@ -466,6 +466,10 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         /// A dark map (a cave): you see only as far as your light reaches, and the minimap shows only
         /// what you've seen. See `Lantern`.
         let darkness: Darkness?
+        /// How likely each weather is here (clear | cloudy | rain | storm | fog | snow), by weight; it
+        /// changes every few in-game hours. Unset: mostly clear, sometimes cloudy, rainy or foggy. `{}`
+        /// keeps the sky out. A dark map has neither weather nor day and night. See `Weather` and `Sky`.
+        let weather: [String: Double]?
 
         nonisolated struct Critter: Decodable, Sendable {
             /// bunny | frog | crab
