@@ -189,7 +189,8 @@ private struct WaveTracker: View {
 }
 
 /// The time left to choose, draining under the log line, red for the last two seconds. When it
-/// runs out the hero attacks.
+/// runs out the hero attacks. Narrow enough (about 144 points) to stay clear of the 1× and AUTO
+/// buttons below it, even on a 375-point-wide phone.
 private struct TurnClockBar: View {
     let deadline: Date
     let total: TimeInterval
@@ -201,13 +202,13 @@ private struct TurnClockBar: View {
             HStack(spacing: 6) {
                 IconImage(.sword, size: 12)
                 GlossyBar(fraction: CGFloat(min(1, left / total)), color: urgent ? HUDStyle.hp : HUDStyle.gold, height: 7)
-                    .frame(width: 140)
+                    .frame(width: 80)
                 Text("\(Int(left.rounded(.up)))s")
                     .font(HUDStyle.mono(10))
                     .frame(width: 24, alignment: .leading)
             }
             .foregroundStyle(urgent ? HUDStyle.hp : HUDStyle.cream)
-            .padding(.horizontal, 10)
+            .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(Capsule().fill(HUDStyle.ink.opacity(0.8)))
         }

@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.36",
+      "date": "2026-10-04",
+      "title": "A slimmer turn clock",
+      "notes": [
+        "The clock under the battle log is narrower, so it no longer reaches over the 1× and AUTO buttons."
+      ]
+    },
+    {
       "version": "0.3.35",
       "date": "2026-10-04",
       "title": "No more houses on the roads",
