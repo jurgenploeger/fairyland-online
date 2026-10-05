@@ -300,8 +300,9 @@ final class BattleScene: SKScene {
             }
             let arrow = SKLabelNode()
             arrow.attributedText = Nodes.outlined("▼", size: 20, color: UIColor(red: 1, green: 0.55, blue: 0.15, alpha: 1))
-            // Above the name over the fighter's head.
-            arrow.position = CGPoint(x: actor.position.x, y: actor.position.y + actor.nameHeight + 8)
+            // Above the name over the fighter's head, where they stand: a wave still marching in
+            // (or a fighter stepping back from a blow) would leave it hanging where they were.
+            arrow.position = CGPoint(x: actor.home.x, y: actor.home.y + actor.nameHeight + 8)
             arrow.zPosition = 20_000
             arrow.run(.repeatForever(.sequence([.moveBy(x: 0, y: 5, duration: 0.3), .moveBy(x: 0, y: -5, duration: 0.3)])))
             stage.addChild(arrow)
