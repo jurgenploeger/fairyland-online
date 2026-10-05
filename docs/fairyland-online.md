@@ -12,6 +12,31 @@ something new, add it here with its source. When we build or change a system, up
 First collected on 2026-10-03 from search-engine snippets of the pages listed under Sources. The cloud
 environment couldn't open the pages themselves, so a session that can should re-check anything marked M or ?.
 
+## Names
+
+**Us** (since 0.3.50): the game is called **Storyleaf** for players (the App Store name, the logo and
+every in-game line); the code, project and repo keep "Fairyland". The goddess Liora binds the world's tales
+into one book, and its pages are the land. Names taken from FO were replaced with our own, and this file
+keeps the FO names when it describes the original:
+
+| FO name | Ours |
+|---|---|
+| Rainbow City, Bluebird, Goldburg (and Goldburg Lake) | Prismhaven, Larkspur, Ingothold (Ingothold Lake) |
+| Northern Grassland, Slime Cave, Candy Mountain, Puppet Hill | Windswept Downs, Gooey Grotto, Gumdrop Peaks, Marionette Rise |
+| Sleepy Town, Secret Plain, Hachoo Island, Rosen Lake | Dozywick, Hidden Steppe, Sneezle Isle, Briarmere |
+| Water Temple, Mysterious Cave, Valley of Fear, Moonglow | Tidewater Shrine, Whispering Hollow, Shiverdell, Moonwhisper |
+| Shiria, Linns the Tailor, Hermit Will, Hamini the Wise, Thomas, Sophia | Liora, Nella the Tailor, Hermit Orrin, Ambrose the Wise, Jory, Rosalind |
+| Diviner Guild, Journeyman Guild (the Warrior Guild stays) | Arcane Circle, Wildfolk Lodge |
+| Idreus, Grunt of the Golden God, Lieutenant of the Silver Demon | Morvane, Gilded Brute (of the Gilded King), Silverfang Warden (of the Silver Wraith) |
+| Puppet King, Wolf Leader, Rock Monster, Tide Dragon, Black Kong | Marionette King, Howlmaster, Craghulk, Wavecrest Dragon, Shadow Ape |
+| Fantasy Ore, Dragon God (weapons) | Dreamstone, Wyrmking |
+| Lambs In Distress, Fine Woolen Cloth, Some Love and Happiness, Animal's Home, Wishes of an Ugly Duck | The Wandering Flock, Soft as a Cloud, A Little Kindness, A Place to Belong, An Ugly Duckling's Wish |
+| Sky-Ending, Dragon God, Red Cloud, Purple Star, Ghost, Blood Cypress, Armorbreaker, Ironcrusher staffs | Skyreach, Wyrmking, Crimson Mist, Violet Comet, Wraithwood, Dusk Cypress, Shellsplitter, Anvil |
+
+Content ids (`rainbow_city`, `linns`, `dragon_god_staff`…) keep the old words, so saves carry over. Generic
+names (Fire Bolt, Potion, Seal Stone), Meadowbrook, and public-domain fairy tales (Snow White, Thumbelina,
+Oz) stay.
+
 ## Tales of Mysteria (2026)
 
 FO is back under LagerNet as **Tales of Mysteria** (ToM). Its account sign-up page is on LagerNet's own
@@ -54,11 +79,11 @@ The rest of the world map is fairy-tale lands (H):
 A second "levels map" shades areas in 20-level bands (1–20, 21–40, …), used to pick the right capture
 capsule (H). Mining spots include Ilium, Kars Mountain and Siwa Oasis (H).
 
-**Us:** 30 maps and 4 towns (Meadowbrook, Rainbow City, Bluebird, Goldburg).
+**Us:** 30 maps and 4 towns (Meadowbrook, Prismhaven, Larkspur, Ingothold).
 - Everyone starts in Meadowbrook, and all three guild masters are there.
-- Fairy-tale fields echo the lands: Genie Desert, Lotus Land (with Thumbelina), Candy Mountain, Snow White
+- Fairy-tale fields echo the lands: Genie Desert, Lotus Land (with Thumbelina), Gumdrop Peaks, Snow White
   Forest, Emerald Road.
-- Candy Mountain is our nod to the Candy House land (Hansel and Gretel's Grasha Village): a sugar path,
+- Gumdrop Peaks is our nod to the Candy House land (Hansel and Gretel's Grasha Village): a sugar path,
   chocolate ponds, lollipops, cotton-candy trees and presents (palette swaps), and candy canes, gumdrops,
   cupcakes and gingerbread houses. Other fields nod to their lands too: flying carpets and genie lamps in
   the Genie Desert (1001 Nights), poppy fields on Emerald Road (Wizard of Oz), giant ladybugs in Lotus Land
@@ -131,8 +156,8 @@ What each class does (H unless marked):
 
 **Us:** one class per guild, chosen from the guild masters in Meadowbrook at level 10, and permanent:
 - Fighter (Warrior Guild)
-- Mage (Diviner Guild)
-- Beast Tamer (Journeyman Guild): ×1.6 capture, full EXP share for the companion
+- Mage (Arcane Circle)
+- Beast Tamer (Wildfolk Lodge): ×1.6 capture, full EXP share for the companion
 
 No advanced classes.
 
@@ -174,7 +199,7 @@ No advanced classes.
     Curse lowers attack and its hit rate; we have no hit rate.
   - No Lethal Poison, Fear or cures yet. Every status ends with the battle.
 - Monsters use them too: Venom Bite (snakes and widows, 40% chance to poison), Poison Mist (the Poison
-  Skeleton, the whole party) and Evil Eye (phantoms and Idreus, a curse).
+  Skeleton, the whole party) and Evil Eye (phantoms and Morvane, a curse).
 
 ## Elements
 

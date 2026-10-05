@@ -216,7 +216,7 @@
       "requires": [
         "bouncy_menace"
       ],
-      "description": "Strange lights drift through the Valley of Fear, south of Twilight Woods. Defeat 4 Wisps and see what's there.",
+      "description": "Strange lights drift through Shiverdell, south of Twilight Woods. Defeat 4 Wisps and see what's there.",
       "objective": {
         "type": "defeat",
         "target": "wisp",
@@ -239,7 +239,7 @@
       "requires": [
         "valley_lights"
       ],
-      "description": "The dwarves of Goldburg are cut off! A Rat King has taken over the cavern east of the Valley of Fear. Defeat him.",
+      "description": "The dwarves of Ingothold are cut off! A Rat King has taken over the cavern east of Shiverdell. Defeat him.",
       "objective": {
         "type": "defeat",
         "target": "rat_king",
@@ -283,7 +283,7 @@
       "requires": [
         "dragon_hangover"
       ],
-      "description": "We need Gem Crawler shells for the forge. Defeat 4 on Crystal Mountain, south of Goldburg.",
+      "description": "We need Gem Crawler shells for the forge. Defeat 4 on Crystal Mountain, south of Ingothold.",
       "objective": {
         "type": "defeat",
         "target": "gem_crawler",
@@ -521,7 +521,7 @@
       "id": "night_flight",
       "title": "Stardust's Night Flight",
       "giver": "stardust",
-      "description": "I can't fly under the moon while Poison Skeletons haunt Moonglow. Defeat 4 of them and I'll carry your name across the stars.",
+      "description": "I can't fly under the moon while Poison Skeletons haunt Moonwhisper. Defeat 4 of them and I'll carry your name across the stars.",
       "objective": {
         "type": "defeat",
         "target": "poison_skeleton",
@@ -538,9 +538,9 @@
     },
     {
       "id": "slime_gold",
-      "title": "The Golden God's Grunt",
+      "title": "The Gilded Brute",
       "giver": "elder",
-      "description": "Slime Cave, west of the Northern Grassland, is full of Golden Slimes. Their master calls himself the Grunt of the Golden God. Defeat him.",
+      "description": "Gooey Grotto, west of the Windswept Downs, is full of Golden Slimes. Their master calls himself the Gilded Brute. Defeat him.",
       "objective": {
         "type": "defeat",
         "target": "golden_grunt",
@@ -558,9 +558,9 @@
     },
     {
       "id": "lambs_in_distress",
-      "title": "Lambs In Distress",
+      "title": "The Wandering Flock",
       "giver": "linns",
-      "description": "The wolves of Candy Mountain took Mother Sheep's lambs to the Big Bad Wolf's Lair, west of the mountain. Thin out their pack: defeat 6 Earth Wolves.",
+      "description": "The wolves of Gumdrop Peaks took Mother Sheep's lambs to the Big Bad Wolf's Lair, west of the mountain. Thin out their pack: defeat 6 Earth Wolves.",
       "objective": {
         "type": "defeat",
         "target": "earth_wolf",
@@ -578,9 +578,9 @@
     },
     {
       "id": "wolf_leader",
-      "title": "The Wolf Leader",
+      "title": "The Howlmaster",
       "giver": "linns",
-      "description": "The pack still follows its leader. Find the Wolf Leader deep in the lair and bring those lambs home.",
+      "description": "The pack still follows its leader. Find the Howlmaster deep in the lair and bring those lambs home.",
       "objective": {
         "type": "defeat",
         "target": "wolf_leader",
@@ -600,7 +600,7 @@
     },
     {
       "id": "fine_woolen_cloth",
-      "title": "Fine Woolen Cloth",
+      "title": "Soft as a Cloud",
       "giver": "linns",
       "description": "I need wool for a very special dress, the kind a swan would wear. Candy Puffs spin the softest fluff; bring me what 8 of them leave behind.",
       "objective": {
@@ -619,7 +619,7 @@
     },
     {
       "id": "wishes_of_a_duckling",
-      "title": "Wishes of an Ugly Duck",
+      "title": "An Ugly Duckling's Wish",
       "giver": "swan_keeper",
       "description": "The little grey duckling of Swan Lake hides from the Water Slugs. Clear 6 of them so it can swim out and meet the swans.",
       "objective": {
@@ -639,7 +639,7 @@
     },
     {
       "id": "some_love_and_happiness",
-      "title": "Some Love and Happiness",
+      "title": "A Little Kindness",
       "giver": "thumbelina",
       "description": "The Lotus Sprites won't let me cross the pond to see my prince. Would you shoo away 6 of them? Gently, please.",
       "objective": {
@@ -660,9 +660,9 @@
     },
     {
       "id": "animals_home",
-      "title": "Animal's Home",
+      "title": "A Place to Belong",
       "giver": "hermit_will",
-      "description": "The Wooden Puppets chased every animal off Puppet Hill. Break 8 of them and the animals can come home.",
+      "description": "The Wooden Puppets chased every animal off Marionette Rise. Break 8 of them and the animals can come home.",
       "objective": {
         "type": "defeat",
         "target": "wooden_puppet",
@@ -680,7 +680,7 @@
     },
     {
       "id": "puppet_king",
-      "title": "The Puppet King",
+      "title": "The Marionette King",
       "giver": "hermit_will",
       "description": "The puppets dance for their king at the top of the hill. Cut his strings for good.",
       "objective": {
@@ -702,9 +702,9 @@
     },
     {
       "id": "mystery_of_fantasy_ore",
-      "title": "Mystery of the Fantasy Ore",
+      "title": "Mystery of the Dreamstone",
       "giver": "hamini",
-      "description": "Fantasy Ore Golems roll about Goldburg Lake. Their cores glow like the goddess Shiria's treasure. Defeat 6 and let me study one.",
+      "description": "Dreamstone Golems roll about Ingothold Lake. Their cores glow like the goddess Liora's treasure. Defeat 6 and let me study one.",
       "objective": {
         "type": "defeat",
         "target": "ore_golem",
@@ -722,9 +722,9 @@
     },
     {
       "id": "treasures_of_shiria",
-      "title": "Treasures of Goddess Shiria",
+      "title": "Treasures of Goddess Liora",
       "giver": "hamini",
-      "description": "The ore points south, to the Secret Plain. Idreus guards the goddess's treasure there, and can hit for thousands. Bring a strong party.",
+      "description": "The ore points south, to the Hidden Steppe. Morvane guards the goddess's treasure there, and can hit for thousands. Bring a strong party.",
       "objective": {
         "type": "defeat",
         "target": "idreus",
@@ -746,9 +746,9 @@
     },
     {
       "id": "sleeping_sophia",
-      "title": "Sleeping Sophia",
+      "title": "Sleeping Rosalind",
       "giver": "thomas",
-      "description": "The Dream Phantoms keep Sleepy Town dreaming. Defeat 8 of them, then wake Sophia by beating the Rock Monster that snores in the cave.",
+      "description": "The Dream Phantoms keep Dozywick dreaming. Defeat 8 of them, then wake Rosalind by beating the Craghulk that snores in the cave.",
       "objective": {
         "type": "defeat",
         "target": "dream_phantom",
@@ -767,7 +767,7 @@
     },
     {
       "id": "rock_monster",
-      "title": "The Rock Monster",
+      "title": "The Craghulk",
       "giver": "thomas",
       "description": "Now the monster itself. It's big, it's stone, and it has been asleep for a year. Wake it up the hard way.",
       "objective": {
@@ -789,9 +789,9 @@
     },
     {
       "id": "ore_of_hachoo",
-      "title": "Ore of Hachoo Island",
+      "title": "Ore of Sneezle Isle",
       "giver": "hamini",
-      "description": "Even bigger golems live on Hachoo Island, south of the Secret Plain. Defeat 10 and the mystery of the ore is solved.",
+      "description": "Even bigger golems live on Sneezle Isle, south of the Hidden Steppe. Defeat 10 and the mystery of the ore is solved.",
       "objective": {
         "type": "defeat",
         "target": "ore_golem",
@@ -815,7 +815,7 @@
       "id": "temple_below",
       "title": "The Temple Below",
       "giver": "temple_keeper",
-      "description": "Temple Jellies drift up from the sunken Water Temple. Defeat 10 of them and the way down will clear.",
+      "description": "Temple Jellies drift up from the sunken Tidewater Shrine. Defeat 10 of them and the way down will clear.",
       "objective": {
         "type": "defeat",
         "target": "temple_jelly",
@@ -834,9 +834,9 @@
     },
     {
       "id": "tide_dragon",
-      "title": "The Tide Dragon",
+      "title": "The Wavecrest Dragon",
       "giver": "temple_keeper",
-      "description": "The Tide Dragon sleeps in the deepest hall of the Water Temple. Wake it, and end it.",
+      "description": "The Wavecrest Dragon sleeps in the deepest hall of the Tidewater Shrine. Wake it, and end it.",
       "objective": {
         "type": "defeat",
         "target": "tide_dragon",
@@ -856,9 +856,9 @@
     },
     {
       "id": "silver_demon",
-      "title": "The Silver Demon's Lieutenant",
+      "title": "The Silverfang Warden",
       "giver": "emerald_guard",
-      "description": "The Silver Demon's Lieutenant holds the Mysterious Cave, the only way to this road. Defeat him so travellers can pass.",
+      "description": "The Silverfang Warden holds the Whispering Hollow, the only way to this road. Defeat him so travellers can pass.",
       "objective": {
         "type": "defeat",
         "target": "silver_lieutenant",
@@ -948,7 +948,7 @@
       "requires": [
         "valley_lights"
       ],
-      "description": "Travellers keep wandering off the road in the Valley of Fear, chasing a giant glowing wisp. Snuff out its tricks.",
+      "description": "Travellers keep wandering off the road in Shiverdell, chasing a giant glowing wisp. Snuff out its tricks.",
       "objective": {
         "type": "defeat",
         "target": "great_wisp",
@@ -971,7 +971,7 @@
       "requires": [
         "wolf_hunt"
       ],
-      "description": "The Moon Rabbit Queen has come down to Moonglow, furious that someone stole her moon-mochi. Calm her before she flattens the town... with force.",
+      "description": "The Moon Rabbit Queen has come down to Moonwhisper, furious that someone stole her moon-mochi. Calm her before she flattens the town... with force.",
       "objective": {
         "type": "defeat",
         "target": "moon_rabbit_queen",
