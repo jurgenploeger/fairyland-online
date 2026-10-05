@@ -1256,6 +1256,9 @@ struct LevelUpBanner: View {
                             chip(stat.label, stat.value)
                         }
                     }
+                    Text(L("HP and MP fully restored"))
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.dim)
                 }
             }
         }

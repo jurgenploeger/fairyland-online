@@ -98,8 +98,9 @@ three guilds (M): humans are balanced, elves lean to magic and dwarves to attack
 
 **Us:** no attributes and no points.
 - HP/MP/ATK/DEF/MAG/SPD = race base + class growth × (level − 1) + gear (`GameSession.swift`).
-- HP and MP carry over from fight to fight, level-ups included (our decision, 2026-10-05, at the playtester's
-  request): a new level raises the maximums and heals nothing. Potions, healing skills and the healer heal.
+- HP and MP carry over from fight to fight (our decision, 2026-10-05, at the playtester's request), except
+  that a new level fills them to the new maximums, the hero's and the companion's (asked for the same day,
+  0.3.52). Otherwise potions, healing skills and the healer heal.
   Friends in your party carry theirs over too (`Adventurer.hp`/`mp`); one who faints wakes at half.
 - Frost Breath freezes: whoever it catches loses their next turn (`Ailment.freeze`, our decision, 2026-10-05).
 - One equipment drop in three is an accessory, any up to the monster's level (`GameSession.accessoryShare`):
