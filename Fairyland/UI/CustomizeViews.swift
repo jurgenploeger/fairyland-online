@@ -16,6 +16,8 @@ struct LookEditor: View {
 
     private var options: AppearanceOptions { Content.shared.appearance }
     private var race: RaceDef { Content.shared.race(raceID) }
+    /// A hero from when there was a third gender ("other") picks male or female once, even after creation.
+    @State private var regendering = false
 
     var body: some View {
         AdaptiveStack(spacing: 16) {
@@ -52,6 +54,8 @@ struct LookEditor: View {
                             }
                     }
                     GenderPicker(genders: options.genders, selection: $look.gender)
+                } else if regendering {
+                    GenderPicker(genders: options.genders, selection: $look.gender)
                 }
                 StylePicker(look: $look, race: race)
                 SwatchPicker(title: L("Hair"), presets: options.hair, selection: $look.hair, isUnlocked: isUnlocked)
@@ -61,6 +65,9 @@ struct LookEditor: View {
                 SwatchPicker(title: L("Skin"), presets: options.skin, selection: $look.skin, isUnlocked: isUnlocked)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .onAppear {
+            if let gender = look.gender, !options.genders.contains(where: { $0.id == gender }) { regendering = true }
         }
     }
 }
@@ -89,7 +96,8 @@ private struct TurntablePreview: View {
     }
 }
 
-/// Male, female or other: which of the race's walk sheets the hero uses.
+/// Male or female: which of the race's walk sheets the hero uses. (A save from when there was a
+/// third shows the first as picked; its hero keeps the race's own sheet.)
 private struct GenderPicker: View {
     let genders: [GenderOption]
     @Binding var selection: String?
@@ -98,8 +106,9 @@ private struct GenderPicker: View {
         VStack(alignment: .leading, spacing: 5) {
             Text(L("Gender")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             HStack(spacing: 8) {
+                let current = genders.contains { $0.id == selection } ? selection : genders.first?.id
                 ForEach(genders) { gender in
-                    let selected = gender.id == (selection ?? genders.first?.id)
+                    let selected = gender.id == current
                     Button(gender.name) { selection = gender.id }
                         .buttonStyle(PixelButtonStyle(tint: selected ? HUDStyle.gold : HUDStyle.dim, compact: true))
                         .accessibilityAddTraits(selected ? .isSelected : [])
@@ -110,7 +119,7 @@ private struct GenderPicker: View {
 }
 
 /// Hairstyles, each shown on your hero as they look right now: the walk sheet's own hair first (a
-/// gender's ponytail or braids), then the ones that suit any race.
+/// gender's ponytail or braids), then every other, the other gender's included.
 private struct StylePicker: View {
     @Binding var look: Look
     let race: RaceDef

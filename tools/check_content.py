@@ -66,8 +66,9 @@ for race in classes["races"]:
     for gender, sheet in (race.get("sheets") or {}).items():
         check(gender in gender_ids, f"race {race['id']} → unknown gender {gender}")
         check(sheet in art, f"race {race['id']} ({gender}) → unknown art {sheet}")
-# Styles anyone can wear, and a sheet's own hair (a gender's), worn only on that walk sheet.
+# Every style fits every race and gender; a sheet's own hair (a gender's) is the one it starts with.
 shared = {style["id"] for style in appearance["styles"] if not style.get("sheet")}
+every_style = sorted(style["id"] for style in appearance["styles"])
 own_style = {style["sheet"]: style["id"] for style in appearance["styles"] if style.get("sheet")}
 hero_sheets = {race.get("art", "player_walk") for race in classes["races"]} | {
     sheet for race in classes["races"] for sheet in (race.get("sheets") or {}).values()}
@@ -83,8 +84,7 @@ for race in classes["races"]:
     bodies = [(race["id"], race.get("art", "player_walk"))] + [
         (f"{race['id']}_{gender}", sheet) for gender, sheet in (race.get("sheets") or {}).items()]
     for body, sheet in bodies:
-        worn = sorted(shared) + ([own_style[sheet]] if sheet in own_style else [])
-        layers = [f"body_{body}", f"locks_{body}", f"hood_{body}", f"helmet_{body}"] + [f"hair_{style}_{body}" for style in worn]
+        layers = [f"body_{body}", f"locks_{body}", f"hood_{body}", f"helmet_{body}"] + [f"hair_{style}_{body}" for style in every_style]
         for layer in layers:
             check((ROOT / "art" / "sprites" / f"{layer}.png").exists(),
                   f"race {race['id']} → art/sprites/{layer}.png is missing (python3 tools/hero_layers.py)")
