@@ -98,6 +98,8 @@ three guilds (M): humans are balanced, elves lean to magic and dwarves to attack
 
 **Us:** no attributes and no points.
 - HP/MP/ATK/DEF/MAG/SPD = race base + class growth × (level − 1) + gear (`GameSession.swift`).
+- HP and MP carry over from fight to fight, level-ups included (our decision, 2026-10-05, at the playtester's
+  request): a new level raises the maximums and heals nothing. Potions, healing skills and the healer heal.
 - Turn order is SPD + a random 0–3.
 - Nothing misses and nothing dodges.
 - Crits are a flat 8% for ×1.5, physical only.
