@@ -1,5 +1,6 @@
 #!/bin/bash
-# Launches the built app in a booted simulator once per scene and saves a screenshot of each.
+# Launches the built app in a booted simulator once per scene and saves a screenshot of each
+# (and a video of the scenes with record=N).
 # macOS only (needs Xcode). Used by .github/workflows/screenshots.yml; also works locally:
 #
 #   tools/screenshots.sh <simulator-udid> <path/to/Fairyland.app> <out-dir> [scenes-file] [only-these,names]
@@ -52,6 +53,17 @@ grep -vE '^\s*(#|$)' "$SCENES" | while IFS='|' read -r name flags wait; do
     sleep 3
   done
   echo "::notice::$name: first frame after $((SECONDS - start)) s"
+  # record=N: film the screen for N seconds from the first frame (the app preview video), then
+  # take the screenshot as usual.
+  record=$(echo ",$flags," | grep -oE ',record=[0-9]+,' | grep -oE '[0-9]+' || true)
+  if [ -n "$record" ]; then
+    xcrun simctl io "$SIM" recordVideo --codec=h264 --force "$OUT/$name.mp4" >/dev/null 2>&1 &
+    recorder=$!
+    sleep "$record"
+    kill -INT "$recorder" 2>/dev/null || true
+    wait "$recorder" 2>/dev/null || true
+    ls -l "$OUT/$name.mp4" || echo "::warning::$name: no recording"
+  fi
   sleep "${wait:-8}"
   xcrun simctl io "$SIM" screenshot --type=png "$OUT/$name.png"
   # The simulator stays in portrait, so a landscape-locked app comes out sideways; turn it upright.
