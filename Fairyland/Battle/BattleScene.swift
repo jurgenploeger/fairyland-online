@@ -903,7 +903,7 @@ final class BattleScene: SKScene {
         let crystal = SKSpriteNode(texture: SkillEffects.sealStoneTexture, size: CGSize(width: 34, height: 34))
         stone.addChild(crystal)
         stage.addChild(stone)
-        halo.run(.repeatForever(.sequence([.scale(to: 1.15, duration: 0.45), .scale(to: 0.9, duration: 0.45)])))
+        halo.run(.repeatForever(.sequence([.scale(to: 1.15, duration: 0.45), .scale(to: 0.9, duration: 0.45)])), withKey: "pulse")
 
         // It lifts off the thrower's hand and glides over, trailing motes (no spin: it floats).
         stone.alpha = 0
@@ -938,7 +938,7 @@ final class BattleScene: SKScene {
         beam.zPosition = 14_500
         beam.alpha = 0
         stage.addChild(beam)
-        beam.run(.fadeAlpha(to: 0.75, duration: 0.2))
+        beam.run(.fadeAlpha(to: 0.75, duration: 0.2), withKey: "fade")
         await pause(0.3)
 
         // The monster turns to light and spirals up into the crystal.
@@ -952,9 +952,9 @@ final class BattleScene: SKScene {
             ])]),
         ]))
         await pause(0.3)
-        beam.run(.sequence([.fadeOut(withDuration: 0.3), .removeFromParent()]))
+        beam.run(.sequence([.fadeOut(withDuration: 0.3), .removeFromParent()]), withKey: "fade")
         SkillEffects.screenFlash(color: light.core, strength: 0.35, size: size, in: self)
-        halo.run(.sequence([.scale(to: 1.8, duration: 0.1), .scale(to: 1, duration: 0.2)]))
+        halo.run(.sequence([.scale(to: 1.8, duration: 0.1), .scale(to: 1, duration: 0.2)]), withKey: "flare")
 
         // The crystal pulses, a ring of light each time, and each pulse lights one of the seal's marks.
         for index in 0..<wobbles {
@@ -965,7 +965,7 @@ final class BattleScene: SKScene {
                 .group([.scale(to: 1.18, duration: 0.08), .rotate(toAngle: 0.14, duration: 0.08)]),
                 .rotate(toAngle: -0.14, duration: 0.12),
                 .group([.scale(to: 1, duration: 0.1), .rotate(toAngle: 0, duration: 0.1)]),
-            ]))
+            ]), withKey: "pulse")
             await pause(0.3)
         }
         await pause(0.35)
@@ -977,7 +977,7 @@ final class BattleScene: SKScene {
             SkillEffects.burst(at: stone.position, color: Nodes.gold, count: 24, speed: 100, in: stage)
             crystal.removeAction(forKey: "bob")
             crystal.color = Nodes.gold
-            crystal.run(.sequence([.colorize(withColorBlendFactor: 0.6, duration: 0.1), .colorize(withColorBlendFactor: 0, duration: 0.4)]))
+            crystal.run(.sequence([.colorize(withColorBlendFactor: 0.6, duration: 0.1), .colorize(withColorBlendFactor: 0, duration: 0.4)]), withKey: "shine")
             Effects.floatingText(L("Sealed!"), color: Nodes.gold, at: stone.position + CGVector(dx: 0, dy: 36), in: stage, size: 24)
             await stone.run(.sequence([.scale(to: 1.45, duration: 0.12), .scale(to: 1.1, duration: 0.12)]))
             await pause(0.5)
