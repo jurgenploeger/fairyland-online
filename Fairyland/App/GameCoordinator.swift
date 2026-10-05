@@ -191,7 +191,7 @@ final class GameCoordinator {
         session.markVisited(map.id)
         session.bossesBeatenHere = []
         if entry == nil { session.playerPosition = nil }
-        if entry != nil || map.fence == true { session.reachCheckpoint(map, entry: entry) }
+        session.reachCheckpoint(map)
         let began = Date()
         let scene = WorldScene(map: map, session: session, input: input, entry: entry)
         wire(scene)

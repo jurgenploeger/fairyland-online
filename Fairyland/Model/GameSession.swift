@@ -861,14 +861,44 @@ final class GameSession {
         }
     }
 
+    /// Where you wake up after fainting, and where Bridge of Light and Homeward Feathers take you:
+    /// the square of the last town you walked into. (An older save could hold a wild map's entrance;
+    /// that becomes the town nearest to it.)
     var checkpoint: Checkpoint {
-        data.checkpoint ?? Checkpoint(mapID: content.startMap, entry: nil)
+        inTown(data.checkpoint) ?? Checkpoint(mapID: content.startMap, entry: nil)
     }
 
-    /// Walking into a map makes its entrance your checkpoint; towns revive you in the square. The
-    /// friends at your side save there with you.
-    func reachCheckpoint(_ map: MapDef, entry: Edge?) {
-        let point = Checkpoint(mapID: map.id, entry: map.fence == true ? nil : entry)
+    /// A saved checkpoint as a town's square: itself if it's in a town, else the town fewest roads
+    /// away from it.
+    func inTown(_ point: Checkpoint?) -> Checkpoint? {
+        guard let point else { return nil }
+        if content.map(point.mapID)?.fence == true { return Checkpoint(mapID: point.mapID, entry: nil) }
+        return nearestTown(to: point.mapID).map { Checkpoint(mapID: $0, entry: nil) }
+    }
+
+    /// The town fewest roads away from `mapID` (searching outward along the maps' exits, both ways).
+    func nearestTown(to mapID: String) -> String? {
+        var seen: Set<String> = [mapID]
+        var frontier = [mapID]
+        while !frontier.isEmpty {
+            var next: [String] = []
+            for id in frontier {
+                guard let map = content.map(id) else { continue }
+                if map.fence == true { return id }
+                let roads = map.exits.map(\.to) + content.maps.filter { $0.exits.contains { $0.to == id } }.map(\.id)
+                for other in roads where seen.insert(other).inserted { next.append(other) }
+            }
+            frontier = next
+        }
+        return nil
+    }
+
+    /// Walking into a town makes its square your checkpoint, and the friends at your side save there
+    /// with you. Wild maps don't: waking up at the edge of a zone too hard for you could leave you
+    /// fainting there over and over.
+    func reachCheckpoint(_ map: MapDef) {
+        guard map.fence == true else { return }
+        let point = Checkpoint(mapID: map.id, entry: nil)
         let beside = Set(friendsAtYourSide.map(\.id))
         if var friends = data.friends, friends.contains(where: { beside.contains($0.id) && $0.checkpoint != point }) {
             for index in friends.indices where beside.contains(friends[index].id) {
@@ -902,7 +932,7 @@ final class GameSession {
                 let stats = stats(of: friend)
                 data.friends?[index].hp = max(1, stats.hp / 2)
                 data.friends?[index].mp = stats.mp / 2
-                let home = friend.checkpoint ?? checkpoint
+                let home = inTown(friend.checkpoint) ?? checkpoint
                 if heroFainted && home == checkpoint {
                     wokeWithYou.append(friend.name)
                 } else {
@@ -1215,6 +1245,13 @@ final class GameSession {
         guard !options.isEmpty else { return nil }
         return Double.random(in: 0..<1) < 0.3 && options.count > 1 ? options[1] : options[0]
     }
+
+    /// The Homeward Feather: sold in every town shop, and now and then dropped after a won fight.
+    static let featherID = "homeward_feather"
+
+    /// How likely a won fight is to leave a Homeward Feather: about one in twelve, and always after a
+    /// boss, so a hard zone always gives you a way home.
+    static func featherDropChance(boss: Bool) -> Double { boss ? 1 : 0.08 }
 
     /// How likely a beaten wild monster is to drop a piece of equipment: 6%, a point more for each
     /// level it has over you (up to 16%) and a point less for each below (down to 2%), so stronger

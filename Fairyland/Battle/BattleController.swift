@@ -1201,6 +1201,14 @@ final class BattleController {
             loot["potion", default: 0] += 1
         }
 
+        // Now and then a Homeward Feather for the way back to town; a boss always leaves one.
+        let bossBeaten = engine.combatants.contains { $0.side == .enemies && $0.speciesID.flatMap { content.monster($0) }?.boss == true }
+        if Double.random(in: 0..<1) < GameSession.featherDropChance(boss: bossBeaten),
+           content.item(GameSession.featherID) != nil {
+            session.addItem(GameSession.featherID)
+            loot[GameSession.featherID, default: 0] += 1
+        }
+
         // Materials for the blacksmith: about one wild monster in three drops something, bosses three.
         for foe in engine.combatants where foe.side == .enemies && !foe.isCaptured && !foe.hasFled {
             guard case .wild = foe.source, let id = foe.speciesID else { continue }
