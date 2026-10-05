@@ -530,9 +530,11 @@ struct RulesTests {
             let best = try #require(session.equipmentDrop(level: 40, best: true))
             if best.type != .accessory { #expect((35...40).contains(best.level ?? 1)) }
         }
-        // Past the best gear there is, drops come from the top.
+        // Past the best gear there is, weapons and armour come from the top (accessories from anywhere).
         let top = try #require(Content.shared.items.compactMap(\.level).max())
-        #expect((session.equipmentDrop(level: top + 50)?.level ?? 0) > top - 12)
+        let beyond = (0..<30).compactMap { _ in session.equipmentDrop(level: top + 50) }.filter { $0.type != .accessory }
+        #expect(!beyond.isEmpty)
+        for gear in beyond { #expect((gear.level ?? 1) > top - 12, "\(gear.id) is level \(gear.level ?? 1)") }
         // Stronger fights drop gear more often; a rare monster often, a boss always.
         let even = GameSession.equipmentDropChance(level: 30, heroLevel: 30, rare: false, boss: false)
         let above = GameSession.equipmentDropChance(level: 45, heroLevel: 30, rare: false, boss: false)
