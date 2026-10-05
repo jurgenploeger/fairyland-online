@@ -451,7 +451,7 @@ final class BattleScene: SKScene {
                 SkillEffects.poisonBite(on: actor, in: stage)
                 Effects.damageBurst("\(amount)", style: .poison, at: actor.top, in: stage)
                 // Named, so it's clear the HP went to the poison and not to a blow.
-                Effects.floatingText(L("Poison"), color: SkillEffects.poisonGreen, at: actor.top + CGVector(dx: 0, dy: 24), in: stage, size: 12)
+                Effects.floatingText(L("Poison"), color: SkillEffects.color(of: .poison), at: actor.top + CGVector(dx: 0, dy: 24), in: stage, size: 12)
             }
             await pause(0.55)
 
@@ -1233,7 +1233,7 @@ final class BattleActor: SKNode {
         bar.manaFraction = CGFloat(mana)
     }
 
-    /// Beside the HP bar, each with its rounds left: poison's green drop, a violet arrow down for
+    /// Beside the HP bar, each with its rounds left: poison's purple drop, a crimson arrow down for
     /// lowered stats (a curse) and a blue arrow up for raised ones (Bless, Protection...).
     private let marks = SKNode()
     private var shownMarks = [0, 0, 0]
@@ -1259,7 +1259,9 @@ final class BattleActor: SKNode {
         guard [poison, lowered, raised] != shownMarks else { return }
         shownMarks = [poison, lowered, raised]
         if marks.parent == nil {
-            marks.position = CGPoint(x: bar.position.x + 30, y: bar.position.y)
+            // Clear of the bar's right end, and drawn over the bar and name plates (zPosition 5 000).
+            marks.position = CGPoint(x: bar.position.x + 33, y: bar.position.y)
+            marks.zPosition = 5_100
             addChild(marks)
         }
         marks.removeAllChildren()
