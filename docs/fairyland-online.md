@@ -81,9 +81,11 @@ capsule (H). Mining spots include Ilium, Kars Mountain and Siwa Oasis (H).
 
 **Us:** 30 maps and 4 towns (Meadowbrook, Prismhaven, Larkspur, Ingothold).
 - Everyone starts in Meadowbrook, and all three guild masters are there.
-- Travel: you walk between maps; your checkpoint is the last map you entered. Mages learn Bridge of Light
-  (Lv 20, 10 MP) to go back to it, and since 0.3.53 anyone can buy a Homeward Feather (50 gold, every town
-  shop) that does the same once. How FO itself moved players between towns isn't in any source reachable
+- Travel: you walk between maps; your checkpoint is the last town you entered (since 0.3.54; before, the
+  last map, which could leave you fainting at the edge of a zone too hard for you, over and over). You wake
+  up there after fainting. Mages learn Bridge of Light (Lv 20, 10 MP) to go back to it, and since 0.3.53
+  anyone can buy a Homeward Feather (50 gold, every town shop) that does the same once; since 0.3.54 won
+  fights drop one now and then (8%), and a beaten boss always does. How FO itself moved players between towns isn't in any source reachable
   from a cloud session (2026-10-05); this is our own design.
 - Fairy-tale fields echo the lands: Genie Desert, Lotus Land (with Thumbelina), Gumdrop Peaks, Snow White
   Forest, Emerald Road.

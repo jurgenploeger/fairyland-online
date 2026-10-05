@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.54",
+      "date": "2026-10-05",
+      "title": "Waking up in town",
+      "notes": [
+        "When you faint, you wake up in the last town you visited, not at the edge of the map where you fell, so a zone that's too hard for you can't keep knocking you down at its entrance.",
+        "Won fights now and then leave a Homeward Feather, and a beaten boss always does, so a long trip out always has a way home."
+      ]
+    },
+    {
       "version": "0.3.53",
       "date": "2026-10-05",
       "title": "A way home for everyone",

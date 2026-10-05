@@ -1240,21 +1240,24 @@ struct RulesTests {
         session.adventurersAround = [maple.id, kip.id]
         session.invite(maple.id)
         session.invite(kip.id)
-        // Out in Sunny Meadow, in from Meadowbrook on the west: everyone's checkpoint is that entrance.
+        // Out in Sunny Meadow, having come from Meadowbrook: everyone's checkpoint is the town.
+        let town = try #require(Content.shared.map("meadowbrook"))
+        session.reachCheckpoint(town)
         let meadow = try #require(Content.shared.map("sunny_meadow"))
         session.data.mapID = meadow.id
-        session.reachCheckpoint(meadow, entry: .west)
+        session.reachCheckpoint(meadow)
         session.playerPosition = CGPoint(x: 100, y: 50)
-        let entrance = Spot(mapID: meadow.id, entry: .west)
+        let square = Spot(mapID: town.id, entry: nil)
 
-        // Kip faints, but the fight is won: Kip wakes up at the entrance and waits there.
+        // Kip faints, but the fight is won: Kip wakes up in town and waits there.
         _ = session.partWays(fainted: [kip.id], heroFainted: false)
         #expect(session.friendsAtYourSide.map(\.name) == ["Maple"])
-        #expect(session.friends.first { $0.id == kip.id }?.waitingAt == entrance)
+        #expect(session.friends.first { $0.id == kip.id }?.waitingAt == square)
 
-        // You fall with Maple still standing: you wake up at your checkpoint, and Maple waits where you fell.
+        // You fall with Maple still standing: you wake up in town, and Maple waits where you fell.
         let lines = session.partWays(fainted: [], heroFainted: true)
-        #expect(lines == ["You wake up at the Sunny Meadow entrance, a little bruised.", "Maple waits for you where you fell."])
+        #expect(lines == ["You wake up at \(town.name), a little bruised.", "Maple waits for you where you fell."])
+        #expect(session.data.mapID == town.id)
         #expect(session.friends.first { $0.id == maple.id }?.waitingAt == Spot(mapID: meadow.id, position: [100, 50]))
         // Both are still in your party, but they don't fight until you come back for them.
         #expect(session.partyMembers.count == 2 && session.friendsAtYourSide.isEmpty)
@@ -1265,8 +1268,32 @@ struct RulesTests {
 
         // Falling together, a friend who saved where you did wakes up beside you.
         let together = session.partWays(fainted: [maple.id], heroFainted: true)
-        #expect(together.first == "You and Maple wake up at the Sunny Meadow entrance, a little bruised.")
+        #expect(together.first == "You and Maple wake up at \(town.name), a little bruised.")
         #expect(session.friendsAtYourSide.map(\.name) == ["Maple"])
+    }
+
+    @Test func youWakeUpInTheLastTownYouVisited() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let content = Content.shared
+        let towns = content.maps.filter { $0.fence == true }
+        #expect(towns.count >= 4)
+        // Walking into a wild map keeps the town you came from as your checkpoint.
+        let town = try #require(towns.first { $0.id != content.startMap })
+        session.reachCheckpoint(town)
+        let wild = try #require(content.maps.first { $0.fence != true && $0.encounters != nil && $0.exits.contains { $0.to == town.id } })
+        session.reachCheckpoint(wild)
+        #expect(session.checkpoint == Checkpoint(mapID: town.id, entry: nil))
+        // An older save that kept a wild map's entrance wakes up in the town nearest to it instead.
+        for map in content.maps where map.fence != true {
+            session.data.checkpoint = Checkpoint(mapID: map.id, entry: .west)
+            let point = session.checkpoint
+            #expect(point.entry == nil)
+            #expect(content.map(point.mapID)?.fence == true, "\(map.id) → \(point.mapID)")
+        }
+        // Feathers for the way home: now and then after a fight, always after a boss.
+        #expect(GameSession.featherDropChance(boss: true) == 1)
+        #expect((0.03...0.2).contains(GameSession.featherDropChance(boss: false)))
+        #expect(content.item(GameSession.featherID)?.travel == true)
     }
 
     @Test func botsAndModeratorsAreTagged() {
