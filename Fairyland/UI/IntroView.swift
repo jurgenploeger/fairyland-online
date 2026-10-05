@@ -1,14 +1,15 @@
 import SwiftUI
 
-/// The onboarding before a new hero is made: the story, how to play, and the whole world map.
-/// Also opens from the title screen ("Story & how to play").
+/// The onboarding before a new hero is made: the story in three chapters, each with a little
+/// animated scene (StoryVignette), then how to play (with a fight acted out) and the whole world
+/// map. Also opens from the title screen ("Story & how to play").
 struct IntroView: View {
     /// What the last page's button says ("Create your hero", or "Done" when just reading).
     let finishTitle: String
     let onFinish: () -> Void
     @State private var page: Int
 
-    private static let pageCount = 3
+    private static let pageCount = 5
 
     init(finishTitle: String, startPage: Int = 0, onFinish: @escaping () -> Void) {
         self.finishTitle = finishTitle
@@ -21,8 +22,10 @@ struct IntroView: View {
             ScrollView {
                 Group {
                     switch page {
-                    case 0: StoryPage()
-                    case 1: HowToPlayPage()
+                    case 0: ChapterPage(chapter: .gathering)
+                    case 1: ChapterPage(chapter: .shadows)
+                    case 2: ChapterPage(chapter: .arrival)
+                    case 3: HowToPlayPage()
                     default: WorldPage()
                     }
                 }
@@ -98,33 +101,79 @@ private struct PageTitle: View {
 
 // MARK: - Story
 
-private struct StoryPage: View {
-    /// The three the story names, in its order: one row that fits any screen, and the rest of the
-    /// bosses stay a surprise.
-    private let bosses = ["big_bad_wolf", "rat_king", "drunk_dragon"].compactMap { Content.shared.monster($0) }
+/// A chapter of the story: its title, its living picture, and its lines told one after another.
+private struct ChapterPage: View {
+    let chapter: StoryScene.Kind
+
+    private var title: (text: String, icon: GameIcon) {
+        switch chapter {
+        case .gathering: (text: L("Once upon a time"), icon: GameIcon.book)
+        case .shadows: (text: L("The tales go wrong"), icon: GameIcon.moon)
+        case .arrival, .battle: (text: L("A new adventurer"), icon: GameIcon.sparkles)
+        }
+    }
+
+    private var lines: [String] {
+        switch chapter {
+        case .gathering: [
+            L("Long ago, the goddess Shiria gathered the world's fairy tales into one land: Fairyland. Villages grew up between the stories, and adventurers came from far and wide to explore them."),
+            L("Every tale found a home: Thumbelina's lotus pond, Snow White's forest, the Emerald Road to Oz and the golden sands of the Thousand and One Nights. For a long time, they all lived happily ever after."),
+        ]
+        case .shadows: [
+            L("Lately the tales have been going wrong. A Big Bad Wolf prowls the Snow White Forest. A Rat King has cut off the dwarves of Goldburg. A dragon drinks at the oasis in Genie Desert and scares away the caravans."),
+            L("Nobody knows why. Some say pages are being torn from Shiria's great storybook, and every lost page lets a little more darkness in."),
+        ]
+        case .arrival, .battle: [
+            L("You arrive in Meadowbrook as a new adventurer, with the whole of Fairyland ahead of you."),
+            L("Elder Oak is waiting in the village square with three gifts. Find a companion, learn from the guild masters, and set the stories right, one tale at a time."),
+        ]
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            PageTitle(text: L("Once upon a time"), icon: .book)
-            Text(L("Long ago, the goddess Shiria gathered the world's fairy tales into one land: Fairyland. Villages grew up between the stories, and adventurers came from far and wide to explore them."))
-            Text(L("Lately the tales have been going wrong. A Big Bad Wolf prowls the Snow White Forest. A Rat King has cut off the dwarves of Goldburg. A dragon drinks at the oasis in Genie Desert and scares away the caravans."))
-            Text(L("You arrive in Meadowbrook as a new adventurer, with the whole of Fairyland ahead of you."))
-            if !bosses.isEmpty {
-                HStack(alignment: .bottom, spacing: 18) {
-                    ForEach(bosses) { boss in
-                        VStack(spacing: 4) {
-                            SpriteImage(art: boss.art, size: 72)
-                            Text(boss.name).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 4)
-            }
+            PageTitle(text: title.text, icon: title.icon)
+            StoryVignette(chapter)
+            StoryLines(lines: lines)
         }
         .font(HUDStyle.font(12))
         .foregroundStyle(HUDStyle.cream)
-        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+/// Lines that appear one after another, as if read aloud (all at once with Reduce Motion, or
+/// when tapped).
+private struct StoryLines: View {
+    let lines: [String]
+    @State private var shown = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
+                Text(line)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .opacity(index < shown ? 1 : 0)
+                    .offset(y: index < shown ? 0 : 6)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
+        .onTapGesture { withAnimation(.easeOut(duration: 0.3)) { shown = lines.count } }
+        .task {
+            guard !reduceMotion else {
+                shown = lines.count
+                return
+            }
+            for index in lines.indices where index >= shown {
+                do {
+                    try await Task.sleep(for: .milliseconds(index == 0 ? 400 : 1_400))
+                } catch {
+                    return
+                }
+                withAnimation(.easeOut(duration: 0.6)) { shown = max(shown, index + 1) }
+            }
+        }
     }
 }
 
@@ -149,6 +198,7 @@ private struct HowToPlayPage: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             PageTitle(text: L("How to play"), icon: .sparkles)
+            StoryVignette(.battle)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
                 ForEach(tips, id: \.title) { tip in
                     HStack(alignment: .top, spacing: 10) {
