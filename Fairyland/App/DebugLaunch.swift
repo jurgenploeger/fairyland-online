@@ -188,6 +188,18 @@ enum DebugLaunch {
                 await pause(0.25)
             }
             await pause(1.5)
+            // A quest giver first, when one stands nearby (the scene starts you a few steps west of
+            // them): walk up, talk as the talk button does, read their offer, and head off.
+            coordinator.input.move = CGVector(dx: 1, dy: 0)
+            await pause(0.7)
+            coordinator.input.move = .zero
+            await pause(0.4)
+            if coordinator.session.nearbyNPC != nil {
+                coordinator.talkToNearby()
+                await pause(4.5)
+                coordinator.closeOverlay()
+                await pause(0.8)
+            }
             let stroll: [(CGVector, Double)] = [
                 (CGVector(dx: 0.9, dy: 0.35), 1.6), (CGVector(dx: 0.25, dy: 1), 1.3),
                 (CGVector(dx: -0.8, dy: 0.55), 1.2), (CGVector(dx: 0.7, dy: -0.4), 1.0),
