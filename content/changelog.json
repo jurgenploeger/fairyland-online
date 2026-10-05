@@ -2,6 +2,24 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.45",
+      "date": "2026-10-04",
+      "title": "Bigger boss waves",
+      "notes": [
+        "Boss fights are a real battle now: every wave brings 10 monsters, in two rows of five. The waves before the boss are ten of the map's own monsters, and in the last one the boss stands in the middle of the back row, behind nine of its followers. The early waves are weaker to make up for it: the first stands about 13 to 20 levels below the boss and the second 7 to 14 below, while the boss's own followers stay close to its level."
+      ]
+    },
+    {
+      "version": "0.3.44",
+      "date": "2026-10-04",
+      "title": "Day, night and weather",
+      "notes": [
+        "The world follows the clock now: the light warms at dawn and dusk, and at night the maps sink into deep blue. The sun's glow and its beams fade as it sets and come back in the morning. Caves stay as dark as ever.",
+        "Weather comes and goes, changing every few in-game hours: cloudy skies, rain with ripples on the ground, storms with lightning, banks of fog and snow flurries. Each place has its own: the swamp and the dark woods are often foggy and wet, the desert is nearly always clear, snowy lands get fresh snow and the shores the odd storm.",
+        "The game's own notices about sunrise and sunset now say Fairyland, like everywhere else."
+      ]
+    },
+    {
       "version": "0.3.43",
       "date": "2026-10-04",
       "title": "A look for every skill, and bots that think",

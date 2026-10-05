@@ -248,11 +248,11 @@ for map_def in maps.values():
         if npc["role"] == "boss":
             check(monsters.get(npc.get("monster"), {}).get("boss") is True, f"boss {npc['id']} → unknown boss {npc.get('monster')}")
             # Its minions come from the map's encounter table.
-            if npc.get("minions", 2) > 0:
+            if npc.get("minions", 9) > 0:
                 check(bool((map_def.get("encounters") or {}).get("monsters")), f"boss {npc['id']} → minions need the map's encounters")
         if "minions" in npc:
-            check(npc["role"] == "boss" and isinstance(npc["minions"], int) and 0 <= npc["minions"] <= 4,
-                  f"npc {npc['id']} → minions is for bosses, 0 to 4")
+            check(npc["role"] == "boss" and isinstance(npc["minions"], int) and 0 <= npc["minions"] <= 9,
+                  f"npc {npc['id']} → minions is for bosses, 0 to 9")
         # A boss fight comes in waves (3 unless set): the map's monsters first, the boss last.
         if npc["role"] == "boss" and npc.get("waves", 3) > 1:
             check(bool((map_def.get("encounters") or {}).get("monsters")), f"boss {npc['id']} → waves need the map's encounters")
@@ -366,7 +366,8 @@ for map_def in maps.values():
             check(isinstance(palette[key], (int, float)) and 0 <= palette[key] <= 1, f"{where} → {key} must be between 0 and 1")
     check_rules(palette.get("recolor", []), where)
 
-ambience_keys = {"particles", "butterflies", "critters", "birds", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground", "focus", "darkness"}
+ambience_keys = {"particles", "butterflies", "critters", "birds", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground", "focus", "darkness", "weather"}
+weather_kinds = {"clear", "cloudy", "rain", "storm", "fog", "snow"}
 for map_def in maps.values():
     ambience = map_def.get("ambience") or {}
     where = f"map {map_def['id']} ambience"
@@ -402,6 +403,14 @@ for map_def in maps.values():
         for key in ("color", "light"):
             if key in dark:
                 check(bool(hex_colour.match(dark[key])), f"{where} darkness → {key} must be a #RRGGBB colour")
+    if "weather" in ambience:
+        weather = ambience["weather"]
+        check(isinstance(weather, dict) and set(weather) <= weather_kinds,
+              f"{where} weather → keys must be {', '.join(sorted(weather_kinds))}")
+        check(all(isinstance(w, (int, float)) and not isinstance(w, bool) and w >= 0 for w in weather.values()),
+              f"{where} weather → weights must be numbers, 0 or more")
+        check(not weather or sum(weather.values()) > 0, f"{where} weather → some weight above 0 (or {{}} for no sky)")
+        check(not (weather and "darkness" in ambience), f"{where} weather → a dark map has no sky")
     if "foreground" in ambience:
         for art_id in ambience["foreground"].get("art", []):
             check(art_id in art, f"{where} foreground → unknown art {art_id}")

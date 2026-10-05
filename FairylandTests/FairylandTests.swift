@@ -497,21 +497,23 @@ struct RulesTests {
         let npc = try #require(map.npcs?.first { $0.monster == "rat_king" })
         let level = try #require(npc.level)
         let waves = try #require(BattleController.bossWaves(npc, encounters: map.encounters, session: session))
-        // Two waves of two of the map's own monsters, then the boss in the middle of two more.
-        #expect(waves.map(\.count) == [2, 2, 3])
-        #expect(waves[2][1].speciesID == "rat_king" && waves[2][1].level == level)
+        // Two waves of ten of the map's own monsters, then the boss behind nine more (the middle
+        // of the first row of five, the one furthest from you).
+        #expect(waves.map(\.count) == [10, 10, 10])
+        #expect(waves[2][2].speciesID == "rat_king" && waves[2][2].level == level)
+        #expect(waves[2].filter { $0.speciesID == "rat_king" }.count == 1)
         let monsters = waves.joined().filter { $0.speciesID != "rat_king" }
         #expect(monsters.allSatisfy { map.encounters?.monsters[$0.speciesID ?? ""] != nil })
         // The boss outranks them all, and each wave stands a little closer to its level.
         #expect(monsters.allSatisfy { $0.level < level })
-        #expect(waves[0].allSatisfy { $0.level <= level - 7 } && waves[1].allSatisfy { $0.level <= level - 4 })
+        #expect(waves[0].allSatisfy { $0.level <= level - 13 } && waves[1].allSatisfy { $0.level <= level - 7 })
         for (index, wave) in waves.enumerated() { #expect(wave.allSatisfy { $0.wave == index + 1 }) }
         let ids = waves.joined().map(\.id)
         #expect(Set(ids).count == ids.count && ids.allSatisfy { $0 >= 10 })
 
         // The fight opens with the first wave and knows how many follow.
         let battle = try #require(BattleController.boss(npc, encounters: map.encounters, session: session))
-        #expect(battle.enemies.count == 2 && battle.wave == 1 && battle.waveCount == 3)
+        #expect(battle.enemies.count == 10 && battle.wave == 1 && battle.waveCount == 3)
         #expect(!battle.enemies.contains { $0.speciesID == "rat_king" })
         #if DEBUG
         // Debug wins (screenshots) take every wave down at once.
@@ -1112,12 +1114,39 @@ struct RulesTests {
         #expect(!Moderation.unlock(with: "not the code"))
     }
 
+    @Test func theWeatherHoldsForASpellAndFitsTheMap() throws {
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        let swamp = try #require(Content.shared.map("frog_swamp"))
+        let desert = try #require(Content.shared.map("genie_desert"))
+        let cave = try #require(Content.shared.map("rat_cavern"))
+        // A cave has no sky; everywhere else always has some weather.
+        #expect(Weather.on(cave, at: start, since: start) == nil)
+        var seen: Set<Weather> = []
+        for hour in 0..<(24 * 30) {
+            let date = start.addingTimeInterval(Double(hour) * 60)
+            let weather = try #require(Weather.on(swamp, at: date, since: start))
+            seen.insert(weather)
+            // The desert's sky never rains, fogs or snows.
+            let dry = try #require(Weather.on(desert, at: date, since: start))
+            #expect(dry == .clear || dry == .cloudy)
+            // The same moment gives the same weather, so walking off and back doesn't reroll it.
+            #expect(Weather.on(swamp, at: date, since: start) == weather)
+        }
+        // Over a month of in-game days the swamp sees more than one kind.
+        #expect(seen.count > 1)
+        #expect(seen.isSubset(of: [.clear, .cloudy, .rain, .storm, .fog]))
+        // The light follows the clock: the fractional hours agree with the calendar's hour.
+        let evening = start.addingTimeInterval(9.5 * 60)
+        #expect(GameClock.moment(at: evening, since: start).hour == 18)
+        #expect(abs(GameClock.hours(at: evening, since: start) - 18.5) < 0.001)
+    }
+
     @Test func worldMessagesAndAnnouncementsFollowYouFromMapToMap() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.isModerator = true
         session.startChat(on: "Meadowbrook")
         session.postWorld("Welcome, everyone!")
-        session.announce("Dawn breaks over Mysteria.")
+        session.announce("Dawn breaks over Fairyland.")
         session.postChat("lol", from: "Momo", kind: .adventurer)
         session.startChat(on: "Goldburg")
         // What's said to everyone stays; the map's own chatter starts over.

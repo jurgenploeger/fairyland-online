@@ -43,6 +43,8 @@ final class WorldScene: SKScene {
     /// Bunnies, frogs and crabs about the map, and birds crossing the sky.
     private var critters: Critters?
     private var lighting: Lighting?
+    /// Day and night, and the weather.
+    private var sky: Sky?
     /// On a dark map (a cave): the light round the hero, and the dark beyond it.
     private var lantern: Lantern?
     /// The minimap with only what you've seen, and which sighting it was drawn for.
@@ -206,6 +208,8 @@ final class WorldScene: SKScene {
         lighting = Lighting(def.ambience, world: world, camera: cam, bounds: map.bounds, seed: def.id)
         lighting?.resize(to: size)
         lighting?.follow(cam.position)
+        sky = Sky(map: def, camera: cam, start: session.data.startedAt)
+        if let sky { lighting?.sunlight(sky.sunlight) }
 
         // Don't start on top of scenery (e.g. an old save).
         // (A save from before a cave's walls went up can even be deep inside the rock.)
@@ -1262,6 +1266,10 @@ final class WorldScene: SKScene {
         player.zPosition = -player.position.y
         if let follower { follower.zPosition = -follower.position.y }
         lantern?.follow(player.position)
+        if let sky {
+            sky.update(dt)
+            lighting?.sunlight(sky.sunlight)
+        }
         updateCamera(dt)
         updateEdgeFade(dt)
     }

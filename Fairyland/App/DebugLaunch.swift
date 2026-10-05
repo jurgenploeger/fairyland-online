@@ -48,6 +48,8 @@ import Foundation
 ///   worldmap       open the world map
 ///   book           open the Monster Book, with the first 24 monsters already met
 ///   landscape      lock the app to landscape
+///   hour=<h>       the calendar starts at that hour of the day (0-23: 21 for night, 18 for dusk)
+///   weather=<kind> every map with a sky has this weather (clear | cloudy | rain | storm | fog | snow)
 enum DebugLaunch {
     private static var flags: [String: String] {
         #if DEBUG
@@ -112,6 +114,11 @@ enum DebugLaunch {
         if let map = flags["map"], Content.shared.map(map) != nil {
             session.data.mapID = map
         }
+        if let hour = flags["hour"].flatMap({ Int($0) }), (0..<24).contains(hour) {
+            // The calendar opens at 9hr (`GameClock.hours`), an in-game hour to the real minute.
+            session.data.startedAt = Date().addingTimeInterval(-Double((hour - 9 + 24) % 24) * 60)
+        }
+        Weather.forced = flags["weather"].flatMap(Weather.init(rawValue:))
         if flags["book"] != nil {
             for (index, monster) in Content.shared.monsters.prefix(24).enumerated() {
                 session.sawMonster(monster.id, level: 3 + index)

@@ -9,6 +9,12 @@ frog_swamp   | newgame,map=frog_swamp            | 15
 pineapple_shore | newgame,map=pineapple_shore     | 15
 moonglow     | newgame,map=moonglow              | 15
 battle       | newgame,map=sunny_meadow,battle   | 15
+night        | newgame,map=meadowbrook,hour=22,weather=clear | 8
+dusk         | newgame,map=sunny_meadow,hour=18,weather=clear | 15
+rain         | newgame,map=sunny_meadow,hour=12,weather=rain  | 15
+storm_night  | newgame,map=frog_swamp,hour=23,weather=storm   | 15
+fog          | newgame,map=twilight_woods,hour=8,weather=fog  | 15
+snowfall     | newgame,map=snow_white_forest,hour=14,weather=snow | 15
 battle_timer | newgame,level=44,class=fighter,pin=bash+first_aid+power_strike+whirlwind,map=rat_cavern,battle=2,turntimer=40 | 15
 battle_auto  | newgame,level=60,class=fighter,pet=pineapple,friends=2,map=sunny_meadow,battle=3,auto,fast | 1
 character    | newgame,menu=character            | 8
