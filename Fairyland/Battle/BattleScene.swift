@@ -438,6 +438,12 @@ final class BattleScene: SKScene {
             if let actor = actors[targetID] { SkillEffects.afflicted(actor, effect: effect, in: stage) }
             await pause(0.55)
 
+        case .frozen(let targetID):
+            controller.apply(event)
+            if let actor = actors[targetID] { SkillEffects.frozenShiver(on: actor, in: stage) }
+            await pause(0.6)
+            refreshBars()
+
         case .ailmentDamage(let targetID, _, let amount):
             controller.apply(event)
             if let actor = actors[targetID] {
@@ -1075,6 +1081,7 @@ final class BattleScene: SKScene {
             // Raises and drops count the round they're in too; show the rounds still to come.
             actors[fighter.id]?.setMarks(poison: fighter.poisonRounds, lowered: max(0, fighter.loweredRounds - 1),
                                          raised: max(0, fighter.raisedRounds - 1))
+            actors[fighter.id]?.setFrozen(fighter.frozenRounds > 0 && fighter.isAlive)
         }
     }
 
@@ -1229,6 +1236,23 @@ final class BattleActor: SKNode {
     /// lowered stats (a curse) and a blue arrow up for raised ones (Bless, Protection...).
     private let marks = SKNode()
     private var shownMarks = [0, 0, 0]
+
+    /// Frozen solid: a pale ice-blue glow over the fighter until their lost turn has passed.
+    func setFrozen(_ frozen: Bool) {
+        let existing = childNode(withName: "ice")
+        if frozen, existing == nil {
+            let ice = SkillEffects.glowSprite(SkillEffects.iceBlue, size: CGSize(width: sprite.size.width * 1.1, height: sprite.size.height * 1.05))
+            ice.name = "ice"
+            ice.position = CGPoint(x: 0, y: sprite.size.height * 0.45)
+            ice.zPosition = 5
+            ice.alpha = 0
+            addChild(ice)
+            ice.run(.fadeAlpha(to: 0.55, duration: 0.2))
+        } else if !frozen, let existing {
+            existing.name = nil
+            existing.run(.sequence([.fadeOut(withDuration: 0.25), .removeFromParent()]))
+        }
+    }
 
     func setMarks(poison: Int, lowered: Int, raised: Int) {
         guard [poison, lowered, raised] != shownMarks else { return }

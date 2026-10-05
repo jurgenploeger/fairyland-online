@@ -343,6 +343,17 @@ struct RulesTests {
         }
     }
 
+    @Test func theHealerRestsYourFriendsToo() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        var friend = Adventurer(name: "Maple", raceID: "elf", classID: "mage", level: 20, look: .standard)
+        friend.hp = 3
+        friend.mp = 0
+        session.data.friends = [friend]
+        session.restParty()
+        #expect(session.data.friends?.first?.hp == nil)
+        #expect(session.data.friends?.first?.mp == nil)
+    }
+
     @Test func levellingUpGrowsButDoesNotHeal() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let before = session.heroStats
@@ -493,18 +504,31 @@ struct RulesTests {
         session.data.hero.classID = "fighter"
         let bossDrops = Set(Content.shared.monsters.flatMap { $0.drops ?? [] }.map(\.item))
         var usable = 0
+        var accessories = 0
         for _ in 0..<400 {
             let gear = try #require(session.equipmentDrop(level: 40))
             #expect(ItemType.equipmentSlots.contains(gear.type))
-            #expect((29...40).contains(gear.level ?? 1), "\(gear.id) is level \(gear.level ?? 1)")
             #expect(!bossDrops.contains(gear.id), "\(gear.id) is a boss's own drop")
-            if gear.classes?.contains("fighter") ?? true { usable += 1 }
+            if gear.type == .accessory {
+                // Any accessory up to the monster's level.
+                accessories += 1
+                #expect((gear.level ?? 1) <= 40, "\(gear.id) is level \(gear.level ?? 1)")
+            } else {
+                #expect((29...40).contains(gear.level ?? 1), "\(gear.id) is level \(gear.level ?? 1)")
+                if gear.classes?.contains("fighter") ?? true { usable += 1 }
+            }
         }
-        // Mostly gear your class can use (three in four, plus what the rest happens to hit).
-        #expect(usable > 240)
+        // About one drop in three is an accessory (133 of 400 on average).
+        #expect((90...180).contains(accessories), "\(accessories) accessories in 400 drops")
+        // The weapons and armour are mostly what your class can use (three in four, plus what the
+        // rest happens to hit).
+        #expect(Double(usable) > Double(400 - accessories) * 0.6)
+        // Accessories keep dropping from high-level monsters, where none is in the level window.
+        let late = (0..<300).compactMap { _ in session.equipmentDrop(level: 150) }.filter { $0.type == .accessory }
+        #expect(late.count > 50)
         for _ in 0..<100 {
             let best = try #require(session.equipmentDrop(level: 40, best: true))
-            #expect((35...40).contains(best.level ?? 1))
+            if best.type != .accessory { #expect((35...40).contains(best.level ?? 1)) }
         }
         // Past the best gear there is, drops come from the top.
         let top = try #require(Content.shared.items.compactMap(\.level).max())
@@ -760,6 +784,44 @@ struct RulesTests {
         }
         #expect(guards.count == 1)
         #expect(attacks.isEmpty)
+    }
+
+    @Test func frostBreathFreezesForOneTurn() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 500, mp: 200, attack: 30, defense: 10, magic: 40, speed: 80)
+        var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 20, element: .neutral,
+                             stats: stats, hp: 500, mp: 200, skills: ["frost_breath"], captureRate: 0)
+        hero.skillLevels = ["frost_breath": 1]
+        // Slow and tough, so the hero always moves first and it lasts the whole test.
+        let foeStats = Stats(hp: 5000, mp: 0, attack: 20, defense: 10, magic: 10, speed: 1)
+        let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 20, element: jelly.element,
+                            stats: foeStats, hp: 5000, mp: 0, skills: [], captureRate: 0)
+        let engine = BattleEngine(party: [hero], enemies: [foe], content: content, seed: 5)
+        func foeActed(_ events: [BattleEvent]) -> Bool {
+            events.contains { event in
+                if case .attack(let actor, _) = event { return actor == 10 }
+                return false
+            }
+        }
+        func foeFrozen(_ events: [BattleEvent]) -> Bool {
+            events.contains { event in
+                if case .frozen(let target) = event { return target == 10 }
+                return false
+            }
+        }
+        // The ice takes hold, and the monster's turn that round is lost.
+        let first = engine.resolveRound(heroAction: .skill("frost_breath", target: 10))
+        #expect(first.contains { event in
+            if case .afflicted(10, .freeze, 1) = event { return true }
+            return false
+        })
+        #expect(foeFrozen(first))
+        #expect(!foeActed(first))
+        // One turn only: next round it moves again.
+        let second = engine.resolveRound(heroAction: .defend)
+        #expect(!foeFrozen(second))
+        #expect(foeActed(second))
     }
 
     @Test func poisonBitesEachRoundAndCursesWeaken() throws {

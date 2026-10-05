@@ -155,6 +155,10 @@ nonisolated struct Adventurer: Codable, Equatable, Identifiable, Sendable {
     var waitingAt: Spot?
     /// Where they wake up after fainting: the last checkpoint they reached with you.
     var checkpoint: Checkpoint?
+    /// A friend's HP and MP as their last fight at your side left them (they carry over, like
+    /// yours); nil: full. Their own heals in a fight, and the healer, top them up.
+    var hp: Int? = nil
+    var mp: Int? = nil
 }
 
 /// A town square, or the entrance you last walked into a map through.

@@ -110,12 +110,15 @@ for skill in skills.values():
         where = f"skill {skill['id']} → inflicts"
         check(isinstance(inflicts, dict) and set(inflicts) <= {"effect", "rounds", "power", "chance", "stats"}, f"{where} has unknown keys")
         effect = inflicts.get("effect") if isinstance(inflicts, dict) else None
-        check(effect in ("poison", "curse"), f"{where} → effect must be poison or curse")
+        check(effect in ("poison", "curse", "freeze"), f"{where} → effect must be poison, curse or freeze")
         if isinstance(inflicts, dict):
             check(isinstance(inflicts.get("rounds"), int) and 1 <= inflicts["rounds"] <= 6, f"{where} → rounds must be 1 to 6")
             top = 2 if effect == "poison" else 0.5   # a curse never takes more than half (BattleEngine.maxCurse)
             power = inflicts.get("power")
-            check(isinstance(power, (int, float)) and 0 < power <= top, f"{where} → power must be above 0 and at most {top}")
+            if effect == "freeze":   # a frozen turn is lost whole: there's nothing to scale
+                check(power == 0, f"{where} → a freeze's power must be 0")
+            else:
+                check(isinstance(power, (int, float)) and 0 < power <= top, f"{where} → power must be above 0 and at most {top}")
             chance = inflicts.get("chance", 1)
             check(isinstance(chance, (int, float)) and 0 < chance <= 1, f"{where} → chance must be in (0, 1]")
             if "stats" in inflicts:

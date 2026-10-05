@@ -135,10 +135,13 @@ final class BattleController {
     private static func adventurer(_ person: Adventurer, id: Int, side: BattleSide, session: GameSession) -> Combatant {
         let stats = session.stats(of: person)
         let skills = session.skills(of: person)
+        // A friend at your side comes in with what their last fight left them; a rival is fresh.
+        let hp = side == .party ? min(stats.hp, max(1, person.hp ?? stats.hp)) : stats.hp
+        let mp = side == .party ? min(stats.mp, max(0, person.mp ?? stats.mp)) : stats.mp
         var fighter = Combatant(
             id: id, side: side, source: side == .party ? .ally(person.id) : .rival(person.id), name: person.name,
             art: session.artID(for: person), level: person.level, element: .neutral, stats: stats,
-            hp: stats.hp, mp: stats.mp, skills: skills.map(\.id), captureRate: 0
+            hp: hp, mp: mp, skills: skills.map(\.id), captureRate: 0
         )
         fighter.skillLevels = Dictionary(uniqueKeysWithValues: skills.map { ($0.id, Combatant.naturalSkillLevel(for: person.level)) })
         fighter.classID = person.classID
@@ -814,11 +817,18 @@ final class BattleController {
             if effect == .poison {
                 mutate(target) { $0.poisonRounds = max($0.poisonRounds, rounds) }
             }
+            if effect == .freeze {
+                mutate(target) { $0.frozenRounds = max($0.frozenRounds, rounds) }
+            }
             SoundEffects.shared.play(.faint, volume: 0.5)
             message = switch effect {
             case .poison: L("{name} is poisoned!", ["name": name(target)])
             case .curse: L("{name} is cursed!", ["name": name(target)])
+            case .freeze: L("{name} is frozen solid!", ["name": name(target)])
             }
+        case .frozen(let target):
+            mutate(target) { $0.frozenRounds = max(0, $0.frozenRounds - 1) }
+            message = L("{name} is frozen and can't move!", ["name": name(target)])
         case .statsChanged(let target, let changes, let rounds):
             mutate(target) { $0.change(changes, rounds: rounds + 1) }
             message = Self.statLine(name(target), changes, rounds: rounds)
@@ -916,6 +926,8 @@ final class BattleController {
         switch engine.outcome {
         case .ongoing where heroIsDown:
             fightOnWithoutYou()
+        case .ongoing where heroIsFrozen:
+            sitOutFrozen()
         case .ongoing where autoPlays:
             playOnAuto()
         case .ongoing where isAuto && canAuto:
@@ -939,6 +951,21 @@ final class BattleController {
 
     /// The hero has fainted: the fight goes on without them while a friend still stands.
     var heroIsDown: Bool { engine.hero?.isAlive == false }
+
+    /// Frozen solid (Frost Breath): the hero loses their next turn, so there's nothing to choose.
+    var heroIsFrozen: Bool { (engine.hero?.frozenRounds ?? 0) > 0 }
+
+    /// The hero is frozen: the round plays without a command from you (your companion decides for
+    /// itself), and the ice thaws when the hero's turn comes and goes.
+    private func sitOutFrozen() {
+        message = L("{hero} is frozen solid and can't move this round!", ["hero": hero?.name ?? L("You")])
+        Task {
+            await breather(1100)
+            while !holds.isEmpty { try? await Task.sleep(for: .milliseconds(250)) }
+            // The engine skips a frozen fighter's turn, whatever it was told to do.
+            resolve(.attack(target: aliveEnemyIDs.first ?? 0), orders: [:])
+        }
+    }
 
     /// While you lie fainted, the friends still standing fight on. The rounds play by themselves
     /// (your companion decides for itself), a moment apart so you can follow, until the fight is won
@@ -1055,11 +1082,18 @@ final class BattleController {
     }
     #endif
 
-    /// Writes battle damage back to the hero and companion.
+    /// Writes battle damage back to the hero, their companion and the friends at their side.
     private func syncParty() {
         if let hero = engine.hero {
             session.data.hero.hp = max(1, hero.hp)
             session.data.hero.mp = hero.mp
+        }
+        for fighter in engine.combatants {
+            guard case .ally(let friendID) = fighter.source,
+                  let index = session.data.friends?.firstIndex(where: { $0.id == friendID }) else { continue }
+            // One who fainted is bruised when they wake (GameSession.partWays); the rest keep this.
+            session.data.friends?[index].hp = max(1, fighter.hp)
+            session.data.friends?[index].mp = fighter.mp
         }
         for fighter in engine.combatants {
             guard let petID = fighter.petID, let index = session.data.pets.firstIndex(where: { $0.id == petID }) else { continue }

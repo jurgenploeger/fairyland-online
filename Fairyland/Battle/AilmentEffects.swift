@@ -7,10 +7,15 @@ extension SkillEffects {
     static let poisonGreen = UIColor(red: 0.62, green: 0.92, blue: 0.32, alpha: 1)
     static let poisonViolet = UIColor(red: 0.72, green: 0.45, blue: 0.95, alpha: 1)
     static let curseViolet = UIColor(red: 0.6, green: 0.36, blue: 0.9, alpha: 1)
+    static let iceBlue = UIColor(red: 0.62, green: 0.88, blue: 1, alpha: 1)
 
     /// The colour of an ailment's word, marks and effects.
     static func color(of effect: Ailment) -> UIColor {
-        effect == .poison ? poisonGreen : curseViolet
+        switch effect {
+        case .poison: poisonGreen
+        case .curse: curseViolet
+        case .freeze: iceBlue
+        }
     }
 
     /// A curse landing: a dark circle under the target and shadow drawn into it.
@@ -40,9 +45,40 @@ extension SkillEffects {
         switch effect {
         case .poison: bubbles(on: target, count: 5, in: parent)
         case .curse: implode(to: target.center, color: tint, in: parent)
+        case .freeze: frostCrackle(on: target, in: parent)
         }
-        Effects.floatingText(effect == .poison ? L("Poisoned!") : L("Cursed!"), color: tint,
-                             at: target.top + CGVector(dx: 0, dy: 10), in: parent, size: 14)
+        let word = switch effect {
+        case .poison: L("Poisoned!")
+        case .curse: L("Cursed!")
+        case .freeze: L("Frozen!")
+        }
+        Effects.floatingText(word, color: tint, at: target.top + CGVector(dx: 0, dy: 10), in: parent, size: 14)
+    }
+
+    /// Ice closing round a fighter: a pale flash and splinters of frost glinting outward.
+    static func frostCrackle(on target: BattleActor, in parent: SKNode) {
+        target.sprite.flash(iceBlue)
+        for index in 0..<8 {
+            let angle = CGFloat(index) / 8 * 2 * .pi
+            let glint = glowSprite(index % 2 == 0 ? .white : iceBlue, size: CGSize(width: 12, height: 3.5))
+            glint.position = target.center
+            glint.zRotation = angle
+            glint.zPosition = 18_400
+            parent.addChild(glint)
+            let out = SKAction.moveBy(x: cos(angle) * 26, y: sin(angle) * 20, duration: 0.3)
+            out.timingMode = .easeOut
+            glint.run(.sequence([.group([out, .sequence([.wait(forDuration: 0.1), .fadeOut(withDuration: 0.2)])]), .removeFromParent()]))
+        }
+    }
+
+    /// A frozen fighter's turn passing by: it shivers in place inside the ice.
+    static func frozenShiver(on target: BattleActor, in parent: SKNode) {
+        target.sprite.flash(iceBlue)
+        target.run(.sequence([
+            .moveBy(x: 2, y: 0, duration: 0.04), .moveBy(x: -4, y: 0, duration: 0.06),
+            .moveBy(x: 4, y: 0, duration: 0.06), .moveBy(x: -2, y: 0, duration: 0.04),
+        ]), withKey: "shudder")
+        Effects.floatingText(L("Frozen!"), color: iceBlue, at: target.top + CGVector(dx: 0, dy: 10), in: parent, size: 14)
     }
 
     /// Poison's bite at the end of a round: the target shudders green and bubbles rise off it.
