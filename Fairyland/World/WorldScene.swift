@@ -21,6 +21,8 @@ final class WorldScene: SKScene {
     var onInspect: (@MainActor (Profile) -> Void)?
     /// Set while menus, dialogs or transitions are up.
     var isInputLocked = false
+    /// No monster jumps out while set (debug `demo`, which picks its own moment).
+    var holdsEncounters = false
 
     let def: MapDef
     private let session: GameSession
@@ -1359,7 +1361,7 @@ final class WorldScene: SKScene {
 
         guard let encounters = def.encounters else { return }
         stepsSinceBattle += 1
-        if stepsSinceBattle > encounters.graceSteps, Double.random(in: 0..<1) < encounters.rate {
+        if !holdsEncounters, stepsSinceBattle > encounters.graceSteps, Double.random(in: 0..<1) < encounters.rate {
             stepsSinceBattle = 0
             startEncounter(encounters)
         }

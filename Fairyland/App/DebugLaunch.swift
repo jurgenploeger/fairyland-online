@@ -88,6 +88,8 @@ enum DebugLaunch {
         try? Data().write(to: folder.appending(path: "debug-ready"))
     }
     static var showsCoachMarks: Bool { flags["coach"] != nil }
+    /// `demo`: filmed for the App Store preview, so no frame counter in the corner.
+    static var isFilming: Bool { flags["demo"] != nil }
     static var opensMonsterBook: Bool { flags["book"] != nil }
     /// `change=armor`: the Character tab opens with that slot's list of things to wear.
     static var changingSlot: ItemType? { flags["change"].flatMap(ItemType.init(rawValue:)) }
@@ -185,7 +187,25 @@ enum DebugLaunch {
                 if coordinator.isReady, coordinator.world.view != nil { break }
                 await pause(0.25)
             }
-            await pause(1.5)
+            // tools/screenshots.sh starts filming a few seconds after the map is up, so wait for it.
+            await pause(5)
+            // A quest giver first, when one stands nearby (the scene starts you beside them): talk as
+            // the talk button does, read their offer, and head off.
+            // The demo picks its own moment for a fight, so no monster cuts in on the way.
+            coordinator.world.holdsEncounters = true
+            coordinator.input.move = CGVector(dx: 1, dy: 0)
+            for _ in 0..<10 where coordinator.session.nearbyNPC == nil { await pause(0.2) }
+            coordinator.input.move = .zero
+            await pause(0.4)
+            if coordinator.session.nearbyNPC != nil {
+                for _ in 0..<6 where coordinator.overlay == nil {
+                    coordinator.talkToNearby()
+                    await pause(0.5)
+                }
+                await pause(4)
+                coordinator.closeOverlay()
+                await pause(0.8)
+            }
             let stroll: [(CGVector, Double)] = [
                 (CGVector(dx: 0.9, dy: 0.35), 1.6), (CGVector(dx: 0.25, dy: 1), 1.3),
                 (CGVector(dx: -0.8, dy: 0.55), 1.2), (CGVector(dx: 0.7, dy: -0.4), 1.0),
@@ -202,6 +222,7 @@ enum DebugLaunch {
             // Everyone marches in.
             await pause(2.5)
             var turns = 0
+            var casts = 0
             while battle.result == nil, turns < 40 {
                 guard battle.phase == .command else {
                     await pause(0.3)
@@ -216,11 +237,13 @@ enum DebugLaunch {
                 } else if battle.canCapture {
                     battle.capture()
                 } else if let hero = battle.combatants.first(where: \.isHero),
-                          let spell = battle.skills.first(where: { [.enemy, .allEnemies].contains($0.target) && battle.cost(of: $0) <= hero.mp }),
-                          foes.count > 1 || foe.hp > foe.stats.hp / 2 {
+                          case let spells = battle.skills.filter({ [.enemy, .allEnemies].contains($0.target) && battle.cost(of: $0) <= hero.mp }),
+                          !spells.isEmpty, foes.count > 1 || foe.hp > foe.stats.hp / 2 {
+                    // Take turns with the spells you have, so the video shows more than one.
                     battle.openSkills()
                     await pause(0.7)
-                    battle.useSkill(spell)
+                    battle.useSkill(spells[casts % spells.count])
+                    casts += 1
                 } else {
                     battle.attack()
                 }
