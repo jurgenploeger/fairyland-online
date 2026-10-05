@@ -26,7 +26,7 @@ struct StoryVignette: View {
 
 final class StoryScene: SKScene {
     enum Kind {
-        /// Shiria gathers the world's fairy tales into one land.
+        /// Liora gathers the world's fairy tales into one land.
         case gathering
         /// The Big Bad Wolf, the Rat King and the Drunk Dragon loom out of a dark, snowy wood.
         case shadows
@@ -75,7 +75,7 @@ final class StoryScene: SKScene {
         prop("autumn_tree", 96, 100, scale: 0.7)
         prop("blossom_tree", 312, 92)
         prop("tree", 262, 102, scale: 0.65)
-        // Shiria's light, high over the land, drawing every tale toward it.
+        // Liora's light, high over the land, drawing every tale toward it.
         let light = glow(Nodes.gold, size: 110, at: CGPoint(x: 180, y: 136))
         light.run(.repeatForever(.sequence([.scale(to: 1.15, duration: 1.4), .scale(to: 0.92, duration: 1.4)])))
         Ambience.twinkle(around: CGPoint(x: 180, y: 118), radius: 34, count: 6, in: self)
@@ -365,7 +365,7 @@ final class StoryScene: SKScene {
         }
     }
 
-    /// A spark lifting off the land and drifting up into Shiria's light.
+    /// A spark lifting off the land and drifting up into Liora's light.
     private func riseToTheLight() {
         let star = SKSpriteNode(texture: SoftTextures.star, size: CGSize(width: 7, height: 7))
         star.color = Nodes.gold

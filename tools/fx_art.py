@@ -2,7 +2,7 @@
 """Pixel art for the few battle marks that aren't light, drawn in code like tools/item_art.py (free):
 writes art/sprites/fx_<name>.png. The elemental spells themselves are drawn in light and colour
 (Fairyland/Battle/ElementEffects.swift); these are poison's bubbles (AilmentEffects.swift) and the
-marks by a fighter's HP bar: poison (a green drop), lowered stats (a violet arrow down, a curse's)
+marks by a fighter's HP bar: poison (a purple drop), lowered stats (a crimson arrow down, a curse's)
 and raised ones (a blue arrow up, a buff's).
 
     python3 tools/fx_art.py                  # every sprite
@@ -65,13 +65,13 @@ def bubble():
 
 # ---------------------------------------------------------------- the dark arts' marks
 
-POISON = [hexc("1e4a14"), hexc("4a9a2a"), hexc("8ee04a"), hexc("d4ff9a")]   # line, dark, mid, light
-CURSE = [hexc("2a1240"), hexc("5a2e8a"), hexc("9a62d8"), hexc("dcc0ff")]
+POISON = [hexc("2e0f4a"), hexc("6a2ea8"), hexc("a866f0"), hexc("e2c8ff")]   # line, dark, mid, light
+CURSE = [hexc("3a0a16"), hexc("8a1e36"), hexc("d0465e"), hexc("ffc0c8")]
 RAISE = [hexc("103a6a"), hexc("2a78c8"), hexc("5cbcff"), hexc("d0f0ff")]
 
 
 def status_poison():
-    """Poison's mark by a fighter's HP bar: a sickly green drop."""
+    """Poison's mark by a fighter's HP bar: a purple drop."""
     return pixels([
         "...o...",
         "..oMo..",
@@ -85,7 +85,7 @@ def status_poison():
 
 
 def status_curse():
-    """A curse's mark: a violet arrow pointing down, for lowered stats."""
+    """A curse's mark: a crimson arrow pointing down, for lowered stats."""
     return pixels([
         "..ooo..",
         "..oLo..",

@@ -451,7 +451,7 @@ final class BattleScene: SKScene {
                 SkillEffects.poisonBite(on: actor, in: stage)
                 Effects.damageBurst("\(amount)", style: .poison, at: actor.top, in: stage)
                 // Named, so it's clear the HP went to the poison and not to a blow.
-                Effects.floatingText(L("Poison"), color: SkillEffects.poisonGreen, at: actor.top + CGVector(dx: 0, dy: 24), in: stage, size: 12)
+                Effects.floatingText(L("Poison"), color: SkillEffects.color(of: .poison), at: actor.top + CGVector(dx: 0, dy: 24), in: stage, size: 12)
             }
             await pause(0.55)
 
@@ -1012,11 +1012,14 @@ final class BattleScene: SKScene {
         dim.removeFromParent()
     }
 
-    /// The hero levelled up with the win: light pours down on them in a burst of gold and "LEVEL
-    /// UP!" fills the field. A new level doesn't heal, so their bars stay as the fight left them.
+    /// The hero levelled up with the win: light pours down on them in a burst of gold, "LEVEL UP!"
+    /// fills the field, and their bars fill up (a new level restores HP and MP, so a hero who
+    /// fell gets back up for it).
     func celebrateLevelUp(to level: Int) {
         guard let id = controller.hero?.id, let hero = actors[id] else { return }
         let gold = Nodes.gold
+        hero.run(.group([.fadeIn(withDuration: 0.4), .move(to: hero.home, duration: 0.4)]), withKey: "revive")
+        hero.setHealth(1, mana: 1)
         SkillEffects.screenFlash(color: gold, strength: 0.3, size: size, in: self)
         SkillEffects.lightPillar(on: hero, level: 5, in: stage)
         SkillEffects.glory(on: hero, color: gold, level: 5, in: stage)
@@ -1050,6 +1053,7 @@ final class BattleScene: SKScene {
     func celebrateLevelUp(of id: Int, to level: Int) {
         guard let actor = actors[id] else { return }
         let gold = Nodes.gold
+        actor.setHealth(1, mana: 1)
         SkillEffects.lightPillar(on: actor, level: 3, in: stage)
         SkillEffects.glory(on: actor, color: gold, level: 4, in: stage)
         SkillEffects.burst(at: actor.center, color: gold, count: 14, speed: 90, in: stage)
@@ -1233,7 +1237,7 @@ final class BattleActor: SKNode {
         bar.manaFraction = CGFloat(mana)
     }
 
-    /// Beside the HP bar, each with its rounds left: poison's green drop, a violet arrow down for
+    /// Beside the HP bar, each with its rounds left: poison's purple drop, a crimson arrow down for
     /// lowered stats (a curse) and a blue arrow up for raised ones (Bless, Protection...).
     private let marks = SKNode()
     private var shownMarks = [0, 0, 0]
@@ -1259,7 +1263,10 @@ final class BattleActor: SKNode {
         guard [poison, lowered, raised] != shownMarks else { return }
         shownMarks = [poison, lowered, raised]
         if marks.parent == nil {
-            marks.position = CGPoint(x: bar.position.x + 30, y: bar.position.y)
+            // Just past the bar plate's right end (its real drawn edge, not its nominal width), and
+            // drawn over the bar and name plates (zPosition 5 000).
+            marks.position = CGPoint(x: bar.calculateAccumulatedFrame().maxX + 10, y: bar.position.y)
+            marks.zPosition = 5_100
             addChild(marks)
         }
         marks.removeAllChildren()
@@ -1287,7 +1294,7 @@ final class BattleActor: SKNode {
             count.horizontalAlignmentMode = .left
             count.position = CGPoint(x: x + 9, y: -1)
             marks.addChild(count)
-            x += 24
+            x += 28
         }
     }
 

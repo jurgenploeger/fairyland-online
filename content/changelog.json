@@ -10,6 +10,31 @@
       ]
     },
     {
+      "version": "0.3.52",
+      "date": "2026-10-05",
+      "title": "Fresh strength with every level",
+      "notes": [
+        "Levelling up fills your HP and MP again, and your companion's when it levels up too. Between fights your wounds still stay with you."
+      ]
+    },
+    {
+      "version": "0.3.51",
+      "date": "2026-10-05",
+      "title": "Purple poison",
+      "notes": [
+        "Poison is purple now, from the cloud and bubbles to Venom Bite, Poison Mist and the drop by the HP bar, and a curse turns crimson so the two never look alike. The poison and curse marks sit in front of the HP and MP bars instead of half hidden behind them."
+      ]
+    },
+    {
+      "version": "0.3.50",
+      "date": "2026-10-05",
+      "title": "Welcome to Storyleaf",
+      "notes": [
+        "The game has a new name: Storyleaf. The goddess Liora binds the world's tales into one great book, and its pages are the land you walk. A new logo and app icon come with it: a leaf that's also a storybook.",
+        "Towns, lands, people, bosses and quests have new names of their own: Prismhaven, Larkspur and Ingothold, Gumdrop Peaks, Marionette Rise, Dozywick, Moonwhisper and more. Your hero, bag and progress carry over as they were."
+      ]
+    },
+    {
       "version": "0.3.49",
       "date": "2026-10-05",
       "title": "Your wounds stay with you",
@@ -42,11 +67,11 @@
     {
       "version": "0.3.46",
       "date": "2026-10-05",
-      "title": "Fairyland in your language, and a story told in pictures",
+      "title": "Storyleaf in your language, and a story told in pictures",
       "notes": [
-        "Fairyland now speaks eleven languages: English, Spanish, Portuguese (Brazil), French, German, Italian, Russian, Japanese, Korean, and Chinese (Simplified and Traditional). Everything is translated: menus, battles, chat, quests, dialogue, monster lore and these notes.",
+        "Storyleaf now speaks eleven languages: English, Spanish, Portuguese (Brazil), French, German, Italian, Russian, Japanese, Korean, and Chinese (Simplified and Traditional). Everything is translated: menus, battles, chat, quests, dialogue, monster lore and these notes.",
         "Pick your language with the globe button on the title screen, or under Language in Settings. It switches at once. Until you choose, the game follows your phone's language when it has it.",
-        "The story at the start comes to life: three chapters, each with a little animated scene from the game. Shiria gathers the tales into one land, the Big Bad Wolf, the Rat King and the Drunk Dragon loom out of the dark, and you walk into Meadowbrook with your companion while Elder Oak waits. How to play now acts out a fight, right up to a Seal Stone catching a jelly."
+        "The story at the start comes to life: three chapters, each with a little animated scene from the game. Liora gathers the tales into one land, the Big Bad Wolf, the Rat King and the Drunk Dragon loom out of the dark, and you walk into Meadowbrook with your companion while Elder Oak waits. How to play now acts out a fight, right up to a Seal Stone catching a jelly."
       ]
     },
     {
@@ -64,7 +89,7 @@
       "notes": [
         "The world follows the clock now: the light warms at dawn and dusk, and at night the maps sink into deep blue. The sun's glow and its beams fade as it sets and come back in the morning. Caves stay as dark as ever.",
         "Weather comes and goes, changing every few in-game hours: cloudy skies, rain with ripples on the ground, storms with lightning, banks of fog and snow flurries. Each place has its own: the swamp and the dark woods are often foggy and wet, the desert is nearly always clear, snowy lands get fresh snow and the shores the odd storm.",
-        "The game's own notices about sunrise and sunset now say Fairyland, like everywhere else."
+        "The game's own notices about sunrise and sunset now say Storyleaf, like everywhere else."
       ]
     },
     {
@@ -93,7 +118,7 @@
         "New spells raise stats for a while: Protection for Fighters (an ally's DEF +40%, from level 12), Holy Glow (an ally's MAG +30%, level 40) and Guardianship (the whole party's DEF +20%, level 60) for Mages, and Animal Training for Beast Tamers (ATK +20% and SPD +30%, level 25). They grow stronger with their skill level, and Bless now raises ATK and DEF the same way.",
         "Whenever a spell raises or lowers a stat, the fighter shows which and by how much (\"DEF +40%\" in blue, \"ATK −20%\" in violet), and an arrow by their HP bar counts the rounds it has left.",
         "A curse now lowers ATK and MAG, shown on the cursed fighter, and poison's bite each round is marked \"Poison\" so you can see what took the HP.",
-        "Some monsters power themselves up now: golden hamsters, wood hogs, red bulls and earth lions Boost their ATK, and werewolves, fire bears and black kongs go Berserk (more ATK, less DEF). Companions of those kinds do it for you, and friends cast their buffs on whoever they'd help most.",
+        "Some monsters power themselves up now: golden hamsters, wood hogs, red bulls and earth lions Boost their ATK, and werewolves, fire bears and shadow apes go Berserk (more ATK, less DEF). Companions of those kinds do it for you, and friends cast their buffs on whoever they'd help most.",
         "When a friend or your companion goes up a level with a win, light pours down on them on the field with \"LEVEL UP!\", and the victory card lists them. Friends now keep pace in the same win you level up in, if they were still standing.",
         "What's new: only the newest release is open; tap any other to read it."
       ]
@@ -147,7 +172,7 @@
       "date": "2026-10-04",
       "title": "No more houses on the roads",
       "notes": [
-        "Some houses in Goldburg, Rainbow City and Meadowbrook stood right on a street, blocking it. Each has moved to the nearest clear plot beside the road, most of them a step or three. Meadowbrook's windmill and Rainbow City's guild hall stay on their terraces, just off the street that leads up to them."
+        "Some houses in Ingothold, Prismhaven and Meadowbrook stood right on a street, blocking it. Each has moved to the nearest clear plot beside the road, most of them a step or three. Meadowbrook's windmill and Prismhaven's guild hall stay on their terraces, just off the street that leads up to them."
       ]
     },
     {
@@ -155,7 +180,7 @@
       "date": "2026-10-04",
       "title": "Railings that follow the terraces",
       "notes": [
-        "The stone railings along the raised terraces in Meadowbrook, Rainbow City, Goldburg and Bluebird run along the terrace edges at the map's angle, as one railing, instead of stepping down them like stairs."
+        "The stone railings along the raised terraces in Meadowbrook, Prismhaven, Ingothold and Larkspur run along the terrace edges at the map's angle, as one railing, instead of stepping down them like stairs."
       ]
     },
     {
@@ -224,7 +249,7 @@
       "date": "2026-10-04",
       "title": "Caves stay dark in a fight",
       "notes": [
-        "In Rat Cavern, Slime Cave and Mysterious Cave a fight keeps your light: behind the fighters the cave is lit only as far as it reached, and the rest stays dark, so a battle shows no more of the cave than your light does."
+        "In Rat Cavern, Gooey Grotto and Whispering Hollow a fight keeps your light: behind the fighters the cave is lit only as far as it reached, and the rest stays dark, so a battle shows no more of the cave than your light does."
       ]
     },
     {
@@ -256,8 +281,8 @@
       "date": "2026-10-04",
       "title": "A busier world",
       "notes": [
-        "Every computer-run adventurer wears a BOT tag: over their head, in the chat, on their card and stats, and in your friends list. They stand in for other players until Fairyland goes online.",
-        "Towns are busier: Meadowbrook has twice the adventurers it had, and Rainbow City and Bluebird 14 each instead of 8. Goldburg's main square is a market: traders stand about under signs showing what they sell today, call out their deals in the chat, and trade with you when you walk up.",
+        "Every computer-run adventurer wears a BOT tag: over their head, in the chat, on their card and stats, and in your friends list. They stand in for other players until Storyleaf goes online.",
+        "Towns are busier: Meadowbrook has twice the adventurers it had, and Prismhaven and Larkspur 14 each instead of 8. Ingothold's main square is a market: traders stand about under signs showing what they sell today, call out their deals in the chat, and trade with you when you walk up.",
         "The chat has announcements on a gold banner: dawn and dusk, a word when you arrive somewhere, news of other adventurers, and rare monster sightings. A sighting is real: for 20 minutes that rare monster turns up far more often on its map.",
         "Moderators get a red MOD tag and a World channel in the chat to message everyone in the game. Their messages show on a red banner, on every map."
       ]
@@ -307,8 +332,8 @@
       "notes": [
         "Revive works: fainted friends show as ghosts while you choose who to wake, and tapping one casts it. Before, they had faded away and couldn't be picked.",
         "Beating a boss always counts as a win. Its last minion no longer runs off at the end, which turned the win into \"It got away…\" with no story, no rare drop, and the boss still waiting for you.",
-        "The Grunt of the Golden God, the Wolf Leader and the Puppet King had stats meant for bosses 20 to 50 levels higher. They're now as tough as the bosses around them, and pay like them.",
-        "Bosses fight with their own element: the Tide Dragon blows bubbles, the Rock Monster slings mud, the Emerald Dragon lashes vines and Idreus bites with shadow, instead of all of them breathing fire.",
+        "The Gilded Brute, the Howlmaster and the Marionette King had stats meant for bosses 20 to 50 levels higher. They're now as tough as the bosses around them, and pay like them.",
+        "Bosses fight with their own element: the Wavecrest Dragon blows bubbles, the Craghulk slings mud, the Emerald Dragon lashes vines and Morvane bites with shadow, instead of all of them breathing fire.",
         "Mages learn Fire Bolt when they join the guild at level 10 (Recovery moves to 15), so a new Mage has a spell to fight with.",
         "Eleven side quests, from Lost Little Lambs to Stardust's Night Flight, were offered long before you could face their monsters. They now open at the level of the place they send you: the Frog Prince's at 21, Puss in Boots at 55, Night Flight at 85.",
         "Companions and friends hold back from a weakened monster only on the round you throw a Seal Stone at it. Before, just carrying a stone made the whole party stand around while the monster got away.",
@@ -332,11 +357,11 @@
       "date": "2026-10-04",
       "title": "A livelier world",
       "notes": [
-        "Candy Mountain is made of candy now: a pink sugar path, milk-chocolate ponds, groves of cotton-candy trees in lemon, peach and sky blue, giant lollipops in five flavours and presents in the grass, with candy sprinkles drifting down.",
-        "New things to find: candy canes, gumdrops, giant cupcakes and gingerbread houses on Candy Mountain; paper lanterns and mochi in Moonglow; marionettes, toy blocks and jack-in-the-boxes on Puppet Hill; a sleeping cat and big pillows in Sleepy Town; flying carpets floating over the Genie Desert and the Secret Plain, with genie lamps; poppy fields on Emerald Road; giant ladybugs in Lotus Land; garden gnomes, scarecrows and bird baths in the meadows; treasure chests and messages in bottles on the beaches; and apple trees in the Smiling Forest, along Emerald Road and in the Snow White Forest, frosted blue there.",
+        "Gumdrop Peaks is made of candy now: a pink sugar path, milk-chocolate ponds, groves of cotton-candy trees in lemon, peach and sky blue, giant lollipops in five flavours and presents in the grass, with candy sprinkles drifting down.",
+        "New things to find: candy canes, gumdrops, giant cupcakes and gingerbread houses on Gumdrop Peaks; paper lanterns and mochi in Moonwhisper; marionettes, toy blocks and jack-in-the-boxes on Marionette Rise; a sleeping cat and big pillows in Dozywick; flying carpets floating over the Genie Desert and the Hidden Steppe, with genie lamps; poppy fields on Emerald Road; giant ladybugs in Lotus Land; garden gnomes, scarecrows and bird baths in the meadows; treasure chests and messages in bottles on the beaches; and apple trees in the Smiling Forest, along Emerald Road and in the Snow White Forest, frosted blue there.",
         "Little animals live on the maps: bunnies in the meadows and forests (the snowy ones too), frogs by the ponds of Frog Swamp, Lotus Land, Swan Lake and Twilight Woods, and crabs on the beaches. They hop about, and hop off when you come close.",
-        "Now and then birds fly over the meadows and towns, gulls over the beaches and lakes, and bats over the Valley of Fear, the Big Bad Wolf's Lair and Puppet Hill, their shadows sweeping over the ground.",
-        "More in the air: dandelion fluff over the grasslands, bubbles rising in Frog Swamp, Lotus Land and the Water Temple, paper lanterns floating up over Moonglow, sleepy Z's over Sleepy Town and music-box notes over Puppet Hill. Magic lanterns and star crystals bob gently where they float."
+        "Now and then birds fly over the meadows and towns, gulls over the beaches and lakes, and bats over Shiverdell, the Big Bad Wolf's Lair and Marionette Rise, their shadows sweeping over the ground.",
+        "More in the air: dandelion fluff over the grasslands, bubbles rising in Frog Swamp, Lotus Land and the Tidewater Shrine, paper lanterns floating up over Moonwhisper, sleepy Z's over Dozywick and music-box notes over Marionette Rise. Magic lanterns and star crystals bob gently where they float."
       ]
     },
     {
@@ -349,8 +374,8 @@
         "The Earth Snake is brown all over now, without the green that showed through on its coils, and the Light Snake is the pale, glassy gold its description promises instead of salmon and olive.",
         "Monsters wear the colours their names promise. About two dozen colour variants came out another colour: the Azure Golden Hamster was mint, the Crimson Yellow Butterfly blue, the Rosy Wood Crab olive and the Frosted Phantom olive green, while the Amber Werewolf and the Violet Black Lizard barely differed from the usual kind. Each is the colour it's named for now, from the Sunny Fire Rat to the Shadow Red Bull, and keeps its shading's warm highlights and cool shadows instead of one flat colour.",
         "Recoloured scenery keeps its shading too: autumn trees go red in the shadows and gold on top, and red maples catch orange light. A house's wooden door no longer takes the colour of its roof, mushroom houses keep their beige stems, the yellow and blue daisies lose their pink streaks, and Lotus Land's path is sandy again instead of green.",
-        "Your companion takes orders, like in Fairyland Online: after you choose your own move, choose its: Attack, one of its skills, Guard, or Auto to let it decide. It gets its own 5 seconds, and fights on its own when they run out. Rather it fought alone? Turn off \"Choose your companion's moves\" in Settings.",
-        "Curses and poison, Fairyland's dark arts: a poisoned fighter loses HP at the end of every round for 3 rounds, and a cursed one hits 20% weaker for 3 rounds. A green drop or a violet arrow by the HP bar shows the rounds left. Mages learn Curse at level 12 and Poison at 25. Watch out for the Venom Bite of snakes and widows, the Poison Skeleton's Poison Mist, and the Evil Eye of phantoms and Idreus.",
+        "Your companion takes orders: after you choose your own move, choose its: Attack, one of its skills, Guard, or Auto to let it decide. It gets its own 5 seconds, and fights on its own when they run out. Rather it fought alone? Turn off \"Choose your companion's moves\" in Settings.",
+        "Curses and poison, Storyleaf's dark arts: a poisoned fighter loses HP at the end of every round for 3 rounds, and a cursed one hits 20% weaker for 3 rounds. A green drop or a violet arrow by the HP bar shows the rounds left. Mages learn Curse at level 12 and Poison at 25. Watch out for the Venom Bite of snakes and widows, the Poison Skeleton's Poison Mist, and the Evil Eye of phantoms and Morvane.",
         "Bigger parties: up to four friends can travel with you now, a party of five, and they bring their companions. Each companion walks at its friend's side, fights beside them, and shows next to them in the Companions list. In battle a party of more than five stands with the people in front and the companions in a row behind. A friend who's around while your party is full says so instead of showing nothing.",
         "A fainted companion's card no longer says it's following you: it says it can't follow you or fight until it's healed, with a button to give it a potion from your bag. In battle, friends' companions carry their owner's name (\"Sprout's Water Slug\"), so they're never mistaken for yours.",
         "In portrait battles, people stand in profile as they do in landscape: your party looks left toward the monsters instead of showing you their backs.",
@@ -407,7 +432,7 @@
       "date": "2026-10-03",
       "title": "Rare finds",
       "notes": [
-        "Six rare monsters that never turned up now do: the Azure Golden Hamster and Starry Hedgehog on the Northern Grassland, the Rosy Wood Crab and Frosted Mud Eagle on Pineapple Shore, the Crimson Yellow Butterfly in Lotus Land and the Amber Werewolf in Big Bad Wolf's Lair. The Monster Book can be filled at last.",
+        "Six rare monsters that never turned up now do: the Azure Golden Hamster and Starry Hedgehog on the Windswept Downs, the Rosy Wood Crab and Frosted Mud Eagle on Pineapple Shore, the Crimson Yellow Butterfly in Lotus Land and the Amber Werewolf in Big Bad Wolf's Lair. The Monster Book can be filled at last.",
         "A companion or friend who goes on guard in battle really does take half damage for the rest of the round, like you do.",
         "The Companions page gives the real capture rule: weaken the last wild monster standing to 20% HP or less (it used to say half)."
       ]
@@ -465,10 +490,10 @@
       "date": "2026-10-03",
       "title": "Light and strings",
       "notes": [
-        "New spells in the spirit of Fairyland's Acolyte of Light. Mages learn Recovery (Lv 10, heal an ally), Bridge of Light (Lv 20), Revive (Lv 35, wake a fainted ally mid-battle) and Bless (Lv 45, +25% strength and defense for 3 turns, more at higher levels). Tamers learn Revive at Lv 30, to bring a fainted companion back.",
+        "New spells of light. Mages learn Recovery (Lv 10, heal an ally), Bridge of Light (Lv 20), Revive (Lv 35, wake a fainted ally mid-battle) and Bless (Lv 45, +25% strength and defense for 3 turns, more at higher levels). Tamers learn Revive at Lv 30, to bring a fainted companion back.",
         "Bridge of Light is cast from the Character screen outside battle: tap Cast to be carried back to your last checkpoint.",
         "The party heal Blessing is now called Healing Spring, like the original spell.",
-        "Wooden Puppets and the Puppet King look like real marionettes now, strings and all, instead of recoloured skeletons.",
+        "Wooden Puppets and the Marionette King look like real marionettes now, strings and all, instead of recoloured skeletons.",
         "Tapping the minimap opens the world map only. The full map of the area you're in no longer shows, so caves and forests stay a mystery until you explore them."
       ]
     },
@@ -562,7 +587,7 @@
     {
       "version": "0.2.0",
       "date": "2026-10-03",
-      "title": "A bigger Fairyland",
+      "title": "A bigger Storyleaf",
       "notes": [
         "The world grows to 30 maps, with a world atlas, winding roads, caves, snowfall, icy ponds and busier towns.",
         "Levels now run to 105 and beyond, and you join a guild at level 10.",
@@ -577,9 +602,9 @@
     {
       "version": "0.0.1",
       "date": "2026-09-29",
-      "title": "First steps into Fairyland",
+      "title": "First steps into Storyleaf",
       "notes": [
-        "14 maps joined by winding roads: Meadowbrook, Rainbow City and Goldburg, plus wild zones from Sunny Meadow to Moonglow.",
+        "14 maps joined by winding roads: Meadowbrook, Prismhaven and Ingothold, plus wild zones from Sunny Meadow to Moonwhisper.",
         "Random encounters and turn-based battles fought where you stand. Big spells splash onto nearby monsters.",
         "81 monsters across seven elements, with rare colour variants and three bosses.",
         "Capture with Seal Stones and keep up to 5 companions. Your first hatches from the starter egg.",

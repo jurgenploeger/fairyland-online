@@ -539,9 +539,7 @@ final class GameSession {
         data.hero.mp = stats.mp
     }
 
-    /// Adds EXP and returns how many levels the hero gained. A new level raises the maximums but
-    /// doesn't heal: the hero keeps the HP and MP the fight left them (potions, skills and the
-    /// healer heal).
+    /// Adds EXP and returns how many levels the hero gained.
     @discardableResult
     func gainHeroEXP(_ amount: Int) -> Int {
         guard amount > 0 else { return 0 }
@@ -553,7 +551,7 @@ final class GameSession {
             data.hero.level += 1
             levels += 1
         }
-        if levels > 0 { clampHero() }
+        if levels > 0 { restoreHero() }
         return levels
     }
 
@@ -824,8 +822,7 @@ final class GameSession {
         data.activePetID = id
     }
 
-    /// Adds EXP to a companion and returns how many levels it gained. Like the hero's, a new level
-    /// doesn't heal it.
+    /// Adds EXP to a companion and returns how many levels it gained.
     @discardableResult
     func gainPetEXP(_ id: UUID, _ amount: Int) -> Int {
         guard amount > 0, let index = data.pets.firstIndex(where: { $0.id == id }) else { return 0 }
@@ -839,8 +836,8 @@ final class GameSession {
         }
         if levels > 0 {
             let stats = stats(of: data.pets[index])
-            data.pets[index].hp = min(data.pets[index].hp, stats.hp)
-            data.pets[index].mp = min(data.pets[index].mp, stats.mp)
+            data.pets[index].hp = stats.hp
+            data.pets[index].mp = stats.mp
         }
         return levels
     }

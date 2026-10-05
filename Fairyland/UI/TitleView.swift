@@ -54,7 +54,7 @@ struct TitleView: View {
                             .scaledToFit()
                             .frame(maxWidth: 440)
                             .padding(.top, 12)
-                            .accessibilityLabel(L("Fairyland — a cozy pixel adventure"))
+                            .accessibilityLabel(L("Storyleaf, a cozy pixel adventure"))
 
                         if creating {
                             creation
@@ -115,7 +115,7 @@ struct TitleView: View {
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         guard let raw = try? Data(contentsOf: url), let game = try? SaveStore.imported(raw) else {
-            importNote = L("That file isn't a Fairyland backup.")
+            importNote = L("That file isn't a Storyleaf backup.")
             return
         }
         SaveStore.save(game)

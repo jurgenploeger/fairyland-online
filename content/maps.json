@@ -769,7 +769,7 @@
           "art": "npc_diviner",
           "x": -7,
           "y": -6,
-          "greeting": "The Diviner Guild studies the seven elements. Magic is a path of patience."
+          "greeting": "The Arcane Circle studies the seven elements. Magic is a path of patience."
         },
         {
           "id": "guild_journeyman",
@@ -779,7 +779,7 @@
           "art": "npc_journeyman",
           "x": -5,
           "y": -6,
-          "greeting": "The Journeyman Guild! We befriend beasts, not beat them. Well, mostly."
+          "greeting": "The Wildfolk Lodge! We befriend beasts, not beat them. Well, mostly."
         },
         {
           "id": "smith",
@@ -2765,7 +2765,7 @@
     },
     {
       "id": "rainbow_city",
-      "name": "Rainbow City",
+      "name": "Prismhaven",
       "width": 86,
       "height": 66,
       "world": [
@@ -3594,11 +3594,11 @@
           "art": "npc_healer",
           "x": -6,
           "y": 3,
-          "greeting": "Welcome to Rainbow City! Rest a while, adventurer."
+          "greeting": "Welcome to Prismhaven! Rest a while, adventurer."
         },
         {
           "id": "rainbow_shop",
-          "name": "Rainbow Market",
+          "name": "Prismhaven Market",
           "role": "shop",
           "art": "npc_trader",
           "x": 6,
@@ -3967,7 +3967,7 @@
             "title": "Nobody's Afraid Anymore",
             "story": [
               "The Big Bad Wolf huffs, puffs and runs off into the snow with its tail between its legs. It won't be blowing any houses down.",
-              "Red hoods can walk Snow White Forest without looking over their shoulders. Mayor Poppy will want to hear, and Rainbow City is buzzing with news from Moonglow."
+              "Red hoods can walk Snow White Forest without looking over their shoulders. Mayor Poppy will want to hear, and Prismhaven is buzzing with news from Moonwhisper."
             ]
           }
         },
@@ -4437,7 +4437,7 @@
     },
     {
       "id": "valley_of_fear",
-      "name": "Valley of Fear",
+      "name": "Shiverdell",
       "width": 150,
       "height": 120,
       "music": "fear",
@@ -4743,7 +4743,7 @@
             "title": "The Light Goes Out",
             "story": [
               "The Great Wisp flickers, giggles one last time and goes out like a candle. All over the valley, the little lights fade with it.",
-              "Travellers can keep to the road again; the Valley of Fear is only a dark valley now. Only the cavern to the east still squeaks."
+              "Travellers can keep to the road again; Shiverdell is only a dark valley now. Only the cavern to the east still squeaks."
             ]
           }
         }
@@ -4945,7 +4945,7 @@
             "title": "The Rat King Falls",
             "story": [
               "The Rat King's crown rolls across the cavern floor and spins to a stop. The rats look at it, look at each other, and scatter.",
-              "With no king in the way, the dwarves of Goldburg aren't cut off anymore. Tell Elder Oak: the road south through the Valley of Fear can open at last."
+              "With no king in the way, the dwarves of Ingothold aren't cut off anymore. Tell Elder Oak: the road south through Shiverdell can open at last."
             ]
           }
         }
@@ -5013,7 +5013,7 @@
     },
     {
       "id": "goldburg",
-      "name": "Goldburg",
+      "name": "Ingothold",
       "width": 80,
       "height": 62,
       "world": [
@@ -5418,7 +5418,7 @@
           "art": "npc_trader",
           "x": 6,
           "y": 3,
-          "greeting": "Forged in Goldburg, built to last a thousand years!",
+          "greeting": "Forged in Ingothold, built to last a thousand years!",
           "stock": [
             "hi_potion",
             "hi_ether",
@@ -5451,7 +5451,7 @@
           "art": "npc_chief",
           "x": 3,
           "y": -4,
-          "greeting": "You cleared the cavern? Then Goldburg owes you one, friend."
+          "greeting": "You cleared the cavern? Then Ingothold owes you one, friend."
         },
         {
           "id": "goldburg_smith",
@@ -5460,7 +5460,7 @@
           "art": "npc_smith",
           "x": -2,
           "y": -2,
-          "greeting": "Goldburg steel is the finest there is. Show me what you've gathered."
+          "greeting": "Ingothold steel is the finest there is. Show me what you've gathered."
         }
       ],
       "ambience": {
@@ -5959,7 +5959,7 @@
             "title": "A Dragon Sobers Up",
             "story": [
               "The Drunk Dragon hiccups out one last puff of smoke, lies down by the oasis and starts to snore. It's going to wake up with a terrible headache.",
-              "The caravans can come back to the oasis, and Goldburg's trade with them. Chief Brom will want to hear, and with the desert safe, the roads out of Goldburg can open."
+              "The caravans can come back to the oasis, and Ingothold's trade with them. Chief Brom will want to hear, and with the desert safe, the roads out of Ingothold can open."
             ]
           }
         },
@@ -6385,7 +6385,7 @@
     },
     {
       "id": "moonglow",
-      "name": "Moonglow",
+      "name": "Moonwhisper",
       "width": 135,
       "height": 105,
       "music": "moonglow",
@@ -6728,7 +6728,7 @@
             "title": "The Queen Hops Home",
             "story": [
               "The Moon Rabbit Queen sits down with a bump, ears drooping. Then a small rabbit peeks out from behind the throne, cheeks full, whiskers dusted with mochi.",
-              "Mystery solved. The queen scoops up the little thief and hops back up to the moon, and Moonglow can sleep under a quiet full moon again."
+              "Mystery solved. The queen scoops up the little thief and hops back up to the moon, and Moonwhisper can sleep under a quiet full moon again."
             ]
           }
         }
@@ -6736,7 +6736,7 @@
     },
     {
       "id": "northern_grassland",
-      "name": "Northern Grassland",
+      "name": "Windswept Downs",
       "crowd": {
         "adventurers": 5
       },
@@ -7203,7 +7203,7 @@
     },
     {
       "id": "slime_cave",
-      "name": "Slime Cave",
+      "name": "Gooey Grotto",
       "width": 80,
       "height": 60,
       "music": "cave",
@@ -7416,19 +7416,19 @@
       "npcs": [
         {
           "id": "slime_throne",
-          "name": "Grunt of the Golden God",
+          "name": "Gilded Brute",
           "role": "boss",
           "art": "boss_golden_grunt",
           "x": 0,
           "y": 14,
-          "greeting": "The Golden God's treasure is mine! Mine, mine, MINE!",
+          "greeting": "The Gilded King's treasure is mine! Mine, mine, MINE!",
           "monster": "golden_grunt",
           "level": 20,
           "victory": {
             "title": "Fool's Gold",
             "story": [
-              "The Grunt topples back into its hoard, and the hoard goes clink. Pebbles. Painted gold, every last one.",
-              "If the Golden God was ever here, it left long ago. With no one to shout at them, the Golden Slimes go back to bouncing, and Elder Oak will have a good laugh."
+              "The Brute topples back into its hoard, and the hoard goes clink. Pebbles. Painted gold, every last one.",
+              "If the Gilded King was ever here, it left long ago. With no one to shout at them, the Golden Slimes go back to bouncing, and Elder Oak will have a good laugh."
             ]
           }
         }
@@ -7440,7 +7440,7 @@
     },
     {
       "id": "candy_mountain",
-      "name": "Candy Mountain",
+      "name": "Gumdrop Peaks",
       "crowd": {
         "adventurers": 5
       },
@@ -8232,7 +8232,7 @@
       "npcs": [
         {
           "id": "wolf_den_leader",
-          "name": "Wolf Leader",
+          "name": "Howlmaster",
           "role": "boss",
           "art": "boss_wolf_leader",
           "x": 0,
@@ -8243,8 +8243,8 @@
           "victory": {
             "title": "The Lambs Come Home",
             "story": [
-              "The Wolf Leader limps off into the dark, and the pack slinks after it. Behind a rock, something small says baa.",
-              "Mother Sheep's lambs are free, and they know the way home over Candy Mountain. Linns the Tailor will be glad: no wool is finer than a happy lamb's."
+              "The Howlmaster limps off into the dark, and the pack slinks after it. Behind a rock, something small says baa.",
+              "Mother Sheep's lambs are free, and they know the way home over Gumdrop Peaks. Nella the Tailor will be glad: no wool is finer than a happy lamb's."
             ]
           }
         }
@@ -8256,7 +8256,7 @@
     },
     {
       "id": "bluebird",
-      "name": "Bluebird",
+      "name": "Larkspur",
       "width": 70,
       "height": 54,
       "music": "town",
@@ -8554,11 +8554,11 @@
           "art": "npc_healer",
           "x": -6,
           "y": 3,
-          "greeting": "Welcome to Bluebird. Let me see those scrapes."
+          "greeting": "Welcome to Larkspur. Let me see those scrapes."
         },
         {
           "id": "bluebird_shop",
-          "name": "Bluebird Market",
+          "name": "Larkspur Market",
           "role": "shop",
           "art": "npc_trader",
           "x": 6,
@@ -8575,12 +8575,12 @@
         },
         {
           "id": "linns",
-          "name": "Linns the Tailor",
+          "name": "Nella the Tailor",
           "role": "quests",
           "art": "npc_linns",
           "x": 3,
           "y": -4,
-          "greeting": "Mind the thread! Bluebird's finest tailor, at your service."
+          "greeting": "Mind the thread! Larkspur's finest tailor, at your service."
         }
       ],
       "world": [
@@ -9359,7 +9359,7 @@
     },
     {
       "id": "puppet_hill",
-      "name": "Puppet Hill",
+      "name": "Marionette Rise",
       "width": 100,
       "height": 80,
       "music": "cave",
@@ -9615,7 +9615,7 @@
       "npcs": [
         {
           "id": "hermit_will",
-          "name": "Hermit Will",
+          "name": "Hermit Orrin",
           "role": "quests",
           "art": "npc_hermit_will",
           "x": 3,
@@ -9624,7 +9624,7 @@
         },
         {
           "id": "puppet_throne",
-          "name": "Puppet King",
+          "name": "Marionette King",
           "role": "boss",
           "art": "boss_puppet_king",
           "x": 0,
@@ -9635,8 +9635,8 @@
           "victory": {
             "title": "The Strings Are Cut",
             "story": [
-              "The Puppet King's strings go slack. All over the hill the puppets stop mid-step and sit down, as if someone finally told them they could rest.",
-              "Hermit Will says they used to dance for children. Maybe one day they will again, but only when they want to. The animals can come home to Puppet Hill."
+              "The Marionette King's strings go slack. All over the hill the puppets stop mid-step and sit down, as if someone finally told them they could rest.",
+              "Hermit Orrin says they used to dance for children. Maybe one day they will again, but only when they want to. The animals can come home to Marionette Rise."
             ]
           }
         }
@@ -9648,7 +9648,7 @@
     },
     {
       "id": "goldburg_lake",
-      "name": "Goldburg Lake",
+      "name": "Ingothold Lake",
       "crowd": {
         "adventurers": 4
       },
@@ -9900,12 +9900,12 @@
       "npcs": [
         {
           "id": "hamini",
-          "name": "Hamini the Wise",
+          "name": "Ambrose the Wise",
           "role": "quests",
           "art": "npc_hamini",
           "x": 3,
           "y": 3,
-          "greeting": "The goddess Shiria hid her treasure where only the patient look."
+          "greeting": "The goddess Liora hid her treasure where only the patient look."
         }
       ],
       "world": [
@@ -9915,7 +9915,7 @@
     },
     {
       "id": "sleepy_town",
-      "name": "Sleepy Town",
+      "name": "Dozywick",
       "crowd": {
         "adventurers": 5
       },
@@ -10234,16 +10234,16 @@
       "npcs": [
         {
           "id": "thomas",
-          "name": "Thomas",
+          "name": "Jory",
           "role": "quests",
           "art": "npc_thomas",
           "x": 3,
           "y": 3,
-          "greeting": "Sophia fell asleep a year ago and never woke up. The whole town did."
+          "greeting": "Rosalind fell asleep a year ago and never woke up. The whole town did."
         },
         {
           "id": "rock_cave",
-          "name": "Rock Monster",
+          "name": "Craghulk",
           "role": "boss",
           "art": "boss_rock_monster",
           "x": 0,
@@ -10252,10 +10252,10 @@
           "monster": "rock_monster",
           "level": 86,
           "victory": {
-            "title": "Sleepy Town Wakes Up",
+            "title": "Dozywick Wakes Up",
             "story": [
-              "The Rock Monster crumbles into a heap of quiet stones. The snoring that filled the cave for a whole year stops.",
-              "In town, someone yawns, then someone else. For the first time in a year, Sophia's eyes open, and Thomas has a whole year of news to tell."
+              "The Craghulk crumbles into a heap of quiet stones. The snoring that filled the cave for a whole year stops.",
+              "In town, someone yawns, then someone else. For the first time in a year, Rosalind's eyes open, and Jory has a whole year of news to tell."
             ]
           }
         }
@@ -10267,7 +10267,7 @@
     },
     {
       "id": "secret_plain",
-      "name": "Secret Plain",
+      "name": "Hidden Steppe",
       "width": 110,
       "height": 80,
       "music": "desert",
@@ -10551,7 +10551,7 @@
       "npcs": [
         {
           "id": "treasure_of_queen",
-          "name": "Idreus",
+          "name": "Morvane",
           "role": "boss",
           "art": "boss_idreus",
           "x": 0,
@@ -10562,8 +10562,8 @@
           "victory": {
             "title": "The Goddess's Treasure",
             "story": [
-              "Idreus sinks to one knee. “Then guard it well,” it rumbles, and fades into the grass like a shadow at noon.",
-              "Where it stood, Fantasy Ore glows in the earth, bright as a golem's heart. Hamini the Wise will want to hear, but the ore's trail runs on, south to Hachoo Island."
+              "Morvane sinks to one knee. “Then guard it well,” it rumbles, and fades into the grass like a shadow at noon.",
+              "Where it stood, Dreamstone glows in the earth, bright as a golem's heart. Ambrose the Wise will want to hear, but the ore's trail runs on, south to Sneezle Isle."
             ]
           }
         }
@@ -10575,7 +10575,7 @@
     },
     {
       "id": "hachoo_island",
-      "name": "Hachoo Island",
+      "name": "Sneezle Isle",
       "crowd": {
         "adventurers": 4
       },
@@ -10826,7 +10826,7 @@
     },
     {
       "id": "rosen_lake",
-      "name": "Rosen Lake",
+      "name": "Briarmere",
       "width": 100,
       "height": 80,
       "music": "snow",
@@ -11143,7 +11143,7 @@
           "art": "npc_temple_keeper",
           "x": 3,
           "y": 3,
-          "greeting": "The Water Temple sank beneath the lake long ago. Something still guards it."
+          "greeting": "The Tidewater Shrine sank beneath the lake long ago. Something still guards it."
         }
       ],
       "world": [
@@ -11153,7 +11153,7 @@
     },
     {
       "id": "water_temple",
-      "name": "Water Temple",
+      "name": "Tidewater Shrine",
       "width": 100,
       "height": 80,
       "music": "cave",
@@ -11391,7 +11391,7 @@
       "npcs": [
         {
           "id": "temple_depths",
-          "name": "Tide Dragon",
+          "name": "Wavecrest Dragon",
           "role": "boss",
           "art": "boss_tide_dragon",
           "x": 0,
@@ -11402,8 +11402,8 @@
           "victory": {
             "title": "The Tide Turns",
             "story": [
-              "The Tide Dragon sinks into the deepest pool of the temple, and the water goes still for the first time in an age.",
-              "The Water Temple still keeps its secrets, but no longer with teeth. The Temple Keeper can walk its halls again, and boats can cross Rosen Lake without fear."
+              "The Wavecrest Dragon sinks into the deepest pool of the temple, and the water goes still for the first time in an age.",
+              "The Tidewater Shrine still keeps its secrets, but no longer with teeth. The Temple Keeper can walk its halls again, and boats can cross Briarmere without fear."
             ]
           }
         }
@@ -11415,7 +11415,7 @@
     },
     {
       "id": "mysterious_cave",
-      "name": "Mysterious Cave",
+      "name": "Whispering Hollow",
       "width": 80,
       "height": 60,
       "music": "cave",
@@ -11634,19 +11634,19 @@
       "npcs": [
         {
           "id": "silver_depths",
-          "name": "Lieutenant of the Silver Demon",
+          "name": "Silverfang Warden",
           "role": "boss",
           "art": "boss_silver_lieutenant",
           "x": 0,
           "y": 14,
-          "greeting": "The Silver Demon sends his regards.",
+          "greeting": "The Silver Wraith sends his regards.",
           "monster": "silver_lieutenant",
           "level": 185,
           "victory": {
             "title": "The Way Is Open",
             "story": [
               "The Lieutenant's silver armour clatters to the cave floor, empty. Whatever was inside has fled, back to the master it served.",
-              "Travellers can pass through the Mysterious Cave to the Emerald Road again. The Emerald Guard will want to hear. And somewhere far away, the Silver Demon knows your name."
+              "Travellers can pass through the Whispering Hollow to the Emerald Road again. The Emerald Guard will want to hear. And somewhere far away, the Silver Wraith knows your name."
             ]
           }
         }
@@ -12139,7 +12139,7 @@
             "title": "The Emerald Gates",
             "story": [
               "The Emerald Dragon lowers its great head and steps aside. Behind it, the gates of the Emerald City shine green in the evening light.",
-              "From a wooden sword in Meadowbrook to the gates of the Emerald City, you've walked the longest road in Fairyland. The Emerald Guard will hardly believe it."
+              "From a wooden sword in Meadowbrook to the gates of the Emerald City, you've walked the longest road in Storyleaf. The Emerald Guard will hardly believe it."
             ]
           }
         }

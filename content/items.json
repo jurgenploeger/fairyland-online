@@ -857,7 +857,7 @@
       "id": "blood_cypress_staff",
       "icon": "wand",
       "art": "item_blood_cypress_staff",
-      "name": "Blood Cypress Staff",
+      "name": "Dusk Cypress Staff",
       "type": "weapon",
       "price": 2065,
       "stats": {
@@ -899,7 +899,7 @@
       "id": "purple_star_staff",
       "icon": "wand",
       "art": "item_purple_star_staff",
-      "name": "Purple Star Staff",
+      "name": "Violet Comet Staff",
       "type": "weapon",
       "price": 3065,
       "stats": {
@@ -920,7 +920,7 @@
       "id": "armorbreaker_staff",
       "icon": "wand",
       "art": "item_armorbreaker_staff",
-      "name": "Armorbreaker Staff",
+      "name": "Shellsplitter Staff",
       "type": "weapon",
       "price": 3640,
       "stats": {
@@ -941,7 +941,7 @@
       "id": "ironcrusher_staff",
       "icon": "wand",
       "art": "item_ironcrusher_staff",
-      "name": "Ironcrusher Staff",
+      "name": "Anvil Staff",
       "type": "weapon",
       "price": 4265,
       "stats": {
@@ -962,7 +962,7 @@
       "id": "red_cloud_staff",
       "icon": "wand",
       "art": "item_red_cloud_staff",
-      "name": "Red Cloud Staff",
+      "name": "Crimson Mist Staff",
       "type": "weapon",
       "price": 4940,
       "stats": {
@@ -1046,7 +1046,7 @@
       "id": "ghost_staff",
       "icon": "wand",
       "art": "item_ghost_staff",
-      "name": "Ghost Staff",
+      "name": "Wraithwood Staff",
       "type": "weapon",
       "price": 8140,
       "stats": {
@@ -1067,7 +1067,7 @@
       "id": "sky_ending_staff",
       "icon": "wand",
       "art": "item_sky_ending_staff",
-      "name": "Sky-Ending Staff",
+      "name": "Skyreach Staff",
       "type": "weapon",
       "price": 9065,
       "stats": {
@@ -1109,7 +1109,7 @@
       "id": "dragon_god_staff",
       "icon": "wand",
       "art": "item_dragon_god_staff",
-      "name": "Dragon God Staff",
+      "name": "Wyrmking Staff",
       "type": "weapon",
       "price": 11065,
       "stats": {
@@ -1118,7 +1118,7 @@
       "classes": [
         "mage"
       ],
-      "description": "The staff of the Dragon God himself.",
+      "description": "The staff of the Wyrmking himself.",
       "level": 105,
       "recipe": {
         "red_yew": 8,
@@ -1584,7 +1584,7 @@
       "id": "dragon_god_sword",
       "icon": "sword",
       "art": "item_dragon_god_sword",
-      "name": "Dragon God Sword",
+      "name": "Wyrmking Sword",
       "type": "weapon",
       "price": 11065,
       "stats": {
@@ -1601,7 +1601,7 @@
         "tungsten_alloy": 1,
         "dragon_pearl": 1
       },
-      "description": "The sword of the Dragon God himself."
+      "description": "The sword of the Wyrmking himself."
     },
     {
       "id": "novice_axe",
@@ -2046,7 +2046,7 @@
       "id": "dragon_god_axe",
       "icon": "axe",
       "art": "item_dragon_god_axe",
-      "name": "Dragon God Axe",
+      "name": "Wyrmking Axe",
       "type": "weapon",
       "price": 11065,
       "stats": {
@@ -2062,7 +2062,7 @@
         "tungsten_alloy": 2,
         "dragon_pearl": 1
       },
-      "description": "The axe of the Dragon God himself."
+      "description": "The axe of the Wyrmking himself."
     },
     {
       "id": "sheepskin_whip",
@@ -2521,7 +2521,7 @@
       "id": "dragon_god_whip",
       "icon": "paw",
       "art": "item_dragon_god_whip",
-      "name": "Dragon God Whip",
+      "name": "Wyrmking Whip",
       "type": "weapon",
       "price": 11065,
       "stats": {
@@ -2537,7 +2537,7 @@
         "red_yew": 8,
         "dragon_pearl": 2
       },
-      "description": "The whip of the Dragon God himself."
+      "description": "The whip of the Wyrmking himself."
     },
     {
       "id": "bamboo",

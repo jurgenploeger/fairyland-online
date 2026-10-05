@@ -12,6 +12,31 @@ something new, add it here with its source. When we build or change a system, up
 First collected on 2026-10-03 from search-engine snippets of the pages listed under Sources. The cloud
 environment couldn't open the pages themselves, so a session that can should re-check anything marked M or ?.
 
+## Names
+
+**Us** (since 0.3.50): the game is called **Storyleaf** for players (the App Store name, the logo and
+every in-game line); the code, project and repo keep "Fairyland". The goddess Liora binds the world's tales
+into one book, and its pages are the land. Names taken from FO were replaced with our own, and this file
+keeps the FO names when it describes the original:
+
+| FO name | Ours |
+|---|---|
+| Rainbow City, Bluebird, Goldburg (and Goldburg Lake) | Prismhaven, Larkspur, Ingothold (Ingothold Lake) |
+| Northern Grassland, Slime Cave, Candy Mountain, Puppet Hill | Windswept Downs, Gooey Grotto, Gumdrop Peaks, Marionette Rise |
+| Sleepy Town, Secret Plain, Hachoo Island, Rosen Lake | Dozywick, Hidden Steppe, Sneezle Isle, Briarmere |
+| Water Temple, Mysterious Cave, Valley of Fear, Moonglow | Tidewater Shrine, Whispering Hollow, Shiverdell, Moonwhisper |
+| Shiria, Linns the Tailor, Hermit Will, Hamini the Wise, Thomas, Sophia | Liora, Nella the Tailor, Hermit Orrin, Ambrose the Wise, Jory, Rosalind |
+| Diviner Guild, Journeyman Guild (the Warrior Guild stays) | Arcane Circle, Wildfolk Lodge |
+| Idreus, Grunt of the Golden God, Lieutenant of the Silver Demon | Morvane, Gilded Brute (of the Gilded King), Silverfang Warden (of the Silver Wraith) |
+| Puppet King, Wolf Leader, Rock Monster, Tide Dragon, Black Kong | Marionette King, Howlmaster, Craghulk, Wavecrest Dragon, Shadow Ape |
+| Fantasy Ore, Dragon God (weapons) | Dreamstone, Wyrmking |
+| Lambs In Distress, Fine Woolen Cloth, Some Love and Happiness, Animal's Home, Wishes of an Ugly Duck | The Wandering Flock, Soft as a Cloud, A Little Kindness, A Place to Belong, An Ugly Duckling's Wish |
+| Sky-Ending, Dragon God, Red Cloud, Purple Star, Ghost, Blood Cypress, Armorbreaker, Ironcrusher staffs | Skyreach, Wyrmking, Crimson Mist, Violet Comet, Wraithwood, Dusk Cypress, Shellsplitter, Anvil |
+
+Content ids (`rainbow_city`, `linns`, `dragon_god_staff`…) keep the old words, so saves carry over. Generic
+names (Fire Bolt, Potion, Seal Stone), Meadowbrook, and public-domain fairy tales (Snow White, Thumbelina,
+Oz) stay.
+
 ## Tales of Mysteria (2026)
 
 FO is back under LagerNet as **Tales of Mysteria** (ToM). Its account sign-up page is on LagerNet's own
@@ -54,15 +79,15 @@ The rest of the world map is fairy-tale lands (H):
 A second "levels map" shades areas in 20-level bands (1–20, 21–40, …), used to pick the right capture
 capsule (H). Mining spots include Ilium, Kars Mountain and Siwa Oasis (H).
 
-**Us:** 30 maps and 4 towns (Meadowbrook, Rainbow City, Bluebird, Goldburg).
+**Us:** 30 maps and 4 towns (Meadowbrook, Prismhaven, Larkspur, Ingothold).
 - Everyone starts in Meadowbrook, and all three guild masters are there.
 - Travel: you walk between maps; your checkpoint is the last map you entered. Mages learn Bridge of Light
   (Lv 20, 10 MP) to go back to it, and since 0.3.53 anyone can buy a Homeward Feather (50 gold, every town
   shop) that does the same once. How FO itself moved players between towns isn't in any source reachable
   from a cloud session (2026-10-05); this is our own design.
-- Fairy-tale fields echo the lands: Genie Desert, Lotus Land (with Thumbelina), Candy Mountain, Snow White
+- Fairy-tale fields echo the lands: Genie Desert, Lotus Land (with Thumbelina), Gumdrop Peaks, Snow White
   Forest, Emerald Road.
-- Candy Mountain is our nod to the Candy House land (Hansel and Gretel's Grasha Village): a sugar path,
+- Gumdrop Peaks is our nod to the Candy House land (Hansel and Gretel's Grasha Village): a sugar path,
   chocolate ponds, lollipops, cotton-candy trees and presents (palette swaps), and candy canes, gumdrops,
   cupcakes and gingerbread houses. Other fields nod to their lands too: flying carpets and genie lamps in
   the Genie Desert (1001 Nights), poppy fields on Emerald Road (Wizard of Oz), giant ladybugs in Lotus Land
@@ -102,8 +127,9 @@ three guilds (M): humans are balanced, elves lean to magic and dwarves to attack
 
 **Us:** no attributes and no points.
 - HP/MP/ATK/DEF/MAG/SPD = race base + class growth × (level − 1) + gear (`GameSession.swift`).
-- HP and MP carry over from fight to fight, level-ups included (our decision, 2026-10-05, at the playtester's
-  request): a new level raises the maximums and heals nothing. Potions, healing skills and the healer heal.
+- HP and MP carry over from fight to fight (our decision, 2026-10-05, at the playtester's request), except
+  that a new level fills them to the new maximums, the hero's and the companion's (asked for the same day,
+  0.3.52). Otherwise potions, healing skills and the healer heal.
   Friends in your party carry theirs over too (`Adventurer.hp`/`mp`); one who faints wakes at half.
 - Frost Breath freezes: whoever it catches loses their next turn (`Ailment.freeze`, our decision, 2026-10-05).
 - One equipment drop in three is an accessory, any up to the monster's level (`GameSession.accessoryShare`):
@@ -135,8 +161,8 @@ What each class does (H unless marked):
 
 **Us:** one class per guild, chosen from the guild masters in Meadowbrook at level 10, and permanent:
 - Fighter (Warrior Guild)
-- Mage (Diviner Guild)
-- Beast Tamer (Journeyman Guild): ×1.6 capture, full EXP share for the companion
+- Mage (Arcane Circle)
+- Beast Tamer (Wildfolk Lodge): ×1.6 capture, full EXP share for the companion
 
 No advanced classes.
 
@@ -163,9 +189,9 @@ No advanced classes.
 - Like FO's Mage, whose list starts with Fireball, ours learns Fire Bolt on joining the guild at level 10
   (since 0.3.17).
 - Status effects (since 0.3.14): Guard, Poison and spells that raise or lower stats (since 0.3.41).
-  - Poison: HP lost at the end of each round, 3 times, shown as a green number marked "Poison".
+  - Poison: HP lost at the end of each round, 3 times, shown as a purple number marked "Poison".
   - Raised or lowered stats (ATK, DEF, MAG, SPD) last the round they land in and 3 more. Each change pops
-    up over the fighter with its amount ("DEF +40%"), and a blue arrow up or a violet arrow down by the HP
+    up over the fighter with its amount ("DEF +40%"), and a blue arrow up or a crimson arrow down by the HP
     bar counts the rounds left. A second spell on a stat doesn't stack; the stronger one counts.
   - Buffs, FO's skill names with our own effects (FO's aren't in any source reachable from a cloud session):
     Protection (Fighter 12, one ally DEF +40%), Holy Glow (Mage 40, one ally MAG +30%), Bless (Mage 45, ATK
@@ -178,7 +204,7 @@ No advanced classes.
     Curse lowers attack and its hit rate; we have no hit rate.
   - No Lethal Poison, Fear or cures yet. Every status ends with the battle.
 - Monsters use them too: Venom Bite (snakes and widows, 40% chance to poison), Poison Mist (the Poison
-  Skeleton, the whole party) and Evil Eye (phantoms and Idreus, a curse).
+  Skeleton, the whole party) and Evil Eye (phantoms and Morvane, a curse).
 
 ## Elements
 

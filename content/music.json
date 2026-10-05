@@ -437,7 +437,7 @@
     },
     {
       "id": "rainbow",
-      "title": "Rainbow City March",
+      "title": "Prismhaven March",
       "tempo": 116,
       "reverb": 0.22,
       "tracks": [
@@ -523,7 +523,7 @@
     },
     {
       "id": "fear",
-      "title": "Valley of Fear",
+      "title": "Shiverdell",
       "tempo": 96,
       "reverb": 0.4,
       "tracks": [
@@ -566,7 +566,7 @@
     },
     {
       "id": "goldburg",
-      "title": "Goldburg Forge",
+      "title": "Ingothold Forge",
       "tempo": 104,
       "reverb": 0.25,
       "tracks": [
@@ -645,7 +645,7 @@
     },
     {
       "id": "moonglow",
-      "title": "Moonglow Lullaby",
+      "title": "Moonwhisper Lullaby",
       "tempo": 66,
       "reverb": 0.4,
       "tracks": [
