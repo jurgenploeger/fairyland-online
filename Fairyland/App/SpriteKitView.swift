@@ -10,8 +10,11 @@ struct SpriteKitView: UIViewRepresentable {
         view.ignoresSiblingOrder = true
         view.preferredFramesPerSecond = 60
         #if DEBUG
-        view.showsFPS = true
-        view.showsNodeCount = true
+        // Not while filming the App Store preview (debug `demo`).
+        if !DebugLaunch.isFilming {
+            view.showsFPS = true
+            view.showsNodeCount = true
+        }
         #endif
         view.presentScene(scene)
         return view
