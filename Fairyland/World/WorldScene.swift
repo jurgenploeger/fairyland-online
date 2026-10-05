@@ -1179,6 +1179,14 @@ final class WorldScene: SKScene {
     }
 
     #if DEBUG
+    /// Debug launches (`demo`): a monster jumps out right here, just as one does while you walk
+    /// the wild (the flash, then the fight on this spot of the map).
+    func encounterForDebug() {
+        guard !isInputLocked, let encounters = def.encounters else { return }
+        stepsSinceBattle = 0
+        startEncounter(encounters)
+    }
+
     /// Debug launches (`invite=n`): the nearest friendly adventurers, brought over to stand by you.
     func summonAdventurersForDebug(_ count: Int) -> [Adventurer] {
         crowd?.summonForDebug(count, to: player.position) ?? []

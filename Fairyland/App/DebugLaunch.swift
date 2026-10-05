@@ -1,4 +1,5 @@
 import Foundation
+import SpriteKit
 
 /// Debug-only shortcuts for testing, via the FAIRYLAND_DEBUG environment variable
 /// (Xcode: Product → Scheme → Edit Scheme → Run → Environment Variables), comma-separated:
@@ -96,6 +97,147 @@ enum DebugLaunch {
     static var itemInfo: ItemDef? { flags["info"].flatMap { Content.shared.item($0) } }
     /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).
     static var introPage: Int? { flags["intro"].map { Int($0).map { $0 - 1 } ?? 0 } }
+
+    /// `battle[=n]` once the map is up: a fight on the current map (exactly n monsters), and the
+    /// flags that act on it.
+    private static func startBattle(on coordinator: GameCoordinator, flags: [String: String], backdrop: SKTexture?) {
+        let encounters = Content.shared.map(coordinator.session.data.mapID)?.encounters
+            ?? Content.shared.maps.compactMap(\.encounters).first
+        // battle=8: exactly that many monsters (to check big formations).
+        if let encounters, let count = flags["battle"].flatMap({ Int($0) }) {
+            coordinator.startBattle(MapDef.Encounters(rate: encounters.rate, graceSteps: encounters.graceSteps,
+                                                      levels: encounters.levels, groupSize: [count, count],
+                                                      monsters: encounters.monsters), backdrop: backdrop)
+        } else if let encounters {
+            coordinator.startBattle(encounters, backdrop: backdrop)
+        }
+        #if DEBUG
+        // `win`: once everyone has marched in, the monsters fall and the victory plays out.
+        if flags["win"] != nil, let battle = coordinator.battle {
+            Task {
+                try? await Task.sleep(for: .seconds(2))
+                battle.winForDebug()
+            }
+        }
+        // `orders`: the hero goes for the first monster, and it's your companion's turn.
+        if flags["orders"] != nil, let battle = coordinator.battle {
+            Task {
+                try? await Task.sleep(for: .seconds(2))
+                battle.attack()
+                if let first = battle.enemies.first(where: \.isAlive) { battle.select(first.id) }
+            }
+        }
+        // `afflict`: poison and a curse on the field, so their marks show.
+        if flags["afflict"] != nil, let battle = coordinator.battle {
+            Task {
+                try? await Task.sleep(for: .seconds(1.5))
+                battle.afflictForDebug()
+            }
+        }
+        // `herodown`: once everyone has marched in, the hero faints and the friends fight on.
+        if flags["herodown"] != nil, let battle = coordinator.battle {
+            Task {
+                try? await Task.sleep(for: .seconds(2))
+                battle.knockOutHeroForDebug()
+            }
+        }
+        // `cast=stone_spike:5`: once the battle is on screen and everyone is in, the hero casts.
+        if let cast = flags["cast"], let skillID = cast.split(separator: ":").first.map(String.init),
+           let battle = coordinator.battle {
+            let level = cast.split(separator: ":").dropFirst().first.flatMap { Int($0) } ?? 1
+            let stop = flags["fxstop"].flatMap(Double.init)
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard let scene = battle.scene, scene.view != nil else { continue }
+                    try? await Task.sleep(for: .seconds(2))
+                    scene.castForDebug(skillID, level: level, stopAt: stop)
+                    return
+                }
+            }
+        }
+        // `seal=ok` or `seal=fail`: once everyone is in, the hero seals the first monster (just the
+        // animation, frozen at `fxstop` like a cast).
+        if let seal = flags["seal"], let battle = coordinator.battle {
+            let stop = flags["fxstop"].flatMap(Double.init)
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard let scene = battle.scene, scene.view != nil else { continue }
+                    try? await Task.sleep(for: .seconds(2))
+                    scene.sealForDebug(success: seal != "fail", stopAt: stop)
+                    return
+                }
+            }
+        }
+        #endif
+    }
+
+    #if DEBUG
+    /// `demo`: a stretch of play as a player would play it, for the App Store video
+    /// (tools/screenshots.sh records it with `record=`): a stroll with the stick, a monster
+    /// encounter, a spell and some blows, a Seal Stone on the last monster when it's weak enough,
+    /// the victory, and on along the road.
+    private static func playDemo(on coordinator: GameCoordinator) {
+        Task {
+            func pause(_ seconds: Double) async { try? await Task.sleep(for: .milliseconds(Int(seconds * 1000))) }
+            for _ in 0..<240 {
+                if coordinator.isReady, coordinator.world.view != nil { break }
+                await pause(0.25)
+            }
+            await pause(1.5)
+            let stroll: [(CGVector, Double)] = [
+                (CGVector(dx: 0.9, dy: 0.35), 1.6), (CGVector(dx: 0.25, dy: 1), 1.3),
+                (CGVector(dx: -0.8, dy: 0.55), 1.2), (CGVector(dx: 0.7, dy: -0.4), 1.0),
+            ]
+            for (move, seconds) in stroll {
+                coordinator.input.move = move
+                await pause(seconds)
+            }
+            coordinator.input.move = .zero
+            await pause(0.5)
+            coordinator.world.encounterForDebug()
+            for _ in 0..<40 where coordinator.battle == nil { await pause(0.25) }
+            guard let battle = coordinator.battle else { return }
+            // Everyone marches in.
+            await pause(2.5)
+            var turns = 0
+            while battle.result == nil, turns < 40 {
+                guard battle.phase == .command else {
+                    await pause(0.3)
+                    continue
+                }
+                turns += 1
+                await pause(0.8)
+                let foes = battle.enemies.filter(\.isAlive)
+                guard let foe = foes.min(by: { $0.hp < $1.hp }) else { continue }
+                if battle.choosingForCompanion {
+                    battle.attack()
+                } else if battle.canCapture {
+                    battle.capture()
+                } else if let hero = battle.combatants.first(where: \.isHero),
+                          let spell = battle.skills.first(where: { [.enemy, .allEnemies].contains($0.target) && battle.cost(of: $0) <= hero.mp }),
+                          foes.count > 1 || foe.hp > foe.stats.hp / 2 {
+                    battle.openSkills()
+                    await pause(0.7)
+                    battle.useSkill(spell)
+                } else {
+                    battle.attack()
+                }
+                await pause(0.6)
+                battle.select(foe.id)
+            }
+            // The rewards, then back to the map.
+            await pause(4)
+            battle.leave()
+            for _ in 0..<40 where coordinator.battle != nil { await pause(0.25) }
+            await pause(1)
+            coordinator.input.move = CGVector(dx: 0.8, dy: 0.5)
+            await pause(2.5)
+            coordinator.input.move = .zero
+        }
+    }
+    #endif
 
     /// `lang=de`: the game speaks that language for this launch (title screen included).
     static func applyLanguage() {
@@ -212,77 +354,19 @@ enum DebugLaunch {
     static func apply(to coordinator: GameCoordinator) {
         let flags = flags
         if flags["battle"] != nil {
-            let encounters = Content.shared.map(coordinator.session.data.mapID)?.encounters
-                ?? Content.shared.maps.compactMap(\.encounters).first
-            // battle=8: exactly that many monsters (to check big formations).
-            if let encounters, let count = flags["battle"].flatMap({ Int($0) }) {
-                coordinator.startBattle(MapDef.Encounters(rate: encounters.rate, graceSteps: encounters.graceSteps,
-                                                          levels: encounters.levels, groupSize: [count, count],
-                                                          monsters: encounters.monsters))
-            } else if let encounters {
-                coordinator.startBattle(encounters)
-            }
-            #if DEBUG
-            // `win`: once everyone has marched in, the monsters fall and the victory plays out.
-            if flags["win"] != nil, let battle = coordinator.battle {
-                Task {
-                    try? await Task.sleep(for: .seconds(2))
-                    battle.winForDebug()
+            // Like a real encounter, the fight starts once the map is on screen, over the spot
+            // you're standing on (WorldScene.battleBackdrop), not on plain grass.
+            Task {
+                for _ in 0..<240 {
+                    if coordinator.isReady, coordinator.world.view != nil { break }
+                    try? await Task.sleep(for: .milliseconds(250))
                 }
+                startBattle(on: coordinator, flags: flags, backdrop: coordinator.world.battleBackdrop())
             }
-            // `orders`: the hero goes for the first monster, and it's your companion's turn.
-            if flags["orders"] != nil, let battle = coordinator.battle {
-                Task {
-                    try? await Task.sleep(for: .seconds(2))
-                    battle.attack()
-                    if let first = battle.enemies.first(where: \.isAlive) { battle.select(first.id) }
-                }
-            }
-            // `afflict`: poison and a curse on the field, so their marks show.
-            if flags["afflict"] != nil, let battle = coordinator.battle {
-                Task {
-                    try? await Task.sleep(for: .seconds(1.5))
-                    battle.afflictForDebug()
-                }
-            }
-            // `herodown`: once everyone has marched in, the hero faints and the friends fight on.
-            if flags["herodown"] != nil, let battle = coordinator.battle {
-                Task {
-                    try? await Task.sleep(for: .seconds(2))
-                    battle.knockOutHeroForDebug()
-                }
-            }
-            // `cast=stone_spike:5`: once the battle is on screen and everyone is in, the hero casts.
-            if let cast = flags["cast"], let skillID = cast.split(separator: ":").first.map(String.init),
-               let battle = coordinator.battle {
-                let level = cast.split(separator: ":").dropFirst().first.flatMap { Int($0) } ?? 1
-                let stop = flags["fxstop"].flatMap(Double.init)
-                Task {
-                    for _ in 0..<240 {
-                        try? await Task.sleep(for: .milliseconds(500))
-                        guard let scene = battle.scene, scene.view != nil else { continue }
-                        try? await Task.sleep(for: .seconds(2))
-                        scene.castForDebug(skillID, level: level, stopAt: stop)
-                        return
-                    }
-                }
-            }
-            // `seal=ok` or `seal=fail`: once everyone is in, the hero seals the first monster (just the
-            // animation, frozen at `fxstop` like a cast).
-            if let seal = flags["seal"], let battle = coordinator.battle {
-                let stop = flags["fxstop"].flatMap(Double.init)
-                Task {
-                    for _ in 0..<240 {
-                        try? await Task.sleep(for: .milliseconds(500))
-                        guard let scene = battle.scene, scene.view != nil else { continue }
-                        try? await Task.sleep(for: .seconds(2))
-                        scene.sealForDebug(success: seal != "fail", stopAt: stop)
-                        return
-                    }
-                }
-            }
-            #endif
         }
+        #if DEBUG
+        if flags["demo"] != nil { playDemo(on: coordinator) }
+        #endif
         #if DEBUG
         if let id = flags["boss"], let npc = Content.shared.npc(id) {
             Task {
