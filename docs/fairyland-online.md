@@ -100,6 +100,10 @@ three guilds (M): humans are balanced, elves lean to magic and dwarves to attack
 - HP/MP/ATK/DEF/MAG/SPD = race base + class growth × (level − 1) + gear (`GameSession.swift`).
 - HP and MP carry over from fight to fight, level-ups included (our decision, 2026-10-05, at the playtester's
   request): a new level raises the maximums and heals nothing. Potions, healing skills and the healer heal.
+  Friends in your party carry theirs over too (`Adventurer.hp`/`mp`); one who faints wakes at half.
+- Frost Breath freezes: whoever it catches loses their next turn (`Ailment.freeze`, our decision, 2026-10-05).
+- One equipment drop in three is an accessory, any up to the monster's level (`GameSession.accessoryShare`):
+  there are six accessories next to dozens of weapons and armours, so by level alone they hardly dropped.
 - Turn order is SPD + a random 0–3.
 - Nothing misses and nothing dodges.
 - Crits are a flat 8% for ×1.5, physical only.

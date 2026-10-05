@@ -852,6 +852,14 @@ final class GameSession {
             data.pets[index].hp = stats.hp
             data.pets[index].mp = stats.mp
         }
+        // Friends in your party rest up too.
+        if var friends = data.friends {
+            for index in friends.indices {
+                friends[index].hp = nil
+                friends[index].mp = nil
+            }
+            data.friends = friends
+        }
     }
 
     var checkpoint: Checkpoint {
@@ -891,6 +899,10 @@ final class GameSession {
         for friend in friendsAtYourSide {
             guard let index = data.friends?.firstIndex(where: { $0.id == friend.id }) else { continue }
             if fainted.contains(friend.id) {
+                // Bruised when they wake, as you are: half their HP and MP.
+                let stats = stats(of: friend)
+                data.friends?[index].hp = max(1, stats.hp / 2)
+                data.friends?[index].mp = stats.mp / 2
                 let home = friend.checkpoint ?? checkpoint
                 if heroFainted && home == checkpoint {
                     wokeWithYou.append(friend.name)
@@ -1214,17 +1226,35 @@ final class GameSession {
         return min(0.16, max(0.02, 0.06 + 0.01 * Double(level - heroLevel)))
     }
 
-    /// The piece of equipment a beaten monster of `level` drops: a weapon, armour or accessory from
-    /// the twelve levels up to its own (the top six from a rare monster or a boss), the higher ones
-    /// more often. Three times in four it's something your class can use. Bosses' own rare drops
-    /// aren't in it; those stay theirs.
+    /// How many equipment drops are accessories. There are only a handful of rings, charms and
+    /// boots next to dozens of weapons and armours, most of them low-level, so by level alone they'd
+    /// hardly ever turn up.
+    static let accessoryShare = 1.0 / 3
+
+    /// The piece of equipment a beaten monster of `level` drops. One time in three
+    /// (`accessoryShare`) an accessory: any up to its level, the stronger ones more often.
+    /// Otherwise a weapon or armour from the twelve levels up to its own (the top six from a rare
+    /// monster or a boss), the higher ones more often, and three times in four something your
+    /// class can use. Bosses' own rare drops aren't in it; those stay theirs.
     func equipmentDrop(level: Int, best: Bool = false) -> ItemDef? {
         let span = best ? 6 : 12
         // Past the best gear there is, a monster drops from the top.
         let top = min(level, content.items.compactMap(\.level).max() ?? level)
         let bossDrops = Set(content.monsters.flatMap { $0.drops ?? [] }.map(\.item))
+        let accessories = content.items.filter {
+            $0.type == .accessory && !bossDrops.contains($0.id) && ($0.level ?? 1) <= top
+        }
+        if !accessories.isEmpty, Double.random(in: 0..<1) < Self.accessoryShare {
+            let weights = accessories.map { Double($0.level ?? 1) + 10 }
+            var roll = Double.random(in: 0..<weights.reduce(0, +))
+            for (item, weight) in zip(accessories, weights) {
+                if roll < weight { return item }
+                roll -= weight
+            }
+            return accessories.last
+        }
         let pool = content.items.filter {
-            ItemType.equipmentSlots.contains($0.type) && !bossDrops.contains($0.id)
+            ($0.type == .weapon || $0.type == .armor) && !bossDrops.contains($0.id)
                 && ($0.level ?? 1) <= top && ($0.level ?? 1) > top - span
         }
         let yours = pool.filter { $0.classes?.contains(data.hero.classID) ?? true }
