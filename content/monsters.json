@@ -1237,7 +1237,7 @@
       "name": "Wisp",
       "art": "monster_wisp",
       "element": "light",
-      "lore": "Floating lights that drift through the Valley of Fear. Some say they're lost souls; others say they're just shy.",
+      "lore": "Floating lights that drift through Shiverdell. Some say they're lost souls; others say they're just shy.",
       "base": {
         "hp": 57,
         "mp": 35,
@@ -1966,7 +1966,7 @@
       "name": "Frosted Phantom",
       "art": "monster_phantom_frosted",
       "element": "dark",
-      "lore": "A Phantom frozen into icy blue, haunting the shores of Rosen Lake.",
+      "lore": "A Phantom frozen into icy blue, haunting the shores of Briarmere.",
       "base": {
         "hp": 118,
         "mp": 73,
@@ -2122,10 +2122,10 @@
     },
     {
       "id": "black_kong",
-      "name": "Black Kong",
+      "name": "Shadow Ape",
       "art": "monster_black_kong",
       "element": "dark",
-      "lore": "A huge dark ape that guards the paths near Moonglow. It throws boulders like pebbles.",
+      "lore": "A huge dark ape that guards the paths near Moonwhisper. It throws boulders like pebbles.",
       "base": {
         "hp": 133,
         "mp": 28,
@@ -2154,10 +2154,10 @@
     },
     {
       "id": "mint_black_kong",
-      "name": "Mint Black Kong",
+      "name": "Mint Shadow Ape",
       "art": "monster_black_kong_mint",
       "element": "dark",
-      "lore": "A Black Kong with mint-green fur. Even bigger, if that's possible.",
+      "lore": "A Shadow Ape with mint-green fur. Even bigger, if that's possible.",
       "base": {
         "hp": 173,
         "mp": 36,
@@ -2346,7 +2346,7 @@
       "name": "Light Mouse",
       "art": "monster_golden_hamster_light",
       "element": "light",
-      "lore": "A tiny mouse that glows softly. It lights the way for lost travellers in the Valley of Fear.",
+      "lore": "A tiny mouse that glows softly. It lights the way for lost travellers in Shiverdell.",
       "base": {
         "hp": 33,
         "mp": 13,
@@ -2720,7 +2720,7 @@
       "name": "Temple Jelly",
       "art": "monster_temple_jelly",
       "element": "water",
-      "lore": "Sacred jellies that guard the Water Temple, blessed by its ancient springs.",
+      "lore": "Sacred jellies that guard the Tidewater Shrine, blessed by its ancient springs.",
       "base": {
         "hp": 41,
         "mp": 17,
@@ -2812,7 +2812,7 @@
       "name": "Wooden Puppet",
       "art": "monster_wooden_puppet",
       "element": "wood",
-      "lore": "A carved puppet brought to life by a strange magic on Puppet Hill. It still dances when nobody's looking.",
+      "lore": "A carved puppet brought to life by a strange magic on Marionette Rise. It still dances when nobody's looking.",
       "base": {
         "hp": 112,
         "mp": 35,
@@ -2873,7 +2873,7 @@
       "name": "Dream Phantom",
       "art": "monster_dream_phantom",
       "element": "dark",
-      "lore": "A phantom that lives in the dreams of Sleepy Town's residents, and won't let them wake.",
+      "lore": "A phantom that lives in the dreams of Dozywick's residents, and won't let them wake.",
       "base": {
         "hp": 91,
         "mp": 56,
@@ -2901,10 +2901,10 @@
     },
     {
       "id": "ore_golem",
-      "name": "Fantasy Ore Golem",
+      "name": "Dreamstone Golem",
       "art": "monster_ore_golem",
       "element": "metal",
-      "lore": "A golem made of fantasy ore, built to guard the riches of Goldburg. It never stops working.",
+      "lore": "A golem made of dreamstone, built to guard the riches of Ingothold. It never stops working.",
       "base": {
         "hp": 135,
         "mp": 24,
@@ -2934,7 +2934,7 @@
       "name": "Crystal Widow",
       "art": "monster_crystal_widow",
       "element": "light",
-      "lore": "A spider made of living crystal, spinning glittering webs in the Mysterious Cave.",
+      "lore": "A spider made of living crystal, spinning glittering webs in the Whispering Hollow.",
       "base": {
         "hp": 80,
         "mp": 50,
@@ -2993,10 +2993,10 @@
     },
     {
       "id": "golden_grunt",
-      "name": "Grunt of the Golden God",
+      "name": "Gilded Brute",
       "art": "boss_golden_grunt",
       "element": "metal",
-      "lore": "A servant of the Golden God, guarding the depths of Slime Cave with fire and roars.",
+      "lore": "A servant of the Gilded King, guarding the depths of Gooey Grotto with fire and roars.",
       "base": {
         "hp": 110,
         "mp": 24,
@@ -3025,7 +3025,7 @@
     },
     {
       "id": "wolf_leader",
-      "name": "Wolf Leader",
+      "name": "Howlmaster",
       "art": "boss_wolf_leader",
       "element": "dark",
       "lore": "The leader of the wolf pack, scarred and wise. Every wolf in the lair answers to it.",
@@ -3057,10 +3057,10 @@
     },
     {
       "id": "puppet_king",
-      "name": "Puppet King",
+      "name": "Marionette King",
       "art": "boss_puppet_king",
       "element": "wood",
-      "lore": "The master of Puppet Hill, who pulls the strings of every puppet there.",
+      "lore": "The master of Marionette Rise, who pulls the strings of every puppet there.",
       "base": {
         "hp": 268,
         "mp": 56,
@@ -3089,10 +3089,10 @@
     },
     {
       "id": "rock_monster",
-      "name": "Rock Monster",
+      "name": "Craghulk",
       "art": "boss_rock_monster",
       "element": "earth",
-      "lore": "A mountain of rock that snores in the cave by Sleepy Town. Its snoring has kept the whole town dreaming for a year.",
+      "lore": "A mountain of rock that snores in the cave by Dozywick. Its snoring has kept the whole town dreaming for a year.",
       "base": {
         "hp": 295,
         "mp": 62,
@@ -3121,10 +3121,10 @@
     },
     {
       "id": "idreus",
-      "name": "Idreus",
+      "name": "Morvane",
       "art": "boss_idreus",
       "element": "dark",
-      "lore": "A dark lord of legend who waits on the Secret Plain. Few who face it come back to tell the tale.",
+      "lore": "A dark lord of legend who waits on the Hidden Steppe. Few who face it come back to tell the tale.",
       "base": {
         "hp": 362,
         "mp": 76,
@@ -3154,10 +3154,10 @@
     },
     {
       "id": "tide_dragon",
-      "name": "Tide Dragon",
+      "name": "Wavecrest Dragon",
       "art": "boss_tide_dragon",
       "element": "water",
-      "lore": "The ancient guardian of the Water Temple, with scales like ocean waves.",
+      "lore": "The ancient guardian of the Tidewater Shrine, with scales like ocean waves.",
       "base": {
         "hp": 380,
         "mp": 80,
@@ -3186,10 +3186,10 @@
     },
     {
       "id": "silver_lieutenant",
-      "name": "Lieutenant of the Silver Demon",
+      "name": "Silverfang Warden",
       "art": "boss_silver_lieutenant",
       "element": "metal",
-      "lore": "A lieutenant of the Silver Demon, guarding the Mysterious Cave with cold steel.",
+      "lore": "A lieutenant of the Silver Wraith, guarding the Whispering Hollow with cold steel.",
       "base": {
         "hp": 527,
         "mp": 111,
@@ -3221,7 +3221,7 @@
       "name": "Emerald Dragon",
       "art": "boss_emerald_dragon",
       "element": "wood",
-      "lore": "The legendary dragon at the end of the Emerald Road, the greatest challenge in Fairyland.",
+      "lore": "The legendary dragon at the end of the Emerald Road, the greatest challenge in Storyleaf.",
       "base": {
         "hp": 416,
         "mp": 87,
@@ -3295,7 +3295,7 @@
       "name": "Great Wisp",
       "art": "boss_great_wisp",
       "element": "light",
-      "lore": "The mother of all Wisps, a huge glowing light at the heart of the Valley of Fear.",
+      "lore": "The mother of all Wisps, a huge glowing light at the heart of Shiverdell.",
       "base": {
         "hp": 228,
         "mp": 64,
@@ -3337,7 +3337,7 @@
       "name": "Moon Rabbit Queen",
       "art": "boss_moon_rabbit_queen",
       "element": "light",
-      "lore": "The queen of the moon rabbits, who descends on Moonglow when the moon is full.",
+      "lore": "The queen of the moon rabbits, who descends on Moonwhisper when the moon is full.",
       "base": {
         "hp": 534,
         "mp": 96,

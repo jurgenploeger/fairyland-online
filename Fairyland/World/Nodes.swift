@@ -385,10 +385,10 @@ enum Effects {
         UIColor(red: 0.9, green: 1, blue: 0.9, alpha: 1), UIColor(red: 0.45, green: 0.95, blue: 0.5, alpha: 0.7),
         UIColor(red: 0.2, green: 0.8, blue: 0.35, alpha: 0),
     ])
-    /// Sickly yellow-green fading to violet.
+    /// Pale lilac deepening to poison's purple.
     private static let poisonGlow = SoftTextures.radial(size: 64, colors: [
-        UIColor(red: 0.85, green: 1, blue: 0.6, alpha: 1), UIColor(red: 0.55, green: 0.9, blue: 0.3, alpha: 0.7),
-        UIColor(red: 0.55, green: 0.3, blue: 0.85, alpha: 0),
+        UIColor(red: 0.93, green: 0.82, blue: 1, alpha: 1), UIColor(red: 0.7, green: 0.38, blue: 0.98, alpha: 0.7),
+        UIColor(red: 0.4, green: 0.15, blue: 0.62, alpha: 0),
     ])
 
     private static func fireball(at point: CGPoint, in parent: SKNode, power: CGFloat) {
@@ -462,7 +462,7 @@ enum Effects {
         case .critical: UIColor(red: 1, green: 0.62, blue: 0.2, alpha: 1)
         case .heal: UIColor(red: 0.6, green: 1, blue: 0.62, alpha: 1)
         case .splash: UIColor(red: 0.88, green: 0.88, blue: 0.95, alpha: 1)
-        case .poison: UIColor(red: 0.78, green: 1, blue: 0.45, alpha: 1)
+        case .poison: UIColor(red: 0.86, green: 0.66, blue: 1, alpha: 1)
         }
         let size: CGFloat = switch style {
         case .critical: 30

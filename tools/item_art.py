@@ -695,19 +695,19 @@ STAFFS = [  # id, level, name, shaft, head, band, description
     ("teak_staff", 30, "Teak Staff", TEAK, gem_head(COPPER, TEAL), None, "Polished teak with a sea-green stone."),
     ("heavywood_staff", 35, "Heavywood Staff", DARKWOOD, mace(IRON), None, "Capped in iron. Mages don't only cast."),
     ("red_cypress_staff", 40, "Red Cypress Staff", REDWOOD, knob(REDWOOD), GOLD[1], "Smells of warm forests."),
-    ("blood_cypress_staff", 45, "Blood Cypress Staff", BLOODWOOD, gem_head(GOLD, RED), None, "Its ruby glows before a fight."),
+    ("blood_cypress_staff", 45, "Dusk Cypress Staff", BLOODWOOD, gem_head(GOLD, RED), None, "Its ruby glows before a fight."),
     ("yew_staff", 50, "Yew Staff", YEW, gem_head(STEEL, VIOLET), None, "Purple yew, hard as stone."),
-    ("purple_star_staff", 55, "Purple Star Staff", YEW, star_head(LILAC), None, "A little star is caught at the tip."),
-    ("armorbreaker_staff", 60, "Armorbreaker Staff", DARKWOOD, mace(STEEL), None, "Cracks shells and spells alike."),
-    ("ironcrusher_staff", 65, "Ironcrusher Staff", IRON, mace(IRON), None, "Heavy iron through and through."),
-    ("red_cloud_staff", 70, "Red Cloud Staff", REDWOOD, cloud, GOLD[1], "A cloud rests on it like a hat."),
+    ("purple_star_staff", 55, "Violet Comet Staff", YEW, star_head(LILAC), None, "A little star is caught at the tip."),
+    ("armorbreaker_staff", 60, "Shellsplitter Staff", DARKWOOD, mace(STEEL), None, "Cracks shells and spells alike."),
+    ("ironcrusher_staff", 65, "Anvil Staff", IRON, mace(IRON), None, "Heavy iron through and through."),
+    ("red_cloud_staff", 70, "Crimson Mist Staff", REDWOOD, cloud, GOLD[1], "A cloud rests on it like a hat."),
     ("titanium_sceptre", 75, "Titanium Sceptre", STEEL, gem_head(STEEL, BLUE), None, "Cold, bright and nearly weightless."),
     ("emperor_sceptre", 80, "Emperor's Sceptre", GOLD, crown, None, "Once held by a fairy-tale king."),
     ("aurora_staff", 85, "Aurora Staff", SNOW, aurora, None, "Holds the northern lights."),
-    ("ghost_staff", 90, "Ghost Staff", YEW, wisp, None, "Something friendly lives inside. Probably."),
-    ("sky_ending_staff", 95, "Sky-Ending Staff", NAVY, lightning, GOLD[1], "Said to split the sky in two."),
+    ("ghost_staff", 90, "Wraithwood Staff", YEW, wisp, None, "Something friendly lives inside. Probably."),
+    ("sky_ending_staff", 95, "Skyreach Staff", NAVY, lightning, GOLD[1], "Said to split the sky in two."),
     ("luna_staff", 100, "Luna Staff", STEEL, crescent, None, "Brightest under a full moon."),
-    ("dragon_god_staff", 105, "Dragon God Staff", BLOODWOOD, dragon, GOLD[1], "The staff of the Dragon God himself."),
+    ("dragon_god_staff", 105, "Wyrmking Staff", BLOODWOOD, dragon, GOLD[1], "The staff of the Wyrmking himself."),
 ]
 
 for _id, _level, _name, _shaft, _head, _band, _desc in STAFFS:
@@ -833,7 +833,7 @@ SWORDS = [  # id, level, name, drawing, description
     ("phantom_blade", 90, "Phantom Blade", dict(blade=SHADOW, guard=LILAC, grip=SHADOW, length=15, wavy=True, gem=LILAC), "Hard to see, harder to dodge."),
     ("sky_splitter", 95, "Sky Splitter", dict(blade=SNOW, guard=GOLD, grip=NAVY, length=15, width=5, wings=True, gem=BLUE), "Leaves a line of clear sky behind it."),
     ("moonlight_sword", 100, "Moonlight Sword", dict(blade=PLATINUM, guard=SILVER, grip=NAVY, length=15, wings=True, gem=SNOW), "Brightest under a full moon."),
-    ("dragon_god_sword", 105, "Dragon God Sword", dict(blade=DRAGONSTEEL, guard=GOLD, grip=DRAGON, length=15, width=5, wings=True, gem=AMBER), "The sword of the Dragon God himself."),
+    ("dragon_god_sword", 105, "Wyrmking Sword", dict(blade=DRAGONSTEEL, guard=GOLD, grip=DRAGON, length=15, width=5, wings=True, gem=AMBER), "The sword of the Wyrmking himself."),
 ]
 
 AXES = [
@@ -858,7 +858,7 @@ AXES = [
     ("phantom_axe", 90, "Phantom Axe", dict(head=SHADOW, handle=YEW, style="double", gem=LILAC), "It swings a moment before you do."),
     ("thunder_god_axe", 95, "Thunder God Axe", dict(head=GOLD, handle=NAVY, style="crescent", gem=BLUE), "Every blow comes with a rumble."),
     ("luna_axe", 100, "Luna Axe", dict(head=PLATINUM, handle=STEEL, style="crescent", gem=SNOW), "Its edge is a slice of the moon."),
-    ("dragon_god_axe", 105, "Dragon God Axe", dict(head=DRAGONSTEEL, handle=BLOODWOOD, style="double", gem=AMBER), "The axe of the Dragon God himself."),
+    ("dragon_god_axe", 105, "Wyrmking Axe", dict(head=DRAGONSTEEL, handle=BLOODWOOD, style="double", gem=AMBER), "The axe of the Wyrmking himself."),
 ]
 
 WHIPS = [
@@ -883,7 +883,7 @@ WHIPS = [
     ("phantom_whip", 90, "Phantom Whip", dict(leather=SHADOW, grip=YEW, tip=LILAC[1], gem=LILAC), "It cracks without a sound."),
     ("storm_whip", 95, "Storm Whip", dict(leather=NAVY, grip=NAVY, tip=hexc("ffd84a"), gem=GOLD, studs=hexc("ffd84a")), "Lightning follows the lash."),
     ("luna_whip", 100, "Luna Whip", dict(leather=SILVER, grip=STEEL, turns=3.6, tip=hexc("fff4b0"), gem=SNOW), "Silver as moonlight on water."),
-    ("dragon_god_whip", 105, "Dragon God Whip", dict(leather=DRAGON, grip=BLOODWOOD, turns=3.6, tip=GOLD[1], gem=AMBER, studs=GOLD[1]), "The whip of the Dragon God himself."),
+    ("dragon_god_whip", 105, "Wyrmking Whip", dict(leather=DRAGON, grip=BLOODWOOD, turns=3.6, tip=GOLD[1], gem=AMBER, studs=GOLD[1]), "The whip of the Wyrmking himself."),
 ]
 
 for _id, _level, _name, _args, _desc in SWORDS:

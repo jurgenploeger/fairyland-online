@@ -447,7 +447,7 @@ enum DebugLaunch {
                     coordinator.announcer.showOffForDebug()
                     // A moderator's World message, which adventurers about answer.
                     if coordinator.session.isModerator {
-                        coordinator.broadcast("Welcome to Fairyland! Be kind, and have fun out there.")
+                        coordinator.broadcast("Welcome to Storyleaf! Be kind, and have fun out there.")
                     }
                     if flags["chat"] != nil { coordinator.open(.chat) }
                     return
