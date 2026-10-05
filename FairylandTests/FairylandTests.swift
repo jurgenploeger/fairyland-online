@@ -326,6 +326,23 @@ struct RulesTests {
         #expect(Element.fire.multiplier(against: .fire) == 1)
     }
 
+    @Test func adventurersWalkCompanionsFromNearTheirLevel() {
+        let content = Content.shared
+        let wild = content.maps.compactMap(\.encounters)
+        for level in [5, 60, 150] {
+            for _ in 0..<15 {
+                guard let id = Crowd.companion(forLevel: level) else {
+                    Issue.record("no companion for level \(level)")
+                    return
+                }
+                // Met in the wild no higher than their level and not far below it.
+                let lowest = wild.filter { $0.monsters[id] != nil }.compactMap(\.levels.first)
+                #expect(lowest.contains { ((level - Crowd.companionReach)...level).contains($0) }, "level \(level) → \(id)")
+                #expect(content.monster(id)?.boss != true)
+            }
+        }
+    }
+
     @Test func levellingUpGrowsButDoesNotHeal() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let before = session.heroStats
