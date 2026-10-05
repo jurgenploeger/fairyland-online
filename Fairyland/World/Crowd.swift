@@ -176,17 +176,38 @@ final class Crowd {
     }
 
     /// A random adventurer: level to suit the area, a class once they're past Novice (and armour
-    /// to match, `GameSession.armor(for:)`), and often a companion. In danger zones some are
-    /// troublemakers.
+    /// to match, `GameSession.armor(for:)`), and often a companion to suit their level
+    /// (`companion(forLevel:)`). In danger zones some are troublemakers.
     private static func profile(named name: String, levels: ClosedRange<Int>, danger: Bool) -> Adventurer {
         let content = Content.shared
         let level = Int.random(in: levels)
         let classID = level < content.classChoiceLevel ? "novice" : (content.classes.filter { $0.id != "novice" }.randomElement()?.id ?? "novice")
-        let pets = content.crowd.companions.compactMap { art in content.monsters.first { $0.art == art }?.id }
         let race = content.races.randomElement()?.id ?? "human"
         return Adventurer(name: name, raceID: race, classID: classID, level: level,
-                          look: randomLook(race: race), petSpecies: Bool.random() ? pets.randomElement() : nil,
+                          look: randomLook(race: race), petSpecies: Bool.random() ? companion(forLevel: level) : nil,
                           hostile: danger && Int.random(in: 0..<5) < 2)
+    }
+
+    /// How far below an adventurer's level the wild monsters they might have caught live.
+    static let companionReach = 30
+
+    /// A companion for an adventurer of `level`: a monster they could have caught on the way, one
+    /// that can be caught (no bosses) and roams the wild (maps.json encounters) where monsters
+    /// start at most `companionReach` levels below theirs. A level-90 mage walks something from
+    /// the snowy north, not a starter bunny. The starter companions (crowd.json `companions`)
+    /// fill in where nothing fits.
+    static func companion(forLevel level: Int) -> String? {
+        let content = Content.shared
+        let near = content.maps.compactMap(\.encounters).filter { encounters in
+            guard let lowest = encounters.levels.first else { return false }
+            return lowest <= level && lowest >= level - companionReach
+        }
+        let catchable = Set(near.flatMap { $0.monsters.keys }).filter { id in
+            guard let monster = content.monster(id) else { return false }
+            return monster.captureRate > 0 && monster.boss != true
+        }
+        if let pick = catchable.randomElement() { return pick }
+        return content.crowd.companions.compactMap { art in content.monsters.first { $0.art == art }?.id }.randomElement()
     }
 
     /// Colours, gender and a hairstyle that suits that race and gender's walk sheet.
