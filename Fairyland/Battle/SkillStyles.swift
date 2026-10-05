@@ -5,6 +5,8 @@ import UIKit
 extension SkillEffects.ElementLight {
     static let frost = Self(deep: tone(0.22, 0.5, 0.88), main: tone(0.6, 0.86, 1), bright: tone(0.86, 0.97, 1), core: tone(1, 1, 1))
     static let bubble = Self(deep: tone(0.1, 0.5, 0.75), main: tone(0.4, 0.82, 0.95), bright: tone(0.75, 0.95, 1), core: tone(1, 1, 1))
+    /// A Seal Stone's teal, the colour of the crystal in your bag.
+    static let seal = Self(deep: tone(0.04, 0.42, 0.40), main: tone(0.22, 0.84, 0.76), bright: tone(0.58, 1, 0.9), core: tone(0.92, 1, 0.98))
     static let gold = Self(deep: tone(0.7, 0.45, 0.05), main: tone(1, 0.78, 0.2), bright: tone(1, 0.92, 0.55), core: tone(1, 1, 0.85))
     static let shadow = Self(deep: tone(0.2, 0.05, 0.35), main: tone(0.55, 0.3, 0.85), bright: tone(0.78, 0.6, 1), core: tone(0.95, 0.88, 1))
     static let venom = Self(deep: tone(0.15, 0.45, 0.08), main: tone(0.5, 0.9, 0.25), bright: tone(0.78, 1, 0.5), core: tone(0.95, 1, 0.85))

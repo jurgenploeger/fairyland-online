@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.48",
+      "date": "2026-10-05",
+      "title": "A Seal Stone that seals",
+      "notes": [
+        "Catching a companion looks like sealing now, not throwing a ball: the teal Seal Stone from your bag floats over the monster, a glowing seal opens on the ground beneath it, and the monster turns to light and spirals up into the crystal. The crystal pulses, lighting the seal's marks one by one, until it shines gold, or cracks apart and the monster pours back out."
+      ]
+    },
+    {
       "version": "0.3.47",
       "date": "2026-10-05",
       "title": "Two genders, every hairstyle for everyone",

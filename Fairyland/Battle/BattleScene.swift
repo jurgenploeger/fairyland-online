@@ -875,15 +875,14 @@ final class BattleScene: SKScene {
         stage.run(.sequence(moves), withKey: "shake")
     }
 
-    /// Fairyland-style sealing: the stone arcs over, draws the monster in, drops and wobbles
-    /// (the suspense!), then either seals with a golden burst or cracks and the monster pops out.
+    /// Fairyland-style sealing, a charm rather than a thrown ball: the Seal Stone (the teal crystal
+    /// from your bag) rises from the thrower's hand and glides over the monster, a seal of teal light
+    /// opens on the ground under it, and the monster turns to light and spirals up into the crystal.
+    /// The crystal then pulses `wobbles` times, each pulse lighting one mark round the seal, until
+    /// it sets in gold, or the crystal cracks apart and the monster pours back out.
     private func captureAnimation(from actorID: Int, to targetID: Int, success: Bool, wobbles: Int) async {
         guard let actor = actors[actorID], let target = actors[targetID] else { return }
-        let stone = SKSpriteNode(texture: SkillEffects.sealStoneTexture)
-        stone.size = CGSize(width: 26, height: 26)
-        stone.position = actor.center
-        stone.zPosition = 15_000
-        stage.addChild(stone)
+        let light = SkillEffects.ElementLight.seal
 
         // Everything else dims so the moment is about the stone.
         let dim = SKSpriteNode(color: .black, size: CGSize(width: size.width * 3, height: size.height * 3))
@@ -893,64 +892,111 @@ final class BattleScene: SKScene {
         stage.addChild(dim)
         dim.run(.fadeAlpha(to: 0.35, duration: 0.4), withKey: "fade")
 
-        // Throw: a high arc with a spin.
-        let hover = target.center + CGVector(dx: 0, dy: target.height * 0.5 + 18)
-        let arc = CGMutablePath()
-        arc.move(to: stone.position)
-        arc.addQuadCurve(to: hover, control: CGPoint(x: (stone.position.x + hover.x) / 2, y: max(stone.position.y, hover.y) + 90))
-        let fly = SKAction.follow(arc, asOffset: false, orientToPath: false, duration: 0.55)
-        fly.timingMode = .easeInEaseOut
-        await stone.run(.group([fly, .rotate(byAngle: .pi * 3, duration: 0.55)]))
-        stone.zRotation = 0
+        // The crystal, in a soft halo of its own light.
+        let stone = SKNode()
+        stone.position = actor.center
+        stone.zPosition = 15_000
+        let halo = SkillEffects.lightBall(light, size: 70, tint: 0.35, core: false)
+        halo.zPosition = -0.5
+        halo.alpha = 0.7
+        stone.addChild(halo)
+        let crystal = SKSpriteNode(texture: SkillEffects.sealStoneTexture, size: CGSize(width: 34, height: 34))
+        stone.addChild(crystal)
+        stage.addChild(stone)
+        halo.run(.repeatForever(.sequence([.scale(to: 1.15, duration: 0.45), .scale(to: 0.9, duration: 0.45)])), withKey: "pulse")
 
-        // Draw the monster in: a flash, a beam, and it shrinks into the stone.
-        SkillEffects.screenFlash(color: .white, strength: 0.5, size: size, in: self)
-        let beam = SKSpriteNode(color: UIColor(red: 0.85, green: 0.75, blue: 1, alpha: 0.7), size: CGSize(width: 18, height: hover.y - target.position.y))
-        beam.anchorPoint = CGPoint(x: 0.5, y: 0)
-        beam.position = target.position
+        // It lifts off the thrower's hand and glides over, trailing motes (no spin: it floats).
+        stone.alpha = 0
+        stone.setScale(0.4)
+        await stone.run(.group([.fadeIn(withDuration: 0.18), .scale(to: 1, duration: 0.25), .moveBy(x: 0, y: 22, duration: 0.25)]))
+        let hover = target.center + CGVector(dx: 0, dy: target.height * 0.5 + 30)
+        let path = CGMutablePath()
+        path.move(to: stone.position)
+        path.addQuadCurve(to: hover, control: CGPoint(x: (stone.position.x + hover.x) / 2, y: max(stone.position.y, hover.y) + 50))
+        let glide = SKAction.follow(path, asOffset: false, orientToPath: false, duration: 0.6)
+        glide.timingMode = .easeInEaseOut
+        let trail = SKAction.repeat(.sequence([.run { [weak self, weak stone] in
+            guard let self, let stone else { return }
+            let mote = SkillEffects.glowSprite(light.bright, size: CGSize(width: 7, height: 7))
+            mote.position = stone.position + CGVector(dx: .random(in: -6...6), dy: .random(in: -6...6))
+            mote.zPosition = 14_900
+            self.stage.addChild(mote)
+            mote.run(.sequence([.group([.fadeOut(withDuration: 0.35), .moveBy(x: 0, y: -10, duration: 0.35), .scale(to: 0.3, duration: 0.35)]),
+                                .removeFromParent()]))
+        }, .wait(forDuration: 0.035)]), count: 17)
+        await stone.run(.group([glide, trail]))
+        crystal.run(.repeatForever(.sequence([.moveBy(x: 0, y: 3, duration: 0.4), .moveBy(x: 0, y: -3, duration: 0.4)])), withKey: "bob")
+
+        // The seal opens under the monster and the crystal's light falls on it.
+        let radius = max(40, target.height * 0.55)
+        let seal = SkillEffects.SealCircle(radius: radius, marks: max(1, wobbles))
+        seal.position = target.position
+        stage.addChild(seal)
+        seal.open()
+        let beam = SkillEffects.streak(light, size: CGSize(width: 22, height: hover.y - target.position.y), tint: 0.25)
+        beam.position = CGPoint(x: target.position.x, y: (hover.y + target.position.y) / 2)
         beam.zPosition = 14_500
-        beam.blendMode = .add
+        beam.alpha = 0
         stage.addChild(beam)
-        beam.run(.sequence([.fadeOut(withDuration: 0.5), .removeFromParent()]), withKey: "fade")
-        SkillEffects.implode(to: hover, color: UIColor(red: 0.8, green: 0.7, blue: 1, alpha: 1), in: stage)
-        target.sprite.color = .white
-        await target.run(.group([
-            .customAction(withDuration: 0.15) { _, t in target.sprite.colorBlendFactor = t / 0.15 },
-            .sequence([.wait(forDuration: 0.12), .group([.scale(to: 0.05, duration: 0.35), .move(to: hover, duration: 0.35), .fadeOut(withDuration: 0.35)])]),
-        ]))
+        beam.run(.fadeAlpha(to: 0.75, duration: 0.2), withKey: "fade")
+        await pause(0.3)
 
-        // Drop and wobble.
-        let ground = target.home + CGVector(dx: 0, dy: 6)
-        let drop = SKAction.move(to: ground, duration: 0.28)
-        drop.timingMode = .easeIn
-        await stone.run(.sequence([drop, .moveBy(x: 0, y: 8, duration: 0.08), .moveBy(x: 0, y: -8, duration: 0.08)]))
+        // The monster turns to light and spirals up into the crystal.
+        SkillEffects.sealSpiral(from: target.position, to: hover, radius: radius, count: 30, in: stage)
+        target.sprite.color = light.bright
+        await target.run(.group([
+            .customAction(withDuration: 0.2) { _, t in target.sprite.colorBlendFactor = t / 0.2 },
+            .sequence([.wait(forDuration: 0.15), .group([
+                .scaleX(to: 0.4, duration: 0.45), .scaleY(to: 1.4, duration: 0.45),
+                .moveBy(x: 0, y: 24, duration: 0.45), .fadeOut(withDuration: 0.45),
+            ])]),
+        ]))
+        await pause(0.3)
+        beam.run(.sequence([.fadeOut(withDuration: 0.3), .removeFromParent()]), withKey: "fade")
+        SkillEffects.screenFlash(color: light.core, strength: 0.35, size: size, in: self)
+        halo.run(.sequence([.scale(to: 1.8, duration: 0.1), .scale(to: 1, duration: 0.2)]), withKey: "flare")
+
+        // The crystal pulses, a ring of light each time, and each pulse lights one of the seal's marks.
         for index in 0..<wobbles {
-            await pause(0.35)
-            let tip = SKAction.sequence([
-                .rotate(toAngle: 0.45, duration: 0.1), .rotate(toAngle: -0.45, duration: 0.16), .rotate(toAngle: 0, duration: 0.1),
-            ])
-            await stone.run(.group([tip, .sequence([.moveBy(x: 0, y: 4, duration: 0.12), .moveBy(x: 0, y: -4, duration: 0.12)])]))
-            Effects.floatingText(String(repeating: "•", count: index + 1), color: Nodes.gold, at: ground + CGVector(dx: 0, dy: 26), in: stage, size: 16)
+            await pause(0.32)
+            SkillEffects.ring(at: stone.position, color: light.main, size: CGSize(width: 34, height: 34), grow: 2.6, in: stage)
+            seal.light(mark: index)
+            crystal.run(.sequence([
+                .group([.scale(to: 1.18, duration: 0.08), .rotate(toAngle: 0.14, duration: 0.08)]),
+                .rotate(toAngle: -0.14, duration: 0.12),
+                .group([.scale(to: 1, duration: 0.1), .rotate(toAngle: 0, duration: 0.1)]),
+            ]), withKey: "pulse")
+            await pause(0.3)
         }
-        await pause(0.45)
+        await pause(0.35)
 
         if success {
-            SkillEffects.burst(at: stone.position, color: Nodes.gold, count: 30, speed: 110, in: stage)
-            Effects.floatingText(L("Sealed!"), color: Nodes.gold, at: stone.position + CGVector(dx: 0, dy: 34), in: stage, size: 24)
-            await stone.run(.sequence([.scale(to: 1.5, duration: 0.12), .scale(to: 1.1, duration: 0.1)]))
+            // Sealed: the seal closes in gold into the crystal, which shines and floats home.
+            seal.close()
+            SkillEffects.rays(at: stone.position, color: Nodes.gold, count: 10, length: 70, width: 6, z: 14_800, in: stage)
+            SkillEffects.burst(at: stone.position, color: Nodes.gold, count: 24, speed: 100, in: stage)
+            crystal.removeAction(forKey: "bob")
+            crystal.color = Nodes.gold
+            crystal.run(.sequence([.colorize(withColorBlendFactor: 0.6, duration: 0.1), .colorize(withColorBlendFactor: 0, duration: 0.4)]), withKey: "shine")
+            Effects.floatingText(L("Sealed!"), color: Nodes.gold, at: stone.position + CGVector(dx: 0, dy: 36), in: stage, size: 24)
+            await stone.run(.sequence([.scale(to: 1.45, duration: 0.12), .scale(to: 1.1, duration: 0.12)]))
             await pause(0.5)
-            // The stone floats back to its new friend.
             let home = SKAction.move(to: actor.center, duration: 0.45)
             home.timingMode = .easeInEaseOut
             await stone.run(.group([home, .scale(to: 0.4, duration: 0.45), .sequence([.wait(forDuration: 0.3), .fadeOut(withDuration: 0.15)])]))
         } else {
-            SkillEffects.screenFlash(color: .white, strength: 0.35, size: size, in: self)
-            SkillEffects.burst(at: stone.position, color: UIColor(red: 0.75, green: 0.7, blue: 0.85, alpha: 1), count: 14, speed: 90, in: stage)
-            stone.run(.group([.scale(to: 1.4, duration: 0.15), .fadeOut(withDuration: 0.15)]), withKey: "burst")
+            // The crystal cracks apart, the seal flickers out and the monster pours back down.
+            SkillEffects.screenFlash(color: .white, strength: 0.3, size: size, in: self)
+            SkillEffects.crystalShards(at: stone.position, in: stage)
+            seal.shatter()
+            stone.run(.group([.scale(to: 1.4, duration: 0.12), .fadeOut(withDuration: 0.12)]), withKey: "burst")
+            SkillEffects.sealSpiral(from: target.home, to: stone.position, radius: radius, count: 20, reverse: true, in: stage)
+            await pause(0.45)
             target.position = target.home
-            target.setScale(0.3)
+            target.xScale = 1
+            target.yScale = 0.2
             target.sprite.colorBlendFactor = 1
-            await target.run(.group([.fadeIn(withDuration: 0.15), .scale(to: 1, duration: 0.2)]))
+            await target.run(.group([.fadeIn(withDuration: 0.15), .scaleY(to: 1, duration: 0.22)]))
             target.run(.customAction(withDuration: 0.3) { _, t in target.sprite.colorBlendFactor = 1 - t / 0.3 }, withKey: "unflash")
             Effects.floatingText(L("Broke free!"), color: .white, at: target.top, in: stage, size: 18)
         }
@@ -1060,6 +1106,24 @@ final class BattleScene: SKScene {
         }
         shout(skill.name + "!", over: hero.id, color: skill.element?.color, skill: skill)
         Task { await castSkill(skill, level: level, from: hero.id, hits: hits) }
+    }
+
+    /// Debug launches (`seal=ok|fail`): the hero seals the first monster, the animation only,
+    /// frozen `stopAt` seconds into it (the battle runs at 20% speed till then; the whole seal
+    /// takes about 5.5 s).
+    func sealForDebug(success: Bool, stopAt: TimeInterval?) {
+        guard let hero = controller.combatants.first(where: { $0.isHero }),
+              let foe = controller.enemiesOnField.first else { return }
+        for actor in actors.values {
+            actor.removeAction(forKey: "enter")
+            actor.position = actor.home
+            actor.alpha = 1
+        }
+        if let stopAt {
+            speed = 0.2
+            run(.sequence([.wait(forDuration: stopAt), .run { [weak self] in self?.isPaused = true }]))
+        }
+        Task { await captureAnimation(from: hero.id, to: foe.id, success: success, wobbles: 3) }
     }
     #endif
 }
