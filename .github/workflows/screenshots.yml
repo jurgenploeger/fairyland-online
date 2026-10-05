@@ -53,8 +53,8 @@ jobs:
 
   screenshots:
     runs-on: macos-26
-    # A full run of 75 scenes takes about an hour; this leaves room for more.
-    timeout-minutes: 85
+    # A full run of 95 scenes (two of them filmed) takes well over an hour; this leaves room.
+    timeout-minutes: 130
     steps:
       - uses: actions/checkout@v4
 
@@ -103,6 +103,7 @@ jobs:
             || { git worktree add --detach ../pub && cd ../pub && git checkout --orphan screenshots && git rm -rfq . && cd -; }
           mkdir -p "../pub/$BRANCH"
           cp shots/*.png "../pub/$BRANCH/"
+          cp shots/*.mp4 "../pub/$BRANCH/" 2>/dev/null || true
           echo "${GITHUB_SHA}" > "../pub/$BRANCH/COMMIT"
           cd ../pub
           git add -A
@@ -125,4 +126,9 @@ jobs:
             n=$(basename "$f")
             echo "**${n%.png}**<br><img src=\"https://github.com/${GITHUB_REPOSITORY}/blob/screenshots/${BRANCH}/${n}?raw=true\" width=\"260\">" >> "$GITHUB_STEP_SUMMARY"
             echo >> "$GITHUB_STEP_SUMMARY"
+          done
+          for f in shots/*.mp4; do
+            [ -e "$f" ] || continue
+            n=$(basename "$f")
+            echo "**${n%.mp4}** (video): https://github.com/${GITHUB_REPOSITORY}/blob/screenshots/${BRANCH}/${n}" >> "$GITHUB_STEP_SUMMARY"
           done
