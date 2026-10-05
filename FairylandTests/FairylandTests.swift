@@ -283,7 +283,7 @@ struct LookTests {
 
     @Test func everyGenderHasASheetForEveryRace() {
         let content = Content.shared
-        #expect(content.appearance.genders.map(\.id) == ["male", "female", "other"])
+        #expect(content.appearance.genders.map(\.id) == ["male", "female"])
         for race in content.races {
             #expect(race.sheet(for: nil) == race.sheet)   // older saves keep their sheet
             for gender in content.appearance.genders {
@@ -292,8 +292,22 @@ struct LookTests {
             }
         }
         #expect(content.race("dwarf").sheet(for: "female") != content.race("dwarf").sheet(for: "male"))
-        let look = Look(hair: "pink", outfit: "blue", skin: "tan", gender: "other")
+        let look = Look(hair: "pink", outfit: "blue", skin: "tan", gender: "female")
         #expect(look.key != Look(hair: "pink", outfit: "blue", skin: "tan").key)
+        // A save from when there was a third gender keeps the race's own sheet.
+        #expect(content.race("elf").sheet(for: "other") == content.race("elf").sheet)
+    }
+
+    @Test func anyoneCanWearTheOtherGendersHair() {
+        let content = Content.shared
+        let human = content.race("human")
+        // A boy in a ponytail, a girl with spiky hair: picks stick across genders.
+        #expect(GameSession.style(for: Look(hair: "ginger", outfit: "green", skin: "fair", gender: "male", style: "ponytail"), race: human) == "ponytail")
+        #expect(GameSession.style(for: Look(hair: "ginger", outfit: "green", skin: "fair", gender: "female", style: "spiky"), race: human) == "spiky")
+        // Without a pick, each starts with their own hair, listed first.
+        #expect(GameSession.style(for: Look(hair: "ginger", outfit: "green", skin: "fair", gender: "female"), race: human) == "ponytail")
+        #expect(content.appearance.styles(for: human.sheet(for: "female")).first?.id == "ponytail")
+        #expect(content.appearance.styles(for: human.sheet(for: "male")).count == content.appearance.styles.count)
     }
 }
 

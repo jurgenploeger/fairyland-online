@@ -75,11 +75,14 @@ three guilds (M): humans are balanced, elves lean to magic and dwarves to attack
 
 **Us:** the same three. Each has base HP/MP/ATK/DEF/MAG/SPD (`content/classes.json`) and no home capital.
 
-**Hairstyles (our decision, 2026-10-04):**
-- Spiky, Long and Crop fit every race and gender.
-- Each gender sheet's own hair stays with that sheet: Ponytail (human female), Bob (human other), Swept (elf
-  male), Shoulder (elf other), Braids (dwarf female) and Messy (dwarf other).
-- The playtester chose this over sharing them. Don't offer them to other genders.
+**Genders and hairstyles (our decision, 2026-10-05, replacing 2026-10-04's):**
+- Two genders, male and female, each with its own walk sheet per race. A third, "Other", was dropped at the
+  playtester's request; its sheets (`*_other_walk`) stay only as the source of the Bob, Shoulder and Messy styles.
+- Every hairstyle fits every race and gender, so a girl can wear a boy's hair and the other way round
+  (`tools/hero_layers.py` fits each style to every head).
+- A gender's own hair is the one it starts with and comes first in the picker: Ponytail (human female), Swept
+  (elf male), Braids (dwarf female). The race's default sheet starts with the race's `hair`.
+- This reverses 2026-10-04's rule that each gender sheet's hair stayed with that sheet.
 
 ## Attributes
 

@@ -47,8 +47,8 @@ hood_dwarf   | newgame,race=dwarf,level=30,equip=ranger_cloak                 | 
 hair_blue    | newgame,hair=blue                                              | 8
 hair_elf_male | newgame,race=elf,gender=male,hair=black,menu=character        | 8
 hair_dwarf_female | newgame,race=dwarf,gender=female,hair=white                | 8
-look_other_human | newgame,gender=other,menu=character,customize                 | 8
-look_other_elf | newgame,race=elf,gender=other,hair=black,menu=character,customize | 8
+look_male_ponytail | newgame,gender=male,style=ponytail,menu=character,customize  | 8
+look_female_elf_swept | newgame,race=elf,gender=female,style=swept,hair=black,menu=character,customize | 8
 look_female_dwarf | newgame,race=dwarf,gender=female,hair=blue,menu=character,customize | 8
 elf_crop     | newgame,race=elf,style=crop,hair=brown                          | 8
 item_info    | newgame,level=12,npc=shop,info=iron_axe                           | 8

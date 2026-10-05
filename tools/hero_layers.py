@@ -9,8 +9,10 @@
     art/sprites/helmet_<race>.png        colours them like the armour (see MARKERS below)
 
 A gender with its own walk sheet (classes.json `sheets`) gets the same set with a _<gender> suffix
-(body_elf_male.png, ...), and its own hair (side locks, braids, a ponytail and all) is one more
-style for that sheet alone: appearance.json `styles` with a `sheet`.
+(body_elf_male.png, ...). Every hairstyle is taken from the sheet it was drawn on (STYLES: a
+ponytail from the female human, a bob from a sheet kept only for its hair) and fitted to every
+head, so a girl can wear a boy's hair and the other way round. A gender's own hair is the one it
+starts with: appearance.json `styles` with a `sheet`.
 
 The game stacks body + locks + hair (or body + locks + hood/helmet: no hair pokes through). The
 body is recoloured like the whole sheet used to be (skin, hair, outfit); the locks and hair layers
@@ -40,8 +42,14 @@ import palette_preview as pp  # noqa: E402
 F = 48
 DIRS = ["up", "right", "down", "left"]
 OUTLINE = np.array([0.16, 0.12, 0.18])
-# Hairstyles anyone can wear, each taken from the race whose sheet it was drawn on.
-STYLES = {"spiky": "human", "long": "elf", "crop": "dwarf"}
+# Every hairstyle, each taken from the walk sheet it was drawn on, as (race, sheet). The last three
+# sheets are no one's body any more, only where their hair comes from.
+STYLES = {
+    "spiky": ("human", "player_walk"), "long": ("elf", "elf_walk"), "crop": ("dwarf", "dwarf_walk"),
+    "ponytail": ("human", "human_female_walk"), "swept": ("elf", "elf_male_walk"),
+    "braids": ("dwarf", "dwarf_female_walk"), "bob": ("human", "human_other_walk"),
+    "shoulder": ("elf", "elf_other_walk"), "messy": ("dwarf", "dwarf_other_walk"),
+}
 # Headgear is drawn in magenta, which no recolour touches (skin 5-45°, hair 12-58°, outfit 85-170°)
 # and no hero sheet uses. The game paints soft magenta (saturation 0.6) in the armour's colour,
 # keeping the shade (value: 0.92 light, 0.7 mid, 0.45 dark), and full magenta in its trim colour.
@@ -701,7 +709,6 @@ def headgear(race, kind):
 
 def build():
     races_json = json.load(open(ROOT / "content" / "classes.json"))["races"]
-    styles_json = json.load(open(ROOT / "content" / "appearance.json"))["styles"]
     races = {}
     # The human body patches what long hair hid on the other races' backs; a gender's sheet is
     # patched from its own race's.
@@ -713,19 +720,20 @@ def build():
     for r in races_json:
         for gender, sheet in (r.get("sheets") or {}).items():
             races[f"{r['id']}_{gender}"] = Race(r["id"], sheet, template=races[r["id"]], sidehair=True)
-    # A gender's own hair is a style for its sheet alone (appearance.json styles with a `sheet`).
-    own = {s["sheet"]: s["id"] for s in styles_json if s.get("sheet")}
-    sources = {style: style_source(races[rid]) for style, rid in STYLES.items()}
+    # Where each style comes from: a body above, or a sheet kept only for its hair.
+    by_sheet = {race.sheet_id: race for race in races.values()}
+    for race_id, sheet in STYLES.values():
+        if sheet not in by_sheet:
+            by_sheet[sheet] = Race(race_id, sheet, template=races[race_id], sidehair=True)
+    sources = {style: (by_sheet[sheet], style_source(by_sheet[sheet])) for style, (_, sheet) in STYLES.items()}
     layers = {}
     for rid, race in races.items():
         layers[f"body_{rid}"] = race.body
         layers[f"locks_{rid}"] = race.locks
         layers[f"hood_{rid}"] = headgear(race, "hood")
         layers[f"helmet_{rid}"] = headgear(race, "helmet")
-        for style, source in STYLES.items():
-            layers[f"hair_{style}_{rid}"] = race.hair if source == rid else fit_hair(sources[style], races[source], race)
-        if race.sheet_id in own:
-            layers[f"hair_{own[race.sheet_id]}_{rid}"] = race.hair
+        for style, (source, hair) in sources.items():
+            layers[f"hair_{style}_{rid}"] = race.hair if source is race else fit_hair(hair, source, race)
     return races, layers
 
 
@@ -751,15 +759,12 @@ def main():
         print(f"wrote {len(layers)} layers to art/sprites/: {', '.join(sorted(layers))}")
         return
     zoom = 3
-    combos = ["body"] + [f"hair_{s}" for s in STYLES] + ["own", "hood", "helmet"]
+    combos = ["body"] + [f"hair_{s}" for s in STYLES] + ["hood", "helmet"]
     sheet = Image.new("RGB", (len(combos) * 4 * F * zoom, len(races) * F * zoom), (80, 130, 80))
     for r, (rid, race) in enumerate(races.items()):
-        own = next((name for name in layers if name.startswith("hair_") and name.endswith(f"_{rid}")
-                    and name[5:-len(rid) - 1] not in STYLES), None)
         for k, name in enumerate(combos):
             under = (layers[f"body_{rid}"], layers[f"locks_{rid}"])
-            top = own if name == "own" else f"{name}_{rid}"
-            img = stack(*under) if name == "body" or top is None else stack(*under, layers[top])
+            img = stack(*under) if name == "body" else stack(*under, layers[f"{name}_{rid}"])
             im = to_image(img)
             for c, row in enumerate((2, 1, 0, 3)):
                 fr = im.crop((0, row * F, F, row * F + F)).resize((F * zoom, F * zoom), Image.NEAREST)

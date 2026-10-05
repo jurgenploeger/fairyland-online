@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.47",
+      "date": "2026-10-05",
+      "title": "Two genders, every hairstyle for everyone",
+      "notes": [
+        "Heroes are male or female now; the Other option is gone. A hero who picked it keeps their race's original look and can choose again in Customize.",
+        "Every hairstyle suits everyone: a boy can wear a ponytail or braids and a girl spiky or swept hair. The Bob, Shoulder and Messy styles stay too, for every race and gender. Each gender still starts with its own hair, first in the list."
+      ]
+    },
+    {
       "version": "0.3.46",
       "date": "2026-10-05",
       "title": "Fairyland in your language, and a story told in pictures",

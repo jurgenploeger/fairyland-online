@@ -220,12 +220,12 @@ final class GameSession {
         return hair + outfitRules(for: look, armor: armor)
     }
 
-    /// The hairstyle a hero wears: their pick if it suits their walk sheet, else the sheet's own hair
-    /// (a gender's: a ponytail, braids), else their race's.
+    /// The hairstyle a hero wears: their pick, else their walk sheet's own hair (a gender's: a
+    /// ponytail, braids), else their race's.
     static func style(for look: Look, race: RaceDef) -> String {
         let styles = Content.shared.appearance.styles(for: race.sheet(for: look.gender))
         if let picked = look.style, styles.contains(where: { $0.id == picked }) { return picked }
-        if let own = styles.first(where: { $0.sheet != nil }) { return own.id }
+        if let own = styles.first(where: { $0.sheet == race.sheet(for: look.gender) }) { return own.id }
         return race.hair ?? styles.first?.id ?? "spiky"
     }
 
