@@ -190,8 +190,10 @@ enum DebugLaunch {
             await pause(1.5)
             // A quest giver first, when one stands nearby (the scene starts you a few steps west of
             // them): walk up, talk as the talk button does, read their offer, and head off.
+            // The demo picks its own moment for a fight, so no monster cuts in on the way.
+            coordinator.world.holdsEncounters = true
             coordinator.input.move = CGVector(dx: 1, dy: 0)
-            await pause(0.7)
+            for _ in 0..<10 where coordinator.session.nearbyNPC == nil { await pause(0.2) }
             coordinator.input.move = .zero
             await pause(0.4)
             if coordinator.session.nearbyNPC != nil {
