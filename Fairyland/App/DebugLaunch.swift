@@ -187,9 +187,10 @@ enum DebugLaunch {
                 if coordinator.isReady, coordinator.world.view != nil { break }
                 await pause(0.25)
             }
-            await pause(1.5)
-            // A quest giver first, when one stands nearby (the scene starts you a few steps west of
-            // them): walk up, talk as the talk button does, read their offer, and head off.
+            // tools/screenshots.sh starts filming a few seconds after the map is up, so wait for it.
+            await pause(5)
+            // A quest giver first, when one stands nearby (the scene starts you beside them): talk as
+            // the talk button does, read their offer, and head off.
             // The demo picks its own moment for a fight, so no monster cuts in on the way.
             coordinator.world.holdsEncounters = true
             coordinator.input.move = CGVector(dx: 1, dy: 0)
@@ -197,8 +198,11 @@ enum DebugLaunch {
             coordinator.input.move = .zero
             await pause(0.4)
             if coordinator.session.nearbyNPC != nil {
-                coordinator.talkToNearby()
-                await pause(4.5)
+                for _ in 0..<6 where coordinator.overlay == nil {
+                    coordinator.talkToNearby()
+                    await pause(0.5)
+                }
+                await pause(4)
                 coordinator.closeOverlay()
                 await pause(0.8)
             }
