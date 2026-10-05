@@ -1290,7 +1290,7 @@ final class BattleActor: SKNode {
             count.horizontalAlignmentMode = .left
             count.position = CGPoint(x: x + 9, y: -1)
             marks.addChild(count)
-            x += 24
+            x += 28
         }
     }
 
