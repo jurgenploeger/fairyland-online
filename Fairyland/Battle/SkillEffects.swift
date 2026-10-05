@@ -380,34 +380,156 @@ enum SkillEffects {
         }
     }
 
-    /// A round lavender stone with a glowing rune ring: Fairyland's capture capsule.
-    static let sealStoneTexture: SKTexture = {
-        let size = CGSize(width: 52, height: 52)
-        let image = UIGraphicsImageRenderer(size: size).image { context in
-            let rect = CGRect(origin: .zero, size: size).insetBy(dx: 3, dy: 3)
-            let colors = [UIColor(red: 0.85, green: 0.8, blue: 1, alpha: 1).cgColor, UIColor(red: 0.45, green: 0.35, blue: 0.75, alpha: 1).cgColor] as CFArray
-            let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors, locations: [0, 1])!
-            context.cgContext.saveGState()
-            UIBezierPath(ovalIn: rect).addClip()
-            context.cgContext.drawRadialGradient(gradient, startCenter: CGPoint(x: rect.midX - 8, y: rect.midY - 10), startRadius: 2,
-                                                 endCenter: CGPoint(x: rect.midX, y: rect.midY), endRadius: rect.width / 2, options: .drawsAfterEndLocation)
-            context.cgContext.restoreGState()
-            let rune = UIBezierPath(ovalIn: rect.insetBy(dx: 10, dy: 10))
-            UIColor(red: 1, green: 0.9, blue: 0.5, alpha: 0.95).setStroke()
-            rune.lineWidth = 3
-            rune.stroke()
-            let dot = UIBezierPath(ovalIn: CGRect(x: rect.midX - 4, y: rect.midY - 4, width: 8, height: 8))
-            UIColor(red: 1, green: 0.95, blue: 0.7, alpha: 1).setFill()
-            dot.fill()
-            UIColor(white: 1, alpha: 0.7).setFill()
-            UIBezierPath(ovalIn: CGRect(x: rect.minX + 9, y: rect.minY + 7, width: 12, height: 7)).fill()
-            UIColor(red: 0.2, green: 0.12, blue: 0.35, alpha: 1).setStroke()
-            let rim = UIBezierPath(ovalIn: rect)
-            rim.lineWidth = 2.5
-            rim.stroke()
+    /// The Seal Stone as it looks in your bag (art/sprites/item_seal_stone.png, tools/item_art.py):
+    /// a faceted teal crystal with a white sealing spiral.
+    static var sealStoneTexture: SKTexture { ArtLibrary.shared.sprite("item_seal_stone").texture }
+
+    /// The seal laid on the ground under a monster: two rings of teal light round a spiral, the
+    /// stone's own rune, turning slowly, with `marks` diamonds on the outer ring that start dark and
+    /// light one by one as the stone pulses (`light(mark:)`). Lies flat, under every fighter.
+    final class SealCircle: SKNode {
+        private let spinner = SKNode()
+        private var diamonds: [SKShapeNode] = []
+        private var rings: [SKShapeNode] = []
+
+        init(radius: CGFloat, marks: Int) {
+            super.init()
+            let light = SkillEffects.ElementLight.seal
+            zPosition = -8_500
+            yScale = 0.42
+            addChild(SkillEffects.shade(light.deep, size: CGSize(width: radius * 2.6, height: radius * 2.6), alpha: 0.5))
+            addChild(spinner)
+            for (index, scale) in [CGFloat(1), 0.74].enumerated() {
+                let ring = SKShapeNode(circleOfRadius: radius * scale)
+                ring.strokeColor = index == 0 ? light.main : light.bright
+                ring.lineWidth = index == 0 ? 3.5 : 2
+                ring.glowWidth = 5
+                ring.blendMode = .add
+                spinner.addChild(ring)
+                rings.append(ring)
+            }
+            // The spiral: two and a half turns from the middle out to the inner ring.
+            let spiral = CGMutablePath()
+            let turns: CGFloat = 2.5
+            for step in 0...90 {
+                let t = CGFloat(step) / 90
+                let angle = t * turns * 2 * .pi
+                let point = CGPoint(x: cos(angle) * radius * 0.66 * t, y: sin(angle) * radius * 0.66 * t)
+                if step == 0 { spiral.move(to: point) } else { spiral.addLine(to: point) }
+            }
+            let rune = SKShapeNode(path: spiral)
+            rune.strokeColor = light.core
+            rune.lineWidth = 2
+            rune.glowWidth = 3
+            rune.blendMode = .add
+            spinner.addChild(rune)
+            for index in 0..<max(1, marks) {
+                let angle = CGFloat(index) / CGFloat(max(1, marks)) * 2 * .pi + .pi / 2
+                let diamond = SKShapeNode(rectOf: CGSize(width: 10, height: 10))
+                diamond.zRotation = .pi / 4
+                diamond.position = CGPoint(x: cos(angle) * radius * 0.87, y: sin(angle) * radius * 0.87)
+                diamond.strokeColor = light.bright
+                diamond.fillColor = light.deep
+                diamond.lineWidth = 1.5
+                diamond.glowWidth = 1
+                spinner.addChild(diamond)
+                diamonds.append(diamond)
+            }
+            spinner.run(.repeatForever(.rotate(byAngle: -.pi, duration: 2.4)))
         }
-        return SKTexture(image: image)
-    }()
+
+        required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+        /// Opens out from a point.
+        func open() {
+            setScale(0.15)
+            yScale = 0.06
+            alpha = 0
+            let grow = SKAction.group([.fadeIn(withDuration: 0.18), .scaleX(to: 1, duration: 0.3), .scaleY(to: 0.42, duration: 0.3)])
+            grow.timingMode = .easeOut
+            run(grow)
+        }
+
+        /// One of the outer marks catches the light (each pulse of the stone lights the next).
+        func light(mark index: Int) {
+            guard !diamonds.isEmpty else { return }
+            let diamond = diamonds[index % diamonds.count]
+            diamond.fillColor = SkillEffects.ElementLight.seal.core
+            diamond.glowWidth = 5
+            diamond.run(.sequence([.scale(to: 1.8, duration: 0.08), .scale(to: 1, duration: 0.18)]))
+        }
+
+        /// Sealed: the rings turn gold and the circle closes into its middle.
+        func close() {
+            for ring in rings + diamonds { ring.strokeColor = Nodes.gold }
+            spinner.run(.rotate(byAngle: -.pi * 2, duration: 0.4))
+            run(.sequence([.group([.scale(to: 0.05, duration: 0.4), .fadeOut(withDuration: 0.4)]), .removeFromParent()]))
+        }
+
+        /// Broken: the circle flickers out.
+        func shatter() {
+            run(.sequence([.fadeAlpha(to: 0.2, duration: 0.05), .fadeAlpha(to: 0.9, duration: 0.05),
+                           .fadeAlpha(to: 0.1, duration: 0.05), .fadeAlpha(to: 0.6, duration: 0.05),
+                           .group([.fadeOut(withDuration: 0.25), .scaleX(to: 1.3, duration: 0.25)]), .removeFromParent()]))
+        }
+    }
+
+    /// Motes of seal light spiralling from round a monster (its feet at `base`, `radius` across)
+    /// up into the stone at `top`, the way a sealed monster pours into the crystal. `reverse`: they
+    /// stream back down out of it (the monster breaking free).
+    static func sealSpiral(from base: CGPoint, to top: CGPoint, radius: CGFloat, count: Int, reverse: Bool = false, in parent: SKNode) {
+        let light = ElementLight.seal
+        let duration: TimeInterval = 0.7
+        for index in 0..<count {
+            let mote = glowSprite(index % 3 == 0 ? light.core : light.bright, size: CGSize(width: 8, height: 8))
+            let start = CGFloat(index) / CGFloat(count) * 2 * .pi
+            mote.alpha = 0
+            mote.zPosition = 16_000
+            parent.addChild(mote)
+            let climb = SKAction.customAction(withDuration: duration) { node, elapsed in
+                let progress = min(1, elapsed / CGFloat(duration))
+                let t = reverse ? 1 - progress : progress
+                let eased = t * t * (3 - 2 * t)
+                let angle = start + eased * 4 * .pi
+                let reach = radius * (1 - eased)
+                node.position = CGPoint(x: base.x + (top.x - base.x) * eased + cos(angle) * reach,
+                                        y: base.y + (top.y - base.y) * eased + sin(angle) * reach * 0.4)
+                node.setScale(1.2 - 0.6 * eased)
+            }
+            mote.run(.sequence([
+                .wait(forDuration: Double(index) * 0.022),
+                .fadeIn(withDuration: 0.06),
+                climb,
+                .fadeOut(withDuration: 0.08),
+                .removeFromParent(),
+            ]))
+        }
+    }
+
+    /// The Seal Stone breaking: splinters of teal crystal flying off and dropping away.
+    static func crystalShards(at point: CGPoint, in parent: SKNode) {
+        let light = ElementLight.seal
+        for index in 0..<9 {
+            let shard = SKSpriteNode(texture: shardTexture, size: CGSize(width: 7, height: 13))
+            shard.color = index % 3 == 0 ? light.core : light.main
+            shard.colorBlendFactor = 1
+            shard.position = point
+            shard.zPosition = 16_000
+            shard.zRotation = .random(in: 0...(2 * .pi))
+            parent.addChild(shard)
+            let angle = CGFloat(index) / 9 * 2 * .pi + .random(in: -0.3...0.3)
+            let distance = CGFloat.random(in: 34...60)
+            let out = SKAction.moveBy(x: cos(angle) * distance, y: sin(angle) * distance * 0.8 + 10, duration: 0.25)
+            out.timingMode = .easeOut
+            let fall = SKAction.moveBy(x: cos(angle) * 8, y: -46, duration: 0.4)
+            fall.timingMode = .easeIn
+            shard.run(.sequence([
+                .group([.sequence([out, fall]), .rotate(byAngle: .random(in: -6...6), duration: 0.65),
+                        .sequence([.wait(forDuration: 0.4), .fadeOut(withDuration: 0.25)])]),
+                .removeFromParent(),
+            ]))
+        }
+    }
 }
 
 // MARK: - Mastered skills

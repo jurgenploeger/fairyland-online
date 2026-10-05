@@ -267,6 +267,20 @@ enum DebugLaunch {
                     }
                 }
             }
+            // `seal=ok` or `seal=fail`: once everyone is in, the hero seals the first monster (just the
+            // animation, frozen at `fxstop` like a cast).
+            if let seal = flags["seal"], let battle = coordinator.battle {
+                let stop = flags["fxstop"].flatMap(Double.init)
+                Task {
+                    for _ in 0..<240 {
+                        try? await Task.sleep(for: .milliseconds(500))
+                        guard let scene = battle.scene, scene.view != nil else { continue }
+                        try? await Task.sleep(for: .seconds(2))
+                        scene.sealForDebug(success: seal != "fail", stopAt: stop)
+                        return
+                    }
+                }
+            }
             #endif
         }
         #if DEBUG

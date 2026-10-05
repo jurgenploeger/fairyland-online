@@ -101,3 +101,9 @@ party_landscape | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=mea
 quests       | newgame,menu=quests                                 | 8
 worldmap     | newgame,worldmap                                    | 8
 monster_book | newgame,book                                        | 8
+# The Seal Stone at work (seal=ok|fail, frozen fxstop seconds into the ~5.5 s seal, played at 20% speed).
+seal_glide   | newgame,level=12,map=sunny_meadow,battle=1,seal=ok,fxstop=0.6     | 14
+seal_spiral  | newgame,level=12,map=sunny_meadow,battle=1,seal=ok,fxstop=1.45    | 18
+seal_pulse   | newgame,level=12,map=candy_mountain,battle=1,seal=ok,fxstop=3.05  | 26
+seal_sealed  | newgame,level=12,map=sunny_meadow,battle=1,seal=ok,fxstop=4.4     | 32
+seal_broken  | newgame,level=12,map=smiling_forest,battle=1,seal=fail,fxstop=4.4 | 32
