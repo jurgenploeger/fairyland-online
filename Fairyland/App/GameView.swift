@@ -7,6 +7,8 @@ struct GameView: View {
     @State private var touring = CoachMarks.shouldShow
     /// The chat window over a battle (the fight waits while you type).
     @State private var battleChat = false
+    /// Switching language (Settings) redraws the HUD in it; the menu redraws itself.
+    @State private var localizer = Localizer.shared
 
     var body: some View {
         ZStack {
@@ -15,9 +17,10 @@ struct GameView: View {
 
             if let battle = coordinator.battle {
                 BattleView(controller: battle)
+                    .id(localizer.language)
                 // Chat stays one tap away mid-fight, under the battle log on the right.
                 if !battleChat, battle.phase != .finished {
-                    FLIconButton(icon: .talk, label: "Chat", size: 40, badge: coordinator.session.unreadChat > 0) {
+                    FLIconButton(icon: .talk, label: L("Chat"), size: 40, badge: coordinator.session.unreadChat > 0) {
                         coordinator.session.unreadChat = 0
                         battleChat = true
                     }
@@ -30,6 +33,7 @@ struct GameView: View {
                 }
             } else {
                 WorldHUD(coordinator: coordinator)
+                    .id(localizer.language)
                 switch coordinator.overlay {
                 case .menu(let tab):
                     MenuView(session: coordinator.session, initialTab: tab, onClose: coordinator.closeOverlay, onQuitToTitle: coordinator.onQuitToTitle)

@@ -35,10 +35,10 @@ struct WorldHUD: View {
                 )
                 .coachTarget(.minimap)
                 HStack(spacing: 6) {
-                    FLIconButton(icon: .settings, label: "Settings", size: 40) {
+                    FLIconButton(icon: .settings, label: L("Settings"), size: 40) {
                         coordinator.open(.menu(.settings))
                     }
-                    FLIconButton(icon: .talk, label: "Chat", size: 40, badge: session.unreadChat > 0) {
+                    FLIconButton(icon: .talk, label: L("Chat"), size: 40, badge: session.unreadChat > 0) {
                         coordinator.open(.chat)
                     }
                     .coachTarget(.chat)
@@ -61,9 +61,9 @@ struct WorldHUD: View {
                         coordinator.talkToNearby()
                     } label: {
                         if npc.role == .chest {
-                            Label("Open \(npc.name)", icon: .gift)
+                            Label(L("Open {name}", ["name": npc.name]), icon: .gift)
                         } else {
-                            Label("Talk to \(npc.name)", icon: .talk)
+                            Label(L("Talk to {name}", ["name": npc.name]), icon: .talk)
                         }
                     }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
@@ -75,7 +75,7 @@ struct WorldHUD: View {
                 HStack(spacing: 7) {
                     // Settings has its own button up top, next to Chat.
                     ForEach(MenuTab.allCases.filter { $0 != .settings }) { tab in
-                        FLIconButton(icon: tab.icon, label: tab.rawValue, badge: badge(for: tab)) {
+                        FLIconButton(icon: tab.icon, label: tab.title, badge: badge(for: tab)) {
                             coordinator.open(.menu(tab))
                         }
                     }
@@ -123,12 +123,12 @@ private struct StatusCluster: View {
                 PortraitRow(face: ArtLibrary.shared.face(GameSession.heroArt), level: hero.level, name: hero.name,
                             detail: session.heroClass.name, size: 52,
                             glowing: session.canChooseClass || session.canSpendSkillPoint) {
-                    TaggedBar(tag: "H", value: hero.hp, maximum: stats.hp, color: HUDStyle.hp)
-                    TaggedBar(tag: "M", value: hero.mp, maximum: stats.mp, color: HUDStyle.mp)
+                    TaggedBar(tag: L("H"), value: hero.hp, maximum: stats.hp, color: HUDStyle.hp)
+                    TaggedBar(tag: L("M"), value: hero.mp, maximum: stats.mp, color: HUDStyle.mp)
                 }
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("\(hero.name), level \(hero.level): stats")
+            .accessibilityLabel(L("{name}, level {level}: stats", ["name": hero.name, "level": hero.level]))
             if crowded && folded {
                 FoldedParty(session: session, pet: pet, friends: friends) { setFolded(false) }
                     .transition(.opacity)
@@ -137,33 +137,33 @@ private struct StatusCluster: View {
                     let petStats = session.stats(of: pet)
                     Button { onInspect(.pet(pet.id)) } label: {
                         PortraitRow(face: ArtLibrary.shared.face(session.artID(for: pet)), level: pet.level, name: pet.name,
-                                    detail: pet.hp > 0 ? nil : "Fainted", size: 38) {
-                            TaggedBar(tag: "H", value: pet.hp, maximum: petStats.hp, color: HUDStyle.hp)
-                            TaggedBar(tag: "M", value: pet.mp, maximum: petStats.mp, color: HUDStyle.mp)
+                                    detail: pet.hp > 0 ? nil : L("Fainted"), size: 38) {
+                            TaggedBar(tag: L("H"), value: pet.hp, maximum: petStats.hp, color: HUDStyle.hp)
+                            TaggedBar(tag: L("M"), value: pet.mp, maximum: petStats.mp, color: HUDStyle.mp)
                         }
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("\(pet.name), level \(pet.level): stats")
+                    .accessibilityLabel(L("{name}, level {level}: stats", ["name": pet.name, "level": pet.level]))
                 }
                 ForEach(friends) { friend in
                     // A friend waiting somewhere for you to come back for them is greyed out.
                     let away = session.whereabouts(of: friend)
-                    let waiting = away.map { ", waiting at \($0)" } ?? ""
+                    let statsLabel = away.map { L("{name}, level {level}, waiting at {map}: stats", ["name": friend.name, "level": friend.level, "map": $0]) } ?? L("{name}, level {level}: stats", ["name": friend.name, "level": friend.level])
                     HStack(spacing: 4) {
                         Button { onInspect(.adventurer(friend)) } label: {
                             PortraitRow(face: ArtLibrary.shared.face(session.artID(for: friend)), level: friend.level, name: friend.name,
-                                        detail: away == nil ? session.content.classDef(friend.classID).name : "Waiting", size: 30) {
+                                        detail: away == nil ? session.content.classDef(friend.classID).name : L("Waiting"), size: 30) {
                                 EmptyView()
                             }
                             .saturation(away == nil ? 1 : 0)
                             .opacity(away == nil ? 1 : 0.75)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("\(friend.name), level \(friend.level)\(waiting): stats")
+                        .accessibilityLabel(statsLabel)
                         if crowded && friend.id == friends.last?.id {
                             Button { setFolded(true) } label: { FoldArrow(up: true) }
                                 .buttonStyle(.plain)
-                                .accessibilityLabel("Fold your party into one row")
+                                .accessibilityLabel(L("Fold your party into one row"))
                         }
                     }
                 }
@@ -209,7 +209,7 @@ private struct FoldedParty: View {
             .background(HUDStyle.panel)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Show your whole party")
+        .accessibilityLabel(L("Show your whole party"))
     }
 }
 
@@ -342,7 +342,7 @@ private struct CalendarPlate: View {
                 .padding(.vertical, 3)
                 .background(HUDStyle.plateBackground)
                 HStack(spacing: 3) {
-                    Text("EXP").font(HUDStyle.mono(8)).foregroundStyle(.white)
+                    Text(L("EXP")).font(HUDStyle.mono(8)).foregroundStyle(.white)
                     StatBar(label: "", value: hero.exp, maximum: GameSession.expToNext(level: hero.level), color: HUDStyle.exp, height: 7, showsNumbers: false)
                 }
                 .padding(.horizontal, 4)
@@ -439,7 +439,7 @@ private struct MinimapWindow: View {
                         .font(.system(size: 10, weight: .bold))
                         .frame(width: 22, height: 20)
                 }
-                .accessibilityLabel(MusicPlayer.shared.isMuted ? "Turn music on" : "Turn music off")
+                .accessibilityLabel(MusicPlayer.shared.isMuted ? L("Turn music on") : L("Turn music off"))
                 Button {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { collapsed.toggle() }
                 } label: {
@@ -449,7 +449,7 @@ private struct MinimapWindow: View {
                         .frame(width: 18, height: 18)
                         .background(Circle().fill(HUDStyle.orange).overlay(Circle().strokeBorder(.white.opacity(0.8), lineWidth: 1)))
                 }
-                .accessibilityLabel(collapsed ? "Show minimap" : "Hide minimap")
+                .accessibilityLabel(collapsed ? L("Show minimap") : L("Hide minimap"))
             }
             .foregroundStyle(.white)
             .shadow(color: HUDStyle.frameDark, radius: 0, x: 1, y: 1)
@@ -487,7 +487,7 @@ private struct MinimapWindow: View {
                 .clipped()
                 .contentShape(Rectangle())
                 .onTapGesture(perform: onOpen)
-                .accessibilityLabel("Open map")
+                .accessibilityLabel(L("Open map"))
                 .accessibilityAddTraits(.isButton)
 
                 Text("\(cell.col) : \(rows - 1 - cell.row)")
@@ -513,7 +513,7 @@ private struct SavedBadge: View {
     @State private var visible = false
 
     var body: some View {
-        Label("Saved", icon: .checkCircle, size: 13)
+        Label(L("Saved"), icon: .checkCircle, size: 13)
             .font(HUDStyle.font(10))
             .foregroundStyle(HUDStyle.green)
             .padding(.horizontal, 8)

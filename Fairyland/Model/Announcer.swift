@@ -116,7 +116,7 @@ final class Announcer {
     private func community() {
         guard let line = options.community.randomElement() else { return }
         var text = line
-            .replacingOccurrences(of: "{bot}", with: (content.crowd.adventurerNames.randomElement() ?? "Momo") + " [BOT]")
+            .replacingOccurrences(of: "{bot}", with: L("{name} [BOT]", ["name": content.crowd.adventurerNames.randomElement() ?? "Momo"]))
             .replacingOccurrences(of: "{level}", with: "\(Int.random(in: 10...150))")
         if text.contains("{boss}") {
             var bosses: [(map: MapDef, npc: NPCDef)] = []

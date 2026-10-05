@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.46",
+      "date": "2026-10-05",
+      "title": "Fairyland in your language, and a story told in pictures",
+      "notes": [
+        "Fairyland now speaks eleven languages: English, Spanish, Portuguese (Brazil), French, German, Italian, Russian, Japanese, Korean, and Chinese (Simplified and Traditional). Everything is translated: menus, battles, chat, quests, dialogue, monster lore and these notes.",
+        "Pick your language with the globe button on the title screen, or under Language in Settings. It switches at once. Until you choose, the game follows your phone's language when it has it.",
+        "The story at the start comes to life: three chapters, each with a little animated scene from the game. Shiria gathers the tales into one land, the Big Bad Wolf, the Rat King and the Drunk Dragon loom out of the dark, and you walk into Meadowbrook with your companion while Elder Oak waits. How to play now acts out a fight, right up to a Seal Stone catching a jelly."
+      ]
+    },
+    {
       "version": "0.3.45",
       "date": "2026-10-04",
       "title": "Bigger boss waves",

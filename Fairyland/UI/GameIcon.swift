@@ -9,7 +9,7 @@ enum GameIcon: String, CaseIterable {
     case user, paw, book, talk, sun, moon, music, musicOff = "music-off", settings, volume
     case chevronUp = "chevron-up", chevronDown = "chevron-down"
     case arrowUp = "arrow-up", arrowDown = "arrow-down", arrowLeft = "arrow-left", arrowRight = "arrow-right"
-    case play, dice, map, tap, palette, star, starOutline = "star-outline", gift, coins, egg, edit, lock
+    case play, dice, map, tap, palette, star, starOutline = "star-outline", gift, coins, egg, edit, lock, globe
     // Items (content/items.json `icon`)
     case potion, flask, axe, wand, diamond, gem, ring, clover
     case shieldCheck = "shield-check", shieldPlus = "shield-plus", shieldStar = "shield-star", shieldHeart = "shield-heart"

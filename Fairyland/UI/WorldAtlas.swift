@@ -107,13 +107,13 @@ struct WorldAtlas: View {
         guard let map = Content.shared.map(selected ?? session.data.mapID) else { return "" }
         switch status(of: map) {
         case .here:
-            return "You are here: \(map.name)\(levels(map))" + closedRoads(from: map)
+            return L("You are here: {map}", ["map": map.name]) + levels(map) + closedRoads(from: map)
         case .visited:
             return "\(map.name)\(levels(map))" + closedRoads(from: map)
         case .undiscovered:
-            return "Not discovered yet. Follow the roads to find it."
+            return L("Not discovered yet. Follow the roads to find it.")
         case .locked(let quest):
-            return "Locked. Finish “\(quest ?? "a quest")” to open the road."
+            return L("Locked. Finish “{quest}” to open the road.", ["quest": quest ?? L("a quest")])
         }
     }
 
@@ -121,17 +121,17 @@ struct WorldAtlas: View {
     private func closedRoads(from map: MapDef) -> String {
         map.exits.compactMap { exit -> String? in
             guard !session.canTravel(exit), let other = Content.shared.map(exit.to), other.world?.count == 2 else { return nil }
-            let place = session.hasVisited(other.id) ? other.name : "an undiscovered place"
-            let quest = exit.requires.flatMap { session.content.quest($0)?.title } ?? "a quest"
-            return "\nThe road to \(place) opens after “\(quest)”; it's open coming the other way."
+            let place = session.hasVisited(other.id) ? other.name : L("an undiscovered place")
+            let quest = exit.requires.flatMap { session.content.quest($0)?.title } ?? L("a quest")
+            return "\n" + L("The road to {place} opens after “{quest}”; it's open coming the other way.", ["place": place, "quest": quest])
         }
         .joined()
     }
 
     private func levels(_ map: MapDef) -> String {
-        if map.fence == true { return " · town" }
+        if map.fence == true { return " · " + L("town") }
         guard let range = map.encounters?.levels, range.count == 2 else { return "" }
-        return " · monsters Lv \(range[0])–\(range[1])"
+        return " · " + L("monsters Lv {min}–{max}", ["min": range[0], "max": range[1]])
     }
 
     // MARK: State
@@ -202,7 +202,7 @@ private struct AtlasCompass: View {
             ForEach(["N", "E", "S", "W"], id: \.self) { label in
                 let sx: CGFloat = label == "E" || label == "S" ? 1 : -1
                 let sy: CGFloat = label == "S" || label == "W" ? 1 : -1
-                Text(label)
+                Text(label == "N" ? L("N") : label == "E" ? L("E") : label == "S" ? L("S") : L("W"))
                     .font(HUDStyle.font(label == "N" ? 11 : 9))
                     .foregroundStyle(label == "N" ? HUDStyle.gold : HUDStyle.cream)
                     .position(x: 27 + sx * (dx + 5), y: 27 + sy * (dy + 5))
@@ -250,7 +250,7 @@ private struct PlaceBadge: View {
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(known ? map.name : "Undiscovered place")
+        .accessibilityLabel(known ? map.name : L("Undiscovered place"))
         .accessibilityAddTraits(.isButton)
     }
 

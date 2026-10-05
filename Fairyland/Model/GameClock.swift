@@ -12,7 +12,7 @@ enum GameClock {
         let hour: Int
 
         var isDaytime: Bool { (6..<18).contains(hour) }
-        var text: String { "\(year)/\(month.displayName)/\(day)/\(hour)hr" }
+        var text: String { L("{year}/{month}/{day}/{hour}hr", ["year": year, "month": month.displayName, "day": day, "hour": hour]) }
     }
 
     static func moment(at date: Date = Date(), since start: Date?) -> Moment {

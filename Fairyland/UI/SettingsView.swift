@@ -22,60 +22,64 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            section("Sound", icon: .volume) {
-                VolumeRow(title: "Music", icon: music.isMuted ? .musicOff : .music, value: $musicVolume) {}
-                    .onChange(of: musicVolume) { _, volume in MusicPlayer.shared.setVolume(volume) }
-                Toggle(isOn: Binding(get: { !music.isMuted }, set: { on in if on == music.isMuted { music.toggleMute() } })) {
-                    Text("Play music")
-                }
-                VolumeRow(title: "Sound effects", icon: .volume, value: $soundVolume) {
-                    SoundEffects.shared.play(.coins)
-                }
-                Toggle("Footsteps", isOn: $footsteps)
+            section(L("Language"), icon: .globe) {
+                LanguageList()
             }
 
-            section("Feel", icon: .tap) {
-                Toggle("Vibration on hits and rewards", isOn: $haptics)
+            section(L("Sound"), icon: .volume) {
+                VolumeRow(title: L("Music"), icon: music.isMuted ? .musicOff : .music, value: $musicVolume) {}
+                    .onChange(of: musicVolume) { _, volume in MusicPlayer.shared.setVolume(volume) }
+                Toggle(isOn: Binding(get: { !music.isMuted }, set: { on in if on == music.isMuted { music.toggleMute() } })) {
+                    Text(L("Play music"))
+                }
+                VolumeRow(title: L("Sound effects"), icon: .volume, value: $soundVolume) {
+                    SoundEffects.shared.play(.coins)
+                }
+                Toggle(L("Footsteps"), isOn: $footsteps)
+            }
+
+            section(L("Feel"), icon: .tap) {
+                Toggle(L("Vibration on hits and rewards"), isOn: $haptics)
                     .onChange(of: haptics) { _, on in if on { Haptics.impact(.medium) } }
             }
 
-            section("Battle", icon: .paw) {
-                Toggle("Choose your companion's moves", isOn: $commandCompanion)
-                Text("After your own choice, tell your companion what to do. Off, it fights on its own.")
+            section(L("Battle"), icon: .paw) {
+                Toggle(L("Choose your companion's moves"), isOn: $commandCompanion)
+                Text(L("After your own choice, tell your companion what to do. Off, it fights on its own."))
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
             }
 
             if let session {
-                section("Game", icon: .book) {
+                section(L("Game"), icon: .book) {
                     HStack(spacing: 10) {
                         Button {
                             session.save()
                             SoundEffects.shared.play(.questAccept, volume: 0.6)
                             justSaved = true
                         } label: {
-                            Label(justSaved ? "Saved" : "Save now", icon: justSaved ? .check : .checkCircle)
+                            Label(justSaved ? L("Saved") : L("Save now"), icon: justSaved ? .check : .checkCircle)
                         }
                         .buttonStyle(PixelButtonStyle(compact: true))
                         if let onQuitToTitle {
                             Button {
                                 confirmQuit = true
                             } label: {
-                                Label("Back to title", icon: .arrowLeft)
+                                Label(L("Back to title"), icon: .arrowLeft)
                             }
                             .buttonStyle(PixelButtonStyle(compact: true))
-                            .alert("Back to the title screen?", isPresented: $confirmQuit) {
-                                Button("Save and leave") {
+                            .alert(L("Back to the title screen?"), isPresented: $confirmQuit) {
+                                Button(L("Save and leave")) {
                                     session.save()
                                     onQuitToTitle()
                                 }
-                                Button("Cancel", role: .cancel) {}
+                                Button(L("Cancel"), role: .cancel) {}
                             } message: {
-                                Text("Your game is saved first, so you can continue where you left off.")
+                                Text(L("Your game is saved first, so you can continue where you left off."))
                             }
                         }
                     }
-                    Text("Your progress also saves by itself every few seconds.")
+                    Text(L("Your progress also saves by itself every few seconds."))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.dim)
                     Button {
@@ -85,14 +89,14 @@ struct SettingsView: View {
                             exporting = true
                         }
                     } label: {
-                        Label(backedUp ? "Backed up" : "Back up to Files", icon: backedUp ? .check : .arrowUp)
+                        Label(backedUp ? L("Backed up") : L("Back up to Files"), icon: backedUp ? .check : .arrowUp)
                     }
                     .buttonStyle(PixelButtonStyle(compact: true))
                     .fileExporter(isPresented: $exporting, document: backup, contentType: .json,
                                   defaultFilename: SaveBackup.fileName(for: session.data)) { result in
                         if case .success = result { backedUp = true }
                     }
-                    Text("Keep a copy in Files or iCloud Drive, for a new phone or in case the app is deleted. Bring it back with Import a backup on the title screen.")
+                    Text(L("Keep a copy in Files or iCloud Drive, for a new phone or in case the app is deleted. Bring it back with Import a backup on the title screen."))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.dim)
                         .fixedSize(horizontal: false, vertical: true)
@@ -100,31 +104,31 @@ struct SettingsView: View {
             }
 
             if let session, let onQuitToTitle {
-                section("Danger zone", icon: .close) {
-                    Text("Deleting a game can't be undone.")
+                section(L("Danger zone"), icon: .close) {
+                    Text(L("Deleting a game can't be undone."))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.dim)
                     Button {
                         confirmDelete = true
                     } label: {
-                        Label("Delete this game", icon: .close)
+                        Label(L("Delete this game"), icon: .close)
                     }
                     .buttonStyle(PixelButtonStyle(tint: Color(red: 0.9, green: 0.35, blue: 0.35), compact: true))
-                    .alert("Delete \(session.data.hero.name)'s game?", isPresented: $confirmDelete) {
-                        Button("Delete for good", role: .destructive) {
+                    .alert(L("Delete {hero}'s game?", ["hero": session.data.hero.name]), isPresented: $confirmDelete) {
+                        Button(L("Delete for good"), role: .destructive) {
                             session.deleteGame()
                             onQuitToTitle()
                         }
-                        Button("Cancel", role: .cancel) {}
+                        Button(L("Cancel"), role: .cancel) {}
                     } message: {
-                        Text("\(session.data.hero.name), level \(session.data.hero.level), and everything they carry will be gone for good.")
+                        Text(L("{hero}, level {level}, and everything they carry will be gone for good.", ["hero": session.data.hero.name, "level": session.data.hero.level]))
                     }
                 }
             }
 
-            section("About", icon: .star) {
-                Text("Fairyland \(Self.version)")
-                Text("A tribute to Fairyland Online (2007). Art made with Retro Diffusion, icons by Iconaut (MIT). Music and sound effects are synthesized in the game.")
+            section(L("About"), icon: .star) {
+                Text(L("Fairyland {version}", ["version": Self.version]))
+                Text(L("A tribute to Fairyland Online (2007). Art made with Retro Diffusion, icons by Iconaut (MIT). Music and sound effects are synthesized in the game."))
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
                     .fixedSize(horizontal: false, vertical: true)
@@ -177,7 +181,7 @@ private struct VolumeRow: View {
                 .frame(width: 38, alignment: .trailing)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title) volume")
-        .accessibilityValue("\(Int((value * 100).rounded())) percent")
+        .accessibilityLabel(L("{title} volume", ["title": title]))
+        .accessibilityValue(L("{percent} percent", ["percent": Int((value * 100).rounded())]))
     }
 }

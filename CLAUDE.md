@@ -28,6 +28,10 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
   `tools/check_content.py`: validates the game data.
 - `theme.palette` in `content/maps.json` colour-grades each map's ground, scenery and buildings at load time.
   `tools/palette_preview.py` (needs pillow + numpy) renders every map with and without it, to tune without a Mac.
+- `content/i18n/`: translations. `languages.json` lists the languages (the picker's order), `<code>.json` maps each
+  English string to its translation, `fields.json` names the content keys that hold text. Swift text goes through
+  `L("English {placeholder}", ["placeholder": value])` (`Fairyland/Model/Localization.swift`); content text is
+  translated as it loads (`Content.reload` after a switch). `tools/i18n.py status | missing <code> | merge | prune`.
 - `content/music.json` defines instruments and songs for `Fairyland/Audio/SongSynth.swift`. `tools/music_preview.py`
   (needs numpy + scipy) renders songs to WAV with the same algorithm; keep the two in step.
 - `sound/*.wav`: sound effects, synthesized by `tools/make_sounds.py` (needs numpy). Edit a recipe and rerun;
@@ -44,6 +48,10 @@ A Fairyland Online (2007) tribute RPG for iPhone: SwiftUI + SpriteKit, project g
   `content/skills.json`, drawn by `Fairyland/Battle/SkillStyles.swift` (or `ElementEffects.swift` for the elemental
   spells) and dispatched in `BattleScene.castSkill`. `check_content.py` rejects a shared or unknown one, so a new skill
   needs a new effect, in light and its own colours.
+- **Every player-visible string is translated:** wrap new Swift text in `L("…")` (a single-line literal; values
+  as `{placeholders}`, never `\(` inside the key), then fill in all ten languages with `tools/i18n.py missing <code>`
+  and `merge`. Text in content fields listed in `content/i18n/fields.json` needs the same. Untranslated text shows in
+  English; `check_content.py` rejects lost placeholders.
 - **Versions:** `MARKETING_VERSION` in `project.yml` and the top entry of `content/changelog.json` move together
   (the checker enforces it). Add a changelog entry when shipping a user-visible change. 1.0.0 = App Store launch.
 - **Screenshots and tests:** pushes to `claude/**` branches run `.github/workflows/screenshots.yml` (macOS

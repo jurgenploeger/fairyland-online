@@ -41,20 +41,20 @@ private struct CoachStep {
     let title: String
     let text: String
 
-    static let all: [CoachStep] = [
-        CoachStep(target: .status, icon: .heart, title: "Health and magic",
-                  text: "H is your health and M your magic. The round badge shows your level. Once you have a companion, its face and bars show under yours."),
-        CoachStep(target: .joystick, icon: .tap, title: "Walking",
-                  text: "Drag the stick to walk, or tap the ground and your hero walks there."),
-        CoachStep(target: .minimap, icon: .map, title: "Where you are",
-                  text: "The minimap shows what's around you. Tap it for the world map."),
-        CoachStep(target: .toolbar, icon: .backpack, title: "Your adventure",
-                  text: "Your character, companions, bag and quests. A gold dot means there's something new."),
-        CoachStep(target: .chat, icon: .talk, title: "Other adventurers",
-                  text: "Adventurers wander Fairyland too. Read what they say and chat back here."),
-        CoachStep(target: nil, icon: .book, title: "Your first quest",
-                  text: "Walk up to someone with a gold ! and tap Talk. New adventurers start with Elder Oak in Meadowbrook."),
-    ]
+    static var all: [CoachStep] { [
+        CoachStep(target: .status, icon: .heart, title: L("Health and magic"),
+                  text: L("H is your health and M your magic. The round badge shows your level. Once you have a companion, its face and bars show under yours.")),
+        CoachStep(target: .joystick, icon: .tap, title: L("Walking"),
+                  text: L("Drag the stick to walk, or tap the ground and your hero walks there.")),
+        CoachStep(target: .minimap, icon: .map, title: L("Where you are"),
+                  text: L("The minimap shows what's around you. Tap it for the world map.")),
+        CoachStep(target: .toolbar, icon: .backpack, title: L("Your adventure"),
+                  text: L("Your character, companions, bag and quests. A gold dot means there's something new.")),
+        CoachStep(target: .chat, icon: .talk, title: L("Other adventurers"),
+                  text: L("Adventurers wander Fairyland too. Read what they say and chat back here.")),
+        CoachStep(target: nil, icon: .book, title: L("Your first quest"),
+                  text: L("Walk up to someone with a gold ! and tap Talk. New adventurers start with Elder Oak in Meadowbrook.")),
+    ] }
 }
 
 /// The first-play tour: dims the screen except for one control at a time, with a note beside it
@@ -133,7 +133,7 @@ struct CoachMarksView: View {
                 .foregroundStyle(HUDStyle.cream)
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: 8) {
-                Button("Skip", action: onDone)
+                Button(L("Skip"), action: onDone)
                     .buttonStyle(PixelButtonStyle(compact: true))
                     .opacity(isLast ? 0 : 1)
                     .disabled(isLast)
@@ -141,7 +141,7 @@ struct CoachMarksView: View {
                 Button {
                     withAnimation(.easeInOut(duration: 0.35)) { index -= 1 }
                 } label: {
-                    Label("Previous", icon: .arrowLeft, size: 12)
+                    Label(L("Previous"), icon: .arrowLeft, size: 12)
                 }
                 .buttonStyle(PixelButtonStyle(compact: true))
                 .opacity(index == 0 ? 0.4 : 1)
@@ -153,7 +153,7 @@ struct CoachMarksView: View {
                         withAnimation(.easeInOut(duration: 0.35)) { index += 1 }
                     }
                 } label: {
-                    Label(isLast ? "Let's go" : "Next", icon: isLast ? .check : .arrowRight, size: 12)
+                    Label(isLast ? L("Let's go") : L("Next"), icon: isLast ? .check : .arrowRight, size: 12)
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
             }

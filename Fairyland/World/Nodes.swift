@@ -182,7 +182,7 @@ final class NameTag: SKNode {
         let key = "\(level.map(String.init) ?? "")|\(label)|\(badge?.rawValue ?? "")"
         guard key != shown else { return }
         shown = key
-        let image = Self.render(prefix: level.map { "[Lv.\($0)] " } ?? "", text: label, color: color, size: size, badge: badge)
+        let image = Self.render(prefix: level.map { L("[Lv.{level}] ", ["level": $0]) } ?? "", text: label, color: color, size: size, badge: badge)
         let texture = SKTexture(image: image)
         texture.filteringMode = .linear
         sprite.texture = texture
@@ -202,7 +202,7 @@ final class NameTag: SKNode {
         let pad = ceil(size * 0.25)
         let textSize = letters.size()
         // The pill after the name, with as much room left before the name so it stays centred.
-        let tag = badge.map { NSAttributedString(string: $0.rawValue, attributes: [
+        let tag = badge.map { NSAttributedString(string: $0.title, attributes: [
             .font: UIFont.systemFont(ofSize: max(7, size * 0.6), weight: .black), .foregroundColor: UIColor.white,
         ]) }
         let tagSize = tag?.size() ?? .zero
@@ -301,7 +301,7 @@ final class HealthBar: SKNode {
         let base = UIFont.systemFont(ofSize: 8.5, weight: .heavy)
         let font = base.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: 8.5) } ?? base
         let cream = UIColor(red: 1, green: 0.97, blue: 0.86, alpha: 1)
-        let text = NSAttributedString(string: "Lv\(level)", attributes: [.font: font, .foregroundColor: cream])
+        let text = NSAttributedString(string: L("Lv{level}", ["level": level]), attributes: [.font: font, .foregroundColor: cream])
         let textSize = text.size()
         let canvas = CGSize(width: ceil(textSize.width) + 8, height: 12)
         return UIGraphicsImageRenderer(size: canvas).image { _ in

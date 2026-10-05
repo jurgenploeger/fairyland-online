@@ -21,38 +21,38 @@ struct TradeView: View {
                 .onTapGesture(perform: onClose)
 
             VStack(spacing: 0) {
-                FLTitleBar(title: "Trade with \(adventurer.name)", icon: .coins, onClose: onClose)
+                FLTitleBar(title: L("Trade with {name}", ["name": adventurer.name]), icon: .coins, onClose: onClose)
                 ScrollView {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack(spacing: 10) {
                             SpriteImage(art: session.artID(for: adventurer), size: 40)
-                            Text(reply ?? "Got anything good? I've got a few things too.")
+                            Text(reply ?? L("Got anything good? I've got a few things too."))
                                 .font(HUDStyle.font(12))
                                 .foregroundStyle(HUDStyle.cream)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
-                        Label("\(session.data.gold) gold", icon: .coins)
+                        Label(L("{gold} gold", ["gold": session.data.gold]), icon: .coins)
                             .font(HUDStyle.font(12))
                             .foregroundStyle(HUDStyle.gold)
 
-                        Text("They'd buy").font(HUDStyle.font(13)).foregroundStyle(HUDStyle.gold)
+                        Text(L("They'd buy")).font(HUDStyle.font(13)).foregroundStyle(HUDStyle.gold)
                         if buying.isEmpty {
-                            Text("Nothing of yours catches their eye today.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                            Text(L("Nothing of yours catches their eye today.")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
                         }
                         ForEach(buying) { offer in
-                            row(offer, button: "Sell \(offer.price)g", enabled: session.count(of: offer.item.id) > 0,
-                                note: "Shop pays \(GameSession.sellPrice(of: offer.item))g · you have \(session.count(of: offer.item.id))")
+                            row(offer, button: L("Sell {gold}g", ["gold": offer.price]), enabled: session.count(of: offer.item.id) > 0,
+                                note: L("Shop pays {gold}g · you have {count}", ["gold": GameSession.sellPrice(of: offer.item), "count": session.count(of: offer.item.id)]))
                         }
 
-                        Text("They're selling").font(HUDStyle.font(13)).foregroundStyle(HUDStyle.gold)
+                        Text(L("They're selling")).font(HUDStyle.font(13)).foregroundStyle(HUDStyle.gold)
                         if selling.isEmpty {
-                            Text("They've traded everything away for today.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                            Text(L("They've traded everything away for today.")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
                         }
                         ForEach(selling) { offer in
-                            row(offer, button: "Buy \(offer.price)g", enabled: session.data.gold >= offer.price,
+                            row(offer, button: L("Buy {gold}g", ["gold": offer.price]), enabled: session.data.gold >= offer.price,
                                 note: summary(of: offer.item), warning: issue(with: offer.item))
                         }
-                        Text("Tap an item to see more. Offers change every in-game day.")
+                        Text(L("Tap an item to see more. Offers change every in-game day."))
                             .font(HUDStyle.font(10))
                             .foregroundStyle(HUDStyle.dim)
                     }
@@ -109,16 +109,16 @@ struct TradeView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityHint("Shows what it does and who can use it")
+            .accessibilityHint(L("Shows what it does and who can use it"))
             Button(button) {
                 if session.trade(offer) {
                     session.post(offer.kind == .theyBuy
-                                 ? "Sold \(offer.item.name) to \(adventurer.name) for \(offer.price) gold."
-                                 : "Bought \(offer.item.name) from \(adventurer.name) for \(offer.price) gold.", .reward)
-                    reply = offer.kind == .theyBuy ? "Just what I needed, thanks!" : "Pleasure doing business!"
+                                 ? L("Sold {item} to {name} for {gold} gold.", ["item": offer.item.name, "name": adventurer.name, "gold": offer.price])
+                                 : L("Bought {item} from {name} for {gold} gold.", ["item": offer.item.name, "name": adventurer.name, "gold": offer.price]), .reward)
+                    reply = offer.kind == .theyBuy ? L("Just what I needed, thanks!") : L("Pleasure doing business!")
                     session.save()
                 } else {
-                    reply = offer.kind == .theyBuy ? "Looks like you don't have that any more." : "Come back when you've got the gold."
+                    reply = offer.kind == .theyBuy ? L("Looks like you don't have that any more.") : L("Come back when you've got the gold.")
                 }
             }
             .buttonStyle(PixelButtonStyle(tint: enabled ? HUDStyle.gold : HUDStyle.dim, compact: true))

@@ -41,7 +41,7 @@ extension SkillEffects {
         case .poison: bubbles(on: target, count: 5, in: parent)
         case .curse: implode(to: target.center, color: tint, in: parent)
         }
-        Effects.floatingText(effect == .poison ? "Poisoned!" : "Cursed!", color: tint,
+        Effects.floatingText(effect == .poison ? L("Poisoned!") : L("Cursed!"), color: tint,
                              at: target.top + CGVector(dx: 0, dy: 10), in: parent, size: 14)
     }
 

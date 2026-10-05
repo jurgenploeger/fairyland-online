@@ -19,7 +19,7 @@ struct SkillChoices: View {
 
 /// "Bash (12 MP)": a skill's name with what it costs.
 private func skillTitle(_ skill: SkillDef, mp: Int) -> Text {
-    Text(skill.name) + Text(" (\(mp) MP)").foregroundStyle(HUDStyle.mp)
+    Text(skill.name) + Text(L(" ({cost} MP)", ["cost": mp])).foregroundStyle(HUDStyle.mp)
 }
 
 /// A skill your class just unlocked: learn it for a point.
@@ -33,7 +33,7 @@ struct LearnSkillRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     skillTitle(skill, mp: GameSession.mpCost(of: skill, level: 1))
-                    Text("NEW")
+                    Text(L("NEW"))
                         .font(HUDStyle.font(9))
                         .foregroundStyle(HUDStyle.ink)
                         .padding(.horizontal, 6)
@@ -48,7 +48,7 @@ struct LearnSkillRow: View {
                 }
             }
             Spacer()
-            Button("Learn") { session.learnSkill(skill.id) }
+            Button(L("Learn")) { session.learnSkill(skill.id) }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                 .disabled(session.unspentSkillPoints == 0)
                 .opacity(session.unspentSkillPoints == 0 ? 0.5 : 1)
@@ -83,7 +83,7 @@ struct SkillRow: View {
             // Field spells are cast from here, outside battle.
             if skill.kind == .field, let cast = session.onCastField {
                 let affordable = session.data.hero.mp >= GameSession.mpCost(of: skill, level: level)
-                Button("Cast") { cast(skill) }
+                Button(L("Cast")) { cast(skill) }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                     .disabled(!affordable)
                     .opacity(affordable ? 1 : 0.5)
@@ -98,7 +98,7 @@ struct SkillRow: View {
                         .background(Circle().fill(HUDStyle.gold).overlay(Circle().strokeBorder(.white.opacity(0.8), lineWidth: 1.5)))
                 }
                 .buttonStyle(PressScaleStyle())
-                .accessibilityLabel("Raise \(skill.name) to level \(level + 1)")
+                .accessibilityLabel(L("Raise {skill} to level {level}", ["skill": skill.name, "level": level + 1]))
             }
         }
         .font(HUDStyle.font(12))
@@ -115,12 +115,14 @@ struct LevelUpCard: View {
         let points = session.unspentSkillPoints
         VStack(spacing: 12) {
             VStack(spacing: 2) {
-                Text("Level \(level)!")
+                Text(L("Level {level}!", ["level": level]))
                     .font(HUDStyle.font(26))
                     .foregroundStyle(HUDStyle.gold)
                 Text(points > 0
-                     ? "You have \(points) skill point\(points == 1 ? "" : "s"). Learn a new skill or power one up."
-                     : "All points spent. Good choice!")
+                     ? (points == 1
+                        ? L("You have 1 skill point. Learn a new skill or power one up.")
+                        : L("You have {count} skill points. Learn a new skill or power one up.", ["count": points]))
+                     : L("All points spent. Good choice!"))
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.cream)
                     .multilineTextAlignment(.center)
@@ -131,7 +133,7 @@ struct LevelUpCard: View {
             }
             .scrollBounceBehavior(.basedOnSize)
             .frame(maxHeight: 260)
-            Button(points > 0 ? "Decide later" : "Done", action: onDone)
+            Button(points > 0 ? L("Decide later") : L("Done"), action: onDone)
                 .buttonStyle(PixelButtonStyle(tint: points > 0 ? HUDStyle.cream : HUDStyle.gold))
         }
         .padding(20)
@@ -189,11 +191,11 @@ struct SkillGauge: View {
             .background(RoundedRectangle(cornerRadius: 3).fill(HUDStyle.ink.opacity(0.8)))
             .overlay(RoundedRectangle(cornerRadius: 3).strokeBorder(mastered ? HUDStyle.gold : .white.opacity(0.35), lineWidth: 1))
             .shadow(color: mastered ? HUDStyle.gold.opacity(0.7) : .clear, radius: 4)
-            Text(mastered ? "Mastered" : "Lv \(level)/\(GameSession.maxSkillLevel)")
+            Text(mastered ? L("Mastered") : L("Lv {level}/{max}", ["level": level, "max": GameSession.maxSkillLevel]))
                 .font(HUDStyle.font(10))
                 .foregroundStyle(mastered ? HUDStyle.gold : HUDStyle.cream)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(mastered ? "Mastered" : "Level \(level) of \(GameSession.maxSkillLevel)")
+        .accessibilityLabel(mastered ? L("Mastered") : L("Level {level} of {max}", ["level": level, "max": GameSession.maxSkillLevel]))
     }
 }

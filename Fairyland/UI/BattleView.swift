@@ -71,28 +71,28 @@ struct BattleView: View {
                     .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
             }
         case .skills where controller.choosingForCompanion:
-            ChoiceCard(title: "\(controller.companion?.name ?? "Companion")'s skills", icon: .paw, onBack: controller.back) {
+            ChoiceCard(title: L("{companion}'s skills", ["companion": controller.companion?.name ?? L("Companion")]), icon: .paw, onBack: controller.back) {
                 if controller.companionSkills.isEmpty {
-                    EmptyNote("No skills yet.")
+                    EmptyNote(L("No skills yet."))
                 }
                 ForEach(controller.companionSkills) { skill in
                     let price = controller.companionCost(of: skill)
                     ChoiceRow(action: { controller.useSkill(skill) }, enabled: (controller.companion?.mp ?? 0) >= price) {
                         SkillIcon(skill: skill, size: 26)
                         Text(skill.name)
-                        Text("Lv\(controller.companionLevel(of: skill))").font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
+                        Text(L("Lv{level}", ["level": controller.companionLevel(of: skill)])).font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
                         if let element = skill.element { ElementBadge(element: element) }
                         Spacer()
-                        Text("\(price) MP").foregroundStyle(HUDStyle.mp)
+                        Text(L("{cost} MP", ["cost": price])).foregroundStyle(HUDStyle.mp)
                     }
                 }
             }
             .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
         case .skills:
-            ChoiceCard(title: "Skills", icon: .sparkles, onBack: controller.back) {
+            ChoiceCard(title: L("Skills"), icon: .sparkles, onBack: controller.back) {
                 if controller.skills.isEmpty {
                     EmptyNote(controller.skills.isEmpty && !controller.session.learnableSkills.isEmpty
-                              ? "No skills yet.\nLearn one in the Character menu."
+                              ? L("No skills yet.\nLearn one in the Character menu.")
                               : controller.session.skillHint)
                 }
                 ForEach(controller.skills) { skill in
@@ -102,10 +102,10 @@ struct BattleView: View {
                         ChoiceRow(action: { controller.useSkill(skill) }, enabled: affordable) {
                             SkillIcon(skill: skill, size: 26)
                             Text(skill.name)
-                            Text("Lv\(controller.level(of: skill))").font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
+                            Text(L("Lv{level}", ["level": controller.level(of: skill)])).font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
                             if let element = skill.element { ElementBadge(element: element) }
                             Spacer()
-                            Text("\(controller.cost(of: skill)) MP").foregroundStyle(HUDStyle.mp)
+                            Text(L("{cost} MP", ["cost": controller.cost(of: skill)])).foregroundStyle(HUDStyle.mp)
                         }
                         // Pin it next to Attack.
                         Button { controller.togglePin(skill) } label: {
@@ -115,20 +115,20 @@ struct BattleView: View {
                                 .background(Circle().fill(HUDStyle.ink.opacity(0.85)))
                         }
                         .buttonStyle(RoundPressStyle())
-                        .accessibilityLabel(pinned ? "Unpin \(skill.name)" : "Pin \(skill.name) to the quick bar")
+                        .accessibilityLabel(pinned ? L("Unpin {skill}", ["skill": skill.name]) : L("Pin {skill} to the quick bar", ["skill": skill.name]))
                     }
                 }
                 if !controller.skills.isEmpty {
-                    Text("Tap the star to pin up to \(GameSession.maxPinnedSkills) skills next to Attack.")
+                    Text(L("Tap the star to pin up to {count} skills next to Attack.", ["count": GameSession.maxPinnedSkills]))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.cream.opacity(0.8))
                 }
             }
             .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
         case .items:
-            ChoiceCard(title: "Items", icon: .backpack, onBack: controller.back) {
+            ChoiceCard(title: L("Items"), icon: .backpack, onBack: controller.back) {
                 if controller.items.isEmpty {
-                    EmptyNote("Your bag is empty.\nShops in town sell potions.")
+                    EmptyNote(L("Your bag is empty.\nShops in town sell potions."))
                 }
                 ForEach(controller.items) { item in
                     ChoiceRow(action: { controller.useItem(item) }, enabled: true) {
@@ -143,7 +143,7 @@ struct BattleView: View {
             HStack(spacing: 10) {
                 IconImage(.tap, size: 18).foregroundStyle(HUDStyle.gold)
                 Text(controller.prompt).font(HUDStyle.font(13))
-                Button("Cancel", action: controller.back)
+                Button(L("Cancel"), action: controller.back)
                     .buttonStyle(PixelButtonStyle(compact: true))
             }
             .foregroundStyle(HUDStyle.cream)
@@ -165,7 +165,7 @@ private struct WaveTracker: View {
 
     var body: some View {
         HStack(spacing: 5) {
-            Text(wave == total ? "Boss wave" : "Wave \(wave) of \(total)")
+            Text(wave == total ? L("Boss wave") : L("Wave {wave} of {total}", ["wave": wave, "total": total]))
                 .font(HUDStyle.font(11))
                 .padding(.trailing, 2)
             ForEach(1...total, id: \.self) { index in
@@ -184,7 +184,7 @@ private struct WaveTracker: View {
         .padding(.vertical, 4)
         .background(Capsule().fill(HUDStyle.ink.opacity(0.8)))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(wave == total ? "Boss wave, the last of \(total)" : "Wave \(wave) of \(total)")
+        .accessibilityLabel(wave == total ? L("Boss wave, the last of {total}", ["total": total]) : L("Wave {wave} of {total}", ["wave": wave, "total": total]))
     }
 }
 
@@ -213,7 +213,7 @@ private struct TurnClockBar: View {
             .background(Capsule().fill(HUDStyle.ink.opacity(0.8)))
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Time left to choose before you attack")
+        .accessibilityLabel(L("Time left to choose before you attack"))
     }
 }
 
@@ -288,7 +288,7 @@ private struct CommandPad: View {
             // More sits on top of the big button, always in the same spot.
             VStack(spacing: 26) {
                 if !more.isEmpty {
-                    RoundCommandButton(title: showMore ? "Close" : "More", icon: showMore ? .close : .more, size: buttonSize,
+                    RoundCommandButton(title: showMore ? L("Close") : L("More"), icon: showMore ? .close : .more, size: buttonSize,
                                        tint: .quiet, onHold: arrange) {
                         showMore.toggle()
                     }
@@ -318,10 +318,10 @@ private struct CommandPad: View {
         let tray = Array(order[divider...].dropFirst())
         return VStack(alignment: .trailing, spacing: 22) {
             HStack(spacing: 8) {
-                Text("Drag to rearrange")
+                Text(L("Drag to rearrange"))
                     .font(HUDStyle.font(11))
                     .foregroundStyle(HUDStyle.cream)
-                Button("Reset") { withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { editing = resetOrder(order) } }
+                Button(L("Reset")) { withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { editing = resetOrder(order) } }
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.cream)
                     .padding(.horizontal, 10)
@@ -331,7 +331,7 @@ private struct CommandPad: View {
                     controller.arrangeButtons(order)
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { editing = nil }
                 } label: {
-                    Text("Done")
+                    Text(L("Done"))
                         .font(HUDStyle.font(13))
                         .foregroundStyle(HUDStyle.ink)
                         .padding(.horizontal, 14)
@@ -345,7 +345,7 @@ private struct CommandPad: View {
 
             // What waits behind More.
             VStack(alignment: .trailing, spacing: 8) {
-                Text("Behind More")
+                Text(L("Behind More"))
                     .font(HUDStyle.font(11))
                     .foregroundStyle(HUDStyle.cream.opacity(0.8))
                 RightToLeftRows {
@@ -369,7 +369,7 @@ private struct CommandPad: View {
                 }
                 .zIndex(row.contains { $0 == dragging } ? 1 : 0)
                 VStack(spacing: 26) {
-                    RoundCommandButton(title: "More", icon: .more, size: buttonSize, tint: .quiet) {}
+                    RoundCommandButton(title: L("More"), icon: .more, size: buttonSize, tint: .quiet) {}
                         .allowsHitTesting(false)
                         .opacity(0.5)
                     if let main { editTile(main, size: mainSize) }
@@ -486,12 +486,12 @@ private struct PaceControls: View {
         HStack(spacing: 8) {
             let fast = controller.speed > 1
             PaceButton(title: fast ? "2×" : "1×", lit: fast,
-                       label: fast ? "Battle speed: double. Tap for normal." : "Battle speed: normal. Tap for double.") {
+                       label: fast ? L("Battle speed: double. Tap for normal.") : L("Battle speed: normal. Tap for double.")) {
                 controller.toggleSpeed()
             }
             if controller.isWild {
-                PaceButton(title: "AUTO", lit: controller.isAuto, enabled: controller.isAuto || controller.canAuto,
-                           label: controller.isAuto ? "Auto is on. Tap to choose yourself." : "Auto: fight on your own.") {
+                PaceButton(title: L("AUTO"), lit: controller.isAuto, enabled: controller.isAuto || controller.canAuto,
+                           label: controller.isAuto ? L("Auto is on. Tap to choose yourself.") : L("Auto: fight on your own.")) {
                     controller.toggleAuto()
                 }
             }
@@ -541,7 +541,7 @@ private struct CompanionPad: View {
             if let companion = controller.companion {
                 HStack(spacing: 8) {
                     SpriteImage(art: companion.art, size: 30)
-                    Text("\(companion.name)'s turn")
+                    Text(L("{companion}'s turn", ["companion": companion.name]))
                         .font(HUDStyle.font(13))
                         .foregroundStyle(HUDStyle.cream)
                 }
@@ -553,13 +553,13 @@ private struct CompanionPad: View {
 
             HStack(alignment: .bottom, spacing: 14) {
                 HStack(alignment: .bottom, spacing: 10) {
-                    RoundCommandButton(title: "Auto", icon: .paw, size: 56, tint: .quiet) { controller.letCompanionDecide() }
-                    RoundCommandButton(title: "Guard", icon: .shield, size: 56, tint: .normal) { controller.defend() }
+                    RoundCommandButton(title: L("Auto"), icon: .paw, size: 56, tint: .quiet) { controller.letCompanionDecide() }
+                    RoundCommandButton(title: L("Guard"), icon: .shield, size: 56, tint: .normal) { controller.defend() }
                     if !controller.companionSkills.isEmpty {
-                        RoundCommandButton(title: "Skills", icon: .sparkles, size: 56, tint: .normal) { controller.openSkills() }
+                        RoundCommandButton(title: L("Skills"), icon: .sparkles, size: 56, tint: .normal) { controller.openSkills() }
                     }
                 }
-                RoundCommandButton(title: "Attack", icon: .tooth, size: 88, tint: .primary) { controller.attack() }
+                RoundCommandButton(title: L("Attack"), icon: .tooth, size: 88, tint: .primary) { controller.attack() }
             }
         }
         .padding(.leading, 14)
@@ -573,13 +573,13 @@ private struct BattleCommand {
 
     init(_ id: String) {
         switch id {
-        case "attack": title = "Attack"; icon = .sword
-        case "skills": title = "Skills"; icon = .sparkles
-        case "items": title = "Items"; icon = .backpack
-        case "guard": title = "Guard"; icon = .shield
-        case "run": title = "Run"; icon = .wind
-        case "capture": title = "Capture"; icon = .heart
-        default: title = "More"; icon = .more
+        case "attack": title = L("Attack"); icon = .sword
+        case "skills": title = L("Skills"); icon = .sparkles
+        case "items": title = L("Items"); icon = .backpack
+        case "guard": title = L("Guard"); icon = .shield
+        case "run": title = L("Run"); icon = .wind
+        case "capture": title = L("Capture"); icon = .heart
+        default: title = L("More"); icon = .more
         }
     }
 }
@@ -766,7 +766,7 @@ private struct PressButton<Label: View>: View {
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { action() }
-            .accessibilityAction(named: "Arrange buttons") { onHold?() }
+            .accessibilityAction(named: L("Arrange buttons")) { onHold?() }
     }
 }
 
@@ -800,7 +800,7 @@ private struct ChoiceCard<Content: View>: View {
                         .frame(width: 32, height: 32)
                         .background(Circle().fill(.white.opacity(0.1)))
                 }
-                .accessibilityLabel("Back")
+                .accessibilityLabel(L("Back"))
             }
             // Hug the rows; long lists scroll instead of growing past the scene.
             ScrollView {
@@ -868,7 +868,7 @@ private struct QuickSkillButton: View {
                 .frame(width: size + 14)
                 .offset(y: 15)
         }
-        .accessibilityLabel("\(skill.name), \(cost) MP")
+        .accessibilityLabel(L("{skill}, {cost} MP", ["skill": skill.name, "cost": cost]))
     }
 }
 
@@ -912,10 +912,10 @@ private struct ResultPanel: View {
 
     private var title: String {
         switch result.outcome {
-        case .victory: "Victory!"
-        case .fled: "It got away…"
-        case .defeat: "Defeated…"
-        case .escaped: "Escaped"
+        case .victory: L("Victory!")
+        case .fled: L("It got away…")
+        case .defeat: L("Defeated…")
+        case .escaped: L("Escaped")
         case .ongoing: ""
         }
     }
@@ -969,7 +969,7 @@ private struct ResultPanel: View {
                 ScrollView { details }
                     .scrollBounceBehavior(.basedOnSize)
             }
-            Button("Continue", action: advance)
+            Button(L("Continue"), action: advance)
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
                 .padding(.top, 6)
         }
@@ -990,7 +990,7 @@ private struct ResultPanel: View {
                 HStack(spacing: 18) {
                     // None when you were out cold at the end (your friends won it).
                     if result.exp > 0 {
-                        Label { Text("+\(result.exp) EXP") } icon: {
+                        Label { Text(L("+{exp} EXP", ["exp": result.exp])) } icon: {
                             IconImage(.star, size: 18).foregroundStyle(HUDStyle.exp)
                         }
                     }
@@ -1116,7 +1116,7 @@ private struct BossStoryCard: View {
     }
 
     private var continueButton: some View {
-        Button("Continue") {
+        Button(L("Continue")) {
             if told { onDone() } else { revealAll() }
         }
         .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
@@ -1150,7 +1150,7 @@ private struct BossStoryCard: View {
 /// What a win (or a quest) turned up, as little item tiles with how many and the name underneath.
 struct LootGrid: View {
     let loot: [(id: String, count: Int)]
-    var title = "Found"
+    var title = L("Found")
 
     var body: some View {
         VStack(spacing: 6) {
@@ -1185,7 +1185,7 @@ private struct PartyLevelUps: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            Text(others.count == 1 ? "Level up!" : "Level ups!")
+            Text(others.count == 1 ? L("Level up!") : L("Level ups!"))
                 .font(HUDStyle.font(14))
                 .foregroundStyle(HUDStyle.gold)
             CenteredRows(spacing: 6, rowSpacing: 6) {
@@ -1195,7 +1195,7 @@ private struct PartyLevelUps: View {
                             .foregroundStyle(HUDStyle.gold)
                         Text(other.name)
                             .foregroundStyle(HUDStyle.cream)
-                        Text("Lv \(other.level)")
+                        Text(L("Lv {level}", ["level": other.level]))
                             .foregroundStyle(HUDStyle.gold)
                     }
                     .font(HUDStyle.font(12))
@@ -1210,7 +1210,7 @@ private struct PartyLevelUps: View {
         .background(RoundedRectangle(cornerRadius: 12).fill(HUDStyle.gold.opacity(0.08)))
         .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(HUDStyle.gold.opacity(0.4), lineWidth: 1))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(others.map { "\($0.name) reached level \($0.level)" }.joined(separator: ". "))
+        .accessibilityLabel(others.map { L("{name} reached level {level}", ["name": $0.name, "level": $0.level]) }.joined(separator: ". "))
     }
 }
 
@@ -1228,8 +1228,8 @@ struct LevelUpBanner: View {
     /// The stats that went up, in the Character tab's order.
     private var raised: [(label: String, value: Int)] {
         let all: [(label: String, value: Int)] = [
-            ("HP", gains.hp), ("MP", gains.mp), ("ATK", gains.attack),
-            ("DEF", gains.defense), ("MAG", gains.magic), ("SPD", gains.speed),
+            (L("HP"), gains.hp), (L("MP"), gains.mp), (L("ATK"), gains.attack),
+            (L("DEF"), gains.defense), (L("MAG"), gains.magic), (L("SPD"), gains.speed),
         ]
         return all.filter { $0.value > 0 }
     }
@@ -1256,7 +1256,7 @@ struct LevelUpBanner: View {
                             chip(stat.label, stat.value)
                         }
                     }
-                    Text("HP and MP fully restored")
+                    Text(L("HP and MP fully restored"))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.dim)
                 }
@@ -1274,7 +1274,7 @@ struct LevelUpBanner: View {
             withAnimation(.easeOut(duration: 0.9).delay(0.3)) { burst = true }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Level up! You're now level \(level). \(gains.bonusSummary)")
+        .accessibilityLabel(L("Level up! You're now level {level}. {bonuses}", ["level": level, "bonuses": gains.bonusSummary]))
     }
 
     private func medal(size: CGFloat) -> some View {
@@ -1301,7 +1301,7 @@ struct LevelUpBanner: View {
                 .shadow(color: HUDStyle.gold.opacity(0.9), radius: 10)
                 .frame(width: size, height: size)
             VStack(spacing: -4) {
-                Text("LV").font(HUDStyle.font(size * 0.19))
+                Text(L("LV")).font(HUDStyle.font(size * 0.19))
                 Text("\(level)")
                     .font(HUDStyle.font(size * 0.42))
                     .minimumScaleFactor(0.5)
@@ -1320,7 +1320,7 @@ struct LevelUpBanner: View {
     }
 
     private func title(size: CGFloat) -> some View {
-        Text("LEVEL UP!")
+        Text(L("LEVEL UP!"))
             .font(HUDStyle.font(size))
             .foregroundStyle(HUDStyle.gold)
             .shadow(color: HUDStyle.orange.opacity(0.9), radius: 0, x: 2, y: 2)

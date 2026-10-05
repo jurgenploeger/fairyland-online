@@ -532,6 +532,15 @@ for map_def in maps.values():
             check([a[0] + dx, a[1] + dy] == b,
                   f"map {map_def['id']} {exit_def['edge']} exit → {exit_def['to']} isn't one step {exit_def['edge']} on the world map")
 
+# Translations (content/i18n): every listed language has a table, placeholders survive, and every
+# L() in the code has a literal key. Missing translations only show in English, so they're reported
+# by `python3 tools/i18n.py status`, not here.
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import i18n  # noqa: E402
+errors += i18n.check()
+check(json.loads((ROOT / "content" / "i18n" / "languages.json").read_text())["languages"][0]["code"] == "en",
+      "content/i18n/languages.json → English comes first (it's the fallback)")
+
 if errors:
     print(f"✗ {len(errors)} problem(s):")
     for error in errors:

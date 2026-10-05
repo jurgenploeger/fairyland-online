@@ -67,7 +67,18 @@ nonisolated enum Element: String, Codable, CaseIterable, Sendable {
         return 1
     }
 
-    var displayName: String { rawValue.capitalized }
+    var displayName: String {
+        switch self {
+        case .neutral: L("Neutral")
+        case .metal: L("Metal")
+        case .wood: L("Wood")
+        case .water: L("Water")
+        case .fire: L("Fire")
+        case .earth: L("Earth")
+        case .light: L("Light")
+        case .dark: L("Dark")
+        }
+    }
 
     /// Elements this one hits harder (×1.5), and the ones that hit it harder.
     var strongAgainst: [Element] { Element.allCases.filter { multiplier(against: $0) > 1 } }
@@ -224,7 +235,15 @@ nonisolated enum ItemType: String, Decodable, Sendable {
 
     static let equipmentSlots: [ItemType] = [.weapon, .armor, .accessory]
 
-    var displayName: String { rawValue.capitalized }
+    var displayName: String {
+        switch self {
+        case .consumable: L("Consumable")
+        case .weapon: L("Weapon")
+        case .armor: L("Armor")
+        case .accessory: L("Accessory")
+        case .material: L("Material")
+        }
+    }
 }
 
 nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
@@ -759,56 +778,142 @@ private nonisolated struct MapsFile: Decodable { let start: String; let maps: [M
 private nonisolated struct MusicFile: Decodable { let songs: [SongDef]; let instruments: [InstrumentDef]? }
 private nonisolated struct ChangelogFile: Decodable { let releases: [ReleaseNote] }
 
-/// All game data from the bundled content/ folder. Edit the JSON, rebuild, done.
+/// All game data from the bundled content/ folder. Edit the JSON, rebuild, done. Text is read in
+/// the player's language (`Localizer`): the fields content/i18n/fields.json names are swapped for
+/// their translations as each file loads, and `reload()` reads it all again after a switch.
 final class Content {
     static let shared = Content()
 
-    let classChoiceLevel: Int
-    let races: [RaceDef]
-    let classes: [ClassDef]
-    let skills: [SkillDef]
-    let monsters: [MonsterDef]
-    let items: [ItemDef]
-    let quests: [QuestDef]
-    let maps: [MapDef]
-    let startMap: String
-    let songs: [SongDef]
-    let instruments: [InstrumentDef]
-    let appearance: AppearanceOptions
-    let crowd: CrowdOptions
-    let announcements: AnnouncementOptions
-    /// Newest first.
-    let releases: [ReleaseNote]
-
-    init(bundle: Bundle = .main) {
-        let classFile: ClassesFile = Self.load("classes", from: bundle)
-        classChoiceLevel = classFile.classChoiceLevel
-        races = classFile.races
-        classes = classFile.classes
-        skills = (Self.load("skills", from: bundle) as SkillsFile).skills
-        monsters = (Self.load("monsters", from: bundle) as MonstersFile).monsters
-        items = (Self.load("items", from: bundle) as ItemsFile).items
-        quests = (Self.load("quests", from: bundle) as QuestsFile).quests
-        let mapFile: MapsFile = Self.load("maps", from: bundle)
-        maps = mapFile.maps
-        startMap = mapFile.start
-        let musicFile: MusicFile = Self.load("music", from: bundle)
-        songs = musicFile.songs
-        instruments = musicFile.instruments ?? []
-        appearance = Self.load("appearance", from: bundle)
-        crowd = Self.load("crowd", from: bundle)
-        announcements = Self.load("announcements", from: bundle)
-        releases = (Self.load("changelog", from: bundle) as ChangelogFile).releases
+    private struct Loaded {
+        let classChoiceLevel: Int
+        let races: [RaceDef]
+        let classes: [ClassDef]
+        let skills: [SkillDef]
+        let monsters: [MonsterDef]
+        let items: [ItemDef]
+        let quests: [QuestDef]
+        let maps: [MapDef]
+        let startMap: String
+        let songs: [SongDef]
+        let instruments: [InstrumentDef]
+        let appearance: AppearanceOptions
+        let crowd: CrowdOptions
+        let announcements: AnnouncementOptions
+        let releases: [ReleaseNote]
     }
 
-    private static func load<T: Decodable>(_ name: String, from bundle: Bundle) -> T {
+    private let bundle: Bundle
+    private var loaded: Loaded
+
+    var classChoiceLevel: Int { loaded.classChoiceLevel }
+    var races: [RaceDef] { loaded.races }
+    var classes: [ClassDef] { loaded.classes }
+    var skills: [SkillDef] { loaded.skills }
+    var monsters: [MonsterDef] { loaded.monsters }
+    var items: [ItemDef] { loaded.items }
+    var quests: [QuestDef] { loaded.quests }
+    var maps: [MapDef] { loaded.maps }
+    var startMap: String { loaded.startMap }
+    var songs: [SongDef] { loaded.songs }
+    var instruments: [InstrumentDef] { loaded.instruments }
+    var appearance: AppearanceOptions { loaded.appearance }
+    var crowd: CrowdOptions { loaded.crowd }
+    var announcements: AnnouncementOptions { loaded.announcements }
+    /// Newest first.
+    var releases: [ReleaseNote] { loaded.releases }
+
+    /// `strings`: read the data with these translations instead of the chosen language's (tests).
+    init(bundle: Bundle = .main, strings: [String: String]? = nil) {
+        self.bundle = bundle
+        if let strings {
+            loaded = Self.read(bundle, strings: strings)
+        } else {
+            // The chosen language's strings are loaded with the Localizer.
+            _ = Localizer.shared
+            loaded = Self.read(bundle, strings: Strings.table)
+        }
+    }
+
+    /// Reads everything again in the language now chosen (`Localizer.choose`).
+    func reload() {
+        loaded = Self.read(bundle, strings: Strings.table)
+    }
+
+    private static func read(_ bundle: Bundle, strings: [String: String]) -> Loaded {
+        let fields = strings.isEmpty ? [:] : translatedFields(bundle)
+        func load<T: Decodable>(_ name: String) -> T {
+            Self.load(name, from: bundle, translating: fields[name], with: strings)
+        }
+        let classFile: ClassesFile = load("classes")
+        let mapFile: MapsFile = load("maps")
+        let musicFile: MusicFile = load("music")
+        return Loaded(
+            classChoiceLevel: classFile.classChoiceLevel,
+            races: classFile.races,
+            classes: classFile.classes,
+            skills: (load("skills") as SkillsFile).skills,
+            monsters: (load("monsters") as MonstersFile).monsters,
+            items: (load("items") as ItemsFile).items,
+            quests: (load("quests") as QuestsFile).quests,
+            maps: mapFile.maps,
+            startMap: mapFile.start,
+            songs: musicFile.songs,
+            instruments: musicFile.instruments ?? [],
+            appearance: load("appearance"),
+            crowd: load("crowd"),
+            announcements: load("announcements"),
+            releases: (load("changelog") as ChangelogFile).releases
+        )
+    }
+
+    /// Which keys hold text, per file (content/i18n/fields.json): a list of key names, or "*" for
+    /// every string in the file.
+    private static func translatedFields(_ bundle: Bundle) -> [String: Set<String>] {
+        guard let url = bundle.url(forResource: "fields", withExtension: "json", subdirectory: "content/i18n"),
+              let data = try? Data(contentsOf: url),
+              let raw = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return [:] }
+        var fields: [String: Set<String>] = [:]
+        for (file, keys) in raw where !file.hasPrefix("_") {
+            if let all = keys as? String, all == "*" { fields[file] = ["*"] }
+            if let list = keys as? [String] { fields[file] = Set(list) }
+        }
+        return fields
+    }
+
+    private static func load<T: Decodable>(_ name: String, from bundle: Bundle, translating keys: Set<String>?,
+                                           with strings: [String: String]) -> T {
         guard let url = bundle.url(forResource: name, withExtension: "json", subdirectory: "content") else {
             fatalError("content/\(name).json is missing from the app bundle")
         }
         do {
-            return try JSONDecoder().decode(T.self, from: Data(contentsOf: url))
+            var data = try Data(contentsOf: url)
+            if let keys, !strings.isEmpty {
+                let json = try JSONSerialization.jsonObject(with: data)
+                data = try JSONSerialization.data(withJSONObject: translate(json, keys: keys, key: nil, strings: strings))
+            }
+            return try JSONDecoder().decode(T.self, from: data)
         } catch {
             fatalError("content/\(name).json couldn't be read: \(error)")
+        }
+    }
+
+    /// Swaps every string under one of `keys` (in a list, or alone) for its translation.
+    private static func translate(_ value: Any, keys: Set<String>, key: String?, strings: [String: String]) -> Any {
+        switch value {
+        case let object as [String: Any]:
+            var out: [String: Any] = [:]
+            for (name, child) in object {
+                out[name] = name.hasPrefix("_") ? child : translate(child, keys: keys, key: name, strings: strings)
+            }
+            return out
+        case let list as [Any]:
+            return list.map { translate($0, keys: keys, key: key, strings: strings) }
+        case let text as String:
+            guard keys.contains("*") || key.map(keys.contains) == true else { return text }
+            return strings[text] ?? text
+        default:
+            return value
         }
     }
 

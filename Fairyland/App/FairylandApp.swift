@@ -5,6 +5,10 @@ import UIKit
 struct FairylandApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
+    init() {
+        DebugLaunch.applyLanguage()
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView()

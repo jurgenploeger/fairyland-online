@@ -168,7 +168,7 @@ struct OrangeCloseButton: View {
         }
         .frame(width: 34, height: 34)
         .contentShape(Rectangle())
-        .accessibilityLabel("Close")
+        .accessibilityLabel(L("Close"))
     }
 }
 
@@ -298,7 +298,7 @@ struct NameBadge: View {
     let badge: PlayerBadge
 
     var body: some View {
-        Text(badge.rawValue)
+        Text(badge.title)
             .font(.system(size: 8, weight: .black, design: .rounded))
             .foregroundStyle(.white)
             .padding(.horizontal, 5)
@@ -306,7 +306,7 @@ struct NameBadge: View {
             .background(Capsule().fill(Color(uiColor: badge.uiColor)))
             .overlay(Capsule().strokeBorder(.black.opacity(0.35), lineWidth: 0.5))
             .fixedSize()
-            .accessibilityLabel(badge == .mod ? "moderator" : "bot")
+            .accessibilityLabel(badge == .mod ? L("moderator") : L("bot"))
     }
 }
 
@@ -351,7 +351,7 @@ struct AdaptiveStack<Content: View>: View {
 extension Stats {
     /// "ATK +4 · DEF +2" for item descriptions.
     var bonusSummary: String {
-        [("HP", hp), ("MP", mp), ("ATK", attack), ("DEF", defense), ("MAG", magic), ("SPD", speed)]
+        [(L("HP"), hp), (L("MP"), mp), (L("ATK"), attack), (L("DEF"), defense), (L("MAG"), magic), (L("SPD"), speed)]
             .filter { $0.1 != 0 }
             .map { "\($0.0) +\($0.1)" }
             .joined(separator: " · ")

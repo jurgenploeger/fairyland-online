@@ -13,7 +13,7 @@ struct MapOverlay: View {
                 .onTapGesture(perform: onClose)
 
             VStack(spacing: 10) {
-                FLTitleBar(title: "World map", icon: .map, onClose: onClose)
+                FLTitleBar(title: L("World map"), icon: .map, onClose: onClose)
                 WorldAtlas(session: session)
             }
             .padding(16)
