@@ -120,7 +120,7 @@
     {
       "id": "mage",
       "name": "Mage",
-      "guild": "Diviner Guild",
+      "guild": "Arcane Circle",
       "description": "Masters of elemental spells and healing. Frail, but their magic is devastating when it hits a weak spot.",
       "growth": {
         "hp": 8,
@@ -188,7 +188,7 @@
     {
       "id": "tamer",
       "name": "Beast Tamer",
-      "guild": "Journeyman Guild",
+      "guild": "Wildfolk Lodge",
       "description": "Friends of every creature. Much better at capturing monsters, and their companions share all battle EXP.",
       "growth": {
         "hp": 11,

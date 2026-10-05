@@ -1,15 +1,16 @@
-# Fairyland
+# Storyleaf
 
 A cozy 2.5D pixel-art RPG for iPhone (portrait and landscape), inspired by Fairyland Online (2007).
+In the code (the Xcode project, targets and folders) it's still called Fairyland; players see Storyleaf.
 Built with SwiftUI + SpriteKit. Art is generated with [Retro Diffusion](https://www.retrodiffusion.ai).
 
 ## What's in the game
 
-- **30 isometric maps** you walk between along winding roads, many named after Fairyland Online's: towns
-  (Meadowbrook, Rainbow City, Bluebird, dwarven Goldburg) with streets, shops, fairytale buildings and raised
-  stone terraces, and wild zones from Sunny Meadow, the Northern Grassland and Candy Mountain to Swan Lake,
-  Lotus Land, Puppet Hill, the Valley of Fear, Genie Desert, Sleepy Town and Moonglow, then the level
-  105–200 lands beyond: the Secret Plain, Hachoo Island, Rosen Lake, the Water Temple, the Mysterious Cave and
+- **30 isometric maps** you walk between along winding roads, each with its own storybook name: towns
+  (Meadowbrook, Prismhaven, Larkspur, dwarven Ingothold) with streets, shops, fairytale buildings and raised
+  stone terraces, and wild zones from Sunny Meadow, the Windswept Downs and Gumdrop Peaks to Swan Lake,
+  Lotus Land, Marionette Rise, Shiverdell, Genie Desert, Dozywick and Moonwhisper, then the level
+  105–200 lands beyond: the Hidden Steppe, Sneezle Isle, Briarmere, the Tidewater Shrine, the Whispering Hollow and
   the Emerald Road. Quests open the roads onward.
 - **Random encounters** in the wild (no monsters on the map), with **turn-based battles** fought where you
   stand. Big spells splash onto nearby monsters. Fourteen bosses wait on their maps behind two waves of ten of their followers, up to the Emerald Dragon at level 200.
@@ -27,7 +28,7 @@ Built with SwiftUI + SpriteKit. Art is generated with [Retro Diffusion](https://
 - **A living world:** villagers and other adventurers (computer-run for now, tagged BOT) wander and chat (see
   the chat window), you can befriend adventurers and bring up to four along in your party, with their
   companions (they fight on if you faint, and wait for you where you fell), and danger zones allow duels.
-  Goldburg's square is a market of traders under signs, and announcements in the chat tell of dawn and dusk,
+  Ingothold's square is a market of traders under signs, and announcements in the chat tell of dawn and dusk,
   arrivals, other adventurers' news and rare monster sightings. Moderators get a MOD tag and a World channel.
 - **Customisation:** hair, outfit and skin (more unlock through quests); armour recolours your outfit and your
   weapon shows in hand.
