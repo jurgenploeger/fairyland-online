@@ -109,3 +109,9 @@ final class Localizer {
     private nonisolated struct StringsFile: Decodable { let strings: [String: String] }
     private nonisolated struct LanguagesFile: Decodable { let languages: [GameLanguage] }
 }
+
+extension String {
+    /// A name dropped into the middle of a sentence: lowercased in English ("the gift box is
+    /// empty"), left as it is in other languages, whose own rules decide (German capitalises nouns).
+    var midSentence: String { Localizer.shared.language == "en" ? lowercased() : self }
+}

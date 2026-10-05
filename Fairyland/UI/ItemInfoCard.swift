@@ -136,7 +136,7 @@ struct ItemInfoCard: View {
                 }
             }
         } else {
-            Text(L("You have no {type} on.", ["type": item.type.displayName.lowercased()])).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+            Text(L("You have no {type} on.", ["type": item.type.displayName.midSentence])).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
         }
     }
 

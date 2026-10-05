@@ -307,7 +307,7 @@ final class GameCoordinator {
 
     private func openChest(_ chest: NPCDef) {
         if session.isOpened(chest.id) {
-            session.post(L("The {chest} is empty.", ["chest": chest.name.lowercased()]))
+            session.post(L("The {chest} is empty.", ["chest": chest.name.midSentence]))
         } else if session.openChest(chest) != nil {
             session.save()
         } else {
