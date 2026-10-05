@@ -1012,11 +1012,14 @@ final class BattleScene: SKScene {
         dim.removeFromParent()
     }
 
-    /// The hero levelled up with the win: light pours down on them in a burst of gold and "LEVEL
-    /// UP!" fills the field. A new level doesn't heal, so their bars stay as the fight left them.
+    /// The hero levelled up with the win: light pours down on them in a burst of gold, "LEVEL UP!"
+    /// fills the field, and their bars fill up (a new level restores HP and MP, so a hero who
+    /// fell gets back up for it).
     func celebrateLevelUp(to level: Int) {
         guard let id = controller.hero?.id, let hero = actors[id] else { return }
         let gold = Nodes.gold
+        hero.run(.group([.fadeIn(withDuration: 0.4), .move(to: hero.home, duration: 0.4)]), withKey: "revive")
+        hero.setHealth(1, mana: 1)
         SkillEffects.screenFlash(color: gold, strength: 0.3, size: size, in: self)
         SkillEffects.lightPillar(on: hero, level: 5, in: stage)
         SkillEffects.glory(on: hero, color: gold, level: 5, in: stage)
@@ -1050,6 +1053,7 @@ final class BattleScene: SKScene {
     func celebrateLevelUp(of id: Int, to level: Int) {
         guard let actor = actors[id] else { return }
         let gold = Nodes.gold
+        actor.setHealth(1, mana: 1)
         SkillEffects.lightPillar(on: actor, level: 3, in: stage)
         SkillEffects.glory(on: actor, color: gold, level: 4, in: stage)
         SkillEffects.burst(at: actor.center, color: gold, count: 14, speed: 90, in: stage)

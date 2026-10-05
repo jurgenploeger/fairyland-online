@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.52",
+      "date": "2026-10-05",
+      "title": "Fresh strength with every level",
+      "notes": [
+        "Levelling up fills your HP and MP again, and your companion's when it levels up too. Between fights your wounds still stay with you."
+      ]
+    },
+    {
       "version": "0.3.51",
       "date": "2026-10-05",
       "title": "Purple poison",
