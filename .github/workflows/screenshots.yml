@@ -88,17 +88,17 @@ jobs:
             shots tools/screenshots.txt "${{ inputs.scenes }}"
 
       # The simulator films at full resolution and a high bitrate (~140 MB a minute), over
-      # GitHub's 100 MB a file: bring recordings down to App Store preview width (886) first.
-      - name: Shrink the recordings
+      # GitHub's 100 MB a file: publish a big recording in 90 MB parts (<name>.mp4.part-aa, -ab…;
+      # `cat <name>.mp4.part-* > <name>.mp4` joins them again).
+      - name: Split big recordings
         run: |
-          ls shots/*.mp4 >/dev/null 2>&1 || exit 0
-          brew install ffmpeg >/dev/null
           for f in shots/*.mp4; do
-            ffmpeg -v error -y -i "$f" -vf "scale=886:-2:flags=lanczos" -c:v libx264 -crf 16 -preset slow \
-              -pix_fmt yuv420p -an -movflags +faststart "${f%.mp4}.small.mp4"
-            mv "${f%.mp4}.small.mp4" "$f"
-            ls -l "$f"
+            [ -e "$f" ] || continue
+            if [ "$(stat -f%z "$f")" -gt 94371840 ]; then
+              split -b 90m "$f" "$f.part-" && rm "$f"
+            fi
           done
+          ls -l shots | grep -E 'mp4' || true
 
       - uses: actions/upload-artifact@v4
         with:
@@ -116,7 +116,7 @@ jobs:
             || { git worktree add --detach ../pub && cd ../pub && git checkout --orphan screenshots && git rm -rfq . && cd -; }
           mkdir -p "../pub/$BRANCH"
           cp shots/*.png "../pub/$BRANCH/"
-          cp shots/*.mp4 "../pub/$BRANCH/" 2>/dev/null || true
+          cp shots/*.mp4 shots/*.mp4.part-* "../pub/$BRANCH/" 2>/dev/null || true
           echo "${GITHUB_SHA}" > "../pub/$BRANCH/COMMIT"
           cd ../pub
           git add -A
