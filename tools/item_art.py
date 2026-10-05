@@ -297,6 +297,44 @@ def draw_seal_stone(c):
         c.set(16 + r * math.cos(t), 17 + r * math.sin(t), WHITE)
 
 
+def draw_homeward_feather(c):
+    """A soft white feather, gently curved, on a golden quill, with a homeward glint."""
+    vane = [hexc("8fa8d0"), hexc("eef4ff"), WHITE]
+    gold = [hexc("b07a1a"), hexc("f0c040"), hexc("fff0a0")]
+    base, tip = (9, 24), (27, 3)                       # the shaft, bottom left to top right
+    dx, dy = tip[0] - base[0], tip[1] - base[1]
+    length = math.hypot(dx, dy)
+    ux, uy = dx / length, dy / length                  # along the shaft
+    nx, ny = -uy, ux                                   # across it, towards the bottom right
+    def spine(t):                                      # the shaft bows a little
+        bend = 2.2 * math.sin(math.pi * t)
+        return base[0] + dx * t - nx * bend, base[1] + dy * t - ny * bend
+    def edge(side, widest):
+        points = []
+        for k in range(13):
+            t = k / 12
+            width = widest * math.sin(math.pi * t) ** 0.6 if t < 1 else 0
+            x, y = spine(t)
+            points.append((x + side * nx * width, y + side * ny * width))
+        return points
+    c.poly(edge(-1, 5.0) + edge(1, 7.5)[::-1], vane[1])
+    for k in range(4, 11, 2):                          # barbs: soft grey splits slanting to the tip
+        t = k / 12
+        x, y = spine(t)
+        c.line(x + nx * 1.5, y + ny * 1.5, x + nx * 6 + ux * 2.5, y + ny * 6 + uy * 2.5, vane[0])
+        c.line(x - nx * 1.2, y - ny * 1.2, x - nx * 4 + ux * 2, y - ny * 4 + uy * 2, hexc("c8d6ee"))
+    for k in range(2, 12):                             # light on the narrow upper side
+        x, y = spine(k / 12)
+        c.set(x - nx * 2.5, y - ny * 2.5, vane[2])
+    for k in range(0, 25):                             # the golden quill along the spine
+        x, y = spine(k / 24)
+        c.set(x, y, gold[1] if k % 6 else gold[2])
+    c.line(base[0], base[1], base[0] - 4, base[1] + 5, gold[0], width=2)
+    for (x, y) in ((27, 19), (23, 24)):                # the homeward glint
+        c.set(x, y, gold[2])
+        for (ox, oy) in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            c.set(x + ox, y + oy, gold[1])
+
 def draw_pet_egg(c):
     shell = [hexc("d8c8a4"), hexc("fbf2dc"), WHITE]
     c.ellipse(16, 17.5, 9, 11.5, shell[1])
@@ -1032,6 +1070,7 @@ PROMPTS = {  # for a later Retro Diffusion upgrade (python3 tools/rd.py generate
     "ether": "blue mana potion in a cone flask with a cork",
     "hi_ether": "violet mana potion in a cone flask with a gold star",
     "seal_stone": "teal crystal sealing stone with a white spiral rune",
+    "homeward_feather": "white feather with a golden quill and a soft glow",
     "pet_egg": "cream pet egg with colourful spots, wiggling",
     "wooden_sword": "small wooden practice sword",
     "steel_sword": "steel sword with a gold crossguard and a red gem",

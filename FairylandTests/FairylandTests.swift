@@ -680,6 +680,25 @@ struct RulesTests {
     }
     #endif
 
+    @Test func everyTownSellsAHomewardFeather() throws {
+        let content = Content.shared
+        let feather = try #require(content.item("homeward_feather"))
+        #expect(feather.type == .consumable)
+        #expect(feather.travel == true)
+        let shops = content.maps.flatMap { $0.npcs ?? [] }.filter { $0.role == .shop }
+        #expect(!shops.isEmpty)
+        for shop in shops {
+            #expect(shop.stock?.contains(feather.id) == true, "\(shop.id) doesn't sell it")
+        }
+        // A way home from the bag, for any class; not something to use in a fight.
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.addItem(feather.id)
+        #expect(session.consumables.contains { $0.id == feather.id })
+        #expect(!session.battleItems.contains { $0.id == feather.id })
+        #expect(session.use(feather.id) == nil)
+        #expect(session.count(of: feather.id) == 1)
+    }
+
     @Test func shopsBuyBackAndAdventurersTrade() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let potion = try #require(Content.shared.item("potion"))

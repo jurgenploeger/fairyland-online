@@ -267,6 +267,9 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     let icon: String?
     /// Seal Stones: thrown in battle to befriend a weakened monster.
     let capture: Bool?
+    /// Homeward Feathers: used from the bag outside battle, they carry you to your checkpoint like
+    /// Bridge of Light, for any class.
+    let travel: Bool?
     /// Armour: how it recolours the hero's outfit while worn (same rules as looks).
     let recolor: [RecolorRule]?
     /// Materials: wood | metal | gem | hide. Monsters of at least `level` drop them.

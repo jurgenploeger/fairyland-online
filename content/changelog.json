@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.53",
+      "date": "2026-10-05",
+      "title": "A way home for everyone",
+      "notes": [
+        "Homeward Feathers are on sale in every town shop for 50 gold. Use one from your bag outside battle and the wind carries you back to your checkpoint, like the Mage's Bridge of Light, whatever your class."
+      ]
+    },
+    {
       "version": "0.3.49",
       "date": "2026-10-05",
       "title": "Your wounds stay with you",

@@ -709,6 +709,11 @@ private struct BagTab: View {
                             Button(pet.name) { note = session.use(item.id, onPet: pet.id) }
                                 .buttonStyle(PixelButtonStyle(compact: true))
                         }
+                    } else if item.travel == true {
+                        // Back to your checkpoint, like Bridge of Light (closes the menu).
+                        Button(L("Use")) { session.onTravel?(item) }
+                            .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+                            .disabled(session.onTravel == nil)
                     } else if item.capture == true {
                         Text(L("For battle")).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                     }

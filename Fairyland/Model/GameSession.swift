@@ -125,6 +125,8 @@ final class GameSession {
     /// Set by the game while you're on a map: casts a field spell like Bridge of Light. Nil on the
     /// title screen and in tests, where there's nowhere to go.
     @ObservationIgnored var onCastField: ((SkillDef) -> Void)?
+    /// The same for a travel item from the bag (a Homeward Feather).
+    @ObservationIgnored var onTravel: ((ItemDef) -> Void)?
 
     var content: Content { .shared }
 

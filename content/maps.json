@@ -721,6 +721,7 @@
           "stock": [
             "potion",
             "seal_stone",
+            "homeward_feather",
             "ether",
             "wooden_sword",
             "oak_staff",
@@ -3609,6 +3610,7 @@
             "ether",
             "hi_ether",
             "seal_stone",
+            "homeward_feather",
             "steel_sword",
             "elder_staff",
             "beast_whip",
@@ -5421,6 +5423,7 @@
             "hi_potion",
             "hi_ether",
             "seal_stone",
+            "homeward_feather",
             "battle_axe",
             "star_wand",
             "wild_horn",
@@ -8565,6 +8568,7 @@
             "hi_potion",
             "hi_ether",
             "seal_stone",
+            "homeward_feather",
             "ruby_ring",
             "star_charm"
           ]

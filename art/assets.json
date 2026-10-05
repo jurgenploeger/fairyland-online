@@ -4361,6 +4361,17 @@
       }
     },
     {
+      "id": "item_homeward_feather",
+      "kind": "item",
+      "request": {
+        "prompt": "white feather with a golden quill and a soft glow, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
       "id": "item_pet_egg",
       "kind": "item",
       "request": {

@@ -56,6 +56,10 @@ capsule (H). Mining spots include Ilium, Kars Mountain and Siwa Oasis (H).
 
 **Us:** 30 maps and 4 towns (Meadowbrook, Rainbow City, Bluebird, Goldburg).
 - Everyone starts in Meadowbrook, and all three guild masters are there.
+- Travel: you walk between maps; your checkpoint is the last map you entered. Mages learn Bridge of Light
+  (Lv 20, 10 MP) to go back to it, and since 0.3.53 anyone can buy a Homeward Feather (50 gold, every town
+  shop) that does the same once. How FO itself moved players between towns isn't in any source reachable
+  from a cloud session (2026-10-05); this is our own design.
 - Fairy-tale fields echo the lands: Genie Desert, Lotus Land (with Thumbelina), Candy Mountain, Snow White
   Forest, Emerald Road.
 - Candy Mountain is our nod to the Candy House land (Hansel and Gretel's Grasha Village): a sugar path,
