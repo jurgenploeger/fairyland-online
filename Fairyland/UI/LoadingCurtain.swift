@@ -20,7 +20,7 @@ struct LoadingCurtain: View {
                     .scaledToFit()
                     .frame(maxWidth: 300)
                     .scaleEffect(spin ? 1.03 : 0.97)
-                LoadingBar(progress: progress, label: "Loading", textColor: HUDStyle.ink)
+                LoadingBar(progress: progress, label: L("Loading"), textColor: HUDStyle.ink)
             }
             .padding(.horizontal, 40)
         }
@@ -51,7 +51,7 @@ struct MapLoadingCard: View {
                     .font(HUDStyle.font(26))
                     .foregroundStyle(HUDStyle.nameYellow)
                     .shadow(color: .black, radius: 0, x: 2, y: 2)
-                LoadingBar(progress: progress, label: "Travelling", textColor: HUDStyle.cream)
+                LoadingBar(progress: progress, label: L("Travelling"), textColor: HUDStyle.cream)
             }
             .padding(.horizontal, 40)
         }
@@ -96,7 +96,7 @@ struct LoadingBar: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
-        .accessibilityValue("\(percent) percent")
+        .accessibilityValue(L("{percent} percent", ["percent": percent]))
     }
 }
 

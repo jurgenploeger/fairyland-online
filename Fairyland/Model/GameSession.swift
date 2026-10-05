@@ -7,6 +7,14 @@ import Observation
 nonisolated enum PlayerBadge: String, Sendable {
     case bot = "BOT"
     case mod = "MOD"
+
+    /// The tag as shown over a name and in the chat.
+    var title: String {
+        switch self {
+        case .bot: L("BOT")
+        case .mod: L("MOD")
+        }
+    }
 }
 
 /// The player's progress: hero, companions, bag, quests. All rules for levelling,
@@ -81,7 +89,7 @@ final class GameSession {
 
     func startChat(on mapName: String) {
         let kept = chat.filter { $0.kind == .world || $0.kind == .announcement }.suffix(10)
-        chat = Array(kept) + [ChatLine(speaker: "", text: "You entered \(mapName).", kind: .system)]
+        chat = Array(kept) + [ChatLine(speaker: "", text: L("You entered {map}.", ["map": mapName]), kind: .system)]
         unreadChat = 0
     }
 
@@ -288,7 +296,7 @@ final class GameSession {
         if !trimmed.isEmpty { data.hero.name = String(trimmed.prefix(12)) }
         data.hero.look = look
         applyLook()
-        post("Looking good, \(data.hero.name)!", .reward)
+        post(L("Looking good, {hero}!", ["hero": data.hero.name]), .reward)
         save()
     }
 
@@ -302,7 +310,7 @@ final class GameSession {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
         data.pets[index].name = String(trimmed.prefix(12))
-        post("\(data.pets[index].name) loves the new name!", .reward)
+        post(L("{pet} loves the new name!", ["pet": data.pets[index].name]), .reward)
         save()
     }
 
@@ -369,7 +377,7 @@ final class GameSession {
             data.friends = friends
         }
         restoreHero()
-        post("The world grew bigger! You're now level \(data.hero.level).", .reward)
+        post(L("The world grew bigger! You're now level {level}.", ["level": data.hero.level]), .reward)
     }
 
     func rebirth() {
@@ -379,7 +387,7 @@ final class GameSession {
         data.hero.level = 1
         data.hero.exp = 0
         restoreHero()
-        post("You were reborn! Rebirth \(rebirths): back to level 1, a little stronger than before.", .reward)
+        post(L("You were reborn! Rebirth {rebirths}: back to level 1, a little stronger than before.", ["rebirths": rebirths]), .reward)
         save()
     }
 
@@ -466,9 +474,9 @@ final class GameSession {
 
     /// "No skills yet" plus what to do about it.
     var skillHint: String {
-        if let skill = learnableSkills.first { return "No skills yet.\nSpend your skill point to learn \(skill.name)." }
-        if let next = nextSkillUnlock { return "No skills yet.\nYou can learn \(next.skill.name) at level \(next.level)." }
-        return "No skills yet."
+        if let skill = learnableSkills.first { return L("No skills yet.\nSpend your skill point to learn {skill}.", ["skill": skill.name]) }
+        if let next = nextSkillUnlock { return L("No skills yet.\nYou can learn {skill} at level {level}.", ["skill": next.skill.name, "level": next.level]) }
+        return L("No skills yet.")
     }
 
     /// Ten steps from learning a skill to mastering it.
@@ -498,7 +506,7 @@ final class GameSession {
         var levels = data.hero.skillLevels ?? [:]
         levels[id] = 1
         data.hero.skillLevels = levels
-        post("You learned \(skill.name)!", .reward)
+        post(L("You learned {skill}!", ["skill": skill.name]), .reward)
     }
 
     func upgradeSkill(_ id: String) {
@@ -550,7 +558,7 @@ final class GameSession {
         data.hero.classID = id
         SoundEffects.shared.play(.levelUp)
         Haptics.success()
-        post("You joined the \(content.classDef(id).guild ?? "guild") as a \(content.classDef(id).name)!", .reward)
+        post(L("You joined the {guild} as a {className}!", ["guild": content.classDef(id).guild ?? L("guild"), "className": content.classDef(id).name]), .reward)
         // Gear the new class can't use goes back into the bag.
         for slot in ItemType.equipmentSlots {
             if let itemID = data.hero.equipment[slot], let item = content.item(itemID), equipIssue(item) != nil {
@@ -644,7 +652,7 @@ final class GameSession {
         var friend = adventurer
         friend.hostile = false
         data.friends = friends + [friend]
-        post("\(adventurer.name) is now your friend!", .reward)
+        post(L("{name} is now your friend!", ["name": adventurer.name]), .reward)
         save()
         return true
     }
@@ -663,7 +671,7 @@ final class GameSession {
             data.friends?[index].checkpoint = saved
         }
         data.partyIDs = (data.partyIDs ?? []) + [id]
-        post("\(friend.name) joined your party!", .reward)
+        post(L("{name} joined your party!", ["name": friend.name]), .reward)
         save()
     }
 
@@ -673,7 +681,7 @@ final class GameSession {
         if let index = data.friends?.firstIndex(where: { $0.id == id }) {
             data.friends?[index].waitingAt = nil
         }
-        post("\(friend.name) left the party. See you around!")
+        post(L("{name} left the party. See you around!", ["name": friend.name]))
         save()
     }
 
@@ -682,7 +690,7 @@ final class GameSession {
         guard let index = data.friends?.firstIndex(where: { $0.id == id }), let friend = data.friends?[index],
               friend.waitingAt != nil else { return }
         data.friends?[index].waitingAt = nil
-        post("\(friend.name) is back with you!", .reward)
+        post(L("{name} is back with you!", ["name": friend.name]), .reward)
         save()
     }
 
@@ -691,7 +699,7 @@ final class GameSession {
     func whereabouts(of friend: Adventurer) -> String? {
         guard let spot = friends.first(where: { $0.id == friend.id })?.waitingAt else { return nil }
         if spot.position == nil { return checkpointName(Checkpoint(mapID: spot.mapID, entry: spot.entry)) }
-        return content.map(spot.mapID)?.name ?? "somewhere"
+        return content.map(spot.mapID)?.name ?? L("somewhere")
     }
 
     func unfriend(_ id: UUID) {
@@ -796,14 +804,14 @@ final class GameSession {
         guard let newcomer = pendingPet else { return }
         pendingPet = nil
         if id == newcomer.id {
-            post("\(newcomer.name) waves goodbye and hops back to the wild.")
+            post(L("{pet} waves goodbye and hops back to the wild.", ["pet": newcomer.name]))
             return
         }
         guard let index = data.pets.firstIndex(where: { $0.id == id }) else { return }
         let parting = data.pets.remove(at: index)
         data.pets.append(newcomer)
         if data.activePetID == parting.id { data.activePetID = newcomer.id }
-        post("\(parting.name) stays behind. \(newcomer.name) joined your party!", .reward)
+        post(L("{parting} stays behind. {pet} joined your party!", ["parting": parting.name, "pet": newcomer.name]), .reward)
         save()
     }
 
@@ -860,12 +868,12 @@ final class GameSession {
         }
         guard point != data.checkpoint else { return }
         data.checkpoint = point
-        post("Checkpoint saved at \(checkpointName(point)).", .quest)
+        post(L("Checkpoint saved at {place}.", ["place": checkpointName(point)]), .quest)
     }
 
     func checkpointName(_ point: Checkpoint) -> String {
-        let name = content.map(point.mapID)?.name ?? "town"
-        return point.entry == nil ? name : "the \(name) entrance"
+        let name = content.map(point.mapID)?.name ?? L("town")
+        return point.entry == nil ? name : L("the {map} entrance", ["map": name])
     }
 
     /// After a fight, the party may split up. Whoever fainted wakes up at their own checkpoint: you at
@@ -885,7 +893,7 @@ final class GameSession {
                     wokeWithYou.append(friend.name)
                 } else {
                     data.friends?[index].waitingAt = Spot(mapID: home.mapID, entry: home.entry)
-                    lines.append("\(friend.name) fainted and wakes up at \(checkpointName(home)).")
+                    lines.append(L("{name} fainted and wakes up at {place}.", ["name": friend.name, "place": checkpointName(home)]))
                 }
             } else if heroFainted {
                 data.friends?[index].waitingAt = here
@@ -895,10 +903,12 @@ final class GameSession {
         if heroFainted {
             faint()
             let place = checkpointName(checkpoint)
-            lines.insert("\(Self.listed(["You"] + wokeWithYou)) wake up at \(place), a little bruised.", at: 0)
+            lines.insert(L("{names} wake up at {place}, a little bruised.", ["names": Self.listed([L("You")] + wokeWithYou), "place": place]), at: 0)
         }
         if !stayed.isEmpty {
-            lines.append("\(Self.listed(stayed)) \(stayed.count == 1 ? "waits" : "wait") for you where you fell.")
+            lines.append(stayed.count == 1
+                ? L("{names} waits for you where you fell.", ["names": Self.listed(stayed)])
+                : L("{names} wait for you where you fell.", ["names": Self.listed(stayed)]))
         }
         return lines
     }
@@ -906,7 +916,7 @@ final class GameSession {
     /// "Maple", "Maple and Kip", "Maple, Kip and Sprout".
     static func listed(_ names: [String]) -> String {
         guard let last = names.last else { return "" }
-        return names.count > 1 ? names.dropLast().joined(separator: ", ") + " and " + last : last
+        return names.count > 1 ? L("{names} and {last}", ["names": names.dropLast().joined(separator: ", "), "last": last]) : last
     }
 
     /// Lost a battle: wake up at the last checkpoint, bruised.
@@ -942,7 +952,7 @@ final class GameSession {
         SoundEffects.shared.play(.chest)
         addItem(id)
         record(.collect, target: "gift_box")
-        post("Found \(item.name) in the gift box!", .reward)
+        post(L("Found {item} in the gift box!", ["item": item.name]), .reward)
         return item
     }
 
@@ -956,7 +966,7 @@ final class GameSession {
         removeItem(eggID)
         addPet(pet, countsForQuests: false)
         data.activePetID = pet.id
-        post("\(pet.name) hatched and joined you!", .reward)
+        post(L("{pet} hatched and joined you!", ["pet": pet.name]), .reward)
         record(.hatch, target: nil)
         return pet
     }
@@ -1002,10 +1012,10 @@ final class GameSession {
     func equipIssue(_ item: ItemDef) -> String? {
         if let classes = item.classes, !classes.contains(data.hero.classID) {
             let names = classes.map { content.classDef($0).name }.joined(separator: ", ")
-            return "Only for \(names)"
+            return L("Only for {classes}", ["classes": names])
         }
         if let level = item.level, data.hero.level < level {
-            return "Needs level \(level)"
+            return L("Needs level {level}", ["level": level])
         }
         return nil
     }
@@ -1071,7 +1081,8 @@ final class GameSession {
     /// you think it over.
     func tradeOffers(with adventurer: Adventurer, at date: Date = Date()) -> [TradeOffer] {
         let moment = GameClock.moment(at: date, since: data.startedAt)
-        let day = "\(moment.year)/\(moment.month.displayName)/\(moment.day)"
+        // The English month name, as before translations: the same deals in every language.
+        let day = "\(moment.year)/\(moment.month.rawValue.capitalized)/\(moment.day)"
         var rng = SeededRandom(text: "\(adventurer.id)|\(day)")
         let done = Set(data.tradesDone ?? [])
         func offer(_ kind: TradeOffer.Kind, _ item: ItemDef, _ price: Int) -> TradeOffer? {
@@ -1095,7 +1106,7 @@ final class GameSession {
     /// A market trader's sign: the first thing they're selling today, and its price.
     func marketSign(for trader: Adventurer) -> String? {
         guard let offer = tradeOffers(with: trader).first(where: { $0.kind == .theySell }) else { return nil }
-        return "\(offer.item.name) · \(offer.price)g"
+        return L("{item} · {price}g", ["item": offer.item.name, "price": offer.price])
     }
 
     /// What a market trader calls out on the map's chat: one of today's real deals, from
@@ -1235,18 +1246,18 @@ final class GameSession {
         if let petID, let index = data.pets.firstIndex(where: { $0.id == petID }) {
             let stats = stats(of: data.pets[index])
             let pet = data.pets[index]
-            guard (heal > 0 && pet.hp < stats.hp) || (mp > 0 && pet.mp < stats.mp) else { return "\(pet.name) doesn't need it." }
+            guard (heal > 0 && pet.hp < stats.hp) || (mp > 0 && pet.mp < stats.mp) else { return L("{name} doesn't need it.", ["name": pet.name]) }
             data.pets[index].hp = min(stats.hp, pet.hp + heal)
             data.pets[index].mp = min(stats.mp, pet.mp + mp)
             removeItem(id)
-            return "\(pet.name) feels better."
+            return L("{name} feels better.", ["name": pet.name])
         }
         let stats = heroStats
-        guard (heal > 0 && data.hero.hp < stats.hp) || (mp > 0 && data.hero.mp < stats.mp) else { return "\(data.hero.name) doesn't need it." }
+        guard (heal > 0 && data.hero.hp < stats.hp) || (mp > 0 && data.hero.mp < stats.mp) else { return L("{name} doesn't need it.", ["name": data.hero.name]) }
         data.hero.hp = min(stats.hp, data.hero.hp + heal)
         data.hero.mp = min(stats.mp, data.hero.mp + mp)
         removeItem(id)
-        return "\(data.hero.name) feels better."
+        return L("{name} feels better.", ["name": data.hero.name])
     }
 
     // MARK: - Quests
@@ -1315,7 +1326,7 @@ final class GameSession {
         for (box, item) in boxes where data.openedChests?.contains(box) != true {
             addItem(item)
             data.openedChests = (data.openedChests ?? []) + [box]
-            if let name = content.item(item)?.name { post("Elder Oak left you a \(name).", .reward) }
+            if let name = content.item(item)?.name { post(L("Elder Oak left you a {item}.", ["item": name]), .reward) }
         }
     }
 
@@ -1324,7 +1335,7 @@ final class GameSession {
         data.quests[id] = QuestProgress(state: .active, count: 0)
         SoundEffects.shared.play(.questAccept)
         if let answer { data.eggSpecies = answer.egg }
-        post("Quest accepted: \(quest.title)", .quest)
+        post(L("Quest accepted: {quest}", ["quest": quest.title]), .quest)
         let starters = quest.starterItems ?? []
         for item in starters { addItem(item) }
         // "Received 3 Seal Stones." / "Received Wooden Sword, Novice Ring and Pet Egg."
@@ -1333,11 +1344,11 @@ final class GameSession {
         let names = unique.map { id -> String in
             let name = content.item(id)?.name ?? id
             let count = starters.filter { $0 == id }.count
-            return count > 1 ? "\(count) \(name)s" : name
+            return count > 1 ? L("{count} {item}s", ["count": count, "item": name]) : name
         }
         if !names.isEmpty {
-            let list = names.count > 1 ? names.dropLast().joined(separator: ", ") + " and " + names.last! : names[0]
-            post("Received \(list).", .reward)
+            let list = names.count > 1 ? L("{names} and {last}", ["names": names.dropLast().joined(separator: ", "), "last": names.last!]) : names[0]
+            post(L("Received {items}.", ["items": list]), .reward)
         }
     }
 
@@ -1370,7 +1381,7 @@ final class GameSession {
         for drop in species?.drops ?? [] where Double.random(in: 0..<1) < drop.chance {
             guard let item = content.item(drop.item) else { continue }
             addItem(item.id)
-            post("\(species?.name ?? boss.name) dropped \(item.name)!", .reward)
+            post(L("{monster} dropped {item}!", ["monster": species?.name ?? boss.name, "item": item.name]), .reward)
         }
         save()
     }
@@ -1428,28 +1439,30 @@ final class GameSession {
         data.quests[id]?.state = .completed
         SoundEffects.shared.play(.questDone)
         Haptics.success()
-        post("Quest complete: \(quest.title)", .quest)
+        post(L("Quest complete: {quest}", ["quest": quest.title]), .quest)
         var lines: [String] = []
         if let gold = quest.reward.gold {
             data.gold += gold
-            lines.append("+\(gold) gold")
+            lines.append(L("+{gold} gold", ["gold": gold]))
         }
         if let exp = quest.reward.exp {
-            lines.append("+\(exp) EXP")
-            if gainHeroEXP(exp) > 0 { lines.append("Level up! You're now level \(data.hero.level).") }
+            lines.append(L("+{exp} EXP", ["exp": exp]))
+            if gainHeroEXP(exp) > 0 { lines.append(L("Level up! You're now level {level}.", ["level": data.hero.level])) }
         }
         for itemID in quest.reward.items ?? [] {
             addItem(itemID)
-            lines.append("Got \(content.item(itemID)?.name ?? itemID)")
+            lines.append(L("Got {item}", ["item": content.item(itemID)?.name ?? itemID]))
         }
         let looks = [("hair", content.appearance.hair), ("outfit", content.appearance.outfits)]
-            .flatMap { kind, presets in presets.filter { $0.unlock == id }.map { "\($0.name) \(kind)" } }
+            .flatMap { kind, presets in presets.filter { $0.unlock == id }.map { kind == "hair" ? L("{look} hair", ["look": $0.name]) : L("{look} outfit", ["look": $0.name]) } }
         if !looks.isEmpty {
-            lines.append("New look\(looks.count > 1 ? "s" : ""): \(looks.joined(separator: ", ")). Try it in Character → Customize!")
+            lines.append(looks.count > 1
+                ? L("New looks: {looks}. Try it in Character → Customize!", ["looks": looks.joined(separator: ", ")])
+                : L("New look: {looks}. Try it in Character → Customize!", ["looks": looks.joined(separator: ", ")]))
         }
         for map in content.maps {
             for exit in map.exits where exit.requires == id {
-                lines.append("The road from \(map.name) to \(content.map(exit.to)?.name ?? exit.to) is open!")
+                lines.append(L("The road from {from} to {map} is open!", ["from": map.name, "map": content.map(exit.to)?.name ?? exit.to]))
             }
         }
         return lines

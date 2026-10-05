@@ -6,6 +6,8 @@ struct MenuView: View {
     let onClose: () -> Void
     var onQuitToTitle: (() -> Void)?
     @State private var tab: MenuTab
+    /// A language switch (in Settings) rebuilds the panel's text, staying on the same tab.
+    @State private var localizer = Localizer.shared
 
     init(session: GameSession, initialTab: MenuTab, onClose: @escaping () -> Void, onQuitToTitle: (() -> Void)? = nil) {
         self.session = session
@@ -27,7 +29,7 @@ struct MenuView: View {
                             if tab != item { SoundEffects.shared.play(.tap, volume: 0.7) }
                             tab = item
                         } label: {
-                            Label(item.rawValue, icon: item.icon)
+                            Label(item.title, icon: item.icon)
                                 .labelStyle(TabLabelStyle(selected: item == tab))
                         }
                     }
@@ -54,6 +56,7 @@ struct MenuView: View {
                 // Debug `bottom`: opens at the end of the page (screenshots of the skills).
                 .defaultScrollAnchor(DebugLaunch.opensMenuAtBottom ? .bottom : nil)
             }
+            .id(localizer.language)
             .frame(maxWidth: 760)
             .background(HUDStyle.panel)
             .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -116,19 +119,19 @@ private struct CharacterTab: View {
         let stats = session.heroStats
         if editing {
             VStack(alignment: .leading, spacing: 12) {
-                SectionTitle(text: "Customize your hero")
+                SectionTitle(text: L("Customize your hero"))
                 // Name and gender are set when the hero is made; looks stay changeable.
                 LookEditor(name: $draftName, look: $draftLook, raceID: session.data.hero.raceID, isUnlocked: session.isUnlocked,
                            identityLocked: true, armor: session.equipped(.armor))
                 HStack {
-                    Button("Cancel") { editing = false }
+                    Button(L("Cancel")) { editing = false }
                         .buttonStyle(PixelButtonStyle(compact: true))
                     Spacer()
                     Button {
                         session.customizeHero(name: draftName, look: draftLook)
                         editing = false
                     } label: {
-                        Label("Save look", icon: .check)
+                        Label(L("Save look"), icon: .check)
                     }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                 }
@@ -151,17 +154,17 @@ private struct CharacterTab: View {
                     draftLook = hero.look ?? .standard
                     editing = true
                 } label: {
-                    Label("Customize", icon: .palette)
+                    Label(L("Customize"), icon: .palette)
                 }
                 .buttonStyle(PixelButtonStyle(compact: true))
                 Text("\(session.heroRace.name) · \(session.heroClass.name)")
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.gold)
-                Text(session.rebirths > 0 ? "Level \(hero.level) · Reborn ×\(session.rebirths)" : "Level \(hero.level)").font(HUDStyle.font(12))
-                StatBar(label: "EXP", value: hero.exp, maximum: GameSession.expToNext(level: hero.level), color: HUDStyle.exp)
+                Text(session.rebirths > 0 ? L("Level {level} · Reborn ×{rebirths}", ["level": hero.level, "rebirths": session.rebirths]) : L("Level {level}", ["level": hero.level])).font(HUDStyle.font(12))
+                StatBar(label: L("EXP"), value: hero.exp, maximum: GameSession.expToNext(level: hero.level), color: HUDStyle.exp)
                     .frame(width: 170)
                 if session.canChooseClass {
-                    Text("Ready to choose a path! Visit a guild master in Meadowbrook.")
+                    Text(L("Ready to choose a path! Visit a guild master in Meadowbrook."))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.green)
                         .multilineTextAlignment(.center)
@@ -172,17 +175,17 @@ private struct CharacterTab: View {
             .frame(maxWidth: .infinity)
 
             VStack(alignment: .leading, spacing: 10) {
-                SectionTitle(text: "Stats")
-                StatBar(label: "HP", value: hero.hp, maximum: stats.hp, color: HUDStyle.hp)
-                StatBar(label: "MP", value: hero.mp, maximum: stats.mp, color: HUDStyle.mp)
+                SectionTitle(text: L("Stats"))
+                StatBar(label: L("HP"), value: hero.hp, maximum: stats.hp, color: HUDStyle.hp)
+                StatBar(label: L("MP"), value: hero.mp, maximum: stats.mp, color: HUDStyle.mp)
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 6) {
-                    StatCell(name: "Attack", value: stats.attack)
-                    StatCell(name: "Defense", value: stats.defense)
-                    StatCell(name: "Magic", value: stats.magic)
-                    StatCell(name: "Speed", value: stats.speed)
+                    StatCell(name: L("Attack"), value: stats.attack)
+                    StatCell(name: L("Defense"), value: stats.defense)
+                    StatCell(name: L("Magic"), value: stats.magic)
+                    StatCell(name: L("Speed"), value: stats.speed)
                 }
 
-                SectionTitle(text: "Equipment")
+                SectionTitle(text: L("Equipment"))
                 ForEach(ItemType.equipmentSlots, id: \.self) { slot in
                     EquipmentRow(session: session, slot: slot, isChanging: changingSlot == slot) {
                         changingSlot = changingSlot == slot ? nil : slot
@@ -190,15 +193,15 @@ private struct CharacterTab: View {
                 }
 
                 HStack {
-                    SectionTitle(text: "Skills")
+                    SectionTitle(text: L("Skills"))
                     Spacer()
                     if session.canSpendSkillPoint {
-                        Text("\(session.unspentSkillPoints) skill point\(session.unspentSkillPoints == 1 ? "" : "s") to spend")
+                        Text(session.unspentSkillPoints == 1 ? L("1 skill point to spend") : L("{count} skill points to spend", ["count": session.unspentSkillPoints]))
                             .font(HUDStyle.font(11))
                             .foregroundStyle(HUDStyle.gold)
                     } else if session.unspentSkillPoints > 0 {
                         // Everything known is mastered: points wait for the next skill the class unlocks.
-                        Text("\(session.unspentSkillPoints) saved for your next skill")
+                        Text(L("{count} saved for your next skill", ["count": session.unspentSkillPoints]))
                             .font(HUDStyle.font(11))
                             .foregroundStyle(HUDStyle.dim)
                     }
@@ -220,7 +223,7 @@ private struct CharacterTab: View {
                             Text(skill.name)
                                 .foregroundStyle(HUDStyle.dim)
                             Spacer()
-                            Text("Lv \(unlock.level)")
+                            Text(L("Lv {level}", ["level": unlock.level]))
                                 .font(HUDStyle.font(10))
                                 .foregroundStyle(HUDStyle.ink)
                                 .padding(.horizontal, 6)
@@ -284,11 +287,11 @@ private struct EquipmentRow: View {
                 if isChanging {
                     // Unequip sits beside the item it takes off; Done closes the list from below.
                     if equipped != nil {
-                        Button("Unequip") { session.unequip(slot) }
+                        Button(L("Unequip")) { session.unequip(slot) }
                             .buttonStyle(PixelButtonStyle(compact: true))
                     }
                 } else if !options.isEmpty || equipped != nil {
-                    Button("Change", action: toggle)
+                    Button(L("Change"), action: toggle)
                         .buttonStyle(PixelButtonStyle(compact: true))
                 }
             }
@@ -307,14 +310,14 @@ private struct EquipmentRow: View {
                         if let issue = session.equipIssue(item) {
                             Text(issue).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                         } else {
-                            Button("Equip") { session.equip(item.id) }
+                            Button(L("Equip")) { session.equip(item.id) }
                                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                         }
                     }
                     .font(HUDStyle.font(12))
                     .padding(.leading, Self.labelWidth + Self.spacing)
                 }
-                Button("Done", action: toggle)
+                Button(L("Done"), action: toggle)
                     .buttonStyle(PixelButtonStyle(compact: true))
                     .padding(.leading, Self.labelWidth + Self.spacing)
             }
@@ -448,9 +451,9 @@ private struct CompanionsTab: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
-                Button("Companions") { showsBook = false }
+                Button(L("Companions")) { showsBook = false }
                     .buttonStyle(PixelButtonStyle(tint: showsBook ? HUDStyle.cream : HUDStyle.gold, compact: true))
-                Button("Monster Book") { showsBook = true }
+                Button(L("Monster Book")) { showsBook = true }
                     .buttonStyle(PixelButtonStyle(tint: showsBook ? HUDStyle.gold : HUDStyle.cream, compact: true))
             }
             if showsBook {
@@ -463,11 +466,11 @@ private struct CompanionsTab: View {
 
     private var companions: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Companions fight beside you and earn a share of battle EXP. Weaken the last wild monster standing to \(Int((BattleEngine.captureThreshold * 100).rounded()))% HP or less, then throw a Seal Stone at it with Capture to befriend it (up to \(GameSession.maxPets)). Trader Bo in Meadowbrook sells Seal Stones.")
+            Text(L("Companions fight beside you and earn a share of battle EXP. Weaken the last wild monster standing to {percent}% HP or less, then throw a Seal Stone at it with Capture to befriend it (up to {count}). Trader Bo in Meadowbrook sells Seal Stones.", ["percent": Int((BattleEngine.captureThreshold * 100).rounded()), "count": GameSession.maxPets]))
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
             if session.data.pets.isEmpty {
-                EmptyNote("No companions yet.\nElder Oak in Meadowbrook gives you an egg with the first quest: hatch it from your Bag.")
+                EmptyNote(L("No companions yet.\nElder Oak in Meadowbrook gives you an egg with the first quest: hatch it from your Bag."))
             }
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: 10)], spacing: 10) {
                 ForEach(session.data.pets) { pet in
@@ -475,12 +478,12 @@ private struct CompanionsTab: View {
                 }
             }
 
-            SectionTitle(text: "Party & friends")
-            Text("Befriend adventurers you meet (walk up to one). Up to \(GameSession.maxAllies) friends can travel and fight with you, and they bring their companions. They fight on if you faint, and wait where you fell; a friend who faints wakes up at their own checkpoint. Walk up to them to set off together again.")
+            SectionTitle(text: L("Party & friends"))
+            Text(L("Befriend adventurers you meet (walk up to one). Up to {count} friends can travel and fight with you, and they bring their companions. They fight on if you faint, and wait where you fell; a friend who faints wakes up at their own checkpoint. Walk up to them to set off together again.", ["count": GameSession.maxAllies]))
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
             if session.friends.isEmpty {
-                EmptyNote("No friends yet.\nSay hi to the adventurers you meet!")
+                EmptyNote(L("No friends yet.\nSay hi to the adventurers you meet!"))
             }
             ForEach(session.friends) { friend in
                 FriendRow(session: session, friend: friend)
@@ -509,7 +512,7 @@ private struct FriendRow: View {
                     Text(friend.name)
                     NameBadge(badge: .bot)
                     if inParty {
-                        Text("IN PARTY")
+                        Text(L("IN PARTY"))
                             .font(HUDStyle.font(9))
                             .foregroundStyle(HUDStyle.ink)
                             .padding(.horizontal, 6)
@@ -517,34 +520,34 @@ private struct FriendRow: View {
                             .background(Capsule().fill(HUDStyle.green))
                     }
                 }
-                Text("Lv \(friend.level) \(session.content.race(friend.raceID).name) \(session.content.classDef(friend.classID).name)")
+                Text(L("Lv {level} {race} {class}", ["level": friend.level, "race": session.content.race(friend.raceID).name, "class": session.content.classDef(friend.classID).name]))
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
                 if let pet {
-                    Text("with their \(pet.name)")
+                    Text(L("with their {name}", ["name": pet.name]))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.green)
                 }
                 if let place = session.whereabouts(of: friend) {
-                    Text("Waiting for you at \(place)")
+                    Text(L("Waiting for you at {map}", ["map": place]))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.orange)
                 }
             }
             Spacer()
             if inParty {
-                Button("Leave") { session.leaveParty(friend.id) }
+                Button(L("Leave")) { session.leaveParty(friend.id) }
                     .buttonStyle(PixelButtonStyle(compact: true))
             } else if !session.adventurersAround.contains(friend.id) {
                 // Friends have to be here to join you.
-                Text("Not around")
+                Text(L("Not around"))
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
             } else if session.partyMembers.count < GameSession.maxAllies {
-                Button("Invite") { session.invite(friend.id) }
+                Button(L("Invite")) { session.invite(friend.id) }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
             } else {
-                Text("Party full")
+                Text(L("Party full"))
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
             }
@@ -588,27 +591,27 @@ private struct CompanionCard: View {
                     Text(pet.name).font(HUDStyle.font(14))
                     if let element = species?.element { ElementBadge(element: element) }
                 }
-                Text("\(species?.name ?? pet.speciesID) · Lv \(pet.level)")
+                Text(L("{species} · Lv {level}", ["species": species?.name ?? pet.speciesID, "level": pet.level]))
                     .font(HUDStyle.font(11))
                     .foregroundStyle(HUDStyle.gold)
-                StatBar(label: "HP", value: pet.hp, maximum: stats.hp, color: HUDStyle.hp)
+                StatBar(label: L("HP"), value: pet.hp, maximum: stats.hp, color: HUDStyle.hp)
                 if pet.hp <= 0 {
                     // A fainted companion stays off the map and out of fights until it's healed.
-                    Text(isActive ? "Fainted: it can't follow you or fight until it's healed." : "Fainted: heal it before it comes along.")
+                    Text(isActive ? L("Fainted: it can't follow you or fight until it's healed.") : L("Fainted: heal it before it comes along."))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.orange)
                         .fixedSize(horizontal: false, vertical: true)
                     if let potion {
-                        Button("Give it a \(potion.name) (\(session.count(of: potion.id)) left)") { session.use(potion.id, onPet: pet.id) }
+                        Button(L("Give it a {item} ({count} left)", ["item": potion.name, "count": session.count(of: potion.id)])) { session.use(potion.id, onPet: pet.id) }
                             .buttonStyle(PixelButtonStyle(tint: HUDStyle.green, compact: true))
                     } else {
-                        Text("No potions in your bag: a healer in town can help.")
+                        Text(L("No potions in your bag: a healer in town can help."))
                             .font(HUDStyle.font(10))
                             .foregroundStyle(HUDStyle.dim)
                     }
                 }
-                StatBar(label: "EXP", value: pet.exp, maximum: GameSession.expToNext(level: pet.level), color: HUDStyle.exp)
-                Text("ATK \(stats.attack) · DEF \(stats.defense) · MAG \(stats.magic) · SPD \(stats.speed)")
+                StatBar(label: L("EXP"), value: pet.exp, maximum: GameSession.expToNext(level: pet.level), color: HUDStyle.exp)
+                Text(L("ATK {attack} · DEF {defense} · MAG {magic} · SPD {speed}", ["attack": stats.attack, "defense": stats.defense, "magic": stats.magic, "speed": stats.speed]))
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
                 if let skills = species?.skills.compactMap({ session.content.skill($0) }), !skills.isEmpty {
@@ -626,22 +629,22 @@ private struct CompanionCard: View {
                 }
                 HStack(spacing: 8) {
                     if isActive, pet.hp > 0 {
-                        Label("Following you", icon: .checkCircle)
+                        Label(L("Following you"), icon: .checkCircle)
                             .font(HUDStyle.font(11))
                             .foregroundStyle(HUDStyle.green)
                     } else if isActive {
                         // Still your choice: it comes along again once it's healed.
-                        Label("Chosen, resting", icon: .heart)
+                        Label(L("Chosen, resting"), icon: .heart)
                             .font(HUDStyle.font(11))
                             .foregroundStyle(HUDStyle.orange)
                     } else {
-                        Button("Bring along") { session.setActivePet(pet.id) }
+                        Button(L("Bring along")) { session.setActivePet(pet.id) }
                             .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                     }
                     Button {
                         editing = true
                     } label: {
-                        Label("Rename", icon: .edit)
+                        Label(L("Rename"), icon: .edit)
                     }
                     .buttonStyle(PixelButtonStyle(compact: true))
                 }
@@ -668,16 +671,16 @@ private struct BagTab: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Label("\(session.data.gold) gold", icon: .coins)
+                Label(L("{gold} gold", ["gold": session.data.gold]), icon: .coins)
                     .foregroundStyle(HUDStyle.gold)
                 Spacer()
                 if let note { Text(note).foregroundStyle(HUDStyle.green) }
             }
             .font(HUDStyle.font(12))
 
-            SectionTitle(text: "Items")
+            SectionTitle(text: L("Items"))
             if session.consumables.isEmpty {
-                Text("No potions. Trader Bo in Meadowbrook sells them.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                Text(L("No potions. Trader Bo in Meadowbrook sells them.")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             }
             ForEach(session.consumables) { item in
                 HStack(spacing: 10) {
@@ -692,22 +695,22 @@ private struct BagTab: View {
                             hatching = true
                             hatched = session.hatch(item.id)
                             if hatched == nil, session.data.pets.count >= GameSession.maxPets {
-                                note = "No room: you have \(GameSession.maxPets) companions."
+                                note = L("No room: you have {count} companions.", ["count": GameSession.maxPets])
                             }
                             session.save()
                         } label: {
-                            Label("Hatch", icon: .egg)
+                            Label(L("Hatch"), icon: .egg)
                         }
                         .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                     } else if (item.heal ?? 0) > 0 || (item.mp ?? 0) > 0 {
-                        Button("Hero") { note = session.use(item.id) }
+                        Button(L("Hero")) { note = session.use(item.id) }
                             .buttonStyle(PixelButtonStyle(compact: true))
                         if let pet = session.activePet {
                             Button(pet.name) { note = session.use(item.id, onPet: pet.id) }
                                 .buttonStyle(PixelButtonStyle(compact: true))
                         }
                     } else if item.capture == true {
-                        Text("For battle").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                        Text(L("For battle")).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                     }
                 }
                 .font(HUDStyle.font(12))
@@ -717,9 +720,9 @@ private struct BagTab: View {
                 HatchView(session: session, pet: pet) { hatching = false }
             }
 
-            SectionTitle(text: "Equipment")
+            SectionTitle(text: L("Equipment"))
             if session.bagEquipment.isEmpty {
-                Text("Nothing spare. Equipped gear is on the Character tab.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                Text(L("Nothing spare. Equipped gear is on the Character tab.")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             }
             ForEach(session.bagEquipment) { item in
                 HStack(spacing: 10) {
@@ -732,16 +735,16 @@ private struct BagTab: View {
                     if let issue = session.equipIssue(item) {
                         Text(issue).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                     } else {
-                        Button("Equip") { session.equip(item.id) }
+                        Button(L("Equip")) { session.equip(item.id) }
                             .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                     }
                 }
                 .font(HUDStyle.font(12))
             }
 
-            SectionTitle(text: "Materials")
+            SectionTitle(text: L("Materials"))
             if session.bagMaterials.isEmpty {
-                Text("Monsters drop wood, metal, gems and hides. A town smith forges them into weapons.")
+                Text(L("Monsters drop wood, metal, gems and hides. A town smith forges them into weapons."))
                     .font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             }
             ForEach(session.bagMaterials) { item in
@@ -782,11 +785,11 @@ private struct HatchView: View {
                 }
             }
             .frame(height: 120)
-            Text(stage < 2 ? "Something is hatching…" : "\(pet.name) hatched! Your first companion.")
+            Text(stage < 2 ? L("Something is hatching…") : L("{name} hatched! Your first companion.", ["name": pet.name]))
                 .font(HUDStyle.font(14))
                 .foregroundStyle(HUDStyle.gold)
             if stage >= 2 {
-                Button("Hello, \(pet.name)!", action: onDone)
+                Button(L("Hello, {name}!", ["name": pet.name]), action: onDone)
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
             }
         }
@@ -808,15 +811,15 @@ private struct QuestsTab: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionTitle(text: "Active")
+            SectionTitle(text: L("Active"))
             if session.activeQuests.isEmpty {
-                Text("No active quests. Elder Oak in Meadowbrook always needs help.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                Text(L("No active quests. Elder Oak in Meadowbrook always needs help.")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             }
             ForEach(session.activeQuests) { quest in
                 QuestRow(session: session, quest: quest, showsGiver: true)
             }
             if !session.completedQuests.isEmpty {
-                SectionTitle(text: "Completed")
+                SectionTitle(text: L("Completed"))
                 ForEach(session.completedQuests) { quest in
                     CompletedQuestRow(session: session, quest: quest)
                 }
@@ -844,14 +847,14 @@ struct QuestRow: View {
                     Spacer()
                     switch session.status(of: quest) {
                     case .active(let progress, let goal): Text("\(progress)/\(goal)").foregroundStyle(HUDStyle.gold)
-                    case .ready: Text("Done! Report back").foregroundStyle(HUDStyle.green)
+                    case .ready: Text(L("Done! Report back")).foregroundStyle(HUDStyle.green)
                     default: EmptyView()
                     }
                 }
                 .font(HUDStyle.font(12))
                 if showsGiver, let giver = session.content.npc(quest.giver) {
                     let home = session.content.home(ofNPC: quest.giver)?.name
-                    Text("From \(giver.name)" + (home.map { " · \($0)" } ?? ""))
+                    Text(home.map { L("From {name} · {place}", ["name": giver.name, "place": $0]) } ?? L("From {name}", ["name": giver.name]))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.gold.opacity(0.85))
                 }
@@ -862,7 +865,7 @@ struct QuestRow: View {
                             .padding(.top, 4)
                             .transition(.opacity.combined(with: .move(edge: .top)))
                     } else {
-                        Label("Tap to see the reward", icon: .gift, size: 12)
+                        Label(L("Tap to see the reward"), icon: .gift, size: 12)
                             .font(HUDStyle.font(10))
                             .foregroundStyle(HUDStyle.gold.opacity(0.7))
                             .padding(.top, 2)
@@ -878,7 +881,7 @@ struct QuestRow: View {
             withAnimation(.easeOut(duration: 0.2)) { expanded.toggle() }
         }
         .accessibilityAddTraits(showsGiver ? .isButton : [])
-        .accessibilityHint(showsGiver ? (expanded ? "Hides the reward" : "Shows the reward") : "")
+        .accessibilityHint(showsGiver ? (expanded ? L("Hides the reward") : L("Shows the reward")) : "")
     }
 }
 
@@ -913,7 +916,7 @@ private struct CompletedQuestRow: View {
         .onTapGesture { withAnimation(.easeOut(duration: 0.2)) { expanded.toggle() } }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
-        .accessibilityHint(expanded ? "Hides what you earned" : "Shows what you earned")
+        .accessibilityHint(expanded ? L("Hides what you earned") : L("Shows what you earned"))
     }
 }
 
@@ -947,7 +950,7 @@ struct QuestRewardsView: View {
     private var looks: [String] {
         let content = session.content
         return [("hair", content.appearance.hair), ("outfit", content.appearance.outfits)]
-            .flatMap { kind, presets in presets.filter { $0.unlock == quest.id }.map { "\($0.name) \(kind)" } }
+            .flatMap { kind, presets in presets.filter { $0.unlock == quest.id }.map { kind == "hair" ? L("{look} hair", ["look": $0.name]) : L("{look} outfit", ["look": $0.name]) } }
     }
 
     private var roads: [String] {
@@ -959,7 +962,7 @@ struct QuestRewardsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(earned ? "You earned" : "Reward")
+            Text(earned ? L("You earned") : L("Reward"))
                 .font(HUDStyle.font(10))
                 .foregroundStyle(HUDStyle.gold)
             HStack(spacing: 12) {
@@ -967,7 +970,7 @@ struct QuestRewardsView: View {
                     Label("\(gold)", icon: .coins, size: 14)
                 }
                 if let exp = quest.reward.exp, exp > 0 {
-                    Label("\(exp) EXP", icon: .star, size: 14)
+                    Label(L("{exp} EXP", ["exp": exp]), icon: .star, size: 14)
                 }
             }
             .font(HUDStyle.font(12))
@@ -981,12 +984,12 @@ struct QuestRewardsView: View {
                 }
             }
             ForEach(looks, id: \.self) { look in
-                Label("New look: \(look)", icon: .palette, size: 14)
+                Label(L("New look: {look}", ["look": look]), icon: .palette, size: 14)
                     .font(HUDStyle.font(11))
                     .foregroundStyle(HUDStyle.cream)
             }
             ForEach(roads, id: \.self) { road in
-                Label("\(earned ? "Opened" : "Opens") the road \(road)", icon: .map, size: 14)
+                Label(earned ? L("Opened the road {road}", ["road": road]) : L("Opens the road {road}", ["road": road]), icon: .map, size: 14)
                     .font(HUDStyle.font(11))
                     .foregroundStyle(HUDStyle.cream)
             }

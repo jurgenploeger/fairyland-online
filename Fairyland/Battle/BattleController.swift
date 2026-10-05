@@ -82,9 +82,9 @@ final class BattleController {
             : session.content.map(session.data.mapID)?.battleMusic ?? "battle"
         combatants = engine.combatants
         let names = engine.alive(on: .enemies).map(\.name)
-        message = intro ?? (names.count == 1 ? "A wild \(names[0]) appears!" : "\(names.count) monsters appear!")
+        message = intro ?? (names.count == 1 ? L("A wild {monster} appears!", ["monster": names[0]]) : L("{count} monsters appear!", ["count": names.count]))
         if let rare = engine.alive(on: .enemies).first(where: \.isRare) {
-            message += " ✦ A rare \(rare.name)!"
+            message += " ✦ " + L("A rare {monster}!", ["monster": rare.name])
         }
         for foe in engine.alive(on: .enemies) {
             if let id = foe.speciesID { session.sawMonster(id, level: foe.level) }
@@ -121,7 +121,7 @@ final class BattleController {
                 let level = max(1, friend.level - 1)
                 let stats = species.stats(at: level)
                 var companion = Combatant(
-                    id: 2 + GameSession.maxAllies + index, side: .party, source: .pet(UUID()), name: "\(friend.name)'s \(species.name)", art: species.art,
+                    id: 2 + GameSession.maxAllies + index, side: .party, source: .pet(UUID()), name: L("{owner}'s {monster}", ["owner": friend.name, "monster": species.name]), art: species.art,
                     level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp, skills: species.skills, captureRate: 0
                 )
                 companion.ownerID = 2 + index
@@ -164,14 +164,14 @@ final class BattleController {
             let level = max(1, rival.level - 1)
             let stats = species.stats(at: level)
             var companion = Combatant(
-                id: 11, side: .enemies, source: .rival(rival.id), name: "\(rival.name)'s \(species.name)", art: species.art,
+                id: 11, side: .enemies, source: .rival(rival.id), name: L("{owner}'s {monster}", ["owner": rival.name, "monster": species.name]), art: species.art,
                 level: level, element: species.element, stats: stats, hp: stats.hp, mp: stats.mp, skills: species.skills, captureRate: 0
             )
             companion.ownerID = 10
             enemies.append(companion)
         }
         let engine = BattleEngine(party: party(for: session), enemies: enemies, content: session.content)
-        let intro = rival.hostile ? "\(rival.name) picks a fight with you!" : "You challenge \(rival.name) to a duel!"
+        let intro = rival.hostile ? L("{name} picks a fight with you!", ["name": rival.name]) : L("You challenge {name} to a duel!", ["name": rival.name])
         let controller = BattleController(engine: engine, session: session, intro: intro)
         controller.rival = rival
         return controller
@@ -189,13 +189,13 @@ final class BattleController {
         let engine = BattleEngine(party: party(for: session), enemies: waves[0], content: session.content,
                                   captureBonus: session.heroClass.captureBonus ?? 1, waves: Array(waves.dropFirst()))
         let intro = if engine.waveCount > 1 && engine.wave < engine.waveCount {
-            "\(species.name) sends its followers! Wave \(engine.wave) of \(engine.waveCount)."
+            L("{monster} sends its followers! Wave {number} of {total}.", ["monster": species.name, "number": engine.wave, "total": engine.waveCount])
         } else if engine.waveCount > 1 {
-            "Final wave: \(species.name) steps forward!"
+            L("Final wave: {monster} steps forward!", ["monster": species.name])
         } else if waves[0].count > 1 {
-            "\(species.name) and its followers block your way!"
+            L("{monster} and its followers block your way!", ["monster": species.name])
         } else {
-            "\(species.name) blocks your way!"
+            L("{monster} blocks your way!", ["monster": species.name])
         }
         let controller = BattleController(engine: engine, session: session, intro: intro)
         controller.music = "boss"
@@ -432,8 +432,8 @@ final class BattleController {
         }
         guard canAuto else {
             message = isWild
-                ? "Auto fights only monsters at least \(Self.autoLevelGap) levels below you."
-                : "No Auto against a boss or in a duel."
+                ? L("Auto fights only monsters at least {count} levels below you.", ["count": Self.autoLevelGap])
+                : L("No Auto against a boss or in a duel.")
             return
         }
         isAuto = true
@@ -457,7 +457,7 @@ final class BattleController {
     /// off meanwhile). The chat holds it, as it holds the turn clock.
     private func playOnAuto(after milliseconds: Int = 500) {
         phase = .animating
-        message = "Auto: \(hero?.name ?? "you") fights on…"
+        message = L("Auto: {hero} fights on…", ["hero": hero?.name ?? L("you")])
         Task { [weak self] in
             await self?.breather(milliseconds)
             while self?.holds.isEmpty == false { try? await Task.sleep(for: .milliseconds(250)) }
@@ -480,7 +480,7 @@ final class BattleController {
     private func awaitCommand(note: String? = nil) {
         phase = .command
         armAttack()
-        let ask = "What will \(hero?.name ?? "you") do?"
+        let ask = L("What will {hero} do?", ["hero": hero?.name ?? L("you")])
         message = note.map { "\($0) \(ask)" } ?? ask
         startTurnClock()
     }
@@ -503,7 +503,7 @@ final class BattleController {
     // MARK: - Commands
 
     func attack() {
-        let prompt = choosingForCompanion ? "\(companion?.name ?? "It") attacks which monster?" : "Attack which monster?"
+        let prompt = choosingForCompanion ? L("{companion} attacks which monster?", ["companion": companion?.name ?? L("It")]) : L("Attack which monster?")
         beginTargeting(.attack, targets: aliveEnemyIDs, prompt: prompt)
     }
 
@@ -535,7 +535,7 @@ final class BattleController {
         if session.togglePin(skill.id) {
             session.save()
         } else {
-            message = "The quick bar holds \(GameSession.maxPinnedSkills) skills. Unpin one first."
+            message = L("The quick bar holds {count} skills. Unpin one first.", ["count": GameSession.maxPinnedSkills])
         }
     }
 
@@ -551,33 +551,33 @@ final class BattleController {
         let user = choosingForCompanion ? companion : hero
         let price = choosingForCompanion ? companionCost(of: skill) : cost(of: skill)
         guard let user, user.mp >= price else {
-            message = "Not enough MP for \(skill.name)."
+            message = L("Not enough MP for {skill}.", ["skill": skill.name])
             return
         }
         switch skill.target {
-        case .enemy: beginTargeting(.skill(skill), targets: aliveEnemyIDs, prompt: "\(skill.name): choose a monster")
-        case .ally: beginTargeting(.skill(skill), targets: aliveAllyIDs, prompt: "\(skill.name): choose who")
+        case .enemy: beginTargeting(.skill(skill), targets: aliveEnemyIDs, prompt: L("{skill}: choose a monster", ["skill": skill.name]))
+        case .ally: beginTargeting(.skill(skill), targets: aliveAllyIDs, prompt: L("{skill}: choose who", ["skill": skill.name]))
         case .fallenAlly:
             let fallen = party.filter { $0.isFallen && !$0.isHero }.map(\.id)
             guard !fallen.isEmpty else {
-                message = "Nobody has fainted. \(skill.name) can wait."
+                message = L("Nobody has fainted. {skill} can wait.", ["skill": skill.name])
                 return
             }
-            beginTargeting(.skill(skill), targets: fallen, prompt: "\(skill.name): wake who?")
+            beginTargeting(.skill(skill), targets: fallen, prompt: L("{skill}: wake who?", ["skill": skill.name]))
         case .allEnemies, .allAllies: submit(.skill(skill.id, target: -1))
         }
     }
 
     func useItem(_ item: ItemDef) {
-        beginTargeting(.item(item), targets: aliveAllyIDs, prompt: "Use \(item.name) on…")
+        beginTargeting(.item(item), targets: aliveAllyIDs, prompt: L("Use {item} on…", ["item": item.name]))
     }
 
     func capture() {
         guard session.sealStones > 0 else {
-            message = "You need a Seal Stone. Trader Bo in Meadowbrook sells them."
+            message = L("You need a Seal Stone. Trader Bo in Meadowbrook sells them.")
             return
         }
-        beginTargeting(.capture, targets: aliveEnemyIDs, prompt: "Throw a Seal Stone at…")
+        beginTargeting(.capture, targets: aliveEnemyIDs, prompt: L("Throw a Seal Stone at…"))
     }
 
     func defend() { submit(.defend) }
@@ -598,9 +598,9 @@ final class BattleController {
         case .capture:
             switch engine.captureStatus(of: id) {
             case .ready: submit(.capture(target: id))
-            case .notAlone: message = "Only the last monster standing can be sealed. Beat the others first!"
-            case .tooHealthy: message = "\(name(id)) is too lively. Weaken it below 20% HP first!"
-            case .impossible: message = "\(name(id)) can't be captured."
+            case .notAlone: message = L("Only the last monster standing can be sealed. Beat the others first!")
+            case .tooHealthy: message = L("{name} is too lively. Weaken it below 20% HP first!", ["name": name(id)])
+            case .impossible: message = L("{name} can't be captured.", ["name": name(id)])
             }
         }
     }
@@ -638,7 +638,7 @@ final class BattleController {
             choosingForCompanion = true
             phase = .command
             armAttack()
-            message = "What will \(companion.name) do?"
+            message = L("What will {hero} do?", ["hero": companion.name])
             startTurnClock()
             return
         }
@@ -738,13 +738,13 @@ final class BattleController {
         turnClock = nil
         guard isChoosing, holds.isEmpty else { return }
         if choosingForCompanion {
-            message = "Time's up! \(companion?.name ?? "Your companion") fights on its own."
+            message = L("Time's up! {companion} fights on its own.", ["companion": companion?.name ?? L("Your companion")])
             letCompanionDecide()
             return
         }
         let standing = aliveEnemyIDs
         guard let target = lastTarget.flatMap({ standing.contains($0) ? $0 : nil }) ?? standing.first else { return }
-        message = "Time's up! \(hero?.name ?? "You") attacks."
+        message = L("Time's up! {hero} attacks.", ["hero": hero?.name ?? L("You")])
         submit(.attack(target: target), askCompanion: false)
     }
 
@@ -757,7 +757,7 @@ final class BattleController {
             damage(hit)
             SoundEffects.shared.play(hit.critical ? .crit : .hit)
             Haptics.impact(hit.critical ? .medium : .light)
-            message = "\(name(actor)) attacks \(name(hit.target))!" + (hit.critical ? " Critical hit!" : "")
+            message = L("{attacker} attacks {target}!", ["attacker": name(actor), "target": name(hit.target)]) + (hit.critical ? " " + L("Critical hit!") : "")
         case .skill(let actor, let skill, let level, let hits):
             mutate(actor) { $0.mp = max(0, $0.mp - GameSession.mpCost(of: skill, level: level)) }
             SoundEffects.shared.play(skill.kind.isHostile ? .magic : .heal)
@@ -768,10 +768,10 @@ final class BattleController {
                 case .buff, .curse, .field: break
                 }
             }
-            var text = "\(name(actor)) uses \(skill.name)!"
-            if skill.kind == .revive, let hit = hits.first { text += " \(name(hit.target)) is back on their feet!" }
-            if hits.contains(where: { $0.effectiveness > 1 }) { text += " A weak spot!" }
-            if hits.contains(where: { $0.effectiveness < 1 }) { text += " It was resisted…" }
+            var text = L("{attacker} uses {skill}!", ["attacker": name(actor), "skill": skill.name])
+            if skill.kind == .revive, let hit = hits.first { text += " " + L("{target} is back on their feet!", ["target": name(hit.target)]) }
+            if hits.contains(where: { $0.effectiveness > 1 }) { text += " " + L("A weak spot!") }
+            if hits.contains(where: { $0.effectiveness < 1 }) { text += " " + L("It was resisted…") }
             message = text
         case .item(let actor, let item, let target, let hp, let mp):
             // Only used up once it actually reaches someone.
@@ -781,10 +781,10 @@ final class BattleController {
                 $0.hp += hp
                 $0.mp += mp
             }
-            message = "\(name(actor)) uses a \(item.name) on \(name(target))."
+            message = L("{attacker} uses a {item} on {target}.", ["attacker": name(actor), "item": item.name, "target": name(target)])
         case .defend(let actor):
             SoundEffects.shared.play(.shield)
-            message = "\(name(actor)) is on guard."
+            message = L("{name} is on guard.", ["name": name(actor)])
         case .capture(_, let target, let success, _):
             SoundEffects.shared.play(success ? .capture : .breakFree)
             if success { Haptics.success() }
@@ -795,18 +795,18 @@ final class BattleController {
                     session.removeItem(stone.id)
                 }
             }
-            message = success ? "Sealed! \(name(target)) was captured!" : "Oh no! \(name(target)) broke free!"
+            message = success ? L("Sealed! {name} was captured!", ["name": name(target)]) : L("Oh no! {name} broke free!", ["name": name(target)])
         case .fled(let id):
             SoundEffects.shared.play(.run)
             mutate(id) { $0.hasFled = true }
-            message = "\(name(id)) ran away!"
+            message = L("{name} ran away!", ["name": name(id)])
         case .escape(_, let success):
             SoundEffects.shared.play(success ? .run : .breakFree)
-            message = success ? "Got away safely!" : "Couldn't get away!"
+            message = success ? L("Got away safely!") : L("Couldn't get away!")
         case .defeated(let id):
             let fighter = combatants.first { $0.id == id }
             SoundEffects.shared.play(fighter?.side == .enemies ? .poof : .faint)
-            message = fighter?.side == .enemies ? "\(name(id)) is defeated!" : "\(name(id)) fainted!"
+            message = fighter?.side == .enemies ? L("{name} is defeated!", ["name": name(id)]) : L("{name} fainted!", ["name": name(id)])
         case .message(let text):
             message = text
         case .afflicted(let target, let effect, let rounds):
@@ -816,8 +816,8 @@ final class BattleController {
             }
             SoundEffects.shared.play(.faint, volume: 0.5)
             message = switch effect {
-            case .poison: "\(name(target)) is poisoned!"
-            case .curse: "\(name(target)) is cursed!"
+            case .poison: L("{name} is poisoned!", ["name": name(target)])
+            case .curse: L("{name} is cursed!", ["name": name(target)])
             }
         case .statsChanged(let target, let changes, let rounds):
             mutate(target) { $0.change(changes, rounds: rounds + 1) }
@@ -829,7 +829,7 @@ final class BattleController {
             }
             SoundEffects.shared.play(.hit, volume: 0.6)
             Haptics.impact(.light)
-            message = "\(name(target)) is hurt by the poison!"
+            message = L("{name} is hurt by the poison!", ["name": name(target)])
         case .wave(let number, let total, let arrivals):
             combatants += arrivals
             wave = number
@@ -839,11 +839,13 @@ final class BattleController {
             SoundEffects.shared.play(.encounter)
             Haptics.impact(.medium)
             if number == total, let boss = arrivals.first(where: { $0.captureRate == 0 }) {
-                message = "Final wave: \(boss.name) steps forward!"
+                message = L("Final wave: {monster} steps forward!", ["monster": boss.name])
             } else {
-                message = "Wave \(number) of \(total): \(arrivals.count) more monster\(arrivals.count == 1 ? "" : "s")!"
+                message = arrivals.count == 1
+                    ? L("Wave {number} of {total}: 1 more monster!", ["number": number, "total": total])
+                    : L("Wave {number} of {total}: {count} more monsters!", ["number": number, "total": total, "count": arrivals.count])
             }
-            if let rare = arrivals.first(where: \.isRare) { message += " ✦ A rare \(rare.name)!" }
+            if let rare = arrivals.first(where: \.isRare) { message += " ✦ " + L("A rare {monster}!", ["monster": rare.name]) }
         }
     }
 
@@ -861,15 +863,21 @@ final class BattleController {
         let friends = ids.filter { !foes.contains($0) }
         SoundEffects.shared.play(foes.isEmpty ? .faint : .poof)
         var lines: [String] = []
-        if !foes.isEmpty { lines.append("\(Self.tally(foes.map { name($0) })) \(foes.count == 1 ? "is" : "are") defeated!") }
-        if !friends.isEmpty { lines.append("\(Self.tally(friends.map { name($0) })) fainted!") }
+        if !foes.isEmpty {
+            let names = Self.tally(foes.map { name($0) })
+            lines.append(foes.count == 1 ? L("{names} is defeated!", ["names": names]) : L("{names} are defeated!", ["names": names]))
+        }
+        if !friends.isEmpty { lines.append(L("{names} fainted!", ["names": Self.tally(friends.map { name($0) })])) }
         message = lines.joined(separator: " ")
     }
 
     /// "Maple's ATK +25% and DEF +25% for 3 rounds!"
     static func statLine(_ name: String, _ changes: [StatChange], rounds: Int) -> String {
         let parts = changes.map { "\($0.stat.short) \(percent($0.amount))" }
-        return "\(name)'s \(GameSession.listed(parts)) for \(rounds) round\(rounds == 1 ? "" : "s")!"
+        let stats = GameSession.listed(parts)
+        return rounds == 1
+            ? L("{name}'s {stats} for 1 round!", ["name": name, "stats": stats])
+            : L("{name}'s {stats} for {rounds} rounds!", ["name": name, "stats": stats, "rounds": rounds])
     }
 
     /// A stat change as the battle shows it: "+25%", "−20%".
@@ -913,19 +921,19 @@ final class BattleController {
         case .ongoing where isAuto && canAuto:
             // Badly hurt: Auto hands back to you (and comes on again in the next fight).
             isAuto = false
-            awaitCommand(note: "Auto stops: you're badly hurt!")
+            awaitCommand(note: L("Auto stops: you're badly hurt!"))
         case .ongoing:
             awaitCommand()
         case .victory:
             finish(.victory, lines: concludeVictory() + afterTheFight())
         case .fled:
-            let runaway = engine.combatants.first { $0.hasFled }?.name ?? "The monster"
-            finish(.fled, lines: ["\(runaway) ran away!"] + concludeVictory() + afterTheFight())
+            let runaway = engine.combatants.first { $0.hasFled }?.name ?? L("The monster")
+            finish(.fled, lines: [L("{name} ran away!", ["name": runaway])] + concludeVictory() + afterTheFight())
         case .defeat:
-            finish(.defeat, lines: ["\(hero?.name ?? "You") fainted…"] + afterTheFight())
+            finish(.defeat, lines: [L("{hero} fainted…", ["hero": hero?.name ?? L("You")])] + afterTheFight())
         case .escaped:
             syncParty()
-            finish(.escaped, lines: ["You got away safely."] + afterTheFight())
+            finish(.escaped, lines: [L("You got away safely.")] + afterTheFight())
         }
     }
 
@@ -937,7 +945,11 @@ final class BattleController {
     /// or lost or someone wakes you. The chat holds them, as it holds the turn clock.
     private func fightOnWithoutYou() {
         let standing = party.filter { $0.isAlly && $0.isAlive }.map(\.name)
-        message = "\(hero?.name ?? "You") fainted! \(GameSession.listed(standing)) \(standing.count == 1 ? "fights" : "fight") on…"
+        let fallen = hero?.name ?? L("You")
+        let friends = GameSession.listed(standing)
+        message = standing.count == 1
+            ? L("{hero} fainted! {names} fights on…", ["hero": fallen, "names": friends])
+            : L("{hero} fainted! {names} fight on…", ["hero": fallen, "names": friends])
         Task {
             await breather(900)
             while !holds.isEmpty { try? await Task.sleep(for: .milliseconds(250)) }
@@ -970,12 +982,12 @@ final class BattleController {
         // The log gets it all in words; the result card shows the pay as icons.
         var logged = lines
         var pay: [String] = []
-        if rewardEXP > 0 { pay.append("+\(rewardEXP) EXP") }
-        if rewardGold > 0 { pay.append("+\(rewardGold) gold") }
+        if rewardEXP > 0 { pay.append(L("+{exp} EXP", ["exp": rewardEXP])) }
+        if rewardGold > 0 { pay.append(L("+{gold} gold", ["gold": rewardGold])) }
         if !pay.isEmpty { logged.insert(pay.joined(separator: "    "), at: min(1, logged.count)) }
         for item in found {
             let name = session.content.item(item.id)?.name ?? item.id
-            logged.append(item.count > 1 ? "Found \(name) ×\(item.count)!" : "Found \(name)!")
+            logged.append(item.count > 1 ? L("Found {item} ×{count}!", ["item": name, "count": item.count]) : L("Found {item}!", ["item": name]))
         }
         for line in logged { session.post(line, won ? .reward : .battle) }
         MusicPlayer.shared.play(won ? "victory" : nil)
@@ -1003,7 +1015,7 @@ final class BattleController {
     }
 
     private func levelLine(_ level: Int) -> String {
-        "\(session.data.hero.name) reached level \(level)!"
+        L("{name} reached level {level}!", ["name": session.data.hero.name, "level": level])
     }
 
     #if DEBUG
@@ -1071,11 +1083,11 @@ final class BattleController {
                 if foe.art.hasPrefix("adv:") {
                     exp += 14 * foe.level
                     gold += 10 * foe.level
-                    lines.append("You won the duel against \(foe.name)!")
+                    lines.append(L("You won the duel against {name}!", ["name": foe.name]))
                     if let rival {
                         let spoils = session.takeSpoils(from: rival)
                         for item in spoils { loot[item.id, default: 0] += 1 }
-                        if !spoils.isEmpty { lines.append("\(foe.name) dropped everything they carried!") }
+                        if !spoils.isEmpty { lines.append(L("{name} dropped everything they carried!", ["name": foe.name])) }
                     }
                 }
                 continue
@@ -1091,7 +1103,7 @@ final class BattleController {
 
         if heroIsDown {
             // Out cold, you learn nothing from it, like a fainted companion. The spoils are shared.
-            lines.append("Your friends won while you were out cold: no EXP for you this time.")
+            lines.append(L("Your friends won while you were out cold: no EXP for you this time."))
         } else {
             rewardEXP = exp
             let learnableBefore = Set(session.learnableSkills.map(\.id))
@@ -1101,10 +1113,10 @@ final class BattleController {
                 levelsGained = levels
                 lines.append(levelLine(session.data.hero.level))
                 for skill in session.learnableSkills where !learnableBefore.contains(skill.id) {
-                    lines.append("New skill to learn: \(skill.name)!")
+                    lines.append(L("New skill to learn: {skill}!", ["skill": skill.name]))
                 }
                 if session.canChooseClass {
-                    lines.append("You can choose a path now! Visit a guild master in town.")
+                    lines.append(L("You can choose a path now! Visit a guild master in town."))
                 }
             }
         }
@@ -1117,7 +1129,7 @@ final class BattleController {
         })
         for friend in session.growParty(standing: standing) {
             let fighter = engine.combatants.first { $0.source == .ally(friend.id) }
-            let line = "\(friend.name) reached level \(friend.level)!"
+            let line = L("{name} reached level {level}!", ["name": friend.name, "level": friend.level])
             othersLevelled.append(LevelUp(name: friend.name, level: friend.level, line: line, fighterID: fighter?.id))
             lines.append(line)
         }
@@ -1126,11 +1138,11 @@ final class BattleController {
            let pet = session.data.pets.first(where: { $0.id == petID }) {
             if fighter.hp <= 0 {
                 // Fainted companions earn nothing and sit out until they're healed.
-                lines.append("\(pet.name) needs rest: use a potion or visit a healer.")
+                lines.append(L("{name} needs rest: use a potion or visit a healer.", ["name": pet.name]))
             } else {
                 let share = Int((Double(exp) * (session.heroClass.petExpShare ?? 0.5)).rounded())
                 if session.gainPetEXP(petID, share) > 0, let updated = session.data.pets.first(where: { $0.id == petID }) {
-                    let line = "\(pet.name) grew to level \(updated.level)!"
+                    let line = L("{name} grew to level {level}!", ["name": pet.name, "level": updated.level])
                     othersLevelled.append(LevelUp(name: pet.name, level: updated.level, line: line, fighterID: fighter.id))
                     lines.append(line)
                 }
@@ -1141,12 +1153,12 @@ final class BattleController {
             guard let id = captured.speciesID, var pet = session.makePet(species: id, level: captured.level) else { continue }
             pet.hp = max(1, captured.hp)
             if session.addPet(pet) {
-                lines.append("\(pet.name) joined your party!")
+                lines.append(L("{name} joined your party!", ["name": pet.name]))
             } else {
                 // Full party: the result screen asks who stays behind.
                 session.record(.capture, target: id)
                 session.pendingPet = pet
-                lines.append("\(pet.name) wants to join, but your party is full!")
+                lines.append(L("{name} wants to join, but your party is full!", ["name": pet.name]))
             }
         }
 
@@ -1180,7 +1192,7 @@ final class BattleController {
             session.addItem(gear.id)
             loot[gear.id, default: 0] += 1
             gearFound += 1
-            lines.append("\(foe.name) dropped \(gear.name)!")
+            lines.append(L("{name} dropped {item}!", ["name": foe.name, "item": gear.name]))
         }
         session.save()
         return lines

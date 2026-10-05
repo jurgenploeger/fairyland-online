@@ -22,12 +22,12 @@ struct MonsterBook: View {
     private var grid: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Met \(seenCount) of \(all.count) monsters")
+                Text(L("Met {count} of {total} monsters", ["count": seenCount, "total": all.count]))
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.gold)
                 Spacer()
             }
-            Text("Every monster you meet in battle is written down here. Tap one to read about it.")
+            Text(L("Every monster you meet in battle is written down here. Tap one to read about it."))
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
             ScrollView(.horizontal, showsIndicators: false) {
@@ -61,7 +61,7 @@ struct MonsterBook: View {
             } else {
                 HStack(spacing: 4) {
                     if let value { ElementIcon(element: value, size: 14).accessibilityHidden(true) }
-                    Text(value?.displayName ?? "All")
+                    Text(value?.displayName ?? L("All"))
                 }
                 .font(HUDStyle.font(10))
                 .frame(height: 14)
@@ -108,7 +108,7 @@ struct MonsterBook: View {
             selected = monster.id
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(seen ? "\(monster.name), \(monster.element.displayName)" : "Not met yet")
+        .accessibilityLabel(seen ? "\(monster.name), \(monster.element.displayName)" : L("Not met yet"))
         .accessibilityAddTraits(seen ? .isButton : [])
     }
 }
@@ -131,13 +131,13 @@ private struct MonsterPage: View {
     }
 
     private var levels: String {
-        sighting.lowestLevel == sighting.highestLevel ? "Lv \(sighting.lowestLevel)" : "Lv \(sighting.lowestLevel)–\(sighting.highestLevel)"
+        sighting.lowestLevel == sighting.highestLevel ? L("Lv {level}", ["level": sighting.lowestLevel]) : L("Lv {low}–{high}", ["low": sighting.lowestLevel, "high": sighting.highestLevel])
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Button(action: onBack) {
-                Label("All monsters", icon: .arrowLeft, size: 12)
+                Label(L("All monsters"), icon: .arrowLeft, size: 12)
             }
             .buttonStyle(PixelButtonStyle(compact: true))
 
@@ -151,10 +151,10 @@ private struct MonsterPage: View {
                         .foregroundStyle(HUDStyle.gold)
                     HStack(spacing: 6) {
                         ElementBadge(element: monster.element)
-                        if monster.boss == true { tag("Boss", HUDStyle.hp) }
-                        if monster.rare == true { tag("Rare", HUDStyle.gold) }
+                        if monster.boss == true { tag(L("Boss"), HUDStyle.hp) }
+                        if monster.rare == true { tag(L("Rare"), HUDStyle.gold) }
                     }
-                    Text("Met at \(levels) · beaten \(sighting.defeated)×")
+                    Text(L("Met at {levels} · beaten {count}×", ["levels": levels, "count": sighting.defeated]))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.dim)
                 }
@@ -182,50 +182,50 @@ private struct MonsterPage: View {
                 }
             }
 
-            section("Element") {
+            section(L("Element")) {
                 // Light and Dark hurt each other: say that once instead of "strong against" and "weak to" the same thing.
                 let element = monster.element
                 let mutual = element.strongAgainst.filter { element.weakTo.contains($0) }
                 VStack(alignment: .leading, spacing: 4) {
                     if mutual.isEmpty {
-                        elementLine("Strong against", element.strongAgainst)
-                        elementLine("Weak to", element.weakTo)
+                        elementLine(L("Strong against"), element.strongAgainst)
+                        elementLine(L("Weak to"), element.weakTo)
                     } else {
                         ForEach(mutual, id: \.self) { other in
                             HStack(spacing: 6) {
                                 ElementBadge(element: element)
-                                Text("and").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.cream)
+                                Text(L("and")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.cream)
                                 ElementBadge(element: other)
-                                Text("hit each other extra hard").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.cream)
+                                Text(L("hit each other extra hard")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.cream)
                             }
                         }
                     }
                 }
             }
 
-            section("Stats at Lv \(sighting.highestLevel)") {
+            section(L("Stats at Lv {level}", ["level": sighting.highestLevel])) {
                 VStack(spacing: 4) {
                     HStack(spacing: 8) {
-                        statCell("HP", stats.hp, HUDStyle.hp)
-                        statCell("MP", stats.mp, HUDStyle.mp)
-                        statCell("SPD", stats.speed, HUDStyle.cream)
+                        statCell(L("HP"), stats.hp, HUDStyle.hp)
+                        statCell(L("MP"), stats.mp, HUDStyle.mp)
+                        statCell(L("SPD"), stats.speed, HUDStyle.cream)
                     }
                     HStack(spacing: 8) {
-                        statCell("ATK", stats.attack, HUDStyle.cream)
-                        statCell("DEF", stats.defense, HUDStyle.cream)
-                        statCell("MAG", stats.magic, HUDStyle.cream)
+                        statCell(L("ATK"), stats.attack, HUDStyle.cream)
+                        statCell(L("DEF"), stats.defense, HUDStyle.cream)
+                        statCell(L("MAG"), stats.magic, HUDStyle.cream)
                     }
                 }
             }
 
-            section("Skills") {
+            section(L("Skills")) {
                 Text(monster.skills.compactMap { session.content.skill($0)?.name }.joined(separator: ", "))
                     .font(HUDStyle.font(11))
                     .foregroundStyle(HUDStyle.cream)
             }
 
             if !homes.isEmpty {
-                section("Found in") {
+                section(L("Found in")) {
                     Text(homes.joined(separator: ", "))
                         .font(HUDStyle.font(11))
                         .foregroundStyle(HUDStyle.cream)
@@ -234,7 +234,7 @@ private struct MonsterPage: View {
 
             let drops = (monster.drops ?? []).compactMap { session.content.item($0.item) }
             if !drops.isEmpty {
-                section("Rare drops") {
+                section(L("Rare drops")) {
                     HStack(spacing: 10) {
                         ForEach(drops) { item in
                             HStack(spacing: 4) {
@@ -247,8 +247,8 @@ private struct MonsterPage: View {
             }
 
             Label(monster.captureRate > 0 && monster.boss != true
-                  ? "Can be befriended: weaken it, then throw a Seal Stone with Capture."
-                  : "Can't be befriended.", icon: .paw, size: 13)
+                  ? L("Can be befriended: weaken it, then throw a Seal Stone with Capture.")
+                  : L("Can't be befriended."), icon: .paw, size: 13)
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
         }
@@ -278,7 +278,7 @@ private struct MonsterPage: View {
         HStack(spacing: 6) {
             Text(label).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.cream)
             if elements.isEmpty {
-                Text("nothing in particular").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                Text(L("nothing in particular")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             } else {
                 ForEach(elements, id: \.self) { ElementBadge(element: $0) }
             }

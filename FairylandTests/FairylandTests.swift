@@ -180,6 +180,56 @@ struct ContentTests {
 }
 
 @MainActor
+struct LanguageTests {
+    @Test func thePhonesLanguagePicksTheClosestOneWeHave() {
+        let codes = Localizer.shared.languages.map(\.code)
+        #expect(codes.first == "en" && codes.count == 11)
+        #expect(Localizer.preferred(among: codes, preferences: ["de-AT", "en"]) == "de")
+        #expect(Localizer.preferred(among: codes, preferences: ["pt-BR"]) == "pt-BR")
+        #expect(Localizer.preferred(among: codes, preferences: ["pt-PT"]) == "pt-BR")
+        #expect(Localizer.preferred(among: codes, preferences: ["zh-Hant-TW"]) == "zh-Hant")
+        #expect(Localizer.preferred(among: codes, preferences: ["zh-TW"]) == "zh-Hant")
+        #expect(Localizer.preferred(among: codes, preferences: ["zh-Hans-CN"]) == "zh-Hans")
+        #expect(Localizer.preferred(among: codes, preferences: ["nl-NL", "es-MX"]) == "es")
+        #expect(Localizer.preferred(among: codes, preferences: ["nl-NL"]) == "en")
+    }
+
+    @Test func everyLanguageHasItsTableAndKeepsThePlaceholders() throws {
+        let placeholder = try Regex("\\{[A-Za-z_][A-Za-z0-9_]*\\}")
+        for language in Localizer.shared.languages where language.code != "en" {
+            let table = Localizer.table(for: language.code, bundle: .main)
+            #expect(!table.isEmpty, "content/i18n/\(language.code).json is empty or missing")
+            for (english, translated) in table {
+                let want = english.matches(of: placeholder).map { String(english[$0.range]) }.sorted()
+                let got = translated.matches(of: placeholder).map { String(translated[$0.range]) }.sorted()
+                #expect(want == got, "\(language.code): \(english) → \(translated)")
+            }
+        }
+    }
+
+    @Test func theGameDataReadsInEveryLanguage() {
+        let english = Content(strings: [:])
+        for language in Localizer.shared.languages where language.code != "en" {
+            let table = Localizer.table(for: language.code, bundle: .main)
+            let content = Content(strings: table)
+            // Same data, its text swapped: ids and numbers untouched.
+            #expect(content.monsters.map(\.id) == english.monsters.map(\.id))
+            #expect(content.items.map(\.price) == english.items.map(\.price))
+            #expect(content.maps.map(\.id) == english.maps.map(\.id))
+            let monster = english.monsters[0]
+            #expect(content.monsters[0].name == (table[monster.name] ?? monster.name), "\(language.code)")
+            #expect(content.releases.count == english.releases.count)
+        }
+    }
+
+    @Test func untranslatedTextStaysEnglishWithItsPlaceholdersFilled() {
+        // Tests run in English, so this is the English text with the values put in.
+        #expect(L("{bot} just reached level {level}!", ["bot": "Momo", "level": 12]) == "Momo just reached level 12!")
+        #expect(L("A string no table has") == "A string no table has")
+    }
+}
+
+@MainActor
 struct LookTests {
     init() {
         // Belt and braces: never touch the real save from tests.

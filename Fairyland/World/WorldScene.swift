@@ -123,9 +123,9 @@ final class WorldScene: SKScene {
         view.addGestureRecognizer(pinch)
         cam.setScale(1 / Self.zoom)
         if session.mapName != def.name {
-            session.post("You arrive at \(def.name).")
+            session.post(L("You arrive at {map}.", ["map": def.name]))
             if def.danger == true {
-                session.post("⚔ Danger zone! Adventurers here may pick a fight.", .battle)
+                session.post(L("⚔ Danger zone! Adventurers here may pick a fight."), .battle)
             }
             session.startChat(on: def.name)
         }
@@ -796,7 +796,7 @@ final class WorldScene: SKScene {
     private func read(_ sign: Signpost) {
         sign.label.removeAllActions()
         sign.label.run(.sequence([.fadeIn(withDuration: 0.15), .wait(forDuration: 4), .fadeOut(withDuration: 0.4)]))
-        session.post("The sign reads: \(sign.text)")
+        session.post(L("The sign reads: {text}", ["text": sign.text]))
         SoundEffects.shared.play(.talk, volume: 0.5)
     }
 
@@ -834,7 +834,7 @@ final class WorldScene: SKScene {
             }
             let middle = cells[cells.count / 2]
             let sign = SKLabelNode()
-            sign.attributedText = Nodes.outlined("Closed", size: 12, color: UIColor(red: 1, green: 0.6, blue: 0.3, alpha: 1))
+            sign.attributedText = Nodes.outlined(L("Closed"), size: 12, color: UIColor(red: 1, green: 0.6, blue: 0.3, alpha: 1))
             sign.position = map.center(of: middle) + CGVector(dx: 0, dy: 44)
             sign.zPosition = 4_500
             sign.run(.repeatForever(.sequence([.moveBy(x: 0, y: 3, duration: 0.6), .moveBy(x: 0, y: -3, duration: 0.6)])))
@@ -1151,7 +1151,7 @@ final class WorldScene: SKScene {
         guard !isInputLocked else { return }
         for ally in allies where ally.waiting != nil && ally.node.position.distance(to: player.position) < rejoinRange {
             session.rejoin(ally.id)
-            ally.node.say(["There you are!", "Let's go!", "Back together!"].randomElement() ?? "Let's go!")
+            ally.node.say([L("There you are!"), L("Let's go!"), L("Back together!")].randomElement() ?? L("Let's go!"))
         }
     }
 
@@ -1325,10 +1325,10 @@ final class WorldScene: SKScene {
             player.path = []
             if Date().timeIntervalSince(lastBlockedNotice) > 3 {
                 lastBlockedNotice = Date()
-                let place = Content.shared.map(barricade.exit.to)?.name ?? "there"
-                let quest = barricade.exit.requires.flatMap { session.content.quest($0)?.title } ?? "a quest"
-                session.post("The road to \(place) is closed. Finish “\(quest)” first.", .quest)
-                player.say("It's closed…")
+                let place = Content.shared.map(barricade.exit.to)?.name ?? L("there")
+                let quest = barricade.exit.requires.flatMap { session.content.quest($0)?.title } ?? L("a quest")
+                session.post(L("The road to {map} is closed. Finish “{quest}” first.", ["map": place, "quest": quest]), .quest)
+                player.say(L("It's closed…"))
             }
             return
         }

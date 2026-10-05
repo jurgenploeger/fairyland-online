@@ -385,7 +385,7 @@ final class BattleScene: SKScene {
             controller.apply(event)
             if let actor = actors[target] {
                 SkillEffects.sparkles(on: actor, color: SkillEffects.healGreen, level: 1, in: stage)
-                Effects.damageBurst(hp > 0 ? "+\(hp)" : "+\(mp) MP", style: .heal, at: actor.top, in: stage)
+                Effects.damageBurst(hp > 0 ? "+\(hp)" : L("+{amount} MP", ["amount": mp]), style: .heal, at: actor.top, in: stage)
             }
             await pause(0.5)
 
@@ -393,12 +393,12 @@ final class BattleScene: SKScene {
             controller.apply(event)
             if let actor = actors[actorID] {
                 SkillEffects.shield(on: actor, in: stage)
-                Effects.floatingText("Guard!", color: UIColor(red: 0.6, green: 0.85, blue: 1, alpha: 1), at: actor.top, in: stage, size: 14)
+                Effects.floatingText(L("Guard!"), color: UIColor(red: 0.6, green: 0.85, blue: 1, alpha: 1), at: actor.top, in: stage, size: 14)
             }
             await pause(0.45)
 
         case .capture(let actorID, let targetID, let success, let wobbles):
-            controller.announce("\(controller.name(actorID)) throws a Seal Stone!")
+            controller.announce(L("{name} throws a Seal Stone!", ["name": controller.name(actorID)]))
             await captureAnimation(from: actorID, to: targetID, success: success, wobbles: wobbles)
             controller.apply(event)
             await pause(0.6)
@@ -444,7 +444,7 @@ final class BattleScene: SKScene {
                 SkillEffects.poisonBite(on: actor, in: stage)
                 Effects.damageBurst("\(amount)", style: .poison, at: actor.top, in: stage)
                 // Named, so it's clear the HP went to the poison and not to a blow.
-                Effects.floatingText("Poison", color: SkillEffects.poisonGreen, at: actor.top + CGVector(dx: 0, dy: 24), in: stage, size: 12)
+                Effects.floatingText(L("Poison"), color: SkillEffects.poisonGreen, at: actor.top + CGVector(dx: 0, dy: 24), in: stage, size: 12)
             }
             await pause(0.55)
 
@@ -855,9 +855,9 @@ final class BattleScene: SKScene {
         }
         Effects.damageBurst("\(hit.amount)", style: hit.critical ? .critical : hit.splash ? .splash : .normal, at: target.top, in: stage)
         if hit.effectiveness > 1 {
-            Effects.floatingText("Weak spot!", color: Nodes.gold, at: target.top + CGVector(dx: 0, dy: 22), in: stage, size: 12)
+            Effects.floatingText(L("Weak spot!"), color: Nodes.gold, at: target.top + CGVector(dx: 0, dy: 22), in: stage, size: 12)
         } else if hit.effectiveness < 1 {
-            Effects.floatingText("Resisted", color: UIColor(white: 0.85, alpha: 1), at: target.top + CGVector(dx: 0, dy: 22), in: stage, size: 11)
+            Effects.floatingText(L("Resisted"), color: UIColor(white: 0.85, alpha: 1), at: target.top + CGVector(dx: 0, dy: 22), in: stage, size: 11)
         }
         target.sprite.flash(.red)
         target.run(.sequence([.moveBy(x: 6, y: 0, duration: 0.04), .moveBy(x: -12, y: 0, duration: 0.06), .moveBy(x: 6, y: 0, duration: 0.04)]))
@@ -936,7 +936,7 @@ final class BattleScene: SKScene {
 
         if success {
             SkillEffects.burst(at: stone.position, color: Nodes.gold, count: 30, speed: 110, in: stage)
-            Effects.floatingText("Sealed!", color: Nodes.gold, at: stone.position + CGVector(dx: 0, dy: 34), in: stage, size: 24)
+            Effects.floatingText(L("Sealed!"), color: Nodes.gold, at: stone.position + CGVector(dx: 0, dy: 34), in: stage, size: 24)
             await stone.run(.sequence([.scale(to: 1.5, duration: 0.12), .scale(to: 1.1, duration: 0.1)]))
             await pause(0.5)
             // The stone floats back to its new friend.
@@ -952,7 +952,7 @@ final class BattleScene: SKScene {
             target.sprite.colorBlendFactor = 1
             await target.run(.group([.fadeIn(withDuration: 0.15), .scale(to: 1, duration: 0.2)]))
             target.run(.customAction(withDuration: 0.3) { _, t in target.sprite.colorBlendFactor = 1 - t / 0.3 }, withKey: "unflash")
-            Effects.floatingText("Broke free!", color: .white, at: target.top, in: stage, size: 18)
+            Effects.floatingText(L("Broke free!"), color: .white, at: target.top, in: stage, size: 18)
         }
         stone.removeFromParent()
         await dim.run(.fadeOut(withDuration: 0.3))
@@ -976,8 +976,8 @@ final class BattleScene: SKScene {
         let banner = SKNode()
         banner.position = CGPoint(x: size.width / 2, y: size.height * 0.58)
         banner.zPosition = 31_000
-        let title = NameTag("LEVEL UP!", color: gold, size: 36, alignment: .center)
-        let subtitle = NameTag("Level \(level)", color: .white, size: 18, alignment: .center)
+        let title = NameTag(L("LEVEL UP!"), color: gold, size: 36, alignment: .center)
+        let subtitle = NameTag(L("Level {level}", ["level": level]), color: .white, size: 18, alignment: .center)
         subtitle.position.y = -36
         banner.addChild(title)
         banner.addChild(subtitle)
@@ -1009,8 +1009,8 @@ final class BattleScene: SKScene {
         let tag = SKNode()
         tag.position = actor.top + CGVector(dx: 0, dy: 16)
         tag.zPosition = 30_500
-        let title = NameTag("LEVEL UP!", color: gold, size: 15, alignment: .center)
-        let subtitle = NameTag("Lv \(level)", color: .white, size: 12, alignment: .center)
+        let title = NameTag(L("LEVEL UP!"), color: gold, size: 15, alignment: .center)
+        let subtitle = NameTag(L("Lv {level}", ["level": level]), color: .white, size: 12, alignment: .center)
         subtitle.position.y = -16
         tag.addChild(title)
         tag.addChild(subtitle)

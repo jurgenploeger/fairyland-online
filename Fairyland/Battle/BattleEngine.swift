@@ -13,10 +13,10 @@ nonisolated enum BattleStat: String, CaseIterable, Sendable {
     /// Its short name, as the menus write it.
     var short: String {
         switch self {
-        case .attack: "ATK"
-        case .defense: "DEF"
-        case .magic: "MAG"
-        case .speed: "SPD"
+        case .attack: L("ATK")
+        case .defense: L("DEF")
+        case .magic: L("MAG")
+        case .speed: L("SPD")
         }
     }
 }
@@ -445,7 +445,7 @@ final class BattleEngine {
             guard let item = content.item(itemID) else { return }
             // If they fainted before your turn came, the item stays in the bag.
             guard let target = combatant(targetID), target.isAlive, target.side == actor.side else {
-                events.append(.message("\(combatant(targetID)?.name ?? "They") fainted first, so the \(item.name) stays in your bag."))
+                events.append(.message(combatant(targetID).map { L("{name} fainted first, so the {item} stays in your bag.", ["name": $0.name, "item": item.name]) } ?? L("They fainted first, so the {item} stays in your bag.", ["item": item.name])))
                 return
             }
             let hp = min(item.heal ?? 0, target.stats.hp - target.hp)
@@ -458,11 +458,11 @@ final class BattleEngine {
 
         case .capture(let targetID):
             guard let target = combatant(targetID), target.isAlive else {
-                events.append(.message("There's nothing left to capture."))
+                events.append(.message(L("There's nothing left to capture.")))
                 return
             }
             guard case .ready(let chance) = captureStatus(of: targetID) else {
-                events.append(.message("\(target.name) is too lively to capture!"))
+                events.append(.message(L("{name} is too lively to capture!", ["name": target.name])))
                 return
             }
             let success = Double.random(in: 0..<1, using: &rng) < chance

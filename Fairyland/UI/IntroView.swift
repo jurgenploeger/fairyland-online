@@ -35,7 +35,7 @@ struct IntroView: View {
             .transition(.opacity)
 
             HStack(spacing: 10) {
-                Button("Skip", action: onFinish)
+                Button(L("Skip"), action: onFinish)
                     .buttonStyle(PixelButtonStyle(compact: true))
                     .opacity(page == Self.pageCount - 1 ? 0 : 1)
                     .disabled(page == Self.pageCount - 1)
@@ -45,7 +45,7 @@ struct IntroView: View {
                 Button {
                     withAnimation(.easeInOut(duration: 0.25)) { page -= 1 }
                 } label: {
-                    Label("Back", icon: .arrowLeft)
+                    Label(L("Back"), icon: .arrowLeft)
                 }
                 .buttonStyle(PixelButtonStyle(compact: true))
                 .opacity(page == 0 ? 0.4 : 1)
@@ -57,7 +57,7 @@ struct IntroView: View {
                         withAnimation(.easeInOut(duration: 0.25)) { page += 1 }
                     }
                 } label: {
-                    Label(page == Self.pageCount - 1 ? finishTitle : "Next", icon: .arrowRight)
+                    Label(page == Self.pageCount - 1 ? finishTitle : L("Next"), icon: .arrowRight)
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
             }
@@ -80,7 +80,7 @@ private struct PageDots: View {
             }
         }
         .accessibilityElement()
-        .accessibilityLabel("Page \(current + 1) of \(count)")
+        .accessibilityLabel(L("Page {page} of {count}", ["page": current + 1, "count": count]))
     }
 }
 
@@ -105,10 +105,10 @@ private struct StoryPage: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            PageTitle(text: "Once upon a time", icon: .book)
-            Text("Long ago, the goddess Shiria gathered the world's fairy tales into one land: Fairyland. Villages grew up between the stories, and adventurers came from far and wide to explore them.")
-            Text("Lately the tales have been going wrong. A Big Bad Wolf prowls the Snow White Forest. A Rat King has cut off the dwarves of Goldburg. A dragon drinks at the oasis in Genie Desert and scares away the caravans.")
-            Text("You arrive in Meadowbrook as a new adventurer, with the whole of Fairyland ahead of you.")
+            PageTitle(text: L("Once upon a time"), icon: .book)
+            Text(L("Long ago, the goddess Shiria gathered the world's fairy tales into one land: Fairyland. Villages grew up between the stories, and adventurers came from far and wide to explore them."))
+            Text(L("Lately the tales have been going wrong. A Big Bad Wolf prowls the Snow White Forest. A Rat King has cut off the dwarves of Goldburg. A dragon drinks at the oasis in Genie Desert and scares away the caravans."))
+            Text(L("You arrive in Meadowbrook as a new adventurer, with the whole of Fairyland ahead of you."))
             if !bosses.isEmpty {
                 HStack(alignment: .bottom, spacing: 18) {
                     ForEach(bosses) { boss in
@@ -138,17 +138,17 @@ private struct Tip {
 
 private struct HowToPlayPage: View {
     private let tips: [Tip] = [
-        Tip(icon: .tap, title: "Walk", text: "Drag the stick in the corner, or tap the ground and your hero walks there."),
-        Tip(icon: .sword, title: "Battle", text: "Monsters jump out as you explore the wild. Battles take turns: attack, cast a skill or use an item."),
-        Tip(icon: .paw, title: "Companions", text: "Beat a group down to its last monster, weaken it below 20% health and throw a Seal Stone. Keep up to five."),
-        Tip(icon: .star, title: "Grow", text: "Every level gives a skill point. At level \(Content.shared.classChoiceLevel), visit a guild master in town to become a Fighter, Mage or Beast Tamer."),
-        Tip(icon: .book, title: "Quests", text: "Villagers with a gold ! have work for you. Quests reward you and open the roads to new places."),
-        Tip(icon: .heart, title: "Towns", text: "Shops, healers and checkpoints wait in town. Your progress saves by itself."),
+        Tip(icon: .tap, title: L("Walk"), text: L("Drag the stick in the corner, or tap the ground and your hero walks there.")),
+        Tip(icon: .sword, title: L("Battle"), text: L("Monsters jump out as you explore the wild. Battles take turns: attack, cast a skill or use an item.")),
+        Tip(icon: .paw, title: L("Companions"), text: L("Beat a group down to its last monster, weaken it below 20% health and throw a Seal Stone. Keep up to five.")),
+        Tip(icon: .star, title: L("Grow"), text: L("Every level gives a skill point. At level {level}, visit a guild master in town to become a Fighter, Mage or Beast Tamer.", ["level": Content.shared.classChoiceLevel])),
+        Tip(icon: .book, title: L("Quests"), text: L("Villagers with a gold ! have work for you. Quests reward you and open the roads to new places.")),
+        Tip(icon: .heart, title: L("Towns"), text: L("Shops, healers and checkpoints wait in town. Your progress saves by itself.")),
     ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            PageTitle(text: "How to play", icon: .sparkles)
+            PageTitle(text: L("How to play"), icon: .sparkles)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
                 ForEach(tips, id: \.title) { tip in
                     HStack(alignment: .top, spacing: 10) {
@@ -172,16 +172,16 @@ private struct HowToPlayPage: View {
 private struct WorldPage: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            PageTitle(text: "The world of Fairyland", icon: .map)
-            Text("Roads join every place to its neighbours. Your journey starts in Meadowbrook. Quests open the roads further out, where stronger monsters live.")
+            PageTitle(text: L("The world of Fairyland"), icon: .map)
+            Text(L("Roads join every place to its neighbours. Your journey starts in Meadowbrook. Quests open the roads further out, where stronger monsters live."))
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.cream)
                 .fixedSize(horizontal: false, vertical: true)
             IntroAtlas(highlight: Content.shared.startMap)
             HStack(spacing: 14) {
-                Label { Text("Start") } icon: { Circle().fill(HUDStyle.gold).frame(width: 9, height: 9) }
-                Label { Text("Town") } icon: { RoundedRectangle(cornerRadius: 2).strokeBorder(HUDStyle.gold, lineWidth: 2).frame(width: 10, height: 10) }
-                Label { Text("Boss") } icon: { IconImage(.sword, size: 10).foregroundStyle(HUDStyle.hp) }
+                Label { Text(L("Start")) } icon: { Circle().fill(HUDStyle.gold).frame(width: 9, height: 9) }
+                Label { Text(L("Town")) } icon: { RoundedRectangle(cornerRadius: 2).strokeBorder(HUDStyle.gold, lineWidth: 2).frame(width: 10, height: 10) }
+                Label { Text(L("Boss")) } icon: { IconImage(.sword, size: 10).foregroundStyle(HUDStyle.hp) }
             }
             .font(HUDStyle.font(10))
             .foregroundStyle(HUDStyle.dim)
@@ -278,7 +278,7 @@ struct IntroAtlas: View {
         }
         .frame(height: CGFloat(rows.count) * Self.rowHeight)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("World map of \(places.count) places, starting in \(places.first { $0.id == highlight }?.name ?? "Meadowbrook")")
+        .accessibilityLabel(L("World map of {count} places, starting in {map}", ["count": places.count, "map": places.first { $0.id == highlight }?.name ?? "Meadowbrook"]))
     }
 
     private func center(of place: Place, cell: CGSize) -> CGPoint {

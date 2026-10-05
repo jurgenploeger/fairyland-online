@@ -26,7 +26,7 @@ struct ItemInfoCard: View {
                 if isGear {
                     requirements
                     if let stats = item.stats, !Self.parts(of: stats).isEmpty {
-                        section("Stats") { chips(Self.parts(of: stats)) }
+                        section(L("Stats")) { chips(Self.parts(of: stats)) }
                     }
                     comparison
                 }
@@ -67,14 +67,23 @@ struct ItemInfoCard: View {
                     .background(Circle().fill(HUDStyle.cream))
             }
             .buttonStyle(PressScaleStyle())
-            .accessibilityLabel("Close")
+            .accessibilityLabel(L("Close"))
         }
     }
 
     /// "Weapon", "Material · Metal", "Egg"…
     private var kind: String {
-        if item.hatches != nil { return "Egg" }
-        if item.type == .material, let material = item.material { return "Material · \(material.capitalized)" }
+        if item.hatches != nil { return L("Egg") }
+        if item.type == .material, let material = item.material {
+            let name: String = switch material {
+            case "gem": L("Gem")
+            case "hide": L("Hide")
+            case "metal": L("Metal")
+            case "wood": L("Wood")
+            default: material.capitalized
+            }
+            return L("Material · {material}", ["material": name])
+        }
         return item.type.displayName
     }
 
@@ -83,17 +92,17 @@ struct ItemInfoCard: View {
     /// From what level, and which classes; ticked when you qualify.
     private var requirements: some View {
         let hero = session.data.hero
-        return section("Who can use it") {
+        return section(L("Who can use it")) {
             VStack(alignment: .leading, spacing: 5) {
                 if let level = item.level {
-                    requirement(hero.level >= level, hero.level >= level ? "Level \(level)" : "Level \(level) (you're \(hero.level))")
+                    requirement(hero.level >= level, hero.level >= level ? L("Level {level}", ["level": level]) : L("Level {level} (you're {heroLevel})", ["level": level, "heroLevel": hero.level]))
                 }
                 if let classes = item.classes {
                     let names = classes.map { session.content.classDef($0).name }.joined(separator: ", ")
-                    requirement(classes.contains(hero.classID), "\(names) only")
+                    requirement(classes.contains(hero.classID), L("{classes} only", ["classes": names]))
                 }
                 if item.level == nil && item.classes == nil {
-                    requirement(true, "Anyone")
+                    requirement(true, L("Anyone"))
                 }
             }
         }
@@ -114,20 +123,20 @@ struct ItemInfoCard: View {
     private var comparison: some View {
         let worn = session.equipped(item.type)
         if worn?.id == item.id {
-            Text("You're wearing one.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+            Text(L("You're wearing one.")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
         } else if let worn {
             let gained: Stats = item.stats ?? Stats.zero
             let lost: Stats = worn.stats ?? Stats.zero
             let change = Self.parts(of: gained + lost * -1)
-            section("Instead of your \(worn.name)") {
+            section(L("Instead of your {item}", ["item": worn.name])) {
                 if change.isEmpty {
-                    Text("The same stats.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                    Text(L("The same stats.")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
                 } else {
                     chips(change)
                 }
             }
         } else {
-            Text("You have no \(item.type.displayName.lowercased()) on.").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+            Text(L("You have no {type} on.", ["type": item.type.displayName.lowercased()])).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
         }
     }
 
@@ -135,14 +144,14 @@ struct ItemInfoCard: View {
 
     @ViewBuilder
     private var effects: some View {
-        let both: [(label: String, value: Int)] = [("HP", item.heal ?? 0), ("MP", item.mp ?? 0)]
+        let both: [(label: String, value: Int)] = [(L("HP"), item.heal ?? 0), (L("MP"), item.mp ?? 0)]
         let restores = both.filter { $0.value > 0 }
         if !restores.isEmpty {
-            section("Restores") { chips(restores) }
+            section(L("Restores")) { chips(restores) }
         }
         if let species = item.hatches, !species.isEmpty {
             let names = species.compactMap { session.content.monster($0)?.name }.joined(separator: ", ")
-            section("Hatches") {
+            section(L("Hatches")) {
                 Text(names).font(HUDStyle.font(12)).foregroundStyle(HUDStyle.cream)
             }
         }
@@ -151,15 +160,15 @@ struct ItemInfoCard: View {
     /// Where it drops and what the smith makes of it.
     private var materialUse: some View {
         let uses = session.recipes.filter { $0.recipe?[item.id] != nil }.map(\.name)
-        let shown = uses.prefix(4).joined(separator: ", ") + (uses.count > 4 ? " and \(uses.count - 4) more" : "")
+        let shown = uses.count > 4 ? L("{items} and {count} more", ["items": uses.prefix(4).joined(separator: ", "), "count": uses.count - 4]) : uses.joined(separator: ", ")
         return VStack(alignment: .leading, spacing: 10) {
             if let level = item.level {
-                section("Found on") {
-                    Text("Monsters of level \(level) and up").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.cream)
+                section(L("Found on")) {
+                    Text(L("Monsters of level {level} and up", ["level": level])).font(HUDStyle.font(12)).foregroundStyle(HUDStyle.cream)
                 }
             }
-            section("A smith forges it into") {
-                Text(uses.isEmpty ? "Nothing yet." : shown)
+            section(L("A smith forges it into")) {
+                Text(uses.isEmpty ? L("Nothing yet.") : shown)
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.cream)
                     .fixedSize(horizontal: false, vertical: true)
@@ -173,10 +182,10 @@ struct ItemInfoCard: View {
         let worn = isGear && session.equipped(item.type)?.id == item.id
         var lines: [String] = []
         if owned > 0 || worn {
-            lines.append("You have \(owned)" + (worn ? " in your bag, and one on" : ""))
+            lines.append(worn ? L("You have {count} in your bag, and one on", ["count": owned]) : L("You have {count}", ["count": owned]))
         }
         if item.price > 0 {
-            lines.append("Shops sell it for \(item.price)g and pay \(GameSession.sellPrice(of: item))g")
+            lines.append(L("Shops sell it for {price}g and pay {gold}g", ["price": item.price, "gold": GameSession.sellPrice(of: item)]))
         }
         return VStack(alignment: .leading, spacing: 3) {
             ForEach(lines, id: \.self) { line in
@@ -217,8 +226,8 @@ struct ItemInfoCard: View {
     /// The stats that aren't zero, in the Character tab's order.
     private static func parts(of stats: Stats) -> [(label: String, value: Int)] {
         let all: [(label: String, value: Int)] = [
-            ("HP", stats.hp), ("MP", stats.mp), ("ATK", stats.attack),
-            ("DEF", stats.defense), ("MAG", stats.magic), ("SPD", stats.speed),
+            (L("HP"), stats.hp), (L("MP"), stats.mp), (L("ATK"), stats.attack),
+            (L("DEF"), stats.defense), (L("MAG"), stats.magic), (L("SPD"), stats.speed),
         ]
         return all.filter { $0.value != 0 }
     }

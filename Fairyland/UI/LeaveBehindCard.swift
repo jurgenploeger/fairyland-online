@@ -12,10 +12,10 @@ struct LeaveBehindCard: View {
         let everyone = session.data.pets + (newcomer.map { [$0] } ?? [])
         VStack(spacing: 12) {
             VStack(spacing: 3) {
-                Text("Party full!")
+                Text(L("Party full!"))
                     .font(HUDStyle.font(24))
                     .foregroundStyle(HUDStyle.gold)
-                Text("You can travel with \(GameSession.maxPets) companions. Who stays behind?")
+                Text(L("You can travel with {count} companions. Who stays behind?", ["count": GameSession.maxPets]))
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.cream)
                     .multilineTextAlignment(.center)
@@ -29,7 +29,7 @@ struct LeaveBehindCard: View {
                         VStack(spacing: 3) {
                             SpriteImage(art: session.artID(for: pet), size: 56)
                             Text(pet.name).font(HUDStyle.font(12)).lineLimit(1)
-                            Text("Lv \(pet.level) · \(session.species(of: pet)?.name ?? "")")
+                            Text(L("Lv {level} · {monster}", ["level": pet.level, "monster": session.species(of: pet)?.name ?? ""]))
                                 .font(HUDStyle.font(9))
                                 .foregroundStyle(HUDStyle.dim)
                                 .lineLimit(1)
@@ -44,7 +44,7 @@ struct LeaveBehindCard: View {
                         )
                         .overlay(alignment: .topTrailing) {
                             if isNew {
-                                Text("NEW")
+                                Text(L("NEW"))
                                     .font(HUDStyle.font(9))
                                     .foregroundStyle(HUDStyle.ink)
                                     .padding(.horizontal, 6)
@@ -58,13 +58,13 @@ struct LeaveBehindCard: View {
                 }
             }
             if let choice, let pet = everyone.first(where: { $0.id == choice }) {
-                Button(pet.id == newcomer?.id ? "Let \(pet.name) go" : "Leave \(pet.name) behind") {
+                Button(pet.id == newcomer?.id ? L("Let {name} go", ["name": pet.name]) : L("Leave {name} behind", ["name": pet.name])) {
                     session.leaveBehind(choice)
                     onDone()
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.orange))
             } else {
-                Text("Tap a companion").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                Text(L("Tap a companion")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             }
         }
         .padding(20)

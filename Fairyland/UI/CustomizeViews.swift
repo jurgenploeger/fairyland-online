@@ -30,7 +30,7 @@ struct LookEditor: View {
                         style: options.styles(for: race.sheet(for: look.gender)).randomElement()?.id ?? look.style
                     )
                 } label: {
-                    Label("Surprise me", icon: .dice)
+                    Label(L("Surprise me"), icon: .dice)
                 }
                 .buttonStyle(PixelButtonStyle(compact: true))
             }
@@ -40,8 +40,8 @@ struct LookEditor: View {
             VStack(alignment: .leading, spacing: 12) {
                 if !identityLocked {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Name").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
-                        TextField("Name", text: $name)
+                        Text(L("Name")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                        TextField(L("Name"), text: $name)
                             .textInputAutocapitalization(.words)
                             .autocorrectionDisabled()
                             .font(HUDStyle.font(15))
@@ -54,11 +54,11 @@ struct LookEditor: View {
                     GenderPicker(genders: options.genders, selection: $look.gender)
                 }
                 StylePicker(look: $look, race: race)
-                SwatchPicker(title: "Hair", presets: options.hair, selection: $look.hair, isUnlocked: isUnlocked)
+                SwatchPicker(title: L("Hair"), presets: options.hair, selection: $look.hair, isUnlocked: isUnlocked)
                 if armor == nil {
-                    SwatchPicker(title: "Outfit", presets: options.outfits, selection: $look.outfit, isUnlocked: isUnlocked)
+                    SwatchPicker(title: L("Outfit"), presets: options.outfits, selection: $look.outfit, isUnlocked: isUnlocked)
                 }
-                SwatchPicker(title: "Skin", presets: options.skin, selection: $look.skin, isUnlocked: isUnlocked)
+                SwatchPicker(title: L("Skin"), presets: options.skin, selection: $look.skin, isUnlocked: isUnlocked)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -85,7 +85,7 @@ private struct TurntablePreview: View {
                     Ellipse().fill(.black.opacity(0.2)).frame(width: 60, height: 12).offset(y: -8)
                 }
         }
-        .accessibilityLabel("Preview of your hero")
+        .accessibilityLabel(L("Preview of your hero"))
     }
 }
 
@@ -96,7 +96,7 @@ private struct GenderPicker: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text("Gender").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+            Text(L("Gender")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             HStack(spacing: 8) {
                 ForEach(genders) { gender in
                     let selected = gender.id == (selection ?? genders.first?.id)
@@ -121,7 +121,7 @@ private struct StylePicker: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 6) {
-                Text("Hairstyle").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                Text(L("Hairstyle")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
                 Text(styles.first { $0.id == current }?.name ?? "").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.gold)
             }
             HStack(spacing: 8) {
@@ -141,7 +141,7 @@ private struct StylePicker: View {
                             .padding(2)
                     }
                     .buttonStyle(PressScaleStyle())
-                    .accessibilityLabel("Hairstyle \(style.name)")
+                    .accessibilityLabel(L("Hairstyle {style}", ["style": style.name]))
                     .accessibilityAddTraits(selected ? .isSelected : [])
                 }
             }
@@ -182,8 +182,8 @@ struct SwatchPicker: View {
                                 selection = preset.id
                                 hint = nil
                             } else {
-                                let quest = preset.unlock.flatMap { Content.shared.quest($0)?.title } ?? "a quest"
-                                hint = "\(preset.name): finish “\(quest)”"
+                                let quest = preset.unlock.flatMap { Content.shared.quest($0)?.title } ?? L("a quest")
+                                hint = L("{look}: finish “{quest}”", ["look": preset.name, "quest": quest])
                             }
                         } label: {
                             Circle()
@@ -202,7 +202,7 @@ struct SwatchPicker: View {
                                 .padding(4)
                         }
                         .buttonStyle(PressScaleStyle())
-                        .accessibilityLabel(open ? "\(title) \(preset.name)" : "\(title) \(preset.name), locked")
+                        .accessibilityLabel(open ? "\(title) \(preset.name)" : L("{title} {look}, locked", ["title": title, "look": preset.name]))
                         .accessibilityAddTraits(selected ? .isSelected : [])
                     }
                 }
@@ -231,8 +231,8 @@ struct CompanionEditor: View {
                 SpriteImage(art: session.artID(for: pet), size: 80)
                     .background(Circle().fill(.white.opacity(0.08)))
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Name").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
-                    TextField("Name", text: $name)
+                    Text(L("Name")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                    TextField(L("Name"), text: $name)
                         .textInputAutocapitalization(.words)
                         .autocorrectionDisabled()
                         .font(HUDStyle.font(14))
@@ -243,11 +243,11 @@ struct CompanionEditor: View {
                 }
             }
             HStack {
-                Button("Cancel", action: onDone)
+                Button(L("Cancel"), action: onDone)
                     .buttonStyle(PixelButtonStyle(compact: true))
                 Spacer()
                 Button(action: save) {
-                    Label("Save", icon: .check)
+                    Label(L("Save"), icon: .check)
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
             }

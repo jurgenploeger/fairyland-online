@@ -7,7 +7,7 @@ struct TitleView: View {
     let onStart: (GameSession) -> Void
 
     @State private var creating = false
-    @State private var name = "Hero"
+    @State private var name = L("Hero")
     @State private var look = Look(hair: Look.standard.hair, outfit: Look.standard.outfit, skin: Look.standard.skin, gender: "male")
     @State private var raceID = "human"
     /// Your games, the last played first; the carousel shows one at a time.
@@ -15,6 +15,9 @@ struct TitleView: View {
     @State private var selectedSlot: String?
     @State private var showingChangelog = false
     @State private var showingSettings = false
+    @State private var showingLanguages = false
+    /// Its language: switching rebuilds the screen's text in place.
+    @State private var localizer = Localizer.shared
     /// Import a backup: the file picker, and what came of it.
     @State private var importing = false
     @State private var importNote: String?
@@ -36,7 +39,7 @@ struct TitleView: View {
             .ignoresSafeArea()
 
             if let intro {
-                IntroView(finishTitle: intro.thenCreate ? "Create your hero" : "Done", startPage: intro.startPage) {
+                IntroView(finishTitle: intro.thenCreate ? L("Create your hero") : L("Done"), startPage: intro.startPage) {
                     withAnimation(.easeInOut(duration: 0.25)) {
                         self.intro = nil
                         if intro.thenCreate { creating = true }
@@ -51,10 +54,12 @@ struct TitleView: View {
                             .scaledToFit()
                             .frame(maxWidth: 440)
                             .padding(.top, 12)
-                            .accessibilityLabel("Fairyland — a cozy pixel adventure")
+                            .accessibilityLabel(L("Fairyland — a cozy pixel adventure"))
 
                         if creating {
                             creation
+                        } else if showingLanguages {
+                            LanguagePanel { showingLanguages = false }
                         } else if showingChangelog {
                             ChangelogPanel { showingChangelog = false }
                         } else if showingSettings {
@@ -63,7 +68,7 @@ struct TitleView: View {
                                 Button {
                                     showingSettings = false
                                 } label: {
-                                    Label("Back", icon: .arrowLeft)
+                                    Label(L("Back"), icon: .arrowLeft)
                                 }
                                 .buttonStyle(PixelButtonStyle(compact: true))
                             }
@@ -76,6 +81,22 @@ struct TitleView: View {
                     }
                     .padding(20)
                     .frame(maxWidth: .infinity)
+                    .id(localizer.language)
+                }
+                // The language button, top right: the first thing a player who can't read English needs.
+                if !creating, !showingLanguages {
+                    Button {
+                        showingSettings = false
+                        showingChangelog = false
+                        showingLanguages = true
+                    } label: {
+                        Label(localizer.current.name, icon: .globe)
+                    }
+                    .buttonStyle(PixelButtonStyle(compact: true))
+                    .accessibilityLabel(L("Language: {language}", ["language": localizer.current.name]))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(.top, 8)
+                    .padding(.trailing, 12)
                 }
             }
         }
@@ -84,7 +105,7 @@ struct TitleView: View {
             importBackup(result)
         }
         .alert(importNote ?? "", isPresented: Binding(get: { importNote != nil }, set: { if !$0 { importNote = nil } })) {
-            Button("OK", role: .cancel) {}
+            Button(L("OK"), role: .cancel) {}
         }
     }
 
@@ -94,7 +115,7 @@ struct TitleView: View {
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         guard let raw = try? Data(contentsOf: url), let game = try? SaveStore.imported(raw) else {
-            importNote = "That file isn't a Fairyland backup."
+            importNote = L("That file isn't a Fairyland backup.")
             return
         }
         SaveStore.save(game)
@@ -102,9 +123,9 @@ struct TitleView: View {
         // A copy of a game you still have doesn't show up twice (SaveStore.all keeps the first).
         if saves.contains(where: { $0.slot == game.slot }) {
             selectedSlot = game.slot
-            importNote = "\(game.hero.name), level \(game.hero.level), is back!"
+            importNote = L("{hero}, level {level}, is back!", ["hero": game.hero.name, "level": game.hero.level])
         } else {
-            importNote = "You already have this game."
+            importNote = L("You already have this game.")
         }
     }
 
@@ -119,10 +140,10 @@ struct TitleView: View {
                 Button {
                     onStart(GameSession(data: save))
                 } label: {
-                    Label("Continue: \(save.hero.name), Lv \(save.hero.level)", icon: .play)
+                    Label(L("Continue: {hero}, Lv {level}", ["hero": save.hero.name, "level": save.hero.level]), icon: .play)
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
-                Text("Your progress saves automatically.")
+                Text(L("Your progress saves automatically."))
                     .font(HUDStyle.font(11))
                     .foregroundStyle(HUDStyle.ink.opacity(0.6))
             }
@@ -130,32 +151,32 @@ struct TitleView: View {
                 // A new game gets its own save, next to the others.
                 startNewGame()
             } label: {
-                Label("New game", icon: .sparkles)
+                Label(L("New game"), icon: .sparkles)
             }
             .buttonStyle(PixelButtonStyle())
             Button {
                 showingChangelog = true
             } label: {
-                Label("What's new · v\(Self.appVersion)", icon: .book)
+                Label(L("What's new · v{version}", ["version": Self.appVersion]), icon: .book)
             }
             .buttonStyle(PixelButtonStyle(compact: true))
             .padding(.top, 6)
             Button {
                 showingSettings = true
             } label: {
-                Label("Settings", icon: .settings)
+                Label(L("Settings"), icon: .settings)
             }
             .buttonStyle(PixelButtonStyle(compact: true))
             Button {
                 importing = true
             } label: {
-                Label("Import a backup", icon: .arrowDown)
+                Label(L("Import a backup"), icon: .arrowDown)
             }
             .buttonStyle(PixelButtonStyle(compact: true))
             Button {
                 withAnimation(.easeInOut(duration: 0.25)) { intro = IntroRequest(startPage: 0, thenCreate: false) }
             } label: {
-                Label("Story & how to play", icon: .book)
+                Label(L("Story & how to play"), icon: .book)
             }
             .buttonStyle(PixelButtonStyle(compact: true))
         }
@@ -168,10 +189,10 @@ struct TitleView: View {
 
     private var creation: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Create your hero").font(HUDStyle.font(16)).foregroundStyle(HUDStyle.gold)
+            Text(L("Create your hero")).font(HUDStyle.font(16)).foregroundStyle(HUDStyle.gold)
             LookEditor(name: $name, look: $look, raceID: raceID)
 
-            Text("Race").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
+            Text(L("Race")).font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
             AdaptiveStack(spacing: 10) {
                 ForEach(Content.shared.races) { race in
                     RaceCard(race: race, selected: race.id == raceID)
@@ -180,16 +201,16 @@ struct TitleView: View {
             }
 
             HStack {
-                Button("Back") { creating = false }
+                Button(L("Back")) { creating = false }
                     .buttonStyle(PixelButtonStyle(compact: true))
                 Spacer()
                 Button {
                     let trimmed = name.trimmingCharacters(in: .whitespaces)
-                    let session = GameSession.newGame(name: trimmed.isEmpty ? "Hero" : String(trimmed.prefix(12)), raceID: raceID, look: look)
+                    let session = GameSession.newGame(name: trimmed.isEmpty ? L("Hero") : String(trimmed.prefix(12)), raceID: raceID, look: look)
                     session.save()
                     onStart(session)
                 } label: {
-                    Label("Begin adventure", icon: .arrowRight)
+                    Label(L("Begin adventure"), icon: .arrowRight)
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
             }
@@ -217,7 +238,7 @@ private struct ChangelogPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            FLTitleBar(title: "What's new", icon: .book, onClose: onClose)
+            FLTitleBar(title: L("What's new"), icon: .book, onClose: onClose)
             VStack(alignment: .leading, spacing: 12) {
                 ForEach(Content.shared.releases) { release in
                     let isOpen = open.contains(release.id)
@@ -242,7 +263,7 @@ private struct ChangelogPanel: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .accessibilityHint(isOpen ? "Hides the notes" : "Shows the notes")
+                        .accessibilityHint(isOpen ? L("Hides the notes") : L("Shows the notes"))
                         if isOpen {
                             ForEach(release.notes, id: \.self) { note in
                                 HStack(alignment: .firstTextBaseline, spacing: 6) {
@@ -301,12 +322,12 @@ private struct SavedHeroCard: View {
         let petArt = pet.flatMap { content.monster($0.speciesID)?.art }
         VStack(spacing: 4) {
             IdlePair(hero: art, pet: petArt)
-            Text("Lv \(save.hero.level) \(content.classDef(save.hero.classID).name) · \(content.map(save.mapID)?.name ?? "")")
+            Text(L("Lv {level} {class} · {map}", ["level": save.hero.level, "class": content.classDef(save.hero.classID).name, "map": content.map(save.mapID)?.name ?? ""]))
                 .font(HUDStyle.font(10))
                 .foregroundStyle(HUDStyle.ink.opacity(0.65))
             // When you last played it, so you can tell your games apart.
             if let savedAt = save.savedAt {
-                Text("Played \(savedAt.formatted(.relative(presentation: .named)))")
+                Text(L("Played {time}", ["time": savedAt.formatted(.relative(presentation: .named))]))
                     .font(HUDStyle.font(9))
                     .foregroundStyle(HUDStyle.ink.opacity(0.5))
             }
@@ -372,7 +393,7 @@ private struct RaceCard: View {
             Text(race.name).font(HUDStyle.font(14)).foregroundStyle(selected ? HUDStyle.gold : HUDStyle.cream)
             Text(race.description).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                 .fixedSize(horizontal: false, vertical: true)
-            Text("HP \(race.base.hp) · MP \(race.base.mp) · ATK \(race.base.attack) · DEF \(race.base.defense) · MAG \(race.base.magic) · SPD \(race.base.speed)")
+            Text(L("HP {hp} · MP {mp} · ATK {attack} · DEF {defense} · MAG {magic} · SPD {speed}", ["hp": race.base.hp, "mp": race.base.mp, "attack": race.base.attack, "defense": race.base.defense, "magic": race.base.magic, "speed": race.base.speed]))
                 .font(HUDStyle.font(9))
                 .foregroundStyle(HUDStyle.cream)
         }

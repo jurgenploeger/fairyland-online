@@ -22,7 +22,7 @@ struct ChatView: View {
                 .onTapGesture(perform: onClose)
 
             VStack(spacing: 0) {
-                FLTitleBar(title: "Chat · \(session.mapName)", icon: .talk, onClose: onClose)
+                FLTitleBar(title: L("Chat · {map}", ["map": session.mapName]), icon: .talk, onClose: onClose)
                 ScrollViewReader { reader in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 6) {
@@ -46,7 +46,7 @@ struct ChatView: View {
                     if session.isModerator, onBroadcast != nil {
                         // Map: this map's chat. World: everyone in the game, on every map.
                         Button { toWorld.toggle() } label: {
-                            Text(toWorld ? "World" : "Map")
+                            Text(toWorld ? L("World") : L("Map"))
                                 .font(HUDStyle.font(12))
                                 .foregroundStyle(toWorld ? .white : HUDStyle.ink)
                                 .frame(minWidth: 52)
@@ -54,10 +54,10 @@ struct ChatView: View {
                                 .background(Capsule().fill(toWorld ? HUDStyle.mod : HUDStyle.cream))
                         }
                         .buttonStyle(PressScaleStyle())
-                        .accessibilityLabel(toWorld ? "Channel: World, everyone in the game" : "Channel: this map")
-                        .accessibilityHint("Switches the channel")
+                        .accessibilityLabel(toWorld ? L("Channel: World, everyone in the game") : L("Channel: this map"))
+                        .accessibilityHint(L("Switches the channel"))
                     }
-                    TextField(world ? "Message everyone in the game…" : "Say something…", text: $draft)
+                    TextField(world ? L("Message everyone in the game…") : L("Say something…"), text: $draft)
                         .font(HUDStyle.font(13))
                         .foregroundStyle(HUDStyle.ink)
                         .padding(.horizontal, 12)
@@ -75,7 +75,7 @@ struct ChatView: View {
                     }
                     .buttonStyle(PressScaleStyle())
                     .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty)
-                    .accessibilityLabel("Send")
+                    .accessibilityLabel(L("Send"))
                 }
                 .padding(10)
                 .background(HUDStyle.ink.opacity(0.6))
@@ -146,13 +146,13 @@ private struct ChatLineView: View {
                     .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(HUDStyle.gold.opacity(0.75), lineWidth: 1))
             )
             .accessibilityElement(children: .combine)
-            .accessibilityLabel("Announcement: \(line.text)")
+            .accessibilityLabel(L("Announcement: {text}", ["text": line.text]))
         case .world:
             // A moderator's message to everyone in the game: a red banner with who sent it.
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 5) {
                     IconImage(.shieldStar, size: 13)
-                    Text("World").font(HUDStyle.font(10)).opacity(0.85)
+                    Text(L("World")).font(HUDStyle.font(10)).opacity(0.85)
                     NameBadge(badge: .mod)
                     Text(line.speaker).font(HUDStyle.font(11))
                 }

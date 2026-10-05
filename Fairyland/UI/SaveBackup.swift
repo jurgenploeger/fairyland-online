@@ -23,6 +23,6 @@ nonisolated struct SaveBackup: FileDocument {
 
     /// The name it's offered under: whose game it is, and how far along.
     static func fileName(for data: SaveData) -> String {
-        "Fairyland \(data.hero.name) Lv\(data.hero.level)"
+        L("Fairyland {hero} Lv{level}", ["hero": data.hero.name, "level": data.hero.level])
     }
 }

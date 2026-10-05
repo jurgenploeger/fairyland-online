@@ -167,23 +167,23 @@ private struct RebirthPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Divider().overlay(HUDStyle.cream.opacity(0.3))
-            Text("Rebirth").font(HUDStyle.font(13)).foregroundStyle(HUDStyle.gold)
+            Text(L("Rebirth")).font(HUDStyle.font(13)).foregroundStyle(HUDStyle.gold)
             if session.data.hero.level < session.rebirthLevel {
-                Text("Reach level \(session.rebirthLevel) and I can help you be reborn: back to level 1, keeping your skills and some of your strength.")
+                Text(L("Reach level {level} and I can help you be reborn: back to level 1, keeping your skills and some of your strength.", ["level": session.rebirthLevel]))
                     .font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
                     .fixedSize(horizontal: false, vertical: true)
             } else if confirming {
-                Text("Start again at level 1? You keep your skills, pets and items.")
+                Text(L("Start again at level 1? You keep your skills, pets and items."))
                     .font(HUDStyle.font(11))
                     .fixedSize(horizontal: false, vertical: true)
                 HStack {
-                    Button("Be reborn (\(session.rebirthCost)g)") {
+                    Button(L("Be reborn ({gold}g)", ["gold": session.rebirthCost])) {
                         session.rebirth()
                         confirming = false
-                        reply = "Welcome back, little one. You'll grow even stronger this time."
+                        reply = L("Welcome back, little one. You'll grow even stronger this time.")
                     }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
-                    Button("Not yet") { confirming = false }
+                    Button(L("Not yet")) { confirming = false }
                         .buttonStyle(PixelButtonStyle(compact: true))
                 }
             } else {
@@ -191,10 +191,10 @@ private struct RebirthPanel: View {
                     if session.canRebirth {
                         confirming = true
                     } else {
-                        reply = "Rebirth costs \(session.rebirthCost) gold. Come back when you have it."
+                        reply = L("Rebirth costs {gold} gold. Come back when you have it.", ["gold": session.rebirthCost])
                     }
                 } label: {
-                    Label("Be reborn (\(session.rebirthCost)g)", icon: .sparkles)
+                    Label(L("Be reborn ({gold}g)", ["gold": session.rebirthCost]), icon: .sparkles)
                 }
                 .buttonStyle(PixelButtonStyle(tint: session.canRebirth ? HUDStyle.gold : HUDStyle.dim, compact: true))
             }
@@ -209,11 +209,11 @@ private struct HealerPanel: View {
     var body: some View {
         Button {
             session.restParty()
-            session.post("Your party is fully rested.", .reward)
+            session.post(L("Your party is fully rested."), .reward)
             session.save()
-            reply = "There you go! Everyone is fully rested."
+            reply = L("There you go! Everyone is fully rested.")
         } label: {
-            Label("Rest and recover (free)", icon: .heartPlus)
+            Label(L("Rest and recover (free)"), icon: .heartPlus)
         }
         .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
     }
@@ -230,13 +230,13 @@ private struct ShopPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Label("\(session.data.gold) gold", icon: .coins)
+                Label(L("{gold} gold", ["gold": session.data.gold]), icon: .coins)
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.gold)
                 Spacer()
-                Button("Buy") { selling = false }
+                Button(L("Buy")) { selling = false }
                     .buttonStyle(PixelButtonStyle(tint: selling ? HUDStyle.cream : HUDStyle.gold, compact: true))
-                Button("Sell") { selling = true }
+                Button(L("Sell")) { selling = true }
                     .buttonStyle(PixelButtonStyle(tint: selling ? HUDStyle.gold : HUDStyle.cream, compact: true))
             }
             if selling {
@@ -266,16 +266,16 @@ private struct ShopPanel: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityHint("Shows what it does and who can use it")
+                .accessibilityHint(L("Shows what it does and who can use it"))
                 if session.count(of: item.id) > 0 {
-                    Text("own \(session.count(of: item.id))").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                    Text(L("own {count}", ["count": session.count(of: item.id)])).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                 }
-                Button("\(item.price)g") {
+                Button(L("{gold}g", ["gold": item.price])) {
                     if session.buy(item.id) {
-                        session.post("Bought \(item.name).", .reward)
-                        reply = "Thanks! Enjoy your \(item.name)."
+                        session.post(L("Bought {item}.", ["item": item.name]), .reward)
+                        reply = L("Thanks! Enjoy your {item}.", ["item": item.name])
                     } else {
-                        reply = "Hmm, you're a bit short on gold."
+                        reply = L("Hmm, you're a bit short on gold.")
                     }
                 }
                 .buttonStyle(PixelButtonStyle(tint: session.data.gold >= item.price ? HUDStyle.gold : HUDStyle.dim, compact: true))
@@ -289,7 +289,7 @@ private struct ShopPanel: View {
     private var sellList: some View {
         let items = session.sellableItems
         if items.isEmpty {
-            Text("Nothing to sell. Monsters drop materials, and gear you've outgrown can come here.")
+            Text(L("Nothing to sell. Monsters drop materials, and gear you've outgrown can come here."))
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
         }
@@ -300,7 +300,7 @@ private struct ShopPanel: View {
                         ItemIcon(item: item, size: 36)
                         VStack(alignment: .leading, spacing: 1) {
                             Text(item.name)
-                            Text("\(item.type.displayName) · you have \(session.count(of: item.id))")
+                            Text(L("{type} · you have {count}", ["type": item.type.displayName, "count": session.count(of: item.id)]))
                                 .font(HUDStyle.font(10))
                                 .foregroundStyle(HUDStyle.dim)
                         }
@@ -309,11 +309,11 @@ private struct ShopPanel: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityHint("Shows what it does and who can use it")
-                Button("Sell \(GameSession.sellPrice(of: item))g") {
+                .accessibilityHint(L("Shows what it does and who can use it"))
+                Button(L("Sell {gold}g", ["gold": GameSession.sellPrice(of: item)])) {
                     if let paid = session.sell(item.id) {
-                        session.post("Sold \(item.name) for \(paid) gold.", .reward)
-                        reply = "A fine \(item.name)! Here's \(paid) gold."
+                        session.post(L("Sold {item} for {gold} gold.", ["item": item.name, "gold": paid]), .reward)
+                        reply = L("A fine {item}! Here's {gold} gold.", ["item": item.name, "gold": paid])
                     }
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
@@ -334,7 +334,7 @@ private struct QuestGiverPanel: View {
         let quests = session.quests(from: giver).filter { session.status(of: $0) != .completed }
         VStack(alignment: .leading, spacing: 8) {
             if quests.isEmpty {
-                Text("Nothing for now. Come back when you're stronger!").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
+                Text(L("Nothing for now. Come back when you're stronger!")).font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
             }
             ForEach(quests) { quest in
                 VStack(alignment: .leading, spacing: 6) {
@@ -348,29 +348,29 @@ private struct QuestGiverPanel: View {
                                     Button(answer.text) {
                                         session.acceptQuest(quest.id, answer: answer)
                                         asking = nil
-                                        reply = "\(answer.text)… a fine answer. Here are your gifts. Hatch that egg and come show me!"
+                                        reply = L("{answer}… a fine answer. Here are your gifts. Hatch that egg and come show me!", ["answer": answer.text])
                                     }
                                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                                 }
                             }
                         } else {
-                            Button("Accept") {
+                            Button(L("Accept")) {
                                 if quest.question != nil {
                                     asking = quest.id
                                     reply = quest.question?.text
                                 } else {
                                     session.acceptQuest(quest.id)
-                                    reply = "Wonderful! I knew I could count on you."
+                                    reply = L("Wonderful! I knew I could count on you.")
                                 }
                             }
                             .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                         }
                     case .ready:
-                        Button("Complete quest") {
+                        Button(L("Complete quest")) {
                             let level = session.data.hero.level
                             session.turnInQuest(quest.id)
                             session.save()
-                            reply = "Thank you! You've been a great help."
+                            reply = L("Thank you! You've been a great help.")
                             let reached = session.data.hero.level
                             finished = FinishedQuest(quest: quest, newLevel: reached > level ? reached : nil, levelsGained: reached - level)
                             if reached > level {
@@ -400,33 +400,34 @@ private struct GuildPanel: View {
     var body: some View {
         let path = session.content.classDef(classID)
         let hero = session.data.hero
+        let skillList = path.skills.compactMap { unlock in session.content.skill(unlock.skill).map { L("{skill} (Lv {level})", ["skill": $0.name, "level": unlock.level]) } }.joined(separator: ", ")
         VStack(alignment: .leading, spacing: 8) {
-            Text("\(path.guild ?? "Guild"): \(path.name)").font(HUDStyle.font(13)).foregroundStyle(HUDStyle.gold)
+            Text(L("{guild}: {className}", ["guild": path.guild ?? L("Guild"), "className": path.name])).font(HUDStyle.font(13)).foregroundStyle(HUDStyle.gold)
             Text(path.description).font(HUDStyle.font(11))
-            Text("Skills: " + path.skills.compactMap { unlock in session.content.skill(unlock.skill).map { "\($0.name) (Lv \(unlock.level))" } }.joined(separator: ", "))
+            Text(L("Skills: {skills}", ["skills": skillList]))
                 .font(HUDStyle.font(10))
                 .foregroundStyle(HUDStyle.dim)
 
             if hero.classID == path.id {
-                Text("Welcome back, \(path.name)!").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.green)
+                Text(L("Welcome back, {className}!", ["className": path.name])).font(HUDStyle.font(12)).foregroundStyle(HUDStyle.green)
             } else if hero.classID != "novice" {
-                Text("You've already chosen the path of the \(session.heroClass.name).").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
+                Text(L("You've already chosen the path of the {className}.", ["className": session.heroClass.name])).font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
             } else if !session.canChooseClass {
-                Text("Come back when you reach level \(session.content.classChoiceLevel).").font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
+                Text(L("Come back when you reach level {level}.", ["level": session.content.classChoiceLevel])).font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
             } else if confirming {
                 HStack {
-                    Text("This choice is permanent. Sure?").font(HUDStyle.font(12))
-                    Button("Yes, become a \(path.name)") {
+                    Text(L("This choice is permanent. Sure?")).font(HUDStyle.font(12))
+                    Button(L("Yes, become a {className}", ["className": path.name])) {
                         session.chooseClass(path.id)
                         session.save()
-                        reply = "Welcome to the \(path.guild ?? "guild"), \(path.name)! Your new skills await."
+                        reply = L("Welcome to the {guild}, {className}! Your new skills await.", ["guild": path.guild ?? L("guild"), "className": path.name])
                     }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
-                    Button("Not yet") { confirming = false }
+                    Button(L("Not yet")) { confirming = false }
                         .buttonStyle(PixelButtonStyle(compact: true))
                 }
             } else {
-                Button("Join and become a \(path.name)") { confirming = true }
+                Button(L("Join and become a {className}", ["className": path.name])) { confirming = true }
                     .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
             }
         }
@@ -445,22 +446,22 @@ private struct BossPanel: View {
         VStack(alignment: .leading, spacing: 8) {
             if let species {
                 HStack(spacing: 8) {
-                    Text("Lv \(level) \(species.name)").foregroundStyle(HUDStyle.gold)
+                    Text(L("Lv {level} {monster}", ["level": level, "monster": species.name])).foregroundStyle(HUDStyle.gold)
                     ElementBadge(element: species.element)
                 }
                 .font(HUDStyle.font(13))
                 if level > session.data.hero.level + 2 {
-                    Text("This looks really dangerous at your level…").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.orange)
+                    Text(L("This looks really dangerous at your level…")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.orange)
                 }
             }
             if let drops = species?.drops, !drops.isEmpty {
                 let names = drops.compactMap { session.content.item($0.item)?.name }
-                Text("Rare drops: \(names.joined(separator: ", "))").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                Text(L("Rare drops: {items}", ["items": names.joined(separator: ", ")])).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             }
             if session.isBeatenHere(boss) {
-                EmptyNote("Beaten! It'll be back next time you come by.")
+                EmptyNote(L("Beaten! It'll be back next time you come by."))
             } else {
-                Button { onFight(boss) } label: { Label(session.isDefeated(boss) ? "Rematch!" : "Fight!", icon: .sword) }
+                Button { onFight(boss) } label: { Label(session.isDefeated(boss) ? L("Rematch!") : L("Fight!"), icon: .sword) }
                     .buttonStyle(PixelButtonStyle(tint: Color(red: 1, green: 0.55, blue: 0.5)))
             }
         }
@@ -501,7 +502,7 @@ private struct QuestCompleteCard: View {
     private var looks: [String] {
         let content = session.content
         return [("hair", content.appearance.hair), ("outfit", content.appearance.outfits)]
-            .flatMap { kind, presets in presets.filter { $0.unlock == quest.id }.map { "\($0.name) \(kind)" } }
+            .flatMap { kind, presets in presets.filter { $0.unlock == quest.id }.map { kind == "hair" ? L("{look} hair", ["look": $0.name]) : L("{look} outfit", ["look": $0.name]) } }
     }
 
     private var roads: [String] {
@@ -536,7 +537,7 @@ private struct QuestCompleteCard: View {
     private var card: some View {
         VStack(spacing: 10) {
             VStack(spacing: 2) {
-                Text("Quest complete!")
+                Text(L("Quest complete!"))
                     .font(HUDStyle.font(24))
                     .foregroundStyle(HUDStyle.gold)
                 Text(quest.title)
@@ -550,7 +551,7 @@ private struct QuestCompleteCard: View {
                 ScrollView { rewards }
                     .scrollBounceBehavior(.basedOnSize)
             }
-            Button("Continue", action: advance)
+            Button(L("Continue"), action: advance)
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
                 .padding(.top, 6)
         }
@@ -572,7 +573,7 @@ private struct QuestCompleteCard: View {
             if gold > 0 || exp > 0 {
                 HStack(spacing: 18) {
                     if exp > 0 {
-                        Label { Text("+\(exp) EXP") } icon: {
+                        Label { Text(L("+{exp} EXP", ["exp": exp])) } icon: {
                             IconImage(.star, size: 18).foregroundStyle(HUDStyle.exp)
                         }
                     }
@@ -589,21 +590,21 @@ private struct QuestCompleteCard: View {
                 LevelUpBanner(level: level, gains: session.heroClass.growth * finished.levelsGained)
             }
             if !loot.isEmpty {
-                LootGrid(loot: loot, title: "Got")
+                LootGrid(loot: loot, title: L("Got"))
             }
             if !looks.isEmpty || !roads.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     ForEach(looks, id: \.self) { look in
-                        Label("New look: \(look)", icon: .palette, size: 14)
+                        Label(L("New look: {look}", ["look": look]), icon: .palette, size: 14)
                     }
                     if !looks.isEmpty {
-                        Text("Try it in Character → Customize")
+                        Text(L("Try it in Character → Customize"))
                             .font(HUDStyle.font(10))
                             .foregroundStyle(HUDStyle.dim)
                             .padding(.leading, 20)
                     }
                     ForEach(roads, id: \.self) { road in
-                        Label("Road open: \(road)", icon: .map, size: 14)
+                        Label(L("Road open: {road}", ["road": road]), icon: .map, size: 14)
                     }
                 }
                 .font(HUDStyle.font(12))

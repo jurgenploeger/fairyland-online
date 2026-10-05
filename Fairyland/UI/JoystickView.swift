@@ -30,7 +30,7 @@ struct JoystickView: View {
         .gesture(drag)
         .sensoryFeedback(.impact(weight: .light), trigger: isPressed) { _, pressed in pressed && GameSettings.haptics }
         .sensoryFeedback(.selection, trigger: direction) { _, new in new != nil && GameSettings.haptics }
-        .accessibilityLabel("Movement joystick")
+        .accessibilityLabel(L("Movement joystick"))
     }
 
     /// 0...1 plus the direction to lean, for the cap's 3D tilt.

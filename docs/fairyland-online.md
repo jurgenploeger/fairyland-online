@@ -315,6 +315,16 @@ adventurer drops everything they carry (the goods they'd sell you that day).
 - **Selling products:** Logistics Trading Officers in the three capitals pay more for products than ordinary
   shops.
 
+## Languages
+
+FO started in Taiwan in 2003, in Traditional Chinese, and ran in English from 2007 (above). Which other
+languages it was published in isn't in any source reachable from a cloud session.
+
+**Us** (since 0.3.46): eleven languages, asked for in playtesting (2026-10-05): English, Spanish,
+Portuguese (Brazil), French, German, Italian, Russian, Japanese, Korean, Simplified Chinese and
+Traditional Chinese (Taiwan usage, as a nod to FO's home). Everything is translated, the changelog
+included; the translations were made with AI and haven't had a native speaker's review yet.
+
 ## Design questions on our side
 
 - Monster skills with an element but physical damage (Golden Spin, Vine Whip, Web Shot, Rock Throw) ignore

@@ -99,7 +99,7 @@ final class Crowd {
             guard let home = map.strollTarget(near: map.center, radius: spread, using: &rng) else { continue }
             let profile = index < visitors.count
                 ? visitors[index]
-                : Self.profile(named: adventurerNames.popLast() ?? "Traveller", levels: levels, danger: def.danger == true)
+                : Self.profile(named: adventurerNames.popLast() ?? L("Traveller"), levels: levels, danger: def.danger == true)
             addAdventurer(profile, home: home, roam: town ? 9 : 14, world: world)
         }
         if let market, traders > 0 {
@@ -107,7 +107,7 @@ final class Crowd {
         }
         for _ in 0..<(def.crowd?.villagers ?? 0) {
             guard let home = map.strollTarget(near: map.center, radius: spread, using: &rng) else { continue }
-            let name = villagerNames.popLast() ?? "Villager"
+            let name = villagerNames.popLast() ?? L("Villager")
             let race = Content.shared.races.randomElement()?.id ?? "human"
             let walker = Self.person(name, art: GameSession.registerPerson(race: race, look: Self.randomLook(race: race)), color: .white)
             walker.walkSpeed = .random(in: 50...66)
@@ -151,7 +151,7 @@ final class Crowd {
         }
         let levels = max(1, market.level - 6)...max(1, market.level + 10)
         for spot in spots {
-            let profile = Self.profile(named: names.popLast() ?? "Trader", levels: levels, danger: false)
+            let profile = Self.profile(named: names.popLast() ?? L("Trader"), levels: levels, danger: false)
             addAdventurer(profile, home: map.cell(at: spot), roam: 0, world: world, trades: true)
             guard let member = members.last else { continue }
             member.walker.position = spot
@@ -261,7 +261,7 @@ final class Crowd {
                     walker.path = []
                     walker.setWalking(false)
                     walker.face(Direction(player - walker.position, current: walker.facing))
-                    speak(["Hey! You there!", "Fight me!", "This is my turf!", "Let's see what you've got!"].randomElement() ?? "Fight me!",
+                    speak([L("Hey! You there!"), L("Fight me!"), L("This is my turf!"), L("Let's see what you've got!")].randomElement() ?? L("Fight me!"),
                           by: member, bubble: true)
                     onChallenge?(profile)
                 }

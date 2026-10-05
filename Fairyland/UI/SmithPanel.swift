@@ -15,10 +15,10 @@ struct SmithPanel: View {
         var id: String { icon }
     }
 
-    private static let lines = [
-        WeaponLine(icon: "sword", name: "Swords"), WeaponLine(icon: "axe", name: "Axes"),
-        WeaponLine(icon: "wand", name: "Staffs"), WeaponLine(icon: "paw", name: "Whips"),
-    ]
+    private static var lines: [WeaponLine] { [
+        WeaponLine(icon: "sword", name: L("Swords")), WeaponLine(icon: "axe", name: L("Axes")),
+        WeaponLine(icon: "wand", name: L("Staffs")), WeaponLine(icon: "paw", name: L("Whips")),
+    ] }
 
     /// Starts on the line the hero's class fights with.
     private var defaultLine: String {
@@ -42,7 +42,7 @@ struct SmithPanel: View {
                 }
             }
             if shown.isEmpty {
-                EmptyNote("Nothing to forge in this line at your level.")
+                EmptyNote(L("Nothing to forge in this line at your level."))
             }
             ForEach(shown) { item in
                 SmithRecipeRow(session: session, item: item, reply: $reply, info: $info)
@@ -70,14 +70,14 @@ private struct SmithRecipeRow: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityHint("Shows what it does and who can use it")
-            Button("Forge") {
+            .accessibilityHint(L("Shows what it does and who can use it"))
+            Button(L("Forge")) {
                 if session.craft(item.id) {
-                    session.post("Forged a \(item.name)!", .reward)
+                    session.post(L("Forged a {item}!", ["item": item.name]), .reward)
                     session.save()
-                    reply = "Clang, clang… done! One \(item.name), fresh from the anvil."
+                    reply = L("Clang, clang… done! One {item}, fresh from the anvil.", ["item": item.name])
                 } else {
-                    reply = "You're missing some materials. Monsters out in the wilds drop them."
+                    reply = L("You're missing some materials. Monsters out in the wilds drop them.")
                 }
             }
             .buttonStyle(PixelButtonStyle(tint: ready ? HUDStyle.gold : HUDStyle.dim, compact: true))
@@ -88,7 +88,7 @@ private struct SmithRecipeRow: View {
     /// Name and level, stats, the materials it takes (what you have of each), and what stops you using it.
     private var details: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("\(item.name)  ·  Lv \(item.level ?? 1)")
+            Text(L("{item}  ·  Lv {level}", ["item": item.name, "level": item.level ?? 1]))
             Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
             HStack(spacing: 8) {
                 ForEach(session.ingredients(of: item)) { part in

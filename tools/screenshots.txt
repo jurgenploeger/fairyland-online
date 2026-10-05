@@ -1,6 +1,13 @@
 # Scenes for tools/screenshots.sh (and the Screenshots GitHub Action).
 # name | FAIRYLAND_DEBUG flags (see Fairyland/App/DebugLaunch.swift) | seconds to settle after the first frame
 title        |                                   | 6
+title_de     | lang=de                           | 6
+title_ja     | lang=ja                           | 6
+lang_es      | newgame,lang=es                   | 8
+settings_zh_hant | newgame,lang=zh-Hant,menu=settings | 8
+battle_ru    | newgame,lang=ru,map=sunny_meadow,battle | 15
+npc_ko       | newgame,lang=ko,npc=elder         | 8
+quests_fr    | newgame,lang=fr,menu=quests       | 8
 meadowbrook  | newgame                           | 8
 sunny_meadow | newgame,map=sunny_meadow          | 15
 smiling_forest | newgame,map=smiling_forest       | 15

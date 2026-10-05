@@ -1,0 +1,13 @@
+{
+  "_about": "Which keys in each content/*.json file hold text the player reads, translated by content/i18n/<code>.json (keyed by the English text). A list of key names (any depth, strings or lists of strings), or \"*\" for every string in the file. Content.swift swaps them as the file loads; tools/i18n.py extract lists them for translating.",
+  "announcements": "*",
+  "appearance": ["name"],
+  "changelog": ["title", "notes"],
+  "classes": ["name", "description", "guild"],
+  "crowd": ["adventurerLines", "modReplies", "replies", "traderLines", "villagerLines"],
+  "items": ["name", "description"],
+  "maps": ["name", "greeting", "story", "title"],
+  "monsters": ["name", "lore"],
+  "quests": ["title", "description", "text"],
+  "skills": ["name", "description"]
+}

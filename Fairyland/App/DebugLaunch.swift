@@ -50,6 +50,7 @@ import Foundation
 ///   landscape      lock the app to landscape
 ///   hour=<h>       the calendar starts at that hour of the day (0-23: 21 for night, 18 for dusk)
 ///   weather=<kind> every map with a sky has this weather (clear | cloudy | rain | storm | fog | snow)
+///   lang=<code>    play in this language (content/i18n/languages.json), without changing the saved choice
 enum DebugLaunch {
     private static var flags: [String: String] {
         #if DEBUG
@@ -95,6 +96,11 @@ enum DebugLaunch {
     static var itemInfo: ItemDef? { flags["info"].flatMap { Content.shared.item($0) } }
     /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).
     static var introPage: Int? { flags["intro"].map { Int($0).map { $0 - 1 } ?? 0 } }
+
+    /// `lang=de`: the game speaks that language for this launch (title screen included).
+    static func applyLanguage() {
+        if let code = flags["lang"] { Localizer.shared.choose(code, remember: false) }
+    }
 
     static func session() -> GameSession? {
         let flags = flags

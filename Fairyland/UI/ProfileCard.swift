@@ -31,8 +31,8 @@ struct ProfileCard: View {
                         ScrollView { details(facts).padding(14) }
                     }
                 } else {
-                    FLTitleBar(title: "Nobody here", onClose: onClose)
-                    Text("They've gone on their way.")
+                    FLTitleBar(title: L("Nobody here"), onClose: onClose)
+                    Text(L("They've gone on their way."))
                         .font(HUDStyle.font(12))
                         .foregroundStyle(HUDStyle.dim)
                         .padding(14)
@@ -69,23 +69,23 @@ struct ProfileCard: View {
                     }
                 }
             }
-            StatBar(label: "HP", value: facts.hp, maximum: facts.stats.hp, color: HUDStyle.hp)
+            StatBar(label: L("HP"), value: facts.hp, maximum: facts.stats.hp, color: HUDStyle.hp)
             if facts.stats.mp > 0 {
-                StatBar(label: "MP", value: facts.mp, maximum: facts.stats.mp, color: HUDStyle.mp)
+                StatBar(label: L("MP"), value: facts.mp, maximum: facts.stats.mp, color: HUDStyle.mp)
             }
             if let exp = facts.exp {
-                StatBar(label: "EXP", value: exp.have, maximum: exp.need, color: HUDStyle.exp)
+                StatBar(label: L("EXP"), value: exp.have, maximum: exp.need, color: HUDStyle.exp)
             }
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 6) {
-                StatCell(name: "Attack", value: facts.stats.attack)
-                StatCell(name: "Defense", value: facts.stats.defense)
-                StatCell(name: "Magic", value: facts.stats.magic)
-                StatCell(name: "Speed", value: facts.stats.speed)
+                StatCell(name: L("Attack"), value: facts.stats.attack)
+                StatCell(name: L("Defense"), value: facts.stats.defense)
+                StatCell(name: L("Magic"), value: facts.stats.magic)
+                StatCell(name: L("Speed"), value: facts.stats.speed)
             }
             if let gear = facts.gear {
-                SectionTitle(text: "Gear")
+                SectionTitle(text: L("Gear"))
                 if gear.isEmpty {
-                    Text("Nothing worn").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                    Text(L("Nothing worn")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
                 } else {
                     LazyVGrid(columns: Self.tiles, alignment: .leading, spacing: 8) {
                         ForEach(gear) { item in tile(name: item.name) { ItemIcon(item: item, size: 34) } }
@@ -93,9 +93,9 @@ struct ProfileCard: View {
                 }
             }
             if let skills = facts.skills {
-                SectionTitle(text: "Skills")
+                SectionTitle(text: L("Skills"))
                 if skills.isEmpty {
-                    Text("None yet").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
+                    Text(L("None yet")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
                 } else {
                     LazyVGrid(columns: Self.tiles, alignment: .leading, spacing: 8) {
                         ForEach(skills) { skill in tile(name: skill.name) { SkillIcon(skill: skill, size: 34) } }
@@ -103,7 +103,7 @@ struct ProfileCard: View {
                 }
             }
             if let companion = facts.companion {
-                SectionTitle(text: "Companion")
+                SectionTitle(text: L("Companion"))
                 HStack(spacing: 10) {
                     WalkingSprite(art: companion.species.art, size: 50)
                         .background(Circle().fill(.white.opacity(0.07)))
@@ -112,7 +112,7 @@ struct ProfileCard: View {
                             .font(HUDStyle.font(12))
                             .foregroundStyle(.white)
                         HStack(spacing: 6) {
-                            Text("Lv \(companion.level)")
+                            Text(L("Lv {level}", ["level": companion.level]))
                                 .font(HUDStyle.font(11))
                                 .foregroundStyle(HUDStyle.gold)
                             ElementBadge(element: companion.species.element)
@@ -167,24 +167,24 @@ struct ProfileCard: View {
         case .hero:
             let hero = session.data.hero
             var facts = Facts(name: hero.name, icon: .user, art: GameSession.heroArt,
-                              kind: "Lv \(hero.level) · \(content.race(hero.raceID).name) \(session.heroClass.name)",
+                              kind: L("Lv {level} · {race} {heroClass}", ["level": hero.level, "race": content.race(hero.raceID).name, "heroClass": session.heroClass.name]),
                               stats: session.heroStats, hp: hero.hp, mp: hero.mp,
                               exp: (hero.exp, GameSession.expToNext(level: hero.level)))
             if session.isModerator { facts.badge = .mod }
-            if session.rebirths > 0 { facts.note = "Reborn \(session.rebirths)×" }
+            if session.rebirths > 0 { facts.note = L("Reborn {count}×", ["count": session.rebirths]) }
             facts.gear = [ItemType.weapon, .armor, .accessory].compactMap { session.equipped($0) }
             return facts
 
         case .pet(let id):
             guard let pet = session.data.pets.first(where: { $0.id == id }), let species = session.species(of: pet) else { return nil }
-            var facts = Facts(name: pet.name, icon: .paw, art: session.artID(for: pet), kind: "Lv \(pet.level) · \(species.name)",
+            var facts = Facts(name: pet.name, icon: .paw, art: session.artID(for: pet), kind: L("Lv {level} · {monster}", ["level": pet.level, "monster": species.name]),
                               element: species.element, stats: session.stats(of: pet), hp: pet.hp, mp: pet.mp,
                               exp: (pet.exp, GameSession.expToNext(level: pet.level)))
             if pet.hp <= 0 {
-                facts.note = "Fainted: a potion or a healer wakes it up."
+                facts.note = L("Fainted: a potion or a healer wakes it up.")
                 facts.noteColor = HUDStyle.orange
             } else if session.data.activePetID == pet.id {
-                facts.note = "Following you"
+                facts.note = L("Following you")
                 facts.noteColor = HUDStyle.green
             }
             facts.skills = species.skills.compactMap { content.skill($0) }
@@ -194,22 +194,22 @@ struct ProfileCard: View {
             // They're always at full strength away from a fight.
             let stats = session.stats(of: person)
             var facts = Facts(name: person.name, icon: .user, art: session.artID(for: person),
-                              kind: "Lv \(person.level) · \(content.race(person.raceID).name) \(content.classDef(person.classID).name)",
+                              kind: L("Lv {level} · {race} {heroClass}", ["level": person.level, "race": content.race(person.raceID).name, "heroClass": content.classDef(person.classID).name]),
                               stats: stats, hp: stats.hp, mp: stats.mp)
             facts.badge = .bot
             // What they hold and wear, as on the map and in battle.
             facts.gear = [GameSession.weapon(for: person), GameSession.armor(for: person)].compactMap { $0 }
             if let place = session.whereabouts(of: person) {
-                facts.note = "Waiting for you at \(place)"
+                facts.note = L("Waiting for you at {place}", ["place": place])
                 facts.noteColor = HUDStyle.orange
             } else if session.isInParty(person) {
-                facts.note = "Travelling with you"
+                facts.note = L("Travelling with you")
                 facts.noteColor = HUDStyle.green
             } else if session.isFriend(person) {
-                facts.note = "Your friend"
+                facts.note = L("Your friend")
                 facts.noteColor = HUDStyle.green
             } else if person.hostile {
-                facts.note = "Looking for trouble!"
+                facts.note = L("Looking for trouble!")
                 facts.noteColor = Color(uiColor: Crowd.hostileColor)
             }
             facts.skills = session.skills(of: person)

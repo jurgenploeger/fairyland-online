@@ -10,6 +10,17 @@ enum MenuTab: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// The tab's name as shown (the raw value stays English: it's the id).
+    var title: String {
+        switch self {
+        case .character: L("Character")
+        case .companions: L("Companions")
+        case .bag: L("Bag")
+        case .quests: L("Quests")
+        case .settings: L("Settings")
+        }
+    }
+
     var icon: GameIcon {
         switch self {
         case .character: .user
@@ -235,7 +246,7 @@ final class GameCoordinator {
     /// From the adventurer card: befriend, invite along, or challenge.
     func befriend(_ adventurer: Adventurer) {
         if session.befriend(adventurer) {
-            world.adventurerSays(["Yay, friends! ^_^", "Sure! Let's adventure sometime!", "Friends! :D"].randomElement()!, adventurer.id)
+            world.adventurerSays([L("Yay, friends! ^_^"), L("Sure! Let's adventure sometime!"), L("Friends! :D")].randomElement()!, adventurer.id)
         }
     }
 
@@ -296,11 +307,11 @@ final class GameCoordinator {
 
     private func openChest(_ chest: NPCDef) {
         if session.isOpened(chest.id) {
-            session.post("The \(chest.name.lowercased()) is empty.")
+            session.post(L("The {chest} is empty.", ["chest": chest.name.lowercased()]))
         } else if session.openChest(chest) != nil {
             session.save()
         } else {
-            session.post("The ribbon is tied tight. Maybe someone in town knows who it's for.")
+            session.post(L("The ribbon is tied tight. Maybe someone in town knows who it's for."))
         }
     }
 
@@ -309,14 +320,14 @@ final class GameCoordinator {
         guard battle == nil, skill.id == "bridge_of_light" else { return }
         let cost = GameSession.mpCost(of: skill, level: session.skillLevel(skill.id))
         guard session.data.hero.mp >= cost else {
-            session.post("Not enough MP for \(skill.name).")
+            session.post(L("Not enough MP for {skill}.", ["skill": skill.name]))
             return
         }
         let checkpoint = session.checkpoint
         guard let map = Content.shared.map(checkpoint.mapID) else { return }
         session.data.hero.mp -= cost
         overlay = nil
-        session.post("A bridge of light carries you to \(session.checkpointName(checkpoint)).", .quest)
+        session.post(L("A bridge of light carries you to {place}.", ["place": session.checkpointName(checkpoint)]), .quest)
         SoundEffects.shared.play(.whoosh)
         go(to: map, entry: checkpoint.entry)
     }
@@ -356,19 +367,19 @@ final class GameCoordinator {
     private func command(_ text: String) {
         let words = text.dropFirst().split(separator: " ", maxSplits: 1).map(String.init)
         guard words.first?.lowercased() == "mod" else {
-            session.postChat("Unknown command. The only one is /mod.", from: "", kind: .system)
+            session.postChat(L("Unknown command. The only one is /mod."), from: "", kind: .system)
             return
         }
         let argument = words.count > 1 ? words[1] : ""
         if argument.lowercased() == "off" {
             Moderation.switchOff()
             session.isModerator = Moderation.isOn
-            session.postChat("Moderator mode is off.", from: "", kind: .system)
+            session.postChat(L("Moderator mode is off."), from: "", kind: .system)
         } else if Moderation.unlock(with: argument) {
             session.isModerator = true
-            session.postChat("Moderator mode is on: a MOD tag on your name, and the World channel here in the chat.", from: "", kind: .system)
+            session.postChat(L("Moderator mode is on: a MOD tag on your name, and the World channel here in the chat."), from: "", kind: .system)
         } else {
-            session.postChat("That's not the moderator code.", from: "", kind: .system)
+            session.postChat(L("That's not the moderator code."), from: "", kind: .system)
         }
     }
 }

@@ -26,6 +26,7 @@ RAW = f"https://raw.githubusercontent.com/iconaut-design/icons/{COMMIT}"
 # game name → (Iconaut category/name, style)
 ICONS = {
     "sword": ("gaming/sword", "solid"),
+    "globe": ("navigation/globe", "solid"),
     "sparkles": ("ai/sparkles", "solid"),
     "backpack": ("education/backpack", "solid"),
     "shield": ("security/shield", "solid"),
