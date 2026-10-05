@@ -133,26 +133,34 @@ private struct StylePicker: View {
                 Text(L("Hairstyle")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
                 Text(styles.first { $0.id == current }?.name ?? "").font(HUDStyle.font(11)).foregroundStyle(HUDStyle.gold)
             }
-            HStack(spacing: 8) {
-                ForEach(styles) { style in
-                    let selected = style.id == current
-                    Button {
-                        look.style = style.id
-                    } label: {
-                        Image(uiImage: portrait(style))
-                            .interpolation(.none)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 44, height: 44)
-                            .background(RoundedRectangle(cornerRadius: 8).fill(.white.opacity(0.08)))
-                            .overlay(RoundedRectangle(cornerRadius: 8)
-                                .strokeBorder(selected ? HUDStyle.gold : .white.opacity(0.4), lineWidth: selected ? 3 : 1.5))
-                            .padding(2)
+            // Every style suits everyone now (nine and counting), more than fit across: the row
+            // scrolls, like the colours below, and opens on the one you're wearing.
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(styles) { style in
+                            let selected = style.id == current
+                            Button {
+                                look.style = style.id
+                            } label: {
+                                Image(uiImage: portrait(style))
+                                    .interpolation(.none)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 44, height: 44)
+                                    .background(RoundedRectangle(cornerRadius: 8).fill(.white.opacity(0.08)))
+                                    .overlay(RoundedRectangle(cornerRadius: 8)
+                                        .strokeBorder(selected ? HUDStyle.gold : .white.opacity(0.4), lineWidth: selected ? 3 : 1.5))
+                                    .padding(2)
+                            }
+                            .buttonStyle(PressScaleStyle())
+                            .accessibilityLabel(L("Hairstyle {style}", ["style": style.name]))
+                            .accessibilityAddTraits(selected ? .isSelected : [])
+                            .id(style.id)
+                        }
                     }
-                    .buttonStyle(PressScaleStyle())
-                    .accessibilityLabel(L("Hairstyle {style}", ["style": style.name]))
-                    .accessibilityAddTraits(selected ? .isSelected : [])
                 }
+                .onAppear { proxy.scrollTo(current, anchor: .center) }
             }
         }
     }
