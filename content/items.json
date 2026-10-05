@@ -32,6 +32,16 @@
       "description": "Throw it at the last monster standing once it's below 20% HP to befriend it. Only used up if it works."
     },
     {
+      "id": "homeward_feather",
+      "icon": "map",
+      "art": "item_homeward_feather",
+      "name": "Homeward Feather",
+      "type": "consumable",
+      "price": 50,
+      "travel": true,
+      "description": "Outside battle: the wind carries you back to your checkpoint. For any class."
+    },
+    {
       "id": "pet_egg",
       "icon": "egg",
       "art": "item_pet_egg",

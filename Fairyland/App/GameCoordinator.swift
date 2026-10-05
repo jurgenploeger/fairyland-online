@@ -81,6 +81,7 @@ final class GameCoordinator {
         startAutosave()
         announcer.start()
         session.onCastField = { [weak self] skill in self?.castField(skill) }
+        session.onTravel = { [weak self] item in self?.travel(with: item) }
         SoundEffects.shared.preload()
     }
 
@@ -323,11 +324,25 @@ final class GameCoordinator {
             session.post(L("Not enough MP for {skill}.", ["skill": skill.name]))
             return
         }
-        let checkpoint = session.checkpoint
-        guard let map = Content.shared.map(checkpoint.mapID) else { return }
+        guard let map = Content.shared.map(session.checkpoint.mapID) else { return }
         session.data.hero.mp -= cost
+        carryHome(to: map, saying: L("A bridge of light carries you to {place}.", ["place": session.checkpointName(session.checkpoint)]))
+    }
+
+    /// A travel item used from the bag (the Homeward Feather): to your checkpoint, like Bridge of
+    /// Light, for any class. One is used up.
+    private func travel(with item: ItemDef) {
+        guard battle == nil, item.travel == true, session.count(of: item.id) > 0,
+              let map = Content.shared.map(session.checkpoint.mapID) else { return }
+        guard session.removeItem(item.id) else { return }
+        carryHome(to: map, saying: L("The wind carries you to {place}.", ["place": session.checkpointName(session.checkpoint)]))
+    }
+
+    /// Off to your checkpoint, wherever you are: the menu closes and the map changes.
+    private func carryHome(to map: MapDef, saying line: String) {
+        let checkpoint = session.checkpoint
         overlay = nil
-        session.post(L("A bridge of light carries you to {place}.", ["place": session.checkpointName(checkpoint)]), .quest)
+        session.post(line, .quest)
         SoundEffects.shared.play(.whoosh)
         go(to: map, entry: checkpoint.entry)
     }
