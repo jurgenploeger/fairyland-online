@@ -1259,8 +1259,9 @@ final class BattleActor: SKNode {
         guard [poison, lowered, raised] != shownMarks else { return }
         shownMarks = [poison, lowered, raised]
         if marks.parent == nil {
-            // Clear of the bar's right end, and drawn over the bar and name plates (zPosition 5 000).
-            marks.position = CGPoint(x: bar.position.x + 33, y: bar.position.y)
+            // Just past the bar plate's right end (its real drawn edge, not its nominal width), and
+            // drawn over the bar and name plates (zPosition 5 000).
+            marks.position = CGPoint(x: bar.calculateAccumulatedFrame().maxX + 10, y: bar.position.y)
             marks.zPosition = 5_100
             addChild(marks)
         }
