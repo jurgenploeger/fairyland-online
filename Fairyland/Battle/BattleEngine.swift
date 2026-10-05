@@ -73,6 +73,8 @@ struct Combatant: Identifiable {
     /// Poison: bites left (one at the end of each round), and how much each takes.
     var poisonRounds = 0
     var poisonDamage = 0
+    /// Frozen solid (Frost Breath): turns it still has to sit out.
+    var frozenRounds = 0
     /// People only: their class and race, so each fights in their own style (BattleScene).
     var classID: String?
     var raceID: String?
@@ -201,6 +203,8 @@ enum BattleEvent {
     case afflicted(target: Int, effect: Ailment, rounds: Int)
     /// A poison's bite at the end of a round.
     case ailmentDamage(target: Int, effect: Ailment, amount: Int)
+    /// A frozen fighter's turn comes and goes: it can't move, and the ice thaws a little.
+    case frozen(target: Int)
     /// Spells changed a fighter's stats (a buff raises them, a curse lowers them): where each
     /// stands now (+0.3 = 30% up), for `rounds` more rounds after this one.
     case statsChanged(target: Int, changes: [StatChange], rounds: Int)
@@ -354,6 +358,12 @@ final class BattleEngine {
             // A wave beaten mid-round: nobody's left to fight until the next one steps in.
             if !waves.isEmpty, alive(on: .enemies).isEmpty { break }
             guard outcome == .ongoing, let actor = combatant(actorID), actor.isAlive else { continue }
+            // Frozen solid: this turn is lost (your choice for it too), and the ice thaws.
+            if actor.frozenRounds > 0 {
+                mutate(actorID) { $0.frozenRounds -= 1 }
+                events.append(.frozen(target: actorID))
+                continue
+            }
             let action: BattleAction = switch actor.source {
             case .hero: heroAction
             case .pet: orders[actor.id] ?? companionAction(for: actor)
@@ -605,6 +615,10 @@ final class BattleEngine {
                     case .curse:
                         guard foe.lowered[.attack] == nil else { return 0 }
                         return min(Self.maxCurse, affliction.power * boost) * expectedDamage(from: foe, to: fighter, skill: nil) * lasting
+                    case .freeze:
+                        // A turn lost is a hit not taken.
+                        guard foe.frozenRounds == 0 else { return 0 }
+                        return expectedDamage(from: foe, to: fighter, skill: nil) * Double(affliction.rounds)
                     }
                 }
                 if let reached {
@@ -797,8 +811,8 @@ final class BattleEngine {
         return Hit(target: defender.id, amount: max(1, Int(damage.rounded())), effectiveness: effectiveness, critical: false)
     }
 
-    /// Lays a poison or curse on a fighter still standing, if it takes hold. A second dose doesn't
-    /// stack: it lasts as long, and bites as hard, as the stronger of the two.
+    /// Lays a poison, curse or freeze on a fighter still standing, if it takes hold. A second dose
+    /// doesn't stack: it lasts as long, and bites as hard, as the stronger of the two.
     private func afflict(_ id: Int, with affliction: Affliction, from caster: Combatant, skill: SkillDef, boost: Double,
                          events: inout [BattleEvent]) {
         guard let target = combatant(id), target.isAlive,
@@ -812,6 +826,8 @@ final class BattleEngine {
             }
         case .curse:
             break
+        case .freeze:
+            mutate(id) { $0.frozenRounds = max($0.frozenRounds, affliction.rounds) }
         }
         events.append(.afflicted(target: id, effect: affliction.effect, rounds: affliction.rounds))
         if affliction.effect == .curse {
@@ -855,8 +871,9 @@ final class BattleEngine {
         guard let index = combatants.firstIndex(where: { $0.id == hit.target }), combatants[index].hp > 0 else { return }
         combatants[index].hp = max(0, combatants[index].hp - hit.amount)
         if combatants[index].hp == 0 {
-            // Fainting ends poison, curses and blessings; a revived fighter starts clean.
+            // Fainting ends poison, curses, ice and blessings; a revived fighter starts clean.
             combatants[index].poisonRounds = 0
+            combatants[index].frozenRounds = 0
             combatants[index].raised = [:]
             combatants[index].lowered = [:]
             events.append(.defeated(hit.target))

@@ -191,11 +191,12 @@ struct ProfileCard: View {
             return facts
 
         case .adventurer(let person):
-            // They're always at full strength away from a fight.
+            // A friend shows what their last fight with you left them; anyone else is at full strength.
             let stats = session.stats(of: person)
+            let friend = session.data.friends?.first { $0.id == person.id }
             var facts = Facts(name: person.name, icon: .user, art: session.artID(for: person),
                               kind: L("Lv {level} · {race} {heroClass}", ["level": person.level, "race": content.race(person.raceID).name, "heroClass": content.classDef(person.classID).name]),
-                              stats: stats, hp: stats.hp, mp: stats.mp)
+                              stats: stats, hp: min(stats.hp, friend?.hp ?? stats.hp), mp: min(stats.mp, friend?.mp ?? stats.mp))
             facts.badge = .bot
             // What they hold and wear, as on the map and in battle.
             facts.gear = [GameSession.weapon(for: person), GameSession.armor(for: person)].compactMap { $0 }

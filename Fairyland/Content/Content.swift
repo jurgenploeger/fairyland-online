@@ -140,7 +140,7 @@ nonisolated enum SkillKind: String, Decodable, Sendable {
 nonisolated struct Affliction: Decodable, Sendable {
     let effect: Ailment
     /// Poison: how many times it bites, at the end of the round it lands in and the ones after.
-    /// Curse: how many rounds it lasts after the one it lands in.
+    /// Curse: how many rounds it lasts after the one it lands in. Freeze: how many turns it loses.
     let rounds: Int
     /// Poison: each round's bite, as a share of a hit from the caster (magic for spells, strength
     /// for bites). Curse: how much it lowers the target's stats (0.2 = 20%, at most half). Both
@@ -159,6 +159,8 @@ nonisolated enum Ailment: String, Decodable, Sendable {
     case poison
     /// Hits for less.
     case curse
+    /// Frozen solid (snow and ice): loses its next `rounds` turns.
+    case freeze
 }
 
 nonisolated enum SkillTarget: String, Decodable, Sendable {
