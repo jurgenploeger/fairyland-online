@@ -326,15 +326,18 @@ struct RulesTests {
         #expect(Element.fire.multiplier(against: .fire) == 1)
     }
 
-    @Test func levellingUpRestoresAndGrows() {
+    @Test func levellingUpGrowsButDoesNotHeal() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         let before = session.heroStats
         session.data.hero.hp = 1
+        session.data.hero.mp = 2
         let levels = session.gainHeroEXP(GameSession.expToNext(level: 1))
         #expect(levels == 1)
         #expect(session.data.hero.level == 2)
         #expect(session.heroStats.hp > before.hp)
-        #expect(session.data.hero.hp == session.heroStats.hp)
+        // The HP and MP the fight left you with stay; only the maximums grow.
+        #expect(session.data.hero.hp == 1)
+        #expect(session.data.hero.mp == 2)
         // Reaching Bash's level unlocks it; learning it takes one skill point.
         let bashLevel = Content.shared.classDef("novice").skills.first { $0.skill == "bash" }!.level
         while session.data.hero.level < bashLevel {

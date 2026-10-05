@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.49",
+      "date": "2026-10-05",
+      "title": "Your wounds stay with you",
+      "notes": [
+        "A level-up no longer refills your HP and MP, or your companion's. You leave a fight with the health it left you, so drink a potion, use a healing skill or rest at the healer before the next one."
+      ]
+    },
+    {
       "version": "0.3.48",
       "date": "2026-10-05",
       "title": "A Seal Stone that seals",
