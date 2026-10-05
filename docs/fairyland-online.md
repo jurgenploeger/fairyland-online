@@ -184,9 +184,9 @@ No advanced classes.
 - Like FO's Mage, whose list starts with Fireball, ours learns Fire Bolt on joining the guild at level 10
   (since 0.3.17).
 - Status effects (since 0.3.14): Guard, Poison and spells that raise or lower stats (since 0.3.41).
-  - Poison: HP lost at the end of each round, 3 times, shown as a green number marked "Poison".
+  - Poison: HP lost at the end of each round, 3 times, shown as a purple number marked "Poison".
   - Raised or lowered stats (ATK, DEF, MAG, SPD) last the round they land in and 3 more. Each change pops
-    up over the fighter with its amount ("DEF +40%"), and a blue arrow up or a violet arrow down by the HP
+    up over the fighter with its amount ("DEF +40%"), and a blue arrow up or a crimson arrow down by the HP
     bar counts the rounds left. A second spell on a stat doesn't stack; the stronger one counts.
   - Buffs, FO's skill names with our own effects (FO's aren't in any source reachable from a cloud session):
     Protection (Fighter 12, one ally DEF +40%), Holy Glow (Mage 40, one ally MAG +30%), Bless (Mage 45, ATK

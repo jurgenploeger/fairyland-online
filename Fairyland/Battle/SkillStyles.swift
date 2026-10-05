@@ -9,7 +9,7 @@ extension SkillEffects.ElementLight {
     static let seal = Self(deep: tone(0.04, 0.42, 0.40), main: tone(0.22, 0.84, 0.76), bright: tone(0.58, 1, 0.9), core: tone(0.92, 1, 0.98))
     static let gold = Self(deep: tone(0.7, 0.45, 0.05), main: tone(1, 0.78, 0.2), bright: tone(1, 0.92, 0.55), core: tone(1, 1, 0.85))
     static let shadow = Self(deep: tone(0.2, 0.05, 0.35), main: tone(0.55, 0.3, 0.85), bright: tone(0.78, 0.6, 1), core: tone(0.95, 0.88, 1))
-    static let venom = Self(deep: tone(0.15, 0.45, 0.08), main: tone(0.5, 0.9, 0.25), bright: tone(0.78, 1, 0.5), core: tone(0.95, 1, 0.85))
+    static let venom = Self(deep: tone(0.32, 0.1, 0.5), main: tone(0.66, 0.36, 0.95), bright: tone(0.86, 0.66, 1), core: tone(0.97, 0.92, 1))
     static let holy = Self(deep: tone(0.85, 0.6, 0.1), main: tone(1, 0.88, 0.45), bright: tone(1, 0.96, 0.75), core: tone(1, 1, 1))
     static let mend = Self(deep: tone(0.1, 0.6, 0.25), main: tone(0.45, 0.95, 0.55), bright: tone(0.75, 1, 0.8), core: tone(1, 1, 1))
     static let rose = Self(deep: tone(0.75, 0.2, 0.55), main: tone(1, 0.5, 0.82), bright: tone(1, 0.78, 0.94), core: tone(1, 0.97, 1))
@@ -670,7 +670,7 @@ extension SkillEffects {
         target.sprite.flash(light.main)
     }
 
-    /// Venom Bite: green fangs sink in and drops of venom drip from the wound.
+    /// Venom Bite: purple fangs sink in and drops of venom drip from the wound.
     static func venomBite(on target: BattleActor, in parent: SKNode) {
         let light = ElementLight.venom
         for side in [-1.0, 1.0] {
@@ -772,7 +772,7 @@ extension SkillEffects {
         return path
     }
 
-    /// Poison Mist: a choking green fog rolls across every target, bubbling as it goes.
+    /// Poison Mist: a choking purple fog rolls across every target, bubbling as it goes.
     static func poisonMist(on targets: [BattleActor], in parent: SKNode) {
         guard !targets.isEmpty else { return }
         let light = ElementLight.venom
@@ -797,7 +797,7 @@ extension SkillEffects {
         }
         for target in targets {
             for index in 0..<5 {
-                let bubble = glowSprite(index % 2 == 0 ? light.bright : poisonViolet, size: CGSize(width: 7, height: 7))
+                let bubble = glowSprite(index % 2 == 0 ? light.bright : poisonLilac, size: CGSize(width: 7, height: 7))
                 bubble.position = target.position + CGVector(dx: .random(in: -16...16), dy: .random(in: 4...30))
                 bubble.alpha = 0
                 parent.addChild(bubble)

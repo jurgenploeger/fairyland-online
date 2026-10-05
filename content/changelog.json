@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.51",
+      "date": "2026-10-05",
+      "title": "Purple poison",
+      "notes": [
+        "Poison is purple now, from the cloud and bubbles to Venom Bite, Poison Mist and the drop by the HP bar, and a curse turns crimson so the two never look alike. The poison and curse marks sit in front of the HP and MP bars instead of half hidden behind them."
+      ]
+    },
+    {
       "version": "0.3.50",
       "date": "2026-10-05",
       "title": "Welcome to Storyleaf",
