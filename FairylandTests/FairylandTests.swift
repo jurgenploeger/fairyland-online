@@ -1294,9 +1294,9 @@ struct RulesTests {
         session.isModerator = true
         session.startChat(on: "Meadowbrook")
         session.postWorld("Welcome, everyone!")
-        session.announce("Dawn breaks over Fairyland.")
+        session.announce("Dawn breaks over Storyleaf.")
         session.postChat("lol", from: "Momo", kind: .adventurer)
-        session.startChat(on: "Goldburg")
+        session.startChat(on: "Ingothold")
         // What's said to everyone stays; the map's own chatter starts over.
         #expect(session.chat.map(\.kind) == [.world, .announcement, .system])
         #expect(session.chat.first?.badge == .mod)
