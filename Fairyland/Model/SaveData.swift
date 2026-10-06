@@ -129,6 +129,62 @@ nonisolated struct SaveData: Codable, Sendable {
     var slot: String?
     /// When the game was last saved; the title screen shows it so you can tell your games apart.
     var savedAt: Date?
+    /// Titles earned (content/titles.json ids), and the one worn over your name.
+    var titles: [String]?
+    var title: String?
+    /// The Monster Book's milestones already paid (kinds of monster met).
+    var bookRewards: [Int]?
+    /// Today's bounties, and how many you've ever finished.
+    var bounties: BountyBoard?
+    var bountiesDone: Int?
+    /// The daily gift: the day it was last given ("2026-10-06" on the phone's calendar), and on how
+    /// many days it's been given (its place in the round).
+    var giftDay: String?
+    var giftDays: Int?
+}
+
+/// A day's bounties (the Quests tab): a few small jobs, new each calendar day.
+nonisolated struct BountyBoard: Codable, Equatable, Sendable {
+    /// The calendar day it's for ("2026-10-06").
+    var day: String
+    var bounties: [Bounty]
+    /// The bonus for claiming them all.
+    var bonusClaimed = false
+}
+
+nonisolated struct Bounty: Codable, Equatable, Sendable {
+    nonisolated enum Kind: String, Sendable, CaseIterable {
+        /// Monsters beaten on the land `target` (a map id).
+        case defeatOnMap
+        /// Monsters of the element `target` (an `Element`), anywhere.
+        case defeatElement
+        /// Fights won.
+        case wins
+        /// Rare monsters beaten.
+        case rare
+        /// Monsters sealed with a Seal Stone.
+        case seal
+    }
+    /// The kind's name. A plain string, so a save never fails to load over a kind that's gone: such a
+    /// bounty just stops counting.
+    var kind: String
+    var target: String?
+    var count: Int
+    var progress = 0
+    var exp: Int
+    var gold: Int
+    var claimed = false
+
+    init(kind: Kind, target: String? = nil, count: Int, exp: Int, gold: Int) {
+        self.kind = kind.rawValue
+        self.target = target
+        self.count = count
+        self.exp = exp
+        self.gold = gold
+    }
+
+    var type: Kind? { Kind(rawValue: kind) }
+    var isDone: Bool { progress >= count }
 }
 
 /// A Monster Book entry: how many you've beaten and the levels you've met it at.

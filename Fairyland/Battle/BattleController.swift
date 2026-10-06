@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import UIKit
 
 struct BattleResult {
     let outcome: BattleOutcome
@@ -671,12 +672,16 @@ final class BattleController {
 
     // MARK: - Turn clock
 
-    /// Seconds you get to choose each turn before the hero just attacks. None in tests and debug
-    /// launches (screenshots wait in battle for a while), unless `turntimer=` sets one.
+    /// Seconds you get to choose each turn before the hero just attacks: Settings' Time to choose
+    /// (Off, 10, 20 or 30). None with VoiceOver or Switch Control on, since a target is picked on the
+    /// battle field, which they can't reach in time. None in tests and debug launches (screenshots
+    /// wait in battle for a while), unless `turntimer=` sets one.
     static var turnSeconds: TimeInterval? {
         if let seconds = DebugLaunch.turnSeconds { return seconds }
         if DebugLaunch.isActive || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil { return nil }
-        return 10
+        if UIAccessibility.isVoiceOverRunning || UIAccessibility.isSwitchControlRunning { return nil }
+        let seconds = GameSettings.turnTimer
+        return seconds > 0 ? seconds : nil
     }
 
     /// When the time to choose runs out; nil while no clock is ticking.
@@ -1132,6 +1137,8 @@ final class BattleController {
             session.record(.defeat, target: id)
             session.beatMonster(id, level: foe.level)
         }
+        // Reborn heroes climb back faster.
+        exp = Int((Double(exp) * session.rebirthEXPBoost).rounded())
         session.data.gold += gold
         rewardGold = gold
 
@@ -1240,6 +1247,15 @@ final class BattleController {
             gearFound += 1
             lines.append(L("{name} dropped {item}!", ["name": foe.name, "item": gear.name]))
         }
+
+        // Today's bounties, the Monster Book's milestones, and any title the win earned.
+        let wildBeaten = beaten.compactMap { foe -> MonsterDef? in
+            guard case .wild = foe.source else { return nil }
+            return foe.speciesID.flatMap { content.monster($0) }
+        }
+        session.noteBounties(beaten: wildBeaten, sealed: engine.combatants.filter(\.isCaptured).count, on: session.data.mapID)
+        session.claimBookMilestones()
+        session.checkTitles()
         session.save()
         return lines
     }

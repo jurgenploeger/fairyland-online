@@ -4,10 +4,11 @@
   "appearance": ["name"],
   "changelog": ["title", "notes"],
   "classes": ["name", "description", "guild"],
-  "crowd": ["adventurerLines", "modReplies", "replies", "traderLines", "villagerLines", "villagerNames"],
+  "crowd": ["adventurerLines", "replies", "traderLines", "villagerLines", "villagerNames"],
   "items": ["name", "description"],
   "maps": ["name", "greeting", "story", "title"],
   "monsters": ["name", "lore"],
   "quests": ["title", "description", "text"],
-  "skills": ["name", "description"]
+  "skills": ["name", "description"],
+  "titles": ["name"]
 }

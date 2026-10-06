@@ -201,7 +201,7 @@ No advanced classes.
     Protection (Fighter 12, one ally DEF +40%), Holy Glow (Mage 40, one ally MAG +30%), Bless (Mage 45, ATK
     and DEF +25%), Guardianship (Mage 60, the whole party DEF +20%) and Animal Training (Beast Tamer 25,
     ATK +20% and SPD +30%). Raises grow with the skill's level like damage, ×1.8 when mastered.
-  - Monsters and companions: Boost (ATK +20%; golden hamsters, wood hogs, red bulls, earth lions) and Berserk
+  - Monsters and companions: Boost (ATK +20%; golden hamsters, wood hogs, blaze bulls, earth lions) and Berserk
     (ATK +30% but DEF −25%; werewolves, fire bears, black kongs), FO's pet skills. They cast them on
     themselves now and then; friends cast theirs on whoever they'd help most.
   - Curse: lowers ATK and MAG by 20% (up to 36% as the skill grows), so hits and heals both weaken. FO's
@@ -303,8 +303,15 @@ your class (`GameSession.equipmentDrop`).
 - **Fame (M):** quests are the main way to earn it.
 - **Kingdom Wars (H):** guild-vs-guild PvP.
 
-**Us:** no titles or fame. Duels are with computer-run adventurers in 9 danger zones; a beaten
-adventurer drops everything they carry (the goods they'd sell you that day).
+**Us:** titles, but no fame. 32 titles (content/titles.json, our own names) are earned for levels, lands
+visited, the Monster Book, quests, bosses, companions, friends, rebirths, daily bounties and days played, and
+one is worn over your name; computer-run adventurers wear the level titles that fit them. Duels are with
+computer-run adventurers in 9 danger zones; a beaten adventurer drops everything they carry (the goods they'd
+sell you that day).
+
+**Ours, not FO's (content/rewards.json):** a gift each day you play, in a round of seven; three daily
+bounties scaled to your level, with a bonus for all three; and rewards as the Monster Book fills (10, 25, 50,
+75 and every kind). They're built on FO's own calendar idea, but FO didn't have them as such.
 
 ## Unverified, or only our own repo says so
 
@@ -313,7 +320,8 @@ adventurer drops everything they carry (the goods they'd sell you that day).
 - **PK drops:** a player beaten in PvP drops their items. From a playtester's memory (2026-10-04);
   not in any source reachable from a cloud session. Check on the ToM wiki.
 - **Level cap 200; rebirth from level 101** (+5 levels per earlier rebirth) for 20,000 gold × (rebirths + 1),
-  keeping 8 levels of growth per rebirth. FO does have rebirth (the 2026 video); the numbers are ours.
+  keeping 8 levels of growth per rebirth, plus a fifth more battle EXP for each rebirth (up to double), the
+  rebirth titles and a new colour for the hero's name. FO does have rebirth (the 2026 video); the numbers are ours.
 - **Capture rules:** at 20% HP or less, on the last monster standing.
 - **Party size:** more than two people, each bringing their pet, from a playtester's memory (2026-10-04).
   Not found in any source reachable from a cloud session.

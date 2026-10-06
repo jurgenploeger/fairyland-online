@@ -109,6 +109,7 @@
       "requires": [
         "jelly_trouble"
       ],
+      "minLevel": 8,
       "description": "Pineapple Sprouts have taken over Pineapple Shore, north of Sunny Meadow. Defeat 5.",
       "objective": {
         "type": "defeat",
@@ -440,7 +441,7 @@
       "id": "lion_and_mouse",
       "title": "The Lion and the Mouse",
       "giver": "brave_mouse",
-      "description": "An Earth Lion once spared my life, so now I look out for him. The Red Bulls keep stampeding through his den! Defeat 3 Red Bulls and we'll both owe you one.",
+      "description": "An Earth Lion once spared my life, so now I look out for him. The Blaze Bulls keep stampeding through his den! Defeat 3 Blaze Bulls and we'll both owe you one.",
       "objective": {
         "type": "defeat",
         "target": "red_bull",

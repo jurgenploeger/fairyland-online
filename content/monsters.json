@@ -1362,7 +1362,7 @@
     },
     {
       "id": "red_bull",
-      "name": "Red Bull",
+      "name": "Blaze Bull",
       "art": "monster_red_bull",
       "element": "fire",
       "lore": "Charges at anything red, and everything else too. Its horns are hot to the touch.",
@@ -1393,10 +1393,10 @@
     },
     {
       "id": "shadow_red_bull",
-      "name": "Shadow Red Bull",
+      "name": "Shadow Blaze Bull",
       "art": "monster_red_bull_shadow",
       "element": "fire",
-      "lore": "A Red Bull with a coat as dark as soot. It charges without warning.",
+      "lore": "A Blaze Bull with a coat as dark as soot. It charges without warning.",
       "base": {
         "hp": 109,
         "mp": 23,
@@ -2315,7 +2315,7 @@
       "name": "Black Bull",
       "art": "monster_red_bull_black",
       "element": "dark",
-      "lore": "A Red Bull's darker cousin. Its eyes glow in the night, and its charge is just as hard.",
+      "lore": "A Blaze Bull's darker cousin. Its eyes glow in the night, and its charge is just as hard.",
       "base": {
         "hp": 106,
         "mp": 23,

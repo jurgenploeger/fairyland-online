@@ -2,17 +2,14 @@ import CoreGraphics
 import Foundation
 import Observation
 
-/// The tag next to someone's name: BOT for the computer-run adventurers (Fairyland's other players,
-/// until there's online play), MOD for a moderator (`Moderation`).
+/// The tag next to someone's name: BOT for the computer-run adventurers.
 nonisolated enum PlayerBadge: String, Sendable {
     case bot = "BOT"
-    case mod = "MOD"
 
     /// The tag as shown over a name and in the chat.
     var title: String {
         switch self {
         case .bot: L("BOT")
-        case .mod: L("MOD")
         }
     }
 }
@@ -56,25 +53,25 @@ final class GameSession {
     private(set) var lastSaved: Date?
 
     struct LogLine: Identifiable {
-        /// `announcement`: the game's own notices; `world`: a moderator's message to everyone.
-        enum Kind { case system, quest, battle, reward, announcement, world }
+        /// `announcement`: the game's own notices.
+        enum Kind { case system, quest, battle, reward, announcement }
         let id = UUID()
         let text: String
         let kind: Kind
         let time = Date()
     }
 
-    /// What people on this map have said: the Chat window. Starts over on each map, but for
-    /// what's said to everyone in the game (World messages and announcements), which stays.
+    /// What people on this map have said: the Chat window. Starts over on each map, but for the
+    /// game's announcements, which stay.
     struct ChatLine: Identifiable {
-        /// `world`: a moderator's message on the World channel. `announcement`: the game's own notice
-        /// of what's happening where and when (content/announcements.json).
-        enum Kind { case you, adventurer, villager, npc, system, world, announcement }
+        /// `announcement`: the game's own notice of what's happening where and when
+        /// (content/announcements.json).
+        enum Kind { case you, adventurer, villager, npc, system, announcement }
         let id = UUID()
         let speaker: String
         let text: String
         let kind: Kind
-        /// BOT or MOD, next to the speaker's name.
+        /// BOT, next to the speaker's name.
         var badge: PlayerBadge? = nil
         let time = Date()
     }
@@ -82,15 +79,11 @@ final class GameSession {
     private(set) var chat: [ChatLine] = []
     var unreadChat = 0
 
-    /// Moderator mode (`Moderation`): a MOD tag on your name and the World channel in the chat.
-    var isModerator = false
-
     func postChat(_ text: String, from speaker: String, kind: ChatLine.Kind) {
         // Adventurers are computer-run for now, and say so.
         let badge: PlayerBadge? = switch kind {
         case .adventurer: .bot
-        case .you, .world: isModerator ? .mod : nil
-        case .villager, .npc, .system, .announcement: nil
+        case .you, .villager, .npc, .system, .announcement: nil
         }
         chat.append(ChatLine(speaker: speaker, text: text, kind: kind, badge: badge))
         if chat.count > 80 { chat.removeFirst(chat.count - 80) }
@@ -98,15 +91,9 @@ final class GameSession {
     }
 
     func startChat(on mapName: String) {
-        let kept = chat.filter { $0.kind == .world || $0.kind == .announcement }.suffix(10)
+        let kept = chat.filter { $0.kind == .announcement }.suffix(10)
         chat = Array(kept) + [ChatLine(speaker: "", text: L("You entered {map}.", ["map": mapName]), kind: .system)]
         unreadChat = 0
-    }
-
-    /// A moderator's message on the World channel: everyone in the game sees it, on every map.
-    func postWorld(_ text: String) {
-        postChat(text, from: data.hero.name, kind: .world)
-        post("\(data.hero.name): \(text)", .world)
     }
 
     /// One of the game's own notices: in the chat, set apart from what people say, and the message log.
@@ -142,7 +129,6 @@ final class GameSession {
 
     init(data: SaveData) {
         self.data = data
-        isModerator = Moderation.isOn
         if let position = data.position, position.count == 2 {
             playerPosition = CGPoint(x: position[0], y: position[1])
         }
@@ -169,6 +155,7 @@ final class GameSession {
         slotted.slot = UUID().uuidString   // every new game gets its own save
         slotted.skillLevelsDoubled = true  // already on the 10-step skill scale
         slotted.levelsRescaled = true      // and on the 200-level scale (a debug level isn't stretched)
+        slotted.giftDay = GameSession.dayKey()  // the first daily gift is tomorrow's: today has the story and the tour
         let session = GameSession(data: slotted)
         session.restoreHero()
         // Like Fairyland, your first companion comes from an egg in the first quest.
@@ -400,6 +387,8 @@ final class GameSession {
         data.hero.exp = 0
         restoreHero()
         post(L("You were reborn! Rebirth {rebirths}: back to level 1, a little stronger than before.", ["rebirths": rebirths]), .reward)
+        post(L("Reborn, you earn {percent}% more EXP in battle.", ["percent": Int(((rebirthEXPBoost - 1) * 100).rounded())]), .reward)
+        checkTitles()
         save()
     }
 
@@ -606,6 +595,7 @@ final class GameSession {
         data.pets.append(pet)
         if data.activePetID == nil { data.activePetID = pet.id }
         if countsForQuests { record(.capture, target: pet.speciesID) }
+        checkTitles()
         return true
     }
 
@@ -665,6 +655,7 @@ final class GameSession {
         friend.hostile = false
         data.friends = friends + [friend]
         post(L("{name} is now your friend!", ["name": adventurer.name]), .reward)
+        checkTitles()
         save()
         return true
     }
@@ -1418,15 +1409,7 @@ final class GameSession {
         let starters = quest.starterItems ?? []
         for item in starters { addItem(item) }
         // "Received 3 Seal Stones." / "Received Wooden Sword, Novice Ring and Pet Egg."
-        var unique: [String] = []
-        for id in starters where !unique.contains(id) { unique.append(id) }
-        let names = unique.map { id -> String in
-            let name = content.item(id)?.name ?? id
-            let count = starters.filter { $0 == id }.count
-            return count > 1 ? L("{count} {item}s", ["count": count, "item": name]) : name
-        }
-        if !names.isEmpty {
-            let list = names.count > 1 ? L("{names} and {last}", ["names": names.dropLast().joined(separator: ", "), "last": names.last!]) : names[0]
+        if let list = itemList(starters) {
             post(L("Received {items}.", ["items": list]), .reward)
         }
     }
@@ -1462,6 +1445,7 @@ final class GameSession {
             addItem(item.id)
             post(L("{monster} dropped {item}!", ["monster": species?.name ?? boss.name, "item": item.name]), .reward)
         }
+        checkTitles()
         save()
     }
 
@@ -1509,6 +1493,7 @@ final class GameSession {
     func markVisited(_ mapID: String) {
         guard data.visitedMaps?.contains(mapID) != true else { return }
         data.visitedMaps = (data.visitedMaps ?? []) + [mapID]
+        checkTitles()
     }
 
     /// Hands in a finished quest and pays out. Returns what was earned.
@@ -1544,6 +1529,7 @@ final class GameSession {
                 lines.append(L("The road from {from} to {map} is open!", ["from": map.name, "map": content.map(exit.to)?.name ?? exit.to]))
             }
         }
+        checkTitles()
         return lines
     }
 }

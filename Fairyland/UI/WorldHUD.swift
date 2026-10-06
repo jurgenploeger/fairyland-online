@@ -353,8 +353,8 @@ private struct CalendarPlate: View {
     }
 }
 
-/// Fairyland's yellow system messages, fading after a few seconds. The game's announcements and a
-/// moderator's World messages stand out on banners of their own.
+/// Fairyland's yellow system messages, fading after a few seconds. The game's announcements stand
+/// out on banners of their own.
 private struct SystemLog: View {
     let lines: [GameSession.LogLine]
 
@@ -374,22 +374,21 @@ private struct SystemLog: View {
     @ViewBuilder
     private func row(_ line: GameSession.LogLine) -> some View {
         switch line.kind {
-        case .announcement, .world:
-            let world = line.kind == .world
+        case .announcement:
             HStack(alignment: .top, spacing: 5) {
-                IconImage(world ? .shieldStar : .sparkles, size: 12)
+                IconImage(.sparkles, size: 12)
                 Text(line.text)
                     .font(HUDStyle.mono(10))
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .foregroundStyle(world ? .white : HUDStyle.gold)
+            .foregroundStyle(HUDStyle.gold)
             .padding(.horizontal, 7)
             .padding(.vertical, 4)
             .background(
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(world ? HUDStyle.mod.opacity(0.85) : HUDStyle.ink.opacity(0.8))
-                    .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(world ? Color.white.opacity(0.7) : HUDStyle.gold.opacity(0.75), lineWidth: 1))
+                    .fill(HUDStyle.ink.opacity(0.8))
+                    .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(HUDStyle.gold.opacity(0.75), lineWidth: 1))
             )
             .padding(.vertical, 1)
         case .system, .quest, .battle, .reward:
@@ -407,7 +406,6 @@ private struct SystemLog: View {
         case .battle: .white
         case .reward: HUDStyle.green
         case .announcement: HUDStyle.gold
-        case .world: .white
         }
     }
 }

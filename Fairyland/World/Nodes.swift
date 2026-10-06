@@ -138,12 +138,12 @@ enum IdleMotion: String {
 }
 
 /// A name tag like Fairyland's: yellow text with a solid dark outline, an optional "[Lv.3]"
-/// prefix in cream, and an optional pill after the name (BOT for computer-run adventurers, MOD for a
-/// moderator). Drawn into a crisp texture (outline first, then the letters on top) so the outline
+/// prefix in cream, and an optional pill after the name (BOT for computer-run adventurers). Drawn
+/// into a crisp texture (outline first, then the letters on top) so the outline
 /// grows outward instead of eating into small text.
 final class NameTag: SKNode {
     private let sprite = SKSpriteNode()
-    private let color: UIColor
+    private var color: UIColor
     private let size: CGFloat
     /// What's drawn now, so setting the same text again skips re-rendering the texture.
     private var shown: String?
@@ -178,8 +178,14 @@ final class NameTag: SKNode {
         redraw()
     }
 
+    /// The name in another colour (a reborn hero's).
+    func setColor(_ color: UIColor) {
+        self.color = color
+        redraw()
+    }
+
     private func redraw() {
-        let key = "\(level.map(String.init) ?? "")|\(label)|\(badge?.rawValue ?? "")"
+        let key = "\(level.map(String.init) ?? "")|\(label)|\(badge?.rawValue ?? "")|\(color.description)"
         guard key != shown else { return }
         shown = key
         let image = Self.render(prefix: level.map { L("[Lv.{level}] ", ["level": $0]) } ?? "", text: label, color: color, size: size, badge: badge)

@@ -10,7 +10,8 @@ Online's own names (towns, people, bosses, quests) in player-facing text: `docs/
   sources, and where we differ. Read it before inventing a system; add facts you verify, with their source.
 - `docs/launch-audit.md`: the pre-launch audit (2026-10-06): App Store checklist, open bugs and balance issues
   ranked, and gamification ideas. Tick items off or remove them as they're done.
-- `content/*.json`: all game data (maps, monsters, skills, items, quests, music, looks, crowd, announcements). Data-driven;
+- `content/*.json`: all game data (maps, monsters, skills, items, quests, music, looks, crowd, announcements, titles,
+  rewards: the daily gift, bounties and Monster Book milestones). Data-driven;
   most features are a JSON edit.
 - `art/assets.json` + `art/sprites/`: every sprite. `derive` makes free palette swaps of existing art. Recolour a whole
   colour family with one `to` + `spread` rule (`RecolorRule` in `Fairyland/Art/Recolor.swift`) so it keeps its hue-shifted

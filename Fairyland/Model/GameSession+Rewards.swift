@@ -1,0 +1,336 @@
+import Foundation
+
+/// Reasons to come back: titles to earn and wear (content/titles.json), the Monster Book's
+/// milestones, a gift each day you play and the day's bounties (content/rewards.json), and a quicker
+/// climb after a rebirth.
+extension GameSession {
+    // MARK: - Titles
+
+    /// How far along a title is: what you have, and what it takes.
+    func titleProgress(_ title: TitleDef) -> (have: Int, need: Int) {
+        let need = title.count ?? 1
+        let have: Int
+        switch title.kind {
+        case .level: have = data.hero.level
+        case .lands: return (have: content.maps.filter { hasVisited($0.id) }.count, need: title.count ?? content.maps.count)
+        case .book: return (have: data.monsterBook?.count ?? 0, need: title.count ?? content.monsters.count)
+        case .quests: have = completedQuests.count
+        case .bosses: have = Set(data.defeatedBosses ?? []).count
+        case .boss: return (have: title.target.map { data.defeatedBosses?.contains($0) == true ? 1 : 0 } ?? 0, need: 1)
+        case .companions: have = data.pets.count
+        case .friends: have = data.friends?.count ?? 0
+        case .rebirths: have = rebirths
+        case .bounties: have = data.bountiesDone ?? 0
+        case .days: have = data.giftDays ?? 0
+        }
+        return (have: have, need: need)
+    }
+
+    func hasEarned(_ title: TitleDef) -> Bool { data.titles?.contains(title.id) == true }
+
+    /// The title worn over your name, if any.
+    var wornTitle: TitleDef? { data.title.flatMap { content.title($0) } }
+
+    /// Wears an earned title over your name (nil: none).
+    func wear(_ title: TitleDef?) {
+        if let title, !hasEarned(title) { return }
+        data.title = title?.id
+        save()
+    }
+
+    /// Earns every title whose goal is met, and says so. Earned titles stay earned. `quietly`: one
+    /// line for the lot, without a fanfare (an older save earning what it already deserved).
+    @discardableResult
+    func checkTitles(quietly: Bool = false) -> [TitleDef] {
+        let new = content.titles.filter { title in
+            guard !hasEarned(title) else { return false }
+            let progress = titleProgress(title)
+            return progress.have >= progress.need
+        }
+        guard !new.isEmpty else { return [] }
+        data.titles = (data.titles ?? []) + new.map(\.id)
+        if quietly, new.count > 1 {
+            post(L("You've earned {count} titles! Wear one from Character → Titles.", ["count": new.count]), .reward)
+        } else {
+            for title in new {
+                post(L("New title: {title}! Wear it from Character → Titles.", ["title": title.name]), .reward)
+            }
+        }
+        if !quietly { SoundEffects.shared.play(.questDone) }
+        return new
+    }
+
+    /// What a title takes, in words.
+    func titleRequirement(_ title: TitleDef) -> String {
+        let need = titleProgress(title).need
+        return switch title.kind {
+        case .level: L("Reach level {count}", ["count": need])
+        case .lands: L("Set foot in {count} lands", ["count": need])
+        case .book: L("Meet {count} kinds of monster", ["count": need])
+        case .quests: L("Finish {count} quests", ["count": need])
+        case .bosses: L("Beat {count} different bosses", ["count": need])
+        case .boss: L("Beat {boss}", ["boss": title.target.flatMap { bossName($0) } ?? "?"])
+        case .companions: L("Travel with {count} companions", ["count": need])
+        case .friends: L("Make {count} friends", ["count": need])
+        case .rebirths: need == 1 ? L("Be reborn") : L("Be reborn {count} times", ["count": need])
+        case .bounties: L("Finish {count} daily bounties", ["count": need])
+        case .days: L("Collect the daily gift on {count} days", ["count": need])
+        }
+    }
+
+    /// A boss by its NPC id, named as the monster it is.
+    private func bossName(_ npcID: String) -> String? {
+        guard let npc = content.npc(npcID) else { return nil }
+        return npc.monster.flatMap { content.monster($0)?.name } ?? npc.name
+    }
+
+    /// A computer-run adventurer now and then wears a title that fits their level: the same one each
+    /// time you meet them.
+    static func botTitle(level: Int, id: UUID) -> String? {
+        let fitting = Content.shared.titles.filter { $0.kind == .level && ($0.count ?? 1) <= level }
+        guard let best = fitting.max(by: { ($0.count ?? 1) < ($1.count ?? 1) }) else { return nil }
+        let coin = id.uuidString.unicodeScalars.reduce(0) { ($0 + Int($1.value)) % 7 }
+        return coin < 3 ? best.name : nil
+    }
+
+    // MARK: - The Monster Book's milestones
+
+    /// The Book's rewards, each with how many kinds of monster it takes, fewest first.
+    var bookMilestones: [(count: Int, reward: RewardsDef.Milestone)] {
+        content.rewards.bookMilestones
+            .map { (count: $0.count ?? content.monsters.count, reward: $0) }
+            .sorted { $0.count < $1.count }
+    }
+
+    /// The next reward ahead (the Book's header); nil once they're all paid.
+    var nextBookMilestone: (count: Int, reward: RewardsDef.Milestone)? {
+        bookMilestones.first { !(data.bookRewards ?? []).contains($0.count) }
+    }
+
+    /// Pays every milestone reached and not yet paid.
+    func claimBookMilestones() {
+        let met = data.monsterBook?.count ?? 0
+        for milestone in bookMilestones where met >= milestone.count && !(data.bookRewards ?? []).contains(milestone.count) {
+            data.bookRewards = (data.bookRewards ?? []) + [milestone.count]
+            data.gold += milestone.reward.gold
+            for id in milestone.reward.items ?? [] { addItem(id) }
+            post(L("Monster Book: {count} kinds of monster met! +{gold} gold", ["count": milestone.count, "gold": milestone.reward.gold]), .reward)
+            if let list = itemList(milestone.reward.items ?? []) {
+                post(L("Received {items}.", ["items": list]), .reward)
+            }
+            SoundEffects.shared.play(.chest)
+        }
+    }
+
+    /// "3 Seal Stones and Hi-Potion": items to read out, nil for none.
+    func itemList(_ ids: [String]) -> String? {
+        var unique: [String] = []
+        for id in ids where !unique.contains(id) { unique.append(id) }
+        let names = unique.map { id -> String in
+            let name = content.item(id)?.name ?? id
+            let count = ids.filter { $0 == id }.count
+            return count > 1 ? L("{count} {item}s", ["count": count, "item": name]) : name
+        }
+        guard let last = names.last else { return nil }
+        return names.count > 1 ? L("{names} and {last}", ["names": names.dropLast().joined(separator: ", "), "last": last]) : last
+    }
+
+    // MARK: - The daily gift
+
+    /// A day on the phone's calendar, as saved ("2026-10-06").
+    static func dayKey(_ date: Date = Date()) -> String {
+        let day = Calendar.current.dateComponents([.year, .month, .day], from: date)
+        return String(format: "%04d-%02d-%02d", day.year ?? 0, day.month ?? 0, day.day ?? 0)
+    }
+
+    /// What a day's gift held.
+    struct DailyGift: Equatable {
+        /// Its place in the round, from 1, of `days`.
+        let day: Int
+        let days: Int
+        let gold: Int
+        let items: [String]
+    }
+
+    /// The place in the round of the next gift, from 1.
+    var nextGiftDay: Int { (data.giftDays ?? 0) % max(1, content.rewards.dailyGifts.count) + 1 }
+
+    /// Whether today's gift has been given.
+    func hasCollectedGift(on date: Date = Date()) -> Bool { data.giftDay == Self.dayKey(date) }
+
+    /// Gives the day's gift, once a calendar day: the next in the round each day you play (missing
+    /// a day costs nothing). Nil when today's was given already.
+    @discardableResult
+    func collectDailyGift(on date: Date = Date()) -> DailyGift? {
+        let gifts = content.rewards.dailyGifts
+        guard !gifts.isEmpty, !hasCollectedGift(on: date) else { return nil }
+        let place = (data.giftDays ?? 0) % gifts.count
+        let gift = gifts[place]
+        let gold = (gift.goldPerLevel ?? 0) * data.hero.level
+        data.gold += gold
+        for id in gift.items ?? [] { addItem(id) }
+        data.giftDay = Self.dayKey(date)
+        data.giftDays = (data.giftDays ?? 0) + 1
+        SoundEffects.shared.play(.chest)
+        checkTitles()
+        save()
+        return DailyGift(day: place + 1, days: gifts.count, gold: gold, items: gift.items ?? [])
+    }
+
+    // MARK: - Daily bounties
+
+    /// Today's board: a new one each calendar day. Yesterday's finished bounties left unclaimed are
+    /// paid as the day turns, so nothing earned is lost.
+    @discardableResult
+    func refreshBounties(on date: Date = Date()) -> BountyBoard {
+        let today = Self.dayKey(date)
+        if let board = data.bounties, board.day == today { return board }
+        if let old = data.bounties {
+            for index in old.bounties.indices where old.bounties[index].isDone && !old.bounties[index].claimed {
+                claimBounty(index)
+            }
+            if canClaimBountyBonus { claimBountyBonus() }
+        }
+        let board = BountyBoard(day: today, bounties: makeBounties(seed: "\(today)|\(data.slot ?? "")"))
+        data.bounties = board
+        return board
+    }
+
+    /// Lands you've been to whose monsters suit your level: where the day's hunting is. With none
+    /// quite right, the nearest to your level.
+    func huntingGrounds(level: Int) -> [MapDef] {
+        let wild = content.maps.filter { $0.encounters != nil && hasVisited($0.id) }
+        func distance(_ map: MapDef) -> Int {
+            let levels = map.encounters?.levels ?? []
+            let middle = ((levels.first ?? 0) + (levels.last ?? 0)) / 2
+            return abs(middle - level)
+        }
+        let suited = wild.filter { map in
+            guard let levels = map.encounters?.levels, let low = levels.first, let high = levels.last else { return false }
+            return low <= level + 2 && high >= level - 6
+        }
+        if !suited.isEmpty { return suited }
+        return wild.min { distance($0) < distance($1) }.map { [$0] } ?? []
+    }
+
+    /// The day's bounties, the same all day (`seed`: the day and this game's slot).
+    private func makeBounties(seed: String) -> [Bounty] {
+        let rules = content.rewards.bounties
+        var rng = SeededRandom(text: seed)
+        let level = data.hero.level
+        let exp = max(1, Int((Double(Self.expToNext(level: level)) * rules.exp).rounded()))
+        let gold = rules.goldPerLevel * level
+        let grounds = huntingGrounds(level: level).sorted { $0.id < $1.id }
+        var species: [String] = []
+        for map in grounds { species += map.encounters.map { Array($0.monsters.keys) } ?? [] }
+        let elements = Set(species.compactMap { content.monster($0)?.element }).subtracting([.neutral]).map(\.rawValue).sorted()
+        var kinds = Bounty.Kind.allCases.filter { rules.kinds[$0.rawValue] != nil }
+        if grounds.isEmpty { kinds.removeAll { $0 == .defeatOnMap } }
+        if elements.isEmpty { kinds.removeAll { $0 == .defeatElement } }
+        kinds.shuffle(using: &rng)
+        var bounties: [Bounty] = []
+        for kind in kinds.prefix(max(0, rules.perDay)) {
+            let range = rules.kinds[kind.rawValue] ?? [1]
+            let low = max(1, range.first ?? 1)
+            let count = Int.random(in: low...max(low, range.last ?? low), using: &rng)
+            let target: String? = switch kind {
+            case .defeatOnMap: grounds.randomElement(using: &rng)?.id
+            case .defeatElement: elements.randomElement(using: &rng)
+            case .wins, .rare, .seal: nil
+            }
+            bounties.append(Bounty(kind: kind, target: target, count: count, exp: exp, gold: gold))
+        }
+        return bounties
+    }
+
+    /// A won fight counts toward today's bounties: the monsters beaten, how many were sealed, and
+    /// where it was.
+    func noteBounties(beaten: [MonsterDef], sealed: Int, on mapID: String) {
+        refreshBounties()
+        guard var board = data.bounties else { return }
+        var finished: [Bounty] = []
+        for index in board.bounties.indices where !board.bounties[index].isDone {
+            let bounty = board.bounties[index]
+            let gained: Int = switch bounty.type {
+            case .defeatOnMap?: bounty.target == mapID ? beaten.count : 0
+            case .defeatElement?: beaten.filter { $0.element.rawValue == bounty.target }.count
+            case .wins?: 1
+            case .rare?: beaten.filter { $0.rare == true }.count
+            case .seal?: sealed
+            case nil: 0
+            }
+            board.bounties[index].progress = min(bounty.count, bounty.progress + gained)
+            if board.bounties[index].isDone { finished.append(board.bounties[index]) }
+        }
+        data.bounties = board
+        for bounty in finished {
+            post(L("Bounty done: {bounty}. Claim it in Quests!", ["bounty": describe(bounty)]), .quest)
+        }
+    }
+
+    /// What a bounty asks, in words.
+    func describe(_ bounty: Bounty) -> String {
+        switch bounty.type {
+        case .defeatOnMap?:
+            L("Defeat {count} monsters in {map}", ["count": bounty.count, "map": bounty.target.flatMap { content.map($0)?.name } ?? "?"])
+        case .defeatElement?:
+            L("Defeat {count} {element} monsters", ["count": bounty.count, "element": bounty.target.flatMap(Element.init(rawValue:))?.displayName ?? "?"])
+        case .wins?:
+            L("Win {count} fights", ["count": bounty.count])
+        case .rare?:
+            bounty.count == 1 ? L("Defeat a rare monster") : L("Defeat {count} rare monsters", ["count": bounty.count])
+        case .seal?:
+            bounty.count == 1 ? L("Seal a monster with a Seal Stone") : L("Seal {count} monsters with Seal Stones", ["count": bounty.count])
+        case nil:
+            L("An old bounty")
+        }
+    }
+
+    /// Pays a finished bounty. Returns what it paid.
+    @discardableResult
+    func claimBounty(_ index: Int) -> [String] {
+        guard var board = data.bounties, board.bounties.indices.contains(index) else { return [] }
+        let bounty = board.bounties[index]
+        guard bounty.isDone, !bounty.claimed else { return [] }
+        board.bounties[index].claimed = true
+        data.bounties = board
+        data.bountiesDone = (data.bountiesDone ?? 0) + 1
+        data.gold += bounty.gold
+        var lines = [L("+{gold} gold", ["gold": bounty.gold]), L("+{exp} EXP", ["exp": bounty.exp])]
+        if gainHeroEXP(bounty.exp) > 0 { lines.append(L("Level up! You're now level {level}.", ["level": data.hero.level])) }
+        SoundEffects.shared.play(.coins)
+        checkTitles()
+        save()
+        return lines
+    }
+
+    /// All of today's bounties claimed, and their bonus not yet.
+    var canClaimBountyBonus: Bool {
+        guard let board = data.bounties, !board.bonusClaimed, !board.bounties.isEmpty else { return false }
+        return board.bounties.allSatisfy(\.claimed)
+    }
+
+    /// The bonus for claiming all of a day's bounties. Returns what it paid.
+    @discardableResult
+    func claimBountyBonus() -> [String] {
+        guard canClaimBountyBonus, var board = data.bounties else { return [] }
+        board.bonusClaimed = true
+        data.bounties = board
+        let bonus = content.rewards.bounties.bonus
+        let exp = max(1, Int((Double(Self.expToNext(level: data.hero.level)) * bonus.exp).rounded()))
+        var lines = [L("+{exp} EXP", ["exp": exp])]
+        if gainHeroEXP(exp) > 0 { lines.append(L("Level up! You're now level {level}.", ["level": data.hero.level])) }
+        for id in bonus.items ?? [] {
+            addItem(id)
+            lines.append(L("Got {item}", ["item": content.item(id)?.name ?? id]))
+        }
+        SoundEffects.shared.play(.questDone)
+        save()
+        return lines
+    }
+
+    // MARK: - Rebirth
+
+    /// Reborn heroes climb back faster: a fifth more battle EXP for each rebirth, up to double.
+    var rebirthEXPBoost: Double { 1 + min(1, 0.2 * Double(rebirths)) }
+}

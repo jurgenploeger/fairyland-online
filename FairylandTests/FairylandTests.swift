@@ -165,7 +165,6 @@ struct ContentTests {
         }
         let lines = content.crowd.traderLines ?? []
         #expect(lines.contains { $0.contains("{item}") } && lines.contains { $0.contains("{buy}") })
-        #expect(!(content.crowd.modReplies ?? []).isEmpty)
     }
 
     @Test func everyMapHasAPaletteThatGrades() throws {
@@ -835,12 +834,20 @@ struct RulesTests {
                 return false
             }
         }
-        // The ice takes hold, and the monster's turn that round is lost.
-        let first = engine.resolveRound(heroAction: .skill("frost_breath", target: 10))
-        #expect(first.contains { event in
-            if case .afflicted(10, .freeze, 1) = event { return true }
-            return false
-        })
+        // The ice takes hold only some of the time (a whole party frozen every round was a lock), so
+        // breathe until it does: that round the monster's turn is lost.
+        #expect((content.skill("frost_breath")?.inflicts?.chance ?? 1) < 1)
+        func tookHold(_ events: [BattleEvent]) -> Bool {
+            events.contains { event in
+                if case .afflicted(10, .freeze, 1) = event { return true }
+                return false
+            }
+        }
+        var first = engine.resolveRound(heroAction: .skill("frost_breath", target: 10))
+        for _ in 0..<20 where !tookHold(first) {
+            first = engine.resolveRound(heroAction: .skill("frost_breath", target: 10))
+        }
+        #expect(tookHold(first))
         #expect(foeFrozen(first))
         #expect(!foeActed(first))
         // One turn only: next round it moves again.
@@ -1338,20 +1345,15 @@ struct RulesTests {
         #expect(content.item(GameSession.featherID)?.travel == true)
     }
 
-    @Test func botsAndModeratorsAreTagged() {
+    @Test func botsAreTagged() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.postChat("hi!", from: "Momo", kind: .adventurer)
         #expect(session.chat.last?.badge == .bot)
-        session.isModerator = false
+        // You, and the people of the world, wear no tag.
         session.postChat("hello", from: "Test", kind: .you)
         #expect(session.chat.last?.badge == nil)
-        session.isModerator = true
-        session.postChat("hello", from: "Test", kind: .you)
-        #expect(session.chat.last?.badge == .mod)
         session.postChat("Welcome!", from: "Elder Oak", kind: .npc)
         #expect(session.chat.last?.badge == nil)
-        // Only the moderator code switches it on (its hash is in the source, never the code).
-        #expect(!Moderation.unlock(with: "not the code"))
     }
 
     @Test func theWeatherHoldsForASpellAndFitsTheMap() throws {
@@ -1381,18 +1383,15 @@ struct RulesTests {
         #expect(abs(GameClock.hours(at: evening, since: start) - 18.5) < 0.001)
     }
 
-    @Test func worldMessagesAndAnnouncementsFollowYouFromMapToMap() {
+    @Test func announcementsFollowYouFromMapToMap() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
-        session.isModerator = true
         session.startChat(on: "Meadowbrook")
-        session.postWorld("Welcome, everyone!")
         session.announce("Dawn breaks over Storyleaf.")
         session.postChat("lol", from: "Momo", kind: .adventurer)
         session.startChat(on: "Ingothold")
-        // What's said to everyone stays; the map's own chatter starts over.
-        #expect(session.chat.map(\.kind) == [.world, .announcement, .system])
-        #expect(session.chat.first?.badge == .mod)
-        #expect(session.log.contains { $0.kind == .world } && session.log.contains { $0.kind == .announcement })
+        // The game's own notices stay; the map's own chatter starts over.
+        #expect(session.chat.map(\.kind) == [.announcement, .system])
+        #expect(session.log.contains { $0.kind == .announcement })
     }
 
     @Test func aRareSightingMakesItTurnUpMoreOften() throws {
@@ -1626,5 +1625,142 @@ struct PerformanceTests {
             print("⏱ \(def.id): grid \(gridTime), scene \(sceneTime), cells \(grid!.columns * grid!.rows)")
             #expect(sceneTime < Self.mapBuildLimit, "\(def.id) took \(sceneTime) to build")
         }
+    }
+}
+
+/// Reasons to come back (GameSession+Rewards.swift): titles, the daily gift, bounties, the Monster
+/// Book's milestones and rebirth's quicker climb.
+@MainActor
+struct RewardTests {
+    @Test func titlesAreEarnedOnceAndWorn() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let apprentice = try #require(Content.shared.title("apprentice"))
+        #expect(!session.hasEarned(apprentice))
+        let progress = session.titleProgress(apprentice)
+        #expect(progress.have == 1 && progress.need == 10)
+        session.data.hero.level = 10
+        #expect(session.checkTitles().contains { $0.id == apprentice.id })
+        // Earned once, and it stays earned (a rebirth takes the level back down).
+        #expect(session.checkTitles().isEmpty)
+        session.data.hero.level = 1
+        #expect(session.hasEarned(apprentice))
+        session.wear(apprentice)
+        #expect(session.wornTitle?.id == apprentice.id)
+        // Only an earned title can be worn.
+        session.wear(try #require(Content.shared.title("legend")))
+        #expect(session.wornTitle?.id == apprentice.id)
+        session.wear(nil)
+        #expect(session.wornTitle == nil)
+        // A boss's title says which boss.
+        let wolfbane = try #require(Content.shared.title("wolfbane"))
+        #expect(session.titleRequirement(wolfbane).contains("Wolf"))
+    }
+
+    @Test func theDailyGiftComesOnceADayAndGoesRound() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        // A new game's first gift is the next day's: its first day has the story and the tour.
+        session.data.giftDay = GameSession.dayKey(start)
+        #expect(session.collectDailyGift(on: start) == nil)
+        let gifts = Content.shared.rewards.dailyGifts
+        for place in 1...(gifts.count + 1) {
+            let day = start.addingTimeInterval(Double(place) * 24 * 3600)
+            let gold = session.data.gold
+            let gift = try #require(session.collectDailyGift(on: day))
+            #expect(gift.day == (place - 1) % gifts.count + 1)
+            #expect(session.data.gold == gold + gift.gold)
+            #expect(session.collectDailyGift(on: day) == nil)
+        }
+        #expect(session.data.giftDays == gifts.count + 1)
+    }
+
+    @Test func bountiesStayAllDayCountAndPayOnce() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.data.hero.level = 12
+        session.markVisited("sunny_meadow")
+        session.markVisited("northern_grassland")
+        let board = session.refreshBounties()
+        #expect(board.bounties.count == Content.shared.rewards.bounties.perDay)
+        // The same board all day.
+        session.data.bounties = nil
+        #expect(session.refreshBounties() == board)
+
+        // Each win counts; a bounty pays once it's done, and only once; all claimed, the bonus.
+        session.data.bounties = BountyBoard(day: GameSession.dayKey(), bounties: [Bounty(kind: .wins, count: 2, exp: 10, gold: 20)])
+        session.noteBounties(beaten: [], sealed: 0, on: "sunny_meadow")
+        #expect(session.data.bounties?.bounties.first?.progress == 1)
+        #expect(session.claimBounty(0).isEmpty)
+        session.noteBounties(beaten: [], sealed: 0, on: "sunny_meadow")
+        let gold = session.data.gold
+        #expect(!session.claimBounty(0).isEmpty)
+        #expect(session.data.gold == gold + 20)
+        #expect(session.claimBounty(0).isEmpty)
+        #expect(session.data.bountiesDone == 1)
+        #expect(session.canClaimBountyBonus)
+        #expect(!session.claimBountyBonus().isEmpty)
+        #expect(!session.canClaimBountyBonus)
+
+        // Monsters count where they were beaten and by element; seals count as seals.
+        let jelly = try #require(Content.shared.monster("jelly"))
+        session.data.bounties = BountyBoard(day: GameSession.dayKey(), bounties: [
+            Bounty(kind: .defeatOnMap, target: "sunny_meadow", count: 3, exp: 1, gold: 1),
+            Bounty(kind: .defeatElement, target: jelly.element.rawValue, count: 3, exp: 1, gold: 1),
+            Bounty(kind: .seal, count: 1, exp: 1, gold: 1),
+        ])
+        session.noteBounties(beaten: [jelly, jelly], sealed: 1, on: "frog_swamp")
+        let bounties = try #require(session.data.bounties?.bounties)
+        #expect(bounties[0].progress == 0)
+        #expect(bounties[1].progress == 2)
+        #expect(bounties[2].isDone)
+
+        // A new day pays what was finished and left unclaimed, then brings a new board.
+        session.data.bounties = BountyBoard(day: "2000-01-01", bounties: [Bounty(kind: .wins, count: 1, exp: 1, gold: 50)])
+        session.data.bounties?.bounties[0].progress = 1
+        let before = session.data.gold
+        #expect(session.refreshBounties().day == GameSession.dayKey())
+        #expect(session.data.gold >= before + 50)
+    }
+
+    @Test func aBountyOfAKindThatsGoneStillLoads() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.data.bounties = BountyBoard(day: "2026-10-06", bounties: [Bounty(kind: .wins, count: 3, exp: 1, gold: 1)])
+        let json = try #require(String(data: JSONEncoder().encode(session.data), encoding: .utf8))
+        let edited = json.replacingOccurrences(of: "\"kind\":\"wins\"", with: "\"kind\":\"gone\"")
+        #expect(edited != json)
+        let loaded = try JSONDecoder().decode(SaveData.self, from: Data(edited.utf8))
+        let bounty = try #require(loaded.bounties?.bounties.first)
+        #expect(bounty.type == nil)
+        #expect(session.describe(bounty) == "An old bounty")
+    }
+
+    @Test func theMonsterBooksMilestonesPayOnce() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let first = try #require(session.nextBookMilestone)
+        for monster in Content.shared.monsters.prefix(first.count) { session.sawMonster(monster.id, level: 1) }
+        let gold = session.data.gold
+        session.claimBookMilestones()
+        #expect(session.data.gold == gold + first.reward.gold)
+        #expect(session.data.bookRewards == [first.count])
+        session.claimBookMilestones()
+        #expect(session.data.gold == gold + first.reward.gold)
+        #expect(session.nextBookMilestone?.count != first.count)
+    }
+
+    @Test func rebornHeroesClimbFaster() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        #expect(session.rebirthEXPBoost == 1)
+        session.data.hero.rebirths = 1
+        #expect(abs(session.rebirthEXPBoost - 1.2) < 0.0001)
+        session.data.hero.rebirths = 9
+        #expect(session.rebirthEXPBoost == 2)
+    }
+
+    @Test func botsWearTitlesThatFitTheirLevel() {
+        let id = UUID()
+        #expect(GameSession.botTitle(level: 5, id: id) == nil)
+        #expect(GameSession.botTitle(level: 70, id: id) == GameSession.botTitle(level: 70, id: id))
+        let names = Set((0..<40).compactMap { _ in GameSession.botTitle(level: 70, id: UUID()) })
+        #expect(names.isSubset(of: [Content.shared.title("veteran")?.name].compactMap { $0 }))
+        #expect(!names.isEmpty)
     }
 }

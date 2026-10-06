@@ -697,8 +697,6 @@ nonisolated struct CrowdOptions: Decodable, Sendable {
     /// What market traders call out: {item} and {price} for what they sell, {buy} and {price} for
     /// what they'd buy from you.
     let traderLines: [String]?
-    /// Answers to a moderator's World message.
-    let modReplies: [String]?
 }
 
 /// The game's own notices in the chat (content/announcements.json): what's happening where and when.
@@ -727,6 +725,54 @@ nonisolated struct AnnouncementOptions: Decodable, Sendable {
         /// How often a notice is a sighting rather than news of another adventurer.
         let chance: Double
     }
+}
+
+/// A title you earn and wear over your name (content/titles.json): what earns it is `kind`, with
+/// `count` of it (nil for lands and book: every one), or `target` for one boss.
+nonisolated struct TitleDef: Decodable, Identifiable, Sendable {
+    nonisolated enum Kind: String, Decodable, Sendable {
+        case level, lands, book, quests, bosses, boss, companions, friends, rebirths, bounties, days
+    }
+    let id: String
+    let name: String
+    let kind: Kind
+    let count: Int?
+    /// `boss`: the boss's NPC id.
+    let target: String?
+}
+
+/// Reasons to come back (content/rewards.json): the daily gift's round, the daily bounties' rules
+/// and the Monster Book's milestones.
+nonisolated struct RewardsDef: Decodable, Sendable {
+    nonisolated struct Gift: Decodable, Sendable {
+        /// Gold: this many times your level.
+        let goldPerLevel: Int?
+        let items: [String]?
+    }
+    nonisolated struct Bounties: Decodable, Sendable {
+        nonisolated struct Bonus: Decodable, Sendable {
+            /// A share of the EXP your level needs.
+            let exp: Double
+            let items: [String]?
+        }
+        let perDay: Int
+        /// Each kind (`Bounty.Kind`) with its count's [low, high].
+        let kinds: [String: [Int]]
+        /// Each bounty pays this share of the EXP your level needs, and `goldPerLevel` × your level.
+        let exp: Double
+        let goldPerLevel: Int
+        /// Once all the day's bounties are claimed.
+        let bonus: Bonus
+    }
+    nonisolated struct Milestone: Decodable, Sendable {
+        /// Kinds of monster met; nil: every one.
+        let count: Int?
+        let gold: Int
+        let items: [String]?
+    }
+    let dailyGifts: [Gift]
+    let bounties: Bounties
+    let bookMilestones: [Milestone]
 }
 
 /// One entry in content/changelog.json, shown under "What's new" on the title screen.
@@ -783,6 +829,7 @@ private nonisolated struct QuestsFile: Decodable { let quests: [QuestDef] }
 private nonisolated struct MapsFile: Decodable { let start: String; let maps: [MapDef] }
 private nonisolated struct MusicFile: Decodable { let songs: [SongDef]; let instruments: [InstrumentDef]? }
 private nonisolated struct ChangelogFile: Decodable { let releases: [ReleaseNote] }
+private nonisolated struct TitlesFile: Decodable { let titles: [TitleDef] }
 
 /// All game data from the bundled content/ folder. Edit the JSON, rebuild, done. Text is read in
 /// the player's language (`Localizer`): the fields content/i18n/fields.json names are swapped for
@@ -806,6 +853,8 @@ final class Content {
         let crowd: CrowdOptions
         let announcements: AnnouncementOptions
         let releases: [ReleaseNote]
+        let titles: [TitleDef]
+        let rewards: RewardsDef
     }
 
     private let bundle: Bundle
@@ -827,6 +876,8 @@ final class Content {
     var announcements: AnnouncementOptions { loaded.announcements }
     /// Newest first.
     var releases: [ReleaseNote] { loaded.releases }
+    var titles: [TitleDef] { loaded.titles }
+    var rewards: RewardsDef { loaded.rewards }
 
     /// `strings`: read the data with these translations instead of the chosen language's (tests).
     init(bundle: Bundle = .main, strings: [String: String]? = nil) {
@@ -868,7 +919,9 @@ final class Content {
             appearance: load("appearance"),
             crowd: load("crowd"),
             announcements: load("announcements"),
-            releases: (load("changelog") as ChangelogFile).releases
+            releases: (load("changelog") as ChangelogFile).releases,
+            titles: (load("titles") as TitlesFile).titles,
+            rewards: load("rewards")
         )
     }
 
@@ -929,6 +982,7 @@ final class Content {
     func monster(_ id: String) -> MonsterDef? { monsters.first { $0.id == id } }
     func item(_ id: String) -> ItemDef? { items.first { $0.id == id } }
     func quest(_ id: String) -> QuestDef? { quests.first { $0.id == id } }
+    func title(_ id: String) -> TitleDef? { titles.first { $0.id == id } }
     func map(_ id: String) -> MapDef? { maps.first { $0.id == id } }
     func song(_ id: String) -> SongDef? { songs.first { $0.id == id } }
 
