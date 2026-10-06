@@ -30,7 +30,7 @@ struct GameView: View {
                     .padding(.trailing, 14)
                 }
                 if battleChat {
-                    ChatView(session: coordinator.session, onSay: coordinator.say, onBroadcast: coordinator.broadcast) { battleChat = false }
+                    ChatView(session: coordinator.session, onSay: coordinator.say) { battleChat = false }
                 }
             } else {
                 if !DebugLaunch.hidesHUD {
@@ -45,7 +45,7 @@ struct GameView: View {
                 case .trade(let adventurer):
                     TradeView(session: coordinator.session, adventurer: adventurer, onClose: coordinator.closeOverlay)
                 case .chat:
-                    ChatView(session: coordinator.session, onSay: coordinator.say, onBroadcast: coordinator.broadcast, onClose: coordinator.closeOverlay)
+                    ChatView(session: coordinator.session, onSay: coordinator.say, onClose: coordinator.closeOverlay)
                 case .profile(let profile):
                     ProfileCard(session: coordinator.session, profile: profile, onClose: coordinator.closeOverlay)
                 case .npc(let id):
@@ -67,6 +67,15 @@ struct GameView: View {
             }
         }
         .overlay {
+            // The day's gift, once the map is up and nothing else is on screen.
+            if let gift = coordinator.dailyGift, coordinator.isReady, coordinator.battle == nil, coordinator.overlay == nil, !touring {
+                DailyGiftCard(session: coordinator.session, gift: gift) {
+                    withAnimation(.easeOut(duration: 0.25)) { coordinator.dailyGift = nil }
+                }
+                .transition(.opacity)
+            }
+        }
+        .overlay {
             if !coordinator.isReady {
                 if let name = coordinator.loadingMapName {
                     MapLoadingCard(mapName: name, progress: coordinator.loadProgress).transition(.opacity)
@@ -80,7 +89,10 @@ struct GameView: View {
         // The fight waits while you type, turn clock and all.
         .onChange(of: battleChat) { coordinator.battle?.holdTurnClock(battleChat, for: "chat") }
         // And while the app isn't in front (another app, the lock screen, a call, Control Centre).
-        .onChange(of: scenePhase == .active) { _, active in coordinator.battle?.holdTurnClock(!active, for: "away") }
+        .onChange(of: scenePhase == .active) { _, active in
+            coordinator.battle?.holdTurnClock(!active, for: "away")
+            if active { coordinator.welcomeBack() }
+        }
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
     }

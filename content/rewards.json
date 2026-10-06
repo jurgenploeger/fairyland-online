@@ -1,0 +1,32 @@
+{
+  "_about": "Reasons to come back (GameSession+Rewards.swift). `dailyGifts`: one a calendar day, the next in the round each day you play (missing a day costs nothing), gold as `goldPerLevel` × your level. `bounties`: `perDay` tasks a day, each kind's count rolled in [low, high] (defeatOnMap: monsters on a land you've been to that suits your level; defeatElement: monsters of an element found there; wins: fights won; rare: rare monsters; seal: monsters sealed), each paying `exp` × the EXP your level needs and `goldPerLevel` × your level, and the `bonus` once all are claimed. `bookMilestones`: paid once each when the Monster Book reaches `count` kinds of monster (no count: every one).",
+  "dailyGifts": [
+    {"items": ["potion", "potion", "potion"]},
+    {"goldPerLevel": 10},
+    {"items": ["seal_stone", "seal_stone"]},
+    {"items": ["ether", "ether"]},
+    {"goldPerLevel": 20},
+    {"items": ["hi_potion", "hi_potion"]},
+    {"goldPerLevel": 30, "items": ["seal_stone", "seal_stone", "seal_stone", "homeward_feather"]}
+  ],
+  "bounties": {
+    "perDay": 3,
+    "kinds": {
+      "defeatOnMap": [8, 14],
+      "defeatElement": [5, 9],
+      "wins": [4, 7],
+      "rare": [1, 1],
+      "seal": [1, 1]
+    },
+    "exp": 0.2,
+    "goldPerLevel": 8,
+    "bonus": {"exp": 0.3, "items": ["seal_stone", "hi_potion"]}
+  },
+  "bookMilestones": [
+    {"count": 10, "gold": 300, "items": ["seal_stone", "seal_stone"]},
+    {"count": 25, "gold": 1500, "items": ["hi_potion", "hi_potion", "hi_potion"]},
+    {"count": 50, "gold": 5000, "items": ["seal_stone", "seal_stone", "seal_stone", "hi_ether", "hi_ether"]},
+    {"count": 75, "gold": 15000, "items": ["hi_potion", "hi_potion", "hi_potion", "hi_ether", "hi_ether", "hi_ether"]},
+    {"gold": 50000, "items": ["hi_potion", "hi_potion", "hi_potion", "hi_potion", "hi_potion", "hi_ether", "hi_ether", "hi_ether", "hi_ether", "hi_ether"]}
+  ]
+}

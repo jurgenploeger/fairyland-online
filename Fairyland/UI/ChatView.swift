@@ -1,19 +1,13 @@
 import SwiftUI
 
 /// The map's chat window: everything adventurers, villagers and NPCs have said here, the game's
-/// announcements, and a box to say something yourself (someone might answer). A moderator can switch
-/// the box to the World channel, to message everyone in the game.
+/// announcements, and a box to say something yourself (someone might answer).
 struct ChatView: View {
     let session: GameSession
     let onSay: (String) -> Void
-    /// A moderator's message on the World channel (nil: no World channel here).
-    var onBroadcast: ((String) -> Void)? = nil
     let onClose: () -> Void
     @State private var draft = ""
-    @State private var toWorld = false
     @FocusState private var typing: Bool
-
-    private var world: Bool { toWorld && session.isModerator && onBroadcast != nil }
 
     var body: some View {
         ZStack {
@@ -43,27 +37,12 @@ struct ChatView: View {
                 .frame(maxHeight: .infinity)
 
                 HStack(spacing: 8) {
-                    if session.isModerator, onBroadcast != nil {
-                        // Map: this map's chat. World: everyone in the game, on every map.
-                        Button { toWorld.toggle() } label: {
-                            Text(toWorld ? L("World") : L("Map"))
-                                .font(HUDStyle.font(12))
-                                .foregroundStyle(toWorld ? .white : HUDStyle.ink)
-                                .frame(minWidth: 52)
-                                .padding(.vertical, 9)
-                                .background(Capsule().fill(toWorld ? HUDStyle.mod : HUDStyle.cream))
-                        }
-                        .buttonStyle(PressScaleStyle())
-                        .accessibilityLabel(toWorld ? L("Channel: World, everyone in the game") : L("Channel: this map"))
-                        .accessibilityHint(L("Switches the channel"))
-                    }
-                    TextField(world ? L("Message everyone in the game…") : L("Say something…"), text: $draft)
+                    TextField(L("Say something…"), text: $draft)
                         .font(HUDStyle.font(13))
                         .foregroundStyle(HUDStyle.ink)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .background(Capsule().fill(HUDStyle.cream))
-                        .overlay(Capsule().strokeBorder(world ? HUDStyle.mod : .clear, lineWidth: 2))
                         .focused($typing)
                         .submitLabel(.send)
                         .onSubmit(send)
@@ -95,12 +74,7 @@ struct ChatView: View {
     private func send() {
         let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        // Chat commands (/mod) go the usual way, whatever the channel.
-        if world, !text.hasPrefix("/"), let onBroadcast {
-            onBroadcast(String(text.prefix(120)))
-        } else {
-            onSay(String(text.prefix(80)))
-        }
+        onSay(String(text.prefix(80)))
         draft = ""
     }
 }
@@ -115,7 +89,6 @@ private struct ChatLineView: View {
         case .villager: HUDStyle.cream
         case .npc: HUDStyle.green
         case .system: HUDStyle.dim
-        case .world: .white
         case .announcement: HUDStyle.gold
         }
     }
@@ -147,29 +120,6 @@ private struct ChatLineView: View {
             )
             .accessibilityElement(children: .combine)
             .accessibilityLabel(L("Announcement: {text}", ["text": line.text]))
-        case .world:
-            // A moderator's message to everyone in the game: a red banner with who sent it.
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 5) {
-                    IconImage(.shieldStar, size: 13)
-                    Text(L("World")).font(HUDStyle.font(10)).opacity(0.85)
-                    NameBadge(badge: .mod)
-                    Text(line.speaker).font(HUDStyle.font(11))
-                }
-                Text(line.text)
-                    .font(HUDStyle.font(12))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .foregroundStyle(.white)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(HUDStyle.mod.opacity(0.55))
-                    .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(.white.opacity(0.7), lineWidth: 1))
-            )
-            .accessibilityElement(children: .combine)
         case .you, .adventurer, .villager, .npc:
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 if let badge = line.badge {

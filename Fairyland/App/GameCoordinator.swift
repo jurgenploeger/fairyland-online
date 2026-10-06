@@ -63,6 +63,8 @@ final class GameCoordinator {
     @ObservationIgnored private(set) var battleScene: BattleScene?
     /// Set by the app: saves are done, go back to the title screen.
     @ObservationIgnored var onQuitToTitle: (() -> Void)?
+    /// The day's gift, given and waiting to be shown (GameView's DailyGiftCard).
+    var dailyGift: GameSession.DailyGift?
 
     init(session: GameSession) {
         let input = InputState()
@@ -70,10 +72,15 @@ final class GameCoordinator {
         self.session = session
         self.input = input
         announcer = Announcer(session: session)
+        // Titles an older save already deserves, in one line (before this map's visit counts).
+        session.checkTitles(quietly: true)
         session.markVisited(map.id)
         session.rescaleLevelsIfNeeded()
         session.rescaleSkillLevelsIfNeeded()
         session.handOutMissingStarterGifts()
+        session.claimBookMilestones()
+        session.refreshBounties()
+        dailyGift = session.collectDailyGift()
         let began = Date()
         world = WorldScene(map: map, session: session, input: input, entry: nil)
         wire(world)
@@ -94,6 +101,12 @@ final class GameCoordinator {
                 if self.battle == nil { self.session.save() }
             }
         }
+    }
+
+    /// Back in front after a while: a new day brings new bounties and its gift.
+    func welcomeBack() {
+        session.refreshBounties()
+        if dailyGift == nil, let gift = session.collectDailyGift() { dailyGift = gift }
     }
 
     /// The scene SpriteKit should show right now.
@@ -359,42 +372,6 @@ final class GameCoordinator {
     }
 
     func say(_ text: String) {
-        // Chat commands aren't said out loud.
-        if text.hasPrefix("/") {
-            command(text)
-            return
-        }
         world.heroSay(text)
-    }
-
-    /// A moderator's message on the World channel: everyone in the game sees it, on every map, and
-    /// adventurers about may answer.
-    func broadcast(_ text: String) {
-        guard session.isModerator else {
-            say(text)
-            return
-        }
-        session.postWorld(text)
-        world.answerModerator()
-    }
-
-    /// `/mod <code>` switches moderator mode on for this device, `/mod off` switches it off.
-    private func command(_ text: String) {
-        let words = text.dropFirst().split(separator: " ", maxSplits: 1).map(String.init)
-        guard words.first?.lowercased() == "mod" else {
-            session.postChat(L("Unknown command. The only one is /mod."), from: "", kind: .system)
-            return
-        }
-        let argument = words.count > 1 ? words[1] : ""
-        if argument.lowercased() == "off" {
-            Moderation.switchOff()
-            session.isModerator = Moderation.isOn
-            session.postChat(L("Moderator mode is off."), from: "", kind: .system)
-        } else if Moderation.unlock(with: argument) {
-            session.isModerator = true
-            session.postChat(L("Moderator mode is on: a MOD tag on your name, and the World channel here in the chat."), from: "", kind: .system)
-        } else {
-            session.postChat(L("That's not the moderator code."), from: "", kind: .system)
-        }
     }
 }

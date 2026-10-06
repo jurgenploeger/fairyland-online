@@ -538,6 +538,54 @@ for map_def in maps.values():
             check([a[0] + dx, a[1] + dy] == b,
                   f"map {map_def['id']} {exit_def['edge']} exit → {exit_def['to']} isn't one step {exit_def['edge']} on the world map")
 
+# Titles (content/titles.json): unique ids, a kind GameSession+Rewards knows, a count above 0 where
+# one's needed (lands and book may leave it out: every one), and a boss's NPC id for `boss`.
+TITLE_KINDS = {"level", "lands", "book", "quests", "bosses", "boss", "companions", "friends", "rebirths", "bounties", "days"}
+titles = load("content/titles.json")["titles"]
+check(len({t.get("id") for t in titles}) == len(titles), "titles → duplicate id")
+for title in titles:
+    where = f"title {title.get('id')}"
+    kind = title.get("kind")
+    check(bool(title.get("name")), f"{where} → needs a name")
+    check(kind in TITLE_KINDS, f"{where} → unknown kind {kind} (one of {sorted(TITLE_KINDS)})")
+    if kind == "boss":
+        target = npcs.get(title.get("target"), {})
+        check(target.get("role") == "boss", f"{where} → target must be a boss's NPC id, not {title.get('target')}")
+    elif kind in ("lands", "book"):
+        top = len(maps) if kind == "lands" else len(monsters)
+        count = title.get("count")
+        check(count is None or (isinstance(count, int) and 0 < count <= top), f"{where} → count between 1 and {top}, or none for every one")
+    elif kind in TITLE_KINDS:
+        check(isinstance(title.get("count"), int) and title["count"] > 0, f"{where} → needs a count above 0")
+
+# Rewards (content/rewards.json): real items, whole positive numbers, the bounty kinds the game knows
+# (Bounty.Kind), and the Book's milestones in order.
+BOUNTY_KINDS = {"defeatOnMap", "defeatElement", "wins", "rare", "seal"}
+rewards = load("content/rewards.json")
+def check_items(ids, where):
+    for item_id in ids or []:
+        check(item_id in items, f"{where} → unknown item {item_id}")
+check(bool(rewards.get("dailyGifts")), "rewards → needs dailyGifts")
+for index, gift in enumerate(rewards.get("dailyGifts", []), start=1):
+    check(gift.get("goldPerLevel", 0) >= 0 and (gift.get("goldPerLevel") or gift.get("items")), f"rewards daily gift {index} → needs gold or items")
+    check_items(gift.get("items"), f"rewards daily gift {index}")
+bounty_rules = rewards.get("bounties", {})
+kinds = bounty_rules.get("kinds", {})
+check(set(kinds) <= BOUNTY_KINDS, f"rewards bounties → unknown kinds {sorted(set(kinds) - BOUNTY_KINDS)}")
+check(1 <= bounty_rules.get("perDay", 0) <= len(kinds), "rewards bounties perDay → between 1 and the number of kinds")
+for kind, span in kinds.items():
+    check(isinstance(span, list) and len(span) == 2 and 1 <= span[0] <= span[1], f"rewards bounties {kind} → [low, high] with 1 ≤ low ≤ high")
+check(bounty_rules.get("exp", 0) > 0 and bounty_rules.get("goldPerLevel", -1) >= 0, "rewards bounties → exp above 0 and goldPerLevel at least 0")
+check(bounty_rules.get("bonus", {}).get("exp", 0) > 0, "rewards bounties bonus → exp above 0")
+check_items(bounty_rules.get("bonus", {}).get("items"), "rewards bounties bonus")
+milestones = rewards.get("bookMilestones", [])
+counts = [m.get("count", len(monsters)) for m in milestones]
+check(counts == sorted(set(counts)), "rewards bookMilestones → counts rising, each once (the one without a count is every monster)")
+check(all(0 < count <= len(monsters) for count in counts), f"rewards bookMilestones → counts between 1 and {len(monsters)}")
+for milestone in milestones:
+    check(milestone.get("gold", -1) >= 0, f"rewards bookMilestone {milestone.get('count', 'all')} → gold at least 0")
+    check_items(milestone.get("items"), f"rewards bookMilestone {milestone.get('count', 'all')}")
+
 # Translations (content/i18n): every listed language has a table, placeholders survive, and every
 # L() in the code has a literal key. Missing translations only show in English, so they're reported
 # by `python3 tools/i18n.py status`, not here.

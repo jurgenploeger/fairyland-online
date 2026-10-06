@@ -30,6 +30,7 @@ struct MonsterBook: View {
             Text(L("Every monster you meet in battle is written down here. Tap one to read about it."))
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
+            milestone
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     chip(nil)
@@ -41,6 +42,33 @@ struct MonsterBook: View {
                     tile(monster)
                 }
             }
+        }
+    }
+
+    /// The Book's next reward, and how close it is.
+    @ViewBuilder
+    private var milestone: some View {
+        if let next = session.nextBookMilestone {
+            let items = session.itemList(next.reward.items ?? [])
+            let reward = items.map { L("{gold} gold and {items}", ["gold": next.reward.gold, "items": $0]) }
+                ?? L("{gold} gold", ["gold": next.reward.gold])
+            HStack(spacing: 8) {
+                IconImage(.gift, size: 16)
+                    .foregroundStyle(HUDStyle.gold)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(L("At {count} kinds: {reward}", ["count": next.count, "reward": reward]))
+                        .font(HUDStyle.font(11))
+                        .fixedSize(horizontal: false, vertical: true)
+                    GlossyBar(fraction: CGFloat(min(seenCount, next.count)) / CGFloat(max(1, next.count)), color: HUDStyle.gold, height: 5)
+                }
+            }
+            .padding(8)
+            .background(RoundedRectangle(cornerRadius: 6).fill(HUDStyle.gold.opacity(0.08)))
+            .accessibilityElement(children: .combine)
+        } else {
+            Label(L("Every reward in the Book is yours."), icon: .badgeCheck, size: 14)
+                .font(HUDStyle.font(11))
+                .foregroundStyle(HUDStyle.gold)
         }
     }
 

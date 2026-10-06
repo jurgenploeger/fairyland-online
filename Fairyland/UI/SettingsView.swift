@@ -12,6 +12,7 @@ struct SettingsView: View {
     @AppStorage(GameSettings.footstepsKey) private var footsteps = true
     @AppStorage(GameSettings.hapticsKey) private var haptics = true
     @AppStorage(GameSettings.commandCompanionKey) private var commandCompanion = true
+    @AppStorage(GameSettings.turnTimerKey) private var turnTimer = 10.0
     @State private var music = MusicPlayer.shared
     @State private var justSaved = false
     @State private var confirmQuit = false
@@ -48,6 +49,11 @@ struct SettingsView: View {
                 Text(L("After your own choice, tell your companion what to do. Off, it fights on its own."))
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
+                TurnTimerRow(seconds: $turnTimer)
+                Text(L("How long you have to pick each move before your hero attacks on their own. With VoiceOver or Switch Control on, there's no clock."))
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.dim)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             if let session {
@@ -156,6 +162,40 @@ struct SettingsView: View {
         let short = info?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = info?["CFBundleVersion"] as? String ?? "1"
         return "\(short) (\(build))"
+    }
+}
+
+/// Time to choose in a fight: Off, 10, 20 or 30 seconds, as a row of pills.
+private struct TurnTimerRow: View {
+    @Binding var seconds: Double
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 10) {
+                IconImage(.sword, size: 14)
+                    .frame(width: 18)
+                Text(L("Time to choose"))
+            }
+            .accessibilityElement(children: .combine)
+            HStack(spacing: 6) {
+                ForEach(GameSettings.turnTimerChoices, id: \.self) { choice in
+                    let chosen = seconds == choice
+                    Button {
+                        seconds = choice
+                    } label: {
+                        Text(choice == 0 ? L("Off") : L("{seconds} s", ["seconds": Int(choice)]))
+                            .font(HUDStyle.font(11))
+                            .foregroundStyle(chosen ? HUDStyle.ink : HUDStyle.cream)
+                            .frame(maxWidth: .infinity, minHeight: 32)
+                            .background(Capsule().fill(chosen ? HUDStyle.gold : HUDStyle.ink.opacity(0.5)))
+                            .overlay(Capsule().strokeBorder(HUDStyle.cream.opacity(chosen ? 0 : 0.4), lineWidth: 1))
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(PressScaleStyle())
+                    .accessibilityAddTraits(chosen ? .isSelected : [])
+                }
+            }
+        }
     }
 }
 

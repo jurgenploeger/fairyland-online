@@ -13,6 +13,8 @@ final class Walker: SKNode {
     private(set) var isWalking = false
     private var cycle: WalkCycle
     private var tag: NameTag?
+    private var titleTag: NameTag?
+    private var shownTitle: String?
     /// When the name tag shows: the party's while standing still, everyone else's up close or when tapped.
     enum TagMode { case always, whenStill, onDemand }
     var tagMode: TagMode = .always {
@@ -44,7 +46,7 @@ final class Walker: SKNode {
     /// The current map's light, cast softly on everyone standing in it (`theme.palette.light`).
     static var light: (color: UIColor, strength: CGFloat)?
 
-    /// `badge`: BOT or MOD after the name.
+    /// `badge`: BOT after the name.
     init(cycle: WalkCycle, label: String?, labelColor: UIColor = .white, badge: PlayerBadge? = nil) {
         self.cycle = cycle
         sprite = SKSpriteNode(texture: cycle.frames(.down).first, size: cycle.size)
@@ -102,6 +104,24 @@ final class Walker: SKNode {
 
     func setBadge(_ badge: PlayerBadge?) {
         tag?.setBadge(badge)
+    }
+
+    func setLabelColor(_ color: UIColor) {
+        tag?.setColor(color)
+    }
+
+    /// A title worn over the name (Character → Titles), in small gold letters; it shows and hides
+    /// with the name.
+    func setTitle(_ title: String?) {
+        guard title != shownTitle else { return }
+        shownTitle = title
+        titleTag?.removeFromParent()
+        titleTag = nil
+        guard let title, let tag else { return }
+        let node = NameTag(title, color: Nodes.gold, size: 9)
+        node.position = CGPoint(x: 0, y: 15)
+        tag.addChild(node)
+        titleTag = node
     }
 
     /// Shows the name tag for a few seconds, whatever its mode (someone tapped them).

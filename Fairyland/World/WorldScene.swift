@@ -1027,17 +1027,29 @@ final class WorldScene: SKScene {
         follower = node
     }
 
-    /// Picks up a new look or name from the Character screen, and moderator mode's MOD tag.
+    /// Picks up a new look or name from the Character screen, the title you wear, and a reborn
+    /// hero's colour.
     private func refreshHero() {
-        let key = "\(session.data.hero.name)|\(session.heroLookKey)|\(session.isModerator)"
+        let key = "\(session.data.hero.name)|\(session.heroLookKey)|\(session.data.title ?? "")|\(session.rebirths)"
         guard key != heroKey else { return }
         if heroKey != nil {
             player.setCycle(art.walkCycle(GameSession.heroArt))
             player.setLabel(session.data.hero.name)
         }
-        player.setBadge(session.isModerator ? .mod : nil)
+        player.setTitle(session.wornTitle?.name)
+        player.setLabelColor(Self.nameColor(rebirths: session.rebirths))
         player.setGear(weapon: session.equipped(.weapon), accessory: session.equipped(.accessory))
         heroKey = key
+    }
+
+    /// The hero's name over their head: white, then sky blue, violet and gold as they're reborn.
+    static func nameColor(rebirths: Int) -> UIColor {
+        switch rebirths {
+        case ...0: .white
+        case 1: UIColor(red: 0.55, green: 0.85, blue: 1, alpha: 1)
+        case 2: UIColor(red: 0.82, green: 0.66, blue: 1, alpha: 1)
+        default: Nodes.gold
+        }
     }
 
 
@@ -1117,6 +1129,7 @@ final class WorldScene: SKScene {
                 return existing
             }
             let node = Walker(cycle: art.walkCycle(session.artID(for: friend)), label: friend.name, labelColor: HUDStyle.partyGreen, badge: .bot)
+            node.setTitle(GameSession.botTitle(level: friend.level, id: friend.id))
             node.setGear(weapon: GameSession.weapon(for: friend), accessory: nil)
             node.walkSpeed = 105
             node.tagMode = .whenStill
@@ -1217,11 +1230,6 @@ final class WorldScene: SKScene {
 
     func adventurerSays(_ line: String, _ id: UUID) {
         crowd?.say(line, from: id)
-    }
-
-    /// A moderator's World message: a few adventurers here answer in the chat.
-    func answerModerator() {
-        crowd?.answerModerator()
     }
 
     /// You said something in the Chat window: a bubble over your head, and maybe an answer.

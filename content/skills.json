@@ -429,13 +429,14 @@
       "kind": "magic",
       "power": 1.2,
       "target": "allEnemies",
-      "description": "An icy gust that freezes its targets solid: they lose their next turn.",
+      "description": "An icy gust that can freeze its targets solid: a frozen one loses its next turn.",
       "animation": "frost",
       "element": "water",
       "inflicts": {
         "effect": "freeze",
         "rounds": 1,
-        "power": 0
+        "power": 0,
+        "chance": 0.3
       }
     },
     {

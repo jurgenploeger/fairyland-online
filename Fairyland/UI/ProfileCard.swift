@@ -58,7 +58,12 @@ struct ProfileCard: View {
                     Text(facts.kind)
                         .font(HUDStyle.font(13))
                         .foregroundStyle(HUDStyle.gold)
-                    // BOT for a computer-run adventurer, MOD for a moderator.
+                    if let title = facts.title {
+                        Text(title)
+                            .font(HUDStyle.font(11))
+                            .foregroundStyle(HUDStyle.cream)
+                    }
+                    // BOT for a computer-run adventurer.
                     if let badge = facts.badge { NameBadge(badge: badge) }
                     if let element = facts.element { ElementBadge(element: element) }
                     if let note = facts.note {
@@ -148,6 +153,8 @@ struct ProfileCard: View {
         /// "Lv 42 · Human Fighter", "Lv 12 · Jelly Puff".
         var kind: String
         var badge: PlayerBadge?
+        /// The title they wear.
+        var title: String?
         var element: Element?
         var note: String?
         var noteColor = HUDStyle.cream
@@ -170,7 +177,7 @@ struct ProfileCard: View {
                               kind: L("Lv {level} · {race} {heroClass}", ["level": hero.level, "race": content.race(hero.raceID).name, "heroClass": session.heroClass.name]),
                               stats: session.heroStats, hp: hero.hp, mp: hero.mp,
                               exp: (hero.exp, GameSession.expToNext(level: hero.level)))
-            if session.isModerator { facts.badge = .mod }
+            facts.title = session.wornTitle?.name
             if session.rebirths > 0 { facts.note = L("Reborn {count}×", ["count": session.rebirths]) }
             facts.gear = [ItemType.weapon, .armor, .accessory].compactMap { session.equipped($0) }
             return facts
@@ -198,6 +205,7 @@ struct ProfileCard: View {
                               kind: L("Lv {level} · {race} {heroClass}", ["level": person.level, "race": content.race(person.raceID).name, "heroClass": content.classDef(person.classID).name]),
                               stats: stats, hp: min(stats.hp, friend?.hp ?? stats.hp), mp: min(stats.mp, friend?.mp ?? stats.mp))
             facts.badge = .bot
+            facts.title = GameSession.botTitle(level: person.level, id: person.id)
             // What they hold and wear, as on the map and in battle.
             facts.gear = [GameSession.weapon(for: person), GameSession.armor(for: person)].compactMap { $0 }
             if let place = session.whereabouts(of: person) {

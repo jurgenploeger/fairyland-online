@@ -168,6 +168,9 @@ private struct RebirthPanel: View {
         VStack(alignment: .leading, spacing: 6) {
             Divider().overlay(HUDStyle.cream.opacity(0.3))
             Text(L("Rebirth")).font(HUDStyle.font(13)).foregroundStyle(HUDStyle.gold)
+            Text(L("Each rebirth earns a fifth more EXP in battle (up to double), a title, and a new colour for your name."))
+                .font(HUDStyle.font(11)).foregroundStyle(HUDStyle.cream)
+                .fixedSize(horizontal: false, vertical: true)
             if session.data.hero.level < session.rebirthLevel {
                 Text(L("Reach level {level} and I can help you be reborn: back to level 1, keeping your skills and some of your strength.", ["level": session.rebirthLevel]))
                     .font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)

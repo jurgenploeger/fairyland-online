@@ -149,6 +149,11 @@ private struct CharacterTab: View {
                     .background(Circle().fill(.white.opacity(0.06)))
                 // The name is chosen when the hero is made and stays.
                 Text(hero.name).font(HUDStyle.font(18))
+                if let title = session.wornTitle {
+                    Text(title.name)
+                        .font(HUDStyle.font(12))
+                        .foregroundStyle(HUDStyle.gold)
+                }
                 Button {
                     draftName = hero.name
                     draftLook = hero.look ?? .standard
@@ -233,6 +238,8 @@ private struct CharacterTab: View {
                         .font(HUDStyle.font(11))
                     }
                 }
+
+                TitlesSection(session: session)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -816,6 +823,7 @@ private struct QuestsTab: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
+            BountiesSection(session: session)
             SectionTitle(text: L("Active"))
             if session.activeQuests.isEmpty {
                 Text(L("No active quests. Elder Oak in Meadowbrook always needs help.")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)

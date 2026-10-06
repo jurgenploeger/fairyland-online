@@ -233,8 +233,9 @@ struct ItemInfoCard: View {
     }
 }
 
-/// Lays its views out like words: left to right, onto a new row when one is full.
-private struct WrapRows: Layout {
+/// Lays its views out like words: left to right, onto a new row when one is full (an item's stats,
+/// the titles you've earned).
+struct WrapRows: Layout {
     var spacing: CGFloat = 5
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {

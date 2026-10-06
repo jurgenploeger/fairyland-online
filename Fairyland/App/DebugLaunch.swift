@@ -37,9 +37,8 @@ import SpriteKit
 ///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
 ///   auto           battles start on Auto where it's allowed (monsters well below you)
 ///   fast           battles play at 2×
-///   mod            moderator mode (a MOD tag, and the chat's World channel) for this launch only
-///   announce       once the map is on screen: a rare sighting, news of another adventurer and, with mod,
-///                  a World message (with chat: then the chat opens)
+///   announce       once the map is on screen: a rare sighting and news of another adventurer (with
+///                  chat: then the chat opens)
 ///   chat           open the chat window
 ///   menu=<tab>     open character | companions | bag | quests
 ///   profile=<who>  open someone's stats: hero | pet (with pet=) | friend (with friends=)
@@ -48,6 +47,10 @@ import SpriteKit
 ///   info=<item>    with npc=<a shop>: open that item's info card
 ///   worldmap       open the world map
 ///   book           open the Monster Book, with the first 24 monsters already met
+///   title=<id>     that title (content/titles.json) earned and worn over your name
+///   gift[=day]     today's daily gift not given yet: once the map is up it's handed out, that day of
+///                  the round (1 unless set)
+///   bounties=<n>   today's bounties made at once, the first n of them done and waiting to be claimed
 ///   landscape      lock the app to landscape
 ///   clean          no frame counter in the corner (App Store screenshots; tools/screenshots.sh also
 ///                  leaves out the Dynamic Island's black mask)
@@ -81,8 +84,6 @@ enum DebugLaunch {
     static var bossWave: Int? { flags["wave"].flatMap { Int($0) } }
     /// `arrange`: battles open with the buttons already wiggling, ready to rearrange.
     static var arrangesButtons: Bool { flags["arrange"] != nil }
-    /// `mod`: moderator mode for this launch, without touching the saved setting.
-    static var isModerator: Bool { flags["mod"] != nil }
 
     /// A debug game (tests, screenshots): the first-play tour stays hidden unless `coach` is set.
     static var isActive: Bool { flags["newgame"] != nil }
@@ -375,6 +376,22 @@ enum DebugLaunch {
                 session.playerPosition = grid.center(of: grid.offset(parts[0], parts[1]))
             }
         }
+        if let id = flags["title"], Content.shared.title(id) != nil {
+            session.data.titles = (session.data.titles ?? []) + [id]
+            session.data.title = id
+        }
+        if let day = flags["gift"] {
+            session.data.giftDay = nil
+            session.data.giftDays = max(0, (Int(day) ?? 1) - 1)
+        }
+        if let done = flags["bounties"].flatMap({ Int($0) }) {
+            // Made on the map you start on, as the game would once you're there.
+            session.markVisited(session.data.mapID)
+            let board = session.refreshBounties()
+            for index in board.bounties.indices.prefix(done) {
+                session.data.bounties?.bounties[index].progress = board.bounties[index].count
+            }
+        }
         // `away=1`: friends waiting for you to come back for them, a few steps east of you.
         if let count = flags["away"].flatMap({ Int($0) }), let def = Content.shared.map(session.data.mapID) {
             let grid = WorldMap(def: def)
@@ -458,10 +475,6 @@ enum DebugLaunch {
                     try? await Task.sleep(for: .milliseconds(500))
                     guard coordinator.isReady else { continue }
                     coordinator.announcer.showOffForDebug()
-                    // A moderator's World message, which adventurers about answer.
-                    if coordinator.session.isModerator {
-                        coordinator.broadcast("Welcome to Storyleaf! Be kind, and have fun out there.")
-                    }
                     if flags["chat"] != nil { coordinator.open(.chat) }
                     return
                 }

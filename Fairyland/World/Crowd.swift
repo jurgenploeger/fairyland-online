@@ -123,6 +123,7 @@ final class Crowd {
                                  color: profile.hostile ? Self.hostileColor : Self.adventurerColor, badge: .bot)
         // A weapon in hand for their class and level, like yours (`GameSession.weapon(for:)`).
         walker.setGear(weapon: GameSession.weapon(for: profile), accessory: nil)
+        walker.setTitle(GameSession.botTitle(level: profile.level, id: profile.id))
         walker.walkSpeed = .random(in: 72...92)
         var pet: Walker?
         if let species = profile.petSpecies.flatMap(Content.shared.monster) {
@@ -394,20 +395,6 @@ final class Crowd {
         member.chat = .random(in: 20...45)
         if let line = member.lines.randomElement() { speak(line, by: member, bubble: true) }
         return true
-    }
-
-    /// After a moderator's World message, a few adventurers on the map answer in the chat.
-    func answerModerator() {
-        guard let lines = Content.shared.crowd.modReplies, !lines.isEmpty else { return }
-        let adventurers = members.filter { $0.kind == .adventurer && $0.profile?.hostile != true }
-        for member in adventurers.shuffled().prefix(Int.random(in: 1...3)) {
-            guard let line = lines.randomElement() else { continue }
-            member.chat = max(member.chat, 20)
-            member.walker.run(.wait(forDuration: .random(in: 1.5...5))) { [weak self] in
-                guard let self else { return }
-                self.speak(line, by: member, bubble: member.walker.position.distance(to: self.player) < 420)
-            }
-        }
     }
 
     /// After you say something, someone nearby (or on the map) may answer.

@@ -16,6 +16,10 @@ nonisolated enum GameSettings {
     static let battleSpeedKey = "battleSpeed"
     /// Auto, switched on in a fight, stays on for the next fights it's allowed in.
     static let autoBattleKey = "autoBattle"
+    /// Seconds to choose each move in a fight before the hero attacks on their own (0: no clock).
+    static let turnTimerKey = "turnTimer"
+    /// What Settings offers for it, Off first.
+    static let turnTimerChoices: [Double] = [0, 10, 20, 30]
 
     static var musicVolume: Double { value(musicVolumeKey, fallback: 1) }
     static var soundVolume: Double { value(soundVolumeKey, fallback: 1) }
@@ -24,6 +28,7 @@ nonisolated enum GameSettings {
     static var commandCompanion: Bool { value(commandCompanionKey, fallback: true) }
     static var battleSpeed: Double { value(battleSpeedKey, fallback: 1) }
     static var autoBattle: Bool { value(autoBattleKey, fallback: false) }
+    static var turnTimer: Double { value(turnTimerKey, fallback: 10) }
 
     private static func value<T>(_ key: String, fallback: T) -> T {
         UserDefaults.standard.object(forKey: key) as? T ?? fallback
