@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.59",
+      "date": "2026-10-06",
+      "title": "A ribbon for the leaf",
+      "notes": [
+        "The app icon and title logo have a new look: the little red bookmark became a ribbon that swirls around the storybook leaf."
+      ]
+    },
+    {
       "version": "0.3.57",
       "date": "2026-10-06",
       "title": "Cleaner battle marks",
