@@ -253,6 +253,9 @@ private struct CommandPad: View {
         .onAppear { if DebugLaunch.arrangesButtons, editing == nil { arrange() } }
         // Moving the buttons around isn't choosing: the turn clock waits.
         .onChange(of: editing == nil) { _, settled in controller.holdTurnClock(!settled, for: "arrange") }
+        // The pad can go mid-move (AUTO tapped while the buttons wiggle plays the round): its hold
+        // goes with it, or the clock and Auto would wait for it forever.
+        .onDisappear { controller.holdTurnClock(false, for: "arrange") }
     }
 
     /// Your order (`GameSession.battleButtons`), split into the big button, the column beside it

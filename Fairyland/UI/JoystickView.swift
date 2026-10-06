@@ -63,6 +63,37 @@ struct JoystickView: View {
     }
 }
 
+/// The same joystick as a picture, pushed `push` (-1...1 each way, y up; zero when let go), for
+/// How to play's picture of the game (StoryScene). It springs and tilts like the real one.
+struct JoystickPreview: View {
+    let push: CGVector
+
+    private let radius: CGFloat = 62
+    private let capRadius: CGFloat = 30
+    private var travel: CGFloat { radius - capRadius * 0.55 }
+
+    var body: some View {
+        let offset = CGSize(width: push.dx * travel, height: -push.dy * travel)
+        let length = hypot(offset.width, offset.height)
+        let pressed = length > 0.5
+        let toward = CGVector(dx: offset.width, dy: -offset.height)
+        let direction: Direction? = toward.length > travel * 0.3 ? Direction(toward) : nil
+        let tilt: (amount: CGFloat, dx: CGFloat, dy: CGFloat) = pressed
+            ? (min(1, length / travel), offset.width / length, offset.height / length)
+            : (0, 1, 0)
+        ZStack {
+            JoystickBase(radius: radius, isPressed: pressed, direction: direction)
+            JoystickShaft(offset: offset, width: capRadius * 0.8)
+            JoystickCap(radius: capRadius, isPressed: pressed, tilt: tilt)
+                .offset(offset)
+        }
+        .frame(width: radius * 2, height: radius * 2)
+        .compositingGroup()
+        .opacity(pressed ? 1 : 0.9)
+        .animation(.spring(response: 0.28, dampingFraction: 0.5), value: push)
+    }
+}
+
 private struct JoystickBase: View {
     let radius: CGFloat
     let isPressed: Bool

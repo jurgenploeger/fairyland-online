@@ -344,8 +344,8 @@ adventurer drops everything they carry (the goods they'd sell you that day).
     about 19:30 to 04:30) and fades the sun's flare and sunbeams with it. Weather (`Weather`) changes every
     6 in-game hours, picked from the map's `ambience.weather` weights: clear, cloudy, rain, storm, fog, snow.
     Caves have neither. The battle backdrop is the map without the sky.
-  - Our setting is called Fairyland in every in-game text. In FO the continent itself is Mysteria (above),
-    which is also the relaunch's name.
+  - Our setting is called Storyleaf in every in-game text (Fairyland until 0.3.50; see Names). In FO the
+    continent itself is Mysteria (above), which is also the relaunch's name.
 - **Bots, moderators and announcements:** ours, asked for in playtesting (2026-10-04). FO's chat channels,
   GM notices and player stalls (players selling under a sign in town) aren't in any source reachable from a
   cloud session; check the ToM wiki.

@@ -4,7 +4,7 @@
   "appearance": ["name"],
   "changelog": ["title", "notes"],
   "classes": ["name", "description", "guild"],
-  "crowd": ["adventurerLines", "modReplies", "replies", "traderLines", "villagerLines"],
+  "crowd": ["adventurerLines", "modReplies", "replies", "traderLines", "villagerLines", "villagerNames"],
   "items": ["name", "description"],
   "maps": ["name", "greeting", "story", "title"],
   "monsters": ["name", "lore"],

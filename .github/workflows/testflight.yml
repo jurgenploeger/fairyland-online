@@ -98,6 +98,8 @@ jobs:
             MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             archive > build/archive.log 2>&1 || { tools/ci_errors.sh build/archive.log; exit 1; }
           # Check what actually went into the app before uploading it.
+          test -f build/Fairyland.xcarchive/Products/Applications/Fairyland.app/PrivacyInfo.xcprivacy \
+            || { echo "::error::PrivacyInfo.xcprivacy isn't in the app (App Store Connect refuses builds without it)"; exit 1; }
           PLIST=build/Fairyland.xcarchive/Products/Applications/Fairyland.app/Info.plist
           BUILT=$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$PLIST")
           BUILT_NUMBER=$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$PLIST")

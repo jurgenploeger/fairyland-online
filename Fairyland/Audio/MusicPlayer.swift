@@ -18,6 +18,18 @@ final class MusicPlayer {
 
     init() {
         isMuted = UserDefaults.standard.bool(forKey: "musicMuted")
+        // A call, Siri or an alarm stops the engine, and so does a new output (Bluetooth, AirPlay)
+        // changing the sample rate. Start it again once they're done: the app may never leave the
+        // foreground in between, and the music stayed silent until it did.
+        let center = NotificationCenter.default
+        center.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: .main) { [weak self] note in
+            guard let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  AVAudioSession.InterruptionType(rawValue: raw) == .ended else { return }
+            Task { @MainActor [weak self] in self?.resume() }
+        }
+        center.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.resume() }
+        }
     }
 
     func toggleMute() {

@@ -270,8 +270,9 @@ final class BattleScene: SKScene {
         ground = node
     }
 
-    /// Gaussian-blurs a texture once, clamping the edges so the borders don't fade out.
-    private static func blur(_ texture: SKTexture, radius: Double) -> SKTexture? {
+    /// Gaussian-blurs a texture once, clamping the edges so the borders don't fade out. (The story's
+    /// pictures blur their fights' backdrops with it too, StoryScene.)
+    static func blur(_ texture: SKTexture, radius: Double) -> SKTexture? {
         let source = CIImage(cgImage: texture.cgImage())
         guard let filter = CIFilter(name: "CIGaussianBlur") else { return nil }
         filter.setValue(source.clampedToExtent(), forKey: kCIInputImageKey)

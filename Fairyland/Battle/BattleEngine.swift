@@ -285,6 +285,9 @@ final class BattleEngine {
     /// better your odds; tougher, higher-level monsters and long fights make it harder.
     func captureStatus(of id: Int) -> CaptureStatus {
         guard let target = combatant(id), target.isAlive, target.side == .enemies, target.captureRate > 0 else { return .impossible }
+        // Not while a boss's next wave is still to come: a sealed monster joins you when the fight is
+        // won, so losing or running from a later wave lost it, and the Seal Stone with it.
+        guard waves.isEmpty else { return .impossible }
         guard alive(on: .enemies).count == 1 else { return .notAlone }
         guard target.hpFraction <= Self.captureThreshold else { return .tooHealthy }
         let weakness = 1 + 2 * (Self.captureThreshold - target.hpFraction) / Self.captureThreshold   // 1…3

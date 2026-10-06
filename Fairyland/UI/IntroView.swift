@@ -1,8 +1,9 @@
 import SwiftUI
 
 /// The onboarding before a new hero is made: the story in three chapters, each with a little
-/// animated scene (StoryVignette), then how to play (with a fight acted out) and the whole world
-/// map. Also opens from the title screen ("Story & how to play").
+/// animated scene made of the game itself (StoryVignette), then how to play (the game played: a
+/// walk, a fight, a Seal Stone, a level up and a quest, each tip lighting up as it plays) and the
+/// whole world map. Also opens from the title screen ("Story & how to play").
 struct IntroView: View {
     /// What the last page's button says ("Create your hero", or "Done" when just reading).
     let finishTitle: String
@@ -37,36 +38,50 @@ struct IntroView: View {
             .id(page)
             .transition(.opacity)
 
-            HStack(spacing: 10) {
-                Button(L("Skip"), action: onFinish)
-                    .buttonStyle(PixelButtonStyle(compact: true))
-                    .opacity(page == Self.pageCount - 1 ? 0 : 1)
-                    .disabled(page == Self.pageCount - 1)
-                Spacer()
-                PageDots(count: Self.pageCount, current: page)
-                Spacer()
-                Button {
-                    withAnimation(.easeInOut(duration: 0.25)) { page -= 1 }
-                } label: {
-                    Label(L("Back"), icon: .arrowLeft)
-                }
-                .buttonStyle(PixelButtonStyle(compact: true))
-                .opacity(page == 0 ? 0.4 : 1)
-                .disabled(page == 0)
-                Button {
-                    if page == Self.pageCount - 1 {
-                        onFinish()
-                    } else {
-                        withAnimation(.easeInOut(duration: 0.25)) { page += 1 }
-                    }
-                } label: {
-                    Label(page == Self.pageCount - 1 ? finishTitle : L("Next"), icon: .arrowRight)
-                }
-                .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+            // The last page's button is the longest ("Create your hero"): there's no Skip to make room
+            // for, and on a narrow phone the page dots step aside too.
+            ViewThatFits(in: .horizontal) {
+                controls(dots: true)
+                controls(dots: false)
             }
             .frame(maxWidth: 720)
         }
         .padding(16)
+    }
+
+    private var isLastPage: Bool { page == Self.pageCount - 1 }
+
+    private func controls(dots: Bool) -> some View {
+        HStack(spacing: 10) {
+            if !isLastPage {
+                Button(L("Skip"), action: onFinish)
+                    .buttonStyle(PixelButtonStyle(compact: true))
+            }
+            Spacer(minLength: 0)
+            if dots {
+                PageDots(count: Self.pageCount, current: page)
+                Spacer(minLength: 0)
+            }
+            Button {
+                withAnimation(.easeInOut(duration: 0.25)) { page -= 1 }
+            } label: {
+                Label(L("Back"), icon: .arrowLeft)
+            }
+            .buttonStyle(PixelButtonStyle(compact: true))
+            .opacity(page == 0 ? 0.4 : 1)
+            .disabled(page == 0)
+            Button {
+                if isLastPage {
+                    onFinish()
+                } else {
+                    withAnimation(.easeInOut(duration: 0.25)) { page += 1 }
+                }
+            } label: {
+                Label(isLastPage ? finishTitle : L("Next"), icon: .arrowRight)
+            }
+            .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+        }
+        .lineLimit(1)
     }
 }
 
@@ -109,7 +124,7 @@ private struct ChapterPage: View {
         switch chapter {
         case .gathering: (text: L("Once upon a time"), icon: GameIcon.book)
         case .shadows: (text: L("The tales go wrong"), icon: GameIcon.moon)
-        case .arrival, .battle: (text: L("A new adventurer"), icon: GameIcon.sparkles)
+        case .arrival, .reel: (text: L("A new adventurer"), icon: GameIcon.sparkles)
         }
     }
 
@@ -123,7 +138,7 @@ private struct ChapterPage: View {
             L("Lately the tales have been going wrong. A Big Bad Wolf prowls the Snow White Forest. A Rat King has cut off the dwarves of Ingothold. A dragon drinks at the oasis in Genie Desert and scares away the caravans."),
             L("Nobody knows why. Some say pages are being torn from Liora's great storybook, and every lost page lets a little more darkness in."),
         ]
-        case .arrival, .battle: [
+        case .arrival, .reel: [
             L("You arrive in Meadowbrook as a new adventurer, with the whole of Storyleaf ahead of you."),
             L("Elder Oak is waiting in the village square with three gifts. Find a companion, learn from the guild masters, and set the stories right, one tale at a time."),
         ]
@@ -186,6 +201,9 @@ private struct Tip {
 }
 
 private struct HowToPlayPage: View {
+    /// The game played, a part for each tip; tapping a tip shows its part.
+    @State private var reel = StoryScene(kind: .reel, startClip: DebugLaunch.introClip ?? 0)
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let tips: [Tip] = [
         Tip(icon: .tap, title: L("Walk"), text: L("Drag the stick in the corner, or tap the ground and your hero walks there.")),
         Tip(icon: .sword, title: L("Battle"), text: L("Monsters jump out as you explore the wild. Battles take turns: attack, cast a skill or use an item.")),
@@ -196,11 +214,14 @@ private struct HowToPlayPage: View {
     ]
 
     var body: some View {
+        // The tips the picture is showing now (none while it holds still).
+        let showing = reduceMotion ? [] : StoryScene.Clip(rawValue: reel.hud.clip)?.tips ?? []
         VStack(alignment: .leading, spacing: 12) {
             PageTitle(text: L("How to play"), icon: .sparkles)
-            StoryVignette(.battle)
+            VignetteView(scene: reel)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
-                ForEach(tips, id: \.title) { tip in
+                ForEach(Array(tips.enumerated()), id: \.offset) { index, tip in
+                    let lit = showing.contains(index)
                     HStack(alignment: .top, spacing: 10) {
                         IconImage(tip.icon, size: 20)
                             .foregroundStyle(HUDStyle.gold)
@@ -211,8 +232,19 @@ private struct HowToPlayPage: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
+                    .padding(6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.white.opacity(lit ? 0.12 : 0))
+                            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(HUDStyle.gold.opacity(lit ? 0.8 : 0), lineWidth: 1.5))
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        reel.play(clip: StoryScene.Clip.showing(tip: index).rawValue)
+                    }
                 }
             }
+            .animation(.easeOut(duration: 0.3), value: reel.hud.clip)
         }
     }
 }

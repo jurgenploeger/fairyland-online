@@ -327,7 +327,7 @@ private struct SavedHeroCard: View {
                 .foregroundStyle(HUDStyle.ink.opacity(0.65))
             // When you last played it, so you can tell your games apart.
             if let savedAt = save.savedAt {
-                Text(L("Played {time}", ["time": savedAt.formatted(.relative(presentation: .named))]))
+                Text(L("Played {time}", ["time": savedAt.formatted(.relative(presentation: .named).locale(Localizer.shared.locale))]))
                     .font(HUDStyle.font(9))
                     .foregroundStyle(HUDStyle.ink.opacity(0.5))
             }

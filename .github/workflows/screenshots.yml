@@ -53,8 +53,10 @@ jobs:
 
   screenshots:
     runs-on: macos-26
-    # A full run of 95 scenes (two of them filmed) takes well over an hour; this leaves room.
-    timeout-minutes: 130
+    # A full run of about 130 scenes (two of them filmed) takes two and a half hours at most, a
+    # minute or so a scene; this leaves room. At 130 minutes, full runs were cut off before they
+    # could publish anything.
+    timeout-minutes: 200
     steps:
       - uses: actions/checkout@v4
 
@@ -71,6 +73,9 @@ jobs:
             -destination 'generic/platform=iOS Simulator' -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO build > build/simulator.log 2>&1 \
             || { tools/ci_errors.sh build/simulator.log; exit 1; }
+          # App Store Connect refuses a build without its privacy manifest (Fairyland/PrivacyInfo.xcprivacy).
+          test -f build/DerivedData/Build/Products/Debug-iphonesimulator/Fairyland.app/PrivacyInfo.xcprivacy \
+            || { echo "::error::PrivacyInfo.xcprivacy isn't in the app bundle"; exit 1; }
 
       - name: Boot a simulator
         id: sim

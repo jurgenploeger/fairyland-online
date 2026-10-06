@@ -6,6 +6,9 @@ struct FairylandApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     init() {
+        // Load the player's language before any text is made: the title screen's default hero name
+        // (`L("Hero")`) is set before anything else would have woken the Localizer, so it stayed English.
+        _ = Localizer.shared
         DebugLaunch.applyLanguage()
     }
 
