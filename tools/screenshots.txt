@@ -35,6 +35,11 @@ intro_story  | intro                             | 6
 intro_shadows | intro=2                          | 6
 intro_arrival | intro=3                          | 6
 intro_play   | intro=4                           | 6
+# How to play's picture, part by part (clip=: 1 battle, 2 seal, 3 victory, 4 town).
+intro_battle | intro=4,clip=1                    | 5
+intro_seal   | intro=4,clip=2                    | 4
+intro_victory | intro=4,clip=3                   | 2
+intro_town   | intro=4,clip=4                    | 5
 intro_world  | intro=5                           | 6
 intro_ja     | intro,lang=ja                     | 6
 coach        | newgame,coach                     | 9

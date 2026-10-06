@@ -52,6 +52,8 @@ import SpriteKit
 ///   hour=<h>       the calendar starts at that hour of the day (0-23: 21 for night, 18 for dusk)
 ///   weather=<kind> every map with a sky has this weather (clear | cloudy | rain | storm | fog | snow)
 ///   lang=<code>    play in this language (content/i18n/languages.json), without changing the saved choice
+///   intro[=page]   open the title screen's story pages at that page (1 = the story, 4 = how to play)
+///   clip=<n>       with intro=4: How to play's picture starts at that part (0 walk … 4 town)
 enum DebugLaunch {
     private static var flags: [String: String] {
         #if DEBUG
@@ -99,6 +101,8 @@ enum DebugLaunch {
     static var itemInfo: ItemDef? { flags["info"].flatMap { Content.shared.item($0) } }
     /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).
     static var introPage: Int? { flags["intro"].map { Int($0).map { $0 - 1 } ?? 0 } }
+    /// `clip=<n>`: How to play's picture starts at that part (0 walk, 1 battle, 2 seal, 3 victory, 4 town).
+    static var introClip: Int? { flags["clip"].flatMap { Int($0) } }
 
     /// `battle[=n]` once the map is up: a fight on the current map (exactly n monsters), and the
     /// flags that act on it.
