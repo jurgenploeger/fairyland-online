@@ -318,7 +318,8 @@ your class (`GameSession.equipmentDrop`).
 visited, the Monster Book, quests, bosses, companions, friends, rebirths, daily bounties and days played, and
 one is worn over your name; computer-run adventurers wear the level titles that fit them. Duels are with
 computer-run adventurers in 9 danger zones; a beaten adventurer drops everything they carry (the goods they'd
-sell you that day).
+sell you that day). Quests pay at least a bit more than a daily bounty for your level when you hand them in
+(`quests` in content/rewards.json; our decision, 2026-10-06, at the playtester's request).
 
 **Ours, not FO's (content/rewards.json):** a gift each day you play, in a round of seven; three daily
 bounties scaled to your level, with a bonus for all three; and rewards as the Monster Book fills (10, 25, 50,

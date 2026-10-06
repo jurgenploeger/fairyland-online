@@ -571,8 +571,9 @@ private struct QuestCompleteCard: View {
     /// EXP and gold, the level-up, items, then new looks and roads.
     private var rewards: some View {
         VStack(spacing: 10) {
-            let gold = quest.reward.gold ?? 0
-            let exp = quest.reward.exp ?? 0
+            let paid = session.paid(for: quest)
+            let gold = paid.gold
+            let exp = paid.exp
             if gold > 0 || exp > 0 {
                 HStack(spacing: 18) {
                     if exp > 0 {

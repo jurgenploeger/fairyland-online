@@ -79,6 +79,10 @@ nonisolated struct QuestProgress: Codable, Equatable, Sendable {
 
     var state: State
     var count: Int
+    /// What handing it in paid. Quests pay more at higher levels, so the Completed list shows what
+    /// you really got; nil for quests handed in before 0.3.63, which paid their own reward.
+    var paidGold: Int?
+    var paidEXP: Int?
 }
 
 /// Everything that's written to disk.

@@ -123,10 +123,10 @@ engine's formulas, and the CI screenshots. Every finding here was checked agains
    Swamp (21-35) to Ingothold Lake (58-72), from Ingothold Lake to Briarmere (135-155) and from Moonwhisper
    (85-105) to Whispering Hollow (165-185). Either gate every road in (and have `check_content.py` check it) or
    drop the barricades and show recommended levels.
-8. **Quest rewards are out of scale.** The Elder, Chief and Mayor chain pays 6-15% of a level (The Rat King: 900
-    EXP at level 45, 9%; Who's Afraid of the Big Bad Wolf?: 3,000 at 82, 9%), while newer quests pay 21-124% (The
-    Wandering Flock: 88%). Aim for 0.5-1× a level at `minLevel` (more for bosses) and add a ratio check to
-    `check_content.py`.
+8. ~~Quest rewards are out of scale.~~ Done in 0.3.63: a quest pays at least 0.3× the EXP your level needs and 12
+    gold a level when you hand it in (`quests` in content/rewards.json, a bit more than a bounty), or its own reward
+    when that's more, and every quest row shows what it pays. The Elder, Chief and Mayor chain used to pay 6-15% of
+    a level (The Rat King: 900 EXP at level 45).
 9. **The late game thins out.** Gear stops at level 105 for weapons, 78 for armour and 58 for accessories while
     levels run to 200 (Snow Cloak ends up on every late hero and bot), and late maps reuse low-EXP species, so
     *est.* 25-30 fights per level at 160-180 against 4-6 before 100. Extend the gear lines (free `derive`
