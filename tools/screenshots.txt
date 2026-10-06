@@ -105,10 +105,6 @@ fx_flare_fire   | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=fir
 fx_flare_leaves | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=leaf_storm:9,fxstop=1.12   | 62
 fx_flare_strike | newgame,level=60,class=fighter,map=sunny_meadow,battle=3,cast=power_strike:9,fxstop=0.8 | 50
 fx_flare_whirl  | newgame,level=60,class=fighter,map=sunny_meadow,battle=3,cast=whirlwind:9,fxstop=1.08  | 60
-fx_one_fire_early   | newgame,level=60,class=mage,pet=pineapple,friends=2,map=candy_mountain,battle=6,cast=fire_bolt:9:2,fxstop=1.1,landscape,clean | 72
-fx_one_fire_late    | newgame,level=60,class=mage,pet=pineapple,friends=2,map=candy_mountain,battle=6,cast=fire_bolt:9:2,fxstop=1.28,landscape,clean | 72
-fx_one_strike_early | newgame,level=100,class=fighter,pet=pineapple,friends=2,map=moonglow,battle=5,cast=power_strike:9:2,fxstop=0.96,equip=snow_cloak,landscape,clean | 74
-fx_one_strike_late  | newgame,level=100,class=fighter,pet=pineapple,friends=2,map=moonglow,battle=5,cast=power_strike:9:2,fxstop=1.14,equip=snow_cloak,landscape,clean | 74
 party_folded | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=twilight_woods | 15
 party_open   | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=twilight_woods,unfold | 15
 party_pet    | newgame,level=43,class=fighter,pet=pineapple,map=twilight_woods | 15
@@ -140,12 +136,12 @@ store_moonglow | newgame,level=100,class=mage,pet=pineapple,friends=2,map=moongl
 store_levelup | newgame,level=9,levelup,map=candy_mountain,battle=1,win,equip=golden_dragon_mail | 30
 # App Store slides, landscape (tools/store_slides.py adds the captions and exports the store sizes).
 # `clean`: no frame counter, and the whole screen without the Dynamic Island's black mask.
-store_land_battle  | newgame,level=60,class=mage,pet=pineapple,friends=2,map=candy_mountain,battle=6,cast=fire_bolt:9:2,fxstop=1.18,landscape,clean | 72
+store_land_battle  | newgame,level=60,class=mage,pet=pineapple,friends=2,map=candy_mountain,battle=6,cast=fire_bolt:9:2,fxstop=1.28,landscape,clean | 72
 store_land_seal    | newgame,level=12,pet=bunny,map=sunny_meadow,battle=1,seal=ok,fxstop=4.4,landscape,clean | 40
 store_land_explore | newgame,level=43,class=fighter,friends=2,map=meadowbrook,landscape,clean,nohud | 10
 store_land_prism   | newgame,level=30,class=mage,pet=bunny,map=rainbow_city,landscape,clean,nohud | 10
 store_land_boss    | newgame,level=95,class=fighter,pet=pineapple,friends=2,map=snow_white_forest,boss=wolf_den,wave=3,landscape,clean | 16
-store_land_night   | newgame,level=100,class=fighter,pet=pineapple,friends=2,map=moonglow,battle=5,cast=power_strike:9:2,fxstop=1.04,equip=snow_cloak,landscape,clean | 74
+store_land_night   | newgame,level=100,class=fighter,pet=pineapple,friends=2,map=moonglow,battle=5,cast=power_strike:9:2,fxstop=1.14,equip=snow_cloak,landscape,clean | 74
 store_land_town    | newgame,level=40,class=fighter,map=goldburg,landscape,clean,nohud | 15
 store_land_levelup | newgame,level=9,levelup,pet=pineapple,map=candy_mountain,battle=1,win,equip=golden_dragon_mail,landscape,clean | 30
 store_land_book    | newgame,book,landscape,clean | 10
