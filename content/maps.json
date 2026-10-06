@@ -811,7 +811,17 @@
         "focus": {
           "blur": 1.2
         },
-        "birds": "songbirds"
+        "birds": "songbirds",
+        "critters": [
+          {
+            "kind": "songbird",
+            "count": 5
+          },
+          {
+            "kind": "chick",
+            "count": 4
+          }
+        ]
       },
       "town": {
         "streets": [
@@ -1490,6 +1500,10 @@
           {
             "kind": "bunny",
             "count": 6
+          },
+          {
+            "kind": "songbird",
+            "count": 4
           }
         ],
         "birds": "songbirds"
@@ -2182,6 +2196,18 @@
           {
             "kind": "frog",
             "count": 3
+          },
+          {
+            "kind": "squirrel",
+            "count": 2
+          },
+          {
+            "kind": "spider",
+            "count": 2
+          },
+          {
+            "kind": "wisp",
+            "count": 2
           }
         ],
         "weather": {
@@ -2725,6 +2751,14 @@
           {
             "kind": "bunny",
             "count": 4
+          },
+          {
+            "kind": "squirrel",
+            "count": 4
+          },
+          {
+            "kind": "songbird",
+            "count": 3
           }
         ],
         "birds": "songbirds"
@@ -3663,7 +3697,14 @@
           "blur": 1.0,
           "band": 0.5
         },
-        "birds": "songbirds"
+        "birds": "songbirds",
+        "critters": [
+          {
+            "kind": "songbird",
+            "count": 5
+          }
+        ],
+        "butterflies": 8
       }
     },
     {
@@ -4048,6 +4089,18 @@
           {
             "kind": "bunny",
             "count": 5
+          },
+          {
+            "kind": "squirrel",
+            "count": 3
+          },
+          {
+            "kind": "songbird",
+            "count": 3
+          },
+          {
+            "kind": "crow",
+            "count": 2
           }
         ],
         "birds": "songbirds",
@@ -4400,6 +4453,10 @@
           {
             "kind": "frog",
             "count": 8
+          },
+          {
+            "kind": "wisp",
+            "count": 3
           }
         ],
         "weather": {
@@ -4713,7 +4770,21 @@
           "rain": 2,
           "storm": 2,
           "fog": 3
-        }
+        },
+        "critters": [
+          {
+            "kind": "crow",
+            "count": 4
+          },
+          {
+            "kind": "spider",
+            "count": 3
+          },
+          {
+            "kind": "wisp",
+            "count": 3
+          }
+        ]
       },
       "hub": [
         6,
@@ -4990,7 +5061,21 @@
           "radius": 220,
           "alpha": 0.9,
           "light": "#FFC27A"
-        }
+        },
+        "critters": [
+          {
+            "kind": "mouse",
+            "count": 6
+          },
+          {
+            "kind": "rat",
+            "count": 5
+          },
+          {
+            "kind": "spider",
+            "count": 3
+          }
+        ]
       },
       "hub": [
         -14,
@@ -5486,7 +5571,17 @@
           "clear": 8,
           "cloudy": 2,
           "rain": 1
-        }
+        },
+        "critters": [
+          {
+            "kind": "songbird",
+            "count": 3
+          },
+          {
+            "kind": "lizard",
+            "count": 3
+          }
+        ]
       },
       "buildings": [
         {
@@ -6023,7 +6118,17 @@
         "weather": {
           "clear": 9,
           "cloudy": 2
-        }
+        },
+        "critters": [
+          {
+            "kind": "lizard",
+            "count": 6
+          },
+          {
+            "kind": "scorpion",
+            "count": 3
+          }
+        ]
       },
       "hub": [
         -24,
@@ -6365,7 +6470,13 @@
           "cloudy": 2,
           "fog": 1,
           "snow": 3
-        }
+        },
+        "critters": [
+          {
+            "kind": "wisp",
+            "count": 2
+          }
+        ]
       },
       "hub": [
         0,
@@ -6680,7 +6791,13 @@
           "cloudy": 2,
           "fog": 1,
           "snow": 3
-        }
+        },
+        "critters": [
+          {
+            "kind": "wisp",
+            "count": 3
+          }
+        ]
       },
       "hub": [
         9,
@@ -7153,6 +7270,10 @@
           {
             "kind": "bunny",
             "count": 6
+          },
+          {
+            "kind": "songbird",
+            "count": 4
           }
         ],
         "birds": "songbirds"
@@ -7387,7 +7508,13 @@
           "radius": 220,
           "alpha": 0.9,
           "light": "#FFC27A"
-        }
+        },
+        "critters": [
+          {
+            "kind": "mouse",
+            "count": 2
+          }
+        ]
       },
       "exits": [
         {
@@ -7868,6 +7995,10 @@
           {
             "kind": "bunny",
             "count": 6
+          },
+          {
+            "kind": "songbird",
+            "count": 3
           }
         ],
         "birds": "songbirds",
@@ -8202,7 +8333,21 @@
           "rain": 2,
           "storm": 2,
           "fog": 2
-        }
+        },
+        "critters": [
+          {
+            "kind": "mouse",
+            "count": 2
+          },
+          {
+            "kind": "crow",
+            "count": 3
+          },
+          {
+            "kind": "spider",
+            "count": 3
+          }
+        ]
       },
       "exits": [
         {
@@ -8534,7 +8679,18 @@
         "hazeAlpha": 0.16,
         "tint": "#C8E0FF",
         "tintAlpha": 0.05,
-        "birds": "songbirds"
+        "birds": "songbirds",
+        "critters": [
+          {
+            "kind": "songbird",
+            "count": 6
+          },
+          {
+            "kind": "chick",
+            "count": 3
+          }
+        ],
+        "butterflies": 8
       },
       "exits": [
         {
@@ -9002,6 +9158,10 @@
           {
             "kind": "frog",
             "count": 3
+          },
+          {
+            "kind": "songbird",
+            "count": 3
           }
         ],
         "birds": "songbirds"
@@ -9305,7 +9465,8 @@
             "kind": "frog",
             "count": 6
           }
-        ]
+        ],
+        "butterflies": 10
       },
       "exits": [
         {
@@ -9582,7 +9743,25 @@
           "rain": 2,
           "storm": 1,
           "fog": 2
-        }
+        },
+        "critters": [
+          {
+            "kind": "mouse",
+            "count": 2
+          },
+          {
+            "kind": "crow",
+            "count": 4
+          },
+          {
+            "kind": "wisp",
+            "count": 3
+          },
+          {
+            "kind": "spider",
+            "count": 2
+          }
+        ]
       },
       "exits": [
         {
@@ -10205,7 +10384,21 @@
           "clear": 5,
           "cloudy": 2,
           "fog": 3
-        }
+        },
+        "critters": [
+          {
+            "kind": "chick",
+            "count": 3
+          },
+          {
+            "kind": "crow",
+            "count": 3
+          },
+          {
+            "kind": "wisp",
+            "count": 2
+          }
+        ]
       },
       "exits": [
         {
@@ -10511,7 +10704,17 @@
         "weather": {
           "clear": 9,
           "cloudy": 2
-        }
+        },
+        "critters": [
+          {
+            "kind": "lizard",
+            "count": 5
+          },
+          {
+            "kind": "scorpion",
+            "count": 5
+          }
+        ]
       },
       "danger": true,
       "exits": [
@@ -11092,6 +11295,14 @@
           {
             "kind": "bunny",
             "count": 3
+          },
+          {
+            "kind": "songbird",
+            "count": 2
+          },
+          {
+            "kind": "crow",
+            "count": 2
           }
         ],
         "birds": "gulls",
@@ -11356,7 +11567,13 @@
           "clear": 6,
           "cloudy": 2,
           "fog": 2
-        }
+        },
+        "critters": [
+          {
+            "kind": "wisp",
+            "count": 4
+          }
+        ]
       },
       "danger": true,
       "exits": [
@@ -11599,7 +11816,25 @@
           "radius": 220,
           "alpha": 0.9,
           "light": "#FFC27A"
-        }
+        },
+        "critters": [
+          {
+            "kind": "mouse",
+            "count": 3
+          },
+          {
+            "kind": "spider",
+            "count": 5
+          },
+          {
+            "kind": "rat",
+            "count": 3
+          },
+          {
+            "kind": "wisp",
+            "count": 3
+          }
+        ]
       },
       "danger": true,
       "exits": [
@@ -12085,6 +12320,14 @@
           {
             "kind": "bunny",
             "count": 4
+          },
+          {
+            "kind": "squirrel",
+            "count": 4
+          },
+          {
+            "kind": "songbird",
+            "count": 3
           }
         ],
         "birds": "songbirds"
