@@ -68,7 +68,10 @@ grep -vE '^\s*(#|$)' "$SCENES" | while IFS='|' read -r name flags wait; do
     ls -l "$OUT/$name.mp4" || echo "::warning::$name: no recording"
   fi
   sleep "${wait:-8}"
-  xcrun simctl io "$SIM" screenshot --type=png "$OUT/$name.png"
+  # `clean` (App Store screenshots): the whole screen, without the Dynamic Island's black mask.
+  mask=""
+  if [[ ",$flags," == *",clean,"* ]]; then mask="--mask=ignored"; fi
+  xcrun simctl io "$SIM" screenshot --type=png ${mask:+"$mask"} "$OUT/$name.png"
   # The simulator stays in portrait, so a landscape-locked app comes out sideways; turn it upright.
   if [[ ",$flags," == *",landscape,"* ]]; then sips -r 270 "$OUT/$name.png" >/dev/null; fi
   # A crash shows as the home screen; say so, with why and where (the crashed thread's frames).

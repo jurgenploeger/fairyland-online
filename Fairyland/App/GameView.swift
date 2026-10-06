@@ -33,8 +33,10 @@ struct GameView: View {
                     ChatView(session: coordinator.session, onSay: coordinator.say, onBroadcast: coordinator.broadcast) { battleChat = false }
                 }
             } else {
-                WorldHUD(coordinator: coordinator)
-                    .id(localizer.language)
+                if !DebugLaunch.hidesHUD {
+                    WorldHUD(coordinator: coordinator)
+                        .id(localizer.language)
+                }
                 switch coordinator.overlay {
                 case .menu(let tab):
                     MenuView(session: coordinator.session, initialTab: tab, onClose: coordinator.closeOverlay, onQuitToTitle: coordinator.onQuitToTitle)

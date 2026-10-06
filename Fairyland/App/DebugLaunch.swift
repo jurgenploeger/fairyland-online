@@ -49,6 +49,9 @@ import SpriteKit
 ///   worldmap       open the world map
 ///   book           open the Monster Book, with the first 24 monsters already met
 ///   landscape      lock the app to landscape
+///   clean          no frame counter in the corner (App Store screenshots; tools/screenshots.sh also
+///                  leaves out the Dynamic Island's black mask)
+///   nohud          the map without its HUD (App Store slides of the world)
 ///   hour=<h>       the calendar starts at that hour of the day (0-23: 21 for night, 18 for dusk)
 ///   weather=<kind> every map with a sky has this weather (clear | cloudy | rain | storm | fog | snow)
 ///   lang=<code>    play in this language (content/i18n/languages.json), without changing the saved choice
@@ -94,6 +97,10 @@ enum DebugLaunch {
     static var showsCoachMarks: Bool { flags["coach"] != nil }
     /// `demo`: filmed for the App Store preview, so no frame counter in the corner.
     static var isFilming: Bool { flags["demo"] != nil }
+    /// `clean`: no frame counter in the corner either, for App Store screenshots.
+    static var hidesFrameCounter: Bool { isFilming || flags["clean"] != nil }
+    /// `nohud`: the map on its own, without the HUD over it (App Store slides of the world).
+    static var hidesHUD: Bool { flags["nohud"] != nil }
     static var opensMonsterBook: Bool { flags["book"] != nil }
     /// `change=armor`: the Character tab opens with that slot's list of things to wear.
     static var changingSlot: ItemType? { flags["change"].flatMap(ItemType.init(rawValue:)) }
