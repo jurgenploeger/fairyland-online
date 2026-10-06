@@ -201,7 +201,7 @@ No advanced classes.
     Protection (Fighter 12, one ally DEF +40%), Holy Glow (Mage 40, one ally MAG +30%), Bless (Mage 45, ATK
     and DEF +25%), Guardianship (Mage 60, the whole party DEF +20%) and Animal Training (Beast Tamer 25,
     ATK +20% and SPD +30%). Raises grow with the skill's level like damage, ×1.8 when mastered.
-  - Monsters and companions: Boost (ATK +20%; golden hamsters, wood hogs, red bulls, earth lions) and Berserk
+  - Monsters and companions: Boost (ATK +20%; golden hamsters, wood hogs, blaze bulls, earth lions) and Berserk
     (ATK +30% but DEF −25%; werewolves, fire bears, black kongs), FO's pet skills. They cast them on
     themselves now and then; friends cast theirs on whoever they'd help most.
   - Curse: lowers ATK and MAG by 20% (up to 36% as the skill grows), so hits and heals both weaken. FO's
