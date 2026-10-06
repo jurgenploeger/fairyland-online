@@ -684,6 +684,8 @@
     "Rosy": "红润",
     "Tan": "小麦",
     "Deep": "深色",
+    "Cleaner battle marks": "更简洁的战斗标记",
+    "The blue and crimson arrows by a fighter's HP bar no longer have a number beside them: an arrow up means a stat is raised, an arrow down that one is lowered. Poison still counts down its rounds.": "战斗者HP条旁的蓝色和深红色箭头不再带数字：向上的箭头表示某项属性提升了，向下的表示降低了。中毒仍会显示剩余回合。",
     "The fight waits for you": "战斗会等你",
     "Leave the app in the middle of a battle (another app, the lock screen, a call) and the turn timer stops where it was. It picks up again when you come back, so you don't lose your turn.": "在战斗中离开应用（切到其他应用、锁屏、来电）时，回合计时会停在原处。回来后继续计时，你不会错过自己的回合。",
     "Who's about": "附近有谁",
