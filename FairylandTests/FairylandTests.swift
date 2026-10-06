@@ -765,6 +765,33 @@ struct RulesTests {
         #expect(session.status(of: Content.shared.quest("new_friend")!) == .available)
     }
 
+    @Test func questRewardsGrowWithYourLevel() {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        session.data.quests["hope_of_meadowbrook"] = QuestProgress(state: .completed, count: 3)
+        let quest = Content.shared.quest("jelly_trouble")!
+        // At the level it's meant for, a quest pays its own reward.
+        #expect(session.questPay(quest).gold == quest.reward.gold)
+        #expect(session.questPay(quest).exp == quest.reward.exp)
+        // Outgrown, it pays for your level: a bit more than a bounty.
+        session.data.hero.level = 44
+        let rules = Content.shared.rewards
+        let pay = session.questPay(quest)
+        #expect(pay.gold == rules.quests.goldPerLevel * 44)
+        #expect(pay.gold > rules.bounties.goldPerLevel * 44)
+        #expect(Double(pay.exp) > Double(GameSession.expToNext(level: 44)) * rules.bounties.exp)
+        // A quest that pays no EXP still pays none.
+        #expect(session.questPay(Content.shared.quest("choose_path")!).exp == 0)
+        session.acceptQuest(quest.id)
+        for _ in 0..<3 { session.record(.defeat, target: "jelly") }
+        let gold = session.data.gold
+        session.turnInQuest(quest.id)
+        #expect(session.data.gold == gold + pay.gold)
+        // What it paid stays on record, however far you level on.
+        session.data.hero.level = 60
+        #expect(session.paid(for: quest).gold == pay.gold)
+        #expect(session.paid(for: quest).exp == pay.exp)
+    }
+
     @Test func battleRunsToAnEnd() {
         let content = Content.shared
         let jelly = content.monster("jelly")!

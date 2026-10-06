@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.63",
+      "date": "2026-10-06",
+      "title": "Quests worth the trip",
+      "notes": [
+        "Quests show what they pay up front, in the Quests list and when they're offered to you: gold, EXP and items, no tap needed.",
+        "Quest gold and EXP grow with your level, to a bit more than a daily bounty pays, so an old quest is still worth the trip."
+      ]
+    },
+    {
       "version": "0.3.62",
       "date": "2026-10-06",
       "title": "Brighter battles",

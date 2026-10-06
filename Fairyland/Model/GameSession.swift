@@ -1496,22 +1496,46 @@ final class GameSession {
         checkTitles()
     }
 
+    /// What handing in `quest` would pay now: its own gold and EXP, or more once you've outgrown it,
+    /// so going back for an old quest is still worth it (`quests` in content/rewards.json, a bit more
+    /// than a bounty pays). A quest that pays no gold or no EXP still pays none.
+    func questPay(_ quest: QuestDef) -> (gold: Int, exp: Int) {
+        let rules = content.rewards.quests
+        let level = data.hero.level
+        func atLeast(_ own: Int?, _ least: Int) -> Int {
+            guard let own, own > 0 else { return 0 }
+            return max(own, least)
+        }
+        return (atLeast(quest.reward.gold, rules.goldPerLevel * level),
+                atLeast(quest.reward.exp, Int((Double(Self.expToNext(level: level)) * rules.exp).rounded())))
+    }
+
+    /// What a finished quest paid: as noted when it was handed in, else (before 0.3.63) its own reward.
+    func paid(for quest: QuestDef) -> (gold: Int, exp: Int) {
+        let record = data.quests[quest.id]
+        return (record?.paidGold ?? quest.reward.gold ?? 0, record?.paidEXP ?? quest.reward.exp ?? 0)
+    }
+
     /// Hands in a finished quest and pays out. Returns what was earned.
     @discardableResult
     func turnInQuest(_ id: String) -> [String] {
         guard let quest = content.quest(id), status(of: quest) == .ready else { return [] }
+        // Priced at the level you hand it in, before its EXP lifts you.
+        let pay = questPay(quest)
         data.quests[id]?.state = .completed
+        data.quests[id]?.paidGold = pay.gold
+        data.quests[id]?.paidEXP = pay.exp
         SoundEffects.shared.play(.questDone)
         Haptics.success()
         post(L("Quest complete: {quest}", ["quest": quest.title]), .quest)
         var lines: [String] = []
-        if let gold = quest.reward.gold {
-            data.gold += gold
-            lines.append(L("+{gold} gold", ["gold": gold]))
+        if pay.gold > 0 {
+            data.gold += pay.gold
+            lines.append(L("+{gold} gold", ["gold": pay.gold]))
         }
-        if let exp = quest.reward.exp {
-            lines.append(L("+{exp} EXP", ["exp": exp]))
-            if gainHeroEXP(exp) > 0 { lines.append(L("Level up! You're now level {level}.", ["level": data.hero.level])) }
+        if pay.exp > 0 {
+            lines.append(L("+{exp} EXP", ["exp": pay.exp]))
+            if gainHeroEXP(pay.exp) > 0 { lines.append(L("Level up! You're now level {level}.", ["level": data.hero.level])) }
         }
         for itemID in quest.reward.items ?? [] {
             addItem(itemID)

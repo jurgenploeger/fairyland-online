@@ -845,7 +845,7 @@ struct QuestRow: View {
     let session: GameSession
     let quest: QuestDef
     /// Who asked and where they live (the Quests list; not while you're talking to them).
-    /// In the list a tap also shows what the quest pays.
+    /// In the list a tap also shows the reward in full.
     var showsGiver = false
     @State private var expanded = false
 
@@ -872,17 +872,13 @@ struct QuestRow: View {
                         .foregroundStyle(HUDStyle.gold.opacity(0.85))
                 }
                 Text(quest.description).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
-                if showsGiver {
-                    if expanded {
-                        QuestRewardsView(session: session, quest: quest, earned: false)
-                            .padding(.top, 4)
-                            .transition(.opacity.combined(with: .move(edge: .top)))
-                    } else {
-                        Label(L("Tap to see the reward"), icon: .gift, size: 12)
-                            .font(HUDStyle.font(10))
-                            .foregroundStyle(HUDStyle.gold.opacity(0.7))
-                            .padding(.top, 2)
-                    }
+                if showsGiver && expanded {
+                    QuestRewardsView(session: session, quest: quest, earned: false)
+                        .padding(.top, 4)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                } else {
+                    QuestRewardLine(session: session, quest: quest, more: showsGiver)
+                        .padding(.top, 2)
                 }
             }
         }
@@ -933,8 +929,38 @@ private struct CompletedQuestRow: View {
     }
 }
 
+/// What a quest pays at your level, on one line like a bounty's: gold, EXP and the items' icons.
+/// `more`: a chevron says a tap shows it all (item names, new looks, roads it opens).
+struct QuestRewardLine: View {
+    let session: GameSession
+    let quest: QuestDef
+    var more = false
+
+    var body: some View {
+        let pay = session.questPay(quest)
+        HStack(spacing: 10) {
+            if pay.gold > 0 {
+                Label("\(pay.gold)", icon: .coins, size: 12)
+            }
+            if pay.exp > 0 {
+                Label(L("{exp} EXP", ["exp": pay.exp]), icon: .star, size: 12)
+            }
+            ForEach(RewardList.group(quest.reward.items ?? [], in: session), id: \.item.id) { entry in
+                ItemIcon(item: entry.item, size: 20, count: entry.count)
+                    .accessibilityLabel(entry.item.name)
+            }
+            if more {
+                Spacer(minLength: 4)
+                IconImage(.chevronDown, size: 12)
+            }
+        }
+        .font(HUDStyle.font(10))
+        .foregroundStyle(HUDStyle.dim)
+    }
+}
+
 /// What a quest pays: gold, EXP, items (with their icons), new looks and roads it opens.
-/// `earned` words it for a quest you've finished.
+/// `earned` words it for a quest you've finished, with what it really paid.
 struct QuestRewardsView: View {
     let session: GameSession
     let quest: QuestDef
@@ -974,16 +1000,17 @@ struct QuestRewardsView: View {
     }
 
     var body: some View {
+        let pay = earned ? session.paid(for: quest) : session.questPay(quest)
         VStack(alignment: .leading, spacing: 6) {
             Text(earned ? L("You earned") : L("Reward"))
                 .font(HUDStyle.font(10))
                 .foregroundStyle(HUDStyle.gold)
             HStack(spacing: 12) {
-                if let gold = quest.reward.gold, gold > 0 {
-                    Label("\(gold)", icon: .coins, size: 14)
+                if pay.gold > 0 {
+                    Label("\(pay.gold)", icon: .coins, size: 14)
                 }
-                if let exp = quest.reward.exp, exp > 0 {
-                    Label(L("{exp} EXP", ["exp": exp]), icon: .star, size: 14)
+                if pay.exp > 0 {
+                    Label(L("{exp} EXP", ["exp": pay.exp]), icon: .star, size: 14)
                 }
             }
             .font(HUDStyle.font(12))
