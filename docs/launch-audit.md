@@ -20,6 +20,8 @@ engine's formulas, and the CI screenshots. Every finding here was checked agains
 - `PrivacyInfo.xcprivacy` (UserDefaults CA92.1, file timestamps C617.1 and DDA9.1), and CI fails without it.
 - The intro's last page buttons no longer overflow; two node retain cycles in `GearArt`; the Silverfang Warden's
   victory text no longer says "Lieutenant".
+- Villagers' names are translated (`villagerNames` was missing from `content/i18n/fields.json`, so they were the
+  only names left in English).
 
 ## Before you submit
 
@@ -95,6 +97,9 @@ engine's formulas, and the CI screenshots. Every finding here was checked agains
    Harvest has no `minLevel` and sends level-3 heroes to Pineapple Shore (8-18). The Wisdom answer hatches a Jelly
    Puff, clearly weaker than the other two eggs. Fix: Sunny Meadow levels [1,4] and groups [1,2] (Windswept Downs
    [3,10]), `"minLevel": 8` on Pineapple Harvest, or cap wild levels at hero + 2 on maps that start at 10 or below.
+   Friends are the biggest difficulty lever (*est.* hero and companion alone win 9-83% of fights on mid-level maps,
+   54-100% with two friends), yet neither How to play nor the first-play tour mentions befriending adventurers:
+   add a tip or a coach mark.
 3. **The 10-second turn timer is always on** (`BattleController.turnSeconds`). There's no setting, it keeps
    running in the Skills, Items and target menus, and targets are SpriteKit nodes VoiceOver can't reach, so
    VoiceOver and Switch Control players, slow readers and children run out of time. Fix: a Settings choice (Off,
@@ -143,15 +148,13 @@ engine's formulas, and the CI screenshots. Every finding here was checked agains
 14. **Layout.** The guild's "This choice is permanent" row, the smith's weapon tabs, the adventurer card in danger
     zones and the first quest's three answers don't fit in some languages; in landscape the world map's close
     button is cut off and the NPC bubble sits under the Dynamic Island.
-15. **Villager names stay English** in every language: `villagerNames` in `content/crowd.json` isn't listed in
-    `content/i18n/fields.json`.
-16. **"Leave {name} behind" deletes the companion for good**, with no confirmation (`GameSession.leaveBehind`).
+15. **"Leave {name} behind" deletes the companion for good**, with no confirmation (`GameSession.leaveBehind`).
     Say "Release" and confirm.
-17. **Rare soft-lock.** With five companions the starter egg can't hatch and there's no release button, which
+16. **Rare soft-lock.** With five companions the starter egg can't hatch and there's no release button, which
     blocks Hope of Meadowbrook (a hatch quest) and the Elder's quests after it.
-18. **The English tagline is part of the logo** ("a cozy pixel adventure" in `Logo.png`), shown in every
+17. **The English tagline is part of the logo** ("a cozy pixel adventure" in `Logo.png`), shown in every
     language. It's already a translated string: draw it as text under the art.
-19. **The music synth runs all the time**, muted or not (*est.* a few % of a core for the whole session). Stop the
+18. **The music synth runs all the time**, muted or not (*est.* a few % of a core for the whole session). Stop the
     engine while muted or at volume 0.
 
 ### Low
