@@ -7,6 +7,7 @@ struct GameView: View {
     @State private var touring = CoachMarks.shouldShow
     /// The chat window over a battle (the fight waits while you type).
     @State private var battleChat = false
+    @Environment(\.scenePhase) private var scenePhase
     /// Switching language (Settings) redraws the HUD in it; the menu redraws itself.
     @State private var localizer = Localizer.shared
 
@@ -76,6 +77,8 @@ struct GameView: View {
         .onChange(of: coordinator.battle == nil) { battleChat = false }
         // The fight waits while you type, turn clock and all.
         .onChange(of: battleChat) { coordinator.battle?.holdTurnClock(battleChat, for: "chat") }
+        // And while the app isn't in front (another app, the lock screen, a call, Control Centre).
+        .onChange(of: scenePhase == .active) { _, active in coordinator.battle?.holdTurnClock(!active, for: "away") }
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
     }

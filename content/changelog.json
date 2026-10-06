@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.56",
+      "date": "2026-10-06",
+      "title": "The fight waits for you",
+      "notes": [
+        "Leave the app in the middle of a battle (another app, the lock screen, a call) and the turn timer stops where it was. It picks up again when you come back, so you don't lose your turn."
+      ]
+    },
+    {
       "version": "0.3.55",
       "date": "2026-10-06",
       "title": "Who's about",
