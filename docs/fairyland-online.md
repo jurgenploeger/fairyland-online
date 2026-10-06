@@ -37,6 +37,17 @@ Content ids (`rainbow_city`, `linns`, `dragon_god_staff`…) keep the old words,
 names (Fire Bolt, Potion, Seal Stone), Meadowbrook, and public-domain fairy tales (Snow White, Thumbelina,
 Oz) stay.
 
+**Name check (2026-10-06):** the App Store already has *Story Leaf - English Readers*, a picture-book
+reader in Education by Nobuaki Kuwabara. It comes up first when you search "Storyleaf". We keep Storyleaf as
+one word, with a game subtitle (e.g. "Storyleaf: Cozy Pixel RPG"). Before launch: reserve the name in App
+Store Connect, and search STORYLEAF / STORY LEAF on the USPTO and EUIPO registers. No app, game or trademark
+turned up under these exact names, kept in case a rename is ever needed: Lanternvale, Talewood, Talehaven,
+Pagewild, Inkmeadow, Dandelore, Briarbell, Plumleaf, Fayrewood, Lumelle, and Taleland (mockups of its icon and logo
+are in the Figma file). Ruled out for clashing with an
+existing game or mark: Fablemoor (FABLEMOON), Leafbound, Fairhollow, Wispwood, Thimblewood, Pixiehaven, Faeland,
+Pixel Tales (an existing App Store app), and any "Tales of …" title (Bandai Namco's Tales series, which also has
+Tales of the Heroes and Tales of Legendia).
+
 ## Tales of Mysteria (2026)
 
 FO is back under LagerNet as **Tales of Mysteria** (ToM). Its account sign-up page is on LagerNet's own
