@@ -29,7 +29,7 @@ struct MenuView: View {
                             if tab != item { SoundEffects.shared.play(.tap, volume: 0.7) }
                             tab = item
                         } label: {
-                            Label(item.title, icon: item.icon)
+                            Label(item.title, icon: item.icon, size: 20)
                                 .labelStyle(TabLabelStyle(selected: item == tab))
                         }
                     }

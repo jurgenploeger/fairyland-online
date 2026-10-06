@@ -1,7 +1,10 @@
 import SwiftUI
+import UIKit
 
 /// The game's UI icons: Iconaut's solid set (MIT, iconaut.design), vendored into
-/// Assets.xcassets/Icons by tools/icons.py, plus a few of our own (art/icons: the flame).
+/// Assets.xcassets/Icons by tools/icons.py, plus a few of our own (art/icons: the flame). The ones
+/// on buttons are also drawn as pixel art in the items' style (art/sprites/ui_<name>.png,
+/// tools/ui_icon_art.py), which `IconImage` shows at button sizes.
 /// Keep the cases in sync with the script's lists.
 enum GameIcon: String, CaseIterable {
     case sword, sparkles, backpack, shield, wind, heart, heartPlus = "heart-plus", more, close
@@ -35,14 +38,38 @@ struct IconImage: View {
     }
 
     var body: some View {
-        Image(icon.assetName(for: size))
-            .renderingMode(.template)
-            .resizable()
-            .interpolation(.high)
-            .scaledToFit()
-            .frame(width: size, height: size)
-            .accessibilityHidden(true)
+        // At button size, the game's own pixel art where there is some (full colour: a tint doesn't
+        // touch it); small inline glyphs stay Iconaut's.
+        if size >= 18, let art = icon.pixelArt {
+            Image(uiImage: art)
+                .resizable()
+                .interpolation(.none)
+                .scaledToFit()
+                .frame(width: size, height: size)
+                .accessibilityHidden(true)
+        } else {
+            Image(icon.assetName(for: size))
+                .renderingMode(.template)
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: size, height: size)
+                .accessibilityHidden(true)
+        }
     }
+}
+
+extension GameIcon {
+    /// The icon drawn as pixel art in the items' style (art/sprites/ui_<name>.png, tools/ui_icon_art.py),
+    /// or nil where there isn't one.
+    var pixelArt: UIImage? {
+        if let known = Self.pixelArtCache[self] { return known }
+        let art = ArtLibrary.shared.artImage("ui_" + rawValue)
+        Self.pixelArtCache[self] = .some(art)
+        return art
+    }
+
+    private static var pixelArtCache: [GameIcon: UIImage?] = [:]
 }
 
 extension Element {
