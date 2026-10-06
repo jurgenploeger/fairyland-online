@@ -354,6 +354,11 @@ final class Crowd {
         })
     }
 
+    /// Every adventurer on the map and where they stand, for the minimap.
+    var adventurerPositions: [(profile: Adventurer, position: CGPoint)] {
+        members.compactMap { member in member.profile.map { ($0, member.walker.position) } }
+    }
+
     func position(of id: UUID) -> CGPoint? {
         members.first { $0.profile?.id == id }?.walker.position
     }

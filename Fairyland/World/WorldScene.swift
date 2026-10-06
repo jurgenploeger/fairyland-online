@@ -933,6 +933,26 @@ final class WorldScene: SKScene {
         session.explore(cells, on: def.id, columns: map.columns, rows: map.rows)
     }
 
+    /// Everyone else on this map, for the minimap: the adventurers walking about and the friends in
+    /// your party (behind you, or waiting where you left them). On a dark map, only those standing
+    /// somewhere you've seen.
+    private func minimapDots() -> [GameSession.MinimapDot] {
+        let friends = Set(session.friends.map(\.id))
+        let seen: Data? = lantern == nil ? nil : session.explored(def.id) ?? Data()
+        func dot(at point: CGPoint, _ kind: GameSession.MinimapDot.Kind) -> GameSession.MinimapDot? {
+            let cell = map.cell(at: point)
+            if let seen {
+                let index = cell.row * map.columns + cell.col
+                guard index / 8 < seen.count, seen[index / 8] & UInt8(1 << (index % 8)) != 0 else { return nil }
+            }
+            return GameSession.MinimapDot(cell: cell, kind: kind)
+        }
+        let walkers = (crowd?.adventurerPositions ?? []).compactMap { profile, position in
+            dot(at: position, profile.hostile ? .hostile : friends.contains(profile.id) ? .friend : .adventurer)
+        }
+        return walkers + allies.compactMap { dot(at: $0.node.position, .party) }
+    }
+
     /// The HUD's minimap. On a dark map it shows only the cells you've seen; `version` is the
     /// session's count of new sightings (`exploredVersion`), so it's redrawn as you explore.
     func minimapImage(explored version: Int) -> UIImage {
@@ -1271,6 +1291,8 @@ final class WorldScene: SKScene {
             if session.nearbyAdventurer?.id != nearby?.id { session.nearbyAdventurer = nearby }
             let around = crowd?.adventurers(near: player.position, within: 320) ?? []
             if session.adventurersAround != around { session.adventurersAround = around }
+            let dots = minimapDots()
+            if session.minimapDots != dots { session.minimapDots = dots }
         }
 
         player.zPosition = -player.position.y

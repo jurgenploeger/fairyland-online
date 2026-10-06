@@ -29,6 +29,7 @@ struct WorldHUD: View {
                     image: coordinator.world.minimapImage(explored: session.exploredVersion),
                     name: session.mapName,
                     cell: session.mapCell,
+                    dots: session.minimapDots,
                     columns: coordinator.world.def.width,
                     rows: coordinator.world.def.height,
                     onOpen: { coordinator.open(.worldMap) }
@@ -416,6 +417,7 @@ private struct MinimapWindow: View {
     let image: UIImage
     let name: String
     let cell: GridPoint
+    let dots: [GameSession.MinimapDot]
     let columns: Int
     let rows: Int
     let onOpen: () -> Void
@@ -478,6 +480,15 @@ private struct MinimapWindow: View {
                         }
                         .rotationEffect(.degrees(-45))
                         .scaleEffect(x: 1, y: 0.5)
+                    // The other players, round dots on top of the turned map (drawn in it, they'd
+                    // be squashed flat).
+                    ForEach(Array(dots.enumerated()), id: \.offset) { _, dot in
+                        Circle()
+                            .fill(color(of: dot.kind))
+                            .frame(width: 5, height: 5)
+                            .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 1))
+                            .offset(offset(of: dot.cell))
+                    }
                     Circle()
                         .fill(HUDStyle.gold)
                         .frame(width: 8, height: 8)
@@ -504,6 +515,26 @@ private struct MinimapWindow: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(HUDStyle.bevel, lineWidth: 2.5))
         .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 2)
+    }
+
+    /// Where a cell lands in the window, from its centre (the hero): its distance on the map layer,
+    /// turned 45° and squashed in half like the layer itself.
+    private func offset(of other: GridPoint) -> CGSize {
+        let x = CGFloat(other.col - cell.col) * zoom
+        let y = CGFloat(cell.row - other.row) * zoom
+        let half = CGFloat(0.5).squareRoot()
+        return CGSize(width: (x + y) * half, height: (y - x) * half * 0.5)
+    }
+
+    /// Party friends green, other friends white, red-named adventurers red, everyone else the blue
+    /// of their names.
+    private func color(of kind: GameSession.MinimapDot.Kind) -> Color {
+        switch kind {
+        case .party: HUDStyle.green
+        case .friend: .white
+        case .hostile: Color(uiColor: Crowd.hostileColor)
+        case .adventurer: Color(uiColor: Crowd.adventurerColor)
+        }
     }
 }
 

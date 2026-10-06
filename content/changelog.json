@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.55",
+      "date": "2026-10-06",
+      "title": "Who's about",
+      "notes": [
+        "The minimap shows the other players on your map as dots: blue for adventurers, white for friends you've made, red for red-named ones looking for a fight, and green for friends in your party. In dark caves you only see those standing somewhere you've already lit."
+      ]
+    },
+    {
       "version": "0.3.54",
       "date": "2026-10-05",
       "title": "Waking up in town",

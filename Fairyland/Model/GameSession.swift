@@ -40,6 +40,16 @@ final class GameSession {
     var nearbyNPC: String?
     /// The tile the hero stands on, for the minimap.
     var mapCell = GridPoint(col: 0, row: 0)
+    /// The other players on this map, as dots on the minimap.
+    var minimapDots: [MinimapDot] = []
+
+    /// Someone else on the minimap: an adventurer, a friend you've made, a red-named one looking for
+    /// a fight, or a friend in your party.
+    struct MinimapDot: Hashable {
+        enum Kind { case adventurer, friend, hostile, party }
+        let cell: GridPoint
+        let kind: Kind
+    }
     /// Recent system messages, shown Fairyland-style in the HUD.
     private(set) var log: [LogLine] = []
     /// When the game was last written to disk (the HUD flashes "Saved").

@@ -353,6 +353,9 @@ adventurer drops everything they carry (the goods they'd sell you that day).
     rare sightings that really raise a rare monster's odds on its map for 20 minutes.
   - Goldburg's square has market traders under signs, selling their real deals of the day
     (`crowd.traders`). `botDensity` in content/crowd.json thins out every map's bots.
+  - The minimap shows everyone else on the map as dots (since 0.3.55, asked for in playtesting 2026-10-06):
+    blue adventurers, white friends, red hostile ones, green party friends; on dark maps only on cells you've
+    seen. Whether FO's minimap showed other players isn't in any source reachable from a cloud session.
 - **Selling products:** Logistics Trading Officers in the three capitals pay more for products than ordinary
   shops.
 

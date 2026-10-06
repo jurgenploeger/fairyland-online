@@ -684,6 +684,8 @@
     "Rosy": "Румяная",
     "Tan": "Смуглая",
     "Deep": "Тёмная",
+    "Who's about": "Кто рядом",
+    "The minimap shows the other players on your map as dots: blue for adventurers, white for friends you've made, red for red-named ones looking for a fight, and green for friends in your party. In dark caves you only see those standing somewhere you've already lit.": "Мини-карта показывает других игроков на твоей карте точками: синими отмечены искатели приключений, белыми твои друзья, красными игроки с красным именем, которые ищут драки, а зелёными друзья в твоём отряде. В тёмных пещерах видны только те, кто стоит там, где ты уже посветил.",
     "Waking up in town": "Пробуждение в городе",
     "When you faint, you wake up in the last town you visited, not at the edge of the map where you fell, so a zone that's too hard for you can't keep knocking you down at its entrance.": "Потеряв сознание, ты приходишь в себя в последнем городе, где побывал, а не на краю карты, где упал, так что слишком сложная для тебя зона больше не сбивает тебя с ног снова и снова у самого входа.",
     "Won fights now and then leave a Homeward Feather, and a beaten boss always does, so a long trip out always has a way home.": "Выигранные бои иногда оставляют Перо возвращения, а побеждённый босс оставляет его всегда, так что из долгого похода всегда есть путь домой.",
