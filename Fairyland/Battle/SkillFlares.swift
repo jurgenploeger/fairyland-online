@@ -40,9 +40,9 @@ extension SkillEffects {
         under.zPosition = z
         under.setScale(0.4)
         parent.addChild(under)
-        under.run(.sequence([.scale(to: 1, duration: 0.1), .wait(forDuration: 0.15), .fadeOut(withDuration: 0.4), .removeFromParent()]))
+        under.run(.sequence([.scale(to: 1, duration: 0.07), .wait(forDuration: 0.05), .fadeOut(withDuration: 0.2), .removeFromParent()]))
 
-        flareBloom(at: point, color: vivid, size: 48 + 14 * tier, z: z + 1, in: parent)
+        flareBloom(at: point, color: vivid, size: 40 + 12 * tier, z: z + 1, in: parent)
         let length = 140 + 46 * tier
         flareStreak(at: point, color: vivid, length: length, thickness: 7 + 1.6 * tier, z: z + 4, in: parent)
         flareStar(at: point, color: vivid, beams: tier >= 3 ? 8 : 4, reach: 70 + 16 * tier, z: z + 5, in: parent)
@@ -106,9 +106,10 @@ extension SkillEffects {
     // MARK: - Parts
 
     /// A bloom of light: the colour, a brighter heart and a small white-hot core, popping open and
-    /// burning out. Mostly colour, so whoever it lands on still shows through.
+    /// burning out within a third of a second, so whoever it lands on shows again while the streak,
+    /// the star and the sparks play out.
     private static func flareBloom(at point: CGPoint, color: UIColor, size: CGFloat, z: CGFloat, in parent: SKNode) {
-        let layers: [(tone: UIColor, scale: CGFloat, alpha: CGFloat)] = [(color, 1, 0.8), (flareBright(color), 0.55, 0.7), (.white, 0.22, 0.95)]
+        let layers: [(tone: UIColor, scale: CGFloat, alpha: CGFloat)] = [(color, 1, 0.7), (flareBright(color), 0.5, 0.6), (.white, 0.18, 0.85)]
         for (index, layer) in layers.enumerated() {
             let width = size * layer.scale
             let glow = glowSprite(layer.tone, size: CGSize(width: width, height: width))
@@ -117,9 +118,9 @@ extension SkillEffects {
             glow.alpha = layer.alpha
             glow.setScale(0.2)
             parent.addChild(glow)
-            let pop = SKAction.scale(to: 1.1, duration: 0.08)
+            let pop = SKAction.scale(to: 1, duration: 0.07)
             pop.timingMode = .easeOut
-            glow.run(.sequence([pop, .group([.scale(to: 1.35, duration: 0.42), .fadeOut(withDuration: 0.42)]), .removeFromParent()]))
+            glow.run(.sequence([pop, .group([.scale(to: 1.15, duration: 0.24), .fadeOut(withDuration: 0.24)]), .removeFromParent()]))
         }
     }
 
