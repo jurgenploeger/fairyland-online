@@ -1,14 +1,22 @@
 import SpriteKit
 
 /// Little animals living on a map (`ambience.critters`): bunnies in the meadows, frogs by the
-/// ponds, crabs on the beach. They sit about near home, hop now and then, and hop off when you come
-/// close. Now and then a flock (`ambience.birds`) crosses the sky, its shadows sweeping over the ground.
+/// ponds, crabs on the beach, songbirds and chicks pecking about, squirrels in the woods, lizards in
+/// the sand and mice in the caves; in the darker, harder places crows, spiders, red-eyed rats,
+/// scorpions and will-o'-wisps. They sit about near home, hop now and then, and hop off when you
+/// come close; a songbird or crow flies away instead, and lands back home once you've gone. Now and
+/// then a flock (`ambience.birds`) crosses the sky, its shadows sweeping over the ground.
 final class Critters {
     private final class Critter {
         let node = SKNode()
         let body: SKSpriteNode
         /// Sitting, then mid-hop (a crab's claws down, then up).
         let frames: [SKTexture]
+        /// Head down to peck at the ground, now and then while it rests (songbirds, chicks).
+        let peck: SKTexture?
+        /// Wings spread: it flies off when you come close instead of hopping (songbirds).
+        let flight: SKTexture?
+        let shadow: SKSpriteNode
         let home: CGPoint
         /// How far one hop goes, how high it jumps (0 for a scuttle) and how long it takes.
         let reach: CGFloat
@@ -17,18 +25,27 @@ final class Critters {
         /// Seconds until it fancies another hop, and until the hop it's in lands.
         var rest: TimeInterval
         var busy: TimeInterval = 0
+        /// Seconds until a bird that flew off comes back.
+        var away: TimeInterval = 0
 
-        init(frames: [SKTexture], at point: CGPoint, reach: CGFloat, height: CGFloat, time: TimeInterval, rest: TimeInterval) {
+        /// `scale` sizes the whole critter (a crow is a big songbird); `hover` floats it above its
+        /// shadow, bobbing, in a soft glow of `glow` (a wisp).
+        init(frames: [SKTexture], peck: SKTexture? = nil, flight: SKTexture? = nil, at point: CGPoint,
+             reach: CGFloat, height: CGFloat, time: TimeInterval, rest: TimeInterval,
+             scale: CGFloat = 1, hover: CGFloat = 0, glow: UIColor? = nil) {
             self.frames = frames
+            self.peck = peck
+            self.flight = flight
             self.reach = reach
             self.height = height
             self.time = time
             self.rest = rest
             home = point
-            body = SKSpriteNode(texture: frames[0])
+            let body = SKSpriteNode(texture: frames[0])
+            self.body = body
+            shadow = SKSpriteNode(texture: SoftTextures.glow, size: CGSize(width: body.size.width * 0.9, height: 5))
             body.anchorPoint = CGPoint(x: 0.5, y: 0.1)
             body.zPosition = 0.5
-            let shadow = SKSpriteNode(texture: SoftTextures.glow, size: CGSize(width: body.size.width * 0.9, height: 5))
             shadow.color = .black
             shadow.colorBlendFactor = 1
             shadow.alpha = 0.3
@@ -36,6 +53,27 @@ final class Critters {
             node.addChild(shadow)
             node.addChild(body)
             node.position = point
+            node.setScale(scale)
+            if hover > 0 {
+                shadow.alpha = 0.15
+                body.position.y = hover
+                let bob = SKAction.moveBy(x: 0, y: 4, duration: 1.1)
+                bob.timingMode = .easeInEaseOut
+                body.run(.repeatForever(.sequence([bob, bob.reversed()])), withKey: "bob")
+                if frames.count > 1 {
+                    body.run(.repeatForever(.animate(with: frames, timePerFrame: 0.22)), withKey: "flicker")
+                }
+            }
+            if let glow {
+                let light = SKSpriteNode(texture: SoftTextures.glow, size: CGSize(width: 44, height: 44))
+                light.color = glow
+                light.colorBlendFactor = 1
+                light.blendMode = .add
+                light.alpha = 0.55
+                light.zPosition = -0.1
+                light.position = CGPoint(x: 0, y: body.size.height * 0.45)
+                body.addChild(light)
+            }
         }
     }
 
@@ -64,6 +102,14 @@ final class Critters {
     /// Critters hop about, and away from `player`; now and then a flock sets off across `visible`.
     func update(dt: TimeInterval, player: CGPoint, visible: CGRect, canStand: (CGPoint) -> Bool) {
         for critter in critters {
+            if critter.away > 0 {
+                critter.away -= dt
+                // It comes back once you've moved on from its spot.
+                if critter.away <= 0 {
+                    if critter.home.distance(to: player) > 140 { land(critter) } else { critter.away = 3 }
+                }
+                continue
+            }
             critter.busy -= dt
             critter.rest -= dt
             critter.node.zPosition = -critter.node.position.y
@@ -71,9 +117,22 @@ final class Critters {
             let away = critter.node.position - player
             if away.length < 64 {
                 // Too close: off it goes, away from you.
-                hop(critter, along: away.length > 0 ? away.normalized : CGVector(dx: 1, dy: 0), running: true, canStand: canStand)
+                let direction = away.length > 0 ? away.normalized : CGVector(dx: 1, dy: 0)
+                if critter.flight != nil {
+                    flyOff(critter, along: direction)
+                } else {
+                    hop(critter, along: direction, running: true, canStand: canStand)
+                }
             } else if critter.rest <= 0 {
                 critter.rest = .random(in: 1.2...5)
+                if let peck = critter.peck, Bool.random() {
+                    // A peck or two at the ground instead of a hop.
+                    let still = critter.frames[0]
+                    let once = SKAction.sequence([.setTexture(peck), .wait(forDuration: 0.16), .setTexture(still), .wait(forDuration: 0.12)])
+                    critter.body.run(.repeat(once, count: Int.random(in: 1...3)), withKey: "hop")
+                    critter.busy = 0.9
+                    continue
+                }
                 // A wander, drifting back home once it has strayed.
                 let homeward = critter.home - critter.node.position
                 let angle = CGFloat.random(in: 0..<(2 * CGFloat.pi))
@@ -91,9 +150,9 @@ final class Critters {
 
     // MARK: Critters
 
-    /// Where one lives: frogs and crabs by the water, bunnies anywhere in the open.
+    /// Where one lives: frogs and crabs by the water, the rest anywhere in the open.
     private static func home(for kind: String, map: WorldMap, water: [GridPoint], rng: inout SeededRandom) -> GridPoint? {
-        if kind != "bunny", !water.isEmpty {
+        if kind == "frog" || kind == "crab", !water.isEmpty {
             for _ in 0..<30 {
                 let pond = water[Int.random(in: 0..<water.count, using: &rng)]
                 let cell = GridPoint(col: pond.col + Int.random(in: -2...2, using: &rng), row: pond.row + Int.random(in: -2...2, using: &rng))
@@ -121,6 +180,51 @@ final class Critters {
         case "crab":
             return Critter(frames: [CritterArt.crab(up: false), CritterArt.crab(up: true)], at: point,
                            reach: 22, height: 0, time: 0.5, rest: .random(in: 0.5...4, using: &rng))
+        case "songbird":
+            // A robin, a bluebird or a finch.
+            let plumes: [(back: UInt32, breast: UInt32, wing: UInt32)] = [
+                (0x8A6248, 0xE8834A, 0x6B4A36), (0x4F7FC8, 0xE8A06A, 0x3A5E9A), (0xD9B23A, 0xF4DA74, 0x7A6028),
+            ]
+            let plume = plumes[Int.random(in: 0..<plumes.count, using: &rng)]
+            func draw(_ pose: CritterArt.BirdPose) -> SKTexture {
+                CritterArt.songbird(pose, back: PixelColor(plume.back), breast: PixelColor(plume.breast), wing: PixelColor(plume.wing))
+            }
+            return Critter(frames: [draw(.sit), draw(.hop)], peck: draw(.peck), flight: draw(.fly), at: point,
+                           reach: 14, height: 4, time: 0.18, rest: .random(in: 0.5...3, using: &rng))
+        case "crow":
+            // A songbird's shape, bigger, in black with a red eye.
+            func draw(_ pose: CritterArt.BirdPose) -> SKTexture {
+                CritterArt.songbird(pose, back: PixelColor(0x2E2C3A), breast: PixelColor(0x3C3A4C), wing: PixelColor(0x211F2C),
+                                    beak: PixelColor(0x6E6A78), eye: PixelColor(0xFF4A4A), outline: PixelColor(0x15121C), longBeak: true)
+            }
+            return Critter(frames: [draw(.sit), draw(.hop)], peck: draw(.peck), flight: draw(.fly), at: point,
+                           reach: 16, height: 5, time: 0.22, rest: .random(in: 0.5...3, using: &rng), scale: 1.25)
+        case "spider":
+            return Critter(frames: [CritterArt.spider(step: false), CritterArt.spider(step: true)], at: point,
+                           reach: 22, height: 0, time: 0.3, rest: .random(in: 0.5...4, using: &rng))
+        case "rat":
+            return Critter(frames: [CritterArt.rat(step: false), CritterArt.rat(step: true)], at: point,
+                           reach: 26, height: 0, time: 0.3, rest: .random(in: 0.5...3, using: &rng))
+        case "scorpion":
+            return Critter(frames: [CritterArt.scorpion(step: false), CritterArt.scorpion(step: true)], at: point,
+                           reach: 18, height: 0, time: 0.45, rest: .random(in: 1...5, using: &rng))
+        case "wisp":
+            // Drifts slowly instead of hopping, floating and flickering.
+            return Critter(frames: [CritterArt.wisp(flicker: false), CritterArt.wisp(flicker: true)], at: point,
+                           reach: 20, height: 0, time: 1.1, rest: .random(in: 1...4, using: &rng),
+                           hover: 14, glow: UIColor(red: 0.45, green: 0.85, blue: 1, alpha: 1))
+        case "chick":
+            return Critter(frames: [CritterArt.chick(.sit), CritterArt.chick(.hop)], peck: CritterArt.chick(.peck), at: point,
+                           reach: 10, height: 3, time: 0.2, rest: .random(in: 0.5...3, using: &rng))
+        case "squirrel":
+            return Critter(frames: [CritterArt.squirrel(hop: false), CritterArt.squirrel(hop: true)], at: point,
+                           reach: 30, height: 8, time: 0.28, rest: .random(in: 0.5...4, using: &rng))
+        case "lizard":
+            return Critter(frames: [CritterArt.lizard(step: false), CritterArt.lizard(step: true)], at: point,
+                           reach: 26, height: 0, time: 0.35, rest: .random(in: 1...5, using: &rng))
+        case "mouse":
+            return Critter(frames: [CritterArt.mouse(step: false), CritterArt.mouse(step: true)], at: point,
+                           reach: 20, height: 0, time: 0.3, rest: .random(in: 0.5...4, using: &rng))
         default:
             return nil
         }
@@ -151,13 +255,54 @@ final class Critters {
                     .sequence([.setTexture(critter.frames[1]), .wait(forDuration: time), .setTexture(critter.frames[0])]),
                 ]), withKey: "hop")
             } else {
-                // A crab scuttles, claws clacking as it goes.
+                // A crab scuttles, claws clacking as it goes; a lizard or mouse patters along.
                 let clack = SKAction.animate(with: critter.frames, timePerFrame: 0.08)
                 critter.body.run(.sequence([.repeat(clack, count: max(1, Int(time / 0.16))), .setTexture(critter.frames[0])]), withKey: "hop")
             }
             critter.busy = time + (running ? 0.05 : 0.25)
             return
         }
+    }
+
+    /// A songbird takes off: up and away over the trees, fading out of sight.
+    private func flyOff(_ critter: Critter, along direction: CGVector) {
+        guard let flight = critter.flight else { return }
+        critter.node.removeAction(forKey: "hop")
+        critter.body.removeAction(forKey: "hop")
+        let side: CGFloat = direction.dx < 0 ? -1 : 1
+        critter.body.xScale = side
+        critter.body.zPosition = 30_000
+        let flap = SKAction.animate(with: [flight, critter.frames[1]], timePerFrame: 0.08)
+        let rise = SKAction.moveBy(x: side * 140, y: 170, duration: 1.1)
+        rise.timingMode = .easeIn
+        critter.body.run(.group([
+            .repeat(flap, count: 7), rise, .sequence([.wait(forDuration: 0.6), .fadeOut(withDuration: 0.5)]),
+        ]), withKey: "hop")
+        critter.shadow.run(.fadeOut(withDuration: 0.4))
+        critter.away = .random(in: 8...16)
+    }
+
+    /// Back home, gliding down from the sky.
+    private func land(_ critter: Critter) {
+        guard let flight = critter.flight else { return }
+        critter.body.removeAllActions()
+        critter.node.position = critter.home
+        critter.node.zPosition = -critter.home.y
+        let side: CGFloat = Bool.random() ? 1 : -1
+        critter.body.xScale = side
+        critter.body.position = CGPoint(x: -side * 70, y: 110)
+        critter.body.texture = flight
+        let glide = SKAction.move(to: .zero, duration: 0.9)
+        glide.timingMode = .easeOut
+        let flap = SKAction.animate(with: [flight, critter.frames[1]], timePerFrame: 0.1)
+        critter.body.run(.sequence([
+            .group([.fadeIn(withDuration: 0.3), glide, .repeat(flap, count: 4)]),
+            .setTexture(critter.frames[0]),
+            .run { critter.body.zPosition = 0.5 },
+        ]), withKey: "hop")
+        critter.shadow.run(.fadeAlpha(to: 0.3, duration: 0.9))
+        critter.busy = 1.2
+        critter.rest = .random(in: 1...3)
     }
 
     // MARK: Birds
@@ -205,6 +350,230 @@ final class Critters {
 /// The critters' and birds' pixel art, drawn facing right.
 enum CritterArt {
     private static let ink = PixelColor(0x3B2A22)
+
+    enum BirdPose { case sit, hop, peck, fly }
+
+    /// A little songbird on the ground: sitting, mid-hop (legs tucked), pecking, or taking off.
+    /// A crow is drawn the same way, black, with a red `eye` and a longer grey beak.
+    static func songbird(_ pose: BirdPose, back: PixelColor, breast: PixelColor, wing: PixelColor,
+                         beak: PixelColor = PixelColor(0xF2B33D), eye: PixelColor? = nil, outline: PixelColor? = nil,
+                         longBeak: Bool = false) -> SKTexture {
+        let leg = longBeak ? beak : PixelColor(0xC08A50)
+        let eye = eye ?? ink, outline = outline ?? ink
+        var c = PixelCanvas(width: 11, height: 10)
+        switch pose {
+        case .fly:
+            c.ellipse(5.5, 6.2, 3.0, 1.6, back)
+            c.ellipse(6.8, 6.8, 1.6, 1.0, breast)
+            c.ellipse(8.4, 5.0, 1.8, 1.7, back)
+            c[9, 4] = eye
+            c[10, 5] = beak
+            for (y, from, to) in [(1, 4, 5), (2, 3, 6), (3, 3, 6), (4, 4, 6)] { c.fill(from, y, to - from + 1, 1, wing) }
+            c.fill(0, 6, 3, 1, wing)
+        case .peck:
+            c.ellipse(4.6, 5.6, 3.4, 2.5, back)
+            c.ellipse(6.4, 6.4, 1.8, 1.7, breast)
+            c.ellipse(3.8, 5.2, 2.2, 1.3, wing)
+            c.ellipse(8.2, 6.8, 2.1, 2.0, back)
+            c[8, 6] = eye
+            c[10, 8] = beak
+            c[0, 3] = wing
+            c[1, 4] = wing
+            c[0, 4] = wing
+            c[5, 9] = leg
+            c[7, 9] = leg
+        case .sit, .hop:
+            c.ellipse(4.8, 6.2, 3.4, 2.6, back)
+            c.ellipse(6.6, 6.4, 1.8, 1.9, breast)
+            c.ellipse(8.2, 5.0, 1.2, 1.0, breast)
+            c.ellipse(7.6, 3.6, 2.3, 2.2, back)
+            c.ellipse(4.0, 5.8, 2.2, 1.3, wing)
+            c[8, 3] = eye
+            c[10, 4] = beak
+            if longBeak { c[9, 4] = beak }
+            c[0, 4] = wing
+            c[0, 5] = wing
+            c[1, 5] = wing
+            if pose == .sit {
+                c[5, 9] = leg
+                c[7, 9] = leg
+            }
+        }
+        c.outline(outline)
+        return c.texture()
+    }
+
+    /// A fluffy yellow chick: sitting, mid-hop, or pecking.
+    static func chick(_ pose: BirdPose) -> SKTexture {
+        let body = PixelColor(0xFFD84A), wing = PixelColor(0xF0B830), beak = PixelColor(0xF08A30)
+        var c = PixelCanvas(width: 9, height: 9)
+        if pose == .peck {
+            c.ellipse(3.6, 4.6, 3.2, 2.6, body)
+            c.ellipse(6.0, 5.6, 1.8, 1.6, body)
+            c.ellipse(2.8, 4.6, 1.6, 1.0, wing)
+            c[6, 5] = ink
+            c[8, 6] = beak
+            c[3, 8] = beak
+            c[5, 8] = beak
+        } else {
+            c.ellipse(3.8, 5.0, 3.2, 2.8, body)
+            c.ellipse(5.4, 3.0, 1.9, 1.8, body)
+            c.ellipse(3.0, 5.2, 1.6, 1.0, wing)
+            c[5, 2] = ink
+            c[7, 3] = beak
+            if pose == .sit {
+                c[3, 8] = beak
+                c[5, 8] = beak
+            }
+        }
+        c.outline(PixelColor(0x8A5A1A))
+        return c.texture()
+    }
+
+    /// A red squirrel, its bushy tail curled up behind it (stretched out mid-hop).
+    static func squirrel(hop: Bool) -> SKTexture {
+        let fur = PixelColor(0xB5652F), tail = PixelColor(0xC0703A), tip = PixelColor(0xE39C5E)
+        let belly = PixelColor(0xF0D2A8), dark = PixelColor(0x7A3F1C)
+        var c = PixelCanvas(width: 15, height: 13)
+        if hop {
+            c.ellipse(3.0, 7.0, 3.2, 2.6, tail)
+            c.ellipse(1.8, 6.0, 1.6, 1.4, tip)
+            c.ellipse(8.0, 8.4, 3.8, 2.4, fur)
+            c.ellipse(9.0, 9.4, 2.0, 1.2, belly)
+            c.ellipse(11.8, 6.0, 2.4, 2.1, fur)
+            c.fill(11, 2, 2, 2, fur)
+            c[12, 5] = ink
+            c[14, 6] = dark
+            c.fill(4, 11, 2, 1, dark)
+            c.fill(12, 10, 2, 1, dark)
+        } else {
+            c.ellipse(3.2, 5.0, 3.0, 4.2, tail)
+            c.ellipse(2.4, 3.2, 1.8, 2.0, tip)
+            c.ellipse(8.2, 9.0, 3.4, 3.0, fur)
+            c.ellipse(9.4, 9.8, 1.6, 1.8, belly)
+            c.ellipse(10.8, 5.6, 2.4, 2.2, fur)
+            c.fill(10, 2, 2, 2, fur)
+            c[11, 5] = ink
+            c[13, 6] = dark
+            c.fill(7, 12, 2, 1, dark)
+            c.fill(10, 12, 2, 1, dark)
+        }
+        c.outline(ink)
+        return c.texture()
+    }
+
+    /// A sandy desert lizard seen from above, legs splayed, mid-stride one way or the other.
+    static func lizard(step: Bool) -> SKTexture {
+        let body = PixelColor(0xD2A85A), spot = PixelColor(0x9A6A30)
+        var c = PixelCanvas(width: 17, height: 9)
+        c.ellipse(8.5, 4.5, 4.0, 1.8, body)
+        c.ellipse(13.6, 4.2, 2.4, 1.6, body)
+        c.fill(3, 4, 2, 2, body)
+        c.fill(1, 5, 2, 1, body)
+        c[0, 6] = body
+        c[7, 4] = spot
+        c[9, 3] = spot
+        c[10, 5] = spot
+        c[14, 3] = ink
+        let legs = step ? [(11, 2), (12, 1), (6, 6), (5, 7), (11, 6), (12, 7), (6, 2), (5, 1)]
+            : [(11, 2), (10, 1), (6, 6), (7, 7), (11, 6), (10, 7), (6, 2), (7, 1)]
+        for (x, y) in legs { c[x, y] = spot }
+        c.outline(PixelColor(0x5A3A18))
+        return c.texture()
+    }
+
+    /// A black spider with a purple sheen and red eyes, its legs bent above and below it; the
+    /// pairs lift in turn as it runs.
+    static func spider(step: Bool) -> SKTexture {
+        let body = PixelColor(0x2A2233), sheen = PixelColor(0x5A3F78), leg = PixelColor(0x1C1724), eye = PixelColor(0xFF4040)
+        var c = PixelCanvas(width: 16, height: 12)
+        c.ellipse(6.2, 5.6, 3.4, 2.6, body)
+        c.ellipse(5.4, 4.6, 1.6, 0.9, sheen)
+        c.ellipse(10.6, 5.8, 2.0, 1.8, body)
+        c[11, 5] = eye
+        c[12, 5] = eye
+        c[12, 6] = eye
+        c.outline(PixelColor(0x0E0B12))
+        // Legs go on after the outline, so they stay thin: hip, a step out, knee, foot.
+        for (index, (x, dx)) in [(5, -2), (7, -1), (9, 1), (11, 2)].enumerated() {
+            let lift = (index % 2 == 0) == step ? 1 : 0
+            for (sign, hip) in [(-1, 4), (1, 7)] {
+                let points = [(x, hip), (x + dx.signum(), hip + sign), (x + dx, hip + sign * (3 - lift)),
+                              (x + 2 * dx, hip + sign * (2 - lift) + sign * 2)]
+                for (px, py) in points { c[px, py] = leg }
+            }
+        }
+        return c.texture()
+    }
+
+    /// A grey-brown rat with red eyes and a long pink tail, feet pattering.
+    static func rat(step: Bool) -> SKTexture {
+        let fur = PixelColor(0x6E5E54), belly = PixelColor(0x9A8A7C), pink = PixelColor(0xD99AA4), eye = PixelColor(0xFF3A3A)
+        var c = PixelCanvas(width: 17, height: 8)
+        c.ellipse(7.0, 4.6, 4.4, 2.6, fur)
+        c.ellipse(11.4, 4.4, 2.6, 2.0, fur)
+        c.ellipse(7.6, 5.6, 2.6, 1.2, belly)
+        c.ellipse(10.0, 2.0, 1.5, 1.4, fur)
+        c[10, 1] = pink
+        c[12, 3] = eye
+        c[14, 4] = fur
+        c[15, 5] = pink
+        for (x, y) in [(0, 2), (1, 3), (1, 4), (2, 5), (3, 5)] { c[x, y] = pink }
+        for (x, y) in step ? [(5, 7), (9, 7)] : [(4, 7), (8, 7)] { c[x, y] = PixelColor(0x4A3E36) }
+        c.outline(PixelColor(0x2A201C))
+        return c.texture()
+    }
+
+    /// A rust-red scorpion, its tail curled up over its back and its claws held out in front.
+    static func scorpion(step: Bool) -> SKTexture {
+        let body = PixelColor(0x8A3A2A), light = PixelColor(0xB85A3E), dark = PixelColor(0x5A2218)
+        var c = PixelCanvas(width: 16, height: 11)
+        c.ellipse(7.5, 7.0, 4.0, 2.0, body)
+        c.ellipse(7.0, 6.4, 2.2, 0.8, light)
+        for (x, y) in [(3, 6), (2, 5), (2, 4), (2, 3), (3, 2), (4, 1), (5, 1), (6, 2)] { c[x, y] = body }
+        c[7, 3] = dark
+        c[6, 3] = dark
+        c.ellipse(13.4, 5.8, 1.8, 1.5, body)
+        c[15, 6] = .clear
+        c[14, 6] = .clear
+        c[12, 7] = body
+        c[11, 6] = body
+        for (x, y) in step ? [(5, 9), (7, 9), (9, 9), (10, 9)] : [(4, 9), (6, 9), (8, 9), (10, 9)] { c[x, y] = dark }
+        c[10, 6] = PixelColor(0x1A0A08)
+        c.outline(PixelColor(0x3A140C))
+        return c.texture()
+    }
+
+    /// A will-o'-wisp: a pale blue flame with two dark eyes, its tip flickering one way, then the other.
+    static func wisp(flicker: Bool) -> SKTexture {
+        let core = PixelColor(0xF2FFFF), mid = PixelColor(0xA8ECFF), edge = PixelColor(0x5EC4F0), eye = PixelColor(0x1E3A5A)
+        var c = PixelCanvas(width: 11, height: 13)
+        c.ellipse(5.5, 8.0, 4.2, 4.2, edge)
+        let tip = flicker ? [(5, 0), (4, 1), (5, 1), (6, 2), (3, 2), (4, 2), (5, 2), (3, 3)]
+            : [(5, 0), (6, 1), (5, 1), (4, 2), (5, 2), (6, 2), (7, 3)]
+        for (x, y) in tip { c[x, y] = edge }
+        c.fill(3, 3, 5, 2, edge)
+        c.ellipse(5.5, 8.4, 3.0, 3.0, mid)
+        c.ellipse(5.5, 9.0, 1.8, 1.8, core)
+        for (x, y) in [(4, 8), (7, 8), (4, 7), (7, 7)] { c[x, y] = eye }
+        return c.texture()
+    }
+
+    /// A little grey mouse, feet pattering.
+    static func mouse(step: Bool) -> SKTexture {
+        let fur = PixelColor(0x9A9AA6), ear = PixelColor(0xB8B8C4), pink = PixelColor(0xE7A6B0), feet = PixelColor(0x6A6A76)
+        var c = PixelCanvas(width: 12, height: 7)
+        c.ellipse(5.4, 4.4, 3.6, 2.3, fur)
+        c.ellipse(8.6, 4.0, 2.0, 1.7, fur)
+        c.ellipse(7.4, 1.8, 1.6, 1.5, ear)
+        c[7, 1] = pink
+        c[9, 3] = ink
+        c[11, 4] = pink
+        for (x, y) in [(0, 3), (0, 4), (1, 5), (2, 5)] { c[x, y] = pink }
+        for (x, y) in step ? [(4, 6), (7, 6)] : [(3, 6), (6, 6)] { c[x, y] = feet }
+        c.outline(PixelColor(0x3A3A44))
+        return c.texture()
+    }
 
     static func bunny(fur: PixelColor, light: PixelColor, dark: PixelColor, hop: Bool) -> SKTexture {
         var c = PixelCanvas(width: 15, height: 13)
