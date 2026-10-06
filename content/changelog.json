@@ -2,6 +2,18 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.60",
+      "date": "2026-10-06",
+      "title": "How to play, played",
+      "notes": [
+        "The story's pictures are made from the game itself now: real maps with their people and creatures, each boss on the battle stage over its own land, and Meadowbrook's square, where Elder Oak greets you.",
+        "How to play plays the game: the joystick and a tap walk you along a road, a fight with the real buttons, Fire Bolt and your companion's Pine Needles, a Seal Stone sealing a monster, LEVEL UP! with the victory card, and a quest in town. Each tip lights up while its part plays; tap a tip to see its part.",
+        "A fight no longer freezes for good when you tap AUTO while the battle buttons wiggle to be rearranged. A beaten boss always drops its gear again, even when its followers dropped two pieces first.",
+        "Capture waits for a boss's last wave: a monster sealed in an earlier one was lost, Seal Stone and all, if you then fell or ran.",
+        "Music comes back by itself after a call, Siri or an alarm, and when you switch to headphones or a speaker. Your saved games' dates and your starting hero name follow the language you chose, and so do the phone's own screens, like the Files picker for backups."
+      ]
+    },
+    {
       "version": "0.3.59",
       "date": "2026-10-06",
       "title": "A bigger bookmark",

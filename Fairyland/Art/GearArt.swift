@@ -51,7 +51,8 @@ enum GearArt {
         spark.alpha = 0
         group.addChild(spark)
         let drift = SKAction.sequence([
-            .run { spark.position = CGPoint(x: .random(in: -3...3), y: .random(in: -2...2)) },
+            // Weakly: the endless action would otherwise keep the spark (and its gear) alive forever.
+            .run { [weak spark] in spark?.position = CGPoint(x: .random(in: -3...3), y: .random(in: -2...2)) },
             .group([.sequence([.fadeAlpha(to: 0.8, duration: 0.25), .fadeOut(withDuration: 0.6)]), .moveBy(x: 0, y: 7, duration: 0.85)]),
             .wait(forDuration: 1.4, withRange: 1.6),
         ])
@@ -199,8 +200,8 @@ enum GearArt {
             star.blendMode = .add
             star.alpha = 0
             aura.addChild(star)
-            let hop = SKAction.run {
-                star.position = CGPoint(x: .random(in: -height * 0.35...height * 0.35), y: .random(in: height * 0.2...height * 0.9))
+            let hop = SKAction.run { [weak star] in
+                star?.position = CGPoint(x: .random(in: -height * 0.35...height * 0.35), y: .random(in: height * 0.2...height * 0.9))
             }
             let twinkle = SKAction.sequence([hop, .fadeIn(withDuration: 0.3), .wait(forDuration: 0.2), .fadeOut(withDuration: 0.5),
                                              .wait(forDuration: 0.6, withRange: 0.8)])
