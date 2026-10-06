@@ -2,6 +2,17 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.62",
+      "date": "2026-10-06",
+      "title": "Brighter battles",
+      "notes": [
+        "Special attacks land in a flare of light: a bloom, a streak across it, a star of beams and a burst of sparks, growing with the skill's level, so a mastered spell lands like a small sun.",
+        "Damage shows with a minus now, like -100, so it reads apart from healing's +100.",
+        "New pixel-art icons on the battle buttons, the map's buttons and the menu tabs, drawn like the items.",
+        "Friends walking with your party no longer show their titles, so the names over the party don't pile up."
+      ]
+    },
+    {
       "version": "0.3.61",
       "date": "2026-10-06",
       "title": "Something every day",

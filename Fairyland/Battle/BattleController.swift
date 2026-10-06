@@ -1070,6 +1070,11 @@ final class BattleController {
         scene?.refreshBars()
     }
 
+    /// Debug launches (`cast=`): what the hero's `skill` at `level` would do to each of `targets`.
+    func expectedHitsForDebug(_ skill: SkillDef, level: Int, on targets: [Int]) -> [Hit] {
+        engine.expectedHitsForDebug(skill, level: level, on: targets)
+    }
+
     /// Debug launches (`herodown`): the hero faints where they stand, and any friends fight on.
     func knockOutHeroForDebug() {
         guard phase == .command, !choosingForCompanion else { return }

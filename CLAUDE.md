@@ -22,6 +22,9 @@ Online's own names (towns, people, bosses, quests) in player-facing text: `docs/
   logo's style (`tools/store_slides.json`, font in `tools/fonts/`), cropped clear of the Dynamic Island the
   simulator draws in, exported at 2622×1206 and 2868×1320 with no alpha.
 - `tools/skill_art.py`: the same for every skill's icon (`art/sprites/skill_<id>.png`).
+- `tools/ui_icon_art.py`: the same for the UI's button icons (`art/sprites/ui_<GameIcon>.png`): `IconImage` shows
+  them from 18 pt up (battle buttons, the HUD's buttons, the menu's tabs) and keeps Iconaut's vector icons for
+  small inline glyphs. `--sheet out.png` previews them on the game's button colours.
 - `tools/fx_art.py`: the same for the few battle marks that aren't light (`art/sprites/fx_*.png`: poison's bubble,
   the poison mark and the arrows for lowered and raised stats). `--sheet out.png` writes a contact sheet. Spells are light, not sprites:
   `Fairyland/Battle/ElementEffects.swift` layers soft glows in each element's colours (`ElementLight`).

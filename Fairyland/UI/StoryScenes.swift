@@ -1031,7 +1031,7 @@ final class StoryScene: SKScene {
     /// drops to `hp` (BattleScene.impact).
     private func impact(on id: Int, _ amount: Int, hp: Double, mana: Double = 1, weakSpot: Bool = false) {
         guard let target = actors[id] else { return }
-        Effects.damageBurst("\(amount)", style: .normal, at: target.top, in: battleStage)
+        Effects.damageBurst("-\(amount)", style: .normal, at: target.top, in: battleStage)
         if weakSpot {
             Effects.floatingText(L("Weak spot!"), color: Nodes.gold, at: target.top + CGVector(dx: 0, dy: 22), in: battleStage, size: 12)
         }
