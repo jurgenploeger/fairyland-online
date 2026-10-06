@@ -1222,8 +1222,12 @@ final class BattleController {
 
         // Equipment: now and then a beaten monster drops gear from up to its own level, more often
         // the stronger it is next to you; a rare one often, a boss always. Two pieces at most a fight.
+        // A boss rolls first: it stands behind two waves of followers, and their drops used to use up
+        // the two before its turn came.
         var gearFound = 0
-        for foe in engine.combatants where foe.side == .enemies && !foe.isCaptured && !foe.hasFled {
+        let beaten = engine.combatants.filter { $0.side == .enemies && !$0.isCaptured && !$0.hasFled }
+        let leads = { (foe: Combatant) in foe.speciesID.flatMap { content.monster($0) }?.boss == true }
+        for foe in beaten.filter(leads) + beaten.filter({ !leads($0) }) {
             guard gearFound < 2 else { break }
             guard case .wild = foe.source, let id = foe.speciesID else { continue }
             let isBoss = content.monster(id)?.boss == true

@@ -1092,6 +1092,48 @@ struct RulesTests {
         #expect(chance > 0.2 && chance < 0.6)
     }
 
+    /// No Seal Stone while a boss's next wave is still to come: a sealed monster only joins you when
+    /// the fight is won, so losing or running from the next wave lost it, stone and all.
+    @Test func noSealingWhileABossWaveIsToCome() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = jelly.stats(at: 1)
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 1, element: .neutral,
+                             stats: Stats(hp: 60, attack: 10, defense: 8, speed: 10), hp: 60, mp: 0, skills: [], captureRate: 0)
+        let weak = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
+                             stats: stats, hp: 1, mp: 0, skills: [], captureRate: jelly.captureRate)
+        var boss = Combatant(id: 20, side: .enemies, source: .wild("jelly"), name: "Boss", art: jelly.art, level: 5, element: jelly.element,
+                             stats: stats, hp: stats.hp, mp: 0, skills: [], captureRate: 0)
+        boss.wave = 2
+        #expect(BattleEngine(party: [hero], enemies: [weak], content: content, waves: [[boss]]).captureStatus(of: 10) == .impossible)
+        guard case .ready = BattleEngine(party: [hero], enemies: [weak], content: content).captureStatus(of: 10) else {
+            Issue.record("expected capture to be possible once no wave is left to come")
+            return
+        }
+    }
+
+    #if DEBUG
+    /// A beaten boss always drops a piece of gear, however much its two waves of followers dropped
+    /// first (two pieces a fight at most, and the boss used to roll last).
+    @Test func aBeatenBossAlwaysDropsGear() throws {
+        let content = Content.shared
+        let npc = try #require(content.boss(fighting: "rat_king"))
+        let boss = try #require(content.monster("rat_king"))
+        let encounters = try #require(content.home(ofNPC: npc.id)?.encounters)
+        for _ in 0..<4 {
+            let session = GameSession.newGame(name: "Test", raceID: "human")
+            let fight = try #require(BattleController.boss(npc, encounters: encounters, session: session))
+            fight.winForDebug()
+            let result = try #require(fight.result)
+            let bossDropped = result.loot.contains { found in
+                guard let item = content.item(found.id) else { return false }
+                return result.lines.contains(L("{name} dropped {item}!", ["name": boss.name, "item": item.name]))
+            }
+            #expect(bossDropped)
+        }
+    }
+    #endif
+
     @Test func fullPartyLeavesSomeoneBehind() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         for _ in 0..<GameSession.maxPets {
