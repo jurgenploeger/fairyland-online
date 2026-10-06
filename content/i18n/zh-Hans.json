@@ -723,6 +723,8 @@
     "Rosy": "红润",
     "Tan": "小麦",
     "Deep": "深色",
+    "Cleaner buttons": "按钮更清爽",
+    "The light buttons lost the stray dark line just inside their top edge. Their shadow now falls only underneath, where it belongs.": "浅色按钮顶边内侧那条多余的暗线去掉了。现在阴影只落在按钮下方，回到它该在的位置。",
     "Quests worth the trip": "值得一跑的任务",
     "Quests show what they pay up front, in the Quests list and when they're offered to you: gold, EXP and items, no tap needed.": "任务奖励一目了然：在任务列表里和接任务时，都能直接看到金币、EXP和物品，不用再点开。",
     "Quest gold and EXP grow with your level, to a bit more than a daily bounty pays, so an old quest is still worth the trip.": "任务的金币和EXP会随你的等级提升，比今日委托稍多一点，旧任务也值得回去做。",

@@ -723,6 +723,8 @@
     "Rosy": "ばら色",
     "Tan": "小麦色",
     "Deep": "褐色",
+    "Cleaner buttons": "すっきりボタン",
+    "The light buttons lost the stray dark line just inside their top edge. Their shadow now falls only underneath, where it belongs.": "明るいボタンの上端のすぐ内側に出ていた、余分な暗い線を消しました。影はボタンの下にだけ落ちます。",
     "Quests worth the trip": "行く価値のあるクエスト",
     "Quests show what they pay up front, in the Quests list and when they're offered to you: gold, EXP and items, no tap needed.": "クエストのごほうびが最初から見えるようになった。クエスト一覧でも、たのまれたときも、ゴールド・EXP・アイテムがタップなしでわかる。",
     "Quest gold and EXP grow with your level, to a bit more than a daily bounty pays, so an old quest is still worth the trip.": "クエストのゴールドとEXPはレベルに合わせて増えて、今日の依頼より少し多くもらえる。昔のクエストも行く価値がある。",
