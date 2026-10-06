@@ -147,8 +147,8 @@ store_land_night   | newgame,level=100,class=fighter,pet=pineapple,friends=2,map
 store_land_town    | newgame,level=40,class=fighter,map=goldburg,landscape,clean,nohud | 15
 store_land_levelup | newgame,level=9,levelup,pet=pineapple,map=candy_mountain,battle=1,win,equip=golden_dragon_mail,landscape,clean | 30
 # A companion at your heels: zoomed in as if pinched, the hero walking a loop (walk=) so the still catches them mid-stride.
-store_land_companion | newgame,level=45,class=tamer,equip=crimson_ranger_cloak,pet=pegasus,map=sunny_meadow,zoom=2,walk=1_0,landscape,clean,nohud | 5
-store_land_companion_bear | newgame,level=45,class=tamer,equip=crimson_ranger_cloak,pet=fire_bear,map=sunny_meadow,zoom=2,walk=1_0,landscape,clean,nohud | 7
-store_land_companion_candy | newgame,level=45,class=tamer,equip=crimson_ranger_cloak,pet=fire_bear,map=candy_mountain,zoom=2,walk=1_0,landscape,clean,nohud | 6
-store_land_companion_rose | newgame,level=80,class=tamer,equip=rose_snow_cloak,pet=pegasus,map=sunny_meadow,zoom=1.7,walk=1_0,landscape,clean,nohud | 8
+store_land_companion | newgame,level=70,class=tamer,equip=azure_dragon_mail,pet=fire_bear,map=candy_mountain,zoom=2.2,walk=1_0,landscape,clean,nohud | 6
+store_land_companion_gold | newgame,level=70,class=tamer,equip=golden_dragon_mail,pet=fire_bear,map=candy_mountain,zoom=2.2,walk=1_0,landscape,clean,nohud | 7
+store_land_companion_shore | newgame,level=70,class=tamer,equip=azure_dragon_mail,pet=fire_bear,map=pineapple_shore,zoom=2.2,walk=1_0,landscape,clean,nohud | 6
+store_land_companion_shore_gold | newgame,level=70,class=tamer,equip=golden_dragon_mail,pet=fire_bear,map=pineapple_shore,zoom=2.2,walk=1_0,landscape,clean,nohud | 8
 store_land_looks   | newgame,menu=character,customize,landscape,clean | 10
