@@ -53,8 +53,10 @@ jobs:
 
   screenshots:
     runs-on: macos-26
-    # A full run of 95 scenes (two of them filmed) takes well over an hour; this leaves room.
-    timeout-minutes: 130
+    # A full run of about 130 scenes (two of them filmed) takes two and a half hours at most, a
+    # minute or so a scene; this leaves room. At 130 minutes, full runs were cut off before they
+    # could publish anything.
+    timeout-minutes: 200
     steps:
       - uses: actions/checkout@v4
 
