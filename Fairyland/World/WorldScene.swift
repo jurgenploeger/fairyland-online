@@ -147,6 +147,13 @@ final class WorldScene: SKScene {
         cam.setScale(1 / Self.zoom)
     }
 
+    #if DEBUG
+    /// Debug launches (`zoom=2`): the map opens zoomed as if pinched, within the pinch's range.
+    static func zoomForDebug(_ value: CGFloat) {
+        zoom = min(zoomRange.upperBound, max(zoomRange.lowerBound, value))
+    }
+    #endif
+
     // MARK: - Building the map
 
     /// True once `build(progress:)` has finished; until then the scene sits still under the loading bar.
