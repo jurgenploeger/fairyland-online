@@ -369,6 +369,8 @@ for map_def in maps.values():
             check(isinstance(palette[key], (int, float)) and 0 <= palette[key] <= 1, f"{where} → {key} must be between 0 and 1")
     check_rules(palette.get("recolor", []), where)
 
+# The kinds `Critters.make` (Fairyland/World/Critters.swift) knows how to draw.
+CRITTER_KINDS = {"bunny", "frog", "crab", "songbird", "chick", "squirrel", "lizard", "mouse"}
 ambience_keys = {"particles", "butterflies", "critters", "birds", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground", "focus", "darkness", "weather"}
 weather_kinds = {"clear", "cloudy", "rain", "storm", "fog", "snow"}
 for map_def in maps.values():
@@ -387,7 +389,7 @@ for map_def in maps.values():
               f"{where} → unknown particles {kind}")
     # Required by the app's Ambience.Critter: a missing kind or count stops maps.json loading.
     for critter in ambience.get("critters", []):
-        check(critter.get("kind") in {"bunny", "frog", "crab"}, f"{where} critters → kind must be bunny, frog or crab: {critter.get('kind')}")
+        check(critter.get("kind") in CRITTER_KINDS, f"{where} critters → kind must be one of {sorted(CRITTER_KINDS)}: {critter.get('kind')}")
         count = critter.get("count")
         check(isinstance(count, int) and not isinstance(count, bool) and 1 <= count <= 30, f"{where} critters → count must be 1 to 30")
     if "birds" in ambience:

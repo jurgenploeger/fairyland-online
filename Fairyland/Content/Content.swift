@@ -496,7 +496,7 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         let weather: [String: Double]?
 
         nonisolated struct Critter: Decodable, Sendable {
-            /// bunny | frog | crab
+            /// bunny | frog | crab | songbird | chick | squirrel | lizard | mouse
             let kind: String
             let count: Int
         }
