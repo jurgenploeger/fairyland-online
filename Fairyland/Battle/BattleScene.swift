@@ -16,6 +16,9 @@ final class BattleScene: SKScene {
     private var markers: [SKNode] = []
     /// Fainted friends shown faintly while you choose who to revive.
     private var ghosts: Set<Int> = []
+    /// While a special attack plays: its colour and tier, so every blow it lands flares in its light
+    /// (SkillFlares.swift).
+    private var flareLight: (color: UIColor, level: Int)?
 
     init(controller: BattleController, size: CGSize, backdrop: SKTexture?) {
         self.controller = controller
@@ -450,7 +453,7 @@ final class BattleScene: SKScene {
             controller.apply(event)
             if let actor = actors[targetID] {
                 SkillEffects.poisonBite(on: actor, in: stage)
-                Effects.damageBurst("\(amount)", style: .poison, at: actor.top, in: stage)
+                Effects.damageBurst("-\(amount)", style: .poison, at: actor.top, in: stage)
                 // Named, so it's clear the HP went to the poison and not to a blow.
                 Effects.floatingText(L("Poison"), color: SkillEffects.color(of: .poison), at: actor.top + CGVector(dx: 0, dy: 24), in: stage, size: 12)
             }
@@ -565,6 +568,12 @@ final class BattleScene: SKScene {
             let hold = SkillEffects.charge(on: caster, color: color, level: level, in: stage)
             if hold > 0 { await pause(hold) }
         }
+        // Special attacks leave the caster's hands in a flare, and every blow they land flares too.
+        if skill.kind.isAttack {
+            if let caster = actors[actorID] { SkillEffects.castFlare(on: caster, color: color, level: level, in: stage) }
+            flareLight = (color, level)
+        }
+        defer { flareLight = nil }
         if level >= 3 { SkillEffects.screenFlash(color: color, strength: 0.18 + 0.08 * CGFloat(level - 3), size: size, in: self) }
         // Revive: a pillar of light on the fallen ally, who rises back into view.
         if skill.kind == .revive {
@@ -861,7 +870,10 @@ final class BattleScene: SKScene {
             Effects.damageBurst("+\(hit.amount)", style: .heal, at: target.top, in: stage)
             return
         }
-        Effects.damageBurst("\(hit.amount)", style: hit.critical ? .critical : hit.splash ? .splash : .normal, at: target.top, in: stage)
+        if let flare = flareLight {
+            SkillEffects.impactFlare(on: target, color: flare.color, level: flare.level, in: stage)
+        }
+        Effects.damageBurst("-\(hit.amount)", style: hit.critical ? .critical : hit.splash ? .splash : .normal, at: target.top, in: stage)
         if hit.effectiveness > 1 {
             Effects.floatingText(L("Weak spot!"), color: Nodes.gold, at: target.top + CGVector(dx: 0, dy: 22), in: stage, size: 12)
         } else if hit.effectiveness < 1 {
