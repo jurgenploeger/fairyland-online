@@ -1108,10 +1108,11 @@ final class BattleScene: SKScene {
     }
 
     #if DEBUG
-    /// Debug launches (`cast=`): the hero casts a skill at the monsters (all of them, or the first)
-    /// without playing a round. With `stopAt` the battle slows right down and freezes that many
-    /// seconds into the cast, so a screenshot catches the effect mid-flight.
-    func castForDebug(_ skillID: String, level: Int, stopAt: TimeInterval?) {
+    /// Debug launches (`cast=`): the hero casts a skill at the monsters (all of them, or one: the
+    /// `target`th on the field counting from 0, else the first) without playing a round. With
+    /// `stopAt` the battle slows right down and freezes that many seconds into the cast, so a
+    /// screenshot catches the effect mid-flight.
+    func castForDebug(_ skillID: String, level: Int, target: Int? = nil, stopAt: TimeInterval?) {
         guard let skill = Content.shared.skill(skillID), let hero = controller.combatants.first(where: { $0.isHero }) else { return }
         for actor in actors.values {
             actor.removeAction(forKey: "enter")
@@ -1119,7 +1120,8 @@ final class BattleScene: SKScene {
             actor.alpha = 1
         }
         let foes = controller.enemiesOnField.map(\.id)
-        let targets = skill.target == .allEnemies ? foes : Array(foes.prefix(1))
+        let one = foes.isEmpty ? [] : [foes[min(max(target ?? 0, 0), foes.count - 1)]]
+        let targets = skill.target == .allEnemies ? foes : one
         let hits = controller.expectedHitsForDebug(skill, level: level, on: targets)
         if let stopAt {
             speed = 0.03

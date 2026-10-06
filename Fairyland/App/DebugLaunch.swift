@@ -32,7 +32,8 @@ import SpriteKit
 ///   orders         with battle: the hero picks Attack on the first monster, so your companion's turn shows
 ///   afflict        with battle: the first monster poisoned, the next one cursed, and the hero poisoned
 ///   herodown       with battle: the hero faints at once, and any friends fight on without them
-///   cast=<skill>[:n]  with battle: once everyone is in, the hero casts that skill (at skill level n)
+///   cast=<skill>[:n[:t]]  with battle: once everyone is in, the hero casts that skill (at skill level n;
+///                  a one-target skill at monster t on the field, counting from 0, else the first)
 ///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
 ///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
 ///   auto           battles start on Auto where it's allowed (monsters well below you)
@@ -157,17 +158,20 @@ enum DebugLaunch {
                 battle.knockOutHeroForDebug()
             }
         }
-        // `cast=stone_spike:5`: once the battle is on screen and everyone is in, the hero casts.
+        // `cast=stone_spike:5` (or `cast=fire_bolt:9:2`, at the third monster): once the battle is
+        // on screen and everyone is in, the hero casts.
         if let cast = flags["cast"], let skillID = cast.split(separator: ":").first.map(String.init),
            let battle = coordinator.battle {
-            let level = cast.split(separator: ":").dropFirst().first.flatMap { Int($0) } ?? 1
+            let numbers = cast.split(separator: ":").dropFirst().compactMap { Int($0) }
+            let level = numbers.first ?? 1
+            let target = numbers.dropFirst().first
             let stop = flags["fxstop"].flatMap(Double.init)
             Task {
                 for _ in 0..<240 {
                     try? await Task.sleep(for: .milliseconds(500))
                     guard let scene = battle.scene, scene.view != nil else { continue }
                     try? await Task.sleep(for: .seconds(2))
-                    scene.castForDebug(skillID, level: level, stopAt: stop)
+                    scene.castForDebug(skillID, level: level, target: target, stopAt: stop)
                     return
                 }
             }
