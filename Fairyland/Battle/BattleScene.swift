@@ -1120,7 +1120,7 @@ final class BattleScene: SKScene {
         }
         let foes = controller.enemiesOnField.map(\.id)
         let targets = skill.target == .allEnemies ? foes : Array(foes.prefix(1))
-        let hits = targets.map { Hit(target: $0, amount: 12, effectiveness: 1, critical: false) }
+        let hits = controller.expectedHitsForDebug(skill, level: level, on: targets)
         if let stopAt {
             speed = 0.03
             run(.sequence([.wait(forDuration: stopAt), .run { [weak self] in self?.isPaused = true }]))

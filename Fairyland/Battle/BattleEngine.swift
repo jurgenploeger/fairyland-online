@@ -944,5 +944,17 @@ final class BattleEngine {
             }
         }
     }
+
+    /// Debug launches (`cast=`): what the hero's `skill` at `level` does to each of `targets` on
+    /// average (no luck, no criticals), so a frozen cast shows the numbers a real one would.
+    func expectedHitsForDebug(_ skill: SkillDef, level: Int, on targets: [Int]) -> [Hit] {
+        guard var caster = hero else { return [] }
+        caster.skillLevels[skill.id] = level
+        return targets.compactMap { combatant($0) }.map { foe in
+            let effectiveness = skill.kind == .magic ? (skill.element ?? .neutral).multiplier(against: foe.element) : 1
+            let amount = Int(expectedDamage(from: caster, to: foe, skill: skill).rounded())
+            return Hit(target: foe.id, amount: amount, effectiveness: effectiveness, critical: false)
+        }
+    }
     #endif
 }
