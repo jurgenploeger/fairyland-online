@@ -684,6 +684,8 @@
     "Rosy": "ばら色",
     "Tan": "小麦色",
     "Deep": "褐色",
+    "Who's about": "近くにいるのは",
+    "The minimap shows the other players on your map as dots: blue for adventurers, white for friends you've made, red for red-named ones looking for a fight, and green for friends in your party. In dark caves you only see those standing somewhere you've already lit.": "ミニマップに、同じマップにいるほかのプレイヤーが点で表示されるようになりました。青は冒険者、白は友だち、赤はケンカを探している赤い名前の冒険者、緑はパーティーの仲間です。暗い洞窟では、すでに照らした場所にいる人だけが見えます。",
     "Waking up in town": "町で目覚める",
     "When you faint, you wake up in the last town you visited, not at the edge of the map where you fell, so a zone that's too hard for you can't keep knocking you down at its entrance.": "倒れたときは、倒れたマップの端ではなく、最後に訪れた町で目覚めるようになりました。手ごわすぎるエリアの入口で何度も倒され続けることはもうありません。",
     "Won fights now and then leave a Homeward Feather, and a beaten boss always does, so a long trip out always has a way home.": "戦闘に勝つとときどき帰り道の羽根が手に入り、ボスを倒すと必ず手に入ります。遠くまで旅しても、いつでも帰り道があります。",
