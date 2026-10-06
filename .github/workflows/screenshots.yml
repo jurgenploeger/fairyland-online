@@ -71,6 +71,9 @@ jobs:
             -destination 'generic/platform=iOS Simulator' -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO build > build/simulator.log 2>&1 \
             || { tools/ci_errors.sh build/simulator.log; exit 1; }
+          # App Store Connect refuses a build without its privacy manifest (Fairyland/PrivacyInfo.xcprivacy).
+          test -f build/DerivedData/Build/Products/Debug-iphonesimulator/Fairyland.app/PrivacyInfo.xcprivacy \
+            || { echo "::error::PrivacyInfo.xcprivacy isn't in the app bundle"; exit 1; }
 
       - name: Boot a simulator
         id: sim
