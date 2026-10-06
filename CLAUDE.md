@@ -19,7 +19,8 @@ Online's own names (towns, people, bosses, quests) in player-facing text: `docs/
 - `Fairyland/`: Swift code (World = maps and walking, Battle = combat, UI = SwiftUI HUD and menus).
 - `tools/item_art.py`: draws every item's 32×32 sprite in code (free); rerun it after editing a drawing.
 - `tools/store_slides.py`: App Store slides from the landscape `store_land_*` screenshot scenes: captions in the
-  logo's style (`tools/store_slides.json`, font in `tools/fonts/`), exported at 2622×1206 and 2868×1320 with no alpha.
+  logo's style (`tools/store_slides.json`, font in `tools/fonts/`), cropped clear of the Dynamic Island the
+  simulator draws in, exported at 2622×1206 and 2868×1320 with no alpha.
 - `tools/skill_art.py`: the same for every skill's icon (`art/sprites/skill_<id>.png`).
 - `tools/fx_art.py`: the same for the few battle marks that aren't light (`art/sprites/fx_*.png`: poison's bubble,
   the poison mark and the arrows for lowered and raised stats). `--sheet out.png` writes a contact sheet. Spells are light, not sprites:

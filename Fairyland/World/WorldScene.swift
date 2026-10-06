@@ -1128,8 +1128,9 @@ final class WorldScene: SKScene {
                 existing.waiting = friend.waitingAt
                 return existing
             }
+            // No title over a friend's name: the party walks bunched up, so it would sit on the next one's
+            // name. Their card still shows it.
             let node = Walker(cycle: art.walkCycle(session.artID(for: friend)), label: friend.name, labelColor: HUDStyle.partyGreen, badge: .bot)
-            node.setTitle(GameSession.botTitle(level: friend.level, id: friend.id))
             node.setGear(weapon: GameSession.weapon(for: friend), accessory: nil)
             node.walkSpeed = 105
             node.tagMode = .whenStill
