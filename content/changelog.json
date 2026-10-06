@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.64",
+      "date": "2026-10-06",
+      "title": "Cleaner buttons",
+      "notes": [
+        "The light buttons lost the stray dark line just inside their top edge. Their shadow now falls only underneath, where it belongs."
+      ]
+    },
+    {
       "version": "0.3.63",
       "date": "2026-10-06",
       "title": "Quests worth the trip",
