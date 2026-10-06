@@ -613,7 +613,7 @@ final class StoryScene: SKScene {
         marker.run(.repeatForever(.group([bob, pulse])))
         elder.addChild(marker)
         patch.walker("npc_healer", 8.6, 12.6, facing: .right, label: content.npc("healer")?.name)
-        patch.walker("npc_trader", 14.6, 8.2, facing: .left, label: content.npc("shop")?.name)
+        patch.walker("npc_trader", 14.2, 8.6, facing: .left, label: content.npc("shop")?.name)
         let hero = patch.walker("player_walk", 11, 4.5, facing: .left, label: L("Hero"))
         hero.tagMode = .whenStill
         hero.fidgets = true
@@ -701,6 +701,8 @@ final class StoryScene: SKScene {
         meadow = makeMeadow()
         square = makeSquare(companion: "pineapple", staff: true)
         play(clip: firstClip.rawValue)
+        // Debug `clip`: screenshots count their seconds from here.
+        DebugLaunch.markReady()
     }
 
     /// Sunny Meadow, where How to play walks and fights: a road past a pond and a flower meadow,
@@ -825,7 +827,12 @@ final class StoryScene: SKScene {
                 self.hud.banner = L("{name} throws a Seal Stone!", ["name": L("Hero")])
                 self.seal(11)
             },
-            .wait(forDuration: Self.sealTime + 0.5),
+            // As the seal sets in gold, the line BattleController shows.
+            .wait(forDuration: Self.sealedAt),
+            .run { [weak self] in
+                self?.hud.banner = L("Sealed! {name} was captured!", ["name": Self.fighter(11)?.name ?? ""])
+            },
+            .wait(forDuration: Self.sealTime - Self.sealedAt + 0.5),
             .run { [weak self] in self?.fight = .won },
         ])
     }
@@ -1185,6 +1192,8 @@ final class StoryScene: SKScene {
 
     /// How long `seal` takes, from the stone leaving your hand to it floating home.
     private static let sealTime: TimeInterval = 5.8
+    /// When the seal sets in gold and "Sealed!" rises (`seal`).
+    private static let sealedAt: TimeInterval = 4.3
 
     /// The Seal Stone at work, as BattleScene.captureAnimation plays it: the crystal rises from your
     /// hand and glides over the monster, a seal of teal light opens under it, the monster turns to

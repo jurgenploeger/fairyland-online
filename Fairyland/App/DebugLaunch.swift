@@ -53,7 +53,8 @@ import SpriteKit
 ///   weather=<kind> every map with a sky has this weather (clear | cloudy | rain | storm | fog | snow)
 ///   lang=<code>    play in this language (content/i18n/languages.json), without changing the saved choice
 ///   intro[=page]   open the title screen's story pages at that page (1 = the story, 4 = how to play)
-///   clip=<n>       with intro=4: How to play's picture starts at that part (0 walk … 4 town)
+///   clip=<n>       with intro=4: How to play's picture starts at that part (0 walk … 4 town), and
+///                  marks debug-ready as it does
 enum DebugLaunch {
     private static var flags: [String: String] {
         #if DEBUG
@@ -83,10 +84,11 @@ enum DebugLaunch {
     /// A debug game (tests, screenshots): the first-play tour stays hidden unless `coach` is set.
     static var isActive: Bool { flags["newgame"] != nil }
 
-    /// Debug launches leave `Documents/debug-ready` once the map or battle is on screen, so
-    /// tools/screenshots.sh knows when to shoot (the loading curtain alone can look "drawn").
+    /// Debug launches leave `Documents/debug-ready` once the map or battle is on screen (or How to
+    /// play's part, with `clip`), so tools/screenshots.sh knows when to shoot (the loading curtain
+    /// alone can look "drawn").
     static func markReady() {
-        guard isActive, let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        guard isActive || introClip != nil, let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
         try? Data().write(to: folder.appending(path: "debug-ready"))
     }
     static var showsCoachMarks: Bool { flags["coach"] != nil }

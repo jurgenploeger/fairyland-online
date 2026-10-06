@@ -34,13 +34,16 @@ grep -vE '^\s*(#|$)' "$SCENES" | while IFS='|' read -r name flags wait; do
   # white launch screen makes a tiny PNG (~70 KB) and anything the game draws a far bigger one,
   # so wait for the first real frame, then give the scene its own seconds to settle.
   # Debug games (newgame) mark Documents/debug-ready once the map or battle is up; the title
-  # screen doesn't, so it goes by size.
+  # screen doesn't, so it goes by size. How to play's parts (clip=n) mark it as their part
+  # starts, and their seconds count from that moment, so they look for it more often.
   start=$SECONDS
-  sleep 3
   ready=""
-  if [[ ",$flags," == *",newgame,"* ]]; then
+  poll=3
+  if [[ ",$flags," == *",newgame,"* || ",$flags," == *",clip="* ]]; then
     ready="$(xcrun simctl get_app_container "$SIM" "$BUNDLE" data 2>/dev/null)/Documents/debug-ready"
   fi
+  if [[ ",$flags," == *",clip="* ]]; then poll=0.5; fi
+  sleep "$poll"
   while :; do
     if [ -n "$ready" ]; then
       [ -f "$ready" ] && break
@@ -50,7 +53,7 @@ grep -vE '^\s*(#|$)' "$SCENES" | while IFS='|' read -r name flags wait; do
       [ "$size" -gt 300000 ] && break
     fi
     if [ $((SECONDS - start)) -gt 150 ]; then echo "  still on the launch screen after 150 s"; break; fi
-    sleep 3
+    sleep "$poll"
   done
   echo "::notice::$name: first frame after $((SECONDS - start)) s"
   # record=N: film the screen for N seconds from the first frame (the app preview video), then
