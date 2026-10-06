@@ -7,7 +7,8 @@ no alpha channel (it refuses screenshots that have one):
   2622×1206  iPhone with Dynamic Island (medium display), the required one
   2868×1320  iPhone with Dynamic Island (large display), so the 6.5" set isn't needed
 
-Captions, their places and the order of the carousel are in tools/store_slides.json.
+Captions, their places and the order of the carousel are in tools/store_slides.json. The simulator draws the
+Dynamic Island into its screenshots, so each shot is cropped clear of it first (a zoom of a few percent).
 
     python3 tools/store_slides.py <shots-dir> <out-dir> [--sheet contact-sheet.png]
 
@@ -118,9 +119,39 @@ def scrim(canvas, top):
     canvas.alpha_composite(solid(canvas.size, (8, 28, 22), column.resize((width, height))))
 
 
+def island_edges(shot):
+    """How far in from the left and right edges the Dynamic Island's black pill reaches (0: none there). The
+    simulator draws it into its screenshots, whatever the mask, and a landscape shot has it at one side."""
+    gray = shot.convert("L")
+    width, height = gray.size
+    top, bottom = round(height * 0.3), round(height * 0.7)
+
+    def solid_black(x):
+        return gray.crop((x, top, x + 1, bottom)).histogram()[0] > (bottom - top) * 0.25
+
+    band = round(width * 0.1)
+    left = max((x + 1 for x in range(band) if solid_black(x)), default=0)
+    right = max((width - x for x in range(width - band, width) if solid_black(x)), default=0)
+    return left, right
+
+
+def trim_island(shot):
+    """The shot without the Dynamic Island: cropped clear of it, and as much off the height, so it keeps its
+    shape (the slide scales it back up, a few percent)."""
+    left, right = island_edges(shot)
+    if not (left or right):
+        return shot
+    margin = round(shot.width * 0.012)
+    x0 = left + margin if left else 0
+    x1 = shot.width - (right + margin if right else 0)
+    height = round((x1 - x0) * shot.height / shot.width)
+    y0 = (shot.height - height) // 2
+    return shot.crop((x0, y0, x1, y0 + height))
+
+
 def slide(shot, spec, size):
     """One slide at `size`, laid out in BASE points scaled to it."""
-    canvas = shot.convert("RGBA").resize(size, Image.LANCZOS)
+    canvas = trim_island(shot).convert("RGBA").resize(size, Image.LANCZOS)
     scale = size[0] / BASE[0]
     place = spec.get("at", "bottom-left")
     vertical, horizontal = place.split("-")

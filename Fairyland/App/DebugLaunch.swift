@@ -52,8 +52,8 @@ import SpriteKit
 ///                  the round (1 unless set)
 ///   bounties=<n>   today's bounties made at once, the first n of them done and waiting to be claimed
 ///   landscape      lock the app to landscape
-///   clean          no frame counter in the corner (App Store screenshots; tools/screenshots.sh also
-///                  leaves out the Dynamic Island's black mask)
+///   clean          no frame counter in the corner (App Store screenshots; tools/store_slides.py crops
+///                  off the Dynamic Island the simulator draws in)
 ///   nohud          the map without its HUD (App Store slides of the world)
 ///   hour=<h>       the calendar starts at that hour of the day (0-23: 21 for night, 18 for dusk)
 ///   weather=<kind> every map with a sky has this weather (clear | cloudy | rain | storm | fog | snow)
