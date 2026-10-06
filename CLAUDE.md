@@ -8,6 +8,8 @@ Online's own names (towns, people, bosses, quests) in player-facing text: `docs/
 ## Layout
 - `docs/fairyland-online.md`: how the original game (and Tales of Mysteria, its 2026 relaunch) worked, with
   sources, and where we differ. Read it before inventing a system; add facts you verify, with their source.
+- `docs/launch-audit.md`: the pre-launch audit (2026-10-06): App Store checklist, open bugs and balance issues
+  ranked, and gamification ideas. Tick items off or remove them as they're done.
 - `content/*.json`: all game data (maps, monsters, skills, items, quests, music, looks, crowd, announcements). Data-driven;
   most features are a JSON edit.
 - `art/assets.json` + `art/sprites/`: every sprite. `derive` makes free palette swaps of existing art. Recolour a whole
