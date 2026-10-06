@@ -2200,6 +2200,14 @@
           {
             "kind": "squirrel",
             "count": 2
+          },
+          {
+            "kind": "spider",
+            "count": 2
+          },
+          {
+            "kind": "wisp",
+            "count": 2
           }
         ],
         "weather": {
@@ -4089,6 +4097,10 @@
           {
             "kind": "songbird",
             "count": 3
+          },
+          {
+            "kind": "crow",
+            "count": 2
           }
         ],
         "birds": "songbirds",
@@ -4441,6 +4453,10 @@
           {
             "kind": "frog",
             "count": 8
+          },
+          {
+            "kind": "wisp",
+            "count": 3
           }
         ],
         "weather": {
@@ -4754,7 +4770,21 @@
           "rain": 2,
           "storm": 2,
           "fog": 3
-        }
+        },
+        "critters": [
+          {
+            "kind": "crow",
+            "count": 4
+          },
+          {
+            "kind": "spider",
+            "count": 3
+          },
+          {
+            "kind": "wisp",
+            "count": 3
+          }
+        ]
       },
       "hub": [
         6,
@@ -5036,6 +5066,14 @@
           {
             "kind": "mouse",
             "count": 6
+          },
+          {
+            "kind": "rat",
+            "count": 5
+          },
+          {
+            "kind": "spider",
+            "count": 3
           }
         ]
       },
@@ -6085,6 +6123,10 @@
           {
             "kind": "lizard",
             "count": 6
+          },
+          {
+            "kind": "scorpion",
+            "count": 3
           }
         ]
       },
@@ -6428,7 +6470,13 @@
           "cloudy": 2,
           "fog": 1,
           "snow": 3
-        }
+        },
+        "critters": [
+          {
+            "kind": "wisp",
+            "count": 2
+          }
+        ]
       },
       "hub": [
         0,
@@ -6743,7 +6791,13 @@
           "cloudy": 2,
           "fog": 1,
           "snow": 3
-        }
+        },
+        "critters": [
+          {
+            "kind": "wisp",
+            "count": 3
+          }
+        ]
       },
       "hub": [
         9,
@@ -8284,6 +8338,14 @@
           {
             "kind": "mouse",
             "count": 2
+          },
+          {
+            "kind": "crow",
+            "count": 3
+          },
+          {
+            "kind": "spider",
+            "count": 3
           }
         ]
       },
@@ -9686,6 +9748,18 @@
           {
             "kind": "mouse",
             "count": 2
+          },
+          {
+            "kind": "crow",
+            "count": 4
+          },
+          {
+            "kind": "wisp",
+            "count": 3
+          },
+          {
+            "kind": "spider",
+            "count": 2
           }
         ]
       },
@@ -10315,6 +10389,14 @@
           {
             "kind": "chick",
             "count": 3
+          },
+          {
+            "kind": "crow",
+            "count": 3
+          },
+          {
+            "kind": "wisp",
+            "count": 2
           }
         ]
       },
@@ -10626,6 +10708,10 @@
         "critters": [
           {
             "kind": "lizard",
+            "count": 5
+          },
+          {
+            "kind": "scorpion",
             "count": 5
           }
         ]
@@ -11213,6 +11299,10 @@
           {
             "kind": "songbird",
             "count": 2
+          },
+          {
+            "kind": "crow",
+            "count": 2
           }
         ],
         "birds": "gulls",
@@ -11477,7 +11567,13 @@
           "clear": 6,
           "cloudy": 2,
           "fog": 2
-        }
+        },
+        "critters": [
+          {
+            "kind": "wisp",
+            "count": 4
+          }
+        ]
       },
       "danger": true,
       "exits": [
@@ -11724,6 +11820,18 @@
         "critters": [
           {
             "kind": "mouse",
+            "count": 3
+          },
+          {
+            "kind": "spider",
+            "count": 5
+          },
+          {
+            "kind": "rat",
+            "count": 3
+          },
+          {
+            "kind": "wisp",
             "count": 3
           }
         ]
