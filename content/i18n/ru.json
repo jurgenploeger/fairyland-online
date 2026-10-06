@@ -684,6 +684,8 @@
     "Rosy": "Румяная",
     "Tan": "Смуглая",
     "Deep": "Тёмная",
+    "Cleaner battle marks": "Аккуратнее метки в бою",
+    "The blue and crimson arrows by a fighter's HP bar no longer have a number beside them: an arrow up means a stat is raised, an arrow down that one is lowered. Poison still counts down its rounds.": "Рядом с синими и багровыми стрелками у полоски HP бойца больше нет числа: стрелка вверх значит, что характеристика повышена, стрелка вниз, что понижена. Яд по-прежнему отсчитывает свои раунды.",
     "The fight waits for you": "Бой подождёт",
     "Leave the app in the middle of a battle (another app, the lock screen, a call) and the turn timer stops where it was. It picks up again when you come back, so you don't lose your turn.": "Если выйти из приложения посреди боя (в другое приложение, на экран блокировки, из-за звонка), таймер хода остановится там, где был. Он продолжит идти, когда ты вернёшься, так что ход не пропадёт.",
     "Who's about": "Кто рядом",

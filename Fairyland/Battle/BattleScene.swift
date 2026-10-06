@@ -1288,6 +1288,11 @@ final class BattleActor: SKNode {
             }
             icon.position = CGPoint(x: x, y: 0)
             marks.addChild(icon)
+            // The arrows speak for themselves; only poison counts down its rounds beside it.
+            guard art == "status_poison" else {
+                x += 20
+                continue
+            }
             let count = SKLabelNode()
             count.attributedText = Nodes.outlined("\(rounds)", size: 9, color: tint)
             count.verticalAlignmentMode = .center

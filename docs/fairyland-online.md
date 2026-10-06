@@ -194,7 +194,7 @@ No advanced classes.
   - Poison: HP lost at the end of each round, 3 times, shown as a purple number marked "Poison".
   - Raised or lowered stats (ATK, DEF, MAG, SPD) last the round they land in and 3 more. Each change pops
     up over the fighter with its amount ("DEF +40%"), and a blue arrow up or a crimson arrow down by the HP
-    bar counts the rounds left. A second spell on a stat doesn't stack; the stronger one counts.
+    bar shows it's in effect (no round count since 0.3.57, asked for in playtesting; poison keeps its count). A second spell on a stat doesn't stack; the stronger one counts.
   - Buffs, FO's skill names with our own effects (FO's aren't in any source reachable from a cloud session):
     Protection (Fighter 12, one ally DEF +40%), Holy Glow (Mage 40, one ally MAG +30%), Bless (Mage 45, ATK
     and DEF +25%), Guardianship (Mage 60, the whole party DEF +20%) and Animal Training (Beast Tamer 25,
