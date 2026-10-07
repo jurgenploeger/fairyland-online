@@ -17,7 +17,7 @@ struct LoadingCurtain: View {
                     .scaleEffect(spin ? 1.03 : 0.97)
                 // In the logo's colours: its leaf green, outlined like its letters, on its cream.
                 LoadingBar(progress: progress, label: L("Loading"), textColor: Brand.forest,
-                           fill: [Brand.leafLight, Brand.leaf], track: Brand.cream, rim: Brand.forest)
+                           fill: [Brand.leafLight, Brand.leaf, Brand.leafDeep], track: Brand.cream, rim: Brand.forest)
             }
             .padding(.horizontal, 40)
         }

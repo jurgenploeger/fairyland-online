@@ -1,25 +1,24 @@
 import SwiftUI
 
-/// Storyleaf's own colours, from the logo and the app icon (and the App Store slides, which
-/// tools/store_slides.py letters in the same ones). The title and loading screens wear them; the
-/// game's windows keep Fairyland's look (`HUDStyle`).
+/// Storyleaf's own colours, the logo's and the app icon's exactly (the Figma brand guidelines list
+/// them, page 03 Colour). The title and loading screens wear them; the game's windows keep
+/// Fairyland's look (`HUDStyle`).
 enum Brand {
-    /// The wordmark's letters, light at the top to the leaf green at the bottom.
-    static let leafLight = Color(red: 0.867, green: 0.973, blue: 0.745)  // #DDF8BE
-    static let leaf = Color(red: 0.263, green: 0.639, blue: 0.365)       // #43A35D
+    /// The wordmark's letters, top to bottom.
+    static let leafLight = Color(red: 0.929, green: 1, blue: 0.659)    // #EDFFA8
+    static let leaf = Color(red: 0.549, green: 0.898, blue: 0.42)      // #8CE56B
+    static let leafDeep = Color(red: 0.161, green: 0.659, blue: 0.451) // #29A873
     /// Every outline: the letters', the leaf's and the tagline pill's.
-    static let forest = Color(red: 0.09, green: 0.298, blue: 0.231)      // #174C3B
-    /// The thicker edge under the letters.
-    static let depth = Color(red: 0.035, green: 0.173, blue: 0.133)      // #092C22
-    /// The tagline pill, the leaf's pages and the sparkles.
-    static let cream = Color(red: 0.996, green: 0.929, blue: 0.812)      // #FEEDCF
+    static let forest = Color(red: 0.09, green: 0.302, blue: 0.231)    // #174D3B
+    /// The thicker edge under the letters and the pill.
+    static let depth = Color(red: 0.039, green: 0.188, blue: 0.141)    // #0A3024
+    /// The sticker border round the letters, and the book's pages.
+    static let cream = Color(red: 1, green: 0.969, blue: 0.878)        // #FFF7E0
 
     /// The icon's sky, top to bottom.
-    static let lavender = Color(red: 0.812, green: 0.741, blue: 0.996)   // #CFBDFE
-    static let periwinkle = Color(red: 0.741, green: 0.784, blue: 0.996) // #BDC8FE
-    static let sky = Color(red: 0.659, green: 0.855, blue: 0.992)        // #A8DAFD
-    static let aqua = Color(red: 0.682, green: 0.894, blue: 0.933)       // #AEE4EE
-    static let mint = Color(red: 0.737, green: 0.945, blue: 0.875)       // #BCF1DF
+    static let lavender = Color(red: 0.8, green: 0.722, blue: 1)       // #CCB8FF
+    static let sky = Color(red: 0.659, green: 0.859, blue: 1)          // #A8DBFF
+    static let mint = Color(red: 0.722, green: 0.961, blue: 0.839)     // #B8F5D6
 }
 
 /// The sky the app icon's leaf floats in, behind the title and loading screens: lavender at the
@@ -40,13 +39,7 @@ struct StoryleafSky: View {
         GeometryReader { proxy in
             let side = min(proxy.size.width, proxy.size.height)
             ZStack {
-                LinearGradient(stops: [
-                    .init(color: Brand.lavender, location: 0),
-                    .init(color: Brand.periwinkle, location: 0.28),
-                    .init(color: Brand.sky, location: 0.55),
-                    .init(color: Brand.aqua, location: 0.78),
-                    .init(color: Brand.mint, location: 1),
-                ], startPoint: .top, endPoint: .bottom)
+                LinearGradient(colors: [Brand.lavender, Brand.sky, Brand.mint], startPoint: .top, endPoint: .bottom)
 
                 SunRays(center: raysFrom)
                     .fill(RadialGradient(colors: [.white.opacity(0.3), .white.opacity(0)], center: raysFrom,
