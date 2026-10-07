@@ -1144,6 +1144,8 @@ final class BattleScene: SKScene {
     func sealForDebug(success: Bool, stopAt: TimeInterval?) {
         guard let hero = controller.combatants.first(where: { $0.isHero }),
               let foe = controller.enemiesOnField.first else { return }
+        // A real throw takes the target arrows away first (BattleController), so this one does too.
+        showTargets([])
         for actor in actors.values {
             actor.removeAction(forKey: "enter")
             actor.position = actor.home

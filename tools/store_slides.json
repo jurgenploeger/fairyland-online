@@ -9,8 +9,8 @@
     {"shot": "store_land_night", "title": "Choose your path", "tag": "Fighter, Mage or Beast Tamer", "at": "bottom-left"},
     {"shot": "store_land_town", "title": "Busy towns to explore", "tag": "Shops, smiths and quests", "at": "bottom-center"},
     {"shot": "store_land_levelup", "title": "Grow\nstronger", "tag": "Up to level 200", "at": "bottom-right"},
-    {"shot": "store_land_book", "title": "Collect them all", "tag": "105 monsters in your Monster Book", "at": "top-center"},
+    {"shot": "store_land_companion", "title": "Collect them all", "tag": "105 monsters in your Monster Book", "at": "top-center"},
     {"shot": "store_land_looks", "title": "Make your hero yours", "at": "top-center", "size": 110},
-    {"shot": "store_land_prism", "title": "Play anywhere", "tag": "Offline, with no account to make", "at": "bottom-center"}
+    {"shot": "store_land_anywhere", "title": "Play anywhere", "tag": "Offline, with no account to make", "at": "bottom-center"}
   ]
 }

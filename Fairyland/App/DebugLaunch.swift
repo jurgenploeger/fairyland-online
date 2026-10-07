@@ -60,6 +60,9 @@ import SpriteKit
 ///   clean          no frame counter in the corner (App Store screenshots; tools/store_slides.py crops
 ///                  off the Dynamic Island the simulator draws in)
 ///   nohud          the map without its HUD (App Store slides of the world)
+///   zoom=<z>       the map opens zoomed as if pinched (0.85 to 2.2; 2 = twice as close)
+///   walk=dx_dy     once the map is up, the hero walks a loop that way (walk=1_0: east, a step up, west,
+///                  a step down) over and over, with no fights, so a still catches them mid-stride
 ///   hour=<h>       the calendar starts at that hour of the day (0-23: 21 for night, 18 for dusk)
 ///   weather=<kind> every map with a sky has this weather (clear | cloudy | rain | storm | fog | snow)
 ///   lang=<code>    play in this language (content/i18n/languages.json), without changing the saved choice
@@ -307,6 +310,11 @@ enum DebugLaunch {
         if let map = flags["map"], Content.shared.map(map) != nil {
             session.data.mapID = map
         }
+        #if DEBUG
+        if let zoom = flags["zoom"].flatMap(Double.init) {
+            WorldScene.zoomForDebug(CGFloat(zoom))
+        }
+        #endif
         if let hour = flags["hour"].flatMap({ Int($0) }), (0..<24).contains(hour) {
             // The calendar opens at 9hr (`GameClock.hours`); start the game as long ago as it takes to get here.
             session.data.startedAt = Date().addingTimeInterval(-GameClock.minutes(untilHour: hour) * 60)
@@ -492,6 +500,28 @@ enum DebugLaunch {
         // `quiet`: footsteps switched off in Settings. It stays off, so its scene runs last.
         if flags["quiet"] != nil {
             UserDefaults.standard.set(false, forKey: GameSettings.footstepsKey)
+        }
+        // `walk=1_0`: a loop round a long box, that way first, for as long as the app runs.
+        if let walk = flags["walk"] {
+            let way = walk.split(separator: "_").compactMap { Double($0) }
+            if way.count == 2 {
+                Task {
+                    for _ in 0..<240 where !(coordinator.isReady && coordinator.world.view != nil) {
+                        try? await Task.sleep(for: .milliseconds(250))
+                    }
+                    coordinator.world.holdsEncounters = true
+                    let legs: [(CGVector, Double)] = [
+                        (CGVector(dx: way[0], dy: way[1]), 3), (CGVector(dx: -way[1], dy: way[0]), 1),
+                        (CGVector(dx: -way[0], dy: -way[1]), 3), (CGVector(dx: way[1], dy: -way[0]), 1),
+                    ]
+                    while !Task.isCancelled {
+                        for (move, seconds) in legs {
+                            coordinator.input.move = move
+                            try? await Task.sleep(for: .seconds(seconds))
+                        }
+                    }
+                }
+            }
         }
         if flags["duel"] != nil {
             let level = coordinator.session.data.hero.level
