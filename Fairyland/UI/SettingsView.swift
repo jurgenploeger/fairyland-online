@@ -12,6 +12,8 @@ struct SettingsView: View {
     @AppStorage(GameSettings.soundEffectsKey) private var soundEffects = true
     @AppStorage(GameSettings.footstepsKey) private var footsteps = true
     @AppStorage(GameSettings.hapticsKey) private var haptics = true
+    @AppStorage(GameSettings.dayAndNightKey) private var dayAndNight = true
+    @AppStorage(GameSettings.weatherKey) private var weather = true
     @AppStorage(GameSettings.commandCompanionKey) private var commandCompanion = true
     @AppStorage(GameSettings.turnTimerKey) private var turnTimer = 10.0
     @State private var music = MusicPlayer.shared
@@ -44,6 +46,19 @@ struct SettingsView: View {
             section(L("Feel"), icon: .tap) {
                 Toggle(L("Vibration on hits and rewards"), isOn: $haptics)
                     .onChange(of: haptics) { _, on in if on { Haptics.impact(.medium) } }
+            }
+
+            // The sky over the maps: the light follows the clock, and the weather comes and goes.
+            section(L("World"), icon: .sun) {
+                Toggle(L("Day and night"), isOn: $dayAndNight)
+                Text(L("Off, it's always daytime."))
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.dim)
+                Toggle(L("Weather"), isOn: $weather)
+                Text(L("Off, the sky stays clear: no rain, storms, fog or snow."))
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.dim)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             section(L("Battle"), icon: .paw) {

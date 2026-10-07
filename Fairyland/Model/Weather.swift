@@ -17,9 +17,11 @@ enum Weather: String, CaseIterable {
     static var forced: Weather?
 
     /// The weather on `map` at `date`, or nil on a map with no sky (a cave, or `weather: {}`).
-    static func on(_ map: MapDef, at date: Date = Date(), since start: Date?) -> Weather? {
+    /// With the weather switched off in Settings (`changing` false), it's always clear.
+    static func on(_ map: MapDef, at date: Date = Date(), since start: Date?, changing: Bool = GameSettings.weather) -> Weather? {
         guard map.ambience?.darkness == nil, map.ambience?.weather?.isEmpty != true else { return nil }
         if let forced { return forced }
+        guard changing else { return .clear }
         let weights = (map.ambience?.weather ?? usual)
             .compactMap { entry in Weather(rawValue: entry.key).map { ($0, entry.value) } }
             .filter { $0.1 > 0 }

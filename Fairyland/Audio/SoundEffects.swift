@@ -10,6 +10,10 @@ nonisolated enum GameSettings {
     static let soundEffectsKey = "soundEffects"
     static let footstepsKey = "footsteps"
     static let hapticsKey = "haptics"
+    /// The light follows the clock through night and day; off, it's always daytime (`Sky`).
+    static let dayAndNightKey = "dayAndNight"
+    /// The weather comes and goes; off, the sky stays clear (`Weather.on`).
+    static let weatherKey = "weather"
     /// The top-left HUD folds a party of three or more into one row (WorldHUD); the player can unfold it.
     static let partyFoldedKey = "partyFolded"
     /// Battles ask what your companion should do after the hero's choice; off, it fights on its own.
@@ -28,6 +32,8 @@ nonisolated enum GameSettings {
     static var soundEffects: Bool { value(soundEffectsKey, fallback: true) }
     static var footsteps: Bool { value(footstepsKey, fallback: true) }
     static var haptics: Bool { value(hapticsKey, fallback: true) }
+    static var dayAndNight: Bool { value(dayAndNightKey, fallback: true) }
+    static var weather: Bool { value(weatherKey, fallback: true) }
     static var commandCompanion: Bool { value(commandCompanionKey, fallback: true) }
     static var battleSpeed: Double { value(battleSpeedKey, fallback: 1) }
     static var autoBattle: Bool { value(autoBattleKey, fallback: false) }

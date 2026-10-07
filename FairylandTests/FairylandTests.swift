@@ -1445,12 +1445,16 @@ struct RulesTests {
         var wet = 0
         var longest = 0
         for second in stride(from: 0, to: 60 * 60 * 24, by: 5) {
-            let weather = Weather.on(swamp, at: start.addingTimeInterval(Double(second)), since: start)
+            let weather = Weather.on(swamp, at: start.addingTimeInterval(Double(second)), since: start, changing: true)
             wet = weather == .rain || weather == .storm ? wet + 5 : 0
             longest = max(longest, wet)
         }
         #expect(longest > 0)
         #expect(longest <= 65)
+        // With the weather switched off in Settings, the sky stays clear all day.
+        for second in stride(from: 0, to: 60 * 60 * 24, by: 60) {
+            #expect(Weather.on(swamp, at: start.addingTimeInterval(Double(second)), since: start, changing: false) == .clear)
+        }
     }
 
     @Test func announcementsFollowYouFromMapToMap() {
