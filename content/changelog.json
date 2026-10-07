@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.75",
+      "date": "2026-10-07",
+      "title": "Quests in two tabs",
+      "notes": [
+        "The Quests tab has two smaller tabs of its own: Quests, for the ones people have given you, and Daily challenges, for the day's bounties, their bonus and your daily gift. When the other tab has something to hand in or claim, it wears a gold dot."
+      ]
+    },
+    {
       "version": "0.3.74",
       "date": "2026-10-07",
       "title": "One kind of window, and Use in the Bag",

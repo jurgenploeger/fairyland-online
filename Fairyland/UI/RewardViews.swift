@@ -90,7 +90,7 @@ enum RewardList {
 
 // MARK: - Bounties
 
-/// Today's bounties, at the top of the Quests tab: what each asks and how far along it is, Claim
+/// Today's bounties, the Quests tab's Daily challenges: what each asks and how far along it is, Claim
 /// once it's done, the bonus for claiming them all, and the daily gift's round.
 struct BountiesSection: View {
     let session: GameSession
