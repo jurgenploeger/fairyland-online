@@ -10,6 +10,9 @@ Online's own names (towns, people, bosses, quests) in player-facing text: `docs/
   sources, and where we differ. Read it before inventing a system; add facts you verify, with their source.
 - `docs/launch-audit.md`: the pre-launch audit (2026-10-06): App Store checklist, open bugs and balance issues
   ranked, and gamification ideas. Tick items off or remove them as they're done.
+- Brand guidelines: the Figma file `521ECWenGbx2IP3rLgtIWo`, pages Cover to 09 Voice & Tone (logo, colour, type, icons,
+  assets, game UI, App Store, voice). Its colours are variables (the Storyleaf collection, with their Swift names);
+  `Brand` in `Fairyland/UI/BrandSky.swift` holds the same values, so change both together.
 - `content/*.json`: all game data (maps, monsters, skills, items, quests, music, looks, crowd, announcements, titles,
   rewards: the daily gift, bounties and Monster Book milestones). Data-driven;
   most features are a JSON edit.
