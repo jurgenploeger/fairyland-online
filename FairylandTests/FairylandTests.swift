@@ -1404,18 +1404,19 @@ struct RulesTests {
         let swamp = try #require(Content.shared.map("frog_swamp"))
         let desert = try #require(Content.shared.map("genie_desert"))
         let cave = try #require(Content.shared.map("rat_cavern"))
-        // A cave has no sky; everywhere else always has some weather.
-        #expect(Weather.on(cave, at: start, since: start) == nil)
+        // A cave has no sky; everywhere else always has some weather. (With the weather switched on,
+        // whatever this simulator's Settings say.)
+        #expect(Weather.on(cave, at: start, since: start, changing: true) == nil)
         var seen: Set<Weather> = []
         for hour in 0..<(24 * 30) {
             let date = start.addingTimeInterval(Double(hour) * 60)
-            let weather = try #require(Weather.on(swamp, at: date, since: start))
+            let weather = try #require(Weather.on(swamp, at: date, since: start, changing: true))
             seen.insert(weather)
             // The desert's sky never rains, fogs or snows.
-            let dry = try #require(Weather.on(desert, at: date, since: start))
+            let dry = try #require(Weather.on(desert, at: date, since: start, changing: true))
             #expect(dry == .clear || dry == .cloudy)
             // The same moment gives the same weather, so walking off and back doesn't reroll it.
-            #expect(Weather.on(swamp, at: date, since: start) == weather)
+            #expect(Weather.on(swamp, at: date, since: start, changing: true) == weather)
         }
         // Over a month of in-game days the swamp sees more than one kind.
         #expect(seen.count > 1)
