@@ -264,7 +264,20 @@ def draw_egg(c):
     c.rect(12, 8, 13, 9, WHITE)
 
 
-DRAWINGS = {name[len("draw_"):]: fn for name, fn in list(globals().items()) if name.startswith("draw_") and callable(fn)}
+def draw_arrow_down(c):
+    # Bringing a game back (Import a backup): a green arrow down into a blue tray.
+    c.rect(4, 19, 27, 28, BLUE[1])
+    c.rect(6, 19, 25, 21, BLUE[0])
+    c.rect(4, 22, 27, 22, BLUE[2])
+    c.shade(lambda x, y, col: col == BLUE[1] and x >= 23, BLUE[0])
+    c.rect(13, 3, 18, 12, GREEN[1])
+    c.poly([(6.5, 11), (24.5, 11), (15.5, 20.5)], GREEN[1])
+    c.shade(lambda x, y, col: col == GREEN[1] and (x <= 13 if y <= 11 else x < 15 - (y - 12) * 0.2), GREEN[2])
+    c.shade(lambda x, y, col: col == GREEN[1] and x >= 18, GREEN[0])
+
+
+# GameIcon names use hyphens (arrow-down) where Python names can't: draw_arrow_down draws "arrow-down".
+DRAWINGS = {name[len("draw_"):].replace("_", "-"): fn for name, fn in list(globals().items()) if name.startswith("draw_") and callable(fn)}
 
 
 def render(name):

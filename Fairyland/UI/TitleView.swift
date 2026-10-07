@@ -23,15 +23,30 @@ struct TitleView: View {
     @State private var importNote: String?
     /// The story pages: before a new hero is made, or read from the title menu.
     @State private var intro: IntroRequest? = DebugLaunch.introPage.map { IntroRequest(startPage: $0, thenCreate: false) }
+    /// The newest release notes you've opened (What's new).
+    @AppStorage(GameSettings.seenReleaseKey) private var seenRelease = ""
     /// The game the carousel is showing.
     private var selectedSave: SaveData? {
         saves.first { $0.slot == selectedSlot } ?? saves.first
     }
 
+    private var newestRelease: String { Content.shared.releases.first?.version ?? Self.appVersion }
+
+    /// What's new wears a gold dot until you've read the newest notes. A first game starts out
+    /// with them read: there's nothing older to compare them with.
+    private var hasUnreadNotes: Bool { !saves.isEmpty && seenRelease != newestRelease }
+
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    /// The menu on a phone on its side, too short for the logo above it all: the logo and the
+    /// round buttons on the left, your game and Continue on the right, nothing to scroll for.
+    private var sideBySide: Bool {
+        verticalSizeClass == .compact && !creating && !showingLanguages && !showingChangelog && !showingSettings
+    }
+
     var body: some View {
         ZStack {
-            // The app icon's sky, its rays behind the logo at the top.
-            StoryleafSky(raysFrom: UnitPoint(x: 0.5, y: 0.18))
+            // The app icon's sky, its rays behind the logo (at the top, or on the left).
+            StoryleafSky(raysFrom: sideBySide ? UnitPoint(x: 0.29, y: 0.3) : UnitPoint(x: 0.5, y: 0.18))
 
             if let intro {
                 IntroView(finishTitle: intro.thenCreate ? L("Create your hero") : L("Done"), startPage: intro.startPage) {
@@ -44,34 +59,46 @@ struct TitleView: View {
             } else {
                 ScrollView {
                     VStack(spacing: 18) {
-                        Image("Logo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: 440)
-                            .padding(.top, 12)
-                            .accessibilityLabel(L("Storyleaf, a cozy pixel adventure"))
-
-                        if creating {
-                            creation
-                        } else if showingLanguages {
-                            LanguagePanel { showingLanguages = false }
-                        } else if showingChangelog {
-                            ChangelogPanel { showingChangelog = false }
-                        } else if showingSettings {
-                            VStack(alignment: .leading, spacing: 12) {
-                                SettingsView()
-                                Button {
-                                    showingSettings = false
-                                } label: {
-                                    Label(L("Back"), icon: .arrowLeft)
+                        if sideBySide {
+                            HStack(spacing: 28) {
+                                VStack(spacing: 14) {
+                                    logo
+                                    roundButtons
                                 }
-                                .buttonStyle(PixelButtonStyle(compact: true))
+                                .frame(maxWidth: .infinity)
+                                VStack(spacing: 12) {
+                                    games
+                                    startButtons
+                                }
+                                .frame(maxWidth: .infinity)
                             }
-                            .padding(16)
-                            .frame(maxWidth: 640)
-                            .background(HUDStyle.panel)
                         } else {
-                            menu
+                            logo.padding(.top, 12)
+                            if creating {
+                                creation
+                            } else if showingLanguages {
+                                LanguagePanel { showingLanguages = false }
+                            } else if showingChangelog {
+                                ChangelogPanel { showingChangelog = false }
+                            } else if showingSettings {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    SettingsView(onImportBackup: {
+                                        showingSettings = false
+                                        importing = true
+                                    })
+                                    Button {
+                                        showingSettings = false
+                                    } label: {
+                                        Label(L("Back"), icon: .arrowLeft)
+                                    }
+                                    .buttonStyle(PixelButtonStyle(compact: true))
+                                }
+                                .padding(16)
+                                .frame(maxWidth: 640)
+                                .background(HUDStyle.panel)
+                            } else {
+                                menu
+                            }
                         }
                     }
                     .padding(20)
@@ -79,7 +106,8 @@ struct TitleView: View {
                     .id(localizer.language)
                 }
                 // The language button, top right: the first thing a player who can't read English needs.
-                if !creating, !showingLanguages {
+                // Once there's a game, the language is chosen (and still in Settings).
+                if !creating, !showingLanguages, saves.isEmpty {
                     Button {
                         showingSettings = false
                         showingChangelog = false
@@ -95,7 +123,10 @@ struct TitleView: View {
                 }
             }
         }
-        .onAppear { MusicPlayer.shared.play("title") }
+        .onAppear {
+            MusicPlayer.shared.play("title")
+            if saves.isEmpty { seenRelease = newestRelease }
+        }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.json]) { result in
             importBackup(result)
         }
@@ -124,13 +155,36 @@ struct TitleView: View {
         }
     }
 
+    private var logo: some View {
+        Image("Logo")
+            .resizable()
+            .scaledToFit()
+            .frame(maxWidth: 440)
+            .accessibilityLabel(L("Storyleaf, a cozy pixel adventure"))
+    }
+
     private var menu: some View {
         VStack(spacing: 12) {
-            if saves.isEmpty {
-                SpriteImage(art: "player_walk", size: 96)
-            } else {
-                SaveCarousel(saves: saves, selection: $selectedSlot)
-            }
+            games
+            startButtons
+            roundButtons
+                .padding(.top, 10)
+        }
+    }
+
+    /// Your games, one at a time, or before the first one, a hero waiting to be made.
+    @ViewBuilder
+    private var games: some View {
+        if saves.isEmpty {
+            SpriteImage(art: "player_walk", size: 96)
+        } else {
+            SaveCarousel(saves: saves, selection: $selectedSlot)
+        }
+    }
+
+    /// Continue the game on show, or start another.
+    private var startButtons: some View {
+        VStack(spacing: 12) {
             if let save = selectedSave {
                 Button {
                     onStart(GameSession(data: save))
@@ -138,9 +192,6 @@ struct TitleView: View {
                     Label(L("Continue: {hero}, Lv {level}", ["hero": save.hero.name, "level": save.hero.level]), icon: .play)
                 }
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
-                Text(L("Your progress saves automatically."))
-                    .font(HUDStyle.font(11))
-                    .foregroundStyle(HUDStyle.ink.opacity(0.6))
             }
             Button {
                 // A new game gets its own save, next to the others.
@@ -148,32 +199,35 @@ struct TitleView: View {
             } label: {
                 Label(L("New game"), icon: .sparkles)
             }
-            .buttonStyle(PixelButtonStyle())
-            Button {
-                showingChangelog = true
-            } label: {
-                Label(L("What's new · v{version}", ["version": Self.appVersion]), icon: .book)
+            // Before your first game, it's the one thing to do.
+            .buttonStyle(PixelButtonStyle(tint: saves.isEmpty ? HUDStyle.gold : HUDStyle.cream))
+        }
+    }
+
+    /// The rest waits in small round buttons, only what fits the moment. A backup is for bringing
+    /// a game over before you have one (later it's in Settings); How to play and What's new are
+    /// for a player who already has a game.
+    private var roundButtons: some View {
+        HStack(alignment: .top, spacing: 4) {
+            Button(L("Settings")) { showingSettings = true }
+                .buttonStyle(TitleRoundButtonStyle(icon: .settings))
+            if saves.isEmpty {
+                Button(L("Import a backup")) { importing = true }
+                    .buttonStyle(TitleRoundButtonStyle(icon: .arrowDown))
+            } else {
+                Button(L("How to play")) {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        intro = IntroRequest(startPage: IntroView.howToPlayPage, thenCreate: false)
+                    }
+                }
+                .buttonStyle(TitleRoundButtonStyle(icon: .book))
+                Button(L("What's new")) {
+                    seenRelease = newestRelease
+                    showingChangelog = true
+                }
+                .buttonStyle(TitleRoundButtonStyle(icon: .star, marked: hasUnreadNotes))
+                .accessibilityValue(hasUnreadNotes ? L("Unread") : "")
             }
-            .buttonStyle(PixelButtonStyle(compact: true))
-            .padding(.top, 6)
-            Button {
-                showingSettings = true
-            } label: {
-                Label(L("Settings"), icon: .settings)
-            }
-            .buttonStyle(PixelButtonStyle(compact: true))
-            Button {
-                importing = true
-            } label: {
-                Label(L("Import a backup"), icon: .arrowDown)
-            }
-            .buttonStyle(PixelButtonStyle(compact: true))
-            Button {
-                withAnimation(.easeInOut(duration: 0.25)) { intro = IntroRequest(startPage: 0, thenCreate: false) }
-            } label: {
-                Label(L("Story & how to play"), icon: .book)
-            }
-            .buttonStyle(PixelButtonStyle(compact: true))
         }
     }
 
@@ -370,6 +424,46 @@ private struct IdlePair: View {
             add(hero, height: 100, x: size.width / 2, motion: .breathe)
         }
         return scene
+    }
+}
+
+/// The title's small round buttons, for what you need now and then: the cream face of the other
+/// buttons in a circle, the icon on it and the name underneath. `marked` puts the HUD's gold dot
+/// on its corner (something new behind it).
+private struct TitleRoundButtonStyle: ButtonStyle {
+    let icon: GameIcon
+    var marked = false
+
+    func makeBody(configuration: Configuration) -> some View {
+        VStack(spacing: 6) {
+            IconImage(icon, size: 24)
+                .foregroundStyle(HUDStyle.ink)
+                .frame(width: 50, height: 50)
+                .background(
+                    Circle()
+                        .fill(LinearGradient(colors: [.white, HUDStyle.cream, HUDStyle.cream.opacity(0.85)], startPoint: .top, endPoint: .bottom))
+                        .shadow(color: .black.opacity(0.35), radius: 0, x: 0, y: configuration.isPressed ? 0 : 3)
+                        .overlay(Circle().strokeBorder(HUDStyle.frameDark.opacity(0.7), lineWidth: 1.5))
+                )
+                .overlay(alignment: .topTrailing) {
+                    if marked {
+                        Circle().fill(HUDStyle.gold).frame(width: 13, height: 13)
+                            .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 1.5))
+                            .offset(x: 1, y: -1)
+                    }
+                }
+                .offset(y: configuration.isPressed ? 2 : 0)
+            configuration.label
+                .font(HUDStyle.font(11))
+                .foregroundStyle(HUDStyle.ink.opacity(0.75))
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(width: 92)
+        .contentShape(Rectangle())
+        .onChange(of: configuration.isPressed) { _, pressed in
+            if pressed { SoundEffects.shared.play(.tap, volume: 0.7) }
+        }
     }
 }
 

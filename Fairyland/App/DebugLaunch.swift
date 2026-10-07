@@ -78,6 +78,8 @@ import SpriteKit
 ///   intro[=page]   open the title screen's story pages at that page (1 = the story, 4 = how to play)
 ///   clip=<n>       with intro=4: How to play's picture starts at that part (0 walk … 4 town), and
 ///                  marks debug-ready as it does
+///   saves=n        the title screen lists n made-up games (up to 3, in a folder of their own), with
+///                  What's new not read yet
 enum DebugLaunch {
     private static var flags: [String: String] {
         #if DEBUG
@@ -331,6 +333,40 @@ enum DebugLaunch {
     /// `lang=de`: the game speaks that language for this launch (title screen included).
     static func applyLanguage() {
         if let code = flags["lang"] { Localizer.shared.choose(code, remember: false) }
+    }
+
+    /// `saves=3`: the title screen lists that many made-up games (up to three, in a folder of their
+    /// own so no real game is touched), last played 9 hours, 2 days and 9 days ago, with What's new
+    /// not read yet.
+    static func seedTitleGames() {
+        #if DEBUG
+        guard let count = flags["saves"].flatMap(Int.init), count > 0 else { return }
+        SaveStore.fileName = "fairyland-debug-title.json"
+        try? FileManager.default.removeItem(at: SaveStore.folder)
+        UserDefaults.standard.removeObject(forKey: GameSettings.seenReleaseKey)
+        let games: [(name: String, race: String, classID: String, level: Int, map: String, pet: String, hoursAgo: Double)] = [
+            ("Rowan", "human", "fighter", 48, "frog_swamp", "treefrog", 9),
+            ("Mira", "elf", "mage", 26, "candy_mountain", "pineapple", 48),
+            ("Bram", "dwarf", "novice", 7, "sunny_meadow", "jelly", 216),
+        ]
+        for game in games.prefix(count) {
+            let session = GameSession.newGame(name: game.name, raceID: game.race)
+            session.data.hero.classID = game.classID
+            session.data.hero.level = game.level
+            session.restoreHero()
+            session.data.mapID = game.map
+            if let pet = session.makePet(species: game.pet, level: max(1, game.level - 10)) {
+                session.addPet(pet, countsForQuests: false)
+                session.data.activePetID = pet.id
+            }
+            SaveStore.save(session.data)
+            // The carousel goes by when each file was last written: the most recent first.
+            if let slot = session.data.slot {
+                try? FileManager.default.setAttributes([.modificationDate: Date(timeIntervalSinceNow: -game.hoursAgo * 3600)],
+                                                       ofItemAtPath: SaveStore.url(for: slot).path(percentEncoded: false))
+            }
+        }
+        #endif
     }
 
     static func session() -> GameSession? {

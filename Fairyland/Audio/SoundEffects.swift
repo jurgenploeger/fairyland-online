@@ -26,6 +26,8 @@ nonisolated enum GameSettings {
     static let turnTimerKey = "turnTimer"
     /// What Settings offers for it, Off first.
     static let turnTimerChoices: [Double] = [0, 10, 20, 30]
+    /// The newest release notes opened from the title screen (What's new); newer ones get its gold dot.
+    static let seenReleaseKey = "seenRelease"
 
     static var musicVolume: Double { value(musicVolumeKey, fallback: 1) }
     static var soundVolume: Double { value(soundVolumeKey, fallback: 1) }

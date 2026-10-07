@@ -3,7 +3,7 @@ import SwiftUI
 /// The onboarding before a new hero is made: the story in three chapters, each with a little
 /// animated scene made of the game itself (StoryVignette), then how to play (the game played: a
 /// walk, a fight, a Seal Stone, a level up and a quest, each tip lighting up as it plays) and the
-/// whole world map. Also opens from the title screen ("Story & how to play").
+/// whole world map. Also opens from the title screen, at How to play.
 struct IntroView: View {
     /// What the last page's button says ("Create your hero", or "Done" when just reading).
     let finishTitle: String
@@ -11,6 +11,8 @@ struct IntroView: View {
     @State private var page: Int
 
     private static let pageCount = 5
+    /// How to play's page, after the story's three.
+    static let howToPlayPage = 3
 
     init(finishTitle: String, startPage: Int = 0, onFinish: @escaping () -> Void) {
         self.finishTitle = finishTitle
@@ -26,7 +28,7 @@ struct IntroView: View {
                     case 0: ChapterPage(chapter: .gathering)
                     case 1: ChapterPage(chapter: .shadows)
                     case 2: ChapterPage(chapter: .arrival)
-                    case 3: HowToPlayPage()
+                    case Self.howToPlayPage: HowToPlayPage()
                     default: WorldPage()
                     }
                 }
