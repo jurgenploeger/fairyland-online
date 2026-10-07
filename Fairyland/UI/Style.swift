@@ -318,10 +318,12 @@ struct PixelButtonStyle: ButtonStyle {
             .padding(.horizontal, compact ? 12 : 16)
             .padding(.vertical, compact ? 6 : 9)
             .background(
+                // Only the face casts the shadow, under the button. The outline goes on after it: a
+                // shadow on both draws the outline's again inside the face, 3 pt below its top edge.
                 Capsule()
                     .fill(LinearGradient(colors: [.white, tint, tint.opacity(0.85)], startPoint: .top, endPoint: .bottom))
-                    .overlay(Capsule().strokeBorder(HUDStyle.frameDark.opacity(0.7), lineWidth: 1.5))
                     .shadow(color: .black.opacity(0.35), radius: 0, x: 0, y: configuration.isPressed ? 0 : 3)
+                    .overlay(Capsule().strokeBorder(HUDStyle.frameDark.opacity(0.7), lineWidth: 1.5))
             )
             .offset(y: configuration.isPressed ? 2 : 0)
             .onChange(of: configuration.isPressed) { _, pressed in
