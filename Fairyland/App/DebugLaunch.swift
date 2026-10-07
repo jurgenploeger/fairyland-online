@@ -16,7 +16,8 @@ import SpriteKit
 ///   friends=n      that many friends (up to GameSession.maxAllies) travelling in your party
 ///   away=n         with friends: the first n of them wait for you a few steps east of where you start
 ///   unfold         the top-left HUD shows a big party in full instead of folded into one row
-///   change=<slot>  open the Character tab's list for weapon | armor | accessory (with menu=character)
+///   change=<slot>  open the Character tab's window of gear for weapon | armor | accessory (with menu=character)
+///   inspect=<item> with change: that piece's card is open in it, with Cancel and Equip
 ///   customize      open the Character tab's look editor (with menu=character)
 ///   race=<id>      play this race (content/classes.json)
 ///   style=<id>     wear this hairstyle (content/appearance.json `styles`)
@@ -80,6 +81,7 @@ import SpriteKit
 ///                  marks debug-ready as it does
 ///   saves=n        the title screen lists n made-up games (up to 3, in a folder of their own), with
 ///                  What's new not read yet
+///   use=<item>     with menu=bag: the window for who gets that item is open (a potion, or a toy)
 enum DebugLaunch {
     private static var flags: [String: String] {
         #if DEBUG
@@ -108,6 +110,8 @@ enum DebugLaunch {
 
     /// A debug game (tests, screenshots): the first-play tour stays hidden unless `coach` is set.
     static var isActive: Bool { flags["newgame"] != nil }
+    /// `use=potion`: with menu=bag, the Bag's window for who gets it is open for that item.
+    static var picksTargetFor: String? { flags["use"] }
 
     /// Debug launches leave `Documents/debug-ready` once the map or battle is on screen (or How to
     /// play's part, with `clip`), so tools/screenshots.sh knows when to shoot (the loading curtain
@@ -130,6 +134,7 @@ enum DebugLaunch {
     static var dropsCards: Bool { flags["card"] != nil }
     /// `change=armor`: the Character tab opens with that slot's list of things to wear.
     static var changingSlot: ItemType? { flags["change"].flatMap(ItemType.init(rawValue:)) }
+    static var inspectedItem: String? { flags["inspect"] }
     static var opensMenuAtBottom: Bool { flags["bottom"] != nil }
     static var opensCustomize: Bool { flags["customize"] != nil }
     /// `info=iron_axe`: the shop's info card for that item opens with the dialog.

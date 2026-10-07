@@ -21,8 +21,7 @@ struct MapOverlay: View {
             // As tall as the map wants, or what the screen has room for (a phone on its side):
             // the atlas scrolls in whatever height is left under the title.
             .frame(maxWidth: 720)
-            .background(HUDStyle.panel)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .gameWindow()
             .padding(14)
         }
     }

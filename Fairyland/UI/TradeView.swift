@@ -60,12 +60,7 @@ struct TradeView: View {
                 }
             }
             .frame(maxWidth: 520, maxHeight: 560)
-            .background(
-                RoundedRectangle(cornerRadius: 22)
-                    .fill(HUDStyle.ink.opacity(0.94))
-                    .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2))
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 22))
+            .gameWindow()
             .padding(14)
 
             if let info {

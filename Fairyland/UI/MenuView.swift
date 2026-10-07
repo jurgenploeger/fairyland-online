@@ -8,6 +8,12 @@ struct MenuView: View {
     @State private var tab: MenuTab
     /// A language switch (in Settings) rebuilds the panel's text, staying on the same tab.
     @State private var localizer = Localizer.shared
+    /// Use or Give in the Bag: who gets it, in a window over the menu.
+    @State private var picking: ItemDef? = DebugLaunch.picksTargetFor.flatMap { Content.shared.item($0) }
+    /// What the last thing used from the Bag did.
+    @State private var bagNote: String?
+    /// Change on the Character tab: the grid of gear for that slot, in a window over the menu.
+    @State private var changing: ItemType? = DebugLaunch.changingSlot
 
     init(session: GameSession, initialTab: MenuTab, onClose: @escaping () -> Void, onQuitToTitle: (() -> Void)? = nil) {
         self.session = session
@@ -43,10 +49,16 @@ struct MenuView: View {
                 ScrollView {
                     Group {
                         switch tab {
-                        case .character: CharacterTab(session: session)
+                        case .character:
+                            CharacterTab(session: session) { slot in
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) { changing = slot }
+                            }
                         case .companions: CompanionsTab(session: session)
                         case .friends: FriendsTab(session: session)
-                        case .bag: BagTab(session: session)
+                        case .bag:
+                            BagTab(session: session, note: $bagNote) { item in
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) { picking = item }
+                            }
                         case .quests: QuestsTab(session: session)
                         case .settings: SettingsView(session: session, onQuitToTitle: onQuitToTitle)
                         }
@@ -59,9 +71,25 @@ struct MenuView: View {
             }
             .id(localizer.language)
             .frame(maxWidth: 760)
-            .background(HUDStyle.panel)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .gameWindow()
             .padding(10)
+
+            if let slot = changing {
+                EquipmentPicker(session: session, slot: slot) {
+                    withAnimation(.easeOut(duration: 0.2)) { changing = nil }
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.94)))
+                .zIndex(1)
+            }
+
+            if let item = picking {
+                ItemTargetPicker(session: session, item: item) { note in
+                    if let note { bagNote = note }
+                    withAnimation(.easeOut(duration: 0.2)) { picking = nil }
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.94)))
+                .zIndex(1)
+            }
         }
         .foregroundStyle(HUDStyle.cream)
     }
@@ -101,13 +129,15 @@ struct SectionTitle: View {
 
 private struct CharacterTab: View {
     let session: GameSession
-    @State private var changingSlot: ItemType? = DebugLaunch.changingSlot
+    /// Change on an equipment row: MenuView opens the grid of gear for that slot.
+    let onChange: (ItemType) -> Void
     @State private var editing = false
     @State private var draftName = ""
     @State private var draftLook = Look.standard
 
-    init(session: GameSession) {
+    init(session: GameSession, onChange: @escaping (ItemType) -> Void) {
         self.session = session
+        self.onChange = onChange
         // `customize` (debug launches): straight into the look editor.
         if DebugLaunch.opensCustomize {
             _editing = State(initialValue: true)
@@ -194,9 +224,7 @@ private struct CharacterTab: View {
 
                 SectionTitle(text: L("Equipment"))
                 ForEach(ItemType.equipmentSlots, id: \.self) { slot in
-                    EquipmentRow(session: session, slot: slot, isChanging: changingSlot == slot) {
-                        changingSlot = changingSlot == slot ? nil : slot
-                    }
+                    EquipmentRow(session: session, slot: slot) { onChange(slot) }
                 }
 
                 HStack {
@@ -268,8 +296,8 @@ struct StatCell: View {
 private struct EquipmentRow: View {
     let session: GameSession
     let slot: ItemType
-    let isChanging: Bool
-    let toggle: () -> Void
+    /// Opens the grid of everything for this slot (EquipmentPicker).
+    let change: () -> Void
 
     private static let labelWidth: CGFloat = 80
     private static let spacing: CGFloat = 8
@@ -278,59 +306,26 @@ private struct EquipmentRow: View {
     var body: some View {
         let equipped = session.data.hero.equipment[slot].flatMap { session.content.item($0) }
         let options = session.bagEquipment.filter { $0.type == slot }
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: Self.spacing) {
-                Text(slot.displayName)
-                    .foregroundStyle(HUDStyle.dim)
-                    .frame(width: Self.labelWidth, alignment: .leading)
-                if let equipped {
-                    ItemIcon(item: equipped, size: Self.iconSize)
-                }
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(equipped?.name ?? "—")
-                    if let bonus = equipped?.stats?.bonusSummary, !bonus.isEmpty {
-                        Text(bonus).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
-                    }
-                }
-                Spacer()
-                if isChanging {
-                    // Unequip sits beside the item it takes off; Done closes the list from below.
-                    if equipped != nil {
-                        Button(L("Unequip")) { session.unequip(slot) }
-                            .buttonStyle(PixelButtonStyle(compact: true))
-                    }
-                } else if !options.isEmpty || equipped != nil {
-                    Button(L("Change"), action: toggle)
-                        .buttonStyle(PixelButtonStyle(compact: true))
+        HStack(spacing: Self.spacing) {
+            Text(slot.displayName)
+                .foregroundStyle(HUDStyle.dim)
+                .frame(width: Self.labelWidth, alignment: .leading)
+            if let equipped {
+                ItemIcon(item: equipped, size: Self.iconSize)
+            }
+            VStack(alignment: .leading, spacing: 1) {
+                Text(equipped?.name ?? "—")
+                if let bonus = equipped?.stats?.bonusSummary, !bonus.isEmpty {
+                    Text(bonus).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
                 }
             }
-            .font(HUDStyle.font(12))
-
-            if isChanging {
-                // The choices line up with the worn item: same icon size, same column.
-                ForEach(options) { item in
-                    HStack(spacing: Self.spacing) {
-                        ItemIcon(item: item, size: Self.iconSize, count: session.count(of: item.id))
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(item.name)
-                            Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
-                        }
-                        Spacer()
-                        if let issue = session.equipIssue(item) {
-                            Text(issue).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
-                        } else {
-                            Button(L("Equip")) { session.equip(item.id) }
-                                .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
-                        }
-                    }
-                    .font(HUDStyle.font(12))
-                    .padding(.leading, Self.labelWidth + Self.spacing)
-                }
-                Button(L("Done"), action: toggle)
+            Spacer()
+            if !options.isEmpty || equipped != nil {
+                Button(L("Change"), action: change)
                     .buttonStyle(PixelButtonStyle(compact: true))
-                    .padding(.leading, Self.labelWidth + Self.spacing)
             }
         }
+        .font(HUDStyle.font(12))
         .padding(8)
         .background(RoundedRectangle(cornerRadius: 6).fill(.white.opacity(0.05)))
     }
@@ -639,7 +634,7 @@ private struct CompanionCard: View {
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.green)
                 } else if !session.bagToys.isEmpty {
-                    Text(isActive ? L("Give it a toy from your Bag.") : L("Bring it along to give it a toy from your Bag."))
+                    Text(L("Give it a toy from your Bag."))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.dim)
                         .fixedSize(horizontal: false, vertical: true)
@@ -694,7 +689,9 @@ private struct CompanionCard: View {
 
 private struct BagTab: View {
     let session: GameSession
-    @State private var note: String?
+    @Binding var note: String?
+    /// Use (a potion) or Give (a toy): MenuView asks who gets it.
+    let onUse: (ItemDef) -> Void
     @State private var hatched: Pet?
     @State private var hatching = false
 
@@ -738,12 +735,8 @@ private struct BagTab: View {
                         }
                         .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                     } else if (item.heal ?? 0) > 0 || (item.mp ?? 0) > 0 {
-                        Button(L("Hero")) { note = session.use(item.id) }
-                            .buttonStyle(PixelButtonStyle(compact: true))
-                        if let pet = session.activePet {
-                            Button(pet.name) { note = session.use(item.id, onPet: pet.id) }
-                                .buttonStyle(PixelButtonStyle(compact: true))
-                        }
+                        Button(L("Use")) { onUse(item) }
+                            .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                     } else if item.travel == true {
                         // Back to your checkpoint, like Bridge of Light (closes the menu).
                         Button(L("Use")) { session.onTravel?(item) }
@@ -752,16 +745,16 @@ private struct BagTab: View {
                     } else if item.capture == true {
                         Text(L("For battle")).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                     } else if item.toy == true {
-                        // For the companion you bring along (choose another on the Companions tab).
-                        if let pet = session.activePet {
+                        // Any of your companions can have it.
+                        if session.data.pets.isEmpty {
+                            Text(L("No companions yet")).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                        } else {
                             Button {
-                                note = session.giveToy(item.id, to: pet.id)
+                                onUse(item)
                             } label: {
-                                Label(pet.name, icon: .gift)
+                                Label(L("Give"), icon: .gift)
                             }
                             .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
-                        } else {
-                            Text(L("Bring a companion along")).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                         }
                     }
                 }
@@ -915,10 +908,11 @@ struct QuestRow: View {
                 if showsGiver && expanded {
                     QuestRewardsView(session: session, quest: quest, earned: false)
                         .padding(.top, 4)
-                        .transition(.opacity.combined(with: .move(edge: .top)))
+                        .transition(.reveal)
                 } else {
                     QuestRewardLine(session: session, quest: quest, more: showsGiver)
                         .padding(.top, 2)
+                        .transition(.opacity)
                 }
             }
         }
@@ -927,7 +921,7 @@ struct QuestRow: View {
         .contentShape(Rectangle())
         .onTapGesture {
             guard showsGiver else { return }
-            withAnimation(.easeOut(duration: 0.2)) { expanded.toggle() }
+            withAnimation(Reveal.animation) { expanded.toggle() }
         }
         .accessibilityAddTraits(showsGiver ? .isButton : [])
         .accessibilityHint(showsGiver ? (expanded ? L("Hides the reward") : L("Shows the reward")) : "")
@@ -948,8 +942,9 @@ private struct CompletedQuestRow: View {
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.dim)
                 Spacer()
-                IconImage(expanded ? .chevronUp : .chevronDown, size: 12)
+                IconImage(.chevronDown, size: 12)
                     .foregroundStyle(HUDStyle.dim)
+                    .rotationEffect(.degrees(expanded ? 180 : 0))
             }
             if expanded {
                 VStack(alignment: .leading, spacing: 6) {
@@ -957,12 +952,12 @@ private struct CompletedQuestRow: View {
                     QuestRewardsView(session: session, quest: quest, earned: true)
                 }
                 .padding(.leading, 32)
-                .transition(.opacity.combined(with: .move(edge: .top)))
+                .transition(.reveal)
             }
         }
         .padding(.vertical, expanded ? 6 : 0)
         .contentShape(Rectangle())
-        .onTapGesture { withAnimation(.easeOut(duration: 0.2)) { expanded.toggle() } }
+        .onTapGesture { withAnimation(Reveal.animation) { expanded.toggle() } }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
         .accessibilityHint(expanded ? L("Hides what you earned") : L("Shows what you earned"))

@@ -60,12 +60,7 @@ struct ChatView: View {
                 .background(HUDStyle.ink.opacity(0.6))
             }
             .frame(maxWidth: 520, maxHeight: 460)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(HUDStyle.ink.opacity(0.94))
-                    .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(HUDStyle.frameLight.opacity(0.8), lineWidth: 2))
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .gameWindow()
             .padding(16)
         }
         .onAppear { session.unreadChat = 0 }

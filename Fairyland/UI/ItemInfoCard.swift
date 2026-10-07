@@ -7,6 +7,12 @@ struct ItemInfoCard: View {
     let session: GameSession
     let item: ItemDef
     let onClose: () -> Void
+    /// Choosing gear (Character → Change): Cancel and Equip under the details, or Unequip for
+    /// what you're wearing. Nil in shops and trades, where the card only tells.
+    var onEquip: (() -> Void)? = nil
+    var onUnequip: (() -> Void)? = nil
+
+    private var choosing: Bool { onEquip != nil || onUnequip != nil }
 
     private var isGear: Bool { ItemType.equipmentSlots.contains(item.type) }
 
@@ -15,38 +21,41 @@ struct ItemInfoCard: View {
             Color.black.opacity(0.45)
                 .ignoresSafeArea()
                 .onTapGesture(perform: onClose)
-            // Scrolls only when it can't all fit (a phone on its side).
-            FitOrScroll {
-                VStack(alignment: .leading, spacing: 12) {
-                    header
-                    if let text = item.description, !text.isEmpty {
-                        Text(text)
-                            .font(HUDStyle.font(12))
-                            .foregroundStyle(HUDStyle.cream)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    if isGear {
-                        requirements
-                        if let stats = item.stats, !Self.parts(of: stats).isEmpty {
-                            section(L("Stats")) { chips(Self.parts(of: stats)) }
+            VStack(alignment: .leading, spacing: 0) {
+                // Scrolls only when it can't all fit (a phone on its side).
+                FitOrScroll {
+                    VStack(alignment: .leading, spacing: 12) {
+                        header
+                        if let text = item.description, !text.isEmpty {
+                            Text(text)
+                                .font(HUDStyle.font(12))
+                                .foregroundStyle(HUDStyle.cream)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                        comparison
+                        if isGear {
+                            requirements
+                            if let stats = item.stats, !Self.parts(of: stats).isEmpty {
+                                section(L("Stats")) { chips(Self.parts(of: stats)) }
+                            }
+                            comparison
+                        }
+                        effects
+                        if item.type == .material {
+                            materialUse
+                        }
+                        footer
                     }
-                    effects
-                    if item.type == .material {
-                        materialUse
-                    }
-                    footer
+                    .padding(16)
                 }
-                .padding(16)
+                // Cancel and Equip stay in view under the details, even when those scroll.
+                if choosing {
+                    actions
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 16)
+                }
             }
             .frame(maxWidth: 360, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(HUDStyle.ink.opacity(0.97))
-                    .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(HUDStyle.gold.opacity(0.85), lineWidth: 2))
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 18))
+            .gameWindow()
             .padding(24)
             .accessibilityElement(children: .contain)
         }
@@ -64,15 +73,35 @@ struct ItemInfoCard: View {
                     .foregroundStyle(HUDStyle.dim)
             }
             Spacer(minLength: 0)
-            Button(action: onClose) {
-                IconImage(.close, size: 14)
-                    .foregroundStyle(HUDStyle.ink)
-                    .frame(width: 30, height: 30)
-                    .background(Circle().fill(HUDStyle.cream))
-            }
-            .buttonStyle(PressScaleStyle())
-            .accessibilityLabel(L("Close"))
+            // Choosing gear, Cancel closes it instead.
+            if !choosing { OrangeCloseButton(action: onClose) }
         }
+    }
+
+    /// Cancel, and Equip (faded, with why, when you can't) or Unequip.
+    private var actions: some View {
+        let issue = onUnequip == nil ? session.equipIssue(item) : nil
+        return VStack(alignment: .trailing, spacing: 6) {
+            if let issue {
+                Text(issue).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.orange)
+            }
+            HStack(spacing: 10) {
+                Spacer(minLength: 0)
+                Button(L("Cancel"), action: onClose)
+                    .buttonStyle(PixelButtonStyle())
+                if let onUnequip {
+                    Button(L("Unequip"), action: onUnequip)
+                        .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
+                } else if let onEquip {
+                    Button(L("Equip"), action: onEquip)
+                        .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
+                        .disabled(issue != nil)
+                        .opacity(issue == nil ? 1 : 0.5)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .padding(.top, 4)
     }
 
     /// "Weapon", "Material · Metal", "Egg"…

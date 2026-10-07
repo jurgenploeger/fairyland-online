@@ -41,22 +41,33 @@ enum HUDStyle {
         startPoint: .top, endPoint: .bottom
     )
 
-    /// A deep-blue glass window with a glossy light-blue bevel.
+    /// Every window's corners.
+    static let windowRadius: CGFloat = 10
+
+    /// A deep-blue glass window with a glossy light-blue bevel, as a background. A window with a
+    /// title bar or tabs along its top uses `gameWindow()` instead, so the frame goes over them.
     static var panel: some View {
-        RoundedRectangle(cornerRadius: 10)
-            .fill(glass)
-            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(bevel, lineWidth: 3))
-            .overlay(RoundedRectangle(cornerRadius: 7).inset(by: 3).strokeBorder(.white.opacity(0.22), lineWidth: 1))
-            .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 2)
+        panel(shape: RoundedRectangle(cornerRadius: windowRadius))
     }
 
     /// The same window in another shape (a speech bubble's), its bevel running all the way round.
     static func panel(shape: some InsettableShape) -> some View {
         shape
             .fill(glass)
-            .overlay(shape.strokeBorder(bevel, lineWidth: 3))
-            .overlay(shape.inset(by: 3).strokeBorder(.white.opacity(0.22), lineWidth: 1))
+            .overlay(frame(shape))
             .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 2)
+    }
+
+    /// A window's frame, the same on every window and dialog: the glossy light-blue bevel with a
+    /// dark inner edge, which sets it off from a light title bar, and a faint white line inside
+    /// that catches the light on the glass. 4 pt in all, like the frame before it.
+    static func frame(_ shape: some InsettableShape) -> some View {
+        ZStack {
+            shape.strokeBorder(bevel, lineWidth: 3)
+            shape.inset(by: 2).strokeBorder(frameDark.opacity(0.85), lineWidth: 1)
+            shape.inset(by: 3).strokeBorder(.white.opacity(0.22), lineWidth: 1)
+        }
+        .allowsHitTesting(false)
     }
 
     /// Tan info plate (like Fairyland's calendar and coordinates boxes).
@@ -488,5 +499,45 @@ struct EmptyNote: View {
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
+    }
+}
+
+/// Opening like a drawer, for what a tap shows under a row (a quest's reward, a finished quest's
+/// story): the part unrolls down from its top edge, clipped as it grows, and the rows below slide
+/// along with it, rather than just fading in. Use it with a spring, `Reveal.animation`.
+extension AnyTransition {
+    static var reveal: AnyTransition {
+        .modifier(active: Reveal(shown: false), identity: Reveal(shown: true))
+    }
+}
+
+struct Reveal: ViewModifier {
+    let shown: Bool
+
+    /// Quick to open, settling without a wobble.
+    static let animation = Animation.spring(response: 0.38, dampingFraction: 0.86)
+
+    // `Self.Content`: plain `Content` is the game's data store.
+    func body(content: Self.Content) -> some View {
+        content
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(height: shown ? nil : 0, alignment: .top)
+            .clipped()
+            .opacity(shown ? 1 : 0)
+    }
+}
+
+extension View {
+    /// The game's window around this content: deep-blue glass behind it, the content clipped to the
+    /// window's shape, and the frame drawn over it all the way round, so a title bar or tabs along
+    /// the top sit inside the frame instead of covering it. Every modal and dialog uses it.
+    func gameWindow(_ shape: some InsettableShape) -> some View {
+        clipShape(shape)
+            .background(shape.fill(HUDStyle.glass).shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 2))
+            .overlay(HUDStyle.frame(shape))
+    }
+
+    func gameWindow() -> some View {
+        gameWindow(RoundedRectangle(cornerRadius: HUDStyle.windowRadius))
     }
 }

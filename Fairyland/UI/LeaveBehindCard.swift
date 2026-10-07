@@ -72,11 +72,7 @@ struct LeaveBehindCard: View {
         }
         .padding(20)
         .frame(maxWidth: 460)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(HUDStyle.ink.opacity(0.94))
-                .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(HUDStyle.gold.opacity(0.9), lineWidth: 2))
-        )
+        .gameWindow()
         .padding(20)
     }
 }

@@ -66,7 +66,9 @@ elf_crop     | newgame,race=elf,style=crop,hair=brown                          |
 item_info    | newgame,level=12,npc=shop,info=iron_axe                           | 8
 item_info_fighter | newgame,level=40,class=fighter,equip=iron_axe,npc=rainbow_shop,info=steel_sword | 8
 item_info_material | newgame,npc=shop,info=bronze_ingot                         | 8
-equip_change | newgame,equip=leather_vest,bag=cloth_tunic,menu=character,change=armor | 8
+equip_change | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+mossy_leather_vest+dragon_mail,menu=character,change=armor | 8
+equip_detail | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+dragon_mail,menu=character,change=armor,inspect=chain_mail | 8
+equip_locked | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+dragon_mail,menu=character,change=armor,inspect=dragon_mail | 8
 skills       | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,menu=character,bottom | 8
 skills_learn | newgame,level=20,class=mage,menu=character,bottom                 | 8
 boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 15
@@ -171,7 +173,8 @@ battle_skills     | newgame,level=60,class=fighter,learn=bash+first_aid+power_st
 worldmap_land     | newgame,level=30,map=pineapple_shore,worldmap,landscape | 8
 character_land    | newgame,level=40,class=fighter,equip=iron_plate+steel_sword,menu=character,landscape | 8
 skills_land       | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,menu=character,bottom,landscape | 8
-equip_change_land | newgame,equip=leather_vest,bag=cloth_tunic,menu=character,change=armor,landscape | 8
+equip_change_land | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+mossy_leather_vest+dragon_mail,menu=character,change=armor,landscape | 8
+equip_detail_land | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+dragon_mail,menu=character,change=armor,inspect=chain_mail,landscape | 8
 look_land         | newgame,menu=character,customize,landscape | 8
 party_menu_land   | newgame,level=43,class=fighter,pet=pineapple,friends=4,menu=friends,landscape | 8
 monster_book_land | newgame,book,landscape | 8
@@ -214,6 +217,8 @@ victory_cards     | newgame,level=5,map=sunny_meadow,battle=2,win,card       | 3
 toys_bag          | newgame,level=30,pet=jelly,bag=toy_soldier+toy_bear+toy_music_box,menu=bag | 8
 toys_companion    | newgame,level=30,pet=jelly,toys=4,bag=toy_ball,menu=companions | 8
 toy_info          | newgame,level=30,npc=rainbow_shop,info=toy_music_box     | 8
+bag_use           | newgame,level=30,pet=jelly,hp=0.4,bag=potion+potion+potion+ether,menu=bag,use=potion | 8
+bag_give          | newgame,level=30,pet=jelly,toys=3,bag=toy_ball,menu=bag,use=toy_ball | 8
 toymaker          | newgame,level=20,cards=6,map=rainbow_city,npc=toymaker   | 8
 toymaker_town     | newgame,map=rainbow_city,at=-2_2,clean                   | 10
 # Seal Stones (0.3.70): every kind in the battle's Items list with its odds, aiming a Heart Seal (the odds

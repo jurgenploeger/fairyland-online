@@ -329,7 +329,7 @@ private struct ChangelogPanel: View {
         }
         .foregroundStyle(HUDStyle.cream)
         .frame(maxWidth: 640)
-        .background(HUDStyle.panel)
+        .gameWindow()
     }
 }
 
