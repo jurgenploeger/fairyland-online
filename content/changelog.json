@@ -7,7 +7,8 @@
       "title": "A tidier title screen",
       "notes": [
         "The title screen shows less at once: Continue and New game up front, and Settings, How to play and What's new as small round buttons underneath. What's new wears a gold dot when there are notes you haven't read.",
-        "Before your first game, the title screen also offers the language and Import a backup; once you have a game, both are in Settings."
+        "Before your first game, the title screen also offers the language and Import a backup; once you have a game, both are in Settings.",
+        "The loading screen's bar is shorter, with a little more room under the logo."
       ]
     },
     {

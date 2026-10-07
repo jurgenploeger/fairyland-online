@@ -9,7 +9,8 @@ struct LoadingCurtain: View {
     var body: some View {
         ZStack {
             StoryleafSky(raysFrom: UnitPoint(x: 0.5, y: 0.44))
-            VStack(spacing: 14) {
+            // The bar keeps a little apart from the logo, and narrower than it.
+            VStack(spacing: 30) {
                 Image("Logo")
                     .resizable()
                     .scaledToFit()
@@ -17,7 +18,8 @@ struct LoadingCurtain: View {
                     .scaleEffect(spin ? 1.03 : 0.97)
                 // In the logo's colours: its leaf green, outlined like its letters, on its cream.
                 LoadingBar(progress: progress, label: L("Loading"), textColor: Brand.forest,
-                           fill: [Brand.leafLight, Brand.leaf, Brand.leafDeep], track: Brand.cream, rim: Brand.forest)
+                           fill: [Brand.leafLight, Brand.leaf, Brand.leafDeep], track: Brand.cream, rim: Brand.forest,
+                           width: 200)
             }
             .padding(.horizontal, 40)
         }
@@ -67,6 +69,8 @@ struct LoadingBar: View {
     var fill: [Color] = [Color(red: 0.45, green: 0.78, blue: 1), Color(red: 0.13, green: 0.47, blue: 0.95)]
     var track: Color = HUDStyle.ink.opacity(0.35)
     var rim: Color = .white.opacity(0.8)
+    /// How wide the bar grows at most.
+    var width: CGFloat = 280
 
     private var percent: Int { Int((min(max(progress, 0), 1) * 100).rounded()) }
 
@@ -85,7 +89,7 @@ struct LoadingBar: View {
                     }
                 }
                 .overlay(Capsule().strokeBorder(rim, lineWidth: 2))
-                .frame(maxWidth: 280)
+                .frame(maxWidth: width)
                 .frame(height: 16)
                 // No animation: the map build holds the screen between steps, so an animated bar
                 // would lag behind its own number.

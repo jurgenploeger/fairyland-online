@@ -754,6 +754,7 @@
     "A tidier title screen": "すっきりしたタイトル画面",
     "The title screen shows less at once: Continue and New game up front, and Settings, How to play and What's new as small round buttons underneath. What's new wears a gold dot when there are notes you haven't read.": "タイトル画面に一度に出るものを減らしました。「つづきから」と「はじめから」を前に、「設定」「あそびかた」「更新情報」は下の小さな丸いボタンに。まだ読んでいない更新情報があると、「更新情報」に金色の点がつきます。",
     "Before your first game, the title screen also offers the language and Import a backup; once you have a game, both are in Settings.": "はじめてのゲームの前は、タイトル画面に言語と「バックアップを読みこむ」も出ます。ゲームができたら、どちらも「設定」にあります。",
+    "The loading screen's bar is shorter, with a little more room under the logo.": "読みこみ画面のバーを短くして、ロゴとのあいだを少し広げました。",
     "Tidier battle buttons": "すっきりしたバトルのボタン",
     "Skills can't be pinned beside Attack any more: the battle buttons are back to Attack, Skills and More, and the Skills list has no stars. Capture still joins them when you can befriend a monster, and Items when someone is low on HP.": "スキルを「こうげき」のとなりにピンどめできなくなりました。バトルのボタンは「こうげき」「スキル」「もっと」に戻り、スキル一覧の星もなくなりました。モンスターをなかまにできるときは「つかまえる」が、だれかのHPが少ないときは「どうぐ」が、これまでどおり加わります。",
     "Seal Stones of every kind": "いろいろな封印石",
