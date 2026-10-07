@@ -122,7 +122,8 @@ party_landscape | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=mea
 quests       | newgame,menu=quests                                 | 8
 worldmap     | newgame,worldmap                                    | 8
 monster_book | newgame,book                                        | 8
-bounties     | newgame,level=12,map=northern_grassland,bounties=1,menu=quests | 8
+bounties     | newgame,level=12,map=northern_grassland,bounties=1,menu=quests,daily | 8
+quests_dot   | newgame,level=12,map=northern_grassland,bounties=1,menu=quests | 8
 titles       | newgame,level=60,class=fighter,title=veteran,menu=character,bottom | 8
 daily_gift   | newgame,level=30,map=meadowbrook,gift=7             | 10
 # Play as a player would (debug `demo`), filmed for the App Store preview (record=seconds, saved as <name>.mp4).
@@ -180,7 +181,7 @@ party_menu_land   | newgame,level=43,class=fighter,pet=pineapple,friends=4,menu=
 monster_book_land | newgame,book,landscape | 8
 bag_land          | newgame,level=30,bag=seal_stone+seal_stone+iron_axe,menu=bag,landscape | 8
 quests_land       | newgame,menu=quests,landscape | 8
-bounties_land     | newgame,level=12,map=northern_grassland,bounties=1,menu=quests,landscape | 8
+bounties_land     | newgame,level=12,map=northern_grassland,bounties=1,menu=quests,daily,landscape | 8
 settings_land     | newgame,menu=settings,weather=clear,landscape | 8
 npc_land          | newgame,npc=elder,landscape | 8
 shop_land         | newgame,level=12,npc=shop,landscape | 8

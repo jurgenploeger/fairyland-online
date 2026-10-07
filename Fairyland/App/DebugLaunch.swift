@@ -51,6 +51,7 @@ import SpriteKit
 ///                  nearest one's card shows Befriend, Trade (and Duel where duels are allowed)
 ///   quiet          footsteps switched off in Settings, and left off (so its screenshot runs last)
 ///   menu=<tab>     open character | companions | bag | quests
+///   daily          with menu=quests: open on Daily challenges (the bounties and the daily gift)
 ///   profile=<who>  open someone's stats: hero | pet (with pet=) | friend (with friends=)
 ///   bottom         open the menu scrolled to the end
 ///   npc=<id>       open an NPC dialog
@@ -112,6 +113,8 @@ enum DebugLaunch {
     static var isActive: Bool { flags["newgame"] != nil }
     /// `use=potion`: with menu=bag, the Bag's window for who gets it is open for that item.
     static var picksTargetFor: String? { flags["use"] }
+    /// `daily`: with menu=quests, the Quests tab opens on Daily challenges.
+    static var opensDailyChallenges: Bool { flags["daily"] != nil }
 
     /// Debug launches leave `Documents/debug-ready` once the map or battle is on screen (or How to
     /// play's part, with `clip`), so tools/screenshots.sh knows when to shoot (the loading curtain

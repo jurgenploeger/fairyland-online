@@ -14,6 +14,8 @@ struct MenuView: View {
     @State private var bagNote: String?
     /// Change on the Character tab: the grid of gear for that slot, in a window over the menu.
     @State private var changing: ItemType? = DebugLaunch.changingSlot
+    /// The Quests tab's page, Quests or Daily challenges, kept while the menu is open.
+    @State private var questsPage: QuestsPage = DebugLaunch.opensDailyChallenges ? .daily : .quests
 
     init(session: GameSession, initialTab: MenuTab, onClose: @escaping () -> Void, onQuitToTitle: (() -> Void)? = nil) {
         self.session = session
@@ -59,7 +61,7 @@ struct MenuView: View {
                             BagTab(session: session, note: $bagNote) { item in
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) { picking = item }
                             }
-                        case .quests: QuestsTab(session: session)
+                        case .quests: QuestsTab(session: session, page: $questsPage)
                         case .settings: SettingsView(session: session, onQuitToTitle: onQuitToTitle)
                         }
                     }
@@ -851,25 +853,108 @@ private struct HatchView: View {
 
 // MARK: - Quests
 
+/// The Quests tab's two pages, picked with its own smaller tabs.
+private enum QuestsPage: CaseIterable {
+    /// The quests people have given you, active and finished.
+    case quests
+    /// The day's bounties, their bonus and the daily gift.
+    case daily
+
+    var title: String {
+        switch self {
+        case .quests: L("Quests")
+        case .daily: L("Daily challenges")
+        }
+    }
+
+    var icon: GameIcon {
+        switch self {
+        case .quests: .book
+        case .daily: .sun
+        }
+    }
+}
+
 private struct QuestsTab: View {
     let session: GameSession
+    @Binding var page: QuestsPage
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            BountiesSection(session: session)
-            SectionTitle(text: L("Active"))
-            if session.activeQuests.isEmpty {
-                Text(L("No active quests. Elder Oak in Meadowbrook always needs help.")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
-            }
-            ForEach(session.activeQuests) { quest in
-                QuestRow(session: session, quest: quest, showsGiver: true)
-            }
-            if !session.completedQuests.isEmpty {
-                SectionTitle(text: L("Completed"))
-                ForEach(session.completedQuests) { quest in
-                    CompletedQuestRow(session: session, quest: quest)
+            QuestsPageTabs(session: session, page: $page)
+                .padding(.bottom, 4)
+            switch page {
+            case .quests:
+                SectionTitle(text: L("Active"))
+                if session.activeQuests.isEmpty {
+                    Text(L("No active quests. Elder Oak in Meadowbrook always needs help.")).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
                 }
+                ForEach(session.activeQuests) { quest in
+                    QuestRow(session: session, quest: quest, showsGiver: true)
+                }
+                if !session.completedQuests.isEmpty {
+                    SectionTitle(text: L("Completed"))
+                    ForEach(session.completedQuests) { quest in
+                        CompletedQuestRow(session: session, quest: quest)
+                    }
+                }
+            case .daily:
+                BountiesSection(session: session)
             }
+        }
+    }
+}
+
+/// The Quests tab's smaller tabs, under the menu's own: Quests and Daily challenges. The one you're
+/// not on wears the HUD's gold dot when it has something waiting: a quest to report back on, or a
+/// bounty or the bonus to claim.
+private struct QuestsPageTabs: View {
+    let session: GameSession
+    @Binding var page: QuestsPage
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(QuestsPage.allCases, id: \.self) { item in
+                let selected = item == page
+                let marked = !selected && waiting(on: item)
+                Button {
+                    guard !selected else { return }
+                    SoundEffects.shared.play(.tap, volume: 0.7)
+                    page = item
+                } label: {
+                    Label(item.title, icon: item.icon, size: 16)
+                        .font(HUDStyle.font(12))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .foregroundStyle(selected ? HUDStyle.ink : HUDStyle.cream)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                        .background(Capsule().fill(selected ? HUDStyle.gold : .white.opacity(0.06)))
+                        .overlay(alignment: .topTrailing) {
+                            if marked {
+                                Circle().fill(HUDStyle.gold).frame(width: 10, height: 10)
+                                    .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 1.5))
+                                    .offset(x: -4, y: -2)
+                            }
+                        }
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selected ? .isSelected : [])
+                .accessibilityValue(marked ? L("Something to claim") : "")
+            }
+        }
+        .padding(3)
+        .background(Capsule().fill(.black.opacity(0.2)))
+    }
+
+    private func waiting(on tab: QuestsPage) -> Bool {
+        switch tab {
+        case .quests:
+            return session.activeQuests.contains { session.status(of: $0) == .ready }
+        case .daily:
+            let bounties = session.data.bounties?.bounties ?? []
+            return bounties.contains { $0.isDone && !$0.claimed } || session.canClaimBountyBonus
         }
     }
 }
