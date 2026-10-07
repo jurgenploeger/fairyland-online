@@ -5,6 +5,7 @@ title_de     | lang=de                           | 6
 title_ja     | lang=ja                           | 6
 title_saves  | saves=3                           | 6
 title_saves_de | saves=3,lang=de                 | 6
+title_settings | titlepage=settings              | 6
 curtain      | curtain                           | 4
 curtain_land | curtain,landscape                 | 4
 lang_es      | newgame,lang=es                   | 8
@@ -69,8 +70,8 @@ item_info_material | newgame,npc=shop,info=bronze_ingot                         
 equip_change | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+mossy_leather_vest+dragon_mail,menu=character,change=armor | 8
 equip_detail | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+dragon_mail,menu=character,change=armor,inspect=chain_mail | 8
 equip_locked | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+dragon_mail,menu=character,change=armor,inspect=dragon_mail | 8
-skills       | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,menu=character,bottom | 8
-skills_learn | newgame,level=20,class=mage,menu=character,bottom                 | 8
+skills       | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,menu=character,sub=skills | 8
+skills_learn | newgame,level=20,class=mage,menu=character,sub=skills             | 8
 boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 15
 boss_fight   | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne | 25
 boss_wave    | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne,wave=3 | 25
@@ -123,9 +124,9 @@ party_landscape | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=mea
 quests       | newgame,menu=quests                                 | 8
 worldmap     | newgame,worldmap                                    | 8
 monster_book | newgame,book                                        | 8
-bounties     | newgame,level=12,map=northern_grassland,bounties=1,menu=quests,daily | 8
+bounties     | newgame,level=12,map=northern_grassland,bounties=1,menu=quests,sub=daily | 8
 quests_dot   | newgame,level=12,map=northern_grassland,bounties=1,menu=quests | 8
-titles       | newgame,level=60,class=fighter,title=veteran,menu=character,bottom | 8
+titles       | newgame,level=60,class=fighter,title=veteran,menu=character,sub=titles | 8
 daily_gift   | newgame,level=30,map=meadowbrook,gift=7             | 10
 # Play as a player would (debug `demo`), filmed for the App Store preview (record=seconds, saved as <name>.mp4).
 gameplay     | newgame,demo,record=58,level=12,class=mage,learn=fire_bolt+curse,pet=jelly,bag=seal_stone+seal_stone,map=sunny_meadow,at=3_3 | 2
@@ -174,7 +175,7 @@ battle_skills     | newgame,level=60,class=fighter,learn=bash+first_aid+power_st
 # Every window in landscape (402 pt tall on the simulator): nothing may run off the top or bottom.
 worldmap_land     | newgame,level=30,map=pineapple_shore,worldmap,landscape | 8
 character_land    | newgame,level=40,class=fighter,equip=iron_plate+steel_sword,menu=character,landscape | 8
-skills_land       | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,menu=character,bottom,landscape | 8
+skills_land       | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,menu=character,sub=skills,landscape | 8
 equip_change_land | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+mossy_leather_vest+dragon_mail,menu=character,change=armor,landscape | 8
 equip_detail_land | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+dragon_mail,menu=character,change=armor,inspect=chain_mail,landscape | 8
 look_land         | newgame,menu=character,customize,landscape | 8
@@ -182,7 +183,7 @@ party_menu_land   | newgame,level=43,class=fighter,pet=pineapple,friends=4,menu=
 monster_book_land | newgame,book,landscape | 8
 bag_land          | newgame,level=30,bag=seal_stone+seal_stone+iron_axe,menu=bag,landscape | 8
 quests_land       | newgame,menu=quests,landscape | 8
-bounties_land     | newgame,level=12,map=northern_grassland,bounties=1,menu=quests,daily,landscape | 8
+bounties_land     | newgame,level=12,map=northern_grassland,bounties=1,menu=quests,sub=daily,landscape | 8
 settings_land     | newgame,menu=settings,weather=clear,landscape | 8
 npc_land          | newgame,npc=elder,landscape | 8
 shop_land         | newgame,level=12,npc=shop,landscape | 8
@@ -202,6 +203,9 @@ daily_gift_land   | newgame,level=30,map=meadowbrook,gift=7,landscape | 10
 coach_land        | newgame,coach,landscape | 9
 title_land        | landscape | 6
 title_saves_land  | saves=3,landscape | 6
+title_settings_land | titlepage=settings,landscape | 6
+title_news_land   | saves=3,titlepage=news,landscape | 6
+title_create_land | titlepage=create,landscape | 6
 intro_land        | intro,landscape | 6
 intro_play_land   | intro=4,landscape | 6
 battle_land       | newgame,level=30,class=mage,map=sunny_meadow,battle=3,landscape | 15
@@ -217,6 +221,7 @@ victory_cards     | newgame,level=5,map=sunny_meadow,battle=2,win,card       | 3
 # Companion toys: in the bag, played with (Toys 4/10 on its card), a toy's details in the shop, Tilly the
 # Toymaker's card quests, and Tilly in Prismhaven.
 toys_bag          | newgame,level=30,pet=jelly,bag=toy_soldier+toy_bear+toy_music_box,menu=bag | 8
+bag_card          | newgame,level=30,bag=potion+potion+seal_stone+bronze_ingot+iron_axe,menu=bag,inspect=seal_stone | 8
 toys_companion    | newgame,level=30,pet=jelly,toys=4,bag=toy_ball,menu=companions | 8
 toy_info          | newgame,level=30,npc=rainbow_shop,info=toy_music_box     | 8
 bag_use           | newgame,level=30,pet=jelly,hp=0.4,bag=potion+potion+potion+ether,menu=bag,use=potion | 8

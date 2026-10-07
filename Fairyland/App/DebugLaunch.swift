@@ -17,7 +17,8 @@ import SpriteKit
 ///   away=n         with friends: the first n of them wait for you a few steps east of where you start
 ///   unfold         the top-left HUD shows a big party in full instead of folded into one row
 ///   change=<slot>  open the Character tab's window of gear for weapon | armor | accessory (with menu=character)
-///   inspect=<item> with change: that piece's card is open in it, with Cancel and Equip
+///   inspect=<item> with change: that piece's card is open in it, with Cancel and Equip; with
+///                  menu=bag (no change): that item's card over the Bag
 ///   customize      open the Character tab's look editor (with menu=character)
 ///   race=<id>      play this race (content/classes.json)
 ///   style=<id>     wear this hairstyle (content/appearance.json `styles`)
@@ -51,7 +52,7 @@ import SpriteKit
 ///                  nearest one's card shows Befriend, Trade (and Duel where duels are allowed)
 ///   quiet          footsteps switched off in Settings, and left off (so its screenshot runs last)
 ///   menu=<tab>     open character | companions | bag | quests
-///   daily          with menu=quests: open on Daily challenges (the bounties and the daily gift)
+///   sub=<page>     a menu tab's smaller tab: skills | titles (menu=character), daily (menu=quests)
 ///   profile=<who>  open someone's stats: hero | pet (with pet=) | friend (with friends=)
 ///   bottom         open the menu scrolled to the end
 ///   npc=<id>       open an NPC dialog
@@ -80,6 +81,7 @@ import SpriteKit
 ///   intro[=page]   open the title screen's story pages at that page (1 = the story, 4 = how to play)
 ///   clip=<n>       with intro=4: How to play's picture starts at that part (0 walk … 4 town), and
 ///                  marks debug-ready as it does
+///   titlepage=<p>  the title screen opens on settings | news (What's new) | languages | create
 ///   saves=n        the title screen lists n made-up games (up to 3, in a folder of their own), with
 ///                  What's new not read yet
 ///   use=<item>     with menu=bag: the window for who gets that item is open (a potion, or a toy)
@@ -113,8 +115,8 @@ enum DebugLaunch {
     static var isActive: Bool { flags["newgame"] != nil }
     /// `use=potion`: with menu=bag, the Bag's window for who gets it is open for that item.
     static var picksTargetFor: String? { flags["use"] }
-    /// `daily`: with menu=quests, the Quests tab opens on Daily challenges.
-    static var opensDailyChallenges: Bool { flags["daily"] != nil }
+    /// `sub=skills`: the menu tab opens on that page of its smaller tabs (`book` opens the Monster Book).
+    static var subTab: String? { flags["sub"] }
 
     /// Debug launches leave `Documents/debug-ready` once the map or battle is on screen (or How to
     /// play's part, with `clip`), so tools/screenshots.sh knows when to shoot (the loading curtain
@@ -138,6 +140,8 @@ enum DebugLaunch {
     /// `change=armor`: the Character tab opens with that slot's list of things to wear.
     static var changingSlot: ItemType? { flags["change"].flatMap(ItemType.init(rawValue:)) }
     static var inspectedItem: String? { flags["inspect"] }
+    /// `titlepage=settings`: the title screen opens on that page instead of its menu.
+    static var titlePage: String? { flags["titlepage"] }
     static var opensMenuAtBottom: Bool { flags["bottom"] != nil }
     static var opensCustomize: Bool { flags["customize"] != nil }
     /// `info=iron_axe`: the shop's info card for that item opens with the dialog.
