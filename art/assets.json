@@ -4394,7 +4394,7 @@
       "id": "item_moon_seal",
       "kind": "item",
       "request": {
-        "prompt": "pale blue crescent moonstone with a white spiral rune, game item icon",
+        "prompt": "pale blue hexagonal crystal with a white spiral rune, game item icon",
         "prompt_style": "rd_tile__tile_object",
         "width": 32,
         "height": 32,
@@ -4405,7 +4405,7 @@
       "id": "item_heart_seal",
       "kind": "item",
       "request": {
-        "prompt": "rose pink heart-shaped crystal with a white spiral rune, game item icon",
+        "prompt": "rose pink hexagonal crystal with a white spiral rune, game item icon",
         "prompt_style": "rd_tile__tile_object",
         "width": 32,
         "height": 32,
@@ -4416,7 +4416,7 @@
       "id": "item_star_seal",
       "kind": "item",
       "request": {
-        "prompt": "golden star-shaped crystal with a white spiral rune, game item icon",
+        "prompt": "golden hexagonal crystal with a white spiral rune, game item icon",
         "prompt_style": "rd_tile__tile_object",
         "width": 32,
         "height": 32,
@@ -4427,7 +4427,7 @@
       "id": "item_wishing_seal",
       "kind": "item",
       "request": {
-        "prompt": "rainbow diamond prism crystal with a violet spiral rune, sparkles, game item icon",
+        "prompt": "rainbow hexagonal crystal with a violet spiral rune, game item icon",
         "prompt_style": "rd_tile__tile_object",
         "width": 32,
         "height": 32,

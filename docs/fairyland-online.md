@@ -297,17 +297,17 @@ Full Heal.
 - Up to 5 companions; only the one you bring along follows you, fights and earns EXP (50%, or 100% for a
   Beast Tamer).
 - Seal Stones are thrown with Capture (the plainest one you have) or from Items (any kind). Since 0.3.70
-  (asked for in playtesting, 2026-10-07) there are five, each its own colour and shape, and every throw uses
-  the stone up, held or not (before, only when it worked): the teal Seal Stone (60 gold), the blue Moon Seal
-  (odds ×1.5, 200 gold in Prismhaven and Larkspur), the pink Heart Seal (×2, 500 gold in Larkspur and
+  (asked for in playtesting, 2026-10-07) there are five, the same crystal in five colours, and every throw
+  uses the stone up, held or not (before, only when it worked): the teal Seal Stone (60 gold), the blue Moon
+  Seal (odds ×1.5, 200 gold in Prismhaven and Larkspur), the pink Heart Seal (×2, 500 gold in Larkspur and
   Ingothold), the gold Star Seal (×3; bosses drop one 25% of the time) and the rainbow Wishing Seal, which
   never fails (Elder Oak's quest Wish Upon a Star, bosses 5%, the Monster Book's last reward). A stronger
   stone also lifts the odds' 75% ceiling, up to 95%, and while you aim, each monster shows your odds. FO's
-  capture capsules came in level tiers instead (M, above). Since 0.3.66 (asked for in playtesting, 2026-10-07) it works on any wild monster at any HP: the odds
-  climb as it weakens (×0.25 at full HP, ×1 at 20%, up to ×3 near 0, before level, fight length and the
-  Beast Tamer's bonus), your side leaves the monster you're sealing alone, and a sealed monster is yours
-  however the fight ends. A full party can take one newcomer a fight (you pick who stays behind). Until
-  0.3.65, only the last monster standing at 20% HP or less.
+  capture capsules came in level tiers instead (M, above). Since 0.3.66 (asked for in playtesting, 2026-10-07)
+  it works on any wild monster at any HP: the odds climb as it weakens (×0.25 at full HP, ×1 at 20%, up to ×3
+  near 0, before level, fight length and the Beast Tamer's bonus), your side leaves the monster you're sealing
+  alone, and a sealed monster is yours however the fight ends. A full party can take one newcomer a fight (you
+  pick who stays behind). Until 0.3.65, only the last monster standing at 20% HP or less.
 - Companions grow as species base + growth × (level − 1) and have a fixed skill list.
 - Each round, after your own choice, you pick your companion's: Attack, one of its skills, Guard, or Auto (it
   decides itself). It always obeys, since there's no intimacy. A Settings switch leaves it to fight on its own.

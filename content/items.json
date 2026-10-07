@@ -40,7 +40,7 @@
       "price": 200,
       "capture": true,
       "sealPower": 1.5,
-      "description": "A pale blue crescent that glows like the night sky. Half as likely again to hold a monster as a Seal Stone. Used up either way."
+      "description": "A pale blue Seal Stone that glows like the night sky. Half as likely again to hold a monster as a plain one. Used up either way."
     },
     {
       "id": "heart_seal",
@@ -51,7 +51,7 @@
       "price": 500,
       "capture": true,
       "sealPower": 2,
-      "description": "A rose-pink heart no monster can help warming to. Twice as likely to hold one as a Seal Stone. Used up either way."
+      "description": "A rose-pink Seal Stone no monster can help warming to. Twice as likely to hold one as a plain Seal Stone. Used up either way."
     },
     {
       "id": "star_seal",
@@ -62,7 +62,7 @@
       "price": 1500,
       "capture": true,
       "sealPower": 3,
-      "description": "A golden star caught in crystal. Three times as likely to hold a monster as a Seal Stone. No shop sells it: bosses drop it now and then. Used up either way."
+      "description": "A gold Seal Stone with starlight inside. Three times as likely to hold a monster as a plain one. No shop sells it: bosses drop it now and then. Used up either way."
     },
     {
       "id": "wishing_seal",
@@ -73,7 +73,7 @@
       "price": 0,
       "capture": true,
       "sure": true,
-      "description": "A rainbow crystal made from a wish. It never fails: any monster that can be befriended is sealed at once. There are very few in all the world."
+      "description": "A rainbow Seal Stone made from a wish. It never fails: any monster that can be befriended is sealed at once. There are very few in all the world."
     },
     {
       "id": "homeward_feather",

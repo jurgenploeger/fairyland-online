@@ -287,88 +287,60 @@ COPPER = [hexc("8a4a22"), hexc("c8783a"), hexc("f0b07a")]
 
 
 
-def draw_seal_stone(c):
-    c.poly([(16, 4), (26, 11), (24, 25), (16, 29), (8, 25), (6, 11)], TEAL[1])
-    c.shade(lambda x, y, col: col == TEAL[1] and x > 17 and y > 14, TEAL[0])
-    c.poly([(16, 5), (8, 11), (12, 14), (16, 9)], TEAL[2])
+# Every kind of Seal Stone is the same crystal with the same white sealing spiral; only its colours
+# change.
+SEAL_SHAPE = [(16, 4), (26, 11), (24, 25), (16, 29), (8, 25), (6, 11)]
+SEAL_FACET = [(16, 5), (8, 11), (12, 14), (16, 9)]
+
+
+def seal_spiral(c, color=WHITE):
     for i in range(0, 40):       # the sealing spiral
         t = i / 40 * math.pi * 3
         r = 0.6 + i * 0.14
-        c.set(16 + r * math.cos(t), 17 + r * math.sin(t), WHITE)
+        c.set(16 + r * math.cos(t), 17 + r * math.sin(t), color)
 
 
-# The stronger Seal Stones: each its own colour and shape, with the same white sealing spiral.
+def seal_gem(c, colors, spiral=WHITE):
+    """The Seal Stone's crystal in `colors` (dark, mid, light): its right-hand facets in shadow, a
+    bright facet up top, and the spiral."""
+    dark, mid, light = colors
+    c.poly(SEAL_SHAPE, mid)
+    c.shade(lambda x, y, col: col == mid and x > 17 and y > 14, dark)
+    c.poly(SEAL_FACET, light)
+    seal_spiral(c, spiral)
 
-def seal_spiral(c, cx, cy, turns=3.0, steps=40, grow=0.14, color=WHITE):
-    for i in range(steps):
-        t = i / steps * math.pi * turns
-        r = 0.6 + i * grow
-        c.set(cx + r * math.cos(t), cy + r * math.sin(t), color)
 
-
-def sparkle(c, x, y, color=WHITE, arm=1):
-    c.set(x, y, color)
-    for (ox, oy) in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-        for k in range(1, arm + 1):
-            c.set(x + ox * k, y + oy * k, color)
+def draw_seal_stone(c):
+    seal_gem(c, TEAL)
 
 
 def draw_moon_seal(c):
-    """A pale blue crescent moonstone: light from the upper left, the spiral in its thick middle, and two
-    small stars in the hollow of the crescent."""
-    moon = [hexc("3a58a4"), hexc("8db2ee"), hexc("e2eeff")]
-    c.disc(14, 17, 12, moon[1])
-    for y in range(32):                                    # bite out the crescent's hollow
-        for x in range(32):
-            if (x - 21) ** 2 + (y - 12) ** 2 <= 9.5 ** 2:
-                c.px[y][x] = None
-    c.shade(lambda x, y, col: col == moon[1] and (x - 14) + (y - 17) > 6, moon[0])
-    c.shade(lambda x, y, col: col == moon[1] and (x - 14) + (y - 17) < -9, moon[2])
-    seal_spiral(c, 10, 20, turns=2.6, steps=26, grow=0.13)
-    sparkle(c, 24, 9, hexc("fff3b0"))
-    sparkle(c, 27, 17, hexc("e2eeff"), arm=0)
+    """Pale moonlight blue."""
+    seal_gem(c, [hexc("3a58a4"), hexc("8db2ee"), hexc("e2eeff")])
 
 
 def draw_heart_seal(c):
-    """A rose-pink heart-cut seal: two round lobes and a point, a bright facet on the left lobe, and
-    the spiral at its heart."""
-    c.disc(11, 11, 6.6, PINK[1])
-    c.disc(21, 11, 6.6, PINK[1])
-    c.poly([(4.6, 13), (27.4, 13), (16, 28.5)], PINK[1])
-    c.shade(lambda x, y, col: col == PINK[1] and (x - 16) + (y - 15) > 7, PINK[0])
-    c.poly([(7, 9), (11, 6), (13, 9), (9, 12)], PINK[2])
-    seal_spiral(c, 16, 15, turns=2.8, steps=30, grow=0.13)
-    sparkle(c, 25, 5, WHITE)
+    """Rose pink."""
+    seal_gem(c, PINK)
 
 
 def draw_star_seal(c):
-    """A gold five-pointed star seal, faceted: the lower right in shadow, a bright upper left, the
-    spiral at its centre and a glint at one tip."""
-    star_shape(c, 16, 17, 13.5, GOLD[1], inner=0.5)
-    c.shade(lambda x, y, col: col == GOLD[1] and (x - 16) + (y - 17) > 4, GOLD[0])
-    c.shade(lambda x, y, col: col == GOLD[1] and (x - 16) + (y - 17) < -7, GOLD[2])
-    seal_spiral(c, 16, 17, turns=2.6, steps=26, grow=0.13)
-    sparkle(c, 27, 4, WHITE)
+    """Starlight gold."""
+    seal_gem(c, GOLD)
 
 
 def draw_wishing_seal(c):
-    """The Wishing Seal: a diamond-shaped prism in soft rainbow bands, the spiral in white across its
-    middle, and sparkles at its sides. Very rare, and it never fails."""
+    """The rainbow one: the same crystal in soft rainbow bands, the shaded side a little darker, and the
+    spiral in violet so it shows on the pale colours."""
     bands = [hexc("ff9aa8"), hexc("ffc88a"), hexc("fff09a"), hexc("aef0a0"), hexc("9fd6ff"), hexc("c8b0ff")]
-    c.poly([(16, 1.5), (28.5, 15), (16, 30.5), (3.5, 15)], bands[0])
-    for y in range(32):
-        for x in range(32):
+    c.poly(SEAL_SHAPE, bands[0])
+    for y in range(SIZE):
+        for x in range(SIZE):
             if c.px[y][x] == bands[0]:
-                c.px[y][x] = bands[min(len(bands) - 1, max(0, int((y - 2) / 28 * len(bands))))]
-    for y in range(32):                                      # the right-hand facets a little in shadow
-        for x in range(32):
-            col = c.px[y][x]
-            if col is not None and x > 16 and (x - 16) > (15 - abs(y - 15)) * 0.45:
-                c.px[y][x] = tuple(int(v * 0.84) for v in col[:3]) + (255,)
-    c.poly([(16, 3.5), (8.5, 11.5), (13, 11.5)], hexc("fffaff"))   # a bright facet up top
-    seal_spiral(c, 16, 16, turns=2.8, steps=30, grow=0.14, color=hexc("6a46b8"))
-    sparkle(c, 2, 6, WHITE)
-    sparkle(c, 29, 25, hexc("fff3b0"))
+                band = bands[min(len(bands) - 1, max(0, int((y - 4) / 26 * len(bands))))]
+                c.px[y][x] = tuple(int(v * 0.8) for v in band[:3]) + (255,) if x > 17 and y > 14 else band
+    c.poly(SEAL_FACET, hexc("fffaff"))
+    seal_spiral(c, hexc("6a46b8"))
 
 
 def draw_homeward_feather(c):
@@ -1300,10 +1272,10 @@ PROMPTS = {  # for a later Retro Diffusion upgrade (python3 tools/rd.py generate
     "star_charm": "gold star charm on a necklace",
     "power_band": "red wristband with steel studs",
     "speed_boots": "blue winged speed boots",
-    "moon_seal": "pale blue crescent moonstone with a white spiral rune",
-    "heart_seal": "rose pink heart-shaped crystal with a white spiral rune",
-    "star_seal": "golden star-shaped crystal with a white spiral rune",
-    "wishing_seal": "rainbow diamond prism crystal with a violet spiral rune",
+    "moon_seal": "pale blue hexagonal crystal with a white spiral rune",
+    "heart_seal": "rose pink hexagonal crystal with a white spiral rune",
+    "star_seal": "golden hexagonal crystal with a white spiral rune",
+    "wishing_seal": "rainbow hexagonal crystal with a violet spiral rune",
     "toy_soldier": "tin toy soldier in a red coat with a wind-up key",
     "toy_blocks": "three stacked wooden toy blocks with letters",
     "toy_music_box": "open wooden music box with a golden crank",
