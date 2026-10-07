@@ -12,19 +12,17 @@ struct MapOverlay: View {
                 .ignoresSafeArea()
                 .onTapGesture(perform: onClose)
 
-            VStack(spacing: 10) {
+            // The game's window, like every other: the title bar along its top edge, the atlas below.
+            VStack(spacing: 0) {
                 FLTitleBar(title: L("World map"), icon: .map, onClose: onClose)
                 WorldAtlas(session: session)
+                    .padding(12)
             }
-            .padding(16)
             // As tall as the map wants, or what the screen has room for (a phone on its side):
             // the atlas scrolls in whatever height is left under the title.
             .frame(maxWidth: 720)
-            .background(
-                RoundedRectangle(cornerRadius: 22)
-                    .fill(HUDStyle.ink.opacity(0.94))
-                    .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2))
-            )
+            .background(HUDStyle.panel)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .padding(14)
         }
     }
