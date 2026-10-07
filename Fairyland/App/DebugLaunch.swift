@@ -30,6 +30,7 @@ import SpriteKit
 ///                  and join your party, through the same steps as their card's buttons
 ///   wave=<n>       with boss: the fight opens at that wave (3: the boss's own)
 ///   orders         with battle: the hero picks Attack on the first monster, so your companion's turn shows
+///   items          with battle: the Items list opens (potions, then Seal Stones)
 ///   afflict        with battle: the first monster poisoned, the next one cursed, and the hero poisoned
 ///   herodown       with battle: the hero faints at once, and any friends fight on without them
 ///   cast=<skill>[:n[:t]]  with battle: once everyone is in, the hero casts that skill (at skill level n;
@@ -151,6 +152,14 @@ enum DebugLaunch {
                 if let first = battle.enemies.first(where: \.isAlive) { battle.select(first.id) }
             }
         }
+        // `items`: once everyone is in, the Items list opens (potions first, then Seal Stones).
+        if flags["items"] != nil, let battle = coordinator.battle {
+            Task {
+                try? await Task.sleep(for: .seconds(2))
+                for _ in 0..<40 where battle.phase != .command { try? await Task.sleep(for: .milliseconds(250)) }
+                battle.openItems()
+            }
+        }
         // `afflict`: poison and a curse on the field, so their marks show.
         if flags["afflict"] != nil, let battle = coordinator.battle {
             Task {
@@ -259,7 +268,8 @@ enum DebugLaunch {
                 guard let foe = foes.min(by: { $0.hp < $1.hp }) else { continue }
                 if battle.choosingForCompanion {
                     battle.attack()
-                } else if battle.canCapture {
+                } else if battle.canCapture, foes.count == 1, foe.hp * 5 <= foe.stats.hp {
+                    // The last one, once it's weak: the odds are best then.
                     battle.capture()
                 } else if let hero = battle.combatants.first(where: \.isHero),
                           case let spells = battle.skills.filter({ [.enemy, .allEnemies].contains($0.target) && battle.cost(of: $0) <= hero.mp }),

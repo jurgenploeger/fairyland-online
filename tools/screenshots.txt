@@ -160,6 +160,8 @@ bubble         | newgame,map=rainbow_city,say=Welcome traveller! | 6
 # A stranger's card on a danger map: Befriend, Trade and Duel on one line, in English and in French (its longest words).
 card_duel    | newgame,level=45,class=fighter,map=wolf_lair,meet=1 | 10
 card_duel_fr | newgame,level=45,class=fighter,map=wolf_lair,meet=1,lang=fr | 10
+# Seal Stones in a fight's Items list, with three monsters standing (any of them can be sealed now).
+battle_items      | newgame,level=30,bag=seal_stone+seal_stone,map=sunny_meadow,battle=3,items | 15
 # Every window in landscape (402 pt tall on the simulator): nothing may run off the top or bottom.
 worldmap_land     | newgame,level=30,map=pineapple_shore,worldmap,landscape | 8
 character_land    | newgame,level=40,class=fighter,equip=iron_plate+steel_sword,menu=character,landscape | 8

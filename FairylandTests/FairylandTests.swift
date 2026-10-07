@@ -1137,7 +1137,7 @@ struct RulesTests {
         #expect(alone.outcome == .defeat)
     }
 
-    @Test func captureNeedsALoneWeakenedMonster() {
+    @Test func aSealStoneWorksOnAnyMonsterAtAnyHP() {
         let content = Content.shared
         let jelly = content.monster("jelly")!
         let stats = jelly.stats(at: 1)
@@ -1145,29 +1145,65 @@ struct RulesTests {
                              stats: Stats(hp: 60, attack: 10, defense: 8, speed: 10), hp: 60, mp: 0, skills: [], captureRate: 0)
         var enemy = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
                               stats: stats, hp: stats.hp, mp: 0, skills: [], captureRate: jelly.captureRate)
-        #expect(BattleEngine(party: [hero], enemies: [enemy], content: content).captureStatus(of: 10) == .tooHealthy)
-        // Half HP isn't weak enough any more: Fairyland wanted them below 20%.
-        enemy.hp = stats.hp / 2
-        #expect(BattleEngine(party: [hero], enemies: [enemy], content: content).captureStatus(of: 10) == .tooHealthy)
-        // And only the last one standing.
-        enemy.hp = 1
-        var friend = enemy
-        friend = Combatant(id: 11, side: .enemies, source: .wild("jelly"), name: "Jelly B", art: jelly.art, level: 1, element: jelly.element,
-                           stats: stats, hp: stats.hp, mp: 0, skills: [], captureRate: jelly.captureRate)
-        #expect(BattleEngine(party: [hero], enemies: [enemy, friend], content: content).captureStatus(of: 10) == .notAlone)
-
-        let engine = BattleEngine(party: [hero], enemies: [enemy], content: content)
-        guard case .ready(let chance) = engine.captureStatus(of: 10) else {
-            Issue.record("expected capture to be possible")
-            return
+        let other = Combatant(id: 11, side: .enemies, source: .wild("jelly"), name: "Jelly B", art: jelly.art, level: 1, element: jelly.element,
+                              stats: stats, hp: stats.hp, mp: 0, skills: [], captureRate: jelly.captureRate)
+        // Another monster still standing doesn't stop it.
+        func chance(at hp: Int) -> Double? {
+            enemy.hp = hp
+            guard case .ready(let chance) = BattleEngine(party: [hero], enemies: [enemy, other], content: content).captureStatus(of: 10) else {
+                return nil
+            }
+            return chance
         }
-        // Not easy, even at 1 HP.
-        #expect(chance > 0.2 && chance < 0.6)
+        let full = chance(at: stats.hp), half = chance(at: stats.hp / 2), weak = chance(at: 1)
+        #expect(full != nil && half != nil && weak != nil)
+        if let full, let half, let weak {
+            // The weaker it is, the better the odds: a long shot at full HP, and not easy even at 1 HP.
+            #expect(full < half && half < weak)
+            #expect(full < 0.1)
+            #expect(weak > 0.2 && weak < 0.6)
+        }
+        // Wounds count ×0.25 at full HP, ×1 at 20% and ×3 at the very end (below 20% as before).
+        #expect(abs(BattleEngine.captureWeakness(atHP: 1) - 0.25) < 0.000_1)
+        #expect(abs(BattleEngine.captureWeakness(atHP: 0.2) - 1) < 0.000_1)
+        #expect(abs(BattleEngine.captureWeakness(atHP: 0) - 3) < 0.000_1)
+        // No stone holds a boss.
+        let boss = Combatant(id: 12, side: .enemies, source: .wild("jelly"), name: "Boss", art: jelly.art, level: 5, element: jelly.element,
+                             stats: stats, hp: 1, mp: 0, skills: [], captureRate: 0)
+        #expect(BattleEngine(party: [hero], enemies: [boss], content: content).captureStatus(of: 12) == .impossible)
     }
 
-    /// No Seal Stone while a boss's next wave is still to come: a sealed monster only joins you when
-    /// the fight is won, so losing or running from the next wave lost it, stone and all.
-    @Test func noSealingWhileABossWaveIsToCome() {
+    /// While you throw a Seal Stone, your companion and your friends leave that monster alone and
+    /// fight on against the rest (they used to stand guard, which only made sense with one left).
+    @Test func yourSideSparesTheMonsterYouSeal() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let tough = Stats(hp: 500, mp: 0, attack: 40, defense: 30, magic: 10, speed: 5)
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 40, element: .neutral,
+                             stats: tough, hp: 500, mp: 0, skills: [], captureRate: 0)
+        let pet = Combatant(id: 1, side: .party, source: .pet(UUID()), name: "Pet", art: jelly.art, level: 40, element: .neutral,
+                            stats: tough, hp: 500, mp: 0, skills: [], captureRate: 0)
+        let friend = Combatant(id: 2, side: .party, source: .ally(UUID()), name: "Maple", art: "player_walk", level: 40, element: .neutral,
+                               stats: tough, hp: 500, mp: 0, skills: [], captureRate: 0)
+        // The one you seal is the weakest, the one they'd go for first.
+        let stats = jelly.stats(at: 1)
+        let sealed = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
+                               stats: stats, hp: 1, mp: 0, skills: [], captureRate: jelly.captureRate)
+        let other = Combatant(id: 11, side: .enemies, source: .wild("jelly"), name: "Jelly B", art: jelly.art, level: 1, element: jelly.element,
+                              stats: stats, hp: 9_999, mp: 0, skills: [], captureRate: jelly.captureRate)
+        for seed in UInt64(1)...6 {
+            let engine = BattleEngine(party: [hero, pet, friend], enemies: [sealed, other], content: content, seed: seed)
+            _ = engine.resolveRound(heroAction: .capture(target: 10))
+            // Sealed or broken free, it's untouched; the other one took their blows.
+            #expect(engine.combatant(10)!.hp == 1)
+            #expect(engine.combatant(11)!.hp < 9_999)
+            #expect(engine.outcome == .ongoing)
+        }
+    }
+
+    /// A monster in a boss's wave can be sealed too: a sealed monster is yours however the fight
+    /// ends, so a later wave can't take it from you.
+    @Test func sealingWorksWhileABossWaveIsToCome() {
         let content = Content.shared
         let jelly = content.monster("jelly")!
         let stats = jelly.stats(at: 1)
@@ -1178,9 +1214,8 @@ struct RulesTests {
         var boss = Combatant(id: 20, side: .enemies, source: .wild("jelly"), name: "Boss", art: jelly.art, level: 5, element: jelly.element,
                              stats: stats, hp: stats.hp, mp: 0, skills: [], captureRate: 0)
         boss.wave = 2
-        #expect(BattleEngine(party: [hero], enemies: [weak], content: content, waves: [[boss]]).captureStatus(of: 10) == .impossible)
-        guard case .ready = BattleEngine(party: [hero], enemies: [weak], content: content).captureStatus(of: 10) else {
-            Issue.record("expected capture to be possible once no wave is left to come")
+        guard case .ready = BattleEngine(party: [hero], enemies: [weak], content: content, waves: [[boss]]).captureStatus(of: 10) else {
+            Issue.record("expected a monster in a boss's wave to be sealable")
             return
         }
     }

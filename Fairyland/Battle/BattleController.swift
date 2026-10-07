@@ -338,7 +338,10 @@ final class BattleController {
     var enemiesOnField: [Combatant] { enemies.filter { $0.wave == wave } }
     /// Skills usable in battle (Bridge of Light and other field spells are cast from the menu).
     var skills: [SkillDef] { session.heroSkills.filter { $0.kind != .field } }
-    var items: [ItemDef] { session.battleItems }
+    /// Potions and the like, then Seal Stones (thrown at a monster, like Capture).
+    var items: [ItemDef] {
+        session.battleItems + session.content.items.filter { $0.capture == true && session.count(of: $0.id) > 0 }
+    }
 
     /// True when a hurt party member could use a healing item, so Items moves out from under "More".
     var needsHealing: Bool {
@@ -346,14 +349,25 @@ final class BattleController {
         return party.contains { $0.isAlive && Double($0.hp) <= Double($0.stats.hp) * 0.35 }
     }
 
-    /// True when the last monster is weak enough to seal and you have a Seal Stone
-    /// (the Capture button only shows then).
+    /// True when you have a Seal Stone, a monster here could be sealed, and there's room for it
+    /// (the Capture button lights up then).
     var canCapture: Bool {
-        guard session.sealStones > 0 else { return false }
-        return enemies.contains { enemy in
+        session.sealStones > 0 && hasRoomToSeal && !sealableIDs.isEmpty
+    }
+
+    /// The monsters a Seal Stone could hold (not a boss).
+    private var sealableIDs: [Int] {
+        enemies.filter { enemy in
             if case .ready = engine.captureStatus(of: enemy.id) { return true }
             return false
         }
+        .map(\.id)
+    }
+
+    /// Room for one more companion from this fight: a full party can still take one (the result
+    /// screen asks who stays behind), but not two.
+    private var hasRoomToSeal: Bool {
+        session.data.pets.count + engine.combatants.filter(\.isCaptured).count <= GameSession.maxPets
     }
 
     func name(_ id: Int) -> String { combatants.first { $0.id == id }?.name ?? "?" }
@@ -573,6 +587,8 @@ final class BattleController {
     }
 
     func useItem(_ item: ItemDef) {
+        // A Seal Stone is thrown at a monster, as with Capture.
+        if item.capture == true { return capture() }
         beginTargeting(.item(item), targets: aliveAllyIDs, prompt: L("Use {item} on…", ["item": item.name]))
     }
 
@@ -581,7 +597,15 @@ final class BattleController {
             message = L("You need a Seal Stone. Trader Bo in Meadowbrook sells them.")
             return
         }
-        beginTargeting(.capture, targets: aliveEnemyIDs, prompt: L("Throw a Seal Stone at…"))
+        guard hasRoomToSeal else {
+            message = L("Your party is full, and a new friend is already waiting to join.")
+            return
+        }
+        guard !sealableIDs.isEmpty else {
+            message = L("{name} can't be captured.", ["name": enemies.first(where: \.isAlive)?.name ?? L("The monster")])
+            return
+        }
+        beginTargeting(.capture, targets: sealableIDs, prompt: L("Throw a Seal Stone at…"))
     }
 
     func defend() { submit(.defend) }
@@ -602,8 +626,6 @@ final class BattleController {
         case .capture:
             switch engine.captureStatus(of: id) {
             case .ready: submit(.capture(target: id))
-            case .notAlone: message = L("Only the last monster standing can be sealed. Beat the others first!")
-            case .tooHealthy: message = L("{name} is too lively. Weaken it below 20% HP first!", ["name": name(id)])
             case .impossible: message = L("{name} can't be captured.", ["name": name(id)])
             }
         }
@@ -948,10 +970,10 @@ final class BattleController {
             let runaway = engine.combatants.first { $0.hasFled }?.name ?? L("The monster")
             finish(.fled, lines: [L("{name} ran away!", ["name": runaway])] + concludeVictory() + afterTheFight())
         case .defeat:
-            finish(.defeat, lines: [L("{hero} fainted…", ["hero": hero?.name ?? L("You")])] + afterTheFight())
+            finish(.defeat, lines: [L("{hero} fainted…", ["hero": hero?.name ?? L("You")])] + handOverSealed() + afterTheFight())
         case .escaped:
             syncParty()
-            finish(.escaped, lines: [L("You got away safely.")] + afterTheFight())
+            finish(.escaped, lines: [L("You got away safely.")] + handOverSealed() + afterTheFight())
         }
     }
 
@@ -1196,18 +1218,7 @@ final class BattleController {
             }
         }
 
-        for captured in engine.combatants where captured.isCaptured {
-            guard let id = captured.speciesID, var pet = session.makePet(species: id, level: captured.level) else { continue }
-            pet.hp = max(1, captured.hp)
-            if session.addPet(pet) {
-                lines.append(L("{name} joined your party!", ["name": pet.name]))
-            } else {
-                // Full party: the result screen asks who stays behind.
-                session.record(.capture, target: id)
-                session.pendingPet = pet
-                lines.append(L("{name} wants to join, but your party is full!", ["name": pet.name]))
-            }
-        }
+        lines += handOverSealed()
 
         if Double.random(in: 0..<1) < 0.25 {
             session.addItem("potion")
@@ -1263,6 +1274,24 @@ final class BattleController {
         session.claimBookMilestones()
         session.checkTitles()
         session.save()
+        return lines
+    }
+
+    /// Every monster sealed in this fight joins you, however the fight ended: the stone holds it.
+    /// With a full party the result screen asks who stays behind (`hasRoomToSeal` keeps it to one).
+    private func handOverSealed() -> [String] {
+        var lines: [String] = []
+        for captured in engine.combatants where captured.isCaptured {
+            guard let id = captured.speciesID, var pet = session.makePet(species: id, level: captured.level) else { continue }
+            pet.hp = max(1, captured.hp)
+            if session.addPet(pet) {
+                lines.append(L("{name} joined your party!", ["name": pet.name]))
+            } else {
+                session.record(.capture, target: id)
+                session.pendingPet = pet
+                lines.append(L("{name} wants to join, but your party is full!", ["name": pet.name]))
+            }
+        }
         return lines
     }
 }

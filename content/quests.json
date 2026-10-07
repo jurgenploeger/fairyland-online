@@ -69,7 +69,7 @@
       "requires": [
         "jelly_trouble"
       ],
-      "description": "Every adventurer needs friends. Take these Seal Stones. Beat a group down to its last monster, weaken that one below 20% HP, then throw a stone with Capture. It may take a few tries!",
+      "description": "Every adventurer needs friends. Take these Seal Stones and throw one at a monster with Capture: the weaker it is, the better your odds. It may take a few tries!",
       "starterItems": [
         "seal_stone",
         "seal_stone",
