@@ -216,7 +216,6 @@ final class WorldScene: SKScene {
         critters = Critters(def.ambience, world: world, map: map, seed: def.id)
         lighting = Lighting(def.ambience, world: world, camera: cam, bounds: map.bounds, seed: def.id)
         lighting?.resize(to: size)
-        lighting?.follow(cam.position)
         sky = Sky(map: def, camera: cam, start: session.data.startedAt)
         if let sky { lighting?.sunlight(sky.sunlight) }
 
@@ -482,8 +481,12 @@ final class WorldScene: SKScene {
     /// The map's surrounding ground, averaged and hazed: pale mist outdoors, deep gloom in caves.
     /// A texture's average colour, 0...1 per channel.
     private static func averageColor(of texture: SKTexture) -> (CGFloat, CGFloat, CGFloat) {
+        averageColor(of: texture.cgImage())
+    }
+
+    /// An image's average colour, 0...1 per channel.
+    private static func averageColor(of image: CGImage) -> (CGFloat, CGFloat, CGFloat) {
         var pixel = [UInt8](repeating: 0, count: 4)
-        let image = texture.cgImage()
         pixel.withUnsafeMutableBytes { buffer in
             guard let context = CGContext(data: buffer.baseAddress, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
                                           space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
@@ -998,12 +1001,19 @@ final class WorldScene: SKScene {
     /// One pixel per tile, for the HUD minimap.
     private(set) lazy var minimap: UIImage = {
         // The map's own (palette-graded) tiles, averaged: a purple wood looks purple here too.
+        // Graded with this map's palette itself: the HUD asks for the minimap as soon as the scene
+        // exists, while the art library still grades for the map you came from (until `build`).
         let art = self.art
+        let palette = def.theme.palette
         let waterID = def.theme.water ?? "tile_water"
         return UIImage(cgImage: map.overviewImage { id in
-            let texture = id == waterID ? art.waterFrames(id).first ?? art.tileTexture(id) : art.tileTexture(id)
-            let (r, g, b) = Self.averageColor(of: texture)
-            return PixelColor(r: UInt8(r * 255), g: UInt8(g * 255), b: UInt8(b * 255))
+            let color: (CGFloat, CGFloat, CGFloat)
+            if let image = art.gradedTile(id, palette: palette) {
+                color = Self.averageColor(of: image)
+            } else {
+                color = Self.averageColor(of: id == waterID ? art.waterFrames(id).first ?? art.tileTexture(id) : art.tileTexture(id))
+            }
+            return PixelColor(r: UInt8(color.0 * 255), g: UInt8(color.1 * 255), b: UInt8(color.2 * 255))
         })
     }()
 
@@ -1233,6 +1243,11 @@ final class WorldScene: SKScene {
     /// Debug launches (`invite=n`): the nearest friendly adventurers, brought over to stand by you.
     func summonAdventurersForDebug(_ count: Int) -> [Adventurer] {
         crowd?.summonForDebug(count, to: player.position) ?? []
+    }
+
+    /// Debug launches (`say=<text>`): a speech bubble over the hero that stays, for screenshots.
+    func sayForDebug(_ text: String) {
+        player.say(text, for: 600)
     }
     #endif
 
@@ -1522,7 +1537,6 @@ final class WorldScene: SKScene {
         // Snap to whole screen pixels so pixel art doesn't shimmer (zooming changes their size).
         let scale = (view?.contentScaleFactor ?? 1) / cam.xScale
         cam.position = CGPoint(x: (eased.x * scale).rounded() / scale, y: (eased.y * scale).rounded() / scale)
-        lighting?.follow(cam.position)
         focus.update(camera: cam.position, halfHeight: size.height / 2 * cam.yScale)
     }
 }

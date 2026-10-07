@@ -91,6 +91,11 @@ A second "levels map" shades areas in 20-level bands (1–20, 21–40, …), use
 capsule (H). Mining spots include Ilium, Kars Mountain and Siwa Oasis (H).
 
 **Us:** 30 maps and 4 towns (Meadowbrook, Prismhaven, Larkspur, Ingothold).
+- Towns are planned from maps.json `town` (streets, a plaza, terraces, shops along the streets, street
+  furniture) plus hand-placed `buildings`; scenery only grows inside a town's fence with a `within` radius.
+  Since 0.3.65 the planner keeps each townsperson's spot and the cells just in front of it clear, so no
+  house, lamp or tree hides them (before, every town's healer and shop stood inside or behind a house), and
+  Larkspur, which had felt empty in playtesting (2026-10-07), has two rings of streets like the others.
 - Everyone starts in Meadowbrook, and all three guild masters are there.
 - Travel: you walk between maps; your checkpoint is the last town you entered (since 0.3.54; before, the
   last map, which could leave you fainting at the edge of a zone too hard for you, over and over). You wake
@@ -109,6 +114,11 @@ capsule (H). Mining spots include Ilium, Kars Mountain and Siwa Oasis (H).
   when you come close, chicks, squirrels, lizards and mice; crows, spiders, rats, scorpions and will-o'-wisps
   on the harder, darker maps) and particles such as lanterns,
   bubbles and Z's are our own whimsy. No source we could reach describes ambient animals in Fairyland Online.
+- The light and depth on the maps (pools of light, sunbeams, the sun's flare, haze, and the soft blur at the
+  top and bottom of the screen) are ours too, from each map's `ambience` (`Lighting`, `DepthOfField`). Big
+  blurred trees drifting in front of the camera were tried on nine maps (2026-09-30) and taken out in 0.3.65:
+  in playtesting (2026-10-07) one sat in the middle of the screen and read as a smudge, since everything else
+  is crisp pixel art. The checker now rejects a `foreground` key.
 - None of the other towns exist yet: Baghdad, Port Pebbles, Dreamland, Sheep Horn Village, Emerald City,
   Grasha Village.
 
@@ -364,6 +374,13 @@ bounties scaled to your level, with a bonus for all three; and rewards as the Mo
     about 19:30 to 04:30) and fades the sun's flare and sunbeams with it. Weather (`Weather`) changes every
     6 in-game hours, picked from the map's `ambience.weather` weights: clear, cloudy, rain, storm, fog, snow.
     Caves have neither. The battle backdrop is the map without the sky.
+  - Us (since 0.3.65, asked for in playtesting 2026-10-07): night was too long at twelve real minutes, and
+    showers lasted their whole six-minute spell. By day an in-game hour is still a real minute; from 18hr to
+    6hr the clock runs at `GameClock.nightPace` (1.5×), so night takes eight minutes of a twenty-minute day.
+    Rain and storms stop after a real minute and leave the rest of their spell cloudy. Settings has a switch
+    for each (asked for the same day): with night and day off the light stays at midday, the HUD shows the
+    sun and there are no dawn or dusk notices (the calendar still runs); with the weather off it's always
+    clear. A debug `weather=` still wins, for screenshots.
   - Our setting is called Storyleaf in every in-game text (Fairyland until 0.3.50; see Names). In FO the
     continent itself is Mysteria (above), which is also the relaunch's name.
 - **Bots, moderators and announcements:** ours, asked for in playtesting (2026-10-04). FO's chat channels,

@@ -41,12 +41,13 @@ final class Announcer {
         return .random(in: low...high)
     }
 
-    /// Dawn and dusk, when the calendar's hour turns 6 or 18.
+    /// Dawn and dusk, when the calendar's hour turns 6 or 18 (not with night and day switched off).
     private func checkTheClock() {
         let daytime = GameClock.moment(since: session.data.startedAt).isDaytime
         let before = wasDaytime
         wasDaytime = daytime
-        guard let before, before != daytime, let line = (daytime ? options.dawn : options.dusk).randomElement() else { return }
+        guard let before, before != daytime, GameSettings.dayAndNight,
+              let line = (daytime ? options.dawn : options.dusk).randomElement() else { return }
         session.announce(line)
     }
 

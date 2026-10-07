@@ -41,6 +41,10 @@ import SpriteKit
 ///   announce       once the map is on screen: a rare sighting and news of another adventurer (with
 ///                  chat: then the chat opens)
 ///   chat           open the chat window
+///   say=<text>     once the map is on screen, the hero says that (no commas) in a bubble that stays
+///   meet=n         once the map is on screen, the n nearest adventurers come over as strangers, so the
+///                  nearest one's card shows Befriend, Trade (and Duel where duels are allowed)
+///   quiet          footsteps switched off in Settings, and left off (so its screenshot runs last)
 ///   menu=<tab>     open character | companions | bag | quests
 ///   profile=<who>  open someone's stats: hero | pet (with pet=) | friend (with friends=)
 ///   bottom         open the menu scrolled to the end
@@ -312,8 +316,8 @@ enum DebugLaunch {
         }
         #endif
         if let hour = flags["hour"].flatMap({ Int($0) }), (0..<24).contains(hour) {
-            // The calendar opens at 9hr (`GameClock.hours`), an in-game hour to the real minute.
-            session.data.startedAt = Date().addingTimeInterval(-Double((hour - 9 + 24) % 24) * 60)
+            // The calendar opens at 9hr (`GameClock.hours`); start the game as long ago as it takes to get here.
+            session.data.startedAt = Date().addingTimeInterval(-GameClock.minutes(untilHour: hour) * 60)
         }
         Weather.forced = flags["weather"].flatMap(Weather.init(rawValue:))
         if flags["book"] != nil {
@@ -468,6 +472,34 @@ enum DebugLaunch {
                     return
                 }
             }
+        }
+        // `meet=1`: like `invite`, the nearest adventurers come over, but stay strangers: their card's buttons.
+        if let count = flags["meet"].flatMap({ Int($0) }) {
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard coordinator.isReady, coordinator.world.view != nil else { continue }
+                    try? await Task.sleep(for: .seconds(1))
+                    _ = coordinator.world.summonAdventurersForDebug(count)
+                    return
+                }
+            }
+        }
+        // `say=<text>`: once the map is on screen, the hero says it in a bubble that stays.
+        if let text = flags["say"] {
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard coordinator.isReady, coordinator.world.view != nil else { continue }
+                    try? await Task.sleep(for: .seconds(1))
+                    coordinator.world.sayForDebug(text)
+                    return
+                }
+            }
+        }
+        // `quiet`: footsteps switched off in Settings. It stays off, so its scene runs last.
+        if flags["quiet"] != nil {
+            UserDefaults.standard.set(false, forKey: GameSettings.footstepsKey)
         }
         // `walk=1_0`: a loop round a long box, that way first, for as long as the app runs.
         if let walk = flags["walk"] {

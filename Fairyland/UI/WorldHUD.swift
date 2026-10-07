@@ -319,15 +319,18 @@ private struct TaggedBar: View {
 /// The tan calendar plate with a sun or moon, and the EXP bar underneath.
 private struct CalendarPlate: View {
     let session: GameSession
+    /// With night and day switched off in Settings, the sun shines on the plate around the clock.
+    @AppStorage(GameSettings.dayAndNightKey) private var dayAndNight = true
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 5)) { context in
             let moment = GameClock.moment(at: context.date, since: session.data.startedAt)
+            let daytime = moment.isDaytime || !dayAndNight
             let hero = session.data.hero
             VStack(spacing: 3) {
                 HStack(spacing: 5) {
-                    IconImage(moment.isDaytime ? .sun : .moon, size: 14)
-                        .foregroundStyle(moment.isDaytime ? HUDStyle.orange : Color(red: 0.35, green: 0.35, blue: 0.75))
+                    IconImage(daytime ? .sun : .moon, size: 14)
+                        .foregroundStyle(daytime ? HUDStyle.orange : Color(red: 0.35, green: 0.35, blue: 0.75))
                     Text(moment.text)
                         .font(HUDStyle.mono(10))
                         .foregroundStyle(HUDStyle.plateDark)

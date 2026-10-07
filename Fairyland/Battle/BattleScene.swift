@@ -555,6 +555,8 @@ final class BattleScene: SKScene {
         let mastered = level >= GameSession.maxSkillLevel && (fighter?.isHero == true || isBoss)
         var dimmer: SKNode?
         if mastered {
+            // A grand chord as its name goes up in gold.
+            SoundEffects.shared.play(.ultimate)
             SkillEffects.masterBanner(skill.name, level: level, size: size, in: self)
             dimmer = SkillEffects.ultimateStart(caster: actors[actorID], color: color, size: size, in: stage)
             await pause(0.75)
@@ -564,6 +566,11 @@ final class BattleScene: SKScene {
         }
         // The effects grow in five tiers: every two skill levels look a step grander.
         let level = (level + 1) / 2
+        // From the third tier, your hero's and bosses' skills gather themselves with a swell of sound,
+        // louder each tier (everyone else's would swell on every turn).
+        if level >= 3, fighter?.isHero == true || isBoss {
+            SoundEffects.shared.play(.surge, volume: 0.4 + 0.2 * Float(level - 2))
+        }
         if let caster = actors[actorID] {
             let hold = SkillEffects.charge(on: caster, color: color, level: level, in: stage)
             if hold > 0 { await pause(hold) }
@@ -642,8 +649,9 @@ final class BattleScene: SKScene {
             }
         case "whirlwind":
             if let actor = actors[actorID] {
-                await actor.run(.group([.rotate(byAngle: .pi * 4, duration: 0.45), .sequence([.scale(to: 1.15, duration: 0.2), .scale(to: 1, duration: 0.25)])]))
-                actor.zRotation = 0
+                // A pirouette: twice round on the spot, swelling a little as it spins.
+                await actor.run(.group([actor.pirouette(turns: 2, duration: 0.5),
+                                        .sequence([.scale(to: 1.15, duration: 0.2), .scale(to: 1, duration: 0.3)])]))
             }
             for target in targets { SkillEffects.whirl(on: target, level: level, in: stage) }
             impactAll(hits, heal: false)
@@ -1238,6 +1246,35 @@ final class BattleActor: SKNode {
 
     private var facing: Direction = .down
 
+    /// Whirlwind's pirouette: the fighter turns on the spot through each way its sheet faces (front,
+    /// side, back, other side), `turns` times round, quickest halfway, and ends facing as it started.
+    func pirouette(turns: Int, duration: TimeInterval) -> SKAction {
+        let order: [Direction] = [.down, .left, .up, .right]
+        let start = order.firstIndex(of: facing) ?? 0
+        let quarters = CGFloat(turns * order.count)
+        return .sequence([
+            .customAction(withDuration: duration) { [weak self] _, elapsed in
+                let t = min(1, elapsed / CGFloat(duration))
+                let quarter = Int((t * t * (3 - 2 * t) * quarters).rounded())
+                self?.show(facing: order[(start + quarter) % order.count])
+            },
+            .run { [weak self] in
+                guard let self else { return }
+                self.show(facing: self.facing)
+            },
+        ])
+    }
+
+    /// The fighter, and the weapon in hand, turned to `direction` for a moment (`facing` stays).
+    private func show(facing direction: Direction) {
+        let texture = cycle.frames(direction).first
+        guard sprite.texture !== texture else { return }
+        sprite.texture = texture
+        if let weapon = sprite.childNode(withName: "weapon") as? SKSpriteNode {
+            GearArt.pose(weapon, facing: direction, height: sprite.size.height)
+        }
+    }
+
     /// The hero's weapon in hand and accessory sparkle (drawn at the sprite's own scale).
     func setGear(weapon: ItemDef?, accessory: ItemDef?) {
         if let weapon, let node = GearArt.weapon(weapon, height: sprite.size.height) {
@@ -1282,7 +1319,7 @@ final class BattleActor: SKNode {
         if marks.parent == nil {
             // Just past the bar plate's right end (its real drawn edge, not its nominal width), and
             // drawn over the bar and name plates (zPosition 5 000).
-            marks.position = CGPoint(x: bar.calculateAccumulatedFrame().maxX + 10, y: bar.position.y)
+            marks.position = CGPoint(x: bar.calculateAccumulatedFrame().maxX + 9, y: bar.position.y)
             marks.zPosition = 5_100
             addChild(marks)
         }
@@ -1296,7 +1333,9 @@ final class BattleActor: SKNode {
         for (rounds, art, tint) in kinds where rounds > 0 {
             let icon: SKNode
             if let texture = SkillEffects.fxTexture(art) {
-                icon = SKSpriteNode(texture: texture, size: texture.size() * 2)
+                // Glossy marks drawn at 3x (tools/fx_art.py), shown 13 pt tall and smoothly scaled.
+                texture.filteringMode = .linear
+                icon = SKSpriteNode(texture: texture, size: texture.size() * (13 / max(1, texture.size().height)))
             } else {
                 let dot = SKShapeNode(circleOfRadius: 5)
                 dot.fillColor = tint
@@ -1307,16 +1346,16 @@ final class BattleActor: SKNode {
             marks.addChild(icon)
             // The arrows speak for themselves; only poison counts down its rounds beside it.
             guard art == "status_poison" else {
-                x += 20
+                x += 15
                 continue
             }
             let count = SKLabelNode()
             count.attributedText = Nodes.outlined("\(rounds)", size: 9, color: tint)
             count.verticalAlignmentMode = .center
             count.horizontalAlignmentMode = .left
-            count.position = CGPoint(x: x + 9, y: -1)
+            count.position = CGPoint(x: x + 7, y: -1)
             marks.addChild(count)
-            x += 28
+            x += 23
         }
     }
 

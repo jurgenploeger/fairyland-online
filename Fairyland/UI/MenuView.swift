@@ -145,7 +145,7 @@ private struct CharacterTab: View {
     private func overview(hero: Hero, stats: Stats) -> some View {
         AdaptiveStack(spacing: 18) {
             VStack(spacing: 6) {
-                WalkingSprite(art: GameSession.heroArt, size: 156)
+                WalkingSprite(art: GameSession.heroArt, size: 156, weapon: session.equipped(.weapon))
                     .background(Circle().fill(.white.opacity(0.06)))
                 // The name is chosen when the hero is made and stays.
                 Text(hero.name).font(HUDStyle.font(18))

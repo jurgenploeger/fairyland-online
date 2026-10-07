@@ -483,8 +483,6 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
         /// Distance haze: the top of the screen fades toward this colour, by `hazeAlpha`.
         let haze: String?
         let hazeAlpha: Double?
-        /// Out-of-focus scenery drifting past in front of the camera.
-        let foreground: Foreground?
         /// Depth of field on the map's own scenery (on by default). See `DepthOfField`.
         let focus: Focus?
         /// A dark map (a cave): you see only as far as your light reaches, and the minimap shows only
@@ -508,16 +506,6 @@ nonisolated struct MapDef: Decodable, Identifiable, Sendable {
             /// Width range in points.
             let size: [Double]?
             let alpha: Double?
-        }
-
-        nonisolated struct Foreground: Decodable, Sendable {
-            /// Sprites to blur, picked at random.
-            let art: [String]
-            let count: Int
-            let alpha: Double?
-            /// Blur radius in texture pixels, and how many times bigger than the sprite.
-            let blur: Double?
-            let scale: Double?
         }
 
         nonisolated struct Darkness: Decodable, Sendable {

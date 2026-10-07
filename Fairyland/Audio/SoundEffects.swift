@@ -6,8 +6,14 @@ import UIKit
 nonisolated enum GameSettings {
     static let musicVolumeKey = "musicVolume"
     static let soundVolumeKey = "soundVolume"
+    /// Sound effects on or off (Settings), apart from their volume.
+    static let soundEffectsKey = "soundEffects"
     static let footstepsKey = "footsteps"
     static let hapticsKey = "haptics"
+    /// The light follows the clock through night and day; off, it's always daytime (`Sky`).
+    static let dayAndNightKey = "dayAndNight"
+    /// The weather comes and goes; off, the sky stays clear (`Weather.on`).
+    static let weatherKey = "weather"
     /// The top-left HUD folds a party of three or more into one row (WorldHUD); the player can unfold it.
     static let partyFoldedKey = "partyFolded"
     /// Battles ask what your companion should do after the hero's choice; off, it fights on its own.
@@ -23,8 +29,11 @@ nonisolated enum GameSettings {
 
     static var musicVolume: Double { value(musicVolumeKey, fallback: 1) }
     static var soundVolume: Double { value(soundVolumeKey, fallback: 1) }
+    static var soundEffects: Bool { value(soundEffectsKey, fallback: true) }
     static var footsteps: Bool { value(footstepsKey, fallback: true) }
     static var haptics: Bool { value(hapticsKey, fallback: true) }
+    static var dayAndNight: Bool { value(dayAndNightKey, fallback: true) }
+    static var weather: Bool { value(weatherKey, fallback: true) }
     static var commandCompanion: Bool { value(commandCompanionKey, fallback: true) }
     static var battleSpeed: Double { value(battleSpeedKey, fallback: 1) }
     static var autoBattle: Bool { value(autoBattleKey, fallback: false) }
@@ -45,6 +54,32 @@ final class SoundEffects {
         case hit, crit, magic, heal, potion, shield = "guard", capture, breakFree = "break_free", run, poof, faint, lose
         case levelUp = "level_up", coins, questAccept = "quest_accept", questDone = "quest_done"
         case chest, hatch, equip, learn, whoosh, encounter
+        // Skills in battle: blows, each element's spells, buffs and curses, and the swell and the
+        // grand chord of the strongest.
+        case strike, spellFire = "spell_fire", spellWater = "spell_water", spellWood = "spell_wood"
+        case spellEarth = "spell_earth", spellLight = "spell_light", spellDark = "spell_dark", spellMetal = "spell_metal"
+        case buff, curse, surge, ultimate
+
+        /// What a skill sounds like as it lands: a blow strikes, a spell sounds like its element.
+        static func landing(_ skill: SkillDef) -> Sound {
+            switch skill.kind {
+            case .heal, .revive: .heal
+            case .buff, .field: .buff
+            case .curse: .curse
+            case .physical: .strike
+            case .magic:
+                switch skill.element ?? .neutral {
+                case .fire: .spellFire
+                case .water: .spellWater
+                case .wood: .spellWood
+                case .earth: .spellEarth
+                case .light: .spellLight
+                case .dark: .spellDark
+                case .metal: .spellMetal
+                case .neutral: .magic
+                }
+            }
+        }
     }
 
     private var players: [Sound: [AVAudioPlayer]] = [:]
@@ -56,7 +91,7 @@ final class SoundEffects {
 
     func play(_ sound: Sound, volume: Float = 1) {
         let level = Float(GameSettings.soundVolume) * volume
-        guard isEnabled, level > 0.001, let player = nextPlayer(for: sound) else { return }
+        guard isEnabled, GameSettings.soundEffects, level > 0.001, let player = nextPlayer(for: sound) else { return }
         player.volume = min(1, level)
         player.currentTime = 0
         player.play()

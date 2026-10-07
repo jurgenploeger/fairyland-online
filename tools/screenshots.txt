@@ -5,6 +5,7 @@ title_de     | lang=de                           | 6
 title_ja     | lang=ja                           | 6
 lang_es      | newgame,lang=es                   | 8
 settings_zh_hant | newgame,lang=zh-Hant,menu=settings | 8
+settings     | newgame,menu=settings,weather=clear | 8
 battle_ru    | newgame,lang=ru,map=sunny_meadow,battle | 15
 npc_ko       | newgame,lang=ko,npc=elder         | 8
 quests_fr    | newgame,lang=fr,menu=quests       | 8
@@ -25,6 +26,7 @@ snowfall     | newgame,map=snow_white_forest,hour=14,weather=snow | 15
 battle_timer | newgame,level=44,class=fighter,pin=bash+first_aid+power_strike+whirlwind,map=rat_cavern,battle=2,turntimer=40 | 15
 battle_auto  | newgame,level=60,class=fighter,pet=pineapple,friends=2,map=sunny_meadow,battle=3,auto,fast | 1
 character    | newgame,menu=character            | 8
+character_weapon | newgame,level=40,class=fighter,equip=iron_plate+steel_sword,menu=character | 8
 companions   | newgame,level=5,menu=companions   | 8
 landscape    | newgame,map=rainbow_city,landscape | 8
 rat_cavern   | newgame,map=rat_cavern            | 8
@@ -105,6 +107,8 @@ fx_flare_fire   | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=fir
 fx_flare_leaves | newgame,level=60,class=mage,map=sunny_meadow,battle=3,cast=leaf_storm:9,fxstop=1.12   | 62
 fx_flare_strike | newgame,level=60,class=fighter,map=sunny_meadow,battle=3,cast=power_strike:9,fxstop=0.8 | 50
 fx_flare_whirl  | newgame,level=60,class=fighter,map=sunny_meadow,battle=3,cast=whirlwind:9,fxstop=1.08  | 60
+# Whirlwind's pirouette, frozen a quarter of the way in: the hero turned round on the spot, not tipped over.
+whirl_spin      | newgame,level=20,class=fighter,map=sunny_meadow,battle=3,cast=whirlwind:1,fxstop=0.15 | 20
 party_folded | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=twilight_woods | 15
 party_open   | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=twilight_woods,unfold | 15
 party_pet    | newgame,level=43,class=fighter,pet=pineapple,map=twilight_woods | 15
@@ -148,3 +152,13 @@ store_land_levelup | newgame,level=9,levelup,pet=pineapple,map=candy_mountain,ba
 # them mid-stride. The moment varies from run to run; if it catches them turning, run it again.
 store_land_companion | newgame,level=70,class=tamer,equip=azure_dragon_mail,pet=fire_bear,map=pineapple_shore,zoom=2.2,walk=1_0,landscape,clean,nohud | 6
 store_land_looks   | newgame,menu=character,customize,landscape,clean | 10
+# Larkspur: its square in landscape (the healer, market and tailor all in view) and the terrace up north.
+larkspur         | newgame,level=30,map=bluebird,weather=clear,landscape | 8
+larkspur_terrace | newgame,level=30,map=bluebird,at=0_11,weather=clear,nohud | 8
+# The hero's speech bubble in Prismhaven (its tail is part of the outline).
+bubble         | newgame,map=rainbow_city,say=Welcome traveller! | 6
+# A stranger's card on a danger map: Befriend, Trade and Duel on one line, in English and in French (its longest words).
+card_duel    | newgame,level=45,class=fighter,map=wolf_lair,meet=1 | 10
+card_duel_fr | newgame,level=45,class=fighter,map=wolf_lair,meet=1,lang=fr | 10
+# Settings with footsteps switched off (the darker switch). `quiet` leaves them off, so this runs last.
+settings_quiet | newgame,menu=settings,weather=clear,quiet | 8

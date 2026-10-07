@@ -157,6 +157,45 @@ struct ContentTests {
         }
     }
 
+    @Test func townsfolkStayInView() {
+        // No house on a townsperson's spot or just in front of it (lower on screen), where its roof
+        // would hide them: WorldMap.planTown keeps the 4×4 cells from two in front to one behind clear.
+        for def in content.maps where def.town != nil {
+            let map = WorldMap(def: def)
+            let houses = map.buildings.map { ($0.art, $0.anchor) } + map.lots.map { ($0.art, $0.anchor) }
+            for npc in def.npcs ?? [] {
+                let spot = map.offset(npc.x, npc.y)
+                for (art, anchor) in houses {
+                    let hides = (-3...2).contains(anchor.col - spot.col) && (-3...1).contains(anchor.row - spot.row)
+                    #expect(!hides, "map \(def.id): \(art) at \(anchor) hides \(npc.id)")
+                }
+            }
+        }
+    }
+
+    @Test func theMinimapWearsItsOwnMapsColours() throws {
+        // Arriving from the Big Bad Wolf's Lair, the art library still grades for its palette (golden
+        // grass) when the HUD first asks for Larkspur's minimap; it must still come out green.
+        let lair = try #require(content.map("wolf_lair"))
+        let larkspur = try #require(content.map("bluebird"))
+        ArtLibrary.shared.use(palette: lair.theme.palette, for: lair.id)
+        let scene = WorldScene(map: larkspur, session: GameSession.newGame(name: "Test", raceID: "human"), input: InputState(), entry: nil)
+        let image = try #require(scene.minimap.cgImage)
+        let width = image.width, height = image.height
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        pixels.withUnsafeMutableBytes { buffer in
+            let context = CGContext(data: buffer.baseAddress, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                                    space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+            context?.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        }
+        var red = 0, green = 0
+        for index in stride(from: 0, to: pixels.count, by: 4) {
+            red += Int(pixels[index])
+            green += Int(pixels[index + 1])
+        }
+        #expect(green > red, "Larkspur's minimap came out golden: red \(red / (width * height)), green \(green / (width * height))")
+    }
+
     @Test func announcementsAndTradersHaveSomethingToSay() {
         let notices = content.announcements
         #expect(!notices.dawn.isEmpty && !notices.dusk.isEmpty && !notices.community.isEmpty)
@@ -1388,26 +1427,58 @@ struct RulesTests {
         let swamp = try #require(Content.shared.map("frog_swamp"))
         let desert = try #require(Content.shared.map("genie_desert"))
         let cave = try #require(Content.shared.map("rat_cavern"))
-        // A cave has no sky; everywhere else always has some weather.
-        #expect(Weather.on(cave, at: start, since: start) == nil)
+        // A cave has no sky; everywhere else always has some weather. (With the weather switched on,
+        // whatever this simulator's Settings say.)
+        #expect(Weather.on(cave, at: start, since: start, changing: true) == nil)
         var seen: Set<Weather> = []
         for hour in 0..<(24 * 30) {
             let date = start.addingTimeInterval(Double(hour) * 60)
-            let weather = try #require(Weather.on(swamp, at: date, since: start))
+            let weather = try #require(Weather.on(swamp, at: date, since: start, changing: true))
             seen.insert(weather)
             // The desert's sky never rains, fogs or snows.
-            let dry = try #require(Weather.on(desert, at: date, since: start))
+            let dry = try #require(Weather.on(desert, at: date, since: start, changing: true))
             #expect(dry == .clear || dry == .cloudy)
             // The same moment gives the same weather, so walking off and back doesn't reroll it.
-            #expect(Weather.on(swamp, at: date, since: start) == weather)
+            #expect(Weather.on(swamp, at: date, since: start, changing: true) == weather)
         }
         // Over a month of in-game days the swamp sees more than one kind.
         #expect(seen.count > 1)
         #expect(seen.isSubset(of: [.clear, .cloudy, .rain, .storm, .fog]))
-        // The light follows the clock: the fractional hours agree with the calendar's hour.
+        // The light follows the clock: the fractional hours agree with the calendar's hour. Nine
+        // daylight minutes bring 18hr; then the night's hours go by half again as fast.
         let evening = start.addingTimeInterval(9.5 * 60)
         #expect(GameClock.moment(at: evening, since: start).hour == 18)
-        #expect(abs(GameClock.hours(at: evening, since: start) - 18.5) < 0.001)
+        #expect(abs(GameClock.hours(at: evening, since: start) - 18.75) < 0.001)
+    }
+
+    @Test func nightsAreShortAndShowersBlowOver() throws {
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        // A day is twelve real minutes of daylight and an eight-minute night.
+        var night = 0
+        for second in 0..<Int(GameClock.dayMinutes * 60) {
+            if !GameClock.moment(at: start.addingTimeInterval(Double(second)), since: start).isDaytime { night += 1 }
+        }
+        #expect(abs(Double(night) / 60 - 8) < 0.05)
+        // Debug launches can open at any hour of the day.
+        for hour in 0..<24 {
+            let date = start.addingTimeInterval(GameClock.minutes(untilHour: hour) * 60 + 1)
+            #expect(GameClock.moment(at: date, since: start).hour == hour)
+        }
+        // Rain and storms come and go within about a real minute.
+        let swamp = try #require(Content.shared.map("frog_swamp"))
+        var wet = 0
+        var longest = 0
+        for second in stride(from: 0, to: 60 * 60 * 24, by: 5) {
+            let weather = Weather.on(swamp, at: start.addingTimeInterval(Double(second)), since: start, changing: true)
+            wet = weather == .rain || weather == .storm ? wet + 5 : 0
+            longest = max(longest, wet)
+        }
+        #expect(longest > 0)
+        #expect(longest <= 65)
+        // With the weather switched off in Settings, the sky stays clear all day.
+        for second in stride(from: 0, to: 60 * 60 * 24, by: 60) {
+            #expect(Weather.on(swamp, at: start.addingTimeInterval(Double(second)), since: start, changing: false) == .clear)
+        }
     }
 
     @Test func announcementsFollowYouFromMapToMap() {

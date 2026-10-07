@@ -768,7 +768,8 @@ final class BattleController {
             message = L("{attacker} attacks {target}!", ["attacker": name(actor), "target": name(hit.target)]) + (hit.critical ? " " + L("Critical hit!") : "")
         case .skill(let actor, let skill, let level, let hits):
             mutate(actor) { $0.mp = max(0, $0.mp - GameSession.mpCost(of: skill, level: level)) }
-            SoundEffects.shared.play(skill.kind.isHostile ? .magic : .heal)
+            // It sounds like what it is, and fuller in each of the five tiers its effects grow in.
+            SoundEffects.shared.play(.landing(skill), volume: 0.75 + 0.05 * Float((level + 1) / 2))
             for hit in hits {
                 switch skill.kind {
                 case .heal, .revive: mutate(hit.target) { $0.hp = min($0.stats.hp, $0.hp + hit.amount) }

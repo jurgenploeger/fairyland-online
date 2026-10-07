@@ -1,21 +1,16 @@
-import CoreImage
 import SpriteKit
 import UIKit
 
 /// Light and depth on a map, from its `ambience` block in content/maps.json: pools of light on the
-/// ground, slanting sunbeams, a sun flare in the corner of the screen, distance haze at the top, and
-/// blurred foreground scenery drifting past faster than the world, as if the camera were focused on
-/// the hero. Glows around glowing scenery, soft shadows under trees and the ground's colour
-/// patches are made per prop and per map by the helpers below.
+/// ground, slanting sunbeams, a sun flare in the corner of the screen and distance haze at the top.
+/// Glows around glowing scenery, soft shadows under trees and the ground's colour patches are made
+/// per prop and per map by the helpers below.
 final class Lighting {
     private var flare: [(node: SKSpriteNode, size: CGFloat, along: CGFloat)] = []
     private var haze: SKSpriteNode?
     /// The sunbeams and the sun's flare, faded together at night and under cloud (`Sky.sunlight`).
     private let beamLayer = SKNode()
     private let sunGlow = SKNode()
-    private let foreground = SKNode()
-    /// Foreground scenery moves this much faster than the world.
-    private let parallax: CGFloat = 0.35
 
     init(_ def: MapDef.Ambience?, world: SKNode, camera: SKCameraNode, bounds: CGRect, seed: String) {
         var rng = SeededRandom(text: seed + "/light")
@@ -77,26 +72,6 @@ final class Lighting {
             camera.addChild(node)
             haze = node
         }
-
-        if let scenery = def?.foreground, !scenery.art.isEmpty, scenery.count > 0 {
-            foreground.zPosition = 35_000
-            world.addChild(foreground)
-            let looks = scenery.art.map { Self.blurred(ArtLibrary.shared.sprite($0), radius: scenery.blur ?? 3) }
-            let grow = CGFloat(scenery.scale ?? 3)
-            for _ in 0..<scenery.count {
-                let look = looks[Int.random(in: 0..<looks.count, using: &rng)]
-                let node = SKSpriteNode(texture: look.texture, size: look.size * grow)
-                node.alpha = CGFloat(scenery.alpha ?? 0.5)
-                // Darker, like something close to the lens and out of the light.
-                node.color = .black
-                node.colorBlendFactor = 0.35
-                node.zRotation = CGFloat.random(in: -0.3...0.3, using: &rng)
-                // Spread over a bigger area, since this layer slides past faster than the world.
-                let spot = Self.point(in: bounds, &rng)
-                node.position = CGPoint(x: spot.x * (1 + parallax), y: spot.y * (1 + parallax))
-                foreground.addChild(node)
-            }
-        }
     }
 
     func resize(to size: CGSize) {
@@ -116,11 +91,6 @@ final class Lighting {
         sunGlow.alpha = amount
         beamLayer.isHidden = amount <= 0.01
         sunGlow.isHidden = amount <= 0.01
-    }
-
-    /// Slides the foreground layer against the camera, so it passes faster than the world.
-    func follow(_ camera: CGPoint) {
-        foreground.position = CGPoint(x: -camera.x * parallax, y: -camera.y * parallax)
     }
 
     // MARK: Per prop
@@ -221,20 +191,6 @@ final class Lighting {
     }
 
     // MARK: Helpers
-
-    private static let context = CIContext()
-
-    /// A sprite blurred (softly, with its edges fading out) for out-of-focus foreground scenery.
-    private static func blurred(_ art: SpriteArt, radius: Double) -> (texture: SKTexture, size: CGSize) {
-        let input = CIImage(cgImage: art.texture.cgImage())
-        let pad = CGFloat(radius * 3)
-        let output = input.applyingGaussianBlur(sigma: radius).cropped(to: input.extent.insetBy(dx: -pad, dy: -pad))
-        guard input.extent.width > 0, let image = context.createCGImage(output, from: output.extent) else { return (art.texture, art.size) }
-        let texture = SKTexture(cgImage: image)
-        texture.filteringMode = .linear
-        let grow = output.extent.width / input.extent.width
-        return (texture, art.size * grow)
-    }
 
     private static func soft(_ color: UIColor, size: CGSize) -> SKSpriteNode {
         let node = SKSpriteNode(texture: SoftTextures.glow, size: size)

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Pixel art for the few battle marks that aren't light, drawn in code like tools/item_art.py (free):
+"""Art for the few battle marks that aren't light, drawn in code like tools/item_art.py (free):
 writes art/sprites/fx_<name>.png. The elemental spells themselves are drawn in light and colour
 (Fairyland/Battle/ElementEffects.swift); these are poison's bubbles (AilmentEffects.swift) and the
 marks by a fighter's HP bar: poison (a purple drop), lowered stats (a crimson arrow down, a curse's)
-and raised ones (a blue arrow up, a buff's).
+and raised ones (a blue arrow up, a buff's). The bubble is pixel art; the marks are smooth and glossy,
+drawn at 3x and shown at a third of their size.
 
     python3 tools/fx_art.py                  # every sprite
     python3 tools/fx_art.py --sheet out.png  # also a 4x contact sheet to look at
@@ -63,53 +64,103 @@ def bubble():
     return c
 
 
-# ---------------------------------------------------------------- the dark arts' marks
+# ---------------------------------------------------------------- the marks by the HP bar
 
-POISON = [hexc("2e0f4a"), hexc("6a2ea8"), hexc("a866f0"), hexc("e2c8ff")]   # line, dark, mid, light
-CURSE = [hexc("3a0a16"), hexc("8a1e36"), hexc("d0465e"), hexc("ffc0c8")]
-RAISE = [hexc("103a6a"), hexc("2a78c8"), hexc("5cbcff"), hexc("d0f0ff")]
+# Glossy marks, drawn smooth at 3x (33 x 39 px, shown 11 x 13 pt by BattleScene): a dark outline, a
+# fill that deepens downward, a white sheen over the top and a glint, and a soft shadow underneath.
+MARK_W, MARK_H = 33, 39
+POISON = {"line": hexc("2c0e4a"), "stops": [hexc("efd8ff"), hexc("a45ef0"), hexc("5a22a0")]}
+CURSE = {"line": hexc("3d0a18"), "stops": [hexc("ffb4c0"), hexc("e8485f"), hexc("8e1631")]}
+RAISE = {"line": hexc("0c2f63"), "stops": [hexc("b4e8ff"), hexc("3fa6f2"), hexc("1b5fc0")]}
+
+
+def sd_polygon(x, y, verts):
+    """Signed distance from (x, y) to a polygon: negative inside."""
+    d = (x - verts[0][0]) ** 2 + (y - verts[0][1]) ** 2
+    s = 1.0
+    j = len(verts) - 1
+    for i in range(len(verts)):
+        ex, ey = verts[j][0] - verts[i][0], verts[j][1] - verts[i][1]
+        wx, wy = x - verts[i][0], y - verts[i][1]
+        t = max(0.0, min(1.0, (wx * ex + wy * ey) / (ex * ex + ey * ey)))
+        d = min(d, (wx - ex * t) ** 2 + (wy - ey * t) ** 2)
+        above, below, side = y >= verts[i][1], y < verts[j][1], ex * wy > ey * wx
+        if (above and below and side) or (not above and not below and not side):
+            s = -s
+        j = i
+    return s * math.sqrt(d)
+
+
+def smooth_min(a, b, k):
+    h = max(0.0, min(1.0, 0.5 + 0.5 * (b - a) / k))
+    return b + (a - b) * h - k * h * (1 - h)
+
+
+def glossy(shape, colors, glint):
+    """A mark from `shape(x, y)` (signed distance in px, negative inside): outlined, shaded from light
+    at the top to deep at the bottom, a sheen over its upper part, a glint at `glint`, and a shadow."""
+    c = Canvas(MARK_W, MARK_H)
+    rows = [y + 0.5 for y in range(MARK_H) if any(shape(x + 0.5, y + 0.5) < 0 for x in range(MARK_W))]
+    top, bottom = rows[0], rows[-1]
+    line, (light, mid, deep) = colors["line"], colors["stops"]
+
+    def mix(a, b, t):
+        return tuple(a[i] + (b[i] - a[i]) * t for i in range(3))
+
+    def over(under, color, alpha):   # (r, g, b, a) straight alpha, `color` laid over it
+        out = alpha + under[3] * (1 - alpha)
+        if out <= 0:
+            return (0, 0, 0, 0)
+        return tuple((color[i] * alpha + under[i] * under[3] * (1 - alpha)) / out for i in range(3)) + (out,)
+
+    for y in range(MARK_H):
+        for x in range(MARK_W):
+            px, py = x + 0.5, y + 0.5
+            d = shape(px, py)
+            pixel = (0, 0, 0, 0)
+            shadow = max(0.0, min(1.0, (0.9 - shape(px, py - 1.6)) / 1.8))
+            pixel = over(pixel, (0, 0, 0), 0.32 * shadow)
+            pixel = over(pixel, line[:3], max(0.0, min(1.0, 0.5 - d)))
+            fill = max(0.0, min(1.0, 0.5 - (d + 2.0)))
+            if fill > 0:
+                t = max(0.0, min(1.0, (py - top) / (bottom - top)))
+                color = mix(light, mid, t / 0.45) if t < 0.45 else mix(mid, deep, (t - 0.45) / 0.55)
+                # The sheen: white over the top 45%, strongest at the top, a crisp lower edge.
+                u = (py - top) / ((bottom - top) * 0.45)
+                if u < 1 and d < -3.2:
+                    color = mix(color, (255, 255, 255), 0.42 * (1 - u) ** 0.7 * min(1.0, 1.15 - u))
+                g = math.hypot((px - glint[0]) / 2.6, (py - glint[1]) / 1.9)
+                color = mix(color, (255, 255, 255), 0.9 * max(0.0, min(1.0, 1.4 - g)))
+                pixel = over(pixel, color, fill)
+            c.px[y][x] = tuple(int(round(v)) for v in pixel[:3]) + (int(round(pixel[3] * 255)),) if pixel[3] > 0 else None
+    return c
+
+
+def arrow(up):
+    """An arrow's signed distance: a wide head and a shaft, corners rounded, pointing up or down."""
+    core = [(16.5, 3.4), (29.6, 16.6), (22.4, 16.6), (22.4, 33.4), (10.6, 33.4), (10.6, 16.6), (3.4, 16.6)]
+    if not up:
+        core = [(x, 36.8 - y) for x, y in reversed(core)]
+    return lambda x, y: sd_polygon(x, y, core) - 1.6
 
 
 def status_poison():
-    """Poison's mark by a fighter's HP bar: a purple drop."""
-    return pixels([
-        "...o...",
-        "..oMo..",
-        ".oMMMo.",
-        "oMLMMDo",
-        "oLMMMDo",
-        "oMMMDDo",
-        ".oDDDo.",
-        "..ooo..",
-    ], {"o": POISON[0], "D": POISON[1], "M": POISON[2], "L": POISON[3]})
+    """Poison's mark by a fighter's HP bar: a glossy purple drop."""
+    def drop(x, y):
+        round_part = math.hypot(x - 16.5, y - 24.5) - 10.5
+        point = sd_polygon(x, y, [(16.5, 2.2), (25.8, 19.5), (7.2, 19.5)])
+        return smooth_min(round_part, point, 3.0)
+    return glossy(drop, POISON, glint=(11.8, 20.0))
 
 
 def status_curse():
-    """A curse's mark: a crimson arrow pointing down, for lowered stats."""
-    return pixels([
-        "..ooo..",
-        "..oLo..",
-        "..oMo..",
-        "oooMooo",
-        "oLMMMDo",
-        ".oMMDo.",
-        "..oDo..",
-        "...o...",
-    ], {"o": CURSE[0], "D": CURSE[1], "M": CURSE[2], "L": CURSE[3]})
+    """A curse's mark: a glossy crimson arrow pointing down, for lowered stats."""
+    return glossy(arrow(up=False), CURSE, glint=(13.0, 7.5))
 
 
 def status_raise():
-    """A buff's mark: a blue arrow pointing up, for raised stats."""
-    return pixels([
-        "...o...",
-        "..oLo..",
-        ".oLMMo.",
-        "oLMMMDo",
-        "oooMooo",
-        "..oMo..",
-        "..oDo..",
-        "..ooo..",
-    ], {"o": RAISE[0], "D": RAISE[1], "M": RAISE[2], "L": RAISE[3]})
+    """A buff's mark: a glossy blue arrow pointing up, for raised stats."""
+    return glossy(arrow(up=True), RAISE, glint=(11.5, 11.5))
 
 
 # ---------------------------------------------------------------- all of it

@@ -3,6 +3,7 @@ import UIKit
 
 /// The time of day and the weather over a map. The light follows the game clock (`GameClock`): warm
 /// at dawn and dusk, deep blue at night, and the clouds of the weather (`Weather`) dim it further.
+/// Settings can switch either off: then it's always midday, or always clear.
 /// Rain falls in slanting streaks and rings the ground, a storm adds lightning, fog drifts past in
 /// banks, and snow flurries. When the weather turns, the old fades out as the new fades in. A dark
 /// map (a cave) has no sky. It lives on the camera, so a battle's backdrop is the map without it.
@@ -45,9 +46,15 @@ final class Sky {
         sunlight = sunGoal()
     }
 
+    /// The hour the light follows: the clock's, or always midday with night and day switched off
+    /// in Settings.
+    private var hour: Double {
+        GameSettings.dayAndNight ? GameClock.hours(since: start).truncatingRemainder(dividingBy: 24) : 12
+    }
+
     private func sunGoal() -> CGFloat {
         guard weather?.sunny ?? true else { return 0 }
-        let hour = GameClock.hours(since: start).truncatingRemainder(dividingBy: 24)
+        let hour = self.hour
         return CGFloat(max(0, min(1, min(hour - 6, 18.5 - hour) / 1.5)))
     }
 
@@ -73,7 +80,7 @@ final class Sky {
     }
 
     private func target() -> (r: Double, g: Double, b: Double) {
-        let hour = GameClock.hours(since: start).truncatingRemainder(dividingBy: 24)
+        let hour = self.hour
         var day = (r: 1.0, g: 1.0, b: 1.0)
         for (a, b) in zip(Self.light, Self.light.dropFirst()) where hour >= a.hour && hour <= b.hour {
             let t = b.hour > a.hour ? (hour - a.hour) / (b.hour - a.hour) : 0
