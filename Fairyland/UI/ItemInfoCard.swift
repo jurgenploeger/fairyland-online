@@ -7,6 +7,12 @@ struct ItemInfoCard: View {
     let session: GameSession
     let item: ItemDef
     let onClose: () -> Void
+    /// Choosing gear (Character → Change): Cancel and Equip under the details, or Unequip for
+    /// what you're wearing. Nil in shops and trades, where the card only tells.
+    var onEquip: (() -> Void)? = nil
+    var onUnequip: (() -> Void)? = nil
+
+    private var choosing: Bool { onEquip != nil || onUnequip != nil }
 
     private var isGear: Bool { ItemType.equipmentSlots.contains(item.type) }
 
@@ -37,6 +43,7 @@ struct ItemInfoCard: View {
                         materialUse
                     }
                     footer
+                    if choosing { actions }
                 }
                 .padding(16)
             }
@@ -59,8 +66,35 @@ struct ItemInfoCard: View {
                     .foregroundStyle(HUDStyle.dim)
             }
             Spacer(minLength: 0)
-            OrangeCloseButton(action: onClose)
+            // Choosing gear, Cancel closes it instead.
+            if !choosing { OrangeCloseButton(action: onClose) }
         }
+    }
+
+    /// Cancel, and Equip (faded, with why, when you can't) or Unequip.
+    private var actions: some View {
+        let issue = onUnequip == nil ? session.equipIssue(item) : nil
+        return VStack(alignment: .trailing, spacing: 6) {
+            if let issue {
+                Text(issue).font(HUDStyle.font(11)).foregroundStyle(HUDStyle.orange)
+            }
+            HStack(spacing: 10) {
+                Spacer(minLength: 0)
+                Button(L("Cancel"), action: onClose)
+                    .buttonStyle(PixelButtonStyle())
+                if let onUnequip {
+                    Button(L("Unequip"), action: onUnequip)
+                        .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
+                } else if let onEquip {
+                    Button(L("Equip"), action: onEquip)
+                        .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
+                        .disabled(issue != nil)
+                        .opacity(issue == nil ? 1 : 0.5)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .padding(.top, 4)
     }
 
     /// "Weapon", "Material · Metal", "Egg"…

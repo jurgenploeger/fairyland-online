@@ -8,7 +8,8 @@
       "notes": [
         "Every window and dialog has the same frame now, running all the way round with its title bar or tabs inside it: the menu, the map, chat, trades, shops and talks, item cards, battle lists and results.",
         "Items in the Bag have one Use button (Give for toys). A window then asks who gets it: you or any of your companions, not only the one following you, with their HP and MP, and those it wouldn't help faded.",
-        "A quest in the Quests tab opens like a drawer, the rows below sliding along, instead of fading in."
+        "A quest in the Quests tab opens like a drawer, the rows below sliding along, instead of fading in.",
+        "Change on the Character tab now opens a window with everything you have for that slot in a grid, what you're wearing first and pieces you can't use yet faded. Tap one to see its card, then Equip it or Cancel (Unequip for what you're wearing)."
       ]
     },
     {
