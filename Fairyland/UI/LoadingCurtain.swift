@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Shown while a map is being built: the logo over the title's sky, and a blue bar filling up.
+/// Shown while a map is being built: the logo over the title's sky, and a leaf-green bar filling up.
 struct LoadingCurtain: View {
     /// 0...1: how far the map build has got.
     var progress: Double = 0
@@ -8,19 +8,16 @@ struct LoadingCurtain: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [Color(red: 1, green: 0.84, blue: 0.42), Color(red: 1, green: 0.66, blue: 0.78), Color(red: 0.5, green: 0.81, blue: 1)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            StoryleafSky(raysFrom: UnitPoint(x: 0.5, y: 0.44))
             VStack(spacing: 14) {
                 Image("Logo")
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: 300)
                     .scaleEffect(spin ? 1.03 : 0.97)
-                LoadingBar(progress: progress, label: L("Loading"), textColor: HUDStyle.ink)
+                // In the logo's colours: its leaf green, outlined like its letters, on its cream.
+                LoadingBar(progress: progress, label: L("Loading"), textColor: Brand.forest,
+                           fill: [Brand.leafLight, Brand.leaf], track: Brand.cream, rim: Brand.forest)
             }
             .padding(.horizontal, 40)
         }
@@ -61,30 +58,33 @@ struct MapLoadingCard: View {
     }
 }
 
-/// A blue bar that fills as loading goes, with the percentage beside the label.
+/// A bar that fills as loading goes (blue, unless told otherwise), with the percentage beside the label.
 struct LoadingBar: View {
     let progress: Double
     let label: String
     let textColor: Color
+    /// The fill, top to bottom, the empty part, and the rim round it.
+    var fill: [Color] = [Color(red: 0.45, green: 0.78, blue: 1), Color(red: 0.13, green: 0.47, blue: 0.95)]
+    var track: Color = HUDStyle.ink.opacity(0.35)
+    var rim: Color = .white.opacity(0.8)
 
     private var percent: Int { Int((min(max(progress, 0), 1) * 100).rounded()) }
 
     var body: some View {
         VStack(spacing: 6) {
             Capsule()
-                .fill(HUDStyle.ink.opacity(0.35))
+                .fill(track)
                 .overlay(alignment: .leading) {
                     GeometryReader { proxy in
                         Capsule()
-                            .fill(LinearGradient(colors: [Color(red: 0.45, green: 0.78, blue: 1), Color(red: 0.13, green: 0.47, blue: 0.95)],
-                                                 startPoint: .top, endPoint: .bottom))
+                            .fill(LinearGradient(colors: fill, startPoint: .top, endPoint: .bottom))
                             .overlay(alignment: .top) {
                                 Capsule().fill(.white.opacity(0.35)).frame(height: 4).padding(.horizontal, 6).padding(.top, 2)
                             }
                             .frame(width: max(14, proxy.size.width * min(max(progress, 0), 1)))
                     }
                 }
-                .overlay(Capsule().strokeBorder(.white.opacity(0.8), lineWidth: 2))
+                .overlay(Capsule().strokeBorder(rim, lineWidth: 2))
                 .frame(maxWidth: 280)
                 .frame(height: 16)
                 // No animation: the map build holds the screen between steps, so an animated bar

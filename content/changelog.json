@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.67",
+      "date": "2026-10-07",
+      "title": "Storyleaf's own sky",
+      "notes": [
+        "The title and loading screens wear Storyleaf's colours: the app icon's sky, lavender to mint with sun rays and clouds, and a leaf-green loading bar."
+      ]
+    },
+    {
       "version": "0.3.66",
       "date": "2026-10-07",
       "title": "Seal Stones for any monster",

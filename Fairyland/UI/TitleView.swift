@@ -30,13 +30,8 @@ struct TitleView: View {
 
     var body: some View {
         ZStack {
-            // The icon's dreamy sky: gold, pink, blue.
-            LinearGradient(
-                colors: [Color(red: 1, green: 0.84, blue: 0.42), Color(red: 1, green: 0.66, blue: 0.78), Color(red: 0.5, green: 0.81, blue: 1)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            // The app icon's sky, its rays behind the logo at the top.
+            StoryleafSky(raysFrom: UnitPoint(x: 0.5, y: 0.18))
 
             if let intro {
                 IntroView(finishTitle: intro.thenCreate ? L("Create your hero") : L("Done"), startPage: intro.startPage) {

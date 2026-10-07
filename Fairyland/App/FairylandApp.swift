@@ -33,7 +33,10 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if let coordinator {
+            if DebugLaunch.holdsLoadingCurtain {
+                // Debug `curtain`: the loading screen, held part-way (screenshots of it).
+                LoadingCurtain(progress: 0.41)
+            } else if let coordinator {
                 GameView(coordinator: coordinator)
             } else if let pending {
                 LoadingCurtain()
