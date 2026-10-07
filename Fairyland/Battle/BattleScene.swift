@@ -649,8 +649,9 @@ final class BattleScene: SKScene {
             }
         case "whirlwind":
             if let actor = actors[actorID] {
-                await actor.run(.group([.rotate(byAngle: .pi * 4, duration: 0.45), .sequence([.scale(to: 1.15, duration: 0.2), .scale(to: 1, duration: 0.25)])]))
-                actor.zRotation = 0
+                // A pirouette: twice round on the spot, swelling a little as it spins.
+                await actor.run(.group([actor.pirouette(turns: 2, duration: 0.5),
+                                        .sequence([.scale(to: 1.15, duration: 0.2), .scale(to: 1, duration: 0.3)])]))
             }
             for target in targets { SkillEffects.whirl(on: target, level: level, in: stage) }
             impactAll(hits, heal: false)
@@ -1244,6 +1245,35 @@ final class BattleActor: SKNode {
     }
 
     private var facing: Direction = .down
+
+    /// Whirlwind's pirouette: the fighter turns on the spot through each way its sheet faces (front,
+    /// side, back, other side), `turns` times round, quickest halfway, and ends facing as it started.
+    func pirouette(turns: Int, duration: TimeInterval) -> SKAction {
+        let order: [Direction] = [.down, .left, .up, .right]
+        let start = order.firstIndex(of: facing) ?? 0
+        let quarters = CGFloat(turns * order.count)
+        return .sequence([
+            .customAction(withDuration: duration) { [weak self] _, elapsed in
+                let t = min(1, elapsed / CGFloat(duration))
+                let quarter = Int((t * t * (3 - 2 * t) * quarters).rounded())
+                self?.show(facing: order[(start + quarter) % order.count])
+            },
+            .run { [weak self] in
+                guard let self else { return }
+                self.show(facing: self.facing)
+            },
+        ])
+    }
+
+    /// The fighter, and the weapon in hand, turned to `direction` for a moment (`facing` stays).
+    private func show(facing direction: Direction) {
+        let texture = cycle.frames(direction).first
+        guard sprite.texture !== texture else { return }
+        sprite.texture = texture
+        if let weapon = sprite.childNode(withName: "weapon") as? SKSpriteNode {
+            GearArt.pose(weapon, facing: direction, height: sprite.size.height)
+        }
+    }
 
     /// The hero's weapon in hand and accessory sparkle (drawn at the sprite's own scale).
     func setGear(weapon: ItemDef?, accessory: ItemDef?) {
