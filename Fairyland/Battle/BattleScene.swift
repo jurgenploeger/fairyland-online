@@ -1287,7 +1287,7 @@ final class BattleActor: SKNode {
         if marks.parent == nil {
             // Just past the bar plate's right end (its real drawn edge, not its nominal width), and
             // drawn over the bar and name plates (zPosition 5 000).
-            marks.position = CGPoint(x: bar.calculateAccumulatedFrame().maxX + 10, y: bar.position.y)
+            marks.position = CGPoint(x: bar.calculateAccumulatedFrame().maxX + 9, y: bar.position.y)
             marks.zPosition = 5_100
             addChild(marks)
         }
@@ -1301,7 +1301,9 @@ final class BattleActor: SKNode {
         for (rounds, art, tint) in kinds where rounds > 0 {
             let icon: SKNode
             if let texture = SkillEffects.fxTexture(art) {
-                icon = SKSpriteNode(texture: texture, size: texture.size() * 2)
+                // Glossy marks drawn at 3x (tools/fx_art.py), shown 13 pt tall and smoothly scaled.
+                texture.filteringMode = .linear
+                icon = SKSpriteNode(texture: texture, size: texture.size() * (13 / max(1, texture.size().height)))
             } else {
                 let dot = SKShapeNode(circleOfRadius: 5)
                 dot.fillColor = tint
@@ -1312,16 +1314,16 @@ final class BattleActor: SKNode {
             marks.addChild(icon)
             // The arrows speak for themselves; only poison counts down its rounds beside it.
             guard art == "status_poison" else {
-                x += 20
+                x += 15
                 continue
             }
             let count = SKLabelNode()
             count.attributedText = Nodes.outlined("\(rounds)", size: 9, color: tint)
             count.verticalAlignmentMode = .center
             count.horizontalAlignmentMode = .left
-            count.position = CGPoint(x: x + 9, y: -1)
+            count.position = CGPoint(x: x + 7, y: -1)
             marks.addChild(count)
-            x += 28
+            x += 23
         }
     }
 

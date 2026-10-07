@@ -25,8 +25,9 @@ Online's own names (towns, people, bosses, quests) in player-facing text: `docs/
 - `tools/ui_icon_art.py`: the same for the UI's button icons (`art/sprites/ui_<GameIcon>.png`): `IconImage` shows
   them from 18 pt up (battle buttons, the HUD's buttons, the menu's tabs) and keeps Iconaut's vector icons for
   small inline glyphs. `--sheet out.png` previews them on the game's button colours.
-- `tools/fx_art.py`: the same for the few battle marks that aren't light (`art/sprites/fx_*.png`: poison's bubble,
-  the poison mark and the arrows for lowered and raised stats). `--sheet out.png` writes a contact sheet. Spells are light, not sprites:
+- `tools/fx_art.py`: the same for the few battle marks that aren't light (`art/sprites/fx_*.png`: poison's bubble
+  and the glossy marks by the HP bars, drawn smooth at 3×: poison's drop and the arrows for lowered and raised
+  stats). `--sheet out.png` writes a contact sheet. Spells are light, not sprites:
   `Fairyland/Battle/ElementEffects.swift` layers soft glows in each element's colours (`ElementLight`).
 - `tools/hero_layers.py`: splits each race's walk sheet into paper-doll layers (bald `body_<race>`,
   `locks_<race>` for a beard, `hair_<style>_<race>` for every hairstyle in that sheet's own hair colour, a
