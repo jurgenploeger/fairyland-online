@@ -364,6 +364,10 @@ bounties scaled to your level, with a bonus for all three; and rewards as the Mo
     about 19:30 to 04:30) and fades the sun's flare and sunbeams with it. Weather (`Weather`) changes every
     6 in-game hours, picked from the map's `ambience.weather` weights: clear, cloudy, rain, storm, fog, snow.
     Caves have neither. The battle backdrop is the map without the sky.
+  - Us (since 0.3.65, asked for in playtesting 2026-10-07): night was too long at twelve real minutes, and
+    showers lasted their whole six-minute spell. By day an in-game hour is still a real minute; from 18hr to
+    6hr the clock runs at `GameClock.nightPace` (1.5×), so night takes eight minutes of a twenty-minute day.
+    Rain and storms stop after a real minute and leave the rest of their spell cloudy.
   - Our setting is called Storyleaf in every in-game text (Fairyland until 0.3.50; see Names). In FO the
     continent itself is Mysteria (above), which is also the relaunch's name.
 - **Bots, moderators and announcements:** ours, asked for in playtesting (2026-10-04). FO's chat channels,

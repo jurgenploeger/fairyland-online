@@ -228,6 +228,36 @@ struct FLIconButton: View {
     }
 }
 
+/// The game's on/off switch: gold when on; off, a well a shade darker than the panel, so the switch
+/// still reads as one. VoiceOver hears a standard switch.
+struct PixelSwitchStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 10) {
+            configuration.label
+            Spacer(minLength: 0)
+            Capsule()
+                .fill(configuration.isOn ? HUDStyle.gold : Color.black.opacity(0.32))
+                .overlay(Capsule().strokeBorder(.white.opacity(configuration.isOn ? 0 : 0.14), lineWidth: 1))
+                .frame(width: 51, height: 31)
+                .overlay(alignment: configuration.isOn ? .trailing : .leading) {
+                    Circle()
+                        .fill(.white)
+                        .frame(width: 27, height: 27)
+                        .shadow(color: .black.opacity(0.3), radius: 1.5, x: 0, y: 1)
+                        .padding(2)
+                }
+                .animation(.spring(response: 0.25, dampingFraction: 0.8), value: configuration.isOn)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { configuration.isOn.toggle() }
+        .accessibilityRepresentation {
+            // The system switch, so this style doesn't draw itself again inside its own stand-in.
+            Toggle(isOn: configuration.$isOn) { configuration.label }
+                .toggleStyle(.switch)
+        }
+    }
+}
+
 struct PressScaleStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -242,23 +272,63 @@ struct PressScaleStyle: ButtonStyle {
 struct WalkingSprite: View {
     let art: String
     var size: CGFloat = 156
+    /// A weapon in hand, held as on the map (the hero's, in the Character tab).
+    var weapon: ItemDef?
     private static let frameTime = 0.125
     private static let order: [Direction] = [.down, .right, .up, .left]
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: Self.frameTime)) { context in
             let tick = Int(context.date.timeIntervalSinceReferenceDate / Self.frameTime)
-            let frames = ArtLibrary.shared.walkCycle(art).frames(Self.order[(tick / 4) % Self.order.count])
-            if frames.isEmpty {
-                SpriteImage(art: art, size: size)
-            } else {
-                Image(uiImage: UIImage(cgImage: frames[tick % frames.count].cgImage()))
-                    .interpolation(.none)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: size, height: size)
+            let facing = Self.order[(tick / 4) % Self.order.count]
+            let frames = ArtLibrary.shared.walkCycle(art).frames(facing)
+            ZStack {
+                if frames.isEmpty {
+                    SpriteImage(art: art, size: size)
+                } else {
+                    Image(uiImage: UIImage(cgImage: frames[tick % frames.count].cgImage()))
+                        .interpolation(.none)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: size, height: size)
+                }
+                if let weapon, let held = GearArt.heldImage(weapon) {
+                    HeldWeapon(image: held.image, grip: held.grip, scale: held.scale, facing: facing, size: size)
+                        // Behind the body facing away or to the right, as on the map (GearArt.pose).
+                        .zIndex(facing == .up || facing == .right ? -1 : 1)
+                }
             }
+            .frame(width: size, height: size)
         }
+    }
+}
+
+/// A weapon in a walking sprite's right hand, posed for the way they face like `GearArt.pose` does
+/// on the map: the hand is 34% of the height above the feet, which stand 8% up from the bottom.
+private struct HeldWeapon: View {
+    let image: UIImage
+    /// The grip as a unit point, y up (an anchor point).
+    let grip: CGPoint
+    let scale: CGFloat
+    let facing: Direction
+    let size: CGFloat
+
+    var body: some View {
+        let side = size * scale
+        let mirrored = facing == .up || facing == .left
+        let reach: CGFloat = switch facing {
+        case .down: 0.2
+        case .up: -0.2
+        case .left: -0.1
+        case .right: 0.1
+        }
+        let hand = CGPoint(x: size * (0.5 + reach), y: size * (1 - 0.08 - 0.34))
+        Image(uiImage: image)
+            .interpolation(.none)
+            .resizable()
+            .frame(width: side, height: side)
+            .scaleEffect(x: mirrored ? -1 : 1, y: 1)
+            .position(x: hand.x + (mirrored ? -1 : 1) * (0.5 - grip.x) * side, y: hand.y + (grip.y - 0.5) * side)
     }
 }
 

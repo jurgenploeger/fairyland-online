@@ -9,6 +9,7 @@ struct SettingsView: View {
 
     @AppStorage(GameSettings.musicVolumeKey) private var musicVolume = 1.0
     @AppStorage(GameSettings.soundVolumeKey) private var soundVolume = 1.0
+    @AppStorage(GameSettings.soundEffectsKey) private var soundEffects = true
     @AppStorage(GameSettings.footstepsKey) private var footsteps = true
     @AppStorage(GameSettings.hapticsKey) private var haptics = true
     @AppStorage(GameSettings.commandCompanionKey) private var commandCompanion = true
@@ -27,16 +28,17 @@ struct SettingsView: View {
                 LanguageList()
             }
 
+            // Every kind of sound has its own switch, and its volume under it.
             section(L("Sound"), icon: .volume) {
-                VolumeRow(title: L("Music"), icon: music.isMuted ? .musicOff : .music, value: $musicVolume) {}
+                SoundRow(title: L("Music"), icon: music.isMuted ? .musicOff : .music,
+                         isOn: Binding(get: { !music.isMuted }, set: { on in if on == music.isMuted { music.toggleMute() } }),
+                         volume: $musicVolume)
                     .onChange(of: musicVolume) { _, volume in MusicPlayer.shared.setVolume(volume) }
-                Toggle(isOn: Binding(get: { !music.isMuted }, set: { on in if on == music.isMuted { music.toggleMute() } })) {
-                    Text(L("Play music"))
-                }
-                VolumeRow(title: L("Sound effects"), icon: .volume, value: $soundVolume) {
+                SoundRow(title: L("Sound effects"), icon: .volume, isOn: $soundEffects, volume: $soundVolume) {
                     SoundEffects.shared.play(.coins)
                 }
-                Toggle(L("Footsteps"), isOn: $footsteps)
+                .onChange(of: soundEffects) { _, on in if on { SoundEffects.shared.play(.coins) } }
+                SoundRow(title: L("Footsteps"), icon: nil, isOn: $footsteps)
             }
 
             section(L("Feel"), icon: .tap) {
@@ -143,6 +145,7 @@ struct SettingsView: View {
         .font(HUDStyle.font(12))
         .foregroundStyle(HUDStyle.cream)
         .tint(HUDStyle.gold)
+        .toggleStyle(PixelSwitchStyle())
     }
 
     private func section<Content: View>(_ title: String, icon: GameIcon, @ViewBuilder content: () -> Content) -> some View {
@@ -199,29 +202,43 @@ private struct TurnTimerRow: View {
     }
 }
 
-/// A labelled volume slider that plays a preview when you let go.
-private struct VolumeRow: View {
+/// One kind of sound: its switch, and under it (when it has one) a volume slider that plays a
+/// preview when you let go. The slider dims while the sound is switched off.
+private struct SoundRow: View {
     let title: String
-    let icon: GameIcon
-    @Binding var value: Double
-    let onRelease: () -> Void
+    let icon: GameIcon?
+    @Binding var isOn: Bool
+    var volume: Binding<Double>?
+    var onRelease: () -> Void = {}
 
     var body: some View {
-        HStack(spacing: 10) {
-            IconImage(icon, size: 14)
-                .frame(width: 18)
-            Text(title)
-                .frame(width: 110, alignment: .leading)
-            Slider(value: $value, in: 0...1, onEditingChanged: { editing in
-                if !editing { onRelease() }
-            })
-            Text("\(Int((value * 100).rounded()))%")
-                .font(HUDStyle.font(10))
-                .monospacedDigit()
-                .frame(width: 38, alignment: .trailing)
+        VStack(alignment: .leading, spacing: 6) {
+            Toggle(isOn: $isOn) {
+                HStack(spacing: 10) {
+                    Group {
+                        if let icon { IconImage(icon, size: 14) } else { Color.clear }
+                    }
+                    .frame(width: 18, height: 14)
+                    Text(title)
+                }
+            }
+            if let volume {
+                HStack(spacing: 10) {
+                    Slider(value: volume, in: 0...1, onEditingChanged: { editing in
+                        if !editing { onRelease() }
+                    })
+                    Text("\(Int((volume.wrappedValue * 100).rounded()))%")
+                        .font(HUDStyle.font(10))
+                        .monospacedDigit()
+                        .frame(width: 38, alignment: .trailing)
+                }
+                .padding(.leading, 28)
+                .disabled(!isOn)
+                .opacity(isOn ? 1 : 0.4)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(L("{title} volume", ["title": title]))
+                .accessibilityValue(L("{percent} percent", ["percent": Int((volume.wrappedValue * 100).rounded())]))
+            }
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(L("{title} volume", ["title": title]))
-        .accessibilityValue(L("{percent} percent", ["percent": Int((value * 100).rounded())]))
     }
 }

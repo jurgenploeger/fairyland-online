@@ -29,10 +29,26 @@ enum Nodes {
         let bubble = CGRect(x: 1, y: 1, width: textBox.width + padding.width * 2, height: textBox.height + padding.height * 2)
         let canvas = CGSize(width: bubble.width + 2, height: bubble.height + tail + 2)
         let image = UIGraphicsImageRenderer(size: canvas).image { _ in
-            let shape = UIBezierPath(roundedRect: bubble, cornerRadius: min(10, bubble.height / 2))
-            shape.move(to: CGPoint(x: bubble.midX - 5, y: bubble.maxY - 1))
+            // One outline, clockwise from the top-left, that dips into the tail along the bottom
+            // edge: the tail is part of the bubble, with no line drawn across where it joins.
+            let radius = min(10, bubble.height / 2)
+            // The tail's base stays on the straight bit of the bottom edge, however short the line.
+            let half = max(2, min(5, bubble.width / 2 - radius))
+            let shape = UIBezierPath()
+            shape.move(to: CGPoint(x: bubble.minX + radius, y: bubble.minY))
+            shape.addLine(to: CGPoint(x: bubble.maxX - radius, y: bubble.minY))
+            shape.addArc(withCenter: CGPoint(x: bubble.maxX - radius, y: bubble.minY + radius), radius: radius, startAngle: -.pi / 2, endAngle: 0, clockwise: true)
+            shape.addLine(to: CGPoint(x: bubble.maxX, y: bubble.maxY - radius))
+            shape.addArc(withCenter: CGPoint(x: bubble.maxX - radius, y: bubble.maxY - radius), radius: radius, startAngle: 0, endAngle: .pi / 2, clockwise: true)
+            shape.addLine(to: CGPoint(x: bubble.midX + half, y: bubble.maxY))
             shape.addLine(to: CGPoint(x: bubble.midX, y: bubble.maxY + tail))
-            shape.addLine(to: CGPoint(x: bubble.midX + 5, y: bubble.maxY - 1))
+            shape.addLine(to: CGPoint(x: bubble.midX - half, y: bubble.maxY))
+            shape.addLine(to: CGPoint(x: bubble.minX + radius, y: bubble.maxY))
+            shape.addArc(withCenter: CGPoint(x: bubble.minX + radius, y: bubble.maxY - radius), radius: radius, startAngle: .pi / 2, endAngle: .pi, clockwise: true)
+            shape.addLine(to: CGPoint(x: bubble.minX, y: bubble.minY + radius))
+            shape.addArc(withCenter: CGPoint(x: bubble.minX + radius, y: bubble.minY + radius), radius: radius, startAngle: .pi, endAngle: 3 * .pi / 2, clockwise: true)
+            shape.close()
+            shape.lineJoin = .round
             UIColor(red: 1, green: 0.98, blue: 0.9, alpha: 0.96).setFill()
             shape.fill()
             ink.withAlphaComponent(0.8).setStroke()

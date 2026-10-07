@@ -2,6 +2,17 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.65",
+      "date": "2026-10-07",
+      "title": "Richer sound, shorter nights",
+      "notes": [
+        "New sound effects with more depth: fuller hits, ringing bells and a touch of room around every sound. Each element's spells sound like themselves, strong skills gather with a swell of sound, and a mastered skill opens with a grand chord.",
+        "In Settings, music, sound effects and footsteps each have their own switch, and a switch that's off is easy to see.",
+        "Night passes in about eight minutes instead of twelve, and rain and thunderstorms blow over in about a minute.",
+        "The Character tab shows your hero holding their weapon, and a speech bubble's tail now joins the bubble cleanly."
+      ]
+    },
+    {
       "version": "0.3.64",
       "date": "2026-10-06",
       "title": "Cleaner buttons",

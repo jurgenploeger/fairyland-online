@@ -555,6 +555,8 @@ final class BattleScene: SKScene {
         let mastered = level >= GameSession.maxSkillLevel && (fighter?.isHero == true || isBoss)
         var dimmer: SKNode?
         if mastered {
+            // A grand chord as its name goes up in gold.
+            SoundEffects.shared.play(.ultimate)
             SkillEffects.masterBanner(skill.name, level: level, size: size, in: self)
             dimmer = SkillEffects.ultimateStart(caster: actors[actorID], color: color, size: size, in: stage)
             await pause(0.75)
@@ -564,6 +566,11 @@ final class BattleScene: SKScene {
         }
         // The effects grow in five tiers: every two skill levels look a step grander.
         let level = (level + 1) / 2
+        // From the third tier, your hero's and bosses' skills gather themselves with a swell of sound,
+        // louder each tier (everyone else's would swell on every turn).
+        if level >= 3, fighter?.isHero == true || isBoss {
+            SoundEffects.shared.play(.surge, volume: 0.4 + 0.2 * Float(level - 2))
+        }
         if let caster = actors[actorID] {
             let hold = SkillEffects.charge(on: caster, color: color, level: level, in: stage)
             if hold > 0 { await pause(hold) }

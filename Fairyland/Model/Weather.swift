@@ -1,7 +1,8 @@
 import Foundation
 
 /// The weather on a map: picked from the map's `ambience.weather` weights in content/maps.json,
-/// and changing every `spell` in-game hours (an in-game hour is a real minute). The same save on
+/// and changing every `spell` in-game hours (six real minutes by day, four at night). Rain and
+/// storms blow over in about a real minute and leave the rest of their spell grey. The same save on
 /// the same map at the same hour always gets the same weather, so walking off and back doesn't
 /// reroll it. `Sky` draws it, with the light of the time of day.
 enum Weather: String, CaseIterable {
@@ -25,14 +26,26 @@ enum Weather: String, CaseIterable {
             .sorted { $0.0.rawValue < $1.0.rawValue }
         let total = weights.reduce(0) { $0 + $1.1 }
         guard total > 0 else { return nil }
-        let slot = Int(GameClock.hours(at: date, since: start)) / spell
+        let hours = GameClock.hours(at: date, since: start)
+        let slot = Int(hours) / spell
         var rng = SeededRandom(text: "\(map.id)/weather/\(slot)")
         var roll = Double.random(in: 0..<total, using: &rng)
-        for (weather, weight) in weights {
+        var weather = weights.last?.0
+        for (kind, weight) in weights {
             roll -= weight
-            if roll < 0 { return weather }
+            if roll < 0 {
+                weather = kind
+                break
+            }
         }
-        return weights.last?.0
+        // A shower passes in a real minute: an in-game hour by day, `nightPace` hours at night (a
+        // spell starts at 0, 6, 12 or 18hr, so it's all day or all night). Then it stays grey.
+        if weather == .rain || weather == .storm {
+            let begun = Double(slot * spell)
+            let shower = (6..<18).contains(Int(begun) % 24) ? 1 : GameClock.nightPace
+            if hours - begun >= shower { return .cloudy }
+        }
+        return weather
     }
 
     /// How much the clouds dim the light (multiplied into the time of day's colour).

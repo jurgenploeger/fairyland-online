@@ -29,6 +29,16 @@ enum GearArt {
         return node
     }
 
+    /// The same weapon as a picture for SwiftUI (the Character tab's hero): the image, its grip as a
+    /// unit point (y up, like an anchor) and its size as a share of the character's height.
+    static func heldImage(_ item: ItemDef) -> (image: UIImage, grip: CGPoint, scale: CGFloat)? {
+        guard item.type == .weapon else { return nil }
+        if let art = item.art, let held = held(art), let image = ArtLibrary.shared.artImage(art) {
+            return (image, held.grip, 0.48)
+        }
+        return (UIImage(cgImage: texture(for: item.icon ?? "sword").cgImage()), CGPoint(x: 0.2, y: 0.2), 0.42)
+    }
+
     /// A magic weapon's light: a small soft glow at the tip that slowly breathes, and now and then
     /// a tiny sparkle drifting up from it. Kept faint so it reads as magic, not a lamp.
     private static func glow(_ color: UIColor, at tip: CGPoint, height: CGFloat) -> SKNode {

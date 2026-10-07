@@ -1404,10 +1404,37 @@ struct RulesTests {
         // Over a month of in-game days the swamp sees more than one kind.
         #expect(seen.count > 1)
         #expect(seen.isSubset(of: [.clear, .cloudy, .rain, .storm, .fog]))
-        // The light follows the clock: the fractional hours agree with the calendar's hour.
+        // The light follows the clock: the fractional hours agree with the calendar's hour. Nine
+        // daylight minutes bring 18hr; then the night's hours go by half again as fast.
         let evening = start.addingTimeInterval(9.5 * 60)
         #expect(GameClock.moment(at: evening, since: start).hour == 18)
-        #expect(abs(GameClock.hours(at: evening, since: start) - 18.5) < 0.001)
+        #expect(abs(GameClock.hours(at: evening, since: start) - 18.75) < 0.001)
+    }
+
+    @Test func nightsAreShortAndShowersBlowOver() throws {
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        // A day is twelve real minutes of daylight and an eight-minute night.
+        var night = 0
+        for second in 0..<Int(GameClock.dayMinutes * 60) {
+            if !GameClock.moment(at: start.addingTimeInterval(Double(second)), since: start).isDaytime { night += 1 }
+        }
+        #expect(abs(Double(night) / 60 - 8) < 0.05)
+        // Debug launches can open at any hour of the day.
+        for hour in 0..<24 {
+            let date = start.addingTimeInterval(GameClock.minutes(untilHour: hour) * 60 + 1)
+            #expect(GameClock.moment(at: date, since: start).hour == hour)
+        }
+        // Rain and storms come and go within about a real minute.
+        let swamp = try #require(Content.shared.map("frog_swamp"))
+        var wet = 0
+        var longest = 0
+        for second in stride(from: 0, to: 60 * 60 * 24, by: 5) {
+            let weather = Weather.on(swamp, at: start.addingTimeInterval(Double(second)), since: start)
+            wet = weather == .rain || weather == .storm ? wet + 5 : 0
+            longest = max(longest, wet)
+        }
+        #expect(longest > 0)
+        #expect(longest <= 65)
     }
 
     @Test func announcementsFollowYouFromMapToMap() {
