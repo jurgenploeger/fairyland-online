@@ -37,6 +37,6 @@ struct LanguagePanel: View {
                 .padding(14)
         }
         .frame(maxWidth: 640)
-        .background(HUDStyle.panel)
+        .gameWindow()
     }
 }

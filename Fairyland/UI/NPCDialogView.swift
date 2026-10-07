@@ -86,9 +86,11 @@ struct NPCDialogView: View {
         }
         .foregroundStyle(HUDStyle.cream)
         // The title bar's corners round with the window's.
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        // The window is a speech bubble: its glass and bevel run out round the tail.
-        .background(HUDStyle.panel(shape: SpeechBubble(tailY: tailY)))
+        .clipShape(RoundedRectangle(cornerRadius: HUDStyle.windowRadius))
+        // The window is a speech bubble: its glass runs out round the tail, and its frame goes all
+        // the way round over the title bar, like every window's (`gameWindow`).
+        .background(SpeechBubble(tailY: tailY).fill(HUDStyle.glass).shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 2))
+        .overlay(HUDStyle.frame(SpeechBubble(tailY: tailY)))
     }
 }
 
@@ -560,11 +562,7 @@ private struct QuestCompleteCard: View {
         }
         .padding(22)
         .frame(maxWidth: 420)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(HUDStyle.ink.opacity(0.92))
-                .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(HUDStyle.gold.opacity(0.9), lineWidth: 2))
-        )
+        .gameWindow()
         .padding(20)
     }
 

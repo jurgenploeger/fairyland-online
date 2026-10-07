@@ -767,20 +767,8 @@ private struct ChoiceCard<Content: View>: View {
     @State private var contentHeight: CGFloat = 0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Label(title, icon: icon, size: 17)
-                    .font(HUDStyle.font(14))
-                    .foregroundStyle(HUDStyle.gold)
-                Spacer()
-                Button(action: onBack) {
-                    IconImage(.close, size: 16)
-                        .foregroundStyle(HUDStyle.cream)
-                        .frame(width: 32, height: 32)
-                        .background(Circle().fill(.white.opacity(0.1)))
-                }
-                .accessibilityLabel(L("Back"))
-            }
+        VStack(alignment: .leading, spacing: 0) {
+            FLTitleBar(title: title, icon: icon, onClose: onBack)
             // Hug the rows; long lists scroll instead of growing past the scene.
             ScrollView {
                 VStack(spacing: 6, content: content)
@@ -788,14 +776,10 @@ private struct ChoiceCard<Content: View>: View {
             }
             .scrollBounceBehavior(.basedOnSize)
             .frame(height: min(max(contentHeight, 1), 220))
+            .padding(12)
         }
-        .padding(12)
         .frame(width: 300)
-        .background(
-            RoundedRectangle(cornerRadius: 22)
-                .fill(HUDStyle.ink.opacity(0.92))
-                .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2))
-        )
+        .gameWindow()
     }
 }
 
@@ -884,9 +868,7 @@ private struct ResultPanel: View {
     }
 
     private var summary: some View {
-        // A level-up trims the card in gold.
-        let rim = result.newLevel != nil ? HUDStyle.gold : HUDStyle.cream
-        return VStack(spacing: 10) {
+        VStack(spacing: 10) {
             Text(title)
                 .font(HUDStyle.font(26))
                 .foregroundStyle(result.outcome == .victory ? HUDStyle.gold : HUDStyle.cream)
@@ -902,11 +884,7 @@ private struct ResultPanel: View {
         }
         .padding(22)
         .frame(maxWidth: 420)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(HUDStyle.ink.opacity(0.92))
-                .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(rim.opacity(0.85), lineWidth: 2))
-        )
+        .gameWindow()
         .padding(20)
     }
 
@@ -990,12 +968,8 @@ private struct BossStoryCard: View {
         }
         .padding(22)
         .frame(maxWidth: verticalSizeClass == .compact ? 620 : 420)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(HUDStyle.ink.opacity(0.94))
-                .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(HUDStyle.gold.opacity(0.85), lineWidth: 2))
-        )
-        .contentShape(RoundedRectangle(cornerRadius: 24))
+        .gameWindow()
+        .contentShape(RoundedRectangle(cornerRadius: HUDStyle.windowRadius))
         .onTapGesture { revealAll() }
         .padding(20)
         .task { await tell() }

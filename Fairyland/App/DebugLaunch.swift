@@ -80,6 +80,7 @@ import SpriteKit
 ///                  marks debug-ready as it does
 ///   saves=n        the title screen lists n made-up games (up to 3, in a folder of their own), with
 ///                  What's new not read yet
+///   use=<item>     with menu=bag: the window for who gets that item is open (a potion, or a toy)
 enum DebugLaunch {
     private static var flags: [String: String] {
         #if DEBUG
@@ -108,6 +109,8 @@ enum DebugLaunch {
 
     /// A debug game (tests, screenshots): the first-play tour stays hidden unless `coach` is set.
     static var isActive: Bool { flags["newgame"] != nil }
+    /// `use=potion`: with menu=bag, the Bag's window for who gets it is open for that item.
+    static var picksTargetFor: String? { flags["use"] }
 
     /// Debug launches leave `Documents/debug-ready` once the map or battle is on screen (or How to
     /// play's part, with `clip`), so tools/screenshots.sh knows when to shoot (the loading curtain

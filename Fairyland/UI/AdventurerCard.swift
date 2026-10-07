@@ -67,11 +67,7 @@ struct AdventurerCard: View {
             }
         }
         .padding(10)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(HUDStyle.ink.opacity(0.9))
-                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(HUDStyle.frameLight.opacity(0.8), lineWidth: 2))
-        )
+        .background(HUDStyle.panel)
         .frame(maxWidth: 260)
     }
 

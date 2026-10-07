@@ -41,12 +41,7 @@ struct ItemInfoCard: View {
                 .padding(16)
             }
             .frame(maxWidth: 360, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(HUDStyle.ink.opacity(0.97))
-                    .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(HUDStyle.gold.opacity(0.85), lineWidth: 2))
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 18))
+            .gameWindow()
             .padding(24)
             .accessibilityElement(children: .contain)
         }
@@ -64,14 +59,7 @@ struct ItemInfoCard: View {
                     .foregroundStyle(HUDStyle.dim)
             }
             Spacer(minLength: 0)
-            Button(action: onClose) {
-                IconImage(.close, size: 14)
-                    .foregroundStyle(HUDStyle.ink)
-                    .frame(width: 30, height: 30)
-                    .background(Circle().fill(HUDStyle.cream))
-            }
-            .buttonStyle(PressScaleStyle())
-            .accessibilityLabel(L("Close"))
+            OrangeCloseButton(action: onClose)
         }
     }
 
