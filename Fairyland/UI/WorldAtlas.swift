@@ -24,6 +24,9 @@ struct WorldAtlas: View {
         var id: String { a.id + "|" + b.id }
     }
 
+    /// The scroll id of a place's badge.
+    private static func spot(of mapID: String) -> String { "spot:" + mapID }
+
     /// One step east moves a place a cell right and a cell up; one step north, a cell left and a cell up.
     private let cell = CGSize(width: 64, height: 46)
     private var maps: [MapDef] { Content.shared.maps.filter { $0.world?.count == 2 } }
@@ -48,12 +51,11 @@ struct WorldAtlas: View {
                         .padding(.horizontal, 10)
                 }
                 .frame(maxHeight: 400)
-                // Centred on where you are, and again if the phone turns, until you tap a place to read
-                // about it. A moment later: the scroll view only takes its size after this pass, and
-                // centring before it has one left you at its edge, half cut off.
+                // Centred on where you are (a moment later, once the scroll view is laid out), and again
+                // if the phone turns, until you tap a place to read about it.
                 .onGeometryChange(for: CGSize.self) { $0.size } action: { _ in
                     guard selected == nil else { return }
-                    Task { @MainActor in reader.scrollTo(session.data.mapID, anchor: .center) }
+                    Task { @MainActor in reader.scrollTo(Self.spot(of: session.data.mapID), anchor: .center) }
                 }
             }
             .background(Color(red: 0.16, green: 0.42, blue: 0.62))
@@ -94,8 +96,10 @@ struct WorldAtlas: View {
                 PlaceBadge(map: map, status: status(of: map), selected: selected == map.id, pulse: pulse)
                     .frame(width: cell.width + 12)
                     // The id and tap go on the badge itself: after .position they'd cover the whole
-                    // atlas, and "scroll to where you are" would centre the atlas instead of you.
-                    .id(map.id)
+                    // atlas, and "scroll to where you are" would centre the atlas instead of you. The
+                    // id is its own, not the map's: ForEach already gives each place (the whole-atlas
+                    // .position around the badge) the map's id, and scrollTo found that one first.
+                    .id(Self.spot(of: map.id))
                     .onTapGesture { selected = map.id }
                     .position(center(of: map))
             }
