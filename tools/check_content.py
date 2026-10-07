@@ -590,6 +590,19 @@ for milestone in milestones:
     check(milestone.get("gold", -1) >= 0, f"rewards bookMilestone {milestone.get('count', 'all')} → gold at least 0")
     check_items(milestone.get("items"), f"rewards bookMilestone {milestone.get('count', 'all')}")
 
+# Every sound the game plays (SoundEffects.Sound's raw values) has its file in sound/, made by
+# tools/make_sounds.py: a missing one would just stay silent. And every file there is one of them.
+sound_enum = (ROOT / "Fairyland/Audio/SoundEffects.swift").read_text().split("enum Sound: String, CaseIterable {", 1)[-1].split("func ", 1)[0]
+sounds = [raw.strip().strip('"') or name.strip()
+          for line in sound_enum.splitlines() if line.strip().startswith("case ")
+          for name, _, raw in (part.partition("=") for part in line.strip()[5:].split(","))]
+sound_files = {path.stem for path in (ROOT / "sound").glob("*.wav")}
+check(bool(sounds), "SoundEffects.Sound → no cases found in Fairyland/Audio/SoundEffects.swift")
+for sound in sounds:
+    check(sound in sound_files, f"sound {sound} → no sound/{sound}.wav (python3 tools/make_sounds.py {sound})")
+for stray in sorted(sound_files - set(sounds)):
+    errors.append(f"sound/{stray}.wav → not a SoundEffects.Sound, so the game never plays it")
+
 # Translations (content/i18n): every listed language has a table, placeholders survive, and every
 # L() in the code has a literal key. Missing translations only show in English, so they're reported
 # by `python3 tools/i18n.py status`, not here.
