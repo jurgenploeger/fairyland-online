@@ -4,7 +4,7 @@ import SwiftUI
 /// them, turned like the game's isometric view so north points up-left and east up-right, the way
 /// you walk out of a map on screen. A compass in the corner says so. Places you haven't been to show as "???". A quest
 /// closes a road one way only (the way back is always open, so you can't get stuck), so a closed road is dashed from the
-/// end it's closed at, with a lock there, as the fence stands at that end in the game. Tap a place to read about it.
+/// end it's closed at, where the fence stands in the game, with a lock in its middle. Tap a place to read about it.
 struct WorldAtlas: View {
     let session: GameSession
     @State private var selected: String?
@@ -37,16 +37,15 @@ struct WorldAtlas: View {
     private var minUp: Int { maps.map { spot($0).up }.min() ?? 0 }
     private var maxUp: Int { maps.map { spot($0).up }.max() ?? 0 }
 
-    /// Room round the atlas: a badge and its name reach past its spot, so the places along the
-    /// edges need it to show whole.
-    private let margin = CGSize(width: 10, height: 18)
+    /// Room round the atlas: a badge reaches past its spot and its name hangs below it, so the
+    /// places along the edges need it to show whole.
+    private let margin = EdgeInsets(top: 10, leading: 10, bottom: 34, trailing: 10)
 
     var body: some View {
         VStack(spacing: 8) {
             ScrollView([.vertical, .horizontal], showsIndicators: false) {
                 atlas
-                    .padding(.vertical, margin.height)
-                    .padding(.horizontal, margin.width)
+                    .padding(margin)
             }
             // Opens on where you are: the scroll view lines up the same share of the atlas and of
             // itself, so your place shows in the middle when it's in the middle of the world, and
@@ -58,7 +57,9 @@ struct WorldAtlas: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(HUDStyle.cream.opacity(0.6), lineWidth: 2))
 
-            caption
+            if let selected, let map = Content.shared.map(selected) {
+                caption(for: map)
+            }
         }
         .onAppear {
             withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { pulse = true }
@@ -73,34 +74,39 @@ struct WorldAtlas: View {
     private var here: UnitPoint {
         guard let map = maps.first(where: { $0.id == session.data.mapID }) else { return .center }
         let middle = center(of: map)
-        return UnitPoint(x: (middle.x + margin.width) / (atlasSize.width + 2 * margin.width),
-                         y: (middle.y + margin.height) / (atlasSize.height + 2 * margin.height))
+        return UnitPoint(x: (middle.x + margin.leading) / (atlasSize.width + margin.leading + margin.trailing),
+                         y: (middle.y + margin.top) / (atlasSize.height + margin.top + margin.bottom))
     }
 
     private var atlas: some View {
         ZStack(alignment: .topLeading) {
             ForEach(roads) { road in
-                // Each half on its own: dashed from an end it's closed at, with the lock on it.
-                ForEach([road.a, road.b]) { end in
-                    let closed = road.closedFrom.contains(end.id)
+                let paint = road.known ? HUDStyle.plate : HUDStyle.plate.opacity(0.35)
+                if road.closedFrom.isEmpty {
+                    // In one stroke: two halves would overlap in the middle and show a brighter dot there.
                     Path { path in
-                        path.move(to: center(of: end))
-                        path.addLine(to: midpoint(road))
+                        path.move(to: center(of: road.a))
+                        path.addLine(to: center(of: road.b))
                     }
-                    .stroke(road.known ? HUDStyle.plate : HUDStyle.plate.opacity(0.35),
-                            style: StrokeStyle(lineWidth: 5, lineCap: .round, dash: closed ? [5, 7] : []))
-                    if closed {
-                        IconImage(.lock, size: 12)
-                            .foregroundStyle(HUDStyle.ink)
-                            .frame(width: 20, height: 20)
-                            .background(Circle().fill(HUDStyle.gold))
-                            .position(point(on: road, from: end, at: 0.36))
+                    .stroke(paint, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                } else {
+                    // In halves, dashed from an end it's closed at, with the lock in the middle.
+                    ForEach([road.a, road.b]) { end in
+                        Path { path in
+                            path.move(to: center(of: end))
+                            path.addLine(to: midpoint(road))
+                        }
+                        .stroke(paint, style: StrokeStyle(lineWidth: 5, lineCap: .round, dash: road.closedFrom.contains(end.id) ? [5, 7] : []))
                     }
+                    IconImage(.lock, size: 12)
+                        .foregroundStyle(HUDStyle.ink)
+                        .frame(width: 20, height: 20)
+                        .background(Circle().fill(HUDStyle.gold))
+                        .position(midpoint(road))
                 }
             }
             ForEach(maps) { map in
-                PlaceBadge(map: map, status: status(of: map), selected: selected == map.id, pulse: pulse)
-                    .frame(width: cell.width + 12)
+                PlaceBadge(map: map, status: status(of: map), selected: selected == map.id, pulse: pulse, labelWidth: cell.width + 12)
                     // The tap goes on the badge itself: after .position it'd cover the whole atlas.
                     .onTapGesture { selected = map.id }
                     .position(center(of: map))
@@ -111,20 +117,18 @@ struct WorldAtlas: View {
 
     // MARK: Caption
 
-    private var caption: some View {
-        Text(captionText)
+    /// About the place you tapped. Nothing until you do: the gold badge already says where you are.
+    private func caption(for map: MapDef) -> some View {
+        Text(captionText(for: map))
             .font(HUDStyle.font(11))
             .foregroundStyle(HUDStyle.cream)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
     }
 
-    private var captionText: String {
-        guard let map = Content.shared.map(selected ?? session.data.mapID) else { return "" }
+    private func captionText(for map: MapDef) -> String {
         switch status(of: map) {
-        case .here:
-            return L("You are here: {map}", ["map": map.name]) + levels(map) + closedRoads(from: map)
-        case .visited:
+        case .here, .visited:
             return "\(map.name)\(levels(map))" + closedRoads(from: map)
         case .undiscovered:
             return L("Not discovered yet. Follow the roads to find it.")
@@ -192,12 +196,6 @@ struct WorldAtlas: View {
         let a = center(of: road.a), b = center(of: road.b)
         return CGPoint(x: (a.x + b.x) / 2, y: (a.y + b.y) / 2)
     }
-
-    /// The point `fraction` of the way along `road` from `end` toward its other end.
-    private func point(on road: Road, from end: MapDef, at fraction: CGFloat) -> CGPoint {
-        let start = center(of: end), finish = center(of: end.id == road.a.id ? road.b : road.a)
-        return CGPoint(x: start.x + (finish.x - start.x) * fraction, y: start.y + (finish.y - start.y) * fraction)
-    }
 }
 
 /// A little compass rose, turned like the atlas: N up-left, E up-right.
@@ -236,33 +234,41 @@ private struct PlaceBadge: View {
     let status: WorldAtlas.Status
     let selected: Bool
     let pulse: Bool
+    /// How wide the name under the badge may run.
+    let labelWidth: CGFloat
 
     var body: some View {
-        VStack(spacing: 3) {
-            ZStack {
-                if status == .here {
-                    Circle().fill(HUDStyle.gold.opacity(0.35)).frame(width: pulse ? 50 : 38, height: pulse ? 50 : 38)
-                }
-                Circle()
-                    .fill(known ? tint : HUDStyle.ink.opacity(0.85))
-                    .frame(width: 34, height: 34)
-                    .overlay(Circle().strokeBorder(ring, lineWidth: status == .here || selected ? 3 : 2))
-                switch status {
-                case .locked:
-                    IconImage(.lock, size: 15).foregroundStyle(HUDStyle.cream.opacity(0.8))
-                case .undiscovered:
-                    Text("?").font(HUDStyle.font(16)).foregroundStyle(HUDStyle.cream.opacity(0.8))
-                case .here, .visited:
-                    if map.fence == true { IconImage(.star, size: 15).foregroundStyle(HUDStyle.ink) }
-                }
+        ZStack {
+            if status == .here {
+                Circle().fill(HUDStyle.gold.opacity(0.35)).frame(width: pulse ? 50 : 38, height: pulse ? 50 : 38)
             }
-            .frame(height: 50)
+            Circle()
+                .fill(known ? tint : HUDStyle.ink.opacity(0.85))
+                .frame(width: 34, height: 34)
+                .overlay(Circle().strokeBorder(ring, lineWidth: status == .here || selected ? 3 : 2))
+            switch status {
+            case .locked:
+                IconImage(.lock, size: 15).foregroundStyle(HUDStyle.cream.opacity(0.8))
+            case .undiscovered:
+                Text("?").font(HUDStyle.font(16)).foregroundStyle(HUDStyle.cream.opacity(0.8))
+            case .here, .visited:
+                if map.fence == true { IconImage(.star, size: 15).foregroundStyle(HUDStyle.ink) }
+            }
+        }
+        .frame(width: 50, height: 50)
+        // The name hangs below, outside the badge's frame, so the badge's middle is the circle's
+        // and .position puts the circle right on the crossroads.
+        .overlay(alignment: .top) {
             Text(known ? map.name : "???")
                 .font(HUDStyle.font(9))
                 .foregroundStyle(status == .here ? HUDStyle.gold : known ? HUDStyle.cream : HUDStyle.cream.opacity(0.6))
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .shadow(color: HUDStyle.ink, radius: 0, x: 1, y: 1)
+                .frame(width: labelWidth)
+                .fixedSize(horizontal: false, vertical: true)
+                .offset(y: 53)
+                .allowsHitTesting(false)
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
