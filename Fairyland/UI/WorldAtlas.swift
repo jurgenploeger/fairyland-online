@@ -41,7 +41,11 @@ struct WorldAtlas: View {
         VStack(spacing: 8) {
             ScrollViewReader { reader in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
+                    // A badge and its name reach past its spot, so the places along the edges
+                    // need room to show whole.
                     atlas
+                        .padding(.vertical, 18)
+                        .padding(.horizontal, 10)
                 }
                 .frame(maxHeight: 400)
                 .onAppear { reader.scrollTo(session.data.mapID, anchor: .center) }

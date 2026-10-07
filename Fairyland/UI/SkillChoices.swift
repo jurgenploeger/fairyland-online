@@ -138,7 +138,8 @@ struct LevelUpCard: View {
         }
         .padding(20)
         .frame(maxWidth: 440)
-        .fixedSize(horizontal: false, vertical: true)
+        // Hugs the list, which scrolls past 260 points, or sooner on a phone on its side.
+        .fitHeight()
         .background(
             RoundedRectangle(cornerRadius: 24)
                 .fill(HUDStyle.ink.opacity(0.94))

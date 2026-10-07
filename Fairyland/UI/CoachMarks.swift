@@ -87,7 +87,7 @@ struct CoachMarksView: View {
                         .allowsHitTesting(false)
                 }
 
-                note(step, hole: hole, in: proxy.size)
+                note(step, hole: hole, in: proxy.size, insets: proxy.safeAreaInsets)
             }
         }
         .ignoresSafeArea()
@@ -96,13 +96,15 @@ struct CoachMarksView: View {
         }
     }
 
-    /// The note sits below a control in the top half of the screen and above one in the bottom half.
-    private func note(_ step: CoachStep, hole: CGRect?, in size: CGSize) -> some View {
-        let width = min(330, size.width - 24)
+    /// The note sits below a control in the top half of the screen and above one in the bottom half,
+    /// clear of the Dynamic Island and the rounded corners when the phone lies on its side.
+    private func note(_ step: CoachStep, hole: CGRect?, in size: CGSize, insets: EdgeInsets) -> some View {
+        let leading = max(12, insets.leading + 8), trailing = max(12, insets.trailing + 8)
+        let width = min(330, size.width - leading - trailing)
         var alignment = Alignment.center
         var edges = EdgeInsets()
         if let hole {
-            let left = min(max(12, hole.midX - width / 2), size.width - width - 12)
+            let left = min(max(leading, hole.midX - width / 2), size.width - width - trailing)
             edges.leading = left
             if hole.midY < size.height / 2 {
                 alignment = .topLeading
