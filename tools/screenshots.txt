@@ -3,6 +3,8 @@
 title        |                                   | 6
 title_de     | lang=de                           | 6
 title_ja     | lang=ja                           | 6
+title_saves  | saves=3                           | 6
+title_saves_de | saves=3,lang=de                 | 6
 curtain      | curtain                           | 4
 curtain_land | curtain,landscape                 | 4
 lang_es      | newgame,lang=es                   | 8
@@ -194,6 +196,7 @@ chat_land         | newgame,level=40,class=fighter,map=goldburg,announce,chat,la
 daily_gift_land   | newgame,level=30,map=meadowbrook,gift=7,landscape | 10
 coach_land        | newgame,coach,landscape | 9
 title_land        | landscape | 6
+title_saves_land  | saves=3,landscape | 6
 intro_land        | intro,landscape | 6
 intro_play_land   | intro=4,landscape | 6
 battle_land       | newgame,level=30,class=mage,map=sunny_meadow,battle=3,landscape | 15

@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.72",
+      "date": "2026-10-07",
+      "title": "A tidier title screen",
+      "notes": [
+        "The title screen shows less at once: Continue and New game up front, and Settings, How to play and What's new as small round buttons underneath. What's new wears a gold dot when there are notes you haven't read.",
+        "Before your first game, the title screen also offers the language and Import a backup; once you have a game, both are in Settings."
+      ]
+    },
+    {
       "version": "0.3.71",
       "date": "2026-10-07",
       "title": "Tidier battle buttons",

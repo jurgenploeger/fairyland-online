@@ -86,7 +86,7 @@ engine's formulas, and the CI screenshots. Every finding here was checked agains
 > to join your party, and may challenge you to duels in danger zones. There are no other human players. The chat
 > window is part of this simulation: what you type stays on your device, and bots may answer with canned lines.
 > Saves stay on the device; Settings > Back up to Files exports a save, and Import a backup on the title screen
-> restores it. Quick tour: New game, then the story and a short tour; walk into Sunny Meadow for battles; weaken
+> (in its Settings once a game exists) restores it. Quick tour: New game, then the story and a short tour; walk into Sunny Meadow for battles; weaken
 > the last monster below 20% HP and use Capture with a Seal Stone; tap a BOT adventurer, then Befriend.
 
 ## Bugs and balance, most important first

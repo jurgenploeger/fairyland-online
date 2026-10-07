@@ -6,6 +6,8 @@ import UniformTypeIdentifiers
 struct SettingsView: View {
     var session: GameSession?
     var onQuitToTitle: (() -> Void)?
+    /// The title screen's Import a backup (its file picker lives there).
+    var onImportBackup: (() -> Void)?
 
     @AppStorage(GameSettings.musicVolumeKey) private var musicVolume = 1.0
     @AppStorage(GameSettings.soundVolumeKey) private var soundVolume = 1.0
@@ -146,6 +148,19 @@ struct SettingsView: View {
                     } message: {
                         Text(L("{hero}, level {level}, and everything they carry will be gone for good.", ["hero": session.data.hero.name, "level": session.data.hero.level]))
                     }
+                }
+            }
+
+            if let onImportBackup {
+                section(L("Backups"), icon: .arrowDown) {
+                    Button(action: onImportBackup) {
+                        Label(L("Import a backup"), icon: .arrowDown)
+                    }
+                    .buttonStyle(PixelButtonStyle(compact: true))
+                    Text(L("A backup from Files or iCloud Drive comes back as a game of its own, next to your others."))
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.dim)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
 

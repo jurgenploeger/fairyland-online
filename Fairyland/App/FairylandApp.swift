@@ -10,6 +10,7 @@ struct FairylandApp: App {
         // (`L("Hero")`) is set before anything else would have woken the Localizer, so it stayed English.
         _ = Localizer.shared
         DebugLaunch.applyLanguage()
+        DebugLaunch.seedTitleGames()
     }
 
     var body: some Scene {
