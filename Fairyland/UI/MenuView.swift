@@ -14,8 +14,14 @@ struct MenuView: View {
     @State private var bagNote: String?
     /// Change on the Character tab: the grid of gear for that slot, in a window over the menu.
     @State private var changing: ItemType? = DebugLaunch.changingSlot
-    /// The Quests tab's page, Quests or Daily challenges, kept while the menu is open.
-    @State private var questsPage: QuestsPage = DebugLaunch.opensDailyChallenges ? .daily : .quests
+    /// The smaller tabs' pages (Character, Companions and Quests have them), kept while the menu
+    /// is open. Debug `sub=<page>` opens one.
+    @State private var characterPage: CharacterPage = DebugLaunch.subTab.flatMap(CharacterPage.init(rawValue:)) ?? .hero
+    @State private var companionsPage: CompanionsPage = DebugLaunch.opensMonsterBook ? .book : .companions
+    @State private var questsPage: QuestsPage = DebugLaunch.subTab.flatMap(QuestsPage.init(rawValue:)) ?? .quests
+    /// A tap on something in the Bag: its card, over the menu. Debug `inspect=<item>` opens one
+    /// (unless it's for the gear grid, `change=`).
+    @State private var inspecting: ItemDef? = DebugLaunch.changingSlot == nil ? DebugLaunch.inspectedItem.flatMap { Content.shared.item($0) } : nil
 
     init(session: GameSession, initialTab: MenuTab, onClose: @escaping () -> Void, onQuitToTitle: (() -> Void)? = nil) {
         self.session = session
@@ -52,15 +58,15 @@ struct MenuView: View {
                     Group {
                         switch tab {
                         case .character:
-                            CharacterTab(session: session) { slot in
+                            CharacterTab(session: session, page: $characterPage) { slot in
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) { changing = slot }
                             }
-                        case .companions: CompanionsTab(session: session)
+                        case .companions: CompanionsTab(session: session, page: $companionsPage)
                         case .friends: FriendsTab(session: session)
                         case .bag:
-                            BagTab(session: session, note: $bagNote) { item in
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) { picking = item }
-                            }
+                            BagTab(session: session, note: $bagNote,
+                                   onUse: { item in withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) { picking = item } },
+                                   onInspect: { item in withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) { inspecting = item } })
                         case .quests: QuestsTab(session: session, page: $questsPage)
                         case .settings: SettingsView(session: session, onQuitToTitle: onQuitToTitle)
                         }
@@ -92,8 +98,103 @@ struct MenuView: View {
                 .transition(.opacity.combined(with: .scale(scale: 0.94)))
                 .zIndex(1)
             }
+
+            if let item = inspecting {
+                ItemInfoCard(session: session, item: item) {
+                    withAnimation(.easeOut(duration: 0.2)) { inspecting = nil }
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.94)))
+                .zIndex(1)
+            }
         }
         .foregroundStyle(HUDStyle.cream)
+    }
+}
+
+// MARK: - Smaller tabs
+
+/// A menu tab's smaller tabs, under the menu's own: gold for the one you're on, like the menu's.
+/// One you're not on wears the HUD's gold dot when something there waits for you (`waiting`).
+/// The pages are a nonisolated enum (its raw value is the debug name, `sub=skills`).
+private struct SubTabs<Page: Hashable & CaseIterable>: View {
+    @Binding var page: Page
+    let title: (Page) -> String
+    let icon: (Page) -> GameIcon
+    var waiting: (Page) -> Bool = { _ in false }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(Array(Page.allCases), id: \.self) { item in
+                let selected = item == page
+                let marked = !selected && waiting(item)
+                Button {
+                    guard !selected else { return }
+                    SoundEffects.shared.play(.tap, volume: 0.7)
+                    page = item
+                } label: {
+                    Label(title(item), icon: icon(item), size: 16)
+                        .font(HUDStyle.font(12))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .foregroundStyle(selected ? HUDStyle.ink : HUDStyle.cream)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                        .background(Capsule().fill(selected ? HUDStyle.gold : .white.opacity(0.06)))
+                        .overlay(alignment: .topTrailing) {
+                            if marked {
+                                Circle().fill(HUDStyle.gold).frame(width: 10, height: 10)
+                                    .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 1.5))
+                                    .offset(x: -4, y: -2)
+                            }
+                        }
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selected ? .isSelected : [])
+                .accessibilityValue(marked ? L("Something to do") : "")
+            }
+        }
+        .padding(3)
+        .background(Capsule().fill(.black.opacity(0.2)))
+    }
+}
+
+/// A tab's explanation, folded away once you know the ropes: open while you have none of what it
+/// explains (no companions yet, no friends), a tap away after that.
+private struct HowItWorks: View {
+    let text: String
+    @State private var open: Bool
+
+    init(_ text: String, open: Bool) {
+        self.text = text
+        _open = State(initialValue: open)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button {
+                withAnimation(Reveal.animation) { open.toggle() }
+            } label: {
+                HStack(spacing: 5) {
+                    IconImage(.book, size: 13)
+                    Text(L("How it works"))
+                    IconImage(.chevronDown, size: 11)
+                        .rotationEffect(.degrees(open ? 180 : 0))
+                }
+                .font(HUDStyle.font(11))
+                .foregroundStyle(HUDStyle.gold)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint(open ? L("Hides the explanation") : L("Shows the explanation"))
+            if open {
+                Text(text)
+                    .font(HUDStyle.font(11))
+                    .foregroundStyle(HUDStyle.dim)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .transition(.reveal)
+            }
+        }
     }
 }
 
@@ -129,16 +230,46 @@ struct SectionTitle: View {
 
 // MARK: - Character
 
+/// The Character tab's pages.
+private nonisolated enum CharacterPage: String, CaseIterable {
+    /// Who you are: the hero, their stats and what they wear.
+    case hero
+    /// What you know and can learn, and what your class unlocks later.
+    case skills
+    /// The titles you've earned, and those still to earn.
+    case titles
+
+    var title: String {
+        switch self {
+        case .hero: L("Hero")
+        case .skills: L("Skills")
+        case .titles: L("Titles")
+        }
+    }
+
+    @MainActor var icon: GameIcon {
+        switch self {
+        case .hero: .user
+        case .skills: .sparkles
+        case .titles: .star
+        }
+    }
+}
+
 private struct CharacterTab: View {
     let session: GameSession
+    @Binding var page: CharacterPage
     /// Change on an equipment row: MenuView opens the grid of gear for that slot.
     let onChange: (ItemType) -> Void
     @State private var editing = false
     @State private var draftName = ""
     @State private var draftLook = Look.standard
+    /// The skills your class unlocks later: the next two, or all of them.
+    @State private var showsAllUpcoming = false
 
-    init(session: GameSession, onChange: @escaping (ItemType) -> Void) {
+    init(session: GameSession, page: Binding<CharacterPage>, onChange: @escaping (ItemType) -> Void) {
         self.session = session
+        _page = page
         self.onChange = onChange
         // `customize` (debug launches): straight into the look editor.
         if DebugLaunch.opensCustomize {
@@ -171,7 +302,23 @@ private struct CharacterTab: View {
                 }
             }
         } else {
-            overview(hero: hero, stats: stats)
+            VStack(alignment: .leading, spacing: 14) {
+                SubTabs(page: $page, title: { $0.title }, icon: { $0.icon }) { waiting(on: $0) }
+                switch page {
+                case .hero: overview(hero: hero, stats: stats)
+                case .skills: skills(hero: hero)
+                case .titles: TitlesSection(session: session)
+                }
+            }
+        }
+    }
+
+    /// A path to choose (at a guild master), or a skill point to spend.
+    private func waiting(on tab: CharacterPage) -> Bool {
+        switch tab {
+        case .hero: return session.canChooseClass
+        case .skills: return session.canSpendSkillPoint
+        case .titles: return false
         }
     }
 
@@ -228,53 +375,64 @@ private struct CharacterTab: View {
                 ForEach(ItemType.equipmentSlots, id: \.self) { slot in
                     EquipmentRow(session: session, slot: slot) { onChange(slot) }
                 }
-
-                HStack {
-                    SectionTitle(text: L("Skills"))
-                    Spacer()
-                    if session.canSpendSkillPoint {
-                        Text(session.unspentSkillPoints == 1 ? L("1 skill point to spend") : L("{count} skill points to spend", ["count": session.unspentSkillPoints]))
-                            .font(HUDStyle.font(11))
-                            .foregroundStyle(HUDStyle.gold)
-                    } else if session.unspentSkillPoints > 0 {
-                        // Everything known is mastered: points wait for the next skill the class unlocks.
-                        Text(L("{count} saved for your next skill", ["count": session.unspentSkillPoints]))
-                            .font(HUDStyle.font(11))
-                            .foregroundStyle(HUDStyle.dim)
-                    }
-                }
-                if session.heroSkills.isEmpty && session.learnableSkills.isEmpty {
-                    EmptyNote(session.skillHint, size: 11)
-                }
-                SkillChoices(session: session)
-                // Reborn heroes keep the skills they learned, so those aren't "still locked".
-                let learned = Set(hero.learnedSkills ?? [])
-                let upcoming = session.heroClass.skills.filter { $0.level > hero.level && !learned.contains($0.skill) }
-                ForEach(upcoming, id: \.skill) { unlock in
-                    if let skill = session.content.skill(unlock.skill) {
-                        // Still locked: a faded tile, with the level it unlocks at.
-                        HStack(spacing: 8) {
-                            SkillIcon(skill: skill, size: 28)
-                                .saturation(0.2)
-                                .opacity(0.55)
-                            Text(skill.name)
-                                .foregroundStyle(HUDStyle.dim)
-                            Spacer()
-                            Text(L("Lv {level}", ["level": unlock.level]))
-                                .font(HUDStyle.font(10))
-                                .foregroundStyle(HUDStyle.ink)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Capsule().fill(HUDStyle.dim))
-                        }
-                        .font(HUDStyle.font(11))
-                    }
-                }
-
-                TitlesSection(session: session)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    /// Skill points, what you know and can learn (SkillChoices), and what your class unlocks later:
+    /// the next two, the rest a tap away.
+    private func skills(hero: Hero) -> some View {
+        // Reborn heroes keep the skills they learned, so those aren't "still locked".
+        let learned = Set(hero.learnedSkills ?? [])
+        let upcoming = session.heroClass.skills.filter { $0.level > hero.level && !learned.contains($0.skill) }
+        return VStack(alignment: .leading, spacing: 10) {
+            if session.canSpendSkillPoint {
+                Text(session.unspentSkillPoints == 1 ? L("1 skill point to spend") : L("{count} skill points to spend", ["count": session.unspentSkillPoints]))
+                    .font(HUDStyle.font(11))
+                    .foregroundStyle(HUDStyle.gold)
+            } else if session.unspentSkillPoints > 0 {
+                // Everything known is mastered: points wait for the next skill the class unlocks.
+                Text(L("{count} saved for your next skill", ["count": session.unspentSkillPoints]))
+                    .font(HUDStyle.font(11))
+                    .foregroundStyle(HUDStyle.dim)
+            }
+            if session.heroSkills.isEmpty && session.learnableSkills.isEmpty {
+                EmptyNote(session.skillHint, size: 11)
+            }
+            SkillChoices(session: session)
+            if !upcoming.isEmpty {
+                SectionTitle(text: L("Coming up"))
+            }
+            ForEach(showsAllUpcoming ? upcoming : Array(upcoming.prefix(2)), id: \.skill) { unlock in
+                if let skill = session.content.skill(unlock.skill) {
+                    // Still locked: a faded tile, with the level it unlocks at.
+                    HStack(spacing: 8) {
+                        SkillIcon(skill: skill, size: 28)
+                            .saturation(0.2)
+                            .opacity(0.55)
+                        Text(skill.name)
+                            .foregroundStyle(HUDStyle.dim)
+                        Spacer()
+                        Text(L("Lv {level}", ["level": unlock.level]))
+                            .font(HUDStyle.font(10))
+                            .foregroundStyle(HUDStyle.ink)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(HUDStyle.dim))
+                    }
+                    .font(HUDStyle.font(11))
+                }
+            }
+            if upcoming.count > 2 {
+                Button(showsAllUpcoming ? L("Show fewer") : L("Show {count} more", ["count": upcoming.count - 2])) {
+                    withAnimation(.easeOut(duration: 0.2)) { showsAllUpcoming.toggle() }
+                }
+                .font(HUDStyle.font(11))
+                .foregroundStyle(HUDStyle.gold)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -450,31 +608,47 @@ private struct ElementGem {
 
 // MARK: - Companions
 
+/// The Companions tab's pages.
+private nonisolated enum CompanionsPage: String, CaseIterable {
+    /// The monsters you've befriended.
+    case companions
+    /// Every monster you've met.
+    case book
+
+    var title: String {
+        switch self {
+        case .companions: L("Companions")
+        case .book: L("Monster Book")
+        }
+    }
+
+    @MainActor var icon: GameIcon {
+        switch self {
+        case .companions: .paw
+        case .book: .book
+        }
+    }
+}
+
 private struct CompanionsTab: View {
     let session: GameSession
-    @State private var showsBook = DebugLaunch.opensMonsterBook
+    @Binding var page: CompanionsPage
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Button(L("Companions")) { showsBook = false }
-                    .buttonStyle(PixelButtonStyle(tint: showsBook ? HUDStyle.cream : HUDStyle.gold, compact: true))
-                Button(L("Monster Book")) { showsBook = true }
-                    .buttonStyle(PixelButtonStyle(tint: showsBook ? HUDStyle.gold : HUDStyle.cream, compact: true))
-            }
-            if showsBook {
-                MonsterBook(session: session)
-            } else {
-                companions
+            SubTabs(page: $page, title: { $0.title }, icon: { $0.icon })
+                .padding(.bottom, 4)
+            switch page {
+            case .companions: companions
+            case .book: MonsterBook(session: session)
             }
         }
     }
 
     private var companions: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(L("Companions fight beside you and earn a share of battle EXP. Throw a Seal Stone at a wild monster with Capture to befriend it (up to {count}): any monster, at any HP, but the weaker it is, the better the odds. Each throw uses a stone up, and stronger stones hold more often. Trader Bo in Meadowbrook sells Seal Stones.", ["count": GameSession.maxPets]))
-                .font(HUDStyle.font(11))
-                .foregroundStyle(HUDStyle.dim)
+            HowItWorks(L("Companions fight beside you and earn a share of battle EXP. Throw a Seal Stone at a wild monster with Capture to befriend it (up to {count}): any monster, at any HP, but the weaker it is, the better the odds. Each throw uses a stone up, and stronger stones hold more often. Trader Bo in Meadowbrook sells Seal Stones.", ["count": GameSession.maxPets]),
+                       open: session.data.pets.isEmpty)
             if session.data.pets.isEmpty {
                 EmptyNote(L("No companions yet.\nElder Oak in Meadowbrook gives you an egg with the first quest: hatch it from your Bag."))
             }
@@ -495,9 +669,8 @@ private struct FriendsTab: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(L("Befriend adventurers you meet (walk up to one). Up to {count} friends can travel and fight with you, and they bring their companions. They fight on if you faint, and wait where you fell; a friend who faints wakes up at their own checkpoint. Walk up to them to set off together again.", ["count": GameSession.maxAllies]))
-                .font(HUDStyle.font(11))
-                .foregroundStyle(HUDStyle.dim)
+            HowItWorks(L("Befriend adventurers you meet (walk up to one). Up to {count} friends can travel and fight with you, and they bring their companions. They fight on if you faint, and wait where you fell; a friend who faints wakes up at their own checkpoint. Walk up to them to set off together again.", ["count": GameSession.maxAllies]),
+                       open: session.friends.isEmpty)
             if session.friends.isEmpty {
                 EmptyNote(L("No friends yet.\nSay hi to the adventurers you meet!"))
             }
@@ -694,6 +867,8 @@ private struct BagTab: View {
     @Binding var note: String?
     /// Use (a potion) or Give (a toy): MenuView asks who gets it.
     let onUse: (ItemDef) -> Void
+    /// A tap on an item: MenuView shows its card.
+    let onInspect: (ItemDef) -> Void
     @State private var hatched: Pet?
     @State private var hatching = false
 
@@ -713,17 +888,17 @@ private struct BagTab: View {
             }
             ForEach(session.consumables) { item in
                 HStack(spacing: 10) {
-                    ItemIcon(item: item, size: 36, count: session.count(of: item.id))
-                    VStack(alignment: .leading, spacing: 1) {
+                    summary(item) {
                         Text(item.name)
-                        Text(item.description ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                         if item.toy == true, let raise = item.stats {
                             Text(L("For a companion: {bonus} for good", ["bonus": raise.bonusSummary]))
                                 .font(HUDStyle.font(10))
                                 .foregroundStyle(HUDStyle.green)
+                                .lineLimit(1)
+                        } else {
+                            Text(item.description ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim).lineLimit(1)
                         }
                     }
-                    Spacer()
                     if item.hatches != nil {
                         Button {
                             hatching = true
@@ -773,12 +948,10 @@ private struct BagTab: View {
             }
             ForEach(session.bagEquipment) { item in
                 HStack(spacing: 10) {
-                    ItemIcon(item: item, size: 36, count: session.count(of: item.id))
-                    VStack(alignment: .leading, spacing: 1) {
+                    summary(item) {
                         Text("\(item.name)  ·  \(item.type.displayName)")
                         Text(item.stats?.bonusSummary ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
                     }
-                    Spacer()
                     if let issue = session.equipIssue(item) {
                         Text(issue).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                     } else {
@@ -795,17 +968,32 @@ private struct BagTab: View {
                     .font(HUDStyle.font(11)).foregroundStyle(HUDStyle.dim)
             }
             ForEach(session.bagMaterials) { item in
-                HStack(spacing: 10) {
-                    ItemIcon(item: item, size: 28, count: session.count(of: item.id))
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(item.name)
-                        Text(item.description ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
-                    }
-                    Spacer()
+                summary(item, size: 28) {
+                    Text(item.name)
+                    Text(item.description ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim).lineLimit(1)
                 }
                 .font(HUDStyle.font(12))
             }
         }
+    }
+
+    /// An item's icon, name and a line about it. A tap opens its card (ItemInfoCard), with
+    /// everything else: what it does in full, who can use it, what it's worth.
+    private func summary<Lines: View>(_ item: ItemDef, size: CGFloat = 36, @ViewBuilder lines: () -> Lines) -> some View {
+        Button {
+            onInspect(item)
+        } label: {
+            HStack(spacing: 10) {
+                ItemIcon(item: item, size: size, count: session.count(of: item.id))
+                VStack(alignment: .leading, spacing: 1) {
+                    lines()
+                }
+                Spacer(minLength: 0)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(L("Shows what it does and who can use it"))
     }
 }
 
@@ -853,8 +1041,8 @@ private struct HatchView: View {
 
 // MARK: - Quests
 
-/// The Quests tab's two pages, picked with its own smaller tabs.
-private enum QuestsPage: CaseIterable {
+/// The Quests tab's two pages. Nonisolated like the other enums shown with `ForEach(id: \.self)`.
+private nonisolated enum QuestsPage: String, CaseIterable {
     /// The quests people have given you, active and finished.
     case quests
     /// The day's bounties, their bonus and the daily gift.
@@ -867,7 +1055,7 @@ private enum QuestsPage: CaseIterable {
         }
     }
 
-    var icon: GameIcon {
+    @MainActor var icon: GameIcon {
         switch self {
         case .quests: .book
         case .daily: .sun
@@ -881,7 +1069,7 @@ private struct QuestsTab: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            QuestsPageTabs(session: session, page: $page)
+            SubTabs(page: $page, title: { $0.title }, icon: { $0.icon }) { waiting(on: $0) }
                 .padding(.bottom, 4)
             switch page {
             case .quests:
@@ -903,51 +1091,8 @@ private struct QuestsTab: View {
             }
         }
     }
-}
 
-/// The Quests tab's smaller tabs, under the menu's own: Quests and Daily challenges. The one you're
-/// not on wears the HUD's gold dot when it has something waiting: a quest to report back on, or a
-/// bounty or the bonus to claim.
-private struct QuestsPageTabs: View {
-    let session: GameSession
-    @Binding var page: QuestsPage
-
-    var body: some View {
-        HStack(spacing: 4) {
-            ForEach(QuestsPage.allCases, id: \.self) { item in
-                let selected = item == page
-                let marked = !selected && waiting(on: item)
-                Button {
-                    guard !selected else { return }
-                    SoundEffects.shared.play(.tap, volume: 0.7)
-                    page = item
-                } label: {
-                    Label(item.title, icon: item.icon, size: 16)
-                        .font(HUDStyle.font(12))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                        .foregroundStyle(selected ? HUDStyle.ink : HUDStyle.cream)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
-                        .background(Capsule().fill(selected ? HUDStyle.gold : .white.opacity(0.06)))
-                        .overlay(alignment: .topTrailing) {
-                            if marked {
-                                Circle().fill(HUDStyle.gold).frame(width: 10, height: 10)
-                                    .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 1.5))
-                                    .offset(x: -4, y: -2)
-                            }
-                        }
-                        .contentShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .accessibilityAddTraits(selected ? .isSelected : [])
-                .accessibilityValue(marked ? L("Something to claim") : "")
-            }
-        }
-        .padding(3)
-        .background(Capsule().fill(.black.opacity(0.2)))
-    }
-
+    /// A quest to report back on, or a bounty or the bonus to claim.
     private func waiting(on tab: QuestsPage) -> Bool {
         switch tab {
         case .quests:

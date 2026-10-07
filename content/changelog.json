@@ -2,6 +2,17 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.77",
+      "date": "2026-10-07",
+      "title": "Less at once",
+      "notes": [
+        "The Character tab has smaller tabs of its own, like Quests: Hero (your stats and gear), Skills and Titles. Skills shows the next two skills your class unlocks, the rest a tap away, and wears a gold dot when you have a point to spend.",
+        "Companions and the Monster Book sit on the same smaller tabs. The long explanations on Companions and Friends fold away under How it works once you have companions or friends.",
+        "The Bag shows one line per item: tap one for its card, with everything about it. Shops show two lines at most. In Settings, your language is one line, and Change opens the list.",
+        "On a phone held sideways, the title screen sits in the middle of the screen, the logo on the left and the rest on the right, for Settings, What's new, the languages and making a hero too."
+      ]
+    },
+    {
       "version": "0.3.76",
       "date": "2026-10-07",
       "title": "One row along the top in battle",

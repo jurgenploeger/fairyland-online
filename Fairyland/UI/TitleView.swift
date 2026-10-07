@@ -6,16 +6,16 @@ import UniformTypeIdentifiers
 struct TitleView: View {
     let onStart: (GameSession) -> Void
 
-    @State private var creating = false
+    @State private var creating = DebugLaunch.titlePage == "create"
     @State private var name = L("Hero")
     @State private var look = Look(hair: Look.standard.hair, outfit: Look.standard.outfit, skin: Look.standard.skin, gender: "male")
     @State private var raceID = "human"
     /// Your games, the last played first; the carousel shows one at a time.
     @State private var saves = SaveStore.all()
     @State private var selectedSlot: String?
-    @State private var showingChangelog = false
-    @State private var showingSettings = false
-    @State private var showingLanguages = false
+    @State private var showingChangelog = DebugLaunch.titlePage == "news"
+    @State private var showingSettings = DebugLaunch.titlePage == "settings"
+    @State private var showingLanguages = DebugLaunch.titlePage == "languages"
     /// Its language: switching rebuilds the screen's text in place.
     @State private var localizer = Localizer.shared
     /// Import a backup: the file picker, and what came of it.
@@ -37,16 +37,17 @@ struct TitleView: View {
     private var hasUnreadNotes: Bool { !saves.isEmpty && seenRelease != newestRelease }
 
     @Environment(\.verticalSizeClass) private var verticalSizeClass
-    /// The menu on a phone on its side, too short for the logo above it all: the logo and the
-    /// round buttons on the left, your game and Continue on the right, nothing to scroll for.
-    private var sideBySide: Bool {
-        verticalSizeClass == .compact && !creating && !showingLanguages && !showingChangelog && !showingSettings
-    }
+    /// A phone on its side, too short for the logo above everything: the logo on the left, the
+    /// rest on the right.
+    private var wide: Bool { verticalSizeClass == .compact }
+    /// The title's own menu, not hero creation, Settings, What's new or the languages.
+    private var onMenu: Bool { !creating && !showingLanguages && !showingChangelog && !showingSettings }
 
     var body: some View {
         ZStack {
-            // The app icon's sky, its rays behind the logo (at the top, or on the left).
-            StoryleafSky(raysFrom: sideBySide ? UnitPoint(x: 0.29, y: 0.3) : UnitPoint(x: 0.5, y: 0.18))
+            // The app icon's sky, its rays behind the logo: at the top, or on the left.
+            StoryleafSky(raysFrom: !wide ? UnitPoint(x: 0.5, y: 0.18)
+                                         : onMenu ? UnitPoint(x: 0.29, y: 0.35) : UnitPoint(x: 0.22, y: 0.47))
 
             if let intro {
                 IntroView(finishTitle: intro.thenCreate ? L("Create your hero") : L("Done"), startPage: intro.startPage) {
@@ -56,71 +57,41 @@ struct TitleView: View {
                     }
                 }
                 .transition(.opacity)
+            } else if wide {
+                // The logo on the left, with the round buttons under it on the menu (half the width
+                // there, a narrower strip beside anything else), and the rest on the right: in the
+                // middle of the screen when it fits, scrolling on its own when it doesn't.
+                HStack(spacing: 28) {
+                    VStack(spacing: 14) {
+                        logo
+                        if onMenu { roundButtons }
+                    }
+                    .frame(maxWidth: onMenu ? .infinity : 220)
+                    GeometryReader { proxy in
+                        ScrollView {
+                            page
+                                .frame(maxWidth: .infinity)
+                                .frame(minHeight: proxy.size.height)
+                        }
+                        .scrollBounceBehavior(.basedOnSize)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .id(localizer.language)
+                languageButton
             } else {
                 ScrollView {
                     VStack(spacing: 18) {
-                        if sideBySide {
-                            HStack(spacing: 28) {
-                                VStack(spacing: 14) {
-                                    logo
-                                    roundButtons
-                                }
-                                .frame(maxWidth: .infinity)
-                                VStack(spacing: 12) {
-                                    games
-                                    startButtons
-                                }
-                                .frame(maxWidth: .infinity)
-                            }
-                        } else {
-                            logo.padding(.top, 12)
-                            if creating {
-                                creation
-                            } else if showingLanguages {
-                                LanguagePanel { showingLanguages = false }
-                            } else if showingChangelog {
-                                ChangelogPanel { showingChangelog = false }
-                            } else if showingSettings {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    SettingsView(onImportBackup: {
-                                        showingSettings = false
-                                        importing = true
-                                    })
-                                    Button {
-                                        showingSettings = false
-                                    } label: {
-                                        Label(L("Back"), icon: .arrowLeft)
-                                    }
-                                    .buttonStyle(PixelButtonStyle(compact: true))
-                                }
-                                .padding(16)
-                                .frame(maxWidth: 640)
-                                .background(HUDStyle.panel)
-                            } else {
-                                menu
-                            }
-                        }
+                        logo.padding(.top, 12)
+                        page
                     }
                     .padding(20)
                     .frame(maxWidth: .infinity)
                     .id(localizer.language)
                 }
-                // The language button, top right: the first thing a player who can't read English needs.
-                // Once there's a game, the language is chosen (and still in Settings).
-                if !creating, !showingLanguages, saves.isEmpty {
-                    Button {
-                        showingSettings = false
-                        showingChangelog = false
-                        showingLanguages = true
-                    } label: {
-                        Label(localizer.current.name, icon: .globe)
-                    }
-                    .buttonStyle(PixelButtonStyle(compact: true))
-                    .accessibilityLabel(L("Language: {language}", ["language": localizer.current.name]))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                    .padding(.top, 8)
-                    .padding(.trailing, 12)
-                }
+                languageButton
             }
         }
         .onAppear {
@@ -152,6 +123,60 @@ struct TitleView: View {
             importNote = L("{hero}, level {level}, is back!", ["hero": game.hero.name, "level": game.hero.level])
         } else {
             importNote = L("You already have this game.")
+        }
+    }
+
+    /// What shows with the logo: the menu, or what one of its buttons opened.
+    @ViewBuilder
+    private var page: some View {
+        if creating {
+            creation
+        } else if showingLanguages {
+            LanguagePanel { showingLanguages = false }
+        } else if showingChangelog {
+            ChangelogPanel { showingChangelog = false }
+        } else if showingSettings {
+            VStack(alignment: .leading, spacing: 12) {
+                SettingsView(onImportBackup: {
+                    showingSettings = false
+                    importing = true
+                })
+                Button {
+                    showingSettings = false
+                } label: {
+                    Label(L("Back"), icon: .arrowLeft)
+                }
+                .buttonStyle(PixelButtonStyle(compact: true))
+            }
+            .padding(16)
+            .frame(maxWidth: 640)
+            .background(HUDStyle.panel)
+        } else if wide {
+            // Beside the logo and its round buttons: your game, and how to start.
+            VStack(spacing: 12) {
+                games
+                startButtons
+            }
+        } else {
+            menu
+        }
+    }
+
+    /// The language button, top right of the menu: the first thing a player who can't read English
+    /// needs. Once there's a game, the language is chosen (and still in Settings).
+    @ViewBuilder
+    private var languageButton: some View {
+        if onMenu, saves.isEmpty {
+            Button {
+                showingLanguages = true
+            } label: {
+                Label(localizer.current.name, icon: .globe)
+            }
+            .buttonStyle(PixelButtonStyle(compact: true))
+            .accessibilityLabel(L("Language: {language}", ["language": localizer.current.name]))
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            .padding(.top, 8)
+            .padding(.trailing, 12)
         }
     }
 

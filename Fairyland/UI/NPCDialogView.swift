@@ -261,7 +261,8 @@ private struct ShopPanel: View {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(item.name)
                             let detail = item.type == .consumable ? (item.description ?? "") : "\(item.type.displayName) · \(item.stats?.bonusSummary ?? "")"
-                            Text(detail).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
+                            // Two lines at most: a tap opens the card with all of it.
+                            Text(detail).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green).lineLimit(2)
                             if item.type != .consumable, let issue = session.equipIssue(item) {
                                 Text(issue).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.orange)
                             }

@@ -25,11 +25,34 @@ struct SettingsView: View {
     @State private var backup: SaveBackup?
     @State private var exporting = false
     @State private var backedUp = false
+    /// The language you play in shows as one line; Change opens the whole list.
+    @State private var choosingLanguage = false
+    @State private var localizer = Localizer.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             section(L("Language"), icon: .globe) {
-                LanguageList()
+                Button {
+                    withAnimation(Reveal.animation) { choosingLanguage.toggle() }
+                } label: {
+                    HStack(spacing: 6) {
+                        Text(localizer.current.name)
+                        Spacer(minLength: 6)
+                        Text(choosingLanguage ? L("Done") : L("Change"))
+                            .foregroundStyle(HUDStyle.gold)
+                        IconImage(.chevronDown, size: 11)
+                            .foregroundStyle(HUDStyle.gold)
+                            .rotationEffect(.degrees(choosingLanguage ? 180 : 0))
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(L("Language: {language}", ["language": localizer.current.name]))
+                // Picking one rebuilds the menu in it, which folds the list away again.
+                if choosingLanguage {
+                    LanguageList()
+                        .transition(.reveal)
+                }
             }
 
             // Every kind of sound has its own switch, and its volume under it.
