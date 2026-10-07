@@ -37,25 +37,22 @@ struct WorldAtlas: View {
     private var minUp: Int { maps.map { spot($0).up }.min() ?? 0 }
     private var maxUp: Int { maps.map { spot($0).up }.max() ?? 0 }
 
+    /// Room round the atlas: a badge and its name reach past its spot, so the places along the
+    /// edges need it to show whole.
+    private let margin = CGSize(width: 10, height: 18)
+
     var body: some View {
         VStack(spacing: 8) {
-            ScrollViewReader { reader in
-                ScrollView([.vertical, .horizontal], showsIndicators: false) {
-                    // A badge and its name reach past its spot, so the places along the edges
-                    // need room to show whole.
-                    atlas
-                        .padding(.vertical, 18)
-                        .padding(.horizontal, 10)
-                }
-                .frame(maxHeight: 400)
-                // Centred on where you are, and again if the phone turns, until you tap a place to read
-                // about it. A moment later: the scroll view only takes its size after this pass, and
-                // centring before it has one left you at its edge, half cut off.
-                .onGeometryChange(for: CGSize.self) { $0.size } action: { _ in
-                    guard selected == nil else { return }
-                    Task { @MainActor in reader.scrollTo(session.data.mapID, anchor: .center) }
-                }
+            ScrollView([.vertical, .horizontal], showsIndicators: false) {
+                atlas
+                    .padding(.vertical, margin.height)
+                    .padding(.horizontal, margin.width)
             }
+            // Opens on where you are: the scroll view lines up the same share of the atlas and of
+            // itself, so your place shows in the middle when it's in the middle of the world, and
+            // whole, nearer the edge, when it's near one.
+            .defaultScrollAnchor(here)
+            .frame(maxHeight: 400)
             .background(Color(red: 0.16, green: 0.42, blue: 0.62))
             .overlay(alignment: .topTrailing) { AtlasCompass().padding(6).allowsHitTesting(false) }
             .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -68,9 +65,20 @@ struct WorldAtlas: View {
         }
     }
 
+    private var atlasSize: CGSize {
+        CGSize(width: CGFloat(maxAcross - minAcross + 1) * cell.width, height: CGFloat(maxUp - minUp + 1) * cell.height)
+    }
+
+    /// Where you are in the scrolling atlas, margins and all, as shares of its size.
+    private var here: UnitPoint {
+        guard let map = maps.first(where: { $0.id == session.data.mapID }) else { return .center }
+        let middle = center(of: map)
+        return UnitPoint(x: (middle.x + margin.width) / (atlasSize.width + 2 * margin.width),
+                         y: (middle.y + margin.height) / (atlasSize.height + 2 * margin.height))
+    }
+
     private var atlas: some View {
-        let size = CGSize(width: CGFloat(maxAcross - minAcross + 1) * cell.width, height: CGFloat(maxUp - minUp + 1) * cell.height)
-        return ZStack(alignment: .topLeading) {
+        ZStack(alignment: .topLeading) {
             ForEach(roads) { road in
                 // Each half on its own: dashed from an end it's closed at, with the lock on it.
                 ForEach([road.a, road.b]) { end in
@@ -93,14 +101,12 @@ struct WorldAtlas: View {
             ForEach(maps) { map in
                 PlaceBadge(map: map, status: status(of: map), selected: selected == map.id, pulse: pulse)
                     .frame(width: cell.width + 12)
-                    // The id and tap go on the badge itself: after .position they'd cover the whole
-                    // atlas, and "scroll to where you are" would centre the atlas instead of you.
-                    .id(map.id)
+                    // The tap goes on the badge itself: after .position it'd cover the whole atlas.
                     .onTapGesture { selected = map.id }
                     .position(center(of: map))
             }
         }
-        .frame(width: size.width, height: size.height)
+        .frame(width: atlasSize.width, height: atlasSize.height)
     }
 
     // MARK: Caption
