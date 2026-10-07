@@ -42,6 +42,8 @@ import SpriteKit
 ///                  chat: then the chat opens)
 ///   chat           open the chat window
 ///   say=<text>     once the map is on screen, the hero says that (no commas) in a bubble that stays
+///   meet=n         once the map is on screen, the n nearest adventurers come over as strangers, so the
+///                  nearest one's card shows Befriend, Trade (and Duel where duels are allowed)
 ///   quiet          footsteps switched off in Settings, and left off (so its screenshot runs last)
 ///   menu=<tab>     open character | companions | bag | quests
 ///   profile=<who>  open someone's stats: hero | pet (with pet=) | friend (with friends=)
@@ -459,6 +461,18 @@ enum DebugLaunch {
                         coordinator.invite(adventurer)
                         try? await Task.sleep(for: .seconds(1))
                     }
+                    return
+                }
+            }
+        }
+        // `meet=1`: like `invite`, the nearest adventurers come over, but stay strangers: their card's buttons.
+        if let count = flags["meet"].flatMap({ Int($0) }) {
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard coordinator.isReady, coordinator.world.view != nil else { continue }
+                    try? await Task.sleep(for: .seconds(1))
+                    _ = coordinator.world.summonAdventurersForDebug(count)
                     return
                 }
             }

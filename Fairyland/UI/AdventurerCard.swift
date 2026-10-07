@@ -48,27 +48,22 @@ struct AdventurerCard: View {
                 if adventurer.hostile {
                     Text(L("Looking for trouble!")).font(HUDStyle.font(10)).foregroundStyle(Color(uiColor: Crowd.hostileColor))
                 } else if !session.isFriend(adventurer) {
-                    Button { coordinator.befriend(adventurer) } label: { Label(L("Befriend"), icon: .heart, size: 13) }
+                    Button { coordinator.befriend(adventurer) } label: { word(L("Befriend")) }
                         .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                 } else if !session.isInParty(adventurer), session.partyMembers.count < GameSession.maxAllies {
-                    Button { coordinator.invite(adventurer) } label: { Label(L("Invite to party"), icon: .user, size: 13) }
+                    Button { coordinator.invite(adventurer) } label: { word(L("Invite to party")) }
                         .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
                 } else if session.partyMembers.count >= GameSession.maxAllies {
                     Text(L("Your party is full")).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
                 }
                 if !adventurer.hostile {
-                    Button { coordinator.trade(with: adventurer) } label: { Label(L("Trade"), icon: .coins, size: 13) }
+                    Button { coordinator.trade(with: adventurer) } label: { word(L("Trade")) }
                         .buttonStyle(PixelButtonStyle(compact: true))
                 }
                 if danger {
-                    Button { coordinator.challenge(adventurer) } label: { Label(L("Duel"), icon: .sword, size: 13) }
+                    Button { coordinator.challenge(adventurer) } label: { word(L("Duel")) }
                         .buttonStyle(PixelButtonStyle(tint: Color(red: 1, green: 0.55, blue: 0.5), compact: true))
                 }
-            }
-            if danger {
-                Text(L("Beat them and they drop everything they carry."))
-                    .font(HUDStyle.font(9))
-                    .foregroundStyle(HUDStyle.dim)
             }
         }
         .padding(10)
@@ -78,5 +73,14 @@ struct AdventurerCard: View {
                 .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(HUDStyle.frameLight.opacity(0.8), lineWidth: 2))
         )
         .frame(maxWidth: 260)
+    }
+
+    /// A button's word, without an icon so three fit side by side: on one line, shrinking a little
+    /// in a longer language rather than wrapping.
+    private func word(_ text: String) -> some View {
+        Text(text)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .allowsTightening(true)
     }
 }
