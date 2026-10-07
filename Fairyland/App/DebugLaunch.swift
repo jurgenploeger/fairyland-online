@@ -41,6 +41,8 @@ import SpriteKit
 ///   announce       once the map is on screen: a rare sighting and news of another adventurer (with
 ///                  chat: then the chat opens)
 ///   chat           open the chat window
+///   say=<text>     once the map is on screen, the hero says that (no commas) in a bubble that stays
+///   quiet          footsteps switched off in Settings, and left off (so its screenshot runs last)
 ///   menu=<tab>     open character | companions | bag | quests
 ///   profile=<who>  open someone's stats: hero | pet (with pet=) | friend (with friends=)
 ///   bottom         open the menu scrolled to the end
@@ -460,6 +462,22 @@ enum DebugLaunch {
                     return
                 }
             }
+        }
+        // `say=<text>`: once the map is on screen, the hero says it in a bubble that stays.
+        if let text = flags["say"] {
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard coordinator.isReady, coordinator.world.view != nil else { continue }
+                    try? await Task.sleep(for: .seconds(1))
+                    coordinator.world.sayForDebug(text)
+                    return
+                }
+            }
+        }
+        // `quiet`: footsteps switched off in Settings. It stays off, so its scene runs last.
+        if flags["quiet"] != nil {
+            UserDefaults.standard.set(false, forKey: GameSettings.footstepsKey)
         }
         if flags["duel"] != nil {
             let level = coordinator.session.data.hero.level

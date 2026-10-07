@@ -1227,6 +1227,11 @@ final class WorldScene: SKScene {
     func summonAdventurersForDebug(_ count: Int) -> [Adventurer] {
         crowd?.summonForDebug(count, to: player.position) ?? []
     }
+
+    /// Debug launches (`say=<text>`): a speech bubble over the hero that stays, for screenshots.
+    func sayForDebug(_ text: String) {
+        player.say(text, for: 600)
+    }
     #endif
 
     func adventurerSays(_ line: String, _ id: UUID) {
