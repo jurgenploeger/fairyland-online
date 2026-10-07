@@ -32,8 +32,7 @@ struct NPCDialogView: View {
                 // from the bottom of the screen.
                 bubble(maxHeight: proxy.size.height * 0.5, tailY: portrait * 0.34 - bottom)
                     .frame(maxWidth: 520)
-                    // Clear of the Dynamic Island when the phone lies on its side.
-                    .padding(.leading, max(12, proxy.safeAreaInsets.leading))
+                    .padding(.leading, 12)
                     .padding(.trailing, portrait * 0.62)
                     .padding(.bottom, bottom)
 

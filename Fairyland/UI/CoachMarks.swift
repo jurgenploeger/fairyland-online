@@ -68,29 +68,34 @@ struct CoachMarksView: View {
     private var steps: [CoachStep] { CoachStep.all }
 
     var body: some View {
-        GeometryReader { proxy in
-            let step = steps[index]
-            let hole = step.target.flatMap { anchors[$0] }.map { proxy[$0].insetBy(dx: -8, dy: -8) }
-            ZStack {
-                SpotlightShape(hole: hole ?? CGRect(x: proxy.size.width / 2, y: proxy.size.height / 2, width: 0, height: 0))
-                    .fill(Color.black.opacity(0.62), style: FillStyle(eoFill: true))
-                    // Swallow taps, so the hero doesn't walk off during the tour.
-                    .contentShape(Rectangle())
-                    .onTapGesture {}
+        // This reader keeps to the safe area, so it knows where the Dynamic Island is on a phone
+        // lying down (one that ignores the safe area reads its insets as zero); the spotlight
+        // inside covers the whole screen.
+        GeometryReader { safe in
+            GeometryReader { proxy in
+                let step = steps[index]
+                let hole = step.target.flatMap { anchors[$0] }.map { proxy[$0].insetBy(dx: -8, dy: -8) }
+                ZStack {
+                    SpotlightShape(hole: hole ?? CGRect(x: proxy.size.width / 2, y: proxy.size.height / 2, width: 0, height: 0))
+                        .fill(Color.black.opacity(0.62), style: FillStyle(eoFill: true))
+                        // Swallow taps, so the hero doesn't walk off during the tour.
+                        .contentShape(Rectangle())
+                        .onTapGesture {}
 
-                if let hole {
-                    RoundedRectangle(cornerRadius: 14)
-                        .strokeBorder(HUDStyle.gold, lineWidth: 3)
-                        .frame(width: hole.width, height: hole.height)
-                        .scaleEffect(pulse ? 1.05 : 1)
-                        .position(x: hole.midX, y: hole.midY)
-                        .allowsHitTesting(false)
+                    if let hole {
+                        RoundedRectangle(cornerRadius: 14)
+                            .strokeBorder(HUDStyle.gold, lineWidth: 3)
+                            .frame(width: hole.width, height: hole.height)
+                            .scaleEffect(pulse ? 1.05 : 1)
+                            .position(x: hole.midX, y: hole.midY)
+                            .allowsHitTesting(false)
+                    }
+
+                    note(step, hole: hole, in: proxy.size, insets: safe.safeAreaInsets)
                 }
-
-                note(step, hole: hole, in: proxy.size, insets: proxy.safeAreaInsets)
             }
+            .ignoresSafeArea()
         }
-        .ignoresSafeArea()
         .onAppear {
             withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { pulse = true }
         }
