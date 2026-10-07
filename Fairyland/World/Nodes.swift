@@ -48,7 +48,7 @@ enum Nodes {
             shape.addLine(to: CGPoint(x: bubble.minX, y: bubble.minY + radius))
             shape.addArc(withCenter: CGPoint(x: bubble.minX + radius, y: bubble.minY + radius), radius: radius, startAngle: .pi, endAngle: 3 * .pi / 2, clockwise: true)
             shape.close()
-            shape.lineJoin = .round
+            shape.lineJoinStyle = .round
             UIColor(red: 1, green: 0.98, blue: 0.9, alpha: 0.96).setFill()
             shape.fill()
             ink.withAlphaComponent(0.8).setStroke()
