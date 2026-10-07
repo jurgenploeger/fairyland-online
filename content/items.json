@@ -29,7 +29,7 @@
       "type": "consumable",
       "price": 60,
       "capture": true,
-      "description": "Throw it at the last monster standing once it's below 20% HP to befriend it. Only used up if it works."
+      "description": "Throw it at a monster in battle to befriend it: the weaker the monster, the better the odds. Only used up if it works."
     },
     {
       "id": "homeward_feather",

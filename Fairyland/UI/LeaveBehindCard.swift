@@ -20,41 +20,44 @@ struct LeaveBehindCard: View {
                     .foregroundStyle(HUDStyle.cream)
                     .multilineTextAlignment(.center)
             }
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 8)], spacing: 8) {
-                ForEach(everyone) { pet in
-                    let isNew = pet.id == newcomer?.id
-                    Button {
-                        choice = pet.id
-                    } label: {
-                        VStack(spacing: 3) {
-                            SpriteImage(art: session.artID(for: pet), size: 56)
-                            Text(pet.name).font(HUDStyle.font(12)).lineLimit(1)
-                            Text(L("Lv {level} · {monster}", ["level": pet.level, "monster": session.species(of: pet)?.name ?? ""]))
-                                .font(HUDStyle.font(9))
-                                .foregroundStyle(HUDStyle.dim)
-                                .lineLimit(1)
-                        }
-                        .foregroundStyle(HUDStyle.cream)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(choice == pet.id ? HUDStyle.orange.opacity(0.35) : .white.opacity(0.07))
-                                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(choice == pet.id ? HUDStyle.orange : .clear, lineWidth: 2))
-                        )
-                        .overlay(alignment: .topTrailing) {
-                            if isNew {
-                                Text(L("NEW"))
+            // Scrolls only when it can't all fit (a phone on its side).
+            FitOrScroll {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 8)], spacing: 8) {
+                    ForEach(everyone) { pet in
+                        let isNew = pet.id == newcomer?.id
+                        Button {
+                            choice = pet.id
+                        } label: {
+                            VStack(spacing: 3) {
+                                SpriteImage(art: session.artID(for: pet), size: 56)
+                                Text(pet.name).font(HUDStyle.font(12)).lineLimit(1)
+                                Text(L("Lv {level} · {monster}", ["level": pet.level, "monster": session.species(of: pet)?.name ?? ""]))
                                     .font(HUDStyle.font(9))
-                                    .foregroundStyle(HUDStyle.ink)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Capsule().fill(HUDStyle.gold))
-                                    .padding(5)
+                                    .foregroundStyle(HUDStyle.dim)
+                                    .lineLimit(1)
+                            }
+                            .foregroundStyle(HUDStyle.cream)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(choice == pet.id ? HUDStyle.orange.opacity(0.35) : .white.opacity(0.07))
+                                    .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(choice == pet.id ? HUDStyle.orange : .clear, lineWidth: 2))
+                            )
+                            .overlay(alignment: .topTrailing) {
+                                if isNew {
+                                    Text(L("NEW"))
+                                        .font(HUDStyle.font(9))
+                                        .foregroundStyle(HUDStyle.ink)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Capsule().fill(HUDStyle.gold))
+                                        .padding(5)
+                                }
                             }
                         }
+                        .buttonStyle(PressScaleStyle())
                     }
-                    .buttonStyle(PressScaleStyle())
                 }
             }
             if let choice, let pet = everyone.first(where: { $0.id == choice }) {

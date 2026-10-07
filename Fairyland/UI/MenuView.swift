@@ -473,7 +473,7 @@ private struct CompanionsTab: View {
 
     private var companions: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(L("Companions fight beside you and earn a share of battle EXP. Weaken the last wild monster standing to {percent}% HP or less, then throw a Seal Stone at it with Capture to befriend it (up to {count}). Trader Bo in Meadowbrook sells Seal Stones.", ["percent": Int((BattleEngine.captureThreshold * 100).rounded()), "count": GameSession.maxPets]))
+            Text(L("Companions fight beside you and earn a share of battle EXP. Throw a Seal Stone at a wild monster with Capture to befriend it (up to {count}): any monster, at any HP, but the weaker it is, the better the odds. Trader Bo in Meadowbrook sells Seal Stones.", ["count": GameSession.maxPets]))
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
             if session.data.pets.isEmpty {

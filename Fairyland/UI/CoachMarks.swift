@@ -68,41 +68,48 @@ struct CoachMarksView: View {
     private var steps: [CoachStep] { CoachStep.all }
 
     var body: some View {
-        GeometryReader { proxy in
-            let step = steps[index]
-            let hole = step.target.flatMap { anchors[$0] }.map { proxy[$0].insetBy(dx: -8, dy: -8) }
-            ZStack {
-                SpotlightShape(hole: hole ?? CGRect(x: proxy.size.width / 2, y: proxy.size.height / 2, width: 0, height: 0))
-                    .fill(Color.black.opacity(0.62), style: FillStyle(eoFill: true))
-                    // Swallow taps, so the hero doesn't walk off during the tour.
-                    .contentShape(Rectangle())
-                    .onTapGesture {}
+        // This reader keeps to the safe area, so it knows where the Dynamic Island is on a phone
+        // lying down (one that ignores the safe area reads its insets as zero); the spotlight
+        // inside covers the whole screen.
+        GeometryReader { safe in
+            GeometryReader { proxy in
+                let step = steps[index]
+                let hole = step.target.flatMap { anchors[$0] }.map { proxy[$0].insetBy(dx: -8, dy: -8) }
+                ZStack {
+                    SpotlightShape(hole: hole ?? CGRect(x: proxy.size.width / 2, y: proxy.size.height / 2, width: 0, height: 0))
+                        .fill(Color.black.opacity(0.62), style: FillStyle(eoFill: true))
+                        // Swallow taps, so the hero doesn't walk off during the tour.
+                        .contentShape(Rectangle())
+                        .onTapGesture {}
 
-                if let hole {
-                    RoundedRectangle(cornerRadius: 14)
-                        .strokeBorder(HUDStyle.gold, lineWidth: 3)
-                        .frame(width: hole.width, height: hole.height)
-                        .scaleEffect(pulse ? 1.05 : 1)
-                        .position(x: hole.midX, y: hole.midY)
-                        .allowsHitTesting(false)
+                    if let hole {
+                        RoundedRectangle(cornerRadius: 14)
+                            .strokeBorder(HUDStyle.gold, lineWidth: 3)
+                            .frame(width: hole.width, height: hole.height)
+                            .scaleEffect(pulse ? 1.05 : 1)
+                            .position(x: hole.midX, y: hole.midY)
+                            .allowsHitTesting(false)
+                    }
+
+                    note(step, hole: hole, in: proxy.size, insets: safe.safeAreaInsets)
                 }
-
-                note(step, hole: hole, in: proxy.size)
             }
+            .ignoresSafeArea()
         }
-        .ignoresSafeArea()
         .onAppear {
             withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { pulse = true }
         }
     }
 
-    /// The note sits below a control in the top half of the screen and above one in the bottom half.
-    private func note(_ step: CoachStep, hole: CGRect?, in size: CGSize) -> some View {
-        let width = min(330, size.width - 24)
+    /// The note sits below a control in the top half of the screen and above one in the bottom half,
+    /// clear of the Dynamic Island and the rounded corners when the phone lies on its side.
+    private func note(_ step: CoachStep, hole: CGRect?, in size: CGSize, insets: EdgeInsets) -> some View {
+        let leading = max(12, insets.leading + 8), trailing = max(12, insets.trailing + 8)
+        let width = min(330, size.width - leading - trailing)
         var alignment = Alignment.center
         var edges = EdgeInsets()
         if let hole {
-            let left = min(max(12, hole.midX - width / 2), size.width - width - 12)
+            let left = min(max(leading, hole.midX - width / 2), size.width - width - trailing)
             edges.leading = left
             if hole.midY < size.height / 2 {
                 alignment = .topLeading

@@ -17,8 +17,9 @@ struct MapOverlay: View {
                 WorldAtlas(session: session)
             }
             .padding(16)
-            .frame(maxWidth: 720, maxHeight: .infinity)
-            .fixedSize(horizontal: false, vertical: true)
+            // As tall as the map wants, or what the screen has room for (a phone on its side):
+            // the atlas scrolls in whatever height is left under the title.
+            .frame(maxWidth: 720)
             .background(
                 RoundedRectangle(cornerRadius: 22)
                     .fill(HUDStyle.ink.opacity(0.94))

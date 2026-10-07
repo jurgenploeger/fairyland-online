@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.66",
+      "date": "2026-10-07",
+      "title": "Seal Stones for any monster",
+      "notes": [
+        "Throw a Seal Stone at any monster, at any HP, even with others still standing: the weaker it is, the better the odds. Seal Stones are in the battle's Items list too, your companion and friends leave the monster you're sealing alone, and a sealed monster is yours however the fight ends.",
+        "With your phone on its side, the world map, the level-up card, an item's details and the Party full! card fit on the screen: what doesn't fit scrolls, instead of running off the top and bottom.",
+        "The world map opens centred on where you are, the places along its edges show whole, and the first-play tour's notes keep clear of the Dynamic Island."
+      ]
+    },
+    {
       "version": "0.3.65",
       "date": "2026-10-07",
       "title": "Richer sound, shorter nights",

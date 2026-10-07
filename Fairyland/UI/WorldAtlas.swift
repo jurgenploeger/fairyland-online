@@ -41,10 +41,19 @@ struct WorldAtlas: View {
         VStack(spacing: 8) {
             ScrollViewReader { reader in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
+                    // A badge and its name reach past its spot, so the places along the edges
+                    // need room to show whole.
                     atlas
+                        .padding(.vertical, 18)
+                        .padding(.horizontal, 10)
                 }
                 .frame(maxHeight: 400)
-                .onAppear { reader.scrollTo(session.data.mapID, anchor: .center) }
+                // Centred on where you are once the window has its size: on appearing it's still
+                // growing into it, and centring then left you at the edge, half cut off. Again if the
+                // phone turns, until you tap a place to read about it.
+                .onGeometryChange(for: CGSize.self) { $0.size } action: { _ in
+                    if selected == nil { reader.scrollTo(session.data.mapID, anchor: .center) }
+                }
             }
             .background(Color(red: 0.16, green: 0.42, blue: 0.62))
             .overlay(alignment: .topTrailing) { AtlasCompass().padding(6).allowsHitTesting(false) }

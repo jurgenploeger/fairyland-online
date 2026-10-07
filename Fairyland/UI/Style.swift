@@ -417,6 +417,47 @@ struct AdaptiveStack<Content: View>: View {
     }
 }
 
+/// As tall as its content would like, like `.fixedSize(horizontal: false, vertical: true)`, but
+/// never taller than the room on offer: on a short screen (a phone on its side) a window's
+/// scrolling part gives way, instead of the window running off the top and bottom.
+struct FitHeight: Layout {
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        guard let view = subviews.first else { return .zero }
+        return view.sizeThatFits(fitted(proposal, view))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        subviews.first?.place(at: CGPoint(x: bounds.midX, y: bounds.midY), anchor: .center, proposal: ProposedViewSize(bounds.size))
+    }
+
+    /// The width on offer, and the content's own height if there's room for it.
+    private func fitted(_ proposal: ProposedViewSize, _ view: LayoutSubview) -> ProposedViewSize {
+        let ideal = view.sizeThatFits(ProposedViewSize(width: proposal.width, height: nil)).height
+        return ProposedViewSize(width: proposal.width, height: min(ideal, proposal.height ?? ideal))
+    }
+}
+
+extension View {
+    /// As tall as it would like, but no taller than the room on offer (see `FitHeight`).
+    func fitHeight() -> some View {
+        FitHeight { self }
+    }
+}
+
+/// Its content as tall as it needs, or, on a screen too short for all of it (a phone on its
+/// side), the same content scrolling in the room there is.
+struct FitOrScroll<Content: View>: View {
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        ViewThatFits(in: .vertical) {
+            content()
+            ScrollView { content() }
+                .scrollBounceBehavior(.basedOnSize)
+        }
+    }
+}
+
 extension Stats {
     /// "ATK +4 · DEF +2" for item descriptions.
     var bonusSummary: String {

@@ -131,7 +131,8 @@ struct BattleView: View {
                     EmptyNote(L("Your bag is empty.\nShops in town sell potions."))
                 }
                 ForEach(controller.items) { item in
-                    ChoiceRow(action: { controller.useItem(item) }, enabled: true) {
+                    // A Seal Stone is thrown like Capture, so it's dim when there's nothing to seal.
+                    ChoiceRow(action: { controller.useItem(item) }, enabled: item.capture != true || controller.canCapture) {
                         ItemIcon(item: item, size: 26, count: controller.session.count(of: item.id))
                         Text(item.name)
                         Spacer()

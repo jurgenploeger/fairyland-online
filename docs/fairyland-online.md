@@ -296,8 +296,12 @@ Full Heal.
 **Us:**
 - Up to 5 companions; only the one you bring along follows you, fights and earns EXP (50%, or 100% for a
   Beast Tamer).
-- Capture uses one kind of Seal Stone (60 gold, used up only when it works), on the last monster standing at
-  20% HP or less.
+- Capture uses one kind of Seal Stone (60 gold, used up only when it works), thrown with Capture or from
+  Items. Since 0.3.66 (asked for in playtesting, 2026-10-07) it works on any wild monster at any HP: the odds
+  climb as it weakens (×0.25 at full HP, ×1 at 20%, up to ×3 near 0, before level, fight length and the
+  Beast Tamer's bonus), your side leaves the monster you're sealing alone, and a sealed monster is yours
+  however the fight ends. A full party can take one newcomer a fight (you pick who stays behind). Until
+  0.3.65, only the last monster standing at 20% HP or less.
 - Companions grow as species base + growth × (level − 1) and have a fixed skill list.
 - Each round, after your own choice, you pick your companion's: Attack, one of its skills, Guard, or Auto (it
   decides itself). It always obeys, since there's no intimacy. A Settings switch leaves it to fight on its own.
@@ -344,7 +348,8 @@ bounties scaled to your level, with a bonus for all three; and rewards as the Mo
 - **Level cap 200; rebirth from level 101** (+5 levels per earlier rebirth) for 20,000 gold × (rebirths + 1),
   keeping 8 levels of growth per rebirth, plus a fifth more battle EXP for each rebirth (up to double), the
   rebirth titles and a new colour for the hero's name. FO does have rebirth (the 2026 video); the numbers are ours.
-- **Capture rules:** at 20% HP or less, on the last monster standing.
+- **Capture rules:** at 20% HP or less, on the last monster standing. Ours until 0.3.65; since 0.3.66 any
+  monster at any HP, the odds best below 20% (see Pets).
 - **Party size:** more than two people, each bringing their pet, from a playtester's memory (2026-10-04).
   Not found in any source reachable from a cloud session.
   - Us: you and up to four friends, each with a companion.

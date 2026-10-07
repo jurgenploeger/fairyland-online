@@ -219,9 +219,7 @@ enum BattleOutcome: Equatable {
 
 enum CaptureStatus: Equatable {
     case ready(chance: Double)
-    /// Fairyland only let you seal the last monster standing.
-    case notAlone
-    case tooHealthy
+    /// Not a wild monster on the field: a boss, someone on your side, or one already gone.
     case impossible
 }
 
@@ -236,8 +234,8 @@ final class BattleEngine {
     private var rng: SeededRandom
     /// Rounds played so far; long fights make monsters warier.
     private(set) var round = 0
-    /// Whether the hero throws a Seal Stone this round (everyone else holds back from the monster).
-    private var sealing = false
+    /// The monster the hero throws a Seal Stone at this round: everyone on your side leaves it be.
+    private var sealTarget: Int?
     /// The skill you use this round: friends steer clear of echoing it (`adventurerAction`).
     private var heroSkill: String?
     /// A boss fight comes in waves: the waves still to come, each stepping in once the one on the
@@ -255,7 +253,8 @@ final class BattleEngine {
     /// A curse (or any drop) never takes more than half a stat.
     static let maxCurse = 0.5
 
-    /// Like Fairyland's capsules: only below 20% HP.
+    /// Below this share of its HP a monster's odds of being sealed climb fast (Fairyland's capsules
+    /// only worked down here), and one left on its own may bolt.
     static let captureThreshold = 0.2
 
     /// `enemies` is the first wave; `waves` are the ones still to come (a boss fight's).
@@ -281,21 +280,25 @@ final class BattleEngine {
         combatants.filter { $0.side == side && $0.isAlive }
     }
 
-    /// Fairyland-style sealing: the last monster standing, below 20% HP. The weaker it is the
-    /// better your odds; tougher, higher-level monsters and long fights make it harder.
+    /// Sealing: any wild monster on the field, at any HP (Fairyland wanted the last one standing,
+    /// below 20%; players asked for more). The weaker it is the better your odds; tougher,
+    /// higher-level monsters and long fights make it harder.
     func captureStatus(of id: Int) -> CaptureStatus {
         guard let target = combatant(id), target.isAlive, target.side == .enemies, target.captureRate > 0 else { return .impossible }
-        // Not while a boss's next wave is still to come: a sealed monster joins you when the fight is
-        // won, so losing or running from a later wave lost it, and the Seal Stone with it.
-        guard waves.isEmpty else { return .impossible }
-        guard alive(on: .enemies).count == 1 else { return .notAlone }
-        guard target.hpFraction <= Self.captureThreshold else { return .tooHealthy }
-        let weakness = 1 + 2 * (Self.captureThreshold - target.hpFraction) / Self.captureThreshold   // 1…3
+        let weakness = Self.captureWeakness(atHP: target.hpFraction)
         let above = Double(target.level - (hero?.level ?? 1))
         let levelFactor = above > 0 ? max(0.4, 1 - 0.06 * above) : min(1.3, 1 - 0.03 * above)
         let fatigue = pow(0.92, Double(max(0, round - 1)))
         let chance = target.captureRate * 0.3 * weakness * levelFactor * fatigue * captureBonus
         return .ready(chance: min(0.75, max(0.03, chance)))
+    }
+
+    /// How much a monster's wounds help a Seal Stone, by the share of HP it has left: ×0.25 at full
+    /// HP, ×1 at 20%, and on up to ×3 as it nears 0.
+    static func captureWeakness(atHP fraction: Double) -> Double {
+        let hp = min(1, max(0, fraction))
+        if hp <= captureThreshold { return 1 + 2 * (captureThreshold - hp) / captureThreshold }
+        return 1 - 0.75 * (hp - captureThreshold) / (1 - captureThreshold)
     }
 
     /// How much stronger a skill is at `level`: ×1 when learned, ×1.8 when mastered (level 10).
@@ -335,7 +338,7 @@ final class BattleEngine {
     func resolveRound(heroAction: BattleAction, orders: [Int: BattleAction] = [:]) -> [BattleEvent] {
         guard outcome == .ongoing else { return [] }
         round += 1
-        if case .capture = heroAction { sealing = true } else { sealing = false }
+        if case .capture(let target) = heroAction { sealTarget = target } else { sealTarget = nil }
         if case .skill(let id, _) = heroAction { heroSkill = id } else { heroSkill = nil }
         for index in combatants.indices {
             combatants[index].isDefending = false
@@ -475,7 +478,7 @@ final class BattleEngine {
                 return
             }
             guard case .ready(let chance) = captureStatus(of: targetID) else {
-                events.append(.message(L("{name} is too lively to capture!", ["name": target.name])))
+                events.append(.message(L("{name} can't be captured.", ["name": target.name])))
                 return
             }
             let success = Double.random(in: 0..<1, using: &rng) < chance
@@ -504,11 +507,10 @@ final class BattleEngine {
     }
 
     private func companionAction(for pet: Combatant) -> BattleAction {
-        guard let weakest = alive(on: .enemies).min(by: { $0.hp < $1.hp }) else { return .defend }
-        // Don't finish off the monster you're sealing.
-        if sealing, case .ready = captureStatus(of: weakest.id) { return .defend }
+        // The monster you're sealing is left to you; the others are fair game.
+        guard let weakest = alive(on: .enemies).filter({ $0.id != sealTarget }).min(by: { $0.hp < $1.hp }) else { return .defend }
         if let buff = selfBuff(for: pet) { return buff }
-        let attacks = usableSkills(of: pet).filter(\.kind.isHostile)
+        let attacks = usableSkills(of: pet).filter { $0.kind.isHostile && !reaches(sealTarget, with: $0, by: pet) }
         if let skill = attacks.randomElement(using: &rng), Double.random(in: 0..<1, using: &rng) < 0.35 {
             return .skill(skill.id, target: weakest.id)
         }
@@ -566,10 +568,30 @@ final class BattleEngine {
            let hurt = inTrouble.min(by: { $0.hpFraction < $1.hpFraction }) {
             return .skill(heal.id, target: hurt.id)
         }
-        guard let weakest = alive(on: fighter.side.opposite).min(by: { $0.hp < $1.hp }) else { return .defend }
-        // Friends leave the monster you're sealing to you.
-        if fighter.side == .party, sealing, case .ready = captureStatus(of: weakest.id) { return .defend }
-        return pick(from: worth(of: skills, by: fighter)) ?? .attack(target: weakest.id)
+        // Friends leave the monster you're sealing to you, and fight on against the rest.
+        let spared = fighter.side == .party ? sealTarget : nil
+        guard let weakest = alive(on: fighter.side.opposite).filter({ $0.id != spared }).min(by: { $0.hp < $1.hp }) else { return .defend }
+        let options = worth(of: skills, by: fighter).filter { !aims(at: spared, $0.action, by: fighter) }
+        return pick(from: options) ?? .attack(target: weakest.id)
+    }
+
+    /// Whether `action` would hurt the monster `id` (aimed at it, or a sweep or a splash that reaches it).
+    private func aims(at id: Int?, _ action: BattleAction, by fighter: Combatant) -> Bool {
+        guard let id else { return false }
+        switch action {
+        case .attack(let target): return target == id
+        case .skill(let skillID, let target):
+            guard let skill = content.skill(skillID), skill.kind.isHostile else { return false }
+            return target == id || reaches(id, with: skill, by: fighter)
+        default: return false
+        }
+    }
+
+    /// Whether a hostile `skill` reaches the monster `id` wherever it's aimed: a sweep over every
+    /// foe, or a spell big enough to splash.
+    private func reaches(_ id: Int?, with skill: SkillDef, by fighter: Combatant) -> Bool {
+        guard let id, combatant(id)?.isAlive == true else { return false }
+        return skill.target == .allEnemies || Self.splashFraction(of: skill, level: fighter.skillLevel(skill.id)) > 0
     }
 
     /// Every move an adventurer could make now, with what it's worth in HP: taken off the other

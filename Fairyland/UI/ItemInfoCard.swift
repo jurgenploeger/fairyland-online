@@ -15,34 +15,38 @@ struct ItemInfoCard: View {
             Color.black.opacity(0.45)
                 .ignoresSafeArea()
                 .onTapGesture(perform: onClose)
-            VStack(alignment: .leading, spacing: 12) {
-                header
-                if let text = item.description, !text.isEmpty {
-                    Text(text)
-                        .font(HUDStyle.font(12))
-                        .foregroundStyle(HUDStyle.cream)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                if isGear {
-                    requirements
-                    if let stats = item.stats, !Self.parts(of: stats).isEmpty {
-                        section(L("Stats")) { chips(Self.parts(of: stats)) }
+            // Scrolls only when it can't all fit (a phone on its side).
+            FitOrScroll {
+                VStack(alignment: .leading, spacing: 12) {
+                    header
+                    if let text = item.description, !text.isEmpty {
+                        Text(text)
+                            .font(HUDStyle.font(12))
+                            .foregroundStyle(HUDStyle.cream)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                    comparison
+                    if isGear {
+                        requirements
+                        if let stats = item.stats, !Self.parts(of: stats).isEmpty {
+                            section(L("Stats")) { chips(Self.parts(of: stats)) }
+                        }
+                        comparison
+                    }
+                    effects
+                    if item.type == .material {
+                        materialUse
+                    }
+                    footer
                 }
-                effects
-                if item.type == .material {
-                    materialUse
-                }
-                footer
+                .padding(16)
             }
-            .padding(16)
             .frame(maxWidth: 360, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 18)
                     .fill(HUDStyle.ink.opacity(0.97))
                     .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(HUDStyle.gold.opacity(0.85), lineWidth: 2))
             )
+            .clipShape(RoundedRectangle(cornerRadius: 18))
             .padding(24)
             .accessibilityElement(children: .contain)
         }
