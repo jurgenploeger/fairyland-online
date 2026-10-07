@@ -8408,7 +8408,7 @@
       "fence": true,
       "crowd": {
         "adventurers": 14,
-        "villagers": 10
+        "villagers": 14
       },
       "theme": {
         "ground": "tile_grass",
@@ -8564,6 +8564,128 @@
             "blocking": true,
             "within": 13,
             "shadow": true
+          },
+          {
+            "art": "big_lilac_tree",
+            "count": 6,
+            "within": 32,
+            "blocking": true,
+            "size": [
+              0.9,
+              1.1
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "lilac_tree",
+            "count": 30,
+            "within": 32,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.8,
+              1.15
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "blossom_tree",
+            "count": 26,
+            "within": 32,
+            "blocking": true,
+            "cluster": 2,
+            "size": [
+              0.8,
+              1.15
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "big_blossom_tree",
+            "count": 4,
+            "within": 32,
+            "blocking": true,
+            "size": [
+              0.9,
+              1.1
+            ],
+            "sway": true,
+            "shadow": true
+          },
+          {
+            "art": "flowering_bush",
+            "count": 44,
+            "within": 32,
+            "blocking": true,
+            "cluster": 2
+          },
+          {
+            "art": "lilac_bush",
+            "count": 36,
+            "within": 32,
+            "blocking": true,
+            "cluster": 3
+          },
+          {
+            "art": "tulip_patch",
+            "count": 40,
+            "blocking": false,
+            "within": 32,
+            "cluster": 3
+          },
+          {
+            "art": "daisy_blue",
+            "count": 80,
+            "blocking": false,
+            "within": 32,
+            "cluster": 5
+          },
+          {
+            "art": "daisy",
+            "count": 60,
+            "blocking": false,
+            "within": 32,
+            "cluster": 5
+          },
+          {
+            "art": "poppy_patch",
+            "count": 20,
+            "blocking": false,
+            "within": 32,
+            "cluster": 2
+          },
+          {
+            "art": "clover_patch",
+            "count": 30,
+            "blocking": false,
+            "within": 32,
+            "cluster": 3
+          },
+          {
+            "art": "sunflower",
+            "count": 14,
+            "blocking": false,
+            "within": 32,
+            "cluster": 2
+          },
+          {
+            "art": "bird_bath",
+            "count": 4,
+            "blocking": true,
+            "within": 32
+          },
+          {
+            "art": "garden_gnome",
+            "count": 3,
+            "blocking": true,
+            "size": [
+              0.9,
+              1.1
+            ],
+            "within": 32
           }
         ],
         "accentPatches": 0,
@@ -8592,46 +8714,100 @@
       "town": {
         "streets": [
           [
-            -26,
-            11,
-            26,
-            11
+            -21,
+            10,
+            21,
+            10
           ],
           [
-            -26,
-            -11,
-            26,
-            -11
+            -21,
+            -10,
+            21,
+            -10
           ],
           [
-            -26,
-            -11,
-            -26,
-            11
+            -21,
+            -10,
+            -21,
+            10
           ],
           [
-            26,
-            -11,
-            26,
-            11
+            21,
+            -10,
+            21,
+            10
           ],
           [
-            -13,
-            -11,
-            -13,
-            11
+            -10,
+            -10,
+            -10,
+            10
           ],
           [
-            13,
-            -11,
-            13,
-            11
+            10,
+            -10,
+            10,
+            10
           ],
           [
-            -26,
+            -30,
             0,
-            26,
+            30,
             0
+          ],
+          [
+            -30,
+            19,
+            30,
+            19
+          ],
+          [
+            -30,
+            -19,
+            30,
+            -19
+          ],
+          [
+            -30,
+            -19,
+            -30,
+            19
+          ],
+          [
+            30,
+            -19,
+            30,
+            19
+          ],
+          [
+            -15,
+            10,
+            -15,
+            19
+          ],
+          [
+            15,
+            10,
+            15,
+            19
+          ],
+          [
+            -15,
+            -19,
+            -15,
+            -10
+          ],
+          [
+            15,
+            -19,
+            15,
+            -10
+          ],
+          [
+            0,
+            10,
+            0,
+            12
           ]
         ],
         "plaza": 4,
@@ -8647,59 +8823,170 @@
           "house",
           "house",
           "windmill",
-          "mushroom_house"
+          "mushroom_house",
+          "inn_teal",
+          "bakery",
+          "item_shop_red",
+          "house_purple",
+          "mushroom_house_blue",
+          "house",
+          "mushroom_house",
+          "house_green",
+          "house_purple",
+          "mushroom_house_blue",
+          "house",
+          "house_purple",
+          "mushroom_house_blue",
+          "house",
+          "mushroom_house",
+          "house_green",
+          "house_purple",
+          "mushroom_house_blue",
+          "house",
+          "house_purple",
+          "mushroom_house_blue",
+          "house",
+          "mushroom_house",
+          "house_green",
+          "house_purple",
+          "mushroom_house_blue",
+          "house",
+          "house_purple",
+          "mushroom_house_blue",
+          "house"
         ],
         "streetDecor": {
-          "street_lamp": 20,
-          "flower_planter": 12,
-          "bench": 8,
+          "street_lamp": 30,
+          "flower_planter": 30,
+          "bench": 12,
           "market_stall": 8
         },
         "terraces": [
           {
             "x": -9,
-            "y": 14,
+            "y": 13,
             "width": 18,
-            "height": 7
+            "height": 5
           }
         ]
       },
-      "ambience": {
-        "lightPatches": {
-          "color": "#FFE0F4",
-          "count": 30,
-          "size": [
-            80,
-            160
-          ],
-          "alpha": 0.14
-        },
-        "sun": "#FFE8F0",
-        "haze": "#F0E0FF",
-        "hazeAlpha": 0.16,
-        "tint": "#C8E0FF",
-        "tintAlpha": 0.05,
-        "birds": "songbirds",
-        "critters": [
-          {
-            "kind": "songbird",
-            "count": 6
-          },
-          {
-            "kind": "chick",
-            "count": 3
-          }
-        ],
-        "butterflies": 8
-      },
-      "exits": [
+      "buildings": [
         {
-          "edge": "south",
-          "to": "candy_mountain"
+          "art": "windmill",
+          "x": -5,
+          "y": 14
         },
         {
-          "edge": "east",
-          "to": "rainbow_city"
+          "art": "magic_tower",
+          "x": 5,
+          "y": 14
+        },
+        {
+          "art": "house_purple",
+          "x": 23,
+          "y": 14
+        },
+        {
+          "art": "mushroom_house_blue",
+          "x": -25,
+          "y": 13
+        },
+        {
+          "art": "house",
+          "x": -25,
+          "y": 9
+        },
+        {
+          "art": "mushroom_house",
+          "x": 25,
+          "y": 7
+        },
+        {
+          "art": "house_green",
+          "x": -15,
+          "y": 6
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": 14,
+          "y": 5
+        },
+        {
+          "art": "house_purple",
+          "x": -26,
+          "y": -5
+        },
+        {
+          "art": "mushroom_house_blue",
+          "x": -17,
+          "y": -5
+        },
+        {
+          "art": "inn_teal",
+          "x": 17,
+          "y": -5
+        },
+        {
+          "art": "house",
+          "x": 25,
+          "y": -8
+        },
+        {
+          "art": "house_purple",
+          "x": -25,
+          "y": -10
+        },
+        {
+          "art": "mushroom_house_blue",
+          "x": 25,
+          "y": -12
+        },
+        {
+          "art": "house",
+          "x": -23,
+          "y": -14
+        },
+        {
+          "art": "mushroom_house",
+          "x": 9,
+          "y": -14
+        },
+        {
+          "art": "house_green",
+          "x": 20,
+          "y": -14
+        },
+        {
+          "art": "mushroom_house_gold",
+          "x": -26,
+          "y": -23
+        },
+        {
+          "art": "house_purple",
+          "x": -5,
+          "y": -23
+        },
+        {
+          "art": "mushroom_house_blue",
+          "x": 15,
+          "y": -23
+        },
+        {
+          "art": "inn_teal",
+          "x": 21,
+          "y": -23
+        },
+        {
+          "art": "house",
+          "x": 27,
+          "y": -23
+        }
+      ],
+      "decor": [
+        {
+          "art": "fountain",
+          "x": 0,
+          "y": 0
         }
       ],
       "npcs": [
@@ -8737,6 +9024,44 @@
           "x": 3,
           "y": -4,
           "greeting": "Mind the thread! Larkspur's finest tailor, at your service."
+        }
+      ],
+      "ambience": {
+        "lightPatches": {
+          "color": "#FFE0F4",
+          "count": 30,
+          "size": [
+            80,
+            160
+          ],
+          "alpha": 0.14
+        },
+        "sun": "#FFE8F0",
+        "haze": "#F0E0FF",
+        "hazeAlpha": 0.16,
+        "tint": "#C8E0FF",
+        "tintAlpha": 0.05,
+        "birds": "songbirds",
+        "critters": [
+          {
+            "kind": "songbird",
+            "count": 10
+          },
+          {
+            "kind": "chick",
+            "count": 3
+          }
+        ],
+        "butterflies": 12
+      },
+      "exits": [
+        {
+          "edge": "south",
+          "to": "candy_mountain"
+        },
+        {
+          "edge": "east",
+          "to": "rainbow_city"
         }
       ],
       "world": [

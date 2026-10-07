@@ -157,6 +157,22 @@ struct ContentTests {
         }
     }
 
+    @Test func townsfolkStayInView() {
+        // No house on a townsperson's spot or just in front of it (lower on screen), where its roof
+        // would hide them: WorldMap.planTown keeps the 4×4 cells from two in front to one behind clear.
+        for def in content.maps where def.town != nil {
+            let map = WorldMap(def: def)
+            let houses = map.buildings.map { ($0.art, $0.anchor) } + map.lots.map { ($0.art, $0.anchor) }
+            for npc in def.npcs ?? [] {
+                let spot = map.offset(npc.x, npc.y)
+                for (art, anchor) in houses {
+                    let hides = (-3...2).contains(anchor.col - spot.col) && (-3...1).contains(anchor.row - spot.row)
+                    #expect(!hides, "map \(def.id): \(art) at \(anchor) hides \(npc.id)")
+                }
+            }
+        }
+    }
+
     @Test func announcementsAndTradersHaveSomethingToSay() {
         let notices = content.announcements
         #expect(!notices.dawn.isEmpty && !notices.dusk.isEmpty && !notices.community.isEmpty)

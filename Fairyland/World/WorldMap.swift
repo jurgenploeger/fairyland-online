@@ -714,6 +714,14 @@ final class WorldMap {
     // MARK: Town planning
 
     private func planTown(_ town: MapDef.Town, _ rng: inout SeededRandom) {
+        // The townsfolk stay in view: nothing is built, set down or planted on their spot or just
+        // in front of it, where a roof or a tree would hide them. You can still walk there.
+        for npc in def.npcs ?? [] {
+            let spot = offset(npc.x, npc.y)
+            for dc in -2...1 {
+                for dr in -2...1 { occupy(GridPoint(col: spot.col + dc, row: spot.row + dr), blocking: false) }
+            }
+        }
         for street in town.streets ?? [] where street.count == 4 {
             let a = offset(street[0], street[1]), b = offset(street[2], street[3])
             let steps = max(abs(b.col - a.col), abs(b.row - a.row)) * 3
