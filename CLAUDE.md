@@ -45,7 +45,8 @@ Online's own names (towns, people, bosses, quests) in player-facing text: `docs/
   translated as it loads (`Content.reload` after a switch). `tools/i18n.py status | missing <code> | merge | prune`.
 - `content/music.json` defines instruments and songs for `Fairyland/Audio/SongSynth.swift`. `tools/music_preview.py`
   (needs numpy + scipy) renders songs to WAV with the same algorithm; keep the two in step.
-- `sound/*.wav`: sound effects, synthesized by `tools/make_sounds.py` (needs numpy). Edit a recipe and rerun;
+- `sound/*.wav`: sound effects, synthesized by `tools/make_sounds.py` (needs numpy + scipy; 44.1 kHz stereo,
+  byte-identical on every rerun). Edit a recipe and rerun (`--report` prints each file's length and loudness);
   `SoundEffects.Sound` in `Fairyland/Audio/SoundEffects.swift` lists them. Settings live in `GameSettings` (UserDefaults).
 
 ## Rules
