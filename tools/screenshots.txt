@@ -99,6 +99,7 @@ twilight     | newgame,level=40,map=twilight_woods                 | 15
 battle_big   | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,hp=0.3,map=genie_desert,battle=10 | 15
 battle_arrange | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,map=genie_desert,battle=10,arrange | 15
 battle_big_landscape | newgame,level=60,map=genie_desert,battle=10,landscape | 15
+battle_timer_land | newgame,level=44,class=fighter,pet=pineapple,friends=2,map=smiling_forest,battle=2,turntimer=40,landscape | 15
 levelup      | newgame,level=9,levelup,map=sunny_meadow,battle=1,win           | 30
 levelup_landscape | newgame,level=9,levelup,map=sunny_meadow,battle=1,win,landscape | 30
 duel_spoils  | newgame,level=30,map=valley_of_fear,duel,win              | 30
