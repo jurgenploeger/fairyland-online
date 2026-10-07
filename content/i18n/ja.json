@@ -736,6 +736,7 @@
     "Day and night, and the weather, each have a switch in Settings: off, it's always daytime, or the sky stays clear.": "昼と夜、そして天気に、設定でそれぞれスイッチが付きました。オフにすると、いつも昼、または晴れたままになります。",
     "An adventurer's card fits Befriend, Trade and Duel on one line, without the note underneath.": "冒険者のカードで、「フレンドになる」「トレード」「決闘」が1行に収まり、下の注意書きはなくなりました。",
     "The marks for raised and lowered stats in a fight, and poison's drop, are glossier and a little smaller.": "バトルで、ステータスが上がった・下がったことを示すマークと毒のしずくが、つやつやになって少し小さくなりました。",
+    "The minimap always shows the colours of the map you're on, even just after arriving from a map that looks different.": "ミニマップは、見た目のちがうマップから来た直後でも、今いるマップの色で表示されます。",
     "Cleaner buttons": "すっきりボタン",
     "The light buttons lost the stray dark line just inside their top edge. Their shadow now falls only underneath, where it belongs.": "明るいボタンの上端のすぐ内側に出ていた、余分な暗い線を消しました。影はボタンの下にだけ落ちます。",
     "Quests worth the trip": "行く価値のあるクエスト",

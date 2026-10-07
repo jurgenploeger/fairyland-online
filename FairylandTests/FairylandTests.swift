@@ -173,6 +173,29 @@ struct ContentTests {
         }
     }
 
+    @Test func theMinimapWearsItsOwnMapsColours() throws {
+        // Arriving from the Big Bad Wolf's Lair, the art library still grades for its palette (golden
+        // grass) when the HUD first asks for Larkspur's minimap; it must still come out green.
+        let lair = try #require(content.map("wolf_lair"))
+        let larkspur = try #require(content.map("bluebird"))
+        ArtLibrary.shared.use(palette: lair.theme.palette, for: lair.id)
+        let scene = WorldScene(map: larkspur, session: GameSession.newGame(name: "Test", raceID: "human"), input: InputState(), entry: nil)
+        let image = try #require(scene.minimap.cgImage)
+        let width = image.width, height = image.height
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        pixels.withUnsafeMutableBytes { buffer in
+            let context = CGContext(data: buffer.baseAddress, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                                    space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+            context?.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        }
+        var red = 0, green = 0
+        for index in stride(from: 0, to: pixels.count, by: 4) {
+            red += Int(pixels[index])
+            green += Int(pixels[index + 1])
+        }
+        #expect(green > red, "Larkspur's minimap came out golden: red \(red / (width * height)), green \(green / (width * height))")
+    }
+
     @Test func announcementsAndTradersHaveSomethingToSay() {
         let notices = content.announcements
         #expect(!notices.dawn.isEmpty && !notices.dusk.isEmpty && !notices.community.isEmpty)

@@ -89,6 +89,15 @@ final class ArtLibrary {
         variantCache = [:]
     }
 
+    /// A tile's image graded with `palette`, whatever map the library is grading for right now: the
+    /// HUD draws a new map's minimap as soon as the scene exists, before its `build` takes the
+    /// library over from the map you came from.
+    func gradedTile(_ id: String, palette: MapPalette?) -> CGImage? {
+        guard let image = sourceImage(id) else { return nil }
+        guard let palette else { return image }
+        return Recolor.grade(palette, image: image) ?? image
+    }
+
     /// The sprite's image with the current map's palette, for ground, scenery and buildings.
     private func gradedImage(_ id: String) -> CGImage? {
         guard let image = sourceImage(id) else { return nil }
