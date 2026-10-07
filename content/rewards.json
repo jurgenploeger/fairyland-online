@@ -3,11 +3,11 @@
   "dailyGifts": [
     {"items": ["potion", "potion", "potion"]},
     {"goldPerLevel": 10},
-    {"items": ["seal_stone", "seal_stone"]},
+    {"items": ["seal_stone", "seal_stone", "moon_seal"]},
     {"items": ["ether", "ether"]},
     {"goldPerLevel": 20},
     {"items": ["hi_potion", "hi_potion"]},
-    {"goldPerLevel": 30, "items": ["seal_stone", "seal_stone", "seal_stone", "homeward_feather"]}
+    {"goldPerLevel": 30, "items": ["seal_stone", "seal_stone", "heart_seal", "star_seal", "homeward_feather"]}
   ],
   "bounties": {
     "perDay": 3,
@@ -20,15 +20,15 @@
     },
     "exp": 0.2,
     "goldPerLevel": 8,
-    "bonus": {"exp": 0.3, "items": ["seal_stone", "hi_potion"]}
+    "bonus": {"exp": 0.3, "items": ["moon_seal", "hi_potion"]}
   },
   "quests": {"exp": 0.3, "goldPerLevel": 12},
   "bookMilestones": [
-    {"count": 10, "gold": 300, "items": ["seal_stone", "seal_stone"]},
+    {"count": 10, "gold": 300, "items": ["seal_stone", "seal_stone", "moon_seal"]},
     {"count": 25, "gold": 1500, "items": ["hi_potion", "hi_potion", "hi_potion"]},
-    {"count": 50, "gold": 5000, "items": ["seal_stone", "seal_stone", "seal_stone", "hi_ether", "hi_ether"]},
+    {"count": 50, "gold": 5000, "items": ["heart_seal", "heart_seal", "star_seal", "hi_ether", "hi_ether"]},
     {"count": 75, "gold": 15000, "items": ["hi_potion", "hi_potion", "hi_potion", "hi_ether", "hi_ether", "hi_ether"]},
-    {"gold": 50000, "items": ["hi_potion", "hi_potion", "hi_potion", "hi_potion", "hi_potion", "hi_ether", "hi_ether", "hi_ether", "hi_ether", "hi_ether"]}
+    {"gold": 50000, "items": ["wishing_seal", "hi_potion", "hi_potion", "hi_potion", "hi_potion", "hi_potion", "hi_ether", "hi_ether", "hi_ether", "hi_ether", "hi_ether"]}
   ],
   "cards": {
     "chance": 0.03, "rareChance": 0.15, "bossChance": 0.25,

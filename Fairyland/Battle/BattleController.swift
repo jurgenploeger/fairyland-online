@@ -47,7 +47,8 @@ final class BattleController {
     }
 
     private enum Pending {
-        case attack, skill(SkillDef), item(ItemDef), capture
+        /// `capture`: the Seal Stone being aimed.
+        case attack, skill(SkillDef), item(ItemDef), capture(ItemDef)
     }
 
     private(set) var phase: Phase = .command
@@ -344,9 +345,10 @@ final class BattleController {
     /// Skills usable in battle (Bridge of Light and other field spells are cast from the menu).
     var skills: [SkillDef] { session.heroSkills.filter { $0.kind != .field } }
     /// Potions and the like, then Seal Stones (thrown at a monster, like Capture).
-    var items: [ItemDef] {
-        session.battleItems + session.content.items.filter { $0.capture == true && session.count(of: $0.id) > 0 }
-    }
+    var items: [ItemDef] { session.battleItems + stones }
+
+    /// The Seal Stones in the bag, plainest first and a Wishing Seal last.
+    var stones: [ItemDef] { session.sealStoneKinds }
 
     /// True when a hurt party member could use a healing item, so Items moves out from under "More".
     var needsHealing: Bool {
@@ -593,12 +595,27 @@ final class BattleController {
 
     func useItem(_ item: ItemDef) {
         // A Seal Stone is thrown at a monster, as with Capture.
-        if item.capture == true { return capture() }
+        if item.capture == true { return capture(with: item) }
         beginTargeting(.item(item), targets: aliveAllyIDs, prompt: L("Use {item} on…", ["item": item.name]))
     }
 
+    /// The Capture button: throws the plainest stone in the bag. A Wishing Seal is only ever thrown
+    /// from Items, chosen on purpose, so with nothing else left Capture opens the list.
     func capture() {
-        guard session.sealStones > 0 else {
+        if let stone = stones.first(where: { $0.sure != true }) {
+            capture(with: stone)
+        } else if stones.isEmpty {
+            message = L("You need a Seal Stone. Trader Bo in Meadowbrook sells them.")
+        } else {
+            openItems()
+            message = L("Only a Wishing Seal left: choose it from Items to throw it.")
+        }
+    }
+
+    /// Aims a Seal Stone: the monsters it could hold light up, each with the odds of this stone
+    /// holding it.
+    func capture(with stone: ItemDef) {
+        guard session.count(of: stone.id) > 0 else {
             message = L("You need a Seal Stone. Trader Bo in Meadowbrook sells them.")
             return
         }
@@ -610,7 +627,13 @@ final class BattleController {
             message = L("{name} can't be captured.", ["name": enemies.first(where: \.isAlive)?.name ?? L("The monster")])
             return
         }
-        beginTargeting(.capture, targets: sealableIDs, prompt: L("Throw a Seal Stone at…"))
+        var odds: [Int: String] = [:]
+        for id in sealableIDs {
+            if case .ready(let chance) = engine.captureStatus(of: id, with: stone) {
+                odds[id] = L("{chance}%", ["chance": Int((chance * 100).rounded())])
+            }
+        }
+        beginTargeting(.capture(stone), targets: sealableIDs, prompt: L("Throw a {stone} at…", ["stone": stone.name]), labels: odds)
     }
 
     func defend() { submit(.defend) }
@@ -628,9 +651,9 @@ final class BattleController {
             submit(.skill(skill.id, target: id))
         case .item(let item):
             submit(.item(item.id, target: id))
-        case .capture:
-            switch engine.captureStatus(of: id) {
-            case .ready: submit(.capture(target: id))
+        case .capture(let stone):
+            switch engine.captureStatus(of: id, with: stone) {
+            case .ready: submit(.capture(target: id, stone: stone.id))
             case .impossible: message = L("{name} can't be captured.", ["name": name(id)])
             }
         }
@@ -640,13 +663,14 @@ final class BattleController {
         onFinish?(engine.outcome)
     }
 
-    private func beginTargeting(_ command: Pending, targets: [Int], prompt: String) {
+    /// `labels`: a word over some targets (a Seal Stone's odds on each monster).
+    private func beginTargeting(_ command: Pending, targets: [Int], prompt: String, labels: [Int: String] = [:]) {
         guard !targets.isEmpty else { return }
         pending = command
         validTargets = targets
         self.prompt = prompt
         phase = .target
-        scene?.showTargets(targets)
+        scene?.showTargets(targets, labels: labels)
     }
 
     /// The choice for whoever's turn it is. After the hero's, your companion gets its turn (unless
@@ -821,17 +845,17 @@ final class BattleController {
         case .defend(let actor):
             SoundEffects.shared.play(.shield)
             message = L("{name} is on guard.", ["name": name(actor)])
-        case .capture(_, let target, let success, _):
+        case .capture(_, let target, let success, _, let stoneID):
             SoundEffects.shared.play(success ? .capture : .breakFree)
-            if success { Haptics.success() }
             if success {
+                Haptics.success()
                 mutate(target) { $0.isCaptured = true }
-                // Like Fairyland's capsules, a stone is only used up when it works.
-                if let stone = session.content.items.first(where: { $0.capture == true && session.count(of: $0.id) > 0 }) {
-                    session.removeItem(stone.id)
-                }
             }
-            message = success ? L("Sealed! {name} was captured!", ["name": name(target)]) : L("Oh no! {name} broke free!", ["name": name(target)])
+            // Every throw uses the stone up, whether it holds or not.
+            let stone = stoneID.flatMap(session.content.item) ?? stones.first
+            if let stone { session.removeItem(stone.id) }
+            message = success ? L("Sealed! {name} was captured!", ["name": name(target)])
+                : L("Oh no! {name} broke free, and the {stone} crumbled away.", ["name": name(target), "stone": stone?.name ?? L("Seal Stone")])
         case .fled(let id):
             SoundEffects.shared.play(.run)
             mutate(id) { $0.hasFled = true }

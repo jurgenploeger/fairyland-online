@@ -136,6 +136,12 @@ struct BattleView: View {
                         ItemIcon(item: item, size: 26, count: controller.session.count(of: item.id))
                         Text(item.name)
                         Spacer()
+                        // How much a stone helps: stronger ones are likelier to hold, a Wishing Seal always does.
+                        if item.capture == true {
+                            Text(item.sure == true ? L("Never fails") : L("Odds ×{power}", ["power": (item.sealPower ?? 1).formatted()]))
+                                .font(HUDStyle.font(10))
+                                .foregroundStyle(item.sure == true ? HUDStyle.gold : HUDStyle.frameDark)
+                        }
                     }
                 }
             }

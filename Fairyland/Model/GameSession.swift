@@ -1049,6 +1049,13 @@ final class GameSession {
         content.items.filter { $0.capture == true }.reduce(0) { $0 + count(of: $1.id) }
     }
 
+    /// The kinds of Seal Stone in the bag, plainest first and a sure one (the Wishing Seal) last.
+    var sealStoneKinds: [ItemDef] {
+        content.items
+            .filter { $0.capture == true && count(of: $0.id) > 0 }
+            .sorted { ($0.sure == true ? 1 : 0, $0.sealPower ?? 1) < ($1.sure == true ? 1 : 0, $1.sealPower ?? 1) }
+    }
+
     var bagEquipment: [ItemDef] {
         content.items.filter { ItemType.equipmentSlots.contains($0.type) && count(of: $0.id) > 0 }
     }

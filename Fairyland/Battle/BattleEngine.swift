@@ -164,7 +164,8 @@ enum BattleAction {
     /// For skills that hit everyone, `target` is ignored.
     case skill(String, target: Int)
     case item(String, target: Int)
-    case capture(target: Int)
+    /// `stone`: the Seal Stone thrown (an item id); a plain one if nil.
+    case capture(target: Int, stone: String? = nil)
     case defend
     case escape
     /// Wild monsters only: run away when nearly beaten.
@@ -193,8 +194,9 @@ enum BattleEvent {
     case skill(actor: Int, skill: SkillDef, level: Int, hits: [Hit])
     case item(actor: Int, item: ItemDef, target: Int, hp: Int, mp: Int)
     case defend(actor: Int)
-    /// `wobbles` is how many times the Seal Stone shakes before it seals or bursts open.
-    case capture(actor: Int, target: Int, success: Bool, wobbles: Int)
+    /// `wobbles` is how many times the Seal Stone shakes before it seals or bursts open; `stone` is
+    /// the one thrown (an item id; a plain Seal Stone if nil), used up either way.
+    case capture(actor: Int, target: Int, success: Bool, wobbles: Int, stone: String? = nil)
     case escape(actor: Int, success: Bool)
     case fled(Int)
     case defeated(Int)
@@ -282,16 +284,24 @@ final class BattleEngine {
 
     /// Sealing: any wild monster on the field, at any HP (Fairyland wanted the last one standing,
     /// below 20%; players asked for more). The weaker it is the better your odds; tougher,
-    /// higher-level monsters and long fights make it harder.
-    func captureStatus(of id: Int) -> CaptureStatus {
+    /// higher-level monsters and long fights make it harder. A stronger `stone` multiplies the odds
+    /// by its `sealPower` and lifts their ceiling (75% for a plain Seal Stone, up to 95%); a sure one
+    /// (the Wishing Seal) never fails. Nothing seals a boss.
+    func captureStatus(of id: Int, with stone: ItemDef? = nil) -> CaptureStatus {
         guard let target = combatant(id), target.isAlive, target.side == .enemies, target.captureRate > 0 else { return .impossible }
+        if stone?.sure == true { return .ready(chance: 1) }
+        let power = max(1, stone?.sealPower ?? 1)
         let weakness = Self.captureWeakness(atHP: target.hpFraction)
         let above = Double(target.level - (hero?.level ?? 1))
         let levelFactor = above > 0 ? max(0.4, 1 - 0.06 * above) : min(1.3, 1 - 0.03 * above)
         let fatigue = pow(0.92, Double(max(0, round - 1)))
-        let chance = target.captureRate * 0.3 * weakness * levelFactor * fatigue * captureBonus
-        return .ready(chance: min(0.75, max(0.03, chance)))
+        let chance = target.captureRate * 0.3 * weakness * levelFactor * fatigue * captureBonus * power
+        return .ready(chance: min(Self.captureCeiling(power: power), max(0.03 * power, chance)))
     }
+
+    /// The best odds a stone of this `sealPower` can have: 75% for a plain Seal Stone, ten points more
+    /// for each step of power, up to 95%.
+    static func captureCeiling(power: Double) -> Double { min(0.95, 0.75 + 0.1 * (power - 1)) }
 
     /// How much a monster's wounds help a Seal Stone, by the share of HP it has left: ×0.25 at full
     /// HP, ×1 at 20%, and on up to ×3 as it nears 0.
@@ -338,7 +348,7 @@ final class BattleEngine {
     func resolveRound(heroAction: BattleAction, orders: [Int: BattleAction] = [:]) -> [BattleEvent] {
         guard outcome == .ongoing else { return [] }
         round += 1
-        if case .capture(let target) = heroAction { sealTarget = target } else { sealTarget = nil }
+        if case .capture(let target, _) = heroAction { sealTarget = target } else { sealTarget = nil }
         if case .skill(let id, _) = heroAction { heroSkill = id } else { heroSkill = nil }
         for index in combatants.indices {
             combatants[index].isDefending = false
@@ -472,12 +482,12 @@ final class BattleEngine {
             }
             events.append(.item(actor: actor.id, item: item, target: target.id, hp: hp, mp: mp))
 
-        case .capture(let targetID):
+        case .capture(let targetID, let stoneID):
             guard let target = combatant(targetID), target.isAlive else {
                 events.append(.message(L("There's nothing left to capture.")))
                 return
             }
-            guard case .ready(let chance) = captureStatus(of: targetID) else {
+            guard case .ready(let chance) = captureStatus(of: targetID, with: stoneID.flatMap(content.item)) else {
                 events.append(.message(L("{name} can't be captured.", ["name": target.name])))
                 return
             }
@@ -485,7 +495,7 @@ final class BattleEngine {
             if success { mutate(targetID) { $0.isCaptured = true } }
             // Three wobbles means it held; a near miss shakes longer before bursting open.
             let wobbles = success ? 3 : Int.random(in: 0...2, using: &rng)
-            events.append(.capture(actor: actor.id, target: targetID, success: success, wobbles: wobbles))
+            events.append(.capture(actor: actor.id, target: targetID, success: success, wobbles: wobbles, stone: stoneID))
 
         case .flee:
             mutate(actor.id) { $0.hasFled = true }

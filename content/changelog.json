@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.70",
+      "date": "2026-10-07",
+      "title": "Seal Stones of every kind",
+      "notes": [
+        "Four new Seal Stones, each its own colour and shape: the blue Moon Seal holds a monster half as often again as a plain Seal Stone, the pink Heart Seal twice as often and the golden Star Seal three times. Moon Seals are sold in Prismhaven and Larkspur, Heart Seals in Larkspur and Ingothold, and bosses now and then drop a Star Seal.",
+        "The rainbow Wishing Seal never fails on a monster that can be befriended. It's very rare: Elder Oak gives you one for the new quest Wish Upon a Star (befriend three more monsters), bosses drop one now and then, and the Monster Book's last reward holds one.",
+        "Every throw now uses the stone up, whether it holds or not. While you aim, each monster shows your odds with that stone. Capture throws your plainest stone; choose a stronger one from Items. The first quest gives five Seal Stones instead of three, and the daily gift, the bounty bonus and the Monster Book's rewards hold the new stones too."
+      ]
+    },
+    {
       "version": "0.3.69",
       "date": "2026-10-07",
       "title": "Monster cards and toys",

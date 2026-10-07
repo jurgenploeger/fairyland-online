@@ -1,5 +1,5 @@
 {
-  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `sheets` (per race) swaps in a whole walk sheet while it's worn (Retro Diffusion art in art/sprites; only the skin colour applies), recoloured by `tint` for the rare colour variants bosses drop. Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory | material. `classes` limits who can equip it (omit = everyone); `level` is the level needed. Materials (type material; `material` is wood | metal | gem | hide) drop from monsters of at least their `level`. `recipe` is what a blacksmith needs to forge the item. Companion toys (`toy`, Fairyland Online's Pet Toys) are consumables given to a companion from the bag: they raise its `stats` for good, up to ten toys a companion (GameSession.giveToy).",
+  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `sheets` (per race) swaps in a whole walk sheet while it's worn (Retro Diffusion art in art/sprites; only the skin colour applies), recoloured by `tint` for the rare colour variants bosses drop. Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory | material. `classes` limits who can equip it (omit = everyone); `level` is the level needed. Materials (type material; `material` is wood | metal | gem | hide) drop from monsters of at least their `level`. `recipe` is what a blacksmith needs to forge the item. Companion toys (`toy`, Fairyland Online's Pet Toys) are consumables given to a companion from the bag: they raise its `stats` for good, up to ten toys a companion (GameSession.giveToy). Seal Stones (`capture`) are thrown in battle to befriend a monster and used up whether they hold or not: `sealPower` is how many times likelier than a plain one a stone is to hold (1 unless set), and a `sure` one (the Wishing Seal) never fails (BattleEngine.captureStatus).",
   "items": [
     {
       "id": "potion",
@@ -29,7 +29,51 @@
       "type": "consumable",
       "price": 60,
       "capture": true,
-      "description": "Throw it at a monster in battle to befriend it: the weaker the monster, the better the odds. Only used up if it works."
+      "description": "Throw it at a monster in battle to befriend it: the weaker the monster, the better the odds. Used up whether it holds or not."
+    },
+    {
+      "id": "moon_seal",
+      "icon": "moon",
+      "art": "item_moon_seal",
+      "name": "Moon Seal",
+      "type": "consumable",
+      "price": 200,
+      "capture": true,
+      "sealPower": 1.5,
+      "description": "A pale blue crescent that glows like the night sky. Half as likely again to hold a monster as a Seal Stone. Used up either way."
+    },
+    {
+      "id": "heart_seal",
+      "icon": "heart",
+      "art": "item_heart_seal",
+      "name": "Heart Seal",
+      "type": "consumable",
+      "price": 500,
+      "capture": true,
+      "sealPower": 2,
+      "description": "A rose-pink heart no monster can help warming to. Twice as likely to hold one as a Seal Stone. Used up either way."
+    },
+    {
+      "id": "star_seal",
+      "icon": "star",
+      "art": "item_star_seal",
+      "name": "Star Seal",
+      "type": "consumable",
+      "price": 1500,
+      "capture": true,
+      "sealPower": 3,
+      "description": "A golden star caught in crystal. Three times as likely to hold a monster as a Seal Stone. No shop sells it: bosses drop it now and then. Used up either way."
+    },
+    {
+      "id": "wishing_seal",
+      "icon": "sparkles",
+      "art": "item_wishing_seal",
+      "name": "Wishing Seal",
+      "type": "consumable",
+      "price": 0,
+      "capture": true,
+      "sure": true,
+      "description": "A rainbow crystal made from a wish. It never fails: any monster that can be befriended is sealed at once. There are very few in all the world."
     },
     {
       "id": "homeward_feather",

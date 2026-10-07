@@ -212,5 +212,12 @@ toys_companion    | newgame,level=30,pet=jelly,toys=4,bag=toy_ball,menu=companio
 toy_info          | newgame,level=30,npc=rainbow_shop,info=toy_music_box     | 8
 toymaker          | newgame,level=20,cards=6,map=rainbow_city,npc=toymaker   | 8
 toymaker_town     | newgame,map=rainbow_city,at=-2_2,clean                   | 10
+# Seal Stones (0.3.70): every kind in the battle's Items list with its odds, aiming a Heart Seal (the odds
+# over each monster), a Heart Seal and a Wishing Seal on their way, and Larkspur's market selling them.
+seal_items        | newgame,level=12,map=sunny_meadow,battle=1,bag=seal_stone+moon_seal+heart_seal+star_seal+wishing_seal,items | 15
+seal_aim          | newgame,level=12,map=sunny_meadow,battle=2,bag=heart_seal,aim=heart_seal | 15
+seal_heart        | newgame,level=12,map=sunny_meadow,battle=1,seal=ok:heart_seal,fxstop=0.6 | 14
+seal_wishing      | newgame,level=12,map=sunny_meadow,battle=1,seal=ok:wishing_seal,fxstop=1.45 | 18
+seal_shop         | newgame,level=40,npc=bluebird_shop                        | 8
 # Settings with footsteps switched off (the darker switch). `quiet` leaves them off, so this runs last.
 settings_quiet | newgame,menu=settings,weather=clear,quiet | 8

@@ -1173,6 +1173,59 @@ struct RulesTests {
         #expect(BattleEngine(party: [hero], enemies: [boss], content: content).captureStatus(of: 12) == .impossible)
     }
 
+    /// Moon, Heart and Star Seals hold more often than a plain Seal Stone, and a Wishing Seal always
+    /// does, except on a boss.
+    @Test func strongerSealStonesHoldMoreOftenAndAWishingSealAlways() throws {
+        let content = Content.shared
+        let jelly = try #require(content.monster("jelly"))
+        let stats = jelly.stats(at: 1)
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 1, element: .neutral,
+                             stats: Stats(hp: 60, attack: 10, defense: 8, speed: 10), hp: 60, mp: 0, skills: [], captureRate: 0)
+        let enemy = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
+                              stats: stats, hp: stats.hp / 2, mp: 0, skills: [], captureRate: jelly.captureRate)
+        let engine = BattleEngine(party: [hero], enemies: [enemy], content: content)
+        func odds(_ stone: String?) -> Double? {
+            guard case .ready(let chance) = engine.captureStatus(of: 10, with: stone.flatMap(content.item)) else { return nil }
+            return chance
+        }
+        let plain = try #require(odds(nil))
+        let moon = try #require(odds("moon_seal"))
+        let heart = try #require(odds("heart_seal"))
+        let star = try #require(odds("star_seal"))
+        #expect(odds("seal_stone") == plain)
+        #expect(plain < moon && moon < heart && heart < star)
+        #expect(star <= BattleEngine.captureCeiling(power: 3))
+        #expect(odds("wishing_seal") == 1)
+        let boss = Combatant(id: 12, side: .enemies, source: .wild("jelly"), name: "Boss", art: jelly.art, level: 5, element: jelly.element,
+                             stats: stats, hp: 1, mp: 0, skills: [], captureRate: 0)
+        #expect(BattleEngine(party: [hero], enemies: [boss], content: content).captureStatus(of: 12, with: content.item("wishing_seal")) == .impossible)
+    }
+
+    /// A Seal Stone is used up whether it holds or not; Capture throws the plainest one you have and
+    /// leaves a Wishing Seal for you to choose from Items.
+    @Test func everyThrowUsesTheStoneAndCaptureKeepsTheWishingSeal() throws {
+        let content = Content.shared
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let jelly = try #require(content.monster("jelly"))
+        let stats = jelly.stats(at: 1)
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 1, element: .neutral,
+                             stats: Stats(hp: 60, attack: 10, defense: 8, speed: 10), hp: 60, mp: 0, skills: [], captureRate: 0)
+        let enemy = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
+                              stats: stats, hp: 1, mp: 0, skills: [], captureRate: jelly.captureRate)
+        let battle = BattleController(engine: BattleEngine(party: [hero], enemies: [enemy], content: content), session: session)
+        session.addItem("wishing_seal")
+        session.addItem("moon_seal", 2)
+        #expect(battle.stones.map(\.id) == ["moon_seal", "wishing_seal"])
+        battle.apply(.capture(actor: 0, target: 10, success: false, wobbles: 1, stone: "moon_seal"))
+        #expect(session.count(of: "moon_seal") == 1)
+        battle.apply(.capture(actor: 0, target: 10, success: true, wobbles: 3, stone: "moon_seal"))
+        #expect(session.count(of: "moon_seal") == 0)
+        // Only the Wishing Seal is left: Capture opens Items instead of throwing it.
+        battle.capture()
+        #expect(battle.phase == .items)
+        #expect(session.count(of: "wishing_seal") == 1)
+    }
+
     /// While you throw a Seal Stone, your companion and your friends leave that monster alone and
     /// fight on against the rest (they used to stand guard, which only made sense with one left).
     @Test func yourSideSparesTheMonsterYouSeal() {

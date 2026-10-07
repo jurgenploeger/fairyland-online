@@ -178,6 +178,13 @@ for monster in monsters.values():
 materials = {i["id"]: i for i in items.values() if i["type"] == "material"}
 for item in items.values():
     check(item.get("icon") in icon_names, f"item {item['id']} → unknown icon {item.get('icon')}")
+    if item.get("capture"):
+        # Seal Stones: thrown in battle, used up either way (BattleEngine.captureStatus).
+        check(item["type"] == "consumable", f"seal stone {item['id']} → must be a consumable")
+        power = item.get("sealPower", 1)
+        check(isinstance(power, (int, float)) and 1 <= power <= 5, f"seal stone {item['id']} → sealPower between 1 and 5")
+    else:
+        check("sealPower" not in item and "sure" not in item, f"item {item['id']} → only Seal Stones (capture) have sealPower or sure")
     if item.get("toy"):
         # Companion toys raise a companion's stats for good (GameSession.giveToy).
         check(item["type"] == "consumable", f"toy {item['id']} → must be a consumable")

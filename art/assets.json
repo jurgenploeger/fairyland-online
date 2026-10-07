@@ -4391,6 +4391,50 @@
       }
     },
     {
+      "id": "item_moon_seal",
+      "kind": "item",
+      "request": {
+        "prompt": "pale blue crescent moonstone with a white spiral rune, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_heart_seal",
+      "kind": "item",
+      "request": {
+        "prompt": "rose pink heart-shaped crystal with a white spiral rune, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_star_seal",
+      "kind": "item",
+      "request": {
+        "prompt": "golden star-shaped crystal with a white spiral rune, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_wishing_seal",
+      "kind": "item",
+      "request": {
+        "prompt": "rainbow diamond prism crystal with a violet spiral rune, sparkles, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
       "id": "item_homeward_feather",
       "kind": "item",
       "request": {

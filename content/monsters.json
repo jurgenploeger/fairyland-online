@@ -2543,6 +2543,14 @@
         {
           "item": "toy_blocks",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ],
       "name": "Rat King",
@@ -2589,6 +2597,14 @@
         {
           "item": "toy_music_box",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ],
       "name": "Drunk Dragon",
@@ -2635,6 +2651,14 @@
         {
           "item": "toy_ball",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ],
       "name": "Big Bad Wolf",
@@ -3038,6 +3062,14 @@
         {
           "item": "toy_soldier",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ]
     },
@@ -3076,6 +3108,14 @@
         {
           "item": "toy_ball",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ]
     },
@@ -3114,6 +3154,14 @@
         {
           "item": "toy_soldier",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ]
     },
@@ -3152,6 +3200,14 @@
         {
           "item": "toy_blocks",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ]
     },
@@ -3191,6 +3247,14 @@
         {
           "item": "toy_music_box",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ]
     },
@@ -3229,6 +3293,14 @@
         {
           "item": "toy_ball",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ]
     },
@@ -3267,6 +3339,14 @@
         {
           "item": "toy_blocks",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ]
     },
@@ -3305,6 +3385,14 @@
         {
           "item": "toy_bear",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ]
     },
@@ -3351,6 +3439,14 @@
         {
           "item": "toy_bear",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ]
     },
@@ -3397,6 +3493,14 @@
         {
           "item": "toy_bubbles",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ]
     },
@@ -3444,6 +3548,14 @@
         {
           "item": "toy_bubbles",
           "chance": 0.3
+        },
+        {
+          "item": "star_seal",
+          "chance": 0.25
+        },
+        {
+          "item": "wishing_seal",
+          "chance": 0.05
         }
       ]
     }
