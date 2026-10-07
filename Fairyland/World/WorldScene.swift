@@ -216,7 +216,6 @@ final class WorldScene: SKScene {
         critters = Critters(def.ambience, world: world, map: map, seed: def.id)
         lighting = Lighting(def.ambience, world: world, camera: cam, bounds: map.bounds, seed: def.id)
         lighting?.resize(to: size)
-        lighting?.follow(cam.position)
         sky = Sky(map: def, camera: cam, start: session.data.startedAt)
         if let sky { lighting?.sunlight(sky.sunlight) }
 
@@ -1538,7 +1537,6 @@ final class WorldScene: SKScene {
         // Snap to whole screen pixels so pixel art doesn't shimmer (zooming changes their size).
         let scale = (view?.contentScaleFactor ?? 1) / cam.xScale
         cam.position = CGPoint(x: (eased.x * scale).rounded() / scale, y: (eased.y * scale).rounded() / scale)
-        lighting?.follow(cam.position)
         focus.update(camera: cam.position, halfHeight: size.height / 2 * cam.yScale)
     }
 }

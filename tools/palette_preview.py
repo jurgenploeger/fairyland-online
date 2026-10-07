@@ -308,7 +308,7 @@ def focus_blur(s, sy, h, W, H, amb):
 def draw_scene(mid, palette, kinds, items, W=420, H=300, seed=3, tint=True, organic=True, light=True, origin=(0, 0), lighting=True, focus=True):
     """items: (art, col, row, scale). Walkers (walk sheets) keep their colours, lit by the map's light.
     lighting=True adds what Lighting.swift does: ground colour patches, light pools, prop shadows and
-    glows, sunbeams, foreground blur, haze and the sun flare."""
+    glows, sunbeams, haze and the sun flare."""
     m = maps[mid]; rng = random.Random(seed); N = len(kinds); Wd = len(kinds[0])
     amb = m.get('ambience') or {}
     props = {p['art']: p for p in m['theme']['props']}
@@ -388,21 +388,6 @@ def draw_scene(mid, palette, kinds, items, W=420, H=300, seed=3, tint=True, orga
                 w = rng.uniform(*(sb.get('size') or [30, 70])); beam = _soft(w, w * 7) * sb.get('alpha', 0.12)
                 beam = np.asarray(Image.fromarray((beam * 255).astype(np.uint8)).rotate(26, expand=True, resample=Image.BILINEAR)).astype(float) / 255
                 _paint(img, rng.randint(-40, W), rng.randint(-int(w * 5), H - int(w * 3)), beam, hexrgb(sb['color']), True)
-        fg = amb.get('foreground')
-        if fg:
-            for _ in range(2):
-                art = rng.choice(fg['art']); s = sprite(art, palette)
-                sc = fg.get('scale', 3); h, w = s.shape[:2]
-                big = Image.fromarray((s * 255).astype(np.uint8)).resize((int(w * sc), int(h * sc)), Image.BILINEAR)
-                from PIL import ImageFilter
-                big = np.asarray(big.filter(ImageFilter.GaussianBlur(fg.get('blur', 3) * sc))).astype(float) / 255
-                a = big[..., 3] * fg.get('alpha', 0.5)
-                colr = big[..., :3] * 0.65
-                x0 = rng.choice([-int(big.shape[1] * 0.55), W - int(big.shape[1] * 0.45)]); y0 = rng.randint(-40, H - big.shape[0] // 2)
-                hh, ww = a.shape; xa, ya = max(0, x0), max(0, y0); xb, yb = min(W, x0 + ww), min(H, y0 + hh)
-                if xa < xb and ya < yb:
-                    aa = a[ya - y0:yb - y0, xa - x0:xb - x0][..., None]
-                    img[ya:yb, xa:xb, :3] = img[ya:yb, xa:xb, :3] * (1 - aa) + colr[ya - y0:yb - y0, xa - x0:xb - x0] * aa
     if tint:
         tc, ta = amb.get('tint'), amb.get('tintAlpha', 0.15)
         if tc: img[..., :3] = img[..., :3] * (1 - ta) + hexrgb(tc) * ta

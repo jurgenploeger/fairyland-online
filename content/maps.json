@@ -2178,17 +2178,6 @@
         },
         "haze": "#3A2A8A",
         "hazeAlpha": 0.3,
-        "foreground": {
-          "art": [
-            "big_dark_tree",
-            "dark_bush",
-            "big_lilac_tree"
-          ],
-          "count": 26,
-          "alpha": 0.5,
-          "blur": 3,
-          "scale": 3
-        },
         "focus": {
           "blur": 2.2
         },
@@ -2732,18 +2721,6 @@
         "sun": "#FFF0B8",
         "haze": "#BFE8C8",
         "hazeAlpha": 0.24,
-        "foreground": {
-          "art": [
-            "big_tree",
-            "bush",
-            "fern",
-            "big_red_maple"
-          ],
-          "count": 30,
-          "alpha": 0.5,
-          "blur": 3,
-          "scale": 3
-        },
         "focus": {
           "blur": 2.0
         },
@@ -4071,17 +4048,6 @@
         "sun": "#F0F6FF",
         "haze": "#DDE8FF",
         "hazeAlpha": 0.3,
-        "foreground": {
-          "art": [
-            "big_snow_pine",
-            "snow_bush",
-            "big_snow_tree"
-          ],
-          "count": 24,
-          "alpha": 0.45,
-          "blur": 3,
-          "scale": 3
-        },
         "focus": {
           "blur": 2.0
         },
@@ -4435,17 +4401,6 @@
         },
         "haze": "#6A8A50",
         "hazeAlpha": 0.28,
-        "foreground": {
-          "art": [
-            "big_swamp_tree",
-            "reeds",
-            "fern"
-          ],
-          "count": 24,
-          "alpha": 0.5,
-          "blur": 3,
-          "scale": 3
-        },
         "focus": {
           "blur": 1.8
         },
@@ -8315,17 +8270,6 @@
         },
         "haze": "#3A2A8A",
         "hazeAlpha": 0.25,
-        "foreground": {
-          "art": [
-            "big_dark_tree",
-            "dark_bush",
-            "big_lilac_tree"
-          ],
-          "count": 26,
-          "alpha": 0.5,
-          "blur": 3,
-          "scale": 3
-        },
         "birds": "bats",
         "weather": {
           "clear": 3,
@@ -9774,17 +9718,6 @@
         },
         "haze": "#6A8A50",
         "hazeAlpha": 0.22,
-        "foreground": {
-          "art": [
-            "big_swamp_tree",
-            "reeds",
-            "fern"
-          ],
-          "count": 24,
-          "alpha": 0.5,
-          "blur": 3,
-          "scale": 3
-        },
         "critters": [
           {
             "kind": "frog",
@@ -10694,17 +10627,6 @@
         },
         "haze": "#3A2A8A",
         "hazeAlpha": 0.25,
-        "foreground": {
-          "art": [
-            "big_dark_tree",
-            "dark_bush",
-            "big_lilac_tree"
-          ],
-          "count": 26,
-          "alpha": 0.5,
-          "blur": 3,
-          "scale": 3
-        },
         "weather": {
           "clear": 5,
           "cloudy": 2,
@@ -11605,17 +11527,6 @@
         "sun": "#F0F6FF",
         "haze": "#DDE8FF",
         "hazeAlpha": 0.25,
-        "foreground": {
-          "art": [
-            "big_snow_pine",
-            "snow_bush",
-            "big_snow_tree"
-          ],
-          "count": 24,
-          "alpha": 0.45,
-          "blur": 3,
-          "scale": 3
-        },
         "critters": [
           {
             "kind": "bunny",
@@ -12627,18 +12538,6 @@
         "sun": "#FFF0B8",
         "haze": "#BFE8C8",
         "hazeAlpha": 0.16,
-        "foreground": {
-          "art": [
-            "big_tree",
-            "bush",
-            "fern",
-            "big_red_maple"
-          ],
-          "count": 30,
-          "alpha": 0.5,
-          "blur": 3,
-          "scale": 3
-        },
         "tint": "#C0FFD0",
         "tintAlpha": 0.05,
         "critters": [

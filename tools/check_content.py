@@ -372,7 +372,7 @@ for map_def in maps.values():
 # The kinds `Critters.make` (Fairyland/World/Critters.swift) knows how to draw.
 CRITTER_KINDS = {"bunny", "frog", "crab", "songbird", "chick", "squirrel", "lizard", "mouse",
                  "crow", "spider", "rat", "scorpion", "wisp"}
-ambience_keys = {"particles", "butterflies", "critters", "birds", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "foreground", "focus", "darkness", "weather"}
+ambience_keys = {"particles", "butterflies", "critters", "birds", "clouds", "tint", "tintAlpha", "vignette", "lightPatches", "sunbeams", "sun", "haze", "hazeAlpha", "focus", "darkness", "weather"}
 weather_kinds = {"clear", "cloudy", "rain", "storm", "fog", "snow"}
 for map_def in maps.values():
     ambience = map_def.get("ambience") or {}
@@ -417,9 +417,6 @@ for map_def in maps.values():
               f"{where} weather → weights must be numbers, 0 or more")
         check(not weather or sum(weather.values()) > 0, f"{where} weather → some weight above 0 (or {{}} for no sky)")
         check(not (weather and "darkness" in ambience), f"{where} weather → a dark map has no sky")
-    if "foreground" in ambience:
-        for art_id in ambience["foreground"].get("art", []):
-            check(art_id in art, f"{where} foreground → unknown art {art_id}")
 
 for kind in ("hair", "outfits", "skin"):
     for preset in appearance[kind]:

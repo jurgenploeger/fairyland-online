@@ -114,6 +114,11 @@ capsule (H). Mining spots include Ilium, Kars Mountain and Siwa Oasis (H).
   when you come close, chicks, squirrels, lizards and mice; crows, spiders, rats, scorpions and will-o'-wisps
   on the harder, darker maps) and particles such as lanterns,
   bubbles and Z's are our own whimsy. No source we could reach describes ambient animals in Fairyland Online.
+- The light and depth on the maps (pools of light, sunbeams, the sun's flare, haze, and the soft blur at the
+  top and bottom of the screen) are ours too, from each map's `ambience` (`Lighting`, `DepthOfField`). Big
+  blurred trees drifting in front of the camera were tried on nine maps (2026-09-30) and taken out in 0.3.65:
+  in playtesting (2026-10-07) one sat in the middle of the screen and read as a smudge, since everything else
+  is crisp pixel art. The checker now rejects a `foreground` key.
 - None of the other towns exist yet: Baghdad, Port Pebbles, Dreamland, Sheep Horn Village, Emerald City,
   Grasha Village.
 
