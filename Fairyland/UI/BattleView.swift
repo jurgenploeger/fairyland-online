@@ -1,52 +1,53 @@
 import SwiftUI
 import UIKit
 
-/// Battle HUD: the log line on top, the commands bottom-right, results at the end.
-/// Names, levels, HP and the hero's MP sit on the fighters themselves.
+/// Battle HUD: a row along the top (the pace buttons, the log line and the chat), the commands
+/// bottom-right, results at the end. Names, levels, HP and the hero's MP sit on the fighters themselves.
 struct BattleView: View {
     let controller: BattleController
+    /// Unread chat: a gold dot on the chat button.
+    var unreadChat = false
+    /// Opens the chat over the fight (GameView holds it); nil while it's open, which hides the button.
+    var onChat: (() -> Void)? = nil
+
+    /// The top row's height: the 1× and AUTO buttons, the log line and the chat button all match it.
+    static let barHeight: CGFloat = 36
 
     var body: some View {
         ZStack {
-            VStack(spacing: 8) {
-                Text(controller.message)
-                    .font(HUDStyle.font(13))
-                    .foregroundStyle(HUDStyle.cream)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
+            VStack(spacing: 0) {
+                // One row along the top: how fast the fight plays and Auto on the left, the log line
+                // (with the waves and the time to choose under it), and the chat on the right.
+                HStack(alignment: .top, spacing: 10) {
+                    if controller.phase != .finished {
+                        PaceControls(controller: controller)
+                    }
+                    VStack(spacing: 8) {
+                        logLine
+                        if controller.waveCount > 1 {
+                            WaveTracker(wave: controller.wave, total: controller.waveCount)
+                        }
+                        if let deadline = controller.turnDeadline, let total = BattleController.turnSeconds {
+                            TurnClockBar(deadline: deadline, total: total)
+                                .transition(.opacity)
+                        }
+                    }
                     .frame(maxWidth: 520)
-                    .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2)))
-
-                if controller.waveCount > 1 {
-                    WaveTracker(wave: controller.wave, total: controller.waveCount)
+                    .allowsHitTesting(false)
+                    if controller.phase != .finished, let onChat {
+                        FLIconButton(icon: .talk, label: L("Chat"), size: Self.barHeight, badge: unreadChat, action: onChat)
+                    }
                 }
-
-                if let deadline = controller.turnDeadline, let total = BattleController.turnSeconds {
-                    TurnClockBar(deadline: deadline, total: total)
-                        .transition(.opacity)
-                }
-
-                Spacer()
+                Spacer(minLength: 0)
             }
             .padding(.horizontal, 10)
             .padding(.top, 6)
-            .allowsHitTesting(false)
 
             commandArea
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 .padding(.trailing, 14)
                 .padding(.bottom, 14)
                 .allowsHitTesting(controller.phase != .animating)
-
-            // Top left, across from the chat: how fast the fight plays, and Auto.
-            if controller.phase != .finished {
-                PaceControls(controller: controller)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .padding(.top, 66)
-                    .padding(.leading, 14)
-            }
 
             if controller.phase == .finished, let result = controller.result {
                 ResultPanel(result: result, session: controller.session, onContinue: controller.leave)
@@ -55,6 +56,20 @@ struct BattleView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.phase)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.choosingForCompanion)
         .onAppear { controller.begin() }
+    }
+
+    /// What just happened, in the middle of the top row: one line, or two a little smaller.
+    private var logLine: some View {
+        Text(controller.message)
+            .font(HUDStyle.font(13))
+            .foregroundStyle(HUDStyle.cream)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .minimumScaleFactor(0.7)
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity)
+            .frame(height: Self.barHeight)
+            .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2)))
     }
 
     @ViewBuilder
@@ -179,8 +194,8 @@ private struct WaveTracker: View {
 }
 
 /// The time left to choose, draining under the log line, red for the last two seconds. When it
-/// runs out the hero attacks. Narrow enough (about 144 points) to stay clear of the 1× and AUTO
-/// buttons below it, even on a 375-point-wide phone.
+/// runs out the hero attacks. About 144 points wide, so it fits under the log line even on a
+/// 375-point-wide phone.
 private struct TurnClockBar: View {
     let deadline: Date
     let total: TimeInterval
@@ -455,9 +470,10 @@ private struct CommandPad: View {
     }
 }
 
-/// The fight's pace: 2× plays it twice as fast (your time to choose stays the same), and Auto lets
-/// the hero and companion fight on their own against monsters well below you. Both are kept for
-/// the next fights. Auto shows only in wild fights, dimmed where the monsters are too strong for it.
+/// The fight's pace, at the left of the top row: 2× plays it twice as fast (your time to choose
+/// stays the same), and Auto lets the hero and companion fight on their own against monsters well
+/// below you. Both are kept for the next fights. Auto shows only in wild fights, dimmed where the
+/// monsters are too strong for it.
 private struct PaceControls: View {
     let controller: BattleController
 
@@ -494,7 +510,7 @@ private struct PaceButton: View {
             Text(title)
                 .font(HUDStyle.font(12))
                 .foregroundStyle(lit ? HUDStyle.ink : HUDStyle.cream)
-                .frame(minWidth: 40, minHeight: 30)
+                .frame(minWidth: 40, minHeight: BattleView.barHeight)
                 .padding(.horizontal, 4)
                 .background(
                     RoundedRectangle(cornerRadius: 9)

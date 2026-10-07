@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.76",
+      "date": "2026-10-07",
+      "title": "One row along the top in battle",
+      "notes": [
+        "In a fight, the 1× and AUTO buttons now sit just left of the message bar at the top, and the chat button just right of it: one row, all the same height. The waves and the time to choose stay under the message."
+      ]
+    },
+    {
       "version": "0.3.75",
       "date": "2026-10-07",
       "title": "Quests in two tabs",

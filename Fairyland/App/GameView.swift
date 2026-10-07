@@ -17,18 +17,10 @@ struct GameView: View {
                 .ignoresSafeArea()
 
             if let battle = coordinator.battle {
-                BattleView(controller: battle)
+                // Chat stays one tap away mid-fight, at the right end of the battle's top row.
+                BattleView(controller: battle, unreadChat: coordinator.session.unreadChat > 0,
+                           onChat: battleChat ? nil : { openBattleChat() })
                     .id(localizer.language)
-                // Chat stays one tap away mid-fight, under the battle log on the right.
-                if !battleChat, battle.phase != .finished {
-                    FLIconButton(icon: .talk, label: L("Chat"), size: 40, badge: coordinator.session.unreadChat > 0) {
-                        coordinator.session.unreadChat = 0
-                        battleChat = true
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                    .padding(.top, 62)
-                    .padding(.trailing, 14)
-                }
                 if battleChat {
                     ChatView(session: coordinator.session, onSay: coordinator.say) { battleChat = false }
                 }
@@ -95,5 +87,11 @@ struct GameView: View {
         }
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
+    }
+
+    /// The chat over a fight: read, so the dot goes.
+    private func openBattleChat() {
+        coordinator.session.unreadChat = 0
+        battleChat = true
     }
 }
