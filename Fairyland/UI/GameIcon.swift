@@ -9,7 +9,7 @@ import UIKit
 enum GameIcon: String, CaseIterable {
     case sword, sparkles, backpack, shield, wind, heart, heartPlus = "heart-plus", more, close
     case check, checkCircle = "check-circle", badgeCheck = "badge-check", plus
-    case user, paw, book, talk, sun, moon, music, musicOff = "music-off", settings, volume
+    case user, users, paw, book, talk, sun, moon, music, musicOff = "music-off", settings, volume
     case chevronUp = "chevron-up", chevronDown = "chevron-down"
     case arrowUp = "arrow-up", arrowDown = "arrow-down", arrowLeft = "arrow-left", arrowRight = "arrow-right"
     case play, dice, map, tap, palette, star, starOutline = "star-outline", gift, coins, egg, edit, lock, globe

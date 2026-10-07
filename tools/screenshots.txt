@@ -78,7 +78,7 @@ battle_companion | newgame,level=30,class=tamer,pet=pineapple,map=sunny_meadow,b
 battle_afflict | newgame,level=30,class=mage,map=sunny_meadow,battle=3,afflict | 15
 party_full   | newgame,level=43,class=fighter,pet=pineapple,friends=4,map=twilight_woods | 15
 battle_party | newgame,level=43,class=fighter,pet=pineapple,friends=4,map=sunny_meadow,battle=3 | 15
-party_menu   | newgame,level=43,class=fighter,pet=pineapple,friends=4,menu=companions,bottom | 8
+party_menu   | newgame,level=43,class=fighter,pet=pineapple,friends=4,menu=friends | 8
 # A fourth friend joins through their card's buttons (debug invite=n), in town and in a cave.
 invite_town  | newgame,level=49,class=fighter,pet=pineapple,friends=3,map=goldburg,invite=1 | 12
 invite_cave  | newgame,level=49,class=fighter,pet=pineapple,friends=3,map=rat_cavern,invite=1 | 12
@@ -173,7 +173,7 @@ character_land    | newgame,level=40,class=fighter,equip=iron_plate+steel_sword,
 skills_land       | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,menu=character,bottom,landscape | 8
 equip_change_land | newgame,equip=leather_vest,bag=cloth_tunic,menu=character,change=armor,landscape | 8
 look_land         | newgame,menu=character,customize,landscape | 8
-party_menu_land   | newgame,level=43,class=fighter,pet=pineapple,friends=4,menu=companions,bottom,landscape | 8
+party_menu_land   | newgame,level=43,class=fighter,pet=pineapple,friends=4,menu=friends,landscape | 8
 monster_book_land | newgame,book,landscape | 8
 bag_land          | newgame,level=30,bag=seal_stone+seal_stone+iron_axe,menu=bag,landscape | 8
 quests_land       | newgame,menu=quests,landscape | 8

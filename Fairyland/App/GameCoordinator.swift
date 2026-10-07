@@ -4,6 +4,7 @@ import SpriteKit
 enum MenuTab: String, CaseIterable, Identifiable {
     case character = "Character"
     case companions = "Companions"
+    case friends = "Friends"
     case bag = "Bag"
     case quests = "Quests"
     case settings = "Settings"
@@ -15,6 +16,7 @@ enum MenuTab: String, CaseIterable, Identifiable {
         switch self {
         case .character: L("Character")
         case .companions: L("Companions")
+        case .friends: L("Friends")
         case .bag: L("Bag")
         case .quests: L("Quests")
         case .settings: L("Settings")
@@ -25,6 +27,7 @@ enum MenuTab: String, CaseIterable, Identifiable {
         switch self {
         case .character: .user
         case .companions: .paw
+        case .friends: .users
         case .settings: .settings
         case .bag: .backpack
         case .quests: .book

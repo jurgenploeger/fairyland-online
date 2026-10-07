@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Character, Companions, Bag and Quests in one tabbed panel.
+/// Character, Companions, Friends, Bag, Quests and Settings in one tabbed panel.
 struct MenuView: View {
     let session: GameSession
     let onClose: () -> Void
@@ -23,7 +23,7 @@ struct MenuView: View {
                 .onTapGesture(perform: onClose)
 
             VStack(spacing: 0) {
-                HStack(spacing: 6) {
+                HStack(spacing: 4) {
                     ForEach(MenuTab.allCases) { item in
                         Button {
                             if tab != item { SoundEffects.shared.play(.tap, volume: 0.7) }
@@ -45,6 +45,7 @@ struct MenuView: View {
                         switch tab {
                         case .character: CharacterTab(session: session)
                         case .companions: CompanionsTab(session: session)
+                        case .friends: FriendsTab(session: session)
                         case .bag: BagTab(session: session)
                         case .quests: QuestsTab(session: session)
                         case .settings: SettingsView(session: session, onQuitToTitle: onQuitToTitle)
@@ -78,7 +79,8 @@ private struct TabLabelStyle: LabelStyle {
         }
         .font(HUDStyle.font(12))
         .foregroundStyle(selected ? HUDStyle.ink : HUDStyle.cream)
-        .padding(.horizontal, 10)
+        // Six tabs and the close button fit across a phone held upright.
+        .padding(.horizontal, 8)
         .padding(.vertical, 7)
         .background(Capsule().fill(selected ? HUDStyle.gold : .white.opacity(0.08)))
     }
@@ -484,8 +486,18 @@ private struct CompanionsTab: View {
                     CompanionCard(session: session, pet: pet)
                 }
             }
+        }
+    }
+}
 
-            SectionTitle(text: L("Party & friends"))
+// MARK: - Friends
+
+/// The adventurers you've befriended, and who of them travels with you.
+private struct FriendsTab: View {
+    let session: GameSession
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
             Text(L("Befriend adventurers you meet (walk up to one). Up to {count} friends can travel and fight with you, and they bring their companions. They fight on if you faint, and wait where you fell; a friend who faints wakes up at their own checkpoint. Walk up to them to set off together again.", ["count": GameSession.maxAllies]))
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
