@@ -78,6 +78,7 @@ struct ItemInfoCard: View {
     /// "Weapon", "Material · Metal", "Egg"…
     private var kind: String {
         if item.hatches != nil { return L("Egg") }
+        if item.toy == true { return L("Toy") }
         if item.type == .material, let material = item.material {
             let name: String = switch material {
             case "gem": L("Gem")
@@ -158,6 +159,12 @@ struct ItemInfoCard: View {
             section(L("Hatches")) {
                 Text(names).font(HUDStyle.font(12)).foregroundStyle(HUDStyle.cream)
             }
+        }
+        if item.toy == true, let raise = item.stats, !Self.parts(of: raise).isEmpty {
+            section(L("Raises a companion's stats for good")) { chips(Self.parts(of: raise)) }
+            Text(L("Up to {count} toys a companion. Give it from your Bag.", ["count": GameSession.toysPerCompanion]))
+                .font(HUDStyle.font(11))
+                .foregroundStyle(HUDStyle.dim)
         }
     }
 

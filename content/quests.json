@@ -1,5 +1,5 @@
 {
-  "_about": "Quests. objective.type: defeat (target = monster id, omit for any) | capture | hatch (a pet egg) | reachLevel (count = level) | chooseClass. `requires` lists quests that must be completed first. `question` is asked on accepting; each answer's `egg` decides what hatches from the Pet Egg. `giver` is an NPC id from maps.json.",
+  "_about": "Quests. objective.type: defeat (target = monster id, omit for any) | capture | hatch (a pet egg) | reachLevel (count = level) | chooseClass | cards (count = kinds of monster card in the Monster Book; the cards are only shown, never handed over). `requires` lists quests that must be completed first. `question` is asked on accepting; each answer's `egg` decides what hatches from the Pet Egg. `giver` is an NPC id from maps.json.",
   "quests": [
     {
       "id": "hope_of_meadowbrook",
@@ -988,6 +988,115 @@
         ]
       },
       "minLevel": 95
+    },
+    {
+      "id": "models_wanted",
+      "title": "Models Wanted",
+      "giver": "toymaker",
+      "description": "Monsters leave their cards behind now and then. Find five kinds and show me: I'll copy them into toys, and a couple of my best are yours!",
+      "objective": {
+        "type": "cards",
+        "count": 5
+      },
+      "reward": {
+        "gold": 300,
+        "exp": 300,
+        "items": [
+          "toy_bear",
+          "toy_ball"
+        ]
+      }
+    },
+    {
+      "id": "a_shelf_of_monsters",
+      "title": "A Shelf of Monsters",
+      "giver": "toymaker",
+      "requires": [
+        "models_wanted"
+      ],
+      "description": "Every one of those toys sold before lunch! Show me fifteen kinds of card and I'll fill a whole shelf. There's a soldier and some blocks in it for you.",
+      "objective": {
+        "type": "cards",
+        "count": 15
+      },
+      "reward": {
+        "gold": 800,
+        "exp": 900,
+        "items": [
+          "toy_soldier",
+          "toy_blocks"
+        ]
+      }
+    },
+    {
+      "id": "the_toy_parade",
+      "title": "The Toy Parade",
+      "giver": "toymaker",
+      "requires": [
+        "a_shelf_of_monsters"
+      ],
+      "description": "Thirty kinds of card, and Prismhaven gets a toy parade! I'll share the music box. And the bubbles. And a bear!",
+      "objective": {
+        "type": "cards",
+        "count": 30
+      },
+      "reward": {
+        "gold": 2000,
+        "exp": 2500,
+        "items": [
+          "toy_music_box",
+          "toy_bubbles",
+          "toy_bear"
+        ]
+      }
+    },
+    {
+      "id": "rare_and_wonderful",
+      "title": "Rare and Wonderful",
+      "giver": "toymaker",
+      "requires": [
+        "the_toy_parade"
+      ],
+      "description": "The rare ones and the big ones too, if you can: fifty kinds of card. One of each of my finest toys for you.",
+      "objective": {
+        "type": "cards",
+        "count": 50
+      },
+      "reward": {
+        "gold": 5000,
+        "exp": 6000,
+        "items": [
+          "toy_soldier",
+          "toy_blocks",
+          "toy_music_box",
+          "toy_ball"
+        ]
+      }
+    },
+    {
+      "id": "the_hundred_toy_shelf",
+      "title": "The Hundred-Toy Shelf",
+      "giver": "toymaker",
+      "requires": [
+        "rare_and_wonderful"
+      ],
+      "description": "A hundred kinds of monster card! Nobody has ever done it. If you do, you'll have one of every toy I make.",
+      "objective": {
+        "type": "cards",
+        "count": 100
+      },
+      "reward": {
+        "gold": 20000,
+        "exp": 20000,
+        "items": [
+          "toy_soldier",
+          "toy_blocks",
+          "toy_music_box",
+          "toy_ball",
+          "toy_bear",
+          "toy_bubbles"
+        ]
+      }
     }
   ]
 }

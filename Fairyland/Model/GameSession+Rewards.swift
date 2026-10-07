@@ -22,6 +22,7 @@ extension GameSession {
         case .rebirths: have = rebirths
         case .bounties: have = data.bountiesDone ?? 0
         case .days: have = data.giftDays ?? 0
+        case .cards: return (have: cardCount, need: title.count ?? content.monsters.count)
         }
         return (have: have, need: need)
     }
@@ -75,6 +76,7 @@ extension GameSession {
         case .rebirths: need == 1 ? L("Be reborn") : L("Be reborn {count} times", ["count": need])
         case .bounties: L("Finish {count} daily bounties", ["count": need])
         case .days: L("Collect the daily gift on {count} days", ["count": need])
+        case .cards: L("Find {count} kinds of monster card", ["count": need])
         }
     }
 

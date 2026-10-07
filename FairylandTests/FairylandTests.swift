@@ -1879,6 +1879,78 @@ struct RewardTests {
         #expect(session.nextBookMilestone?.count != first.count)
     }
 
+    @Test func cardsGoInTheBookAndMakeYouStronger() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let monster = try #require(Content.shared.monsters.first { $0.rare != true && $0.boss != true })
+        let before = session.heroStats
+        let gain = session.cardGain(of: monster)
+        #expect(gain != .zero)
+        #expect(!session.hasCard(monster.id))
+        session.findCard(of: monster)
+        #expect(session.hasCard(monster.id))
+        #expect(session.cardCount == 1)
+        #expect(session.heroStats == before + gain)
+        // A spare is sold on the spot: gold, and no more strength.
+        let gold = session.data.gold
+        session.findCard(of: monster)
+        #expect(session.data.gold == gold + session.spareCardGold(monster))
+        #expect(session.heroStats == before + gain)
+        #expect(session.cards(of: monster.id) == 2)
+        #expect(session.cardCount == 1)
+    }
+
+    @Test func everyCardIsWorthSomething() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        for monster in Content.shared.monsters {
+            #expect(session.cardGain(of: monster) != .zero, "\(monster.id)'s card gives nothing")
+            #expect(session.spareCardGold(monster) > 0)
+        }
+        // Rare monsters and bosses leave their cards more often.
+        let common = try #require(Content.shared.monsters.first { $0.rare != true && $0.boss != true })
+        let rare = try #require(Content.shared.monsters.first { $0.rare == true })
+        let boss = try #require(Content.shared.monsters.first { $0.boss == true })
+        #expect(session.cardChance(for: common) < session.cardChance(for: rare))
+        #expect(session.cardChance(for: rare) < session.cardChance(for: boss))
+    }
+
+    @Test func cardQuestsAndTitlesCountKindsOfCard() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let quest = try #require(Content.shared.quest("models_wanted"))
+        session.acceptQuest(quest.id)
+        #expect(session.status(of: quest) == .active(progress: 0, goal: 5))
+        for monster in Content.shared.monsters.prefix(5) { session.findCard(of: monster) }
+        #expect(session.status(of: quest) == .ready)
+        session.turnInQuest(quest.id)
+        // The cards are only shown, never handed over; the toys are yours.
+        #expect(session.cardCount == 5)
+        #expect(session.count(of: "toy_bear") == 1)
+        for monster in Content.shared.monsters.dropFirst(5).prefix(5) { session.findCard(of: monster) }
+        let earned = session.checkTitles(quietly: true)
+        #expect(earned.contains { $0.id == "card_collector" })
+    }
+
+    @Test func toysRaiseACompanionForGoodUpToTen() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        let pet = try #require(session.makePet(species: "jelly", level: 5))
+        session.addPet(pet, countsForQuests: false)
+        let toy = try #require(Content.shared.item("toy_soldier"))
+        let raise = try #require(toy.stats)
+        let before = session.stats(of: pet)
+        session.addItem(toy.id, 12)
+        #expect(session.giveToy(toy.id, to: pet.id) != nil)
+        let played = try #require(session.data.pets.first { $0.id == pet.id })
+        #expect(session.stats(of: played) == before + raise)
+        #expect(session.count(of: toy.id) == 11)
+        for _ in 0..<12 { session.giveToy(toy.id, to: pet.id) }
+        let full = try #require(session.data.pets.first { $0.id == pet.id })
+        #expect(full.toys == GameSession.toysPerCompanion)
+        #expect(session.stats(of: full) == before + raise * GameSession.toysPerCompanion)
+        #expect(session.count(of: toy.id) == 12 - GameSession.toysPerCompanion)
+        // A potion isn't a toy.
+        session.addItem("potion")
+        #expect(session.giveToy("potion", to: pet.id) == nil)
+    }
+
     @Test func rebornHeroesClimbFaster() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         #expect(session.rebirthEXPBoost == 1)

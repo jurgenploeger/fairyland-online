@@ -70,6 +70,9 @@ nonisolated struct Pet: Codable, Equatable, Identifiable, Sendable {
     var exp: Int
     var hp: Int
     var mp: Int
+    /// Toys it has played with (`GameSession.giveToy`), and what they've raised for good.
+    var toys: Int?
+    var toyStats: Stats?
 }
 
 nonisolated struct QuestProgress: Codable, Equatable, Sendable {
@@ -126,6 +129,9 @@ nonisolated struct SaveData: Codable, Sendable {
     var tradesDone: [String]?
     /// The Monster Book: every species met in battle, by id.
     var monsterBook: [String: MonsterSighting]?
+    /// Monster cards found, by monster id: the first of each is kept in the Book, and the spares
+    /// (sold as they turned up) are counted too.
+    var cards: [String: Int]?
     /// Dark maps (caves): the cells you've seen by your light, one bit per cell (row by row from the
     /// south-west corner), by map id. The minimap shows only these.
     var explored: [String: Data]?

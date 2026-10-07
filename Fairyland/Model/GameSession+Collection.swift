@@ -1,0 +1,94 @@
+import Foundation
+
+/// Things to collect that make you stronger, after Fairyland Online's card collection and Pet Toys:
+/// every monster's card for the Monster Book (content/rewards.json `cards`), and toys that raise a
+/// companion's stats for good.
+extension GameSession {
+    // MARK: - Monster cards
+
+    /// How many of a monster's cards you've found, spares included.
+    func cards(of monsterID: String) -> Int { data.cards?[monsterID] ?? 0 }
+
+    func hasCard(_ monsterID: String) -> Bool { cards(of: monsterID) > 0 }
+
+    /// Kinds of monster card in the Book.
+    var cardCount: Int { data.cards?.values.filter { $0 > 0 }.count ?? 0 }
+
+    /// What a monster's card gives the hero for good: a stat for its element, more for a monster
+    /// that lives among higher levels, twice that for a rare one and three times for a boss.
+    func cardGain(of monster: MonsterDef) -> Stats {
+        let rules = content.rewards.cards
+        guard let gain = rules.gains[monster.element.rawValue] else { return .zero }
+        let steps = 1 + content.cardLevel(monster.id) / max(1, rules.levelsPerStep)
+        let worth = monster.boss == true ? rules.boss : monster.rare == true ? rules.rare : 1
+        return Stats(named: gain.stat, max(1, Int(gain.perStep * Double(steps) * worth)))
+    }
+
+    /// Every card in the Book together.
+    var cardBonus: Stats {
+        guard let cards = data.cards, !cards.isEmpty else { return .zero }
+        return content.monsters.filter { (cards[$0.id] ?? 0) > 0 }.map(cardGain(of:)).reduce(Stats.zero, +)
+    }
+
+    /// How likely a beaten monster is to leave its card.
+    func cardChance(for monster: MonsterDef) -> Double {
+        let rules = content.rewards.cards
+        return monster.boss == true ? rules.bossChance : monster.rare == true ? rules.rareChance : rules.chance
+    }
+
+    /// What a spare card sells for: a few times the gold the monster pays at its card's level.
+    func spareCardGold(_ monster: MonsterDef) -> Int {
+        let level = content.cardLevel(monster.id)
+        let gold = Int((Double(monster.gold) * (1 + 0.25 * Double(level - 1))).rounded())
+        return max(1, gold * content.rewards.cards.spareGold)
+    }
+
+    /// A monster's card turns up: the first goes in the Book, a spare is sold on the spot. Returns
+    /// the line to show.
+    @discardableResult
+    func findCard(of monster: MonsterDef) -> String {
+        var cards = data.cards ?? [:]
+        let count = (cards[monster.id] ?? 0) + 1
+        cards[monster.id] = count
+        data.cards = cards
+        guard count > 1 else {
+            return L("New card for your Monster Book: {monster}! {bonus} for good.",
+                     ["monster": monster.name, "bonus": cardGain(of: monster).bonusSummary])
+        }
+        let gold = spareCardGold(monster)
+        data.gold += gold
+        return L("A spare {monster} card: sold for {gold} gold.", ["monster": monster.name, "gold": gold])
+    }
+
+    // MARK: - Companion toys
+
+    /// Toys a companion can play with, each raising a stat for good. Ten of Fairyland Online's
+    /// +5 toys make its 50 points.
+    static let toysPerCompanion = 10
+
+    /// Toys in the bag.
+    var bagToys: [ItemDef] {
+        content.items.filter { $0.toy == true && count(of: $0.id) > 0 }
+    }
+
+    /// Gives a companion a toy from the bag. Returns a message, or nil when it isn't a toy you have.
+    @discardableResult
+    func giveToy(_ id: String, to petID: UUID) -> String? {
+        guard let item = content.item(id), item.toy == true, let raise = item.stats, count(of: id) > 0,
+              let index = data.pets.firstIndex(where: { $0.id == petID }) else { return nil }
+        let pet = data.pets[index]
+        guard (pet.toys ?? 0) < Self.toysPerCompanion else {
+            return L("{name} has all the toys it can play with.", ["name": pet.name])
+        }
+        removeItem(id)
+        data.pets[index].toys = (pet.toys ?? 0) + 1
+        data.pets[index].toyStats = (pet.toyStats ?? .zero) + raise
+        // More HP and MP to fill, and a companion that's up gets them now; a fainted one waits for its healer.
+        if pet.hp > 0 {
+            data.pets[index].hp += raise.hp
+            data.pets[index].mp += raise.mp
+        }
+        save()
+        return L("{name} loves the {toy}! {bonus} for good.", ["name": pet.name, "toy": item.name, "bonus": raise.bonusSummary])
+    }
+}

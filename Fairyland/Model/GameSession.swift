@@ -319,7 +319,7 @@ final class GameSession {
     var heroClass: ClassDef { content.classDef(data.hero.classID) }
 
     var heroStats: Stats {
-        heroRace.base + heroClass.growth * (data.hero.level - 1 + Self.rebirthLevelBonus * rebirths) + equipmentBonus
+        heroRace.base + heroClass.growth * (data.hero.level - 1 + Self.rebirthLevelBonus * rebirths) + equipmentBonus + cardBonus
     }
 
     // MARK: - Levels & rebirth
@@ -581,7 +581,11 @@ final class GameSession {
 
     func species(of pet: Pet) -> MonsterDef? { content.monster(pet.speciesID) }
 
-    func stats(of pet: Pet) -> Stats { species(of: pet)?.stats(at: pet.level) ?? .zero }
+    /// Its species at its level, and what its toys have added.
+    func stats(of pet: Pet) -> Stats {
+        guard let species = species(of: pet) else { return .zero }
+        return species.stats(at: pet.level) + (pet.toyStats ?? .zero)
+    }
 
     func makePet(species id: String, level: Int, name: String? = nil) -> Pet? {
         guard let species = content.monster(id) else { return nil }
@@ -1356,6 +1360,7 @@ final class GameSession {
             case .defeat, .capture, .collect, .hatch: progress.count
             case .reachLevel: data.hero.level
             case .chooseClass: data.hero.classID == "novice" ? 0 : 1
+            case .cards: cardCount
             }
             return current >= goal ? .ready : .active(progress: current, goal: goal)
         }

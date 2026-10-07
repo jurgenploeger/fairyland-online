@@ -53,6 +53,10 @@ import SpriteKit
 ///   info=<item>    with npc=<a shop>: open that item's info card
 ///   worldmap       open the world map
 ///   book           open the Monster Book, with the first 24 monsters already met
+///   page=<monster> with book: open that monster's page
+///   cards=n        the first n monsters' cards found (and those monsters met), for the Book
+///   card           with battle and win: every beaten monster leaves its card
+///   toys=n         with pet: the companion has played with n toys (each kind in turn)
 ///   title=<id>     that title (content/titles.json) earned and worn over your name
 ///   gift[=day]     today's daily gift not given yet: once the map is up it's handed out, that day of
 ///                  the round (1 unless set)
@@ -115,6 +119,10 @@ enum DebugLaunch {
     /// `nohud`: the map on its own, without the HUD over it (App Store slides of the world).
     static var hidesHUD: Bool { flags["nohud"] != nil }
     static var opensMonsterBook: Bool { flags["book"] != nil }
+    /// `page=<monster>`: with book, the Monster Book opens at that monster's page.
+    static var bookPage: String? { flags["page"] }
+    /// `card`: every beaten monster leaves its card (the victory's "New card!" for screenshots).
+    static var dropsCards: Bool { flags["card"] != nil }
     /// `change=armor`: the Character tab opens with that slot's list of things to wear.
     static var changingSlot: ItemType? { flags["change"].flatMap(ItemType.init(rawValue:)) }
     static var opensMenuAtBottom: Bool { flags["bottom"] != nil }
@@ -349,6 +357,20 @@ enum DebugLaunch {
         if let species = flags["pet"], let pet = session.makePet(species: species, level: max(1, session.data.hero.level - 15)) {
             session.addPet(pet, countsForQuests: false)
             session.data.activePetID = pet.id
+        }
+        if let count = flags["cards"].flatMap({ Int($0) }) {
+            for monster in Content.shared.monsters.prefix(max(0, count)) {
+                session.sawMonster(monster.id, level: Content.shared.cardLevel(monster.id))
+                session.findCard(of: monster)
+            }
+        }
+        if let count = flags["toys"].flatMap({ Int($0) }), let pet = session.activePet {
+            let toys = Content.shared.items.filter { $0.toy == true }
+            for index in 0..<max(0, count) where !toys.isEmpty {
+                let toy = toys[index % toys.count]
+                session.addItem(toy.id)
+                session.giveToy(toy.id, to: pet.id)
+            }
         }
         if let count = flags["friends"].flatMap({ Int($0) }) {
             // Most bring a companion, as friends do.

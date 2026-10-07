@@ -181,7 +181,8 @@ Quests, and ask for a rating after the first boss win (`requestReview`, three pr
 1. **Seasonal events.** Halloween falls in the launch window: a dated `content/events.json`, a sighting boost, a
    recoloured outfit via `derive` and an event title.
 2. **Opt-in local notifications** for the daily board and rare sightings. No server needed.
-3. **Cards and dolls** (FO): monster drops collected in the Book, with set bonuses.
+3. **Cards and dolls** (FO): monster drops collected in the Book. Cards done in 0.3.69, each with its own
+   bonus for good rather than set bonuses, plus companion toys and the toymaker's card quests. Dolls still to do.
 
 **Bigger (1.1 and on), already on the roadmap in `docs/fairyland-online.md`:**
 

@@ -12,7 +12,7 @@ enum Brand {
     static let forest = Color(red: 0.09, green: 0.302, blue: 0.231)    // #174D3B
     /// The thicker edge under the letters and the pill.
     static let depth = Color(red: 0.039, green: 0.188, blue: 0.141)    // #0A3024
-    /// The sticker border round the letters, and the book's pages.
+    /// The book's pages under the leaf, and the loading bar's track.
     static let cream = Color(red: 1, green: 0.969, blue: 0.878)        // #FFF7E0
 
     /// The icon's sky, top to bottom.

@@ -1,5 +1,5 @@
 {
-  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `sheets` (per race) swaps in a whole walk sheet while it's worn (Retro Diffusion art in art/sprites; only the skin colour applies), recoloured by `tint` for the rare colour variants bosses drop. Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory | material. `classes` limits who can equip it (omit = everyone); `level` is the level needed. Materials (type material; `material` is wood | metal | gem | hide) drop from monsters of at least their `level`. `recipe` is what a blacksmith needs to forge the item.",
+  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `sheets` (per race) swaps in a whole walk sheet while it's worn (Retro Diffusion art in art/sprites; only the skin colour applies), recoloured by `tint` for the rare colour variants bosses drop. Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory | material. `classes` limits who can equip it (omit = everyone); `level` is the level needed. Materials (type material; `material` is wood | metal | gem | hide) drop from monsters of at least their `level`. `recipe` is what a blacksmith needs to forge the item. Companion toys (`toy`, Fairyland Online's Pet Toys) are consumables given to a companion from the bag: they raise its `stats` for good, up to ten toys a companion (GameSession.giveToy).",
   "items": [
     {
       "id": "potion",
@@ -343,6 +343,84 @@
       "price": 90,
       "mp": 50,
       "description": "Restores 50 MP."
+    },
+    {
+      "id": "toy_soldier",
+      "icon": "sword",
+      "art": "item_toy_soldier",
+      "name": "Tin Soldier",
+      "type": "consumable",
+      "price": 1200,
+      "toy": true,
+      "stats": {
+        "attack": 5
+      },
+      "description": "A brave little soldier with a painted drum. Companions who play with it hit harder."
+    },
+    {
+      "id": "toy_blocks",
+      "icon": "shield",
+      "art": "item_toy_blocks",
+      "name": "Toy Blocks",
+      "type": "consumable",
+      "price": 1200,
+      "toy": true,
+      "stats": {
+        "defense": 5
+      },
+      "description": "Stack them high, knock them down. Companions who play with them stand firmer."
+    },
+    {
+      "id": "toy_music_box",
+      "icon": "music",
+      "art": "item_toy_music_box",
+      "name": "Music Box",
+      "type": "consumable",
+      "price": 1200,
+      "toy": true,
+      "stats": {
+        "magic": 5
+      },
+      "description": "Wind it up and the air sparkles. Companions who play with it cast stronger magic."
+    },
+    {
+      "id": "toy_ball",
+      "icon": "bounce",
+      "art": "item_toy_ball",
+      "name": "Bouncy Ball",
+      "type": "consumable",
+      "price": 1200,
+      "toy": true,
+      "stats": {
+        "speed": 5
+      },
+      "description": "Boing! Nobody can catch it. Companions who play with it get quicker."
+    },
+    {
+      "id": "toy_bear",
+      "icon": "heart",
+      "art": "item_toy_bear",
+      "name": "Cuddly Bear",
+      "type": "consumable",
+      "price": 1200,
+      "toy": true,
+      "stats": {
+        "hp": 25
+      },
+      "description": "Soft, a little worn and much loved. Companions who play with it grow hardier."
+    },
+    {
+      "id": "toy_bubbles",
+      "icon": "wand",
+      "art": "item_toy_bubbles",
+      "name": "Bubble Wand",
+      "type": "consumable",
+      "price": 1200,
+      "toy": true,
+      "stats": {
+        "mp": 10
+      },
+      "description": "One breath, a hundred bubbles. Companions who play with it gain more MP."
     },
     {
       "id": "steel_sword",

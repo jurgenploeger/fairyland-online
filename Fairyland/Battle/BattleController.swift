@@ -17,6 +17,8 @@ struct BattleResult {
     var others: [LevelUp] = []
     /// A boss beaten for the first time: what it means, told before the pay.
     var story: BossStory?
+    /// Monster cards new to the Book (monster ids), shown face up.
+    var newCards: [String] = []
 }
 
 /// Someone else in the party who went up a level with a win: a friend or your companion.
@@ -330,6 +332,9 @@ final class BattleController {
     private var rewardGold = 0
     /// Item id → how many were found after a win.
     private var loot: [String: Int] = [:]
+    /// Monster cards new to the Book after a win (monster ids), and the lines that told of them.
+    private var newCards: [String] = []
+    private var newCardLines: Set<String> = []
 
     var hero: Combatant? { combatants.first(where: \.isHero) }
     var party: [Combatant] { combatants.filter { $0.side == .party } }
@@ -1029,10 +1034,11 @@ final class BattleController {
         let found = loot.sorted { $0.key < $1.key }.map { (id: $0.key, count: $0.value) }
         // The card shows level-ups as banners of their own; their lines go to the log.
         let levelText = newLevel.map { levelLine($0) }
-        let othersText = Set(othersLevelled.map(\.line))
+        // New cards too: the card shows them face up.
+        let othersText = Set(othersLevelled.map(\.line)).union(newCardLines)
         result = BattleResult(outcome: outcome, lines: lines.filter { $0 != levelText && !othersText.contains($0) }, newLevel: newLevel,
                               exp: rewardEXP, gold: rewardGold, loot: found, levelsGained: levelsGained,
-                              others: othersLevelled, story: outcome == .victory ? story : nil)
+                              others: othersLevelled, story: outcome == .victory ? story : nil, newCards: newCards)
         let won = outcome == .victory || outcome == .fled
         // The log gets it all in words; the result card shows the pay as icons.
         var logged = lines
@@ -1263,6 +1269,20 @@ final class BattleController {
             loot[gear.id, default: 0] += 1
             gearFound += 1
             lines.append(L("{name} dropped {item}!", ["name": foe.name, "item": gear.name]))
+        }
+
+        // Monster cards (Fairyland Online's card collection): now and then a beaten monster leaves
+        // its card, a rare one or a boss more often.
+        for foe in beaten {
+            guard case .wild = foe.source, let id = foe.speciesID, let species = content.monster(id),
+                  Double.random(in: 0..<1) < (DebugLaunch.dropsCards ? 1 : session.cardChance(for: species)) else { continue }
+            let isNew = !session.hasCard(id)
+            let line = session.findCard(of: species)
+            if isNew {
+                newCards.append(id)
+                newCardLines.insert(line)
+            }
+            lines.append(line)
         }
 
         // Today's bounties, the Monster Book's milestones, and any title the win earned.
