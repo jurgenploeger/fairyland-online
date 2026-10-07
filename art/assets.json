@@ -3593,6 +3593,36 @@
       }
     },
     {
+      "id": "npc_toymaker",
+      "kind": "walk_sheet",
+      "derive": {
+        "from": "player_walk",
+        "recolor": [
+          {
+            "hue": [
+              85,
+              170
+            ],
+            "minSaturation": 0.3,
+            "to": 350,
+            "saturation": 0.75,
+            "value": 1.0
+          },
+          {
+            "hue": [
+              12,
+              58
+            ],
+            "minSaturation": 0.55,
+            "minValue": 0.55,
+            "to": 280,
+            "saturation": 0.55,
+            "value": 1.05
+          }
+        ]
+      }
+    },
+    {
       "id": "npc_chief",
       "kind": "walk_sheet",
       "frame": 48,
@@ -4575,6 +4605,72 @@
             "value": 1.05
           }
         ]
+      }
+    },
+    {
+      "id": "item_toy_soldier",
+      "kind": "item",
+      "request": {
+        "prompt": "tin toy soldier in a red coat with a drum, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_toy_blocks",
+      "kind": "item",
+      "request": {
+        "prompt": "three stacked wooden toy blocks with letters, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_toy_music_box",
+      "kind": "item",
+      "request": {
+        "prompt": "open wooden music box with a golden crank, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_toy_ball",
+      "kind": "item",
+      "request": {
+        "prompt": "bouncy striped rubber ball, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_toy_bear",
+      "kind": "item",
+      "request": {
+        "prompt": "brown teddy bear with a red bow, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_toy_bubbles",
+      "kind": "item",
+      "request": {
+        "prompt": "bubble wand blowing shiny bubbles, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
       }
     },
     {

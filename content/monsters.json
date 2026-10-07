@@ -2539,6 +2539,10 @@
         {
           "item": "golden_plate",
           "chance": 0.15
+        },
+        {
+          "item": "toy_blocks",
+          "chance": 0.3
         }
       ],
       "name": "Rat King",
@@ -2581,6 +2585,10 @@
         {
           "item": "azure_dragon_mail",
           "chance": 0.15
+        },
+        {
+          "item": "toy_music_box",
+          "chance": 0.3
         }
       ],
       "name": "Drunk Dragon",
@@ -2623,6 +2631,10 @@
         {
           "item": "shadow_snow_cloak",
           "chance": 0.15
+        },
+        {
+          "item": "toy_ball",
+          "chance": 0.3
         }
       ],
       "name": "Big Bad Wolf",
@@ -3021,7 +3033,13 @@
         "roar"
       ],
       "motion": "breathe",
-      "boss": true
+      "boss": true,
+      "drops": [
+        {
+          "item": "toy_soldier",
+          "chance": 0.3
+        }
+      ]
     },
     {
       "id": "wolf_leader",
@@ -3053,7 +3071,13 @@
         "roar"
       ],
       "motion": "breathe",
-      "boss": true
+      "boss": true,
+      "drops": [
+        {
+          "item": "toy_ball",
+          "chance": 0.3
+        }
+      ]
     },
     {
       "id": "puppet_king",
@@ -3085,7 +3109,13 @@
         "roar"
       ],
       "motion": "breathe",
-      "boss": true
+      "boss": true,
+      "drops": [
+        {
+          "item": "toy_soldier",
+          "chance": 0.3
+        }
+      ]
     },
     {
       "id": "rock_monster",
@@ -3117,7 +3147,13 @@
         "roar"
       ],
       "motion": "breathe",
-      "boss": true
+      "boss": true,
+      "drops": [
+        {
+          "item": "toy_blocks",
+          "chance": 0.3
+        }
+      ]
     },
     {
       "id": "idreus",
@@ -3150,7 +3186,13 @@
         "evil_eye"
       ],
       "motion": "breathe",
-      "boss": true
+      "boss": true,
+      "drops": [
+        {
+          "item": "toy_music_box",
+          "chance": 0.3
+        }
+      ]
     },
     {
       "id": "tide_dragon",
@@ -3182,7 +3224,13 @@
         "roar"
       ],
       "motion": "breathe",
-      "boss": true
+      "boss": true,
+      "drops": [
+        {
+          "item": "toy_ball",
+          "chance": 0.3
+        }
+      ]
     },
     {
       "id": "silver_lieutenant",
@@ -3214,7 +3262,13 @@
         "roar"
       ],
       "motion": "breathe",
-      "boss": true
+      "boss": true,
+      "drops": [
+        {
+          "item": "toy_blocks",
+          "chance": 0.3
+        }
+      ]
     },
     {
       "id": "emerald_dragon",
@@ -3246,7 +3300,13 @@
         "roar"
       ],
       "motion": "breathe",
-      "boss": true
+      "boss": true,
+      "drops": [
+        {
+          "item": "toy_bear",
+          "chance": 0.3
+        }
+      ]
     },
     {
       "id": "grumpy_oak",
@@ -3287,6 +3347,10 @@
         {
           "item": "autumn_leather_vest",
           "chance": 0.15
+        },
+        {
+          "item": "toy_bear",
+          "chance": 0.3
         }
       ]
     },
@@ -3329,6 +3393,10 @@
         {
           "item": "dawn_silk_robe",
           "chance": 0.15
+        },
+        {
+          "item": "toy_bubbles",
+          "chance": 0.3
         }
       ]
     },
@@ -3372,6 +3440,10 @@
         {
           "item": "bunny_tamer_jacket",
           "chance": 0.15
+        },
+        {
+          "item": "toy_bubbles",
+          "chance": 0.3
         }
       ]
     }

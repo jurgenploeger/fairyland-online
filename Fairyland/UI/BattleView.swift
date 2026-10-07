@@ -1014,6 +1014,9 @@ private struct ResultPanel: View {
             if !result.loot.isEmpty {
                 LootGrid(loot: result.loot)
             }
+            if !result.newCards.isEmpty {
+                NewCards(session: session, ids: result.newCards)
+            }
             ForEach(Array(result.lines.enumerated()), id: \.offset) { _, line in
                 Text(line)
                     .font(HUDStyle.font(13))
@@ -1179,6 +1182,39 @@ struct LootGrid: View {
         .padding(10)
         .frame(maxWidth: .infinity)
         .background(RoundedRectangle(cornerRadius: 12).fill(.white.opacity(0.06)))
+    }
+}
+
+/// Monster cards new to the Book after a win, face up, each with what it gives for good.
+private struct NewCards: View {
+    let session: GameSession
+    let ids: [String]
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Text(ids.count == 1 ? L("New card!") : L("New cards!"))
+                .font(HUDStyle.font(14))
+                .foregroundStyle(HUDStyle.gold)
+            CenteredRows(spacing: 10, rowSpacing: 8) {
+                ForEach(ids, id: \.self) { id in
+                    if let monster = session.content.monster(id) {
+                        VStack(spacing: 4) {
+                            MonsterCardFace(monster: monster, width: 56)
+                            Text(session.cardGain(of: monster).bonusSummary)
+                                .font(HUDStyle.font(10))
+                                .foregroundStyle(HUDStyle.green)
+                        }
+                        .accessibilityElement(children: .combine)
+                    }
+                }
+            }
+            Text(L("Kept in your Monster Book, for good."))
+                .font(HUDStyle.font(10))
+                .foregroundStyle(HUDStyle.dim)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+        .background(RoundedRectangle(cornerRadius: 12).fill(HUDStyle.gold.opacity(0.1)))
     }
 }
 

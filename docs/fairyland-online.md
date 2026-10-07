@@ -305,7 +305,12 @@ Full Heal.
 - Companions grow as species base + growth × (level − 1) and have a fixed skill list.
 - Each round, after your own choice, you pick your companion's: Attack, one of its skills, Guard, or Auto (it
   decides itself). It always obeys, since there's no intimacy. A Settings switch leaves it to fight on its own.
-- None of the modes, fusions, intimacy, upkeep, toys or carts exist.
+- Toys (since 0.3.69, asked for in playtesting 2026-10-07: "more items that really add value and you want to
+  collect"): six, each raising one stat for good, +5 ATK, DEF, MAG or SPD, +25 HP or +10 MP, up to ten a
+  companion, so one stat can take FO's 50 points (`GameSession.giveToy`). Prismhaven's market sells them
+  (1,200 gold), every boss drops one 30% of the time, adventurers carry them, and Tilly the Toymaker's quests
+  pay in them. FO's toy maker was in Baghdad, a town we don't have; ours is in Prismhaven.
+- None of the modes, fusions, intimacy, upkeep or carts exist.
 
 ## Work skills and crafting (H)
 
@@ -328,12 +333,21 @@ your class (`GameSession.equipmentDrop`).
 - **Fame (M):** quests are the main way to earn it.
 - **Kingdom Wars (H):** guild-vs-guild PvP.
 
-**Us:** titles, but no fame. 32 titles (content/titles.json, our own names) are earned for levels, lands
-visited, the Monster Book, quests, bosses, companions, friends, rebirths, daily bounties and days played, and
-one is worn over your name; computer-run adventurers wear the level titles that fit them. Duels are with
-computer-run adventurers in 9 danger zones; a beaten adventurer drops everything they carry (the goods they'd
-sell you that day). Quests pay at least a bit more than a daily bounty for your level when you hand them in
-(`quests` in content/rewards.json; our decision, 2026-10-06, at the playtester's request).
+**Us:** titles, but no fame. 35 titles (content/titles.json, our own names) are earned for levels, lands
+visited, the Monster Book, monster cards, quests, bosses, companions, friends, rebirths, daily bounties and
+days played, and one is worn over your name; computer-run adventurers wear the level titles that fit them.
+Duels are with computer-run adventurers in 9 danger zones; a beaten adventurer drops everything they carry
+(the goods they'd sell you that day). Quests pay at least a bit more than a daily bounty for your level when
+you hand them in (`quests` in content/rewards.json; our decision, 2026-10-06, at the playtester's request).
+
+**Cards (since 0.3.69):** FO's card collection, our own way, since no source we could reach says what FO's
+cards did. Every monster has one. A beaten monster leaves its card 3% of the time (rare 15%, boss 25%;
+`cards` in content/rewards.json). The first of each goes in the Monster Book and raises a stat for good, by
+element: Fire and Metal attack, Dark magic, Earth defence, Water speed, Wood HP, Light MP. It gives a step, and
+another for every 25 levels of where the monster lives, twice that for a rare card and three times for a
+boss's. The whole set adds about +107 ATK, +127 MAG, +44 DEF, +27 SPD, +375 HP and +154 MP. Spares sell on the
+spot. Tilly the Toymaker in Prismhaven has five quests for 5 to 100 kinds of card, paid in toys, and three
+titles count cards. FO's dolls aren't in yet.
 
 **Ours, not FO's (content/rewards.json):** a gift each day you play, in a round of seven; three daily
 bounties scaled to your level, with a bonus for all three; and rewards as the Monster Book fills (10, 25, 50,
@@ -429,7 +443,7 @@ Each step is its own PR, after a pass over the ToM wiki:
    to the Acolyte of Light.
 3. Pet modes, intimacy, MP upkeep and the Arms/Armor/Magic/Soul fusions.
 4. Capture capsules by level tier and pet shops; a home capital per race, with its guild hall there.
-5. Work skills feeding the smith; titles, dolls and cards.
+5. Work skills feeding the smith; dolls (titles since 0.3.61, cards since 0.3.69).
 
 ## Sources
 

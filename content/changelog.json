@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.69",
+      "date": "2026-10-07",
+      "title": "Monster cards and toys",
+      "notes": [
+        "Every monster has a card now. Beaten monsters leave theirs now and then, rare ones and bosses more often, and each new kind goes in your Monster Book and makes you stronger for good: Fire and Metal cards raise attack, Dark magic, Earth defence, Water speed, Wood HP and Light MP, more from stronger monsters. Spares are sold on the spot.",
+        "Toys for your companions: a Tin Soldier, Toy Blocks, a Music Box, a Bouncy Ball, a Cuddly Bear and a Bubble Wand, each raising one of a companion's stats for good, up to ten toys a companion. Prismhaven Market sells them, and bosses sometimes drop one.",
+        "Tilly the Toymaker in Prismhaven wants to see your cards: five quests, from five kinds of card to a hundred, each paying in toys. Three new titles for collecting cards, too."
+      ]
+    },
+    {
       "version": "0.3.68",
       "date": "2026-10-07",
       "title": "A tidier world map",

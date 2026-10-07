@@ -1,5 +1,5 @@
 {
-  "_about": "Titles you earn and wear over your name (Character tab → Titles), like Fairyland Online's collectable titles (docs/fairyland-online.md). `kind` is what earns one, with `count` of it: level (reach it), lands (set foot in that many maps; no count: every one), book (kinds of monster in the Monster Book; no count: all), quests (finished), bosses (different bosses beaten), companions (travelling with you), friends (befriended), rebirths, bounties (daily bounties finished) and days (days you've collected the daily gift on). `boss` takes a `target` instead: the boss's NPC id. Earned titles stay earned. Computer-run adventurers wear the `level` titles that fit them now and then.",
+  "_about": "Titles you earn and wear over your name (Character tab → Titles), like Fairyland Online's collectable titles (docs/fairyland-online.md). `kind` is what earns one, with `count` of it: level (reach it), lands (set foot in that many maps; no count: every one), book (kinds of monster in the Monster Book; no count: all), quests (finished), bosses (different bosses beaten), companions (travelling with you), friends (befriended), rebirths, bounties (daily bounties finished) and days (days you've collected the daily gift on) and cards (kinds of monster card in the Book; no count: all). `boss` takes a `target` instead: the boss's NPC id. Earned titles stay earned. Computer-run adventurers wear the `level` titles that fit them now and then.",
   "titles": [
     {"id": "apprentice", "name": "Apprentice", "kind": "level", "count": 10},
     {"id": "seasoned", "name": "Seasoned", "kind": "level", "count": 30},
@@ -15,6 +15,9 @@
     {"id": "beast_scholar", "name": "Beast Scholar", "kind": "book", "count": 50},
     {"id": "monster_sage", "name": "Monster Sage", "kind": "book", "count": 75},
     {"id": "keeper_of_the_book", "name": "Keeper of the Book", "kind": "book"},
+    {"id": "card_collector", "name": "Card Collector", "kind": "cards", "count": 10},
+    {"id": "curator", "name": "Curator", "kind": "cards", "count": 50},
+    {"id": "grand_curator", "name": "Grand Curator", "kind": "cards"},
     {"id": "helping_hand", "name": "Helping Hand", "kind": "quests", "count": 10},
     {"id": "good_neighbour", "name": "Good Neighbour", "kind": "quests", "count": 25},
     {"id": "storymender", "name": "Storymender", "kind": "quests", "count": 40},

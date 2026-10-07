@@ -25,6 +25,21 @@ nonisolated struct Stats: Codable, Equatable, Sendable {
         self.speed = speed
     }
 
+    /// One stat by its name in the content (hp, mp, attack, defense, magic or speed); none for
+    /// any other name.
+    init(named stat: String, _ amount: Int) {
+        self.init()
+        switch stat {
+        case "hp": hp = amount
+        case "mp": mp = amount
+        case "attack": attack = amount
+        case "defense": defense = amount
+        case "magic": magic = amount
+        case "speed": speed = amount
+        default: break
+        }
+    }
+
     /// Fields missing from the JSON count as 0, so content only lists what matters.
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -270,6 +285,9 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     /// Homeward Feathers: used from the bag outside battle, they carry you to your checkpoint like
     /// Bridge of Light, for any class.
     let travel: Bool?
+    /// Companion toys (Fairyland Online's Pet Toys): given to a companion from the bag, they raise
+    /// its `stats` for good, up to `GameSession.toysPerCompanion` toys each.
+    let toy: Bool?
     /// Armour: how it recolours the hero's outfit while worn (same rules as looks).
     let recolor: [RecolorRule]?
     /// Materials: wood | metal | gem | hide. Monsters of at least `level` drop them.
@@ -294,7 +312,8 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
 
 nonisolated struct QuestDef: Decodable, Identifiable, Sendable {
     nonisolated enum ObjectiveType: String, Decodable, Sendable {
-        case defeat, capture, reachLevel, chooseClass, collect, hatch
+        /// `cards`: kinds of monster card in the Monster Book, `count` of them.
+        case defeat, capture, reachLevel, chooseClass, collect, hatch, cards
     }
 
     /// Asked when accepting; the answer decides which companion hatches from the egg.
@@ -716,10 +735,10 @@ nonisolated struct AnnouncementOptions: Decodable, Sendable {
 }
 
 /// A title you earn and wear over your name (content/titles.json): what earns it is `kind`, with
-/// `count` of it (nil for lands and book: every one), or `target` for one boss.
+/// `count` of it (nil for lands, book and cards: every one), or `target` for one boss.
 nonisolated struct TitleDef: Decodable, Identifiable, Sendable {
     nonisolated enum Kind: String, Decodable, Sendable {
-        case level, lands, book, quests, bosses, boss, companions, friends, rebirths, bounties, days
+        case level, lands, book, quests, bosses, boss, companions, friends, rebirths, bounties, days, cards
     }
     let id: String
     let name: String
@@ -766,10 +785,33 @@ nonisolated struct RewardsDef: Decodable, Sendable {
         let gold: Int
         let items: [String]?
     }
+    /// Monster cards (Fairyland Online's card collection): a beaten monster leaves its card one
+    /// time in `chance` (`rareChance` for a rare one, `bossChance` for a boss). The first of each
+    /// goes in the Monster Book and raises the hero's stat for its element (`gains`) for good:
+    /// `perStep` for each step, one step and another for every `levelsPerStep` levels of where the
+    /// monster lives (`Content.cardLevel`), times `rare` or `boss` for theirs. A spare is sold on the
+    /// spot for `spareGold` times the gold the monster pays.
+    nonisolated struct Cards: Decodable, Sendable {
+        nonisolated struct Gain: Decodable, Sendable {
+            /// hp, mp, attack, defense, magic or speed.
+            let stat: String
+            let perStep: Double
+        }
+        let chance: Double
+        let rareChance: Double
+        let bossChance: Double
+        let levelsPerStep: Int
+        let rare: Double
+        let boss: Double
+        /// By element (`Element`'s raw value).
+        let gains: [String: Gain]
+        let spareGold: Int
+    }
     let dailyGifts: [Gift]
     let bounties: Bounties
     let quests: Quests
     let bookMilestones: [Milestone]
+    let cards: Cards
 }
 
 /// One entry in content/changelog.json, shown under "What's new" on the title screen.
@@ -852,6 +894,8 @@ final class Content {
         let releases: [ReleaseNote]
         let titles: [TitleDef]
         let rewards: RewardsDef
+        /// Each monster's card level (`cardLevel`), worked out once.
+        let cardLevels: [String: Int]
     }
 
     private let bundle: Bundle
@@ -901,6 +945,17 @@ final class Content {
         let classFile: ClassesFile = load("classes")
         let mapFile: MapsFile = load("maps")
         let musicFile: MusicFile = load("music")
+        // Where each monster lives, at its gentlest: the middle of the lowest band of levels it
+        // turns up in, or a boss's own level.
+        var cardLevels: [String: Int] = [:]
+        for map in mapFile.maps {
+            if let encounters = map.encounters, let low = encounters.levels.first, let high = encounters.levels.last {
+                for id in encounters.monsters.keys { cardLevels[id] = min(cardLevels[id] ?? .max, (low + high) / 2) }
+            }
+            for npc in map.npcs ?? [] where npc.role == .boss {
+                if let id = npc.monster, let level = npc.level { cardLevels[id] = min(cardLevels[id] ?? .max, level) }
+            }
+        }
         return Loaded(
             classChoiceLevel: classFile.classChoiceLevel,
             races: classFile.races,
@@ -918,7 +973,8 @@ final class Content {
             announcements: load("announcements"),
             releases: (load("changelog") as ChangelogFile).releases,
             titles: (load("titles") as TitlesFile).titles,
-            rewards: load("rewards")
+            rewards: load("rewards"),
+            cardLevels: cardLevels
         )
     }
 
@@ -996,4 +1052,8 @@ final class Content {
     func home(ofNPC id: String) -> MapDef? {
         maps.first { $0.npcs?.contains { $0.id == id } == true }
     }
+
+    /// The level a monster's card is worth (`RewardsDef.Cards`): the middle of the gentlest band
+    /// of levels it lives in, or a boss's own level; 1 for one that lives nowhere.
+    func cardLevel(_ monsterID: String) -> Int { max(1, loaded.cardLevels[monsterID] ?? 1) }
 }

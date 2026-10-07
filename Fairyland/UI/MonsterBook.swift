@@ -1,12 +1,12 @@
 import SwiftUI
 
 /// Every monster you've met in battle: a grid of tiles (dark silhouettes for the ones still to meet),
-/// filterable by element. Tap one for its page: lore, element strengths, stats, skills, where it lives
-/// and what it drops.
+/// filterable by element, rimmed in gold once you have its card. Tap one for its page: its card,
+/// lore, element strengths, stats, skills, where it lives and what it drops.
 struct MonsterBook: View {
     let session: GameSession
     @State private var element: Element?
-    @State private var selected: String?
+    @State private var selected: String? = DebugLaunch.bookPage
 
     private var all: [MonsterDef] { session.content.monsters }
     private var seenCount: Int { all.filter { session.sighting(of: $0.id) != nil }.count }
@@ -30,6 +30,7 @@ struct MonsterBook: View {
             Text(L("Every monster you meet in battle is written down here. Tap one to read about it."))
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.dim)
+            cards
             milestone
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
@@ -43,6 +44,29 @@ struct MonsterBook: View {
                 }
             }
         }
+    }
+
+    /// The cards collected so far, and what they add up to.
+    private var cards: some View {
+        let bonus = session.cardBonus.bonusSummary
+        return HStack(spacing: 8) {
+            CardBadge(size: 16)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(L("Cards: {count} of {total}", ["count": session.cardCount, "total": all.count]))
+                    .font(HUDStyle.font(11))
+                    .foregroundStyle(HUDStyle.gold)
+                Text(bonus.isEmpty
+                     ? L("Beaten monsters now and then leave their card. Each kind makes you stronger for good.")
+                     : L("Your cards make you stronger for good: {bonus}", ["bonus": bonus]))
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.cream)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 6).fill(HUDStyle.gold.opacity(0.08)))
+        .accessibilityElement(children: .combine)
     }
 
     /// The Book's next reward, and how close it is.
@@ -106,6 +130,7 @@ struct MonsterBook: View {
     @ViewBuilder
     private func tile(_ monster: MonsterDef) -> some View {
         let seen = session.sighting(of: monster.id) != nil
+        let carded = session.hasCard(monster.id)
         VStack(spacing: 3) {
             SpriteImage(art: monster.art, size: 48)
                 .colorMultiply(seen ? .white : .black)
@@ -128,6 +153,15 @@ struct MonsterBook: View {
                         ElementIcon(element: monster.element, size: 16).padding(4)
                     }
                 }
+                // Its card is in the Book: a gold rim, and the card's mark in the corner.
+                .overlay {
+                    if carded {
+                        RoundedRectangle(cornerRadius: 8).strokeBorder(HUDStyle.gold.opacity(0.85), lineWidth: 1.5)
+                    }
+                }
+                .overlay(alignment: .topLeading) {
+                    if carded { CardBadge(size: 13).padding(5) }
+                }
         )
         .contentShape(Rectangle())
         .onTapGesture {
@@ -136,8 +170,81 @@ struct MonsterBook: View {
             selected = monster.id
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(seen ? "\(monster.name), \(monster.element.displayName)" : L("Not met yet"))
+        .accessibilityLabel(seen ? (carded ? L("{monster}, {element}, card found", ["monster": monster.name, "element": monster.element.displayName])
+                                           : "\(monster.name), \(monster.element.displayName)")
+                                 : L("Not met yet"))
         .accessibilityAddTraits(seen ? .isButton : [])
+    }
+}
+
+/// A monster's card (Fairyland Online's card collection): the monster on its element's colours in a
+/// gold frame, a star in the corner for a rare one or a boss, its name along the bottom. Face down
+/// (`found` false), the card's back: Storyleaf's leaf in gold on forest green.
+struct MonsterCardFace: View {
+    let monster: MonsterDef
+    var width: CGFloat = 64
+    var found = true
+
+    var body: some View {
+        let height = (width * 1.4).rounded()
+        let corner = width * 0.12
+        let tint = Color(uiColor: monster.element.color)
+        ZStack {
+            if found {
+                RoundedRectangle(cornerRadius: corner)
+                    .fill(LinearGradient(colors: [tint.opacity(0.55), tint.opacity(0.95)], startPoint: .top, endPoint: .bottom))
+                RadialGradient(colors: [.white.opacity(0.45), .white.opacity(0)], center: .center, startRadius: 0, endRadius: width * 0.5)
+                    .clipShape(RoundedRectangle(cornerRadius: corner))
+                SpriteImage(art: monster.art, size: width * 0.78)
+                    .offset(y: -height * 0.06)
+                VStack {
+                    HStack {
+                        ElementIcon(element: monster.element, size: width * 0.22)
+                        Spacer()
+                        if monster.boss == true || monster.rare == true {
+                            IconImage(.star, size: width * 0.2).foregroundStyle(HUDStyle.gold)
+                        }
+                    }
+                    Spacer()
+                    Text(monster.name)
+                        .font(HUDStyle.font(max(7, width * 0.12)))
+                        .foregroundStyle(HUDStyle.cream)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                        .padding(.horizontal, 3)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(HUDStyle.ink.opacity(0.75)))
+                }
+                .padding(width * 0.07)
+            } else {
+                RoundedRectangle(cornerRadius: corner).fill(Brand.forest)
+                RoundedRectangle(cornerRadius: corner * 0.7)
+                    .strokeBorder(HUDStyle.gold.opacity(0.4), lineWidth: 1)
+                    .padding(width * 0.08)
+                IconImage(.leaf, size: width * 0.4).foregroundStyle(HUDStyle.gold.opacity(0.75))
+            }
+            RoundedRectangle(cornerRadius: corner).strokeBorder(HUDStyle.gold, lineWidth: max(1.5, width * 0.04))
+        }
+        .frame(width: width, height: height)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(found ? L("{monster}'s card", ["monster": monster.name]) : L("A card not found yet"))
+    }
+}
+
+/// The mark of a monster card: a small gold card with a spark on it.
+struct CardBadge: View {
+    var size: CGFloat = 14
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: size * 0.15)
+                .fill(HUDStyle.gold)
+                .overlay(RoundedRectangle(cornerRadius: size * 0.15).strokeBorder(HUDStyle.ink.opacity(0.6), lineWidth: 1))
+            IconImage(.sparkles, size: size * 0.55).foregroundStyle(HUDStyle.ink)
+        }
+        .frame(width: size * 0.75, height: size)
+        .accessibilityHidden(true)
     }
 }
 
@@ -185,6 +292,29 @@ private struct MonsterPage: View {
                     Text(L("Met at {levels} · beaten {count}×", ["levels": levels, "count": sighting.defeated]))
                         .font(HUDStyle.font(10))
                         .foregroundStyle(HUDStyle.dim)
+                }
+            }
+
+            section(L("Card")) {
+                let found = session.cards(of: monster.id)
+                let gain = session.cardGain(of: monster).bonusSummary
+                HStack(alignment: .center, spacing: 12) {
+                    MonsterCardFace(monster: monster, width: 58, found: found > 0)
+                    VStack(alignment: .leading, spacing: 4) {
+                        if found > 0 {
+                            Text(L("In your Book: {bonus} for good.", ["bonus": gain]))
+                                .foregroundStyle(HUDStyle.green)
+                            Text(found > 1
+                                 ? L("Found {count} times. A spare sells for {gold} gold.", ["count": found, "gold": session.spareCardGold(monster)])
+                                 : L("A spare sells for {gold} gold.", ["gold": session.spareCardGold(monster)]))
+                                .foregroundStyle(HUDStyle.dim)
+                        } else {
+                            Text(L("Not found yet. It now and then leaves its card when beaten: {bonus} for good.", ["bonus": gain]))
+                                .foregroundStyle(HUDStyle.cream)
+                        }
+                    }
+                    .font(HUDStyle.font(11))
+                    .fixedSize(horizontal: false, vertical: true)
                 }
             }
 

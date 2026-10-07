@@ -600,6 +600,133 @@ def draw_speed_boots(c):
     c.set(21, 25, GOLD[1])
 
 
+# ---------------------------------------------------------------- companion toys
+# Fairyland Online's Pet Toys: a companion who plays with one gains a stat for good.
+
+SKIN = hexc("ffd6b4")
+BEAR = [hexc("6e4224"), hexc("a06638"), hexc("d6a06a")]
+
+
+def draw_toy_soldier(c):
+    """A wind-up tin soldier: tall black shako with a gold badge and a red plume, red coat with gold
+    buttons, blue trousers, black boots, and the gold key in his back."""
+    c.rect(15, 1, 17, 2, RED[1])                       # plume
+    c.rect(13, 3, 19, 9, hexc("2a2a3a"))               # shako
+    c.rect(13, 3, 14, 9, hexc("4a4a62"))
+    c.disc(16, 6, 1.3, GOLD[1])
+    c.rect(13, 9, 19, 9, GOLD[0])                      # chin strap line
+    c.rect(13, 10, 19, 13, SKIN)                       # face
+    c.set(14, 11, OUTLINE); c.set(18, 11, OUTLINE)
+    c.set(13, 12, hexc("f4a0a0")); c.set(19, 12, hexc("f4a0a0"))
+    c.rect(12, 14, 20, 21, RED[1])                     # coat
+    c.rect(19, 14, 20, 21, RED[0])
+    c.rect(12, 14, 13, 17, RED[2])
+    c.rect(10, 14, 11, 20, RED[1]); c.rect(21, 14, 22, 20, RED[0])   # arms
+    c.rect(10, 21, 11, 21, SKIN); c.rect(21, 21, 22, 21, SKIN)
+    c.rect(10, 14, 12, 15, GOLD[1]); c.rect(20, 14, 22, 15, GOLD[1])  # epaulettes
+    for y in (15, 17, 19):
+        c.set(16, y, GOLD[2])
+    c.rect(12, 21, 20, 21, WHITE)                      # belt
+    c.rect(13, 22, 19, 27, NAVY[1])                    # trousers
+    c.rect(18, 22, 19, 27, NAVY[0])
+    c.rect(16, 25, 16, 27, NAVY[0])
+    c.rect(13, 28, 15, 29, hexc("2a2a3a")); c.rect(17, 28, 19, 29, hexc("2a2a3a"))   # boots
+    c.line(9, 17, 6, 17, GOLD[0])                      # the wind-up key
+    c.ring(4.5, 17, 2.4, 1.0, GOLD[1])
+
+
+def draw_toy_blocks(c):
+    """Three lettered wooden blocks, two on the floor and one on top: A in red, B in blue, C in yellow."""
+    def block(x, y, colors, letter):
+        dark, mid, light = colors
+        c.poly([(x, y), (x + 3, y - 3), (x + 13, y - 3), (x + 10, y)], light)         # top
+        c.poly([(x + 10, y), (x + 13, y - 3), (x + 13, y + 7), (x + 10, y + 10)], dark)  # side
+        c.rect(x, y, x + 9, y + 9, mid)                                              # front
+        rows = {"A": [" # ", "# #", "###", "# #", "# #"],
+                "B": ["## ", "# #", "## ", "# #", "## "],
+                "C": [" ##", "#  ", "#  ", "#  ", " ##"]}[letter]
+        for dy, row in enumerate(rows):
+            for dx, ch in enumerate(row):
+                if ch == "#":
+                    c.set(x + 3 + dx, y + 2 + dy, WHITE)
+    block(1, 19, RED, "A")
+    block(15, 19, BLUE, "B")
+    block(8, 8, GOLD, "C")
+
+
+def draw_toy_music_box(c):
+    """An open wooden music box: velvet inside, a mirror in the raised lid, a gold keyhole and crank,
+    and a note floating out."""
+    wood = [hexc("6a3a1c"), hexc("a4602e"), hexc("d89058")]
+    c.poly([(9, 14), (11, 4), (28, 4), (26, 14)], wood[1])              # the lid, raised
+    c.poly([(11, 13), (12.5, 6), (26, 6), (24.5, 13)], hexc("bfe6ff"))   # its mirror
+    c.line(14, 7, 13, 11, WHITE)
+    c.poly([(5, 18), (9, 14), (26, 14), (22, 18)], hexc("8a1a3a"))      # velvet inside
+    c.rect(5, 18, 22, 28, wood[1])                                       # front
+    c.rect(5, 18, 22, 19, wood[2])
+    c.poly([(22, 18), (26, 14), (26, 24), (22, 28)], wood[0])           # side
+    c.rect(5, 20, 22, 20, GOLD[1])                                       # gold trim
+    c.rect(13, 23, 14, 25, OUTLINE)                                      # keyhole
+    c.set(13, 22, GOLD[1]); c.set(14, 22, GOLD[1])
+    c.line(26, 20, 29, 20, GOLD[1])                                      # crank
+    c.line(29, 20, 29, 17, GOLD[1])
+    c.disc(29, 16, 1.2, GOLD[2])
+    c.disc(4, 11, 1.6, GOLD[1])                                          # a note
+    c.line(5.5, 4, 5.5, 11, GOLD[1])
+    c.line(5.5, 4, 8, 6, GOLD[1])
+
+
+def draw_toy_ball(c):
+    """A red rubber ball with a yellow band and a white star, bouncing: two little marks below."""
+    c.disc(16, 13, 9.6, RED[1])
+    c.shade(lambda x, y, col: col == RED[1] and 11 <= y <= 15, GOLD[1])
+    light_top_left(c, RED, 16, 13, 10)
+    c.shade(lambda x, y, col: col == GOLD[1] and (x - 16) + (y - 13) > 6, GOLD[0])
+    star_shape(c, 16, 13, 5, WHITE)
+    c.disc(10, 7, 1.4, hexc("ffd0d0"))                                   # shine
+    c.line(8, 28, 12, 26, hexc("9ccaff"))                                # bounce marks
+    c.line(24, 28, 20, 26, hexc("9ccaff"))
+
+
+def draw_toy_bear(c):
+    """A sitting teddy bear: round ears, a tan muzzle and belly, button eyes and a red bow."""
+    dark, mid, light = BEAR
+    tan = hexc("eccb96")
+    c.disc(9, 6, 3, mid); c.disc(23, 6, 3, mid)                          # ears
+    c.disc(9, 6, 1.4, tan); c.disc(23, 6, 1.4, tan)
+    c.ellipse(16, 23, 7.5, 6.5, mid)                                     # body
+    c.ellipse(8, 21, 2.6, 4, mid); c.ellipse(24, 21, 2.6, 4, dark)       # arms
+    c.ellipse(10, 28, 3.6, 2.6, mid); c.ellipse(22, 28, 3.6, 2.6, dark)  # feet
+    c.disc(10, 28.5, 1.4, tan); c.disc(22, 28.5, 1.4, tan)
+    c.ellipse(16, 24, 4, 3.6, tan)                                       # belly
+    c.disc(16, 11, 7, mid)                                               # head
+    c.shade(lambda x, y, col: col == mid and (x - 16) + (y - 11) > 7, dark)
+    c.shade(lambda x, y, col: col == mid and (x - 16) + (y - 11) < -6, light)
+    c.ellipse(16, 14, 3.4, 2.4, tan)                                     # muzzle
+    c.rect(15, 13, 17, 13, OUTLINE)                                      # nose
+    c.set(16, 14, OUTLINE)
+    c.set(12, 10, OUTLINE); c.set(20, 10, OUTLINE)                       # button eyes
+    c.poly([(11, 16), (16, 18), (11, 20)], RED[1])                       # bow
+    c.poly([(21, 16), (16, 18), (21, 20)], RED[1])
+    c.disc(16, 18, 1.2, RED[2])
+
+
+def draw_toy_bubbles(c):
+    """A bubble wand: a thin lilac stick with a knob, a small open ring at its tip, and a big bubble
+    floating off it with two little ones, each with a white and a pink shine."""
+    film = (205, 232, 255, 70)
+    c.line(5, 29, 13, 18, LILAC[1], width=2)                             # the stick
+    c.disc(5, 29, 1.8, LILAC[0])                                         # its knob
+    c.ring(15, 15, 3.6, 2.2, LILAC[1])                                   # the ring
+    c.disc(15, 15, 2.1, film)
+    for (x, y, r) in ((23, 8, 6.2), (8, 9, 2.6), (28, 19, 2.2)):         # bubbles
+        c.disc(x, y, r - 0.9, film)
+        c.ring(x, y, r, r - 1, hexc("9ccaff"))
+        c.set(x - r * 0.45, y - r * 0.45, WHITE)
+        c.set(x + r * 0.4, y + r * 0.35, hexc("ffb4dc"))
+    c.set(21, 6, WHITE); c.set(20, 7, WHITE)                             # the big one's bright shine
+
+
 
 # ---------------------------------------------------------------- the staff line
 # Fairyland Online's 棒類 (staffs): one every 5 levels. Each is a shaft plus a head.
@@ -1099,6 +1226,12 @@ PROMPTS = {  # for a later Retro Diffusion upgrade (python3 tools/rd.py generate
     "star_charm": "gold star charm on a necklace",
     "power_band": "red wristband with steel studs",
     "speed_boots": "blue winged speed boots",
+    "toy_soldier": "tin toy soldier in a red coat with a wind-up key",
+    "toy_blocks": "three stacked wooden toy blocks with letters",
+    "toy_music_box": "open wooden music box with a golden crank",
+    "toy_ball": "bouncy red rubber ball with a yellow band and a star",
+    "toy_bear": "brown teddy bear with a red bow",
+    "toy_bubbles": "bubble wand blowing shiny bubbles",
 }
 
 

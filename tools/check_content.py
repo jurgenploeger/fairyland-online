@@ -178,6 +178,11 @@ for monster in monsters.values():
 materials = {i["id"]: i for i in items.values() if i["type"] == "material"}
 for item in items.values():
     check(item.get("icon") in icon_names, f"item {item['id']} → unknown icon {item.get('icon')}")
+    if item.get("toy"):
+        # Companion toys raise a companion's stats for good (GameSession.giveToy).
+        check(item["type"] == "consumable", f"toy {item['id']} → must be a consumable")
+        check(isinstance(item.get("stats"), dict) and any(v > 0 for v in item["stats"].values()),
+              f"toy {item['id']} → needs the stats it raises")
     if item["type"] == "material":
         check(item.get("material") in ("wood", "metal", "gem", "hide"), f"material {item['id']} → unknown kind {item.get('material')}")
         check(isinstance(item.get("level"), int), f"material {item['id']} needs a level (when monsters start dropping it)")
@@ -192,10 +197,14 @@ for item in items.values():
 for quest in quests.values():
     check(quest["giver"] in npcs, f"quest {quest['id']} → unknown giver {quest['giver']}")
     objective = quest["objective"]
-    check(objective["type"] in ("defeat", "capture", "reachLevel", "chooseClass", "collect", "hatch"),
+    check(objective["type"] in ("defeat", "capture", "reachLevel", "chooseClass", "collect", "hatch", "cards"),
           f"quest {quest['id']} → unknown objective type {objective['type']}")
     if objective["type"] == "defeat" and objective.get("target"):
         check(objective["target"] in monsters, f"quest {quest['id']} → unknown monster {objective['target']}")
+    if objective["type"] == "cards":
+        # Kinds of monster card in the Book: there are only as many as there are monsters.
+        check(isinstance(objective.get("count"), int) and 0 < objective["count"] <= len(monsters),
+              f"quest {quest['id']} → a cards quest needs a count between 1 and {len(monsters)}")
     for answer in (quest.get("question") or {}).get("answers", []):
         check(answer["egg"] in monsters, f"quest {quest['id']} → unknown egg {answer['egg']}")
     for item in quest["reward"].get("items", []) + quest.get("starterItems", []):
@@ -537,7 +546,7 @@ for map_def in maps.values():
 
 # Titles (content/titles.json): unique ids, a kind GameSession+Rewards knows, a count above 0 where
 # one's needed (lands and book may leave it out: every one), and a boss's NPC id for `boss`.
-TITLE_KINDS = {"level", "lands", "book", "quests", "bosses", "boss", "companions", "friends", "rebirths", "bounties", "days"}
+TITLE_KINDS = {"level", "lands", "book", "quests", "bosses", "boss", "companions", "friends", "rebirths", "bounties", "days", "cards"}
 titles = load("content/titles.json")["titles"]
 check(len({t.get("id") for t in titles}) == len(titles), "titles → duplicate id")
 for title in titles:
@@ -548,7 +557,7 @@ for title in titles:
     if kind == "boss":
         target = npcs.get(title.get("target"), {})
         check(target.get("role") == "boss", f"{where} → target must be a boss's NPC id, not {title.get('target')}")
-    elif kind in ("lands", "book"):
+    elif kind in ("lands", "book", "cards"):
         top = len(maps) if kind == "lands" else len(monsters)
         count = title.get("count")
         check(count is None or (isinstance(count, int) and 0 < count <= top), f"{where} → count between 1 and {top}, or none for every one")
@@ -586,6 +595,25 @@ check(all(0 < count <= len(monsters) for count in counts), f"rewards bookMilesto
 for milestone in milestones:
     check(milestone.get("gold", -1) >= 0, f"rewards bookMilestone {milestone.get('count', 'all')} → gold at least 0")
     check_items(milestone.get("items"), f"rewards bookMilestone {milestone.get('count', 'all')}")
+
+# Monster cards (rewards.json `cards`): chances in (0, 1], a gain for every element a monster can
+# have (so every card is worth something), each a stat the hero has.
+cards = rewards.get("cards", {})
+check(bool(cards), "rewards → needs cards (the monster cards' rules)")
+for key in ("chance", "rareChance", "bossChance"):
+    check(isinstance(cards.get(key), (int, float)) and 0 < cards[key] <= 1, f"rewards cards {key} → in (0, 1]")
+check(isinstance(cards.get("levelsPerStep"), int) and cards["levelsPerStep"] > 0, "rewards cards levelsPerStep → a whole number above 0")
+for key in ("rare", "boss"):
+    check(isinstance(cards.get(key), (int, float)) and cards[key] >= 1, f"rewards cards {key} → at least 1")
+check(isinstance(cards.get("spareGold"), int) and cards["spareGold"] >= 0, "rewards cards spareGold → a whole number, at least 0")
+gains = cards.get("gains", {})
+for element in sorted({m["element"] for m in monsters.values()}):
+    check(element in gains, f"rewards cards gains → nothing for {element} monsters' cards")
+for element, gain in gains.items():
+    check(isinstance(gain, dict) and gain.get("stat") in ("hp", "mp", "attack", "defense", "magic", "speed"),
+          f"rewards cards gains {element} → stat must be hp, mp, attack, defense, magic or speed")
+    check(isinstance(gain, dict) and isinstance(gain.get("perStep"), (int, float)) and gain["perStep"] > 0,
+          f"rewards cards gains {element} → perStep above 0")
 
 # Every sound the game plays (SoundEffects.Sound's raw values) has its file in sound/, made by
 # tools/make_sounds.py: a missing one would just stay silent. And every file there is one of them.

@@ -199,5 +199,18 @@ battle_land       | newgame,level=30,class=mage,map=sunny_meadow,battle=3,landsc
 battle_companion_land | newgame,level=30,class=tamer,pet=pineapple,map=sunny_meadow,battle=2,orders,landscape | 15
 hero_down_land    | newgame,level=43,class=fighter,friends=1,map=sunny_meadow,battle=2,herodown,landscape | 30
 duel_spoils_land  | newgame,level=30,map=valley_of_fear,duel,win,landscape | 30
+# Monster cards (0.3.69): the Book with a dozen cards (gold rims), a found card's page, a met monster's card
+# still to find, and a win where every beaten monster leaves its card ("New cards!").
+book_cards        | newgame,cards=12,book                                    | 8
+book_card_page    | newgame,cards=12,book,page=jelly                         | 8
+book_card_missing | newgame,cards=12,book,page=hedgehog                      | 8
+victory_cards     | newgame,level=5,map=sunny_meadow,battle=2,win,card       | 30
+# Companion toys: in the bag, played with (Toys 4/10 on its card), a toy's details in the shop, Tilly the
+# Toymaker's card quests, and Tilly in Prismhaven.
+toys_bag          | newgame,level=30,pet=jelly,bag=toy_soldier+toy_bear+toy_music_box,menu=bag | 8
+toys_companion    | newgame,level=30,pet=jelly,toys=4,bag=toy_ball,menu=companions | 8
+toy_info          | newgame,level=30,npc=rainbow_shop,info=toy_music_box     | 8
+toymaker          | newgame,level=20,cards=6,map=rainbow_city,npc=toymaker   | 8
+toymaker_town     | newgame,map=rainbow_city,at=-2_2,clean                   | 10
 # Settings with footsteps switched off (the darker switch). `quiet` leaves them off, so this runs last.
 settings_quiet | newgame,menu=settings,weather=clear,quiet | 8

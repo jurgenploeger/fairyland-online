@@ -621,6 +621,17 @@ private struct CompanionCard: View {
                 Text(L("ATK {attack} · DEF {defense} · MAG {magic} · SPD {speed}", ["attack": stats.attack, "defense": stats.defense, "magic": stats.magic, "speed": stats.speed]))
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
+                // Toys it has played with, and what they've added for good.
+                if let toys = pet.toys, toys > 0 {
+                    Text(L("Toys {count}/{max}: {bonus}", ["count": toys, "max": GameSession.toysPerCompanion, "bonus": (pet.toyStats ?? .zero).bonusSummary]))
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.green)
+                } else if !session.bagToys.isEmpty {
+                    Text(isActive ? L("Give it a toy from your Bag.") : L("Bring it along to give it a toy from your Bag."))
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.dim)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 if let skills = species?.skills.compactMap({ session.content.skill($0) }), !skills.isEmpty {
                     // What it can do in a fight.
                     HStack(spacing: 6) {
@@ -695,6 +706,11 @@ private struct BagTab: View {
                     VStack(alignment: .leading, spacing: 1) {
                         Text(item.name)
                         Text(item.description ?? "").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                        if item.toy == true, let raise = item.stats {
+                            Text(L("For a companion: {bonus} for good", ["bonus": raise.bonusSummary]))
+                                .font(HUDStyle.font(10))
+                                .foregroundStyle(HUDStyle.green)
+                        }
                     }
                     Spacer()
                     if item.hatches != nil {
@@ -723,6 +739,18 @@ private struct BagTab: View {
                             .disabled(session.onTravel == nil)
                     } else if item.capture == true {
                         Text(L("For battle")).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                    } else if item.toy == true {
+                        // For the companion you bring along (choose another on the Companions tab).
+                        if let pet = session.activePet {
+                            Button {
+                                note = session.giveToy(item.id, to: pet.id)
+                            } label: {
+                                Label(pet.name, icon: .gift)
+                            }
+                            .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
+                        } else {
+                            Text(L("Bring a companion along")).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
+                        }
                     }
                 }
                 .font(HUDStyle.font(12))

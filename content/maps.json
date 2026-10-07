@@ -3635,7 +3635,13 @@
             "teak_staff",
             "heavywood_staff",
             "red_cypress_staff",
-            "blood_cypress_staff"
+            "blood_cypress_staff",
+            "toy_soldier",
+            "toy_blocks",
+            "toy_music_box",
+            "toy_ball",
+            "toy_bear",
+            "toy_bubbles"
           ]
         },
         {
@@ -3655,6 +3661,15 @@
           "x": -3,
           "y": -3,
           "greeting": "Monsters drop the best materials. Bring them here and we'll make something sharp."
+        },
+        {
+          "id": "toymaker",
+          "name": "Tilly the Toymaker",
+          "role": "quests",
+          "art": "npc_toymaker",
+          "x": -2,
+          "y": 4,
+          "greeting": "Oh, hello! I make a toy of every monster I've seen a card of. Found any cards on your travels?"
         }
       ],
       "ambience": {

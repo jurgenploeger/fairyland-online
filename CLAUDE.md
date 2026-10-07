@@ -14,7 +14,7 @@ Online's own names (towns, people, bosses, quests) in player-facing text: `docs/
   assets, game UI, App Store, voice). Its colours are variables (the Storyleaf collection, with their Swift names);
   `Brand` in `Fairyland/UI/BrandSky.swift` holds the same values, so change both together.
 - `content/*.json`: all game data (maps, monsters, skills, items, quests, music, looks, crowd, announcements, titles,
-  rewards: the daily gift, bounties and Monster Book milestones). Data-driven;
+  rewards: the daily gift, bounties, Monster Book milestones and monster cards). Data-driven;
   most features are a JSON edit.
 - `art/assets.json` + `art/sprites/`: every sprite. `derive` makes free palette swaps of existing art. Recolour a whole
   colour family with one `to` + `spread` rule (`RecolorRule` in `Fairyland/Art/Recolor.swift`) so it keeps its hue-shifted
