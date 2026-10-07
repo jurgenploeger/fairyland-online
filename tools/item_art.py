@@ -287,14 +287,60 @@ COPPER = [hexc("8a4a22"), hexc("c8783a"), hexc("f0b07a")]
 
 
 
-def draw_seal_stone(c):
-    c.poly([(16, 4), (26, 11), (24, 25), (16, 29), (8, 25), (6, 11)], TEAL[1])
-    c.shade(lambda x, y, col: col == TEAL[1] and x > 17 and y > 14, TEAL[0])
-    c.poly([(16, 5), (8, 11), (12, 14), (16, 9)], TEAL[2])
+# Every kind of Seal Stone is the same crystal with the same white sealing spiral; only its colours
+# change.
+SEAL_SHAPE = [(16, 4), (26, 11), (24, 25), (16, 29), (8, 25), (6, 11)]
+SEAL_FACET = [(16, 5), (8, 11), (12, 14), (16, 9)]
+
+
+def seal_spiral(c, color=WHITE):
     for i in range(0, 40):       # the sealing spiral
         t = i / 40 * math.pi * 3
         r = 0.6 + i * 0.14
-        c.set(16 + r * math.cos(t), 17 + r * math.sin(t), WHITE)
+        c.set(16 + r * math.cos(t), 17 + r * math.sin(t), color)
+
+
+def seal_gem(c, colors, spiral=WHITE):
+    """The Seal Stone's crystal in `colors` (dark, mid, light): its right-hand facets in shadow, a
+    bright facet up top, and the spiral."""
+    dark, mid, light = colors
+    c.poly(SEAL_SHAPE, mid)
+    c.shade(lambda x, y, col: col == mid and x > 17 and y > 14, dark)
+    c.poly(SEAL_FACET, light)
+    seal_spiral(c, spiral)
+
+
+def draw_seal_stone(c):
+    seal_gem(c, TEAL)
+
+
+def draw_moon_seal(c):
+    """Pale moonlight blue."""
+    seal_gem(c, [hexc("3a58a4"), hexc("8db2ee"), hexc("e2eeff")])
+
+
+def draw_heart_seal(c):
+    """Rose pink."""
+    seal_gem(c, PINK)
+
+
+def draw_star_seal(c):
+    """Starlight gold."""
+    seal_gem(c, GOLD)
+
+
+def draw_wishing_seal(c):
+    """The rainbow one: the same crystal in soft rainbow bands, the shaded side a little darker, and the
+    spiral in violet so it shows on the pale colours."""
+    bands = [hexc("ff9aa8"), hexc("ffc88a"), hexc("fff09a"), hexc("aef0a0"), hexc("9fd6ff"), hexc("c8b0ff")]
+    c.poly(SEAL_SHAPE, bands[0])
+    for y in range(SIZE):
+        for x in range(SIZE):
+            if c.px[y][x] == bands[0]:
+                band = bands[min(len(bands) - 1, max(0, int((y - 4) / 26 * len(bands))))]
+                c.px[y][x] = tuple(int(v * 0.8) for v in band[:3]) + (255,) if x > 17 and y > 14 else band
+    c.poly(SEAL_FACET, hexc("fffaff"))
+    seal_spiral(c, hexc("6a46b8"))
 
 
 def draw_homeward_feather(c):
@@ -1226,6 +1272,10 @@ PROMPTS = {  # for a later Retro Diffusion upgrade (python3 tools/rd.py generate
     "star_charm": "gold star charm on a necklace",
     "power_band": "red wristband with steel studs",
     "speed_boots": "blue winged speed boots",
+    "moon_seal": "pale blue hexagonal crystal with a white spiral rune",
+    "heart_seal": "rose pink hexagonal crystal with a white spiral rune",
+    "star_seal": "golden hexagonal crystal with a white spiral rune",
+    "wishing_seal": "rainbow hexagonal crystal with a violet spiral rune",
     "toy_soldier": "tin toy soldier in a red coat with a wind-up key",
     "toy_blocks": "three stacked wooden toy blocks with letters",
     "toy_music_box": "open wooden music box with a golden crank",

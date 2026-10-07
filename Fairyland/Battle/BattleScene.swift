@@ -290,7 +290,8 @@ final class BattleScene: SKScene {
 
     // MARK: - Targeting
 
-    func showTargets(_ ids: [Int]) {
+    /// `labels`: a word over some of them, above the arrow (a Seal Stone's odds on each monster).
+    func showTargets(_ ids: [Int], labels: [Int: String] = [:]) {
         markers.forEach { $0.removeFromParent() }
         markers = []
         for id in ghosts where !ids.contains(id) { actors[id]?.alpha = 0 }
@@ -311,6 +312,14 @@ final class BattleScene: SKScene {
             arrow.run(.repeatForever(.sequence([.moveBy(x: 0, y: 5, duration: 0.3), .moveBy(x: 0, y: -5, duration: 0.3)])))
             stage.addChild(arrow)
             markers.append(arrow)
+            if let text = labels[id] {
+                let label = SKLabelNode()
+                label.attributedText = Nodes.outlined(text, size: 14, color: UIColor(red: 0.62, green: 1, blue: 0.9, alpha: 1))
+                label.position = CGPoint(x: actor.home.x, y: arrow.position.y + 22)
+                label.zPosition = 20_000
+                stage.addChild(label)
+                markers.append(label)
+            }
             actor.setHighlighted(true)
         }
         for (id, actor) in actors where !ids.contains(id) {
@@ -402,9 +411,10 @@ final class BattleScene: SKScene {
             }
             await pause(0.45)
 
-        case .capture(let actorID, let targetID, let success, let wobbles):
-            controller.announce(L("{name} throws a Seal Stone!", ["name": controller.name(actorID)]))
-            await captureAnimation(from: actorID, to: targetID, success: success, wobbles: wobbles)
+        case .capture(let actorID, let targetID, let success, let wobbles, let stoneID):
+            let stone = stoneID.flatMap(controller.session.content.item)
+            controller.announce(L("{name} throws a {stone}!", ["name": controller.name(actorID), "stone": stone?.name ?? L("Seal Stone")]))
+            await captureAnimation(from: actorID, to: targetID, success: success, wobbles: wobbles, art: stone?.art)
             controller.apply(event)
             await pause(0.6)
 
@@ -908,7 +918,8 @@ final class BattleScene: SKScene {
     /// opens on the ground under it, and the monster turns to light and spirals up into the crystal.
     /// The crystal then pulses `wobbles` times, each pulse lighting one mark round the seal, until
     /// it sets in gold, or the crystal cracks apart and the monster pours back out.
-    private func captureAnimation(from actorID: Int, to targetID: Int, success: Bool, wobbles: Int) async {
+    /// `art`: the thrown stone's sprite (a plain Seal Stone's if nil).
+    private func captureAnimation(from actorID: Int, to targetID: Int, success: Bool, wobbles: Int, art: String? = nil) async {
         guard let actor = actors[actorID], let target = actors[targetID] else { return }
         let light = SkillEffects.ElementLight.seal
 
@@ -928,7 +939,8 @@ final class BattleScene: SKScene {
         halo.zPosition = -0.5
         halo.alpha = 0.7
         stone.addChild(halo)
-        let crystal = SKSpriteNode(texture: SkillEffects.sealStoneTexture, size: CGSize(width: 34, height: 34))
+        let crystal = SKSpriteNode(texture: art.map { ArtLibrary.shared.sprite($0).texture } ?? SkillEffects.sealStoneTexture,
+                                   size: CGSize(width: 34, height: 34))
         stone.addChild(crystal)
         stage.addChild(stone)
         halo.run(.repeatForever(.sequence([.scale(to: 1.15, duration: 0.45), .scale(to: 0.9, duration: 0.45)])), withKey: "pulse")
@@ -1142,7 +1154,8 @@ final class BattleScene: SKScene {
     /// Debug launches (`seal=ok|fail`): the hero seals the first monster, the animation only,
     /// frozen `stopAt` seconds into it (the battle runs at 20% speed till then; the whole seal
     /// takes about 5.5 s).
-    func sealForDebug(success: Bool, stopAt: TimeInterval?) {
+    /// `stone`: the kind thrown (an item id; a plain Seal Stone if nil).
+    func sealForDebug(success: Bool, stopAt: TimeInterval?, stone: String? = nil) {
         guard let hero = controller.combatants.first(where: { $0.isHero }),
               let foe = controller.enemiesOnField.first else { return }
         // A real throw takes the target arrows away first (BattleController), so this one does too.
@@ -1156,7 +1169,8 @@ final class BattleScene: SKScene {
             speed = 0.2
             run(.sequence([.wait(forDuration: stopAt), .run { [weak self] in self?.isPaused = true }]))
         }
-        Task { await captureAnimation(from: hero.id, to: foe.id, success: success, wobbles: 3) }
+        let art = stone.flatMap { controller.session.content.item($0)?.art }
+        Task { await captureAnimation(from: hero.id, to: foe.id, success: success, wobbles: 3, art: art) }
     }
     #endif
 }

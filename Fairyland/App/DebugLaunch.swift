@@ -31,11 +31,14 @@ import SpriteKit
 ///   wave=<n>       with boss: the fight opens at that wave (3: the boss's own)
 ///   orders         with battle: the hero picks Attack on the first monster, so your companion's turn shows
 ///   items          with battle: the Items list opens (potions, then Seal Stones)
+///   aim=<stone>    with battle: the hero aims that Seal Stone (an item id), its odds over each monster
 ///   afflict        with battle: the first monster poisoned, the next one cursed, and the hero poisoned
 ///   herodown       with battle: the hero faints at once, and any friends fight on without them
 ///   cast=<skill>[:n[:t]]  with battle: once everyone is in, the hero casts that skill (at skill level n;
 ///                  a one-target skill at monster t on the field, counting from 0, else the first)
 ///   fxstop=<s>     with cast: the battle slows right down and freezes s seconds into the cast
+///   seal=ok|fail[:stone]  with battle: once everyone is in, the hero's Seal Stone flies at the first
+///                  monster and holds or breaks (that kind of stone; with fxstop, frozen part-way)
 ///   turntimer=<s>  battles give you s seconds to choose before you attack (none otherwise in debug)
 ///   auto           battles start on Auto where it's allowed (monsters well below you)
 ///   fast           battles play at 2×
@@ -171,6 +174,14 @@ enum DebugLaunch {
                 battle.openItems()
             }
         }
+        // `aim=<stone>`: once everyone is in, the hero aims that Seal Stone, its odds over each monster.
+        if let id = flags["aim"], let stone = Content.shared.item(id), let battle = coordinator.battle {
+            Task {
+                try? await Task.sleep(for: .seconds(2))
+                for _ in 0..<40 where battle.phase != .command { try? await Task.sleep(for: .milliseconds(250)) }
+                battle.capture(with: stone)
+            }
+        }
         // `afflict`: poison and a curse on the field, so their marks show.
         if flags["afflict"] != nil, let battle = coordinator.battle {
             Task {
@@ -204,7 +215,7 @@ enum DebugLaunch {
             }
         }
         // `seal=ok` or `seal=fail`: once everyone is in, the hero seals the first monster (just the
-        // animation, frozen at `fxstop` like a cast).
+        // animation, frozen at `fxstop` like a cast); `seal=ok:<stone>` throws that kind of stone.
         if let seal = flags["seal"], let battle = coordinator.battle {
             let stop = flags["fxstop"].flatMap(Double.init)
             Task {
@@ -212,7 +223,8 @@ enum DebugLaunch {
                     try? await Task.sleep(for: .milliseconds(500))
                     guard let scene = battle.scene, scene.view != nil else { continue }
                     try? await Task.sleep(for: .seconds(2))
-                    scene.sealForDebug(success: seal != "fail", stopAt: stop)
+                    let parts = seal.split(separator: ":").map(String.init)
+                    scene.sealForDebug(success: parts.first != "fail", stopAt: stop, stone: parts.dropFirst().first)
                     return
                 }
             }

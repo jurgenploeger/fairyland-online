@@ -282,6 +282,10 @@ nonisolated struct ItemDef: Decodable, Identifiable, Sendable {
     let icon: String?
     /// Seal Stones: thrown in battle to befriend a weakened monster.
     let capture: Bool?
+    /// Seal Stones: how many times likelier than a plain one to seal a monster (1 unless set), and
+    /// for a Wishing Seal, `sure`: it never fails on a monster that can be befriended.
+    let sealPower: Double?
+    let sure: Bool?
     /// Homeward Feathers: used from the bag outside battle, they carry you to your checkpoint like
     /// Bridge of Light, for any class.
     let travel: Bool?

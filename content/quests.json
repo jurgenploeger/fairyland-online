@@ -69,8 +69,10 @@
       "requires": [
         "jelly_trouble"
       ],
-      "description": "Every adventurer needs friends. Take these Seal Stones and throw one at a monster with Capture: the weaker it is, the better your odds. It may take a few tries!",
+      "description": "Every adventurer needs friends. Take these Seal Stones and throw one at a monster with Capture: the weaker it is, the better your odds. Each throw uses a stone up, and it may take a few tries!",
       "starterItems": [
+        "seal_stone",
+        "seal_stone",
         "seal_stone",
         "seal_stone",
         "seal_stone"
@@ -84,6 +86,29 @@
         "exp": 30,
         "items": [
           "ether"
+        ]
+      }
+    },
+    {
+      "id": "wish_upon_a_star",
+      "title": "Wish Upon a Star",
+      "giver": "elder",
+      "requires": [
+        "new_friend"
+      ],
+      "minLevel": 20,
+      "description": "Long ago a star fell by Meadowbrook's well, and its light still sleeps in a Wishing Seal: a stone that never fails. Befriend three more monsters, show me you'll be kind to them, and it's yours.",
+      "objective": {
+        "type": "capture",
+        "count": 3
+      },
+      "reward": {
+        "gold": 400,
+        "exp": 500,
+        "items": [
+          "wishing_seal",
+          "moon_seal",
+          "moon_seal"
         ]
       }
     },
@@ -228,7 +253,7 @@
         "exp": 300,
         "items": [
           "hi_potion",
-          "seal_stone"
+          "moon_seal"
         ]
       },
       "minLevel": 31
@@ -451,7 +476,7 @@
         "gold": 240,
         "exp": 420,
         "items": [
-          "seal_stone",
+          "moon_seal",
           "hi_potion"
         ]
       },
@@ -716,7 +741,7 @@
         "exp": 13568,
         "items": [
           "hi_ether",
-          "seal_stone"
+          "heart_seal"
         ]
       },
       "minLevel": 60
