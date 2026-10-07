@@ -605,19 +605,7 @@ struct RulesTests {
         #expect(session.data.hero.level == 31)
     }
 
-    @Test func skillsPinToTheQuickBar() throws {
-        let session = GameSession.newGame(name: "Test", raceID: "human")
-        let bash = try #require(Content.shared.classDef("novice").skills.first { $0.skill == "bash" })
-        session.data.hero.level = bash.level
-        session.learnSkill("bash")
-        let first = try #require(session.heroSkills.first)
-        #expect(session.pinnedSkills.isEmpty)
-        #expect(session.togglePin(first.id))
-        #expect(session.isPinned(first.id))
-        #expect(session.pinnedSkills.map(\.id) == [first.id])
-        #expect(!session.togglePin("not_a_skill"))
-        #expect(session.togglePin(first.id))   // unpin
-        #expect(session.pinnedSkills.isEmpty)
+    @Test func everySkillHasIconArt() {
         for skill in Content.shared.skills {
             #expect(skill.art.flatMap(ArtLibrary.shared.asset) != nil, "skill \(skill.id) has no icon art")
         }
@@ -768,23 +756,15 @@ struct RulesTests {
         }
     }
 
-    @Test func battleButtonsKeepYourOrder() throws {
+    @Test func battleButtonsKeepYourOrder() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         #expect(session.battleButtons == GameSession.defaultBattleButtons)
-        let bash = try #require(Content.shared.classDef("novice").skills.first { $0.skill == "bash" })
-        session.data.hero.level = bash.level
-        session.learnSkill("bash")
-        let skill = try #require(session.heroSkills.first)
-        session.togglePin(skill.id)
-        // A newly pinned skill joins just before More.
-        let divider = try #require(session.battleButtons.firstIndex(of: GameSession.moreDivider))
-        #expect(session.battleButtons[divider - 1] == "skill:\(skill.id)")
-        // Your own order sticks, even with the skill as the big button.
-        session.data.battleButtons = ["skill:\(skill.id)", "skills", "more", "attack", "items", "guard", "run", "capture"]
-        #expect(session.battleButtons == ["skill:\(skill.id)", "skills", "more", "attack", "items", "guard", "run", "capture"])
-        // Unpinned skills drop out; nothing else is lost.
-        session.togglePin(skill.id)
+        // Your own order sticks.
+        session.data.battleButtons = ["skills", "more", "attack", "items", "guard", "run", "capture"]
         #expect(session.battleButtons == ["skills", "more", "attack", "items", "guard", "run", "capture"])
+        // Skills pinned beside Attack in older versions drop out; a missing command comes back at the end.
+        session.data.battleButtons = ["skill:bash", "attack", "skills", "more", "items", "skill:first_aid", "guard"]
+        #expect(session.battleButtons == ["attack", "skills", "more", "items", "guard", "capture", "run"])
     }
 
     @Test func questFlow() {

@@ -174,6 +174,14 @@ enum DebugLaunch {
                 battle.openItems()
             }
         }
+        // `skills`: once everyone is in, the hero's Skills list opens.
+        if flags["skills"] != nil, let battle = coordinator.battle {
+            Task {
+                try? await Task.sleep(for: .seconds(2))
+                for _ in 0..<40 where battle.phase != .command { try? await Task.sleep(for: .milliseconds(250)) }
+                battle.openSkills()
+            }
+        }
         // `aim=<stone>`: once everyone is in, the hero aims that Seal Stone, its odds over each monster.
         if let id = flags["aim"], let stone = Content.shared.item(id), let battle = coordinator.battle {
             Task {
@@ -422,14 +430,13 @@ enum DebugLaunch {
             session.data.hero.look = look
         }
         session.applyLook()
-        // `class=fighter`, and `pin=bash+power_strike` learns those skills and pins them to the battle bar.
+        // `class=fighter`, and `learn=bash+power_strike` learns those skills.
         if let classID = flags["class"] {
             session.data.hero.classID = classID
         }
-        let pins = flags["pin"]?.split(separator: "+").map(String.init) ?? []
-        if !pins.isEmpty {
-            session.data.hero.learnedSkills = (session.data.hero.learnedSkills ?? []) + pins
-            session.data.pinnedSkills = pins
+        let skills = flags["learn"]?.split(separator: "+").map(String.init) ?? []
+        if !skills.isEmpty {
+            session.data.hero.learnedSkills = (session.data.hero.learnedSkills ?? []) + skills
         }
         if let at = flags["at"]?.split(separator: ";").first ?? flags["at"].map({ Substring($0) }),
            let def = Content.shared.map(session.data.mapID) {

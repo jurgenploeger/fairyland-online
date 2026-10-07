@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.71",
+      "date": "2026-10-07",
+      "title": "Tidier battle buttons",
+      "notes": [
+        "Skills can't be pinned beside Attack any more: the battle buttons are back to Attack, Skills and More, and the Skills list has no stars. Capture still joins them when you can befriend a monster, and Items when someone is low on HP."
+      ]
+    },
+    {
       "version": "0.3.70",
       "date": "2026-10-07",
       "title": "Seal Stones of every kind",

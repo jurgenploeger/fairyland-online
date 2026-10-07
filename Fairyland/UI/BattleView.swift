@@ -97,31 +97,14 @@ struct BattleView: View {
                 }
                 ForEach(controller.skills) { skill in
                     let affordable = (controller.hero?.mp ?? 0) >= controller.cost(of: skill)
-                    let pinned = controller.session.isPinned(skill.id)
-                    HStack(spacing: 6) {
-                        ChoiceRow(action: { controller.useSkill(skill) }, enabled: affordable) {
-                            SkillIcon(skill: skill, size: 26)
-                            Text(skill.name)
-                            Text(L("Lv{level}", ["level": controller.level(of: skill)])).font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
-                            if let element = skill.element { ElementBadge(element: element) }
-                            Spacer()
-                            Text(L("{cost} MP", ["cost": controller.cost(of: skill)])).foregroundStyle(HUDStyle.mp)
-                        }
-                        // Pin it next to Attack.
-                        Button { controller.togglePin(skill) } label: {
-                            IconImage(pinned ? .star : .starOutline, size: 18)
-                                .foregroundStyle(pinned ? HUDStyle.gold : HUDStyle.cream)
-                                .frame(width: 34, height: 34)
-                                .background(Circle().fill(HUDStyle.ink.opacity(0.85)))
-                        }
-                        .buttonStyle(RoundPressStyle())
-                        .accessibilityLabel(pinned ? L("Unpin {skill}", ["skill": skill.name]) : L("Pin {skill} to the quick bar", ["skill": skill.name]))
+                    ChoiceRow(action: { controller.useSkill(skill) }, enabled: affordable) {
+                        SkillIcon(skill: skill, size: 26)
+                        Text(skill.name)
+                        Text(L("Lv{level}", ["level": controller.level(of: skill)])).font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
+                        if let element = skill.element { ElementBadge(element: element) }
+                        Spacer()
+                        Text(L("{cost} MP", ["cost": controller.cost(of: skill)])).foregroundStyle(HUDStyle.mp)
                     }
-                }
-                if !controller.skills.isEmpty {
-                    Text(L("Tap the star to pin up to {count} skills next to Attack.", ["count": GameSession.maxPinnedSkills]))
-                        .font(HUDStyle.font(10))
-                        .foregroundStyle(HUDStyle.cream.opacity(0.8))
                 }
             }
             .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
@@ -228,7 +211,7 @@ private struct TurnClockBar: View {
 
 /// A big button in the corner (Attack unless you change it) with More on top of it, and to its left
 /// rows of round buttons filled from the bottom right: Skills, then whatever else turns up (Capture
-/// when a monster is weak enough, Items when someone is low on HP, pinned skills). Less-used commands
+/// when there's a monster to befriend, Items when someone is low on HP). Less-used commands
 /// hide behind More. Holding any button makes them all wiggle, like the iPhone home screen: drag
 /// them into any order (onto the big button, or into the "Behind More" tray), then tap Done.
 private struct CommandPad: View {
@@ -331,7 +314,7 @@ private struct CommandPad: View {
                 Text(L("Drag to rearrange"))
                     .font(HUDStyle.font(11))
                     .foregroundStyle(HUDStyle.cream)
-                Button(L("Reset")) { withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { editing = resetOrder(order) } }
+                Button(L("Reset")) { withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { editing = GameSession.defaultBattleButtons } }
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.cream)
                     .padding(.horizontal, 10)
@@ -445,25 +428,11 @@ private struct CommandPad: View {
         UISelectionFeedbackGenerator().selectionChanged()
     }
 
-    /// The standard order, keeping your pinned skills beside the big button.
-    private func resetOrder(_ order: [String]) -> [String] {
-        var standard = GameSession.defaultBattleButtons
-        standard.insert(contentsOf: order.filter { $0.hasPrefix("skill:") },
-                        at: standard.firstIndex(of: GameSession.moreDivider) ?? standard.endIndex)
-        return standard
-    }
-
-    @ViewBuilder
     private func button(_ id: String, size: CGFloat) -> some View {
-        let big = size == mainSize
-        if id.hasPrefix("skill:"), let skill = controller.pinnedSkills.first(where: { "skill:\($0.id)" == id }) {
-            QuickSkillButton(controller: controller, skill: skill, size: size, onHold: arrange)
-        } else {
-            let info = BattleCommand(id)
-            RoundCommandButton(title: info.title, icon: id == "items" && controller.needsHealing ? .heartPlus : info.icon,
-                               size: size, tint: tint(for: id, big: big), onHold: arrange) {
-                perform(id)
-            }
+        let info = BattleCommand(id)
+        return RoundCommandButton(title: info.title, icon: id == "items" && controller.needsHealing ? .heartPlus : info.icon,
+                                  size: size, tint: tint(for: id, big: size == mainSize), onHold: arrange) {
+            perform(id)
         }
     }
 
@@ -827,58 +796,6 @@ private struct ChoiceCard<Content: View>: View {
                 .fill(HUDStyle.ink.opacity(0.92))
                 .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2))
         )
-    }
-}
-
-/// A pinned skill beside Attack: one tap casts (or asks for a target).
-private struct QuickSkillButton: View {
-    let controller: BattleController
-    let skill: SkillDef
-    var size: CGFloat = 56
-    var onHold: (() -> Void)? = nil
-
-    var body: some View {
-        let cost = controller.cost(of: skill)
-        let affordable = (controller.hero?.mp ?? 0) >= cost
-        let tint = Color(uiColor: skill.tileColor)
-        PressButton(action: { controller.useSkill(skill) }, onHold: onHold) {
-            // Round like the other battle buttons, in the skill's colour.
-            Group {
-                if let picture = skill.art.flatMap(ArtLibrary.shared.artImage) {
-                    Image(uiImage: picture)
-                        .interpolation(.none)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: size * 0.62, height: size * 0.62)
-                } else {
-                    IconImage(skill.icon.flatMap(GameIcon.init) ?? .sparkles, size: size * 0.42)
-                        .foregroundStyle(.white)
-                }
-            }
-            .frame(width: size, height: size)
-            .background(
-                Circle()
-                    .fill(RadialGradient(colors: [tint.opacity(0.75), tint], center: UnitPoint(x: 0.35, y: 0.3),
-                                         startRadius: 1, endRadius: size * 0.75))
-                    .overlay(Circle().fill(LinearGradient(colors: [.white.opacity(0.3), .clear, .black.opacity(0.2)],
-                                                          startPoint: .top, endPoint: .bottom)))
-                    .overlay(Circle().strokeBorder(.white.opacity(0.75), lineWidth: 2))
-            )
-            .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 4)
-            .opacity(affordable ? 1 : 0.5)
-        }
-        .overlay(alignment: .bottom) {
-            // The skill's name, like the other buttons' labels; long names end in "…".
-            Text(skill.name)
-                .font(HUDStyle.font(10))
-                .foregroundStyle(affordable ? HUDStyle.cream : HUDStyle.dim)
-                .shadow(color: .black, radius: 0, x: 1, y: 1)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .frame(width: size + 14)
-                .offset(y: 15)
-        }
-        .accessibilityLabel(L("{skill}, {cost} MP", ["skill": skill.name, "cost": cost]))
     }
 }
 

@@ -411,34 +411,6 @@ final class GameSession {
         return classSkills(upTo: rebirths > 0 ? Int.max : data.hero.level).filter { learned.contains($0.id) }
     }
 
-    // MARK: - Pinned skills
-
-    /// How many skills fit on the battle bar.
-    static let maxPinnedSkills = 4
-
-    /// Pinned skills the hero can use right now, in the order they were pinned.
-    var pinnedSkills: [SkillDef] {
-        let known = heroSkills
-        return (data.pinnedSkills ?? []).compactMap { id in known.first { $0.id == id } }
-    }
-
-    func isPinned(_ id: String) -> Bool { data.pinnedSkills?.contains(id) == true }
-
-    /// Pins or unpins a skill. Returns false when the bar is already full.
-    @discardableResult
-    func togglePin(_ id: String) -> Bool {
-        let known = Set(heroSkills.map(\.id))
-        var pins = (data.pinnedSkills ?? []).filter { known.contains($0) }
-        if let index = pins.firstIndex(of: id) {
-            pins.remove(at: index)
-        } else {
-            guard pins.count < Self.maxPinnedSkills, known.contains(id) else { return false }
-            pins.append(id)
-        }
-        data.pinnedSkills = pins
-        return true
-    }
-
     // MARK: - Battle buttons
 
     /// In `battleButtons`, everything after this sits in the More menu.
@@ -446,14 +418,10 @@ final class GameSession {
     static let defaultBattleButtons = ["attack", "skills", "capture", moreDivider, "items", "guard", "run"]
 
     /// The battle buttons in your order: the first is the big one, those after `moreDivider` wait
-    /// in the More menu. Pinned skills appear as "skill:<id>"; newly pinned ones join before More.
+    /// in the More menu. Only real commands: older saves can hold skills once pinned there ("skill:<id>").
     var battleButtons: [String] {
-        let pins = pinnedSkills.map { "skill:\($0.id)" }
-        var order = (data.battleButtons ?? Self.defaultBattleButtons).filter { !$0.hasPrefix("skill:") || pins.contains($0) }
+        var order = (data.battleButtons ?? Self.defaultBattleButtons).filter { Self.defaultBattleButtons.contains($0) }
         for command in Self.defaultBattleButtons where !order.contains(command) { order.append(command) }
-        let divider = order.firstIndex(of: Self.moreDivider) ?? order.endIndex
-        let newPins = pins.filter { !order.contains($0) }
-        order.insert(contentsOf: newPins, at: divider)
         return order
     }
 

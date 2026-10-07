@@ -554,16 +554,6 @@ final class BattleController {
 
     func level(of skill: SkillDef) -> Int { session.skillLevel(skill.id) }
 
-    var pinnedSkills: [SkillDef] { session.pinnedSkills }
-
-    func togglePin(_ skill: SkillDef) {
-        if session.togglePin(skill.id) {
-            session.save()
-        } else {
-            message = L("The quick bar holds {count} skills. Unpin one first.", ["count": GameSession.maxPinnedSkills])
-        }
-    }
-
     /// Saves a new order for the battle buttons (from holding one down).
     func arrangeButtons(_ order: [String]) {
         session.data.battleButtons = order
