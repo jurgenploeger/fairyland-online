@@ -25,7 +25,7 @@ rain         | newgame,map=sunny_meadow,hour=12,weather=rain  | 15
 storm_night  | newgame,map=frog_swamp,hour=23,weather=storm   | 15
 fog          | newgame,map=twilight_woods,hour=8,weather=fog  | 15
 snowfall     | newgame,map=snow_white_forest,hour=14,weather=snow | 15
-battle_timer | newgame,level=44,class=fighter,pin=bash+first_aid+power_strike+whirlwind,map=rat_cavern,battle=2,turntimer=40 | 15
+battle_timer | newgame,level=44,class=fighter,learn=bash+first_aid+power_strike+whirlwind,map=rat_cavern,battle=2,turntimer=40 | 15
 battle_auto  | newgame,level=60,class=fighter,pet=pineapple,friends=2,map=sunny_meadow,battle=3,auto,fast | 1
 character    | newgame,menu=character            | 8
 character_weapon | newgame,level=40,class=fighter,equip=iron_plate+steel_sword,menu=character | 8
@@ -65,7 +65,7 @@ item_info    | newgame,level=12,npc=shop,info=iron_axe                          
 item_info_fighter | newgame,level=40,class=fighter,equip=iron_axe,npc=rainbow_shop,info=steel_sword | 8
 item_info_material | newgame,npc=shop,info=bronze_ingot                         | 8
 equip_change | newgame,equip=leather_vest,bag=cloth_tunic,menu=character,change=armor | 8
-skills       | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+whirlwind,menu=character,bottom | 8
+skills       | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,menu=character,bottom | 8
 skills_learn | newgame,level=20,class=mage,menu=character,bottom                 | 8
 boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 15
 boss_fight   | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne | 25
@@ -92,8 +92,8 @@ talk_npc     | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=lotus_
 edge_fog     | newgame,map=sunny_meadow,at=80_0                 | 15
 edge_town    | newgame,map=meadowbrook,at=0_-28                  | 8
 twilight     | newgame,level=40,map=twilight_woods                 | 15
-battle_big   | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+whirlwind,hp=0.3,map=genie_desert,battle=10 | 15
-battle_arrange | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+whirlwind,map=genie_desert,battle=10,arrange | 15
+battle_big   | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,hp=0.3,map=genie_desert,battle=10 | 15
+battle_arrange | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,map=genie_desert,battle=10,arrange | 15
 battle_big_landscape | newgame,level=60,map=genie_desert,battle=10,landscape | 15
 levelup      | newgame,level=9,levelup,map=sunny_meadow,battle=1,win           | 30
 levelup_landscape | newgame,level=9,levelup,map=sunny_meadow,battle=1,win,landscape | 30
@@ -122,8 +122,8 @@ bounties     | newgame,level=12,map=northern_grassland,bounties=1,menu=quests | 
 titles       | newgame,level=60,class=fighter,title=veteran,menu=character,bottom | 8
 daily_gift   | newgame,level=30,map=meadowbrook,gift=7             | 10
 # Play as a player would (debug `demo`), filmed for the App Store preview (record=seconds, saved as <name>.mp4).
-gameplay     | newgame,demo,record=58,level=12,class=mage,pin=fire_bolt+curse,pet=jelly,bag=seal_stone+seal_stone,map=sunny_meadow,at=3_3 | 2
-gameplay_candy | newgame,demo,record=58,level=26,class=mage,pin=fire_bolt+poison+curse,pet=pineapple,bag=seal_stone+seal_stone,map=candy_mountain | 2
+gameplay     | newgame,demo,record=58,level=12,class=mage,learn=fire_bolt+curse,pet=jelly,bag=seal_stone+seal_stone,map=sunny_meadow,at=3_3 | 2
+gameplay_candy | newgame,demo,record=58,level=26,class=mage,learn=fire_bolt+poison+curse,pet=pineapple,bag=seal_stone+seal_stone,map=candy_mountain | 2
 # Fights over the map they're on, for the store slides.
 battle_candy | newgame,level=26,class=mage,pet=pineapple,map=candy_mountain,battle=3 | 15
 battle_forest | newgame,level=26,class=fighter,pet=pineapple,friends=2,map=smiling_forest,battle=4 | 15
@@ -164,10 +164,11 @@ card_duel    | newgame,level=45,class=fighter,map=wolf_lair,meet=1 | 10
 card_duel_fr | newgame,level=45,class=fighter,map=wolf_lair,meet=1,lang=fr | 10
 # Seal Stones in a fight's Items list, with three monsters standing (any of them can be sealed now).
 battle_items      | newgame,level=30,bag=seal_stone+seal_stone,map=sunny_meadow,battle=3,items | 15
+battle_skills     | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,map=sunny_meadow,battle=3,skills | 15
 # Every window in landscape (402 pt tall on the simulator): nothing may run off the top or bottom.
 worldmap_land     | newgame,level=30,map=pineapple_shore,worldmap,landscape | 8
 character_land    | newgame,level=40,class=fighter,equip=iron_plate+steel_sword,menu=character,landscape | 8
-skills_land       | newgame,level=60,class=fighter,pin=bash+first_aid+power_strike+whirlwind,menu=character,bottom,landscape | 8
+skills_land       | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,menu=character,bottom,landscape | 8
 equip_change_land | newgame,equip=leather_vest,bag=cloth_tunic,menu=character,change=armor,landscape | 8
 look_land         | newgame,menu=character,customize,landscape | 8
 party_menu_land   | newgame,level=43,class=fighter,pet=pineapple,friends=4,menu=companions,bottom,landscape | 8

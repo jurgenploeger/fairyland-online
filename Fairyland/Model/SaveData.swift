@@ -121,8 +121,6 @@ nonisolated struct SaveData: Codable, Sendable {
     var levelsRescaled: Bool?
     /// Skill levels were doubled when mastering went from 5 steps to 10 (see `rescaleSkillLevelsIfNeeded`).
     var skillLevelsDoubled: Bool?
-    /// Skills pinned to the battle bar for one-tap casting, in order.
-    var pinnedSkills: [String]?
     /// Your order of the battle buttons (see `GameSession.battleButtons`).
     var battleButtons: [String]?
     /// Trades already made with adventurers (`GameSession.TradeOffer.id`), so each offer is done once.
