@@ -21,31 +21,38 @@ struct ItemInfoCard: View {
             Color.black.opacity(0.45)
                 .ignoresSafeArea()
                 .onTapGesture(perform: onClose)
-            // Scrolls only when it can't all fit (a phone on its side).
-            FitOrScroll {
-                VStack(alignment: .leading, spacing: 12) {
-                    header
-                    if let text = item.description, !text.isEmpty {
-                        Text(text)
-                            .font(HUDStyle.font(12))
-                            .foregroundStyle(HUDStyle.cream)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    if isGear {
-                        requirements
-                        if let stats = item.stats, !Self.parts(of: stats).isEmpty {
-                            section(L("Stats")) { chips(Self.parts(of: stats)) }
+            VStack(alignment: .leading, spacing: 0) {
+                // Scrolls only when it can't all fit (a phone on its side).
+                FitOrScroll {
+                    VStack(alignment: .leading, spacing: 12) {
+                        header
+                        if let text = item.description, !text.isEmpty {
+                            Text(text)
+                                .font(HUDStyle.font(12))
+                                .foregroundStyle(HUDStyle.cream)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                        comparison
+                        if isGear {
+                            requirements
+                            if let stats = item.stats, !Self.parts(of: stats).isEmpty {
+                                section(L("Stats")) { chips(Self.parts(of: stats)) }
+                            }
+                            comparison
+                        }
+                        effects
+                        if item.type == .material {
+                            materialUse
+                        }
+                        footer
                     }
-                    effects
-                    if item.type == .material {
-                        materialUse
-                    }
-                    footer
-                    if choosing { actions }
+                    .padding(16)
                 }
-                .padding(16)
+                // Cancel and Equip stay in view under the details, even when those scroll.
+                if choosing {
+                    actions
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 16)
+                }
             }
             .frame(maxWidth: 360, alignment: .leading)
             .gameWindow()
