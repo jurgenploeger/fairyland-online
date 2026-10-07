@@ -36,10 +36,17 @@ struct TitleView: View {
     /// with them read: there's nothing older to compare them with.
     private var hasUnreadNotes: Bool { !saves.isEmpty && seenRelease != newestRelease }
 
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    /// The menu on a phone on its side, too short for the logo above it all: the logo and the
+    /// round buttons on the left, your game and Continue on the right, nothing to scroll for.
+    private var sideBySide: Bool {
+        verticalSizeClass == .compact && !creating && !showingLanguages && !showingChangelog && !showingSettings
+    }
+
     var body: some View {
         ZStack {
-            // The app icon's sky, its rays behind the logo at the top.
-            StoryleafSky(raysFrom: UnitPoint(x: 0.5, y: 0.18))
+            // The app icon's sky, its rays behind the logo (at the top, or on the left).
+            StoryleafSky(raysFrom: sideBySide ? UnitPoint(x: 0.29, y: 0.3) : UnitPoint(x: 0.5, y: 0.18))
 
             if let intro {
                 IntroView(finishTitle: intro.thenCreate ? L("Create your hero") : L("Done"), startPage: intro.startPage) {
@@ -52,37 +59,46 @@ struct TitleView: View {
             } else {
                 ScrollView {
                     VStack(spacing: 18) {
-                        Image("Logo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: 440)
-                            .padding(.top, 12)
-                            .accessibilityLabel(L("Storyleaf, a cozy pixel adventure"))
-
-                        if creating {
-                            creation
-                        } else if showingLanguages {
-                            LanguagePanel { showingLanguages = false }
-                        } else if showingChangelog {
-                            ChangelogPanel { showingChangelog = false }
-                        } else if showingSettings {
-                            VStack(alignment: .leading, spacing: 12) {
-                                SettingsView(onImportBackup: {
-                                    showingSettings = false
-                                    importing = true
-                                })
-                                Button {
-                                    showingSettings = false
-                                } label: {
-                                    Label(L("Back"), icon: .arrowLeft)
+                        if sideBySide {
+                            HStack(spacing: 28) {
+                                VStack(spacing: 14) {
+                                    logo
+                                    roundButtons
                                 }
-                                .buttonStyle(PixelButtonStyle(compact: true))
+                                .frame(maxWidth: .infinity)
+                                VStack(spacing: 12) {
+                                    games
+                                    startButtons
+                                }
+                                .frame(maxWidth: .infinity)
                             }
-                            .padding(16)
-                            .frame(maxWidth: 640)
-                            .background(HUDStyle.panel)
                         } else {
-                            menu
+                            logo.padding(.top, 12)
+                            if creating {
+                                creation
+                            } else if showingLanguages {
+                                LanguagePanel { showingLanguages = false }
+                            } else if showingChangelog {
+                                ChangelogPanel { showingChangelog = false }
+                            } else if showingSettings {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    SettingsView(onImportBackup: {
+                                        showingSettings = false
+                                        importing = true
+                                    })
+                                    Button {
+                                        showingSettings = false
+                                    } label: {
+                                        Label(L("Back"), icon: .arrowLeft)
+                                    }
+                                    .buttonStyle(PixelButtonStyle(compact: true))
+                                }
+                                .padding(16)
+                                .frame(maxWidth: 640)
+                                .background(HUDStyle.panel)
+                            } else {
+                                menu
+                            }
                         }
                     }
                     .padding(20)
@@ -139,13 +155,36 @@ struct TitleView: View {
         }
     }
 
+    private var logo: some View {
+        Image("Logo")
+            .resizable()
+            .scaledToFit()
+            .frame(maxWidth: 440)
+            .accessibilityLabel(L("Storyleaf, a cozy pixel adventure"))
+    }
+
     private var menu: some View {
         VStack(spacing: 12) {
-            if saves.isEmpty {
-                SpriteImage(art: "player_walk", size: 96)
-            } else {
-                SaveCarousel(saves: saves, selection: $selectedSlot)
-            }
+            games
+            startButtons
+            roundButtons
+                .padding(.top, 10)
+        }
+    }
+
+    /// Your games, one at a time, or before the first one, a hero waiting to be made.
+    @ViewBuilder
+    private var games: some View {
+        if saves.isEmpty {
+            SpriteImage(art: "player_walk", size: 96)
+        } else {
+            SaveCarousel(saves: saves, selection: $selectedSlot)
+        }
+    }
+
+    /// Continue the game on show, or start another.
+    private var startButtons: some View {
+        VStack(spacing: 12) {
             if let save = selectedSave {
                 Button {
                     onStart(GameSession(data: save))
@@ -162,31 +201,33 @@ struct TitleView: View {
             }
             // Before your first game, it's the one thing to do.
             .buttonStyle(PixelButtonStyle(tint: saves.isEmpty ? HUDStyle.gold : HUDStyle.cream))
-            // The rest waits in small round buttons, only what fits the moment. A backup is for
-            // bringing a game over before you have one (later it's in Settings); How to play and
-            // What's new are for a player who already has a game.
-            HStack(alignment: .top, spacing: 4) {
-                Button(L("Settings")) { showingSettings = true }
-                    .buttonStyle(TitleRoundButtonStyle(icon: .settings))
-                if saves.isEmpty {
-                    Button(L("Import a backup")) { importing = true }
-                        .buttonStyle(TitleRoundButtonStyle(icon: .arrowDown))
-                } else {
-                    Button(L("How to play")) {
-                        withAnimation(.easeInOut(duration: 0.25)) {
-                            intro = IntroRequest(startPage: IntroView.howToPlayPage, thenCreate: false)
-                        }
+        }
+    }
+
+    /// The rest waits in small round buttons, only what fits the moment. A backup is for bringing
+    /// a game over before you have one (later it's in Settings); How to play and What's new are
+    /// for a player who already has a game.
+    private var roundButtons: some View {
+        HStack(alignment: .top, spacing: 4) {
+            Button(L("Settings")) { showingSettings = true }
+                .buttonStyle(TitleRoundButtonStyle(icon: .settings))
+            if saves.isEmpty {
+                Button(L("Import a backup")) { importing = true }
+                    .buttonStyle(TitleRoundButtonStyle(icon: .arrowDown))
+            } else {
+                Button(L("How to play")) {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        intro = IntroRequest(startPage: IntroView.howToPlayPage, thenCreate: false)
                     }
-                    .buttonStyle(TitleRoundButtonStyle(icon: .book))
-                    Button(L("What's new")) {
-                        seenRelease = newestRelease
-                        showingChangelog = true
-                    }
-                    .buttonStyle(TitleRoundButtonStyle(icon: .star, marked: hasUnreadNotes))
-                    .accessibilityValue(hasUnreadNotes ? L("Unread") : "")
                 }
+                .buttonStyle(TitleRoundButtonStyle(icon: .book))
+                Button(L("What's new")) {
+                    seenRelease = newestRelease
+                    showingChangelog = true
+                }
+                .buttonStyle(TitleRoundButtonStyle(icon: .star, marked: hasUnreadNotes))
+                .accessibilityValue(hasUnreadNotes ? L("Unread") : "")
             }
-            .padding(.top, 10)
         }
     }
 
