@@ -40,6 +40,7 @@ ICONS = {
     "badge-check": ("awards/badge-check", "solid"),
     "plus": ("essential/plus", "solid"),
     "user": ("people/user", "solid"),
+    "users": ("people/users", "solid"),
     "paw": ("nature/paw", "solid"),
     "book": ("education/book-marked", "solid"),
     "talk": ("communication/message-dots", "solid"),

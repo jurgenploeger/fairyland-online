@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.73",
+      "date": "2026-10-07",
+      "title": "A tab for your friends",
+      "notes": [
+        "Party & friends has a tab of its own in the menu now, next to Companions: everyone you've befriended, who's in your party, and the Invite and Leave buttons. The Companions tab is just your companions."
+      ]
+    },
+    {
       "version": "0.3.72",
       "date": "2026-10-07",
       "title": "A tidier title screen",

@@ -276,6 +276,30 @@ def draw_arrow_down(c):
     c.shade(lambda x, y, col: col == GREEN[1] and x >= 18, GREEN[0])
 
 
+def draw_users(c):
+    # Friends: two adventurers side by side, shoulders up, the one in front outlined over the other.
+    skin = [hexc("c98e5f"), hexc("f2c79a"), hexc("ffe3c4")]
+    # Behind, on the left: green tunic, brown hair.
+    c.ellipse(11, 25, 7.5, 7, GREEN[1])
+    c.disc(11, 10, 4.8, skin[1])
+    c.poly([(5.8, 9.5), (7.2, 5.2), (11, 4.2), (14.8, 5.2), (16.2, 9.5), (13.8, 7.6), (8.2, 7.6)], LEATHER[1])
+    c.shade(lambda x, y, col: col == GREEN[1] and x >= 14, GREEN[0])
+    # In front, on the right: blue tunic, gold hair, an outline where it covers the other.
+    c.ellipse(21, 27, 9.5, 7.5, OUTLINE)
+    c.disc(21, 13, 6.3, OUTLINE)
+    c.ellipse(21, 27, 8.5, 6.5, BLUE[1])
+    c.disc(21, 13, 5.3, skin[1])
+    c.poly([(15.2, 12.5), (16.6, 7.8), (21, 6.4), (25.4, 7.8), (26.8, 12.5), (24, 10.6), (18, 10.6)], GOLD[1])
+    c.shade(lambda x, y, col: col == BLUE[1] and x >= 25, BLUE[0])
+    c.shade(lambda x, y, col: col == BLUE[1] and y <= 22 and x <= 19, BLUE[2])
+    c.shade(lambda x, y, col: col == skin[1] and x >= 24 and y >= 13, skin[0])
+    for (x, y) in [(9, 10), (13, 10), (19, 13), (23, 13)]:
+        c.set(x, y, INK)
+    # Cut off flat at the shoulders' foot, inside the frame so the outline goes round it.
+    for y in range(29, 32):
+        for x in range(32):
+            c.px[y][x] = None
+
 # GameIcon names use hyphens (arrow-down) where Python names can't: draw_arrow_down draws "arrow-down".
 DRAWINGS = {name[len("draw_"):].replace("_", "-"): fn for name, fn in list(globals().items()) if name.startswith("draw_") and callable(fn)}
 

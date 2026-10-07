@@ -74,8 +74,9 @@ struct WorldHUD: View {
                         .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
                 }
                 HStack(spacing: 7) {
-                    // Settings has its own button up top, next to Chat.
-                    ForEach(MenuTab.allCases.filter { $0 != .settings }) { tab in
+                    // Settings has its own button up top, next to Chat. Friends is a tab of the menu
+                    // only: a fifth button here would run into the joystick on a phone held upright.
+                    ForEach(MenuTab.allCases.filter { $0 != .settings && $0 != .friends }) { tab in
                         FLIconButton(icon: tab.icon, label: tab.title, badge: badge(for: tab)) {
                             coordinator.open(.menu(tab))
                         }
@@ -98,7 +99,7 @@ struct WorldHUD: View {
         case .character: session.canChooseClass || session.canSpendSkillPoint
         case .quests: session.activeQuests.contains { session.status(of: $0) == .ready }
         case .bag: session.count(of: "pet_egg") > 0
-        case .companions, .settings: false
+        case .companions, .friends, .settings: false
         }
     }
 }
