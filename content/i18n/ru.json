@@ -772,6 +772,8 @@
     "Rosy": "Румяная",
     "Tan": "Смуглая",
     "Deep": "Тёмная",
+    "No picking when there's only one": "Без выбора, когда цель одна",
+    "With one monster left, Attack, a spell on a monster and Capture go straight for it, without asking which one. The same goes for an item or a healing spell when you're the only one it can help.": "Если остался один монстр, Атака, заклинание на монстра и «Поймать» сразу направлены на него, без вопроса, на кого. Так же с предметом или лечащим заклинанием, когда помочь можно только тебе.",
     "Capture shows a Seal Stone": "«Поймать» показывает Камень печати",
     "The Capture button in a fight shows the Seal Stone you throw, instead of a heart that looked like healing. How to play shows it too.": "Кнопка «Поймать» в бою показывает Камень печати, который ты бросаешь, а не сердце, похожее на лечение. В «Как играть» тоже.",
     "How to play lights one tip at a time: in town, Towns as you walk into the square, then Quests when Elder Oak speaks. Every tip's highlight is the same width.": "«Как играть» подсвечивает по одной подсказке: в городе сначала «Города», когда ты входишь на площадь, затем «Задания», когда заговорит Старейшина Оук. Все подсветки одной ширины.",

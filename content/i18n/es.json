@@ -772,6 +772,8 @@
     "Rosy": "Rosada",
     "Tan": "Morena",
     "Deep": "Oscura",
+    "No picking when there's only one": "Sin elegir cuando solo hay uno",
+    "With one monster left, Attack, a spell on a monster and Capture go straight for it, without asking which one. The same goes for an item or a healing spell when you're the only one it can help.": "Si solo queda un monstruo, Atacar, un hechizo contra un monstruo y Capturar van directos a por él, sin preguntar cuál. Lo mismo con un objeto o un hechizo de curación cuando solo puede ayudarte a ti.",
     "Capture shows a Seal Stone": "Capturar muestra una Piedra Sello",
     "The Capture button in a fight shows the Seal Stone you throw, instead of a heart that looked like healing. How to play shows it too.": "El botón Capturar en una pelea muestra la Piedra Sello que lanzas, en vez de un corazón que parecía curar. Cómo jugar también lo muestra.",
     "How to play lights one tip at a time: in town, Towns as you walk into the square, then Quests when Elder Oak speaks. Every tip's highlight is the same width.": "Cómo jugar resalta un consejo cada vez: en el pueblo, primero Pueblos al entrar en la plaza y luego Misiones cuando habla el Anciano Roble. Todos los resaltados tienen el mismo ancho.",
