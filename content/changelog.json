@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.81",
+      "date": "2026-10-08",
+      "title": "Title bars with a clear edge",
+      "notes": [
+        "Window title bars, and the menu's row of tabs, keep their light blue down to a crisp dark edge, instead of fading into the window below."
+      ]
+    },
+    {
       "version": "0.3.80",
       "date": "2026-10-08",
       "title": "A calmer battle screen",

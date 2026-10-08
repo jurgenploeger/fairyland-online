@@ -35,6 +35,17 @@ enum HUDStyle {
 
     static let bevel = LinearGradient(colors: [frameLight, frameMid, frameDark], startPoint: .top, endPoint: .bottom)
 
+    /// A title bar's gloss (and the menu's row of tabs): a light sheen over the top half, then the
+    /// frame's mid blue, a clear step lighter than the window's glass below it.
+    static let titleGloss = LinearGradient(stops: [.init(color: frameLight, location: 0), .init(color: frameMid, location: 0.5),
+                                                   .init(color: frameMid, location: 1)],
+                                           startPoint: .top, endPoint: .bottom)
+
+    /// The hard edge along a title bar's foot, so the bar and the window under it don't run together.
+    static var titleEdge: some View {
+        ink.opacity(0.9).frame(height: 1.5)
+    }
+
     /// The deep-blue glass of the windows.
     static let glass = LinearGradient(
         colors: [Color(red: 0.13, green: 0.32, blue: 0.56).opacity(0.93), Color(red: 0.05, green: 0.17, blue: 0.35).opacity(0.95)],
@@ -158,7 +169,8 @@ struct FLTitleBar: View {
         .padding(.vertical, 5)
         .background(
             UnevenRoundedRectangle(topLeadingRadius: 8, bottomLeadingRadius: 2, bottomTrailingRadius: 2, topTrailingRadius: 8)
-                .fill(LinearGradient(colors: [HUDStyle.frameLight, HUDStyle.frameMid, HUDStyle.frameDark], startPoint: .top, endPoint: .bottom))
+                .fill(HUDStyle.titleGloss)
+                .overlay(alignment: .bottom) { HUDStyle.titleEdge }
         )
     }
 }
