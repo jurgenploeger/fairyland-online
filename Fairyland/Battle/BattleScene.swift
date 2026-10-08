@@ -143,9 +143,10 @@ final class BattleScene: SKScene {
     }
 
     /// Fighters stand in diagonal lines of up to five, like Fairyland's battle formation; a bigger
-    /// group forms a second row behind the first. Companions stand right behind whoever they came
-    /// with (yours behind you, a friend's behind them, a rival's behind the rival): the people make
-    /// the line, and their companions a row back.
+    /// group forms a second row behind the first. Someone alone with their companion (you without a
+    /// friend, or a lone rival) stands side by side with it in one line. With friends, companions
+    /// stand right behind whoever they came with: the people make the line, and their companions a
+    /// row back.
     private func arrange(_ group: [Combatant], around center: CGPoint, facing: Direction) {
         let ids = Set(group.map(\.id))
         let followers = group.filter { fighter in fighter.ownerID.map { ids.contains($0) } == true }
@@ -155,6 +156,11 @@ final class BattleScene: SKScene {
             return
         }
         let leaders = group.filter { fighter in !followers.contains { $0.id == fighter.id } }
+        if leaders.count == 1 {
+            // Side by side: the person first, then their companion.
+            arrange(rows: [leaders + followers], around: center, facing: facing)
+            return
+        }
         let front = rowShift(depth: 0.5, facing: facing)
         let behind = companionOffset(facing: facing)
         let escorted = Set(leaders.indices.filter { index in followers.contains { $0.ownerID == leaders[index].id } })
@@ -209,8 +215,8 @@ final class BattleScene: SKScene {
     }
 
     /// The lines a side stands in, as `arrange` lays them out: its people in one (their companions
-    /// a row back) or, with no companions, rows of up to five; and how far a companion behind the
-    /// first or last one sticks out past the end.
+    /// a row back), someone alone side by side with their companion, or, with no companions, rows of
+    /// up to five; and how far a companion behind the first or last one sticks out past the end.
     private func lines(of group: [Combatant], facing: Direction) -> [(count: Int, overhang: CGFloat)] {
         let ids = Set(group.map(\.id))
         let followers = group.filter { fighter in fighter.ownerID.map { ids.contains($0) } == true }
@@ -218,6 +224,7 @@ final class BattleScene: SKScene {
             return stride(from: 0, to: group.count, by: 5).map { (count: min(5, group.count - $0), overhang: 0) }
         }
         let leaders = group.filter { fighter in !followers.contains { $0.id == fighter.id } }
+        if leaders.count == 1 { return [(count: group.count, overhang: 0)] }
         let behind = companionOffset(facing: facing)
         let end = behind.dx < 0 ? leaders.first : leaders.last
         let escorted = end.map { leader in followers.contains { $0.ownerID == leader.id } } ?? false

@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.83",
+      "date": "2026-10-08",
+      "title": "Side by side with your companion",
+      "notes": [
+        "In a fight without a friend, you and your companion stand side by side in one line, instead of your companion standing behind you. With friends, companions still stand a row behind whoever they came with. How to play shows it too."
+      ]
+    },
+    {
       "version": "0.3.82",
       "date": "2026-10-08",
       "title": "A smoother How to play",
