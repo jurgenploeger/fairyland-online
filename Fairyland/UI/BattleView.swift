@@ -1,53 +1,32 @@
 import SwiftUI
 import UIKit
 
-/// Battle HUD: a row along the top (the pace buttons, the log line and the chat), the commands
-/// bottom-right, results at the end. Names, levels, HP and the hero's MP sit on the fighters themselves.
+/// Battle HUD: your faces top left with HP and MP (as on the map), the chat top right, a slim line
+/// of what just happened, and the commands round the big button bottom right, with the time to
+/// choose as a ring about it. How fast the fight plays and Auto wait behind More. Results at the
+/// end. Names, levels and HP also sit on the fighters themselves.
 struct BattleView: View {
     let controller: BattleController
     /// Unread chat: a gold dot on the chat button.
     var unreadChat = false
     /// Opens the chat over the fight (GameView holds it); nil while it's open, which hides the button.
     var onChat: (() -> Void)? = nil
-
-    /// The top row's height: the 1× and AUTO buttons, the log line and the chat button all match it.
-    static let barHeight: CGFloat = 36
+    /// A phone on its side: the faces, what just happened and the chat share one row.
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     var body: some View {
         ZStack {
-            VStack(spacing: 0) {
-                // One row along the top: how fast the fight plays and Auto on the left, the log line
-                // (with the waves and the time to choose under it), and the chat on the right.
-                HStack(alignment: .top, spacing: 10) {
-                    if controller.phase != .finished {
-                        PaceControls(controller: controller)
-                    }
-                    VStack(spacing: 8) {
-                        logLine
-                        if controller.waveCount > 1 {
-                            WaveTracker(wave: controller.wave, total: controller.waveCount)
-                        }
-                        if let deadline = controller.turnDeadline, let total = BattleController.turnSeconds {
-                            TurnClockBar(deadline: deadline, total: total)
-                                .transition(.opacity)
-                        }
-                    }
-                    .frame(maxWidth: 520)
-                    .allowsHitTesting(false)
-                    if controller.phase != .finished, let onChat {
-                        FLIconButton(icon: .talk, label: L("Chat"), size: Self.barHeight, badge: unreadChat, action: onChat)
-                    }
-                }
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, 10)
-            .padding(.top, 6)
+            topBar
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.horizontal, 8)
+                .padding(.top, 4)
 
             commandArea
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 .padding(.trailing, 14)
                 .padding(.bottom, 14)
-                .allowsHitTesting(controller.phase != .animating)
+                // While a round plays nothing here takes a tap, but Auto's button, to take over.
+                .allowsHitTesting(controller.phase != .animating || controller.isAuto)
 
             if controller.phase == .finished, let result = controller.result {
                 ResultPanel(result: result, session: controller.session, onContinue: controller.leave)
@@ -55,25 +34,79 @@ struct BattleView: View {
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.phase)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.choosingForCompanion)
+        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.isAuto)
         .onAppear { controller.begin() }
     }
 
-    /// What just happened, in the middle of the top row: one line, or two a little smaller.
+    /// Along the top: your faces and the chat, where the map keeps them, with what just happened
+    /// between them on a phone held sideways, or under them held upright.
+    @ViewBuilder
+    private var topBar: some View {
+        if verticalSizeClass == .compact {
+            HStack(alignment: .top, spacing: 10) {
+                BattleFaces(controller: controller, sideBySide: true)
+                news.frame(maxWidth: .infinity)
+                chatButton
+            }
+        } else {
+            VStack(spacing: 8) {
+                HStack(alignment: .top) {
+                    BattleFaces(controller: controller, sideBySide: false)
+                    Spacer(minLength: 8)
+                    chatButton
+                }
+                news.frame(maxWidth: 360)
+            }
+        }
+    }
+
+    /// The chat, top right as on the map; hidden while it's open and once the fight is over.
+    @ViewBuilder
+    private var chatButton: some View {
+        if controller.phase != .finished, let onChat {
+            FLIconButton(icon: .talk, label: L("Chat"), size: 40, badge: unreadChat, action: onChat)
+        }
+    }
+
+    /// What just happened, and in a boss fight how far through its waves you are.
+    private var news: some View {
+        VStack(spacing: 6) {
+            logLine
+            if controller.waveCount > 1 {
+                WaveTracker(wave: controller.wave, total: controller.waveCount)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    /// One slim line of what just happened, or two when it's long.
     private var logLine: some View {
         Text(controller.message)
-            .font(HUDStyle.font(13))
+            .font(HUDStyle.font(12))
             .foregroundStyle(HUDStyle.cream)
             .multilineTextAlignment(.center)
             .lineLimit(2)
-            .minimumScaleFactor(0.7)
-            .padding(.horizontal, 16)
-            .frame(maxWidth: .infinity)
-            .frame(height: Self.barHeight)
-            .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 2)))
+            .minimumScaleFactor(0.75)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 6)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(HUDStyle.ink.opacity(0.78)))
+    }
+
+    /// The commands bottom right; over a list or while picking a target, the time left to choose
+    /// sits on top of it (with the commands it's the ring round the big button).
+    private var commandArea: some View {
+        VStack(alignment: .trailing, spacing: 10) {
+            if [.skills, .items, .target].contains(controller.phase),
+               let deadline = controller.turnDeadline, let total = BattleController.turnSeconds {
+                TurnClockBar(deadline: deadline, total: total)
+                    .transition(.opacity)
+            }
+            commands
+        }
     }
 
     @ViewBuilder
-    private var commandArea: some View {
+    private var commands: some View {
         switch controller.phase {
         case .command:
             if controller.choosingForCompanion {
@@ -157,6 +190,9 @@ struct BattleView: View {
             .padding(.vertical, 8)
             .background(Capsule().fill(HUDStyle.ink.opacity(0.9)).overlay(Capsule().strokeBorder(HUDStyle.gold.opacity(0.8), lineWidth: 2)))
             .transition(.move(edge: .trailing).combined(with: .opacity))
+        case .animating where controller.isAuto:
+            AutoPlaying { controller.toggleAuto() }
+                .transition(.scale(scale: 0.6, anchor: .bottomTrailing).combined(with: .opacity))
         case .animating, .finished:
             EmptyView()
         }
@@ -193,9 +229,9 @@ private struct WaveTracker: View {
     }
 }
 
-/// The time left to choose, draining under the log line, red for the last two seconds. When it
-/// runs out the hero attacks. About 144 points wide, so it fits under the log line even on a
-/// 375-point-wide phone.
+/// The time left to choose, draining on top of a list (Skills, Items) or the target prompt, red
+/// for the last two seconds. When it runs out the hero attacks. With the commands it's a ring
+/// round the big button instead (`TurnClockRing`).
 private struct TurnClockBar: View {
     let deadline: Date
     let total: TimeInterval
@@ -224,14 +260,17 @@ private struct TurnClockBar: View {
 
 // MARK: - Commands
 
-/// A big button in the corner (Attack unless you change it) with More on top of it, and to its left
-/// rows of round buttons filled from the bottom right: Skills, then whatever else turns up (Capture
-/// when there's a monster to befriend, Items when someone is low on HP). Less-used commands
-/// hide behind More. Holding any button makes them all wiggle, like the iPhone home screen: drag
-/// them into any order (onto the big button, or into the "Behind More" tray), then tap Done.
+/// A big button in the corner (Attack unless you change it), the time to choose as a ring round
+/// it, and the other commands on an arc about it, where a thumb reaches them all alike: Skills,
+/// then whatever else turns up (Capture when there's a monster to befriend, Items when someone is
+/// low on HP), with More straight above the big button. Less-used commands hide behind More, and
+/// with them Auto and the fight's pace. Holding any button makes them all wiggle, like the iPhone
+/// home screen: drag them into any order (onto the big button, or into the "Behind More" tray),
+/// then tap Done.
 private struct CommandPad: View {
     let controller: BattleController
-    @State private var showMore = false
+    /// Debug `more`: open from the start, for screenshots.
+    @State private var showMore = DebugLaunch.opensMore
     /// While rearranging: the whole order, `moreDivider` included (nil otherwise).
     @State private var editing: [String]?
     /// Where each button sits, for working out what a dragged button is over.
@@ -283,28 +322,37 @@ private struct CommandPad: View {
         id == "capture" ? controller.canCapture : true
     }
 
+    /// Auto and the fight's pace: at the end of what More opens, after the commands behind it.
+    private static let paceIDs = ["auto", "pace"]
+
     private var pad: some View {
         let (main, column, more) = sections
-        return HStack(alignment: .bottom, spacing: 14) {
-            // Rows beside the big button, filled right to left and wrapping upwards.
-            RightToLeftRows {
-                ForEach(showMore ? more : column, id: \.self) { id in
-                    button(id, size: buttonSize)
-                        .transition(.scale(scale: 0.2).combined(with: .opacity))
-                }
+        let shown = showMore ? more + Self.paceIDs : column
+        return ThumbArc {
+            if let main {
+                button(main, size: mainSize)
+                    .overlay { TurnClockRing(controller: controller, diameter: mainSize + 16) }
+                    .layoutValue(key: ArcSlot.self, value: 0)
             }
-            // More sits on top of the big button, always in the same spot.
-            VStack(spacing: 26) {
-                if !more.isEmpty {
-                    RoundCommandButton(title: showMore ? L("Close") : L("More"), icon: showMore ? .close : .more, size: buttonSize,
-                                       tint: .quiet, onHold: arrange) {
-                        showMore.toggle()
+            // Left of the big button first, then up and to the left, then on round a wider arc
+            // (slot 3, straight up, is More's).
+            ForEach(Array(shown.enumerated()), id: \.element) { index, id in
+                Group {
+                    if Self.paceIDs.contains(id) {
+                        paceButton(id)
+                    } else {
+                        button(id, size: buttonSize)
                     }
                 }
-                if let main {
-                    button(main, size: mainSize)
-                }
+                .layoutValue(key: ArcSlot.self, value: index < 2 ? index + 1 : index + 2)
+                .transition(.scale(scale: 0.2).combined(with: .opacity))
             }
+            // More sits straight above the big button, always in the same spot.
+            RoundCommandButton(title: showMore ? L("Close") : L("More"), icon: showMore ? .close : .more, size: buttonSize,
+                               tint: .quiet, onHold: arrange) {
+                showMore.toggle()
+            }
+            .layoutValue(key: ArcSlot.self, value: 3)
         }
         .padding(.leading, 14)
         .animation(.spring(response: 0.38, dampingFraction: 0.72), value: showMore)
@@ -315,6 +363,24 @@ private struct CommandPad: View {
     private func arrange() {
         showMore = false
         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { editing = controller.session.battleButtons }
+    }
+
+    /// Auto and the fight's pace (1× or 2×), lit while on and kept for the next fights (Settings
+    /// has them too). Auto is faded where it can't play (a boss, a duel, monsters too strong for
+    /// it) and says why when tapped.
+    private func paceButton(_ id: String) -> some View {
+        let isAuto = id == "auto"
+        let fast = controller.speed > 1
+        let on = isAuto ? controller.isAuto : fast
+        return RoundCommandButton(title: isAuto ? L("Auto") : L("Pace"), icon: isAuto ? .paw : .wind, size: buttonSize,
+                                  tint: on ? .lit : .normal, text: isAuto ? L("AUTO") : (fast ? "2×" : "1×")) {
+            SoundEffects.shared.play(.tap, volume: 0.7)
+            if isAuto { controller.toggleAuto() } else { controller.toggleSpeed() }
+        }
+        .opacity(isAuto && !controller.isAuto && !controller.canAuto ? 0.5 : 1)
+        .accessibilityLabel(isAuto
+                            ? (controller.isAuto ? L("Auto is on. Tap to choose yourself.") : L("Auto: fight on your own."))
+                            : (fast ? L("Battle speed: double. Tap for normal.") : L("Battle speed: normal. Tap for double.")))
     }
 
     // MARK: Rearranging
@@ -470,64 +536,144 @@ private struct CommandPad: View {
     }
 }
 
-/// The fight's pace, at the left of the top row: 2× plays it twice as fast (your time to choose
-/// stays the same), and Auto lets the hero and companion fight on their own against monsters well
-/// below you. Both are kept for the next fights. Auto shows only in wild fights, dimmed where the
-/// monsters are too strong for it.
-private struct PaceControls: View {
+/// The time left to choose, draining round the big button: gold, red for the last two seconds,
+/// with the seconds on it. When it runs out the hero attacks. Nothing while no clock is ticking.
+private struct TurnClockRing: View {
     let controller: BattleController
+    let diameter: CGFloat
 
     var body: some View {
-        HStack(spacing: 8) {
-            let fast = controller.speed > 1
-            PaceButton(title: fast ? "2×" : "1×", lit: fast,
-                       label: fast ? L("Battle speed: double. Tap for normal.") : L("Battle speed: normal. Tap for double.")) {
-                controller.toggleSpeed()
-            }
-            if controller.isWild {
-                PaceButton(title: L("AUTO"), lit: controller.isAuto, enabled: controller.isAuto || controller.canAuto,
-                           label: controller.isAuto ? L("Auto is on. Tap to choose yourself.") : L("Auto: fight on your own.")) {
-                    controller.toggleAuto()
+        if let deadline = controller.turnDeadline, let total = BattleController.turnSeconds {
+            TimelineView(.animation) { context in
+                let left = max(0, deadline.timeIntervalSince(context.date))
+                let urgent = left <= 2
+                ZStack(alignment: .topTrailing) {
+                    Circle()
+                        .stroke(HUDStyle.ink.opacity(0.75), lineWidth: 5)
+                    Circle()
+                        .trim(from: 0, to: CGFloat(min(1, left / total)))
+                        .stroke(urgent ? HUDStyle.hp : HUDStyle.gold, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                    Text("\(Int(left.rounded(.up)))")
+                        .font(HUDStyle.mono(11))
+                        .foregroundStyle(urgent ? HUDStyle.hp : HUDStyle.cream)
+                        .frame(minWidth: 22, minHeight: 20)
+                        .background(Capsule().fill(HUDStyle.ink.opacity(0.92)))
+                        .offset(x: 6, y: -4)
                 }
+                .frame(width: diameter, height: diameter)
             }
+            .allowsHitTesting(false)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(L("Time left to choose before you attack"))
         }
     }
 }
 
-/// A small lit-or-not switch for the pace controls.
-private struct PaceButton: View {
-    let title: String
-    let lit: Bool
-    var enabled = true
-    let label: String
-    let action: () -> Void
+/// Auto at work: the big button's corner turns gold and says so, its ring turning, and a tap takes
+/// the fight back from the next round. (The switch that starts it is behind More.)
+private struct AutoPlaying: View {
+    let onTakeOver: () -> Void
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var turning = false
 
     var body: some View {
         Button {
             SoundEffects.shared.play(.tap, volume: 0.7)
-            action()
+            onTakeOver()
         } label: {
-            Text(title)
-                .font(HUDStyle.font(12))
-                .foregroundStyle(lit ? HUDStyle.ink : HUDStyle.cream)
-                .frame(minWidth: 40, minHeight: BattleView.barHeight)
-                .padding(.horizontal, 4)
+            Text(L("AUTO"))
+                .font(HUDStyle.font(16))
+                .foregroundStyle(HUDStyle.ink)
+                .frame(width: 88, height: 88)
                 .background(
-                    RoundedRectangle(cornerRadius: 9)
-                        .fill(lit ? HUDStyle.gold : HUDStyle.ink.opacity(0.85))
-                        .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(lit ? Color.white.opacity(0.9) : HUDStyle.cream.opacity(0.55), lineWidth: 2))
+                    Circle()
+                        .fill(RadialGradient(colors: [Color(red: 1, green: 0.92, blue: 0.55), Color(red: 0.98, green: 0.68, blue: 0.2)],
+                                             center: UnitPoint(x: 0.35, y: 0.3), startRadius: 1, endRadius: 66))
+                        .overlay(Circle().strokeBorder(.white.opacity(0.75), lineWidth: 2))
                 )
-                .opacity(enabled ? 1 : 0.45)
+                .overlay {
+                    Circle()
+                        .stroke(HUDStyle.gold, style: StrokeStyle(lineWidth: 4, lineCap: .round, dash: [9, 7]))
+                        .frame(width: 104, height: 104)
+                        .rotationEffect(.degrees(turning ? 360 : 0))
+                }
+                .overlay(alignment: .top) {
+                    Text(L("Tap to take over"))
+                        .font(HUDStyle.font(10))
+                        .foregroundStyle(HUDStyle.cream)
+                        .shadow(color: .black, radius: 0, x: 1, y: 1)
+                        .fixedSize()
+                        .offset(y: -30)
+                }
         }
-        .buttonStyle(PressScaleStyle())
-        .accessibilityLabel(label)
-        .accessibilityAddTraits(lit ? .isSelected : [])
+        .buttonStyle(RoundPressStyle())
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.linear(duration: 4).repeatForever(autoreverses: false)) { turning = true }
+        }
+        .accessibilityLabel(L("Auto is on. Tap to choose yourself."))
     }
 }
 
-/// Your companion's turn, after the hero's choice: Attack in the big button's spot, its Skills,
-/// Guard, and Auto to let it decide for itself. The chip on top shows whose turn it is. The hero's
-/// choice is made by then, so there's no going back to it (that would start their clock over).
+/// Which place round the big button a command takes (`ThumbArc`): 0 is the big button.
+nonisolated struct ArcSlot: LayoutValueKey {
+    static let defaultValue = 0
+}
+
+/// The commands round the big button in the corner, so a thumb reaches them all alike: the big
+/// button bottom right (slot 0), then an arc about it (1 to its left, 2 up and to the left, 3
+/// straight up), a wider arc of four beyond that (4 to 7), and so on. Labels hang below the
+/// buttons, outside the layout, so the arcs leave room for them.
+struct ThumbArc: Layout {
+    /// From the big button's middle to the first arc, and from each arc to the next.
+    var firstRadius: CGFloat = 104
+    var ringGap: CGFloat = 80
+
+    /// Where a slot sits from the big button's middle (up is negative).
+    private func offset(of slot: Int) -> CGPoint {
+        guard slot > 0 else { return .zero }
+        var ring = 0, first = 1, count = 3
+        while slot >= first + count {
+            first += count
+            count += 1
+            ring += 1
+        }
+        // From straight left (180°) round to straight up (90°).
+        let angle = Double.pi * (1 - 0.5 * Double(slot - first) / Double(count - 1))
+        let radius = firstRadius + ringGap * CGFloat(ring)
+        return CGPoint(x: radius * CGFloat(cos(angle)), y: -radius * CGFloat(sin(angle)))
+    }
+
+    /// Each button's frame about the big button's middle.
+    private func frames(_ subviews: Subviews) -> [CGRect] {
+        subviews.map { subview in
+            let size = subview.sizeThatFits(.unspecified)
+            let center = offset(of: subview[ArcSlot.self])
+            return CGRect(x: center.x - size.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
+        }
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let union = frames(subviews).reduce(CGRect.null) { $0.union($1) }
+        return union.isNull ? .zero : union.size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let placed = frames(subviews)
+        let union = placed.reduce(CGRect.null) { $0.union($1) }
+        guard !union.isNull else { return }
+        for (subview, frame) in zip(subviews, placed) {
+            subview.place(at: CGPoint(x: bounds.maxX - union.maxX + frame.midX, y: bounds.maxY - union.maxY + frame.midY),
+                          anchor: .center, proposal: ProposedViewSize(frame.size))
+        }
+    }
+}
+
+/// Your companion's turn, after the hero's choice: Attack in the big button's spot, and round it
+/// on the same arc its Skills, Guard, and Auto to let it decide for itself. The chip on top shows
+/// whose turn it is. The hero's choice is made by then, so there's no going back to it (that would
+/// start their clock over).
 private struct CompanionPad: View {
     let controller: BattleController
 
@@ -546,15 +692,18 @@ private struct CompanionPad: View {
                 .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.gold.opacity(0.7), lineWidth: 1.5)))
             }
 
-            HStack(alignment: .bottom, spacing: 14) {
-                HStack(alignment: .bottom, spacing: 10) {
-                    RoundCommandButton(title: L("Auto"), icon: .paw, size: 56, tint: .quiet) { controller.letCompanionDecide() }
-                    RoundCommandButton(title: L("Guard"), icon: .shield, size: 56, tint: .normal) { controller.defend() }
-                    if !controller.companionSkills.isEmpty {
-                        RoundCommandButton(title: L("Skills"), icon: .sparkles, size: 56, tint: .normal) { controller.openSkills() }
-                    }
-                }
+            ThumbArc {
                 RoundCommandButton(title: L("Attack"), icon: .tooth, size: 88, tint: .primary) { controller.attack() }
+                    .overlay { TurnClockRing(controller: controller, diameter: 104) }
+                    .layoutValue(key: ArcSlot.self, value: 0)
+                if !controller.companionSkills.isEmpty {
+                    RoundCommandButton(title: L("Skills"), icon: .sparkles, size: 56, tint: .normal) { controller.openSkills() }
+                        .layoutValue(key: ArcSlot.self, value: 1)
+                }
+                RoundCommandButton(title: L("Guard"), icon: .shield, size: 56, tint: .normal) { controller.defend() }
+                    .layoutValue(key: ArcSlot.self, value: controller.companionSkills.isEmpty ? 1 : 2)
+                RoundCommandButton(title: L("Auto"), icon: .paw, size: 56, tint: .quiet) { controller.letCompanionDecide() }
+                    .layoutValue(key: ArcSlot.self, value: 3)
             }
         }
         .padding(.leading, 14)
@@ -652,8 +801,9 @@ private struct RightToLeftRows: Layout {
 
 struct RoundCommandButton: View {
     enum Tint {
-        /// special glows gold (Capture); heal glows green (Items when HP is low).
-        case primary, normal, special, heal, quiet
+        /// special glows gold (Capture); heal glows green (Items when HP is low); lit is a switch
+        /// that's on (Auto, double pace), gold without the glow.
+        case primary, normal, special, heal, quiet, lit
     }
 
     let title: String
@@ -661,6 +811,8 @@ struct RoundCommandButton: View {
     let size: CGFloat
     let tint: Tint
     var onHold: (() -> Void)? = nil
+    /// A word in the middle instead of the icon ("AUTO", "2×").
+    var text: String? = nil
     let action: () -> Void
 
     @State private var pulse = false
@@ -668,7 +820,7 @@ struct RoundCommandButton: View {
     private var colors: [Color] {
         switch tint {
         case .primary: [Color(red: 1, green: 0.62, blue: 0.45), Color(red: 0.9, green: 0.3, blue: 0.3)]
-        case .special: [Color(red: 1, green: 0.92, blue: 0.55), Color(red: 0.98, green: 0.68, blue: 0.2)]
+        case .special, .lit: [Color(red: 1, green: 0.92, blue: 0.55), Color(red: 0.98, green: 0.68, blue: 0.2)]
         case .heal: [Color(red: 0.8, green: 1, blue: 0.75), Color(red: 0.3, green: 0.78, blue: 0.4)]
         case .normal: [.white, HUDStyle.cream, Color(red: 0.86, green: 0.78, blue: 0.64)]
         case .quiet: [Color(red: 0.42, green: 0.36, blue: 0.56), HUDStyle.ink]
@@ -687,14 +839,22 @@ struct RoundCommandButton: View {
     private var foreground: Color {
         switch tint {
         case .primary, .quiet: .white
-        case .normal, .special, .heal: HUDStyle.ink
+        case .normal, .special, .heal, .lit: HUDStyle.ink
         }
     }
 
     var body: some View {
         PressButton(action: action, onHold: onHold) {
             VStack(spacing: 1) {
-                IconImage(icon, size: size * 0.4)
+                if let text {
+                    Text(text)
+                        .font(HUDStyle.font(size * 0.27))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                        .padding(.horizontal, 4)
+                } else {
+                    IconImage(icon, size: size * 0.4)
+                }
                 if size >= 80 {
                     Text(title).font(HUDStyle.font(12))
                 }

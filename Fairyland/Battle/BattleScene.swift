@@ -97,12 +97,30 @@ final class BattleScene: SKScene {
     /// How far apart neighbours stand in a portrait line: the same in every line on both sides, so
     /// five of yours stand as far apart as five monsters (`layout` works it out).
     private var lineSpacing: CGFloat = 108
+    /// On its side, how far down each fighter in a line stands from the one before: 76, closer in a
+    /// long line so all of it fits under the HUD's top row (`layout` works it out).
+    private var landscapeStep: CGFloat = 76
+    /// On its side, the lowest and highest a fighter's spot may be: its nameplate clear of the
+    /// bottom, its head clear of the HUD's top row.
+    private var landscapeFloor: CGFloat = 0
+    private var landscapeCeiling: CGFloat = 0
+    /// A fighter's height above its spot, and its nameplate's depth below it.
+    private static let headroom: CGFloat = 56
+    private static let plateDepth: CGFloat = 30
+
+    /// Upright, room at the top for the HUD: below the Dynamic Island (or the clock), your faces
+    /// (yours and your companion's, one above the other) and the message line, and in a boss fight
+    /// its waves under that.
+    private var portraitTopInset: CGFloat {
+        (view?.safeAreaInsets.top ?? 0) + (controller.waveCount > 1 ? 176 : 150)
+    }
 
     private func layout() {
         guard size.width > 1, size.height > 1 else { return }
         buildGround()
-        // Leave room for the HUD: the log line on top, the command wheel bottom-right.
-        let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (130, 240) : (70, 40)
+        // Leave room for the HUD: your faces and the message line along the top, the command wheel
+        // bottom-right.
+        let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (portraitTopInset, 240) : (70, 40)
         let area = CGRect(x: 0, y: insets.bottom, width: size.width, height: max(120, size.height - insets.top - insets.bottom))
         lineSpacing = sharedSpacing()
         if isPortrait {
@@ -110,8 +128,14 @@ final class BattleScene: SKScene {
             // right looking back up-left; both lines sit around the middle of the screen.
             // A wide gap between the sides, so it reads as two lines facing off.
             arrange(controller.enemiesOnField, around: CGPoint(x: area.midX - 50, y: area.minY + area.height * 0.64), facing: .down)
-            arrange(controller.party, around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.1), facing: .up)
+            arrange(controller.party, around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.06), facing: .up)
         } else {
+            landscapeFloor = area.minY + Self.plateDepth
+            landscapeCeiling = area.maxY - Self.headroom
+            // Companions stand a little above whoever they came with.
+            let climb = max(0, companionOffset(facing: .left).dy)
+            let longest = (lines(of: controller.enemiesOnField, facing: .right) + lines(of: controller.party, facing: .left)).map(\.count).max() ?? 1
+            landscapeStep = longest > 1 ? min(76, max(36, (landscapeCeiling - landscapeFloor - climb) / CGFloat(longest - 1))) : 76
             arrange(controller.enemiesOnField, around: CGPoint(x: area.minX + area.width * 0.28, y: area.midY + 4), facing: .right)
             arrange(controller.party, around: CGPoint(x: area.minX + area.width * 0.6, y: area.midY - 24), facing: .left)
         }
@@ -145,11 +169,36 @@ final class BattleScene: SKScene {
     }
 
     private func arrange(rows: [[Combatant]], around center: CGPoint, facing: Direction) {
-        for (index, row) in rows.enumerated() {
-            // The first row stands at the back, away from the other side.
-            let depth = CGFloat(index) - CGFloat(rows.count - 1) / 2
-            arrangeLine(row, around: center + rowShift(depth: depth, facing: facing), facing: facing)
+        // The first row stands at the back, away from the other side.
+        var centers = rows.indices.map { index in
+            center + rowShift(depth: CGFloat(index) - CGFloat(rows.count - 1) / 2, facing: facing)
         }
+        // On its side, the rows move over together where one would reach under the Dynamic Island
+        // (linePoints would move just that one, onto the row in front).
+        if !isPortrait, let sides = landscapeSides {
+            let ends = zip(rows, centers).map { row, point in
+                (left: point.x - landscapeSpacing * CGFloat(row.count - 1) / 2, right: point.x + landscapeSpacing * CGFloat(row.count - 1) / 2)
+            }
+            let left = ends.map { $0.left }.min() ?? sides.lowerBound
+            let right = ends.map { $0.right }.max() ?? sides.upperBound
+            let shift = left < sides.lowerBound ? sides.lowerBound - left : right > sides.upperBound ? sides.upperBound - right : 0
+            centers = centers.map { CGPoint(x: $0.x + shift, y: $0.y) }
+        }
+        for (row, point) in zip(rows, centers) {
+            arrangeLine(row, around: point, facing: facing)
+        }
+    }
+
+    /// On its side, how far apart neighbours in a line stand: 56, a little more in a long line
+    /// closed up to fit (`landscapeStep`).
+    private var landscapeSpacing: CGFloat { 56 + (76 - landscapeStep) / 2 }
+
+    /// On its side, how far left and right a fighter may stand: its nameplate clear of the Dynamic
+    /// Island and the rounded corners, whichever side they're on.
+    private var landscapeSides: ClosedRange<CGFloat>? {
+        let left = (view?.safeAreaInsets.left ?? 0) + 44
+        let right = size.width - (view?.safeAreaInsets.right ?? 0) - 44
+        return left < right ? left...right : nil
     }
 
     /// From a fighter to the companion standing behind them, one row back.
@@ -221,15 +270,28 @@ final class BattleScene: SKScene {
         let extraRight = trailing.dx > 0 && escorted.contains(count - 1) ? trailing.dx : 0
         // Every line in the fight is spaced alike, closed up enough for the longest to fit; in
         // portrait a line then slides over so everyone stays on screen.
-        let spacing = isPortrait ? lineSpacing : 56
+        // On its side, a line closed up to fit spreads out a little sideways instead.
+        let spacing = isPortrait ? lineSpacing : landscapeSpacing
         var center = center
         if isPortrait, count > 1 {
             let half = spacing * CGFloat(count - 1) / 2
             center.x = min(max(center.x, 50 + half + extraLeft), size.width - 50 - half - extraRight)
         }
+        if !isPortrait, count > 1 {
+            // The whole line, companions behind included, between the bottom and the HUD's top row,
+            // and its ends clear of the Dynamic Island's side (spread out, a long line reached under it).
+            let half = landscapeStep * CGFloat(count - 1) / 2
+            let climb = escorted.isEmpty ? 0 : max(0, trailing.dy)
+            center.y = min(max(center.y, landscapeFloor + half), landscapeCeiling - climb - half)
+            if let sides = landscapeSides {
+                let across = spacing * CGFloat(count - 1) / 2
+                let left = sides.lowerBound + across + extraLeft, right = sides.upperBound - across - extraRight
+                if left <= right { center.x = min(max(center.x, left), right) }
+            }
+        }
         // Each fighter stands a step up from the last, at the same angle on both sides however
         // many stand in a line (a fixed step tilted a packed line of five more than a line of two).
-        let rise = isPortrait ? spacing * Self.portraitSlope : -76
+        let rise = isPortrait ? spacing * Self.portraitSlope : -landscapeStep
         // Only your party needs lifting clear of the command wheel; monsters stay where they are
         // so a long line (and a second row behind it) doesn't climb off the top.
         if isPortrait, count > 1, facing == .up {

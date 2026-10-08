@@ -33,6 +33,8 @@ fog          | newgame,map=twilight_woods,hour=8,weather=fog  | 15
 snowfall     | newgame,map=snow_white_forest,hour=14,weather=snow | 15
 battle_timer | newgame,level=44,class=fighter,learn=bash+first_aid+power_strike+whirlwind,map=rat_cavern,battle=2,turntimer=40 | 15
 battle_auto  | newgame,level=60,class=fighter,pet=pineapple,friends=2,map=sunny_meadow,battle=3,auto,fast | 1
+battle_more  | newgame,level=30,class=fighter,pet=pineapple,map=sunny_meadow,battle=2,more,turntimer=40 | 15
+battle_more_land | newgame,level=30,class=fighter,pet=pineapple,map=sunny_meadow,battle=2,more,turntimer=40,landscape | 15
 character    | newgame,menu=character            | 8
 character_weapon | newgame,level=40,class=fighter,equip=iron_plate+steel_sword,menu=character | 8
 companions   | newgame,level=5,menu=companions   | 8
