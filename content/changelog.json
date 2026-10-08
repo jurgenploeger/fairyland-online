@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.79",
+      "date": "2026-10-08",
+      "title": "What's new in pages",
+      "notes": [
+        "What's new shows five releases at a time, newest first: Newer and Older under the notes turn the pages."
+      ]
+    },
+    {
       "version": "0.3.78",
       "date": "2026-10-08",
       "title": "A close button on every window",

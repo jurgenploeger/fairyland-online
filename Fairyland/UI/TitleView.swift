@@ -14,6 +14,8 @@ struct TitleView: View {
     @State private var saves = SaveStore.all()
     @State private var selectedSlot: String?
     @State private var showingChangelog = DebugLaunch.titlePage == "news"
+    /// What's new's page (0 is the newest): turning it scrolls back up to the panel's top.
+    @State private var changelogPage = 0
     @State private var showingSettings = DebugLaunch.titlePage == "settings"
     @State private var showingLanguages = DebugLaunch.titlePage == "languages"
     /// Its language: switching rebuilds the screen's text in place.
@@ -69,12 +71,16 @@ struct TitleView: View {
                     }
                     .frame(maxWidth: onMenu ? .infinity : 220)
                     GeometryReader { proxy in
-                        ScrollView {
-                            page
-                                .frame(maxWidth: .infinity)
-                                .frame(minHeight: proxy.size.height)
+                        ScrollViewReader { reader in
+                            ScrollView {
+                                page
+                                    .frame(maxWidth: .infinity)
+                                    .frame(minHeight: proxy.size.height)
+                                    .id(Self.pageTop)
+                            }
+                            .scrollBounceBehavior(.basedOnSize)
+                            .onChange(of: changelogPage) { scrollUp(reader) }
                         }
-                        .scrollBounceBehavior(.basedOnSize)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -83,14 +89,17 @@ struct TitleView: View {
                 .id(localizer.language)
                 languageButton
             } else {
-                ScrollView {
-                    VStack(spacing: 18) {
-                        logo.padding(.top, 12)
-                        page
+                ScrollViewReader { reader in
+                    ScrollView {
+                        VStack(spacing: 18) {
+                            logo.padding(.top, 12)
+                            page.id(Self.pageTop)
+                        }
+                        .padding(20)
+                        .frame(maxWidth: .infinity)
+                        .id(localizer.language)
                     }
-                    .padding(20)
-                    .frame(maxWidth: .infinity)
-                    .id(localizer.language)
+                    .onChange(of: changelogPage) { scrollUp(reader) }
                 }
                 languageButton
             }
@@ -105,6 +114,14 @@ struct TitleView: View {
         .alert(importNote ?? "", isPresented: Binding(get: { importNote != nil }, set: { if !$0 { importNote = nil } })) {
             Button(L("OK"), role: .cancel) {}
         }
+    }
+
+    /// The scroll anchor at the top of what shows with the logo.
+    private static let pageTop = "page"
+
+    /// A new page of What's new starts at its top, not where the last one was read to.
+    private func scrollUp(_ reader: ScrollViewProxy) {
+        withAnimation(.easeInOut(duration: 0.25)) { reader.scrollTo(Self.pageTop, anchor: .top) }
     }
 
     /// A backup from Files becomes a game of its own on the carousel (never over another one).
@@ -135,7 +152,7 @@ struct TitleView: View {
         } else if showingLanguages {
             LanguagePanel { showingLanguages = false }
         } else if showingChangelog {
-            ChangelogPanel { showingChangelog = false }
+            ChangelogPanel(page: $changelogPage) { showingChangelog = false }
         } else if showingSettings {
             VStack(alignment: .leading, spacing: 0) {
                 FLTitleBar(title: L("Settings"), icon: .settings, onClose: { showingSettings = false })
@@ -252,6 +269,7 @@ struct TitleView: View {
                 .buttonStyle(TitleRoundButtonStyle(icon: .book))
                 Button(L("What's new")) {
                     seenRelease = newestRelease
+                    changelogPage = 0
                     showingChangelog = true
                 }
                 .buttonStyle(TitleRoundButtonStyle(icon: .star, marked: hasUnreadNotes))
@@ -310,17 +328,29 @@ extension TitleView {
     }
 }
 
-/// Release notes from content/changelog.json, newest first. Only the newest is open; tap any
-/// other to read it.
+/// Release notes from content/changelog.json, newest first, five releases a page. Only the
+/// newest is open; tap any other to read it.
 private struct ChangelogPanel: View {
+    /// The page showing, 0 being the newest (TitleView scrolls up to the panel when it turns).
+    @Binding var page: Int
     let onClose: () -> Void
     @State private var open: Set<String> = Set(Content.shared.releases.prefix(1).map(\.id))
+
+    private static let perPage = 5
+    private var releases: [ReleaseNote] { Content.shared.releases }
+    private var pageCount: Int { max(1, (releases.count + Self.perPage - 1) / Self.perPage) }
+
+    /// This page's releases.
+    private var shown: [ReleaseNote] {
+        let start = min(max(0, page), pageCount - 1) * Self.perPage
+        return Array(releases.dropFirst(start).prefix(Self.perPage))
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             FLTitleBar(title: L("What's new"), icon: .book, onClose: onClose)
             VStack(alignment: .leading, spacing: 12) {
-                ForEach(Content.shared.releases) { release in
+                ForEach(shown) { release in
                     let isOpen = open.contains(release.id)
                     VStack(alignment: .leading, spacing: 6) {
                         Button {
@@ -355,12 +385,50 @@ private struct ChangelogPanel: View {
                         }
                     }
                 }
+                if pageCount > 1 {
+                    pager.padding(.top, 4)
+                }
             }
             .padding(16)
         }
         .foregroundStyle(HUDStyle.cream)
         .frame(maxWidth: 640)
         .gameWindow()
+    }
+
+    /// Newer and Older under the notes, and which page this is.
+    private var pager: some View {
+        HStack(spacing: 10) {
+            Button {
+                turn(to: page - 1)
+            } label: {
+                Label(L("Newer"), icon: .arrowLeft)
+            }
+            .buttonStyle(PixelButtonStyle(compact: true))
+            .opacity(page <= 0 ? 0.4 : 1)
+            .disabled(page <= 0)
+            Spacer(minLength: 0)
+            // "2 / 17", like the tour's steps: short enough beside the buttons in every language.
+            Text(verbatim: "\(page + 1) / \(pageCount)")
+                .font(HUDStyle.font(11))
+                .foregroundStyle(HUDStyle.dim)
+                .accessibilityLabel(L("Page {page} of {count}", ["page": page + 1, "count": pageCount]))
+            Spacer(minLength: 0)
+            Button {
+                turn(to: page + 1)
+            } label: {
+                Label(L("Older"), icon: .arrowRight)
+            }
+            .buttonStyle(PixelButtonStyle(compact: true))
+            .opacity(page >= pageCount - 1 ? 0.4 : 1)
+            .disabled(page >= pageCount - 1)
+        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.8)
+    }
+
+    private func turn(to newPage: Int) {
+        withAnimation(.easeInOut(duration: 0.2)) { page = min(max(0, newPage), pageCount - 1) }
     }
 }
 
