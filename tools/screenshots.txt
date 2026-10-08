@@ -55,9 +55,9 @@ intro_reward | intro=4,clip=3                    | 3
 intro_town   | intro=4,clip=4                    | 3.6
 intro_world  | intro=5                           | 6
 intro_ja     | intro,lang=ja                     | 6
-# The onboarding filmed (record=seconds, saved as <name>.mp4): the story's first chapter, and How to play from its start.
-intro_film   | intro,record=30                   | 2
-intro_play_film | intro=4,record=60              | 2
+# To check the onboarding's animation frame by frame, film it: a scene with record=<seconds> is saved as
+# <name>.mp4, e.g. `intro_play_film | intro=4,record=60 | 2` (How to play from its start). Films run
+# about 140 MB a minute, so add one for a dispatched run and take it out again.
 coach        | newgame,coach                     | 9
 gear_plate   | newgame,level=30,equip=dragon_mail+wooden_sword+ruby_ring      | 8
 gear_cloak   | newgame,level=30,equip=snow_cloak+oak_staff+speed_boots        | 8
