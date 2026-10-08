@@ -169,11 +169,36 @@ final class BattleScene: SKScene {
     }
 
     private func arrange(rows: [[Combatant]], around center: CGPoint, facing: Direction) {
-        for (index, row) in rows.enumerated() {
-            // The first row stands at the back, away from the other side.
-            let depth = CGFloat(index) - CGFloat(rows.count - 1) / 2
-            arrangeLine(row, around: center + rowShift(depth: depth, facing: facing), facing: facing)
+        // The first row stands at the back, away from the other side.
+        var centers = rows.indices.map { index in
+            center + rowShift(depth: CGFloat(index) - CGFloat(rows.count - 1) / 2, facing: facing)
         }
+        // On its side, the rows move over together where one would reach under the Dynamic Island
+        // (linePoints would move just that one, onto the row in front).
+        if !isPortrait, let sides = landscapeSides {
+            let ends = zip(rows, centers).map { row, point in
+                (left: point.x - landscapeSpacing * CGFloat(row.count - 1) / 2, right: point.x + landscapeSpacing * CGFloat(row.count - 1) / 2)
+            }
+            let left = ends.map { $0.left }.min() ?? sides.lowerBound
+            let right = ends.map { $0.right }.max() ?? sides.upperBound
+            let shift = left < sides.lowerBound ? sides.lowerBound - left : right > sides.upperBound ? sides.upperBound - right : 0
+            centers = centers.map { CGPoint(x: $0.x + shift, y: $0.y) }
+        }
+        for (row, point) in zip(rows, centers) {
+            arrangeLine(row, around: point, facing: facing)
+        }
+    }
+
+    /// On its side, how far apart neighbours in a line stand: 56, a little more in a long line
+    /// closed up to fit (`landscapeStep`).
+    private var landscapeSpacing: CGFloat { 56 + (76 - landscapeStep) / 2 }
+
+    /// On its side, how far left and right a fighter may stand: its nameplate clear of the Dynamic
+    /// Island and the rounded corners, whichever side they're on.
+    private var landscapeSides: ClosedRange<CGFloat>? {
+        let left = (view?.safeAreaInsets.left ?? 0) + 44
+        let right = size.width - (view?.safeAreaInsets.right ?? 0) - 44
+        return left < right ? left...right : nil
     }
 
     /// From a fighter to the companion standing behind them, one row back.
@@ -246,17 +271,23 @@ final class BattleScene: SKScene {
         // Every line in the fight is spaced alike, closed up enough for the longest to fit; in
         // portrait a line then slides over so everyone stays on screen.
         // On its side, a line closed up to fit spreads out a little sideways instead.
-        let spacing = isPortrait ? lineSpacing : 56 + (76 - landscapeStep) / 2
+        let spacing = isPortrait ? lineSpacing : landscapeSpacing
         var center = center
         if isPortrait, count > 1 {
             let half = spacing * CGFloat(count - 1) / 2
             center.x = min(max(center.x, 50 + half + extraLeft), size.width - 50 - half - extraRight)
         }
         if !isPortrait, count > 1 {
-            // The whole line, companions behind included, between the bottom and the HUD's top row.
+            // The whole line, companions behind included, between the bottom and the HUD's top row,
+            // and its ends clear of the Dynamic Island's side (spread out, a long line reached under it).
             let half = landscapeStep * CGFloat(count - 1) / 2
             let climb = escorted.isEmpty ? 0 : max(0, trailing.dy)
             center.y = min(max(center.y, landscapeFloor + half), landscapeCeiling - climb - half)
+            if let sides = landscapeSides {
+                let across = spacing * CGFloat(count - 1) / 2
+                let left = sides.lowerBound + across + extraLeft, right = sides.upperBound - across - extraRight
+                if left <= right { center.x = min(max(center.x, left), right) }
+            }
         }
         // Each fighter stands a step up from the last, at the same angle on both sides however
         // many stand in a line (a fixed step tilted a packed line of five more than a line of two).
