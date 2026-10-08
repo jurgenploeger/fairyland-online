@@ -16,7 +16,7 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from item_art import OUTLINE, Canvas, GOLD, SPRITES, STEEL, WOOD, encode_png, hexc  # noqa: E402
+from item_art import OUTLINE, TEAL, Canvas, GOLD, SPRITES, STEEL, WOOD, encode_png, hexc, seal_gem  # noqa: E402
 
 SIZE = 32
 LEATHER = [hexc("6d3f1f"), hexc("9a5b2c"), hexc("c98a4b")]
@@ -123,7 +123,7 @@ def draw_wind(c):
 
 
 def draw_heart(c):
-    # Capture: a glossy red heart.
+    # A glossy red heart.
     c.disc(10.5, 11.5, 6.2, RED[1])
     c.disc(21.5, 11.5, 6.2, RED[1])
     c.poly([(4.5, 13), (27.5, 13), (16, 27.5)], RED[1])
@@ -131,6 +131,11 @@ def draw_heart(c):
     c.rect(8, 8, 9, 9, WHITE)
     c.set(10, 8, RED[2])
     c.set(8, 10, RED[2])
+
+
+def draw_seal_stone(c):
+    # Capture: the Seal Stone you throw, the item's own teal crystal with its white spiral.
+    seal_gem(c, TEAL)
 
 
 def draw_more(c):

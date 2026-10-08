@@ -13,6 +13,8 @@ enum GameIcon: String, CaseIterable {
     case chevronUp = "chevron-up", chevronDown = "chevron-down"
     case arrowUp = "arrow-up", arrowDown = "arrow-down", arrowLeft = "arrow-left", arrowRight = "arrow-right"
     case play, dice, map, tap, palette, star, starOutline = "star-outline", gift, coins, egg, edit, lock, globe
+    /// Capture in a fight: the Seal Stone you throw.
+    case sealStone = "seal-stone"
     // Items (content/items.json `icon`)
     case potion, flask, axe, wand, diamond, gem, ring, clover
     case shieldCheck = "shield-check", shieldPlus = "shield-plus", shieldStar = "shield-star", shieldHeart = "shield-heart"

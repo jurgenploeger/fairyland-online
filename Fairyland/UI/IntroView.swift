@@ -222,14 +222,14 @@ private struct HowToPlayPage: View {
     ]
 
     var body: some View {
-        // The tips the picture is showing now (none while it holds still).
-        let showing = reduceMotion ? [] : StoryScene.Clip(rawValue: reel.hud.clip)?.tips ?? []
+        // The tip the picture is showing now (none while it holds still).
+        let showing = reduceMotion ? nil : reel.hud.tip
         VStack(alignment: .leading, spacing: 12) {
             PageTitle(text: L("How to play"), icon: .sparkles)
             VignetteView(scene: reel)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
                 ForEach(Array(tips.enumerated()), id: \.offset) { index, tip in
-                    let lit = showing.contains(index)
+                    let lit = showing == index
                     HStack(alignment: .top, spacing: 10) {
                         IconImage(tip.icon, size: 20)
                             .foregroundStyle(HUDStyle.gold)
@@ -240,6 +240,8 @@ private struct HowToPlayPage: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
+                    // The whole cell, so every highlight is the same width and the text lines up.
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(6)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
@@ -252,7 +254,7 @@ private struct HowToPlayPage: View {
                     }
                 }
             }
-            .animation(.easeOut(duration: 0.3), value: reel.hud.clip)
+            .animation(.easeOut(duration: 0.3), value: reel.hud.tip)
         }
     }
 }
