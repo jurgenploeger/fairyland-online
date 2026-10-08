@@ -32,6 +32,7 @@ import SpriteKit
 ///                  and join your party, through the same steps as their card's buttons
 ///   wave=<n>       with boss: the fight opens at that wave (3: the boss's own)
 ///   orders         with battle: the hero picks Attack on the first monster, so your companion's turn shows
+///   more           with battle: the More buttons are open (the commands behind it, Auto and the pace)
 ///   items          with battle: the Items list opens (potions, then Seal Stones)
 ///   aim=<stone>    with battle: the hero aims that Seal Stone (an item id), its odds over each monster
 ///   afflict        with battle: the first monster poisoned, the next one cursed, and the hero poisoned
@@ -110,6 +111,8 @@ enum DebugLaunch {
     static var bossWave: Int? { flags["wave"].flatMap { Int($0) } }
     /// `arrange`: battles open with the buttons already wiggling, ready to rearrange.
     static var arrangesButtons: Bool { flags["arrange"] != nil }
+    /// `more`: battles open with the More buttons out (Auto and the pace among them).
+    static var opensMore: Bool { flags["more"] != nil }
 
     /// A debug game (tests, screenshots): the first-play tour stays hidden unless `coach` is set.
     static var isActive: Bool { flags["newgame"] != nil }

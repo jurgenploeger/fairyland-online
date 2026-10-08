@@ -2,6 +2,17 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.80",
+      "date": "2026-10-08",
+      "title": "A calmer battle screen",
+      "notes": [
+        "In a fight, your face and your companion's sit top left with their HP and MP, as on the map, and the chat sits top right. What just happened is one slim line under them, or between them on a phone held sideways.",
+        "Skills, Capture and More sit on an arc around Attack, all within easy reach of your thumb, and the time to choose drains in a ring around Attack. While a list of skills or items is open, the clock sits on top of it.",
+        "The 1× and AUTO buttons moved behind More, as Pace and Auto, and Settings has both switches under Battle. While Auto plays, Attack's corner turns gold: tap it to take over.",
+        "On a phone held sideways, a big wave stands a little closer together, so its back row stays clear of the top of the screen."
+      ]
+    },
+    {
       "version": "0.3.79",
       "date": "2026-10-08",
       "title": "What's new in pages",

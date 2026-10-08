@@ -111,16 +111,19 @@ private struct VignetteHUDView: View {
                         .transition(.opacity)
                 }
                 if hud.commands {
-                    HStack(alignment: .bottom, spacing: 14) {
+                    // On the arc round Attack, as in a fight (`ThumbArc`).
+                    ThumbArc {
+                        command("attack", title: L("Attack"), icon: .sword, size: 88, tint: .primary)
+                            .layoutValue(key: ArcSlot.self, value: 0)
+                        command("skills", title: L("Skills"), icon: .sparkles, size: 56, tint: .normal)
+                            .layoutValue(key: ArcSlot.self, value: 1)
                         if hud.capture {
                             command("capture", title: L("Capture"), icon: .heart, size: 56, tint: .special)
+                                .layoutValue(key: ArcSlot.self, value: 2)
                                 .transition(.scale(scale: 0.2).combined(with: .opacity))
                         }
-                        command("skills", title: L("Skills"), icon: .sparkles, size: 56, tint: .normal)
-                        VStack(spacing: 26) {
-                            command("more", title: L("More"), icon: .more, size: 56, tint: .quiet)
-                            command("attack", title: L("Attack"), icon: .sword, size: 88, tint: .primary)
-                        }
+                        command("more", title: L("More"), icon: .more, size: 56, tint: .quiet)
+                            .layoutValue(key: ArcSlot.self, value: 3)
                     }
                     .scaleEffect(scale, anchor: .bottomTrailing)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)

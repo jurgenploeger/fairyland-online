@@ -18,6 +18,8 @@ struct SettingsView: View {
     @AppStorage(GameSettings.weatherKey) private var weather = true
     @AppStorage(GameSettings.commandCompanionKey) private var commandCompanion = true
     @AppStorage(GameSettings.turnTimerKey) private var turnTimer = 10.0
+    @AppStorage(GameSettings.battleSpeedKey) private var battleSpeed = 1.0
+    @AppStorage(GameSettings.autoBattleKey) private var autoBattle = false
     @State private var music = MusicPlayer.shared
     @State private var justSaved = false
     @State private var confirmQuit = false
@@ -93,6 +95,13 @@ struct SettingsView: View {
                     .foregroundStyle(HUDStyle.dim)
                 TurnTimerRow(seconds: $turnTimer)
                 Text(L("How long you have to pick each move before your hero attacks on their own. With VoiceOver or Switch Control on, there's no clock."))
+                    .font(HUDStyle.font(10))
+                    .foregroundStyle(HUDStyle.dim)
+                    .fixedSize(horizontal: false, vertical: true)
+                // The same switches as Pace and Auto behind More in a fight, kept from fight to fight.
+                Toggle(L("Double-speed fights"), isOn: Binding(get: { battleSpeed > 1 }, set: { battleSpeed = $0 ? 2 : 1 }))
+                Toggle(L("Auto in easy fights"), isOn: $autoBattle)
+                Text(L("Easy fights are against wild monsters at least {count} levels below you. Both switches are also behind More in a fight.", ["count": BattleController.autoLevelGap]))
                     .font(HUDStyle.font(10))
                     .foregroundStyle(HUDStyle.dim)
                     .fixedSize(horizontal: false, vertical: true)
