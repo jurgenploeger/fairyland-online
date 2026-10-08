@@ -374,6 +374,8 @@ bounties scaled to your level, with a bonus for all three; and rewards as the Mo
   Not found in any source reachable from a cloud session.
   - Us: you and up to four friends, each with a companion.
   - Past five, the battle line splits: people in front, companions in a row behind.
+  - Without a friend (since 0.3.83), you and your companion stand side by side in one line, as a
+    playtester asked (2026-10-08); with friends, companions stand a row behind whoever they came with.
 - **Battle layout:** battle rows (the Blademan's row attack suggests there were rows), equipment slots, and
   the full list of status effects.
 - **Boss fights in waves:** ours, asked for in playtesting (2026-10-04); whether FO's bosses came in waves

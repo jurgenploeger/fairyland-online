@@ -113,7 +113,7 @@ final class BattleController {
                 level: pet.level, element: species.element, stats: session.stats(of: pet),
                 hp: pet.hp, mp: pet.mp, skills: species.skills, captureRate: 0
             )
-            // It stands right behind you.
+            // It stands beside you, or right behind you when friends fight with you (BattleScene.arrange).
             companion.ownerID = hero.id
             party.append(companion)
         }

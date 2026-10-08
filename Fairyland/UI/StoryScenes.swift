@@ -885,10 +885,10 @@ final class StoryScene: SKScene {
     }
 
     /// Where everyone stands, as BattleScene arranges a phone held sideways: the monsters in a line on
-    /// the left, you on the right with your companion behind you.
+    /// the left, you on the right side by side with your companion, in a line of your own.
     private static let places: [Int: CGPoint] = [
         10: CGPoint(x: 172, y: 150), 11: CGPoint(x: 238, y: 82),
-        0: CGPoint(x: 384, y: 100), 1: CGPoint(x: 454, y: 120),
+        0: CGPoint(x: 352, y: 128), 1: CGPoint(x: 416, y: 60),
     ]
 
     /// The fighters: you (0), a young mage; your companion (1), a Pineapple Sprout; and the wild
