@@ -722,7 +722,7 @@ private struct BattleCommand {
         case "items": title = L("Items"); icon = .backpack
         case "guard": title = L("Guard"); icon = .shield
         case "run": title = L("Run"); icon = .wind
-        case "capture": title = L("Capture"); icon = .heart
+        case "capture": title = L("Capture"); icon = .sealStone
         default: title = L("More"); icon = .more
         }
     }

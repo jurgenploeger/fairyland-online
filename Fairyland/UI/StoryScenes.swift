@@ -62,6 +62,9 @@ final class VignetteHUD {
     var victory: Reward?
     /// Which part of How to play the reel is showing (`StoryScene.Clip`).
     var clip = 0
+    /// The tip on the How to play page the picture is showing now: one at a time, so the town part
+    /// lights Towns as you walk into the square and Quests once Elder Oak speaks.
+    var tip = 0
 
     /// A clear screen for the next part.
     func clear() {
@@ -126,7 +129,7 @@ private struct VignetteHUDView: View {
                                 command("skills", title: L("Skills"), icon: .sparkles, size: 56, tint: .normal)
                                     .layoutValue(key: ArcSlot.self, value: 1)
                                 if hud.capture {
-                                    command("capture", title: L("Capture"), icon: .heart, size: 56, tint: .special)
+                                    command("capture", title: L("Capture"), icon: .sealStone, size: 56, tint: .special)
                                         .layoutValue(key: ArcSlot.self, value: 2)
                                         .transition(.scale(scale: 0.2).combined(with: .opacity))
                                 }
@@ -228,14 +231,15 @@ final class StoryScene: SKScene {
     enum Clip: Int, CaseIterable {
         case walk, battle, seal, victory, town
 
-        /// The tips on the How to play page it shows (IntroView), by their place there.
+        /// The tips on the How to play page it shows (IntroView), by their place there, in the
+        /// order it shows them: the town is Towns first, then Quests when Elder Oak speaks.
         var tips: [Int] {
             switch self {
             case .walk: [0]
             case .battle: [1]
             case .seal: [2]
             case .victory: [3]
-            case .town: [4, 5]
+            case .town: [5, 4]
             }
         }
 
@@ -673,6 +677,8 @@ final class StoryScene: SKScene {
                 // He has something to say: his words in a bubble, where his "!" was.
                 square.marker.run(.fadeOut(withDuration: 0.2))
                 square.elder.say(words, for: 3.4)
+                // He has a quest for you: How to play (the part with the joystick) lights Quests.
+                if steer { self?.hud.tip = Clip.town.tips[1] }
             },
             .wait(forDuration: 4.2),
             .run { [weak self] in
@@ -699,6 +705,7 @@ final class StoryScene: SKScene {
         battleStage.removeAllActions()
         hud.clear()
         hud.clip = clip.rawValue
+        hud.tip = clip.tips[0]
         let part: SKAction = switch clip {
         case .walk: walkClip()
         case .battle: battleClip()

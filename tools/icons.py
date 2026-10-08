@@ -75,6 +75,7 @@ ICONS = {
     "wand": ("ai/wand", "solid"),
     "diamond": ("nature/diamond", "solid"),
     "gem": ("awards/gem", "solid"),
+    "seal-stone": ("awards/gem", "solid"),
     "ring": ("essential/circle-dot", "solid"),
     "clover": ("nature/clover", "solid"),
     "shield-check": ("security/shield-check", "solid"),

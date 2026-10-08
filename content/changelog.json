@@ -2,6 +2,15 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.85",
+      "date": "2026-10-08",
+      "title": "Capture shows a Seal Stone",
+      "notes": [
+        "The Capture button in a fight shows the Seal Stone you throw, instead of a heart that looked like healing. How to play shows it too.",
+        "How to play lights one tip at a time: in town, Towns as you walk into the square, then Quests when Elder Oak speaks. Every tip's highlight is the same width."
+      ]
+    },
+    {
       "version": "0.3.84",
       "date": "2026-10-08",
       "title": "A softer level-up glow",
