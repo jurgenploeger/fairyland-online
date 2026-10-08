@@ -57,8 +57,8 @@ private struct CoachStep {
     ] }
 }
 
-/// The first-play tour: dims the screen except for one control at a time, with a note beside it
-/// and Previous, Next and Skip buttons.
+/// The first-play tour: dims the screen except for one control at a time, with a note beside it:
+/// Previous, Next and Skip, and the close button in its corner.
 struct CoachMarksView: View {
     let anchors: [CoachTarget: Anchor<CGRect>]
     let onDone: () -> Void
@@ -135,6 +135,8 @@ struct CoachMarksView: View {
                 Spacer(minLength: 4)
                 Text("\(index + 1) / \(steps.count)").font(HUDStyle.font(10)).foregroundStyle(HUDStyle.dim)
             }
+            // Clear of the close button in the corner.
+            .padding(.trailing, 26)
             Text(step.text)
                 .font(HUDStyle.font(11))
                 .foregroundStyle(HUDStyle.cream)
@@ -167,6 +169,8 @@ struct CoachMarksView: View {
         }
         .padding(14)
         .background(HUDStyle.panel)
+        // Closing it ends the tour, like Skip.
+        .windowCloseButton(onDone)
     }
 }
 

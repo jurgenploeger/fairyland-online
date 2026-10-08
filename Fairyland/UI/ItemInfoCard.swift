@@ -56,6 +56,8 @@ struct ItemInfoCard: View {
             }
             .frame(maxWidth: 360, alignment: .leading)
             .gameWindow()
+            // In the corner, so it stays put when the details scroll.
+            .windowCloseButton(onClose)
             .padding(24)
             .accessibilityElement(children: .contain)
         }
@@ -73,9 +75,9 @@ struct ItemInfoCard: View {
                     .foregroundStyle(HUDStyle.dim)
             }
             Spacer(minLength: 0)
-            // Choosing gear, Cancel closes it instead.
-            if !choosing { OrangeCloseButton(action: onClose) }
         }
+        // Clear of the close button in the corner.
+        .padding(.trailing, 24)
     }
 
     /// Cancel, and Equip (faded, with why, when you can't) or Unequip.

@@ -15,6 +15,10 @@ struct LeaveBehindCard: View {
                 Text(L("Party full!"))
                     .font(HUDStyle.font(24))
                     .foregroundStyle(HUDStyle.gold)
+                    // Clear of the close button, and still centred.
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .padding(.horizontal, 18)
                 Text(L("You can travel with {count} companions. Who stays behind?", ["count": GameSession.maxPets]))
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.cream)
@@ -73,6 +77,11 @@ struct LeaveBehindCard: View {
         .padding(20)
         .frame(maxWidth: 460)
         .gameWindow()
+        // Closing it keeps your party as it is: the newcomer goes back to the wild.
+        .windowCloseButton {
+            if let newcomer { session.leaveBehind(newcomer.id) }
+            onDone()
+        }
         .padding(20)
     }
 }

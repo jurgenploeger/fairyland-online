@@ -888,6 +888,10 @@ private struct ResultPanel: View {
             Text(title)
                 .font(HUDStyle.font(26))
                 .foregroundStyle(result.outcome == .victory ? HUDStyle.gold : HUDStyle.cream)
+                // Clear of the close button, and still centred.
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.horizontal, 18)
             // Scrolls only when it can't all fit (a phone on its side after a big win).
             ViewThatFits(in: .vertical) {
                 details
@@ -901,6 +905,8 @@ private struct ResultPanel: View {
         .padding(22)
         .frame(maxWidth: 420)
         .gameWindow()
+        // Closing it is Continue: the pay is already in your bag.
+        .windowCloseButton(advance)
         .padding(20)
     }
 
@@ -987,6 +993,8 @@ private struct BossStoryCard: View {
         .gameWindow()
         .contentShape(RoundedRectangle(cornerRadius: HUDStyle.windowRadius))
         .onTapGesture { revealAll() }
+        // Closing it skips the rest of the story, on to the rewards.
+        .windowCloseButton(onDone)
         .padding(20)
         .task { await tell() }
     }
