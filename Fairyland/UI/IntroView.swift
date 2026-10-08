@@ -7,6 +7,8 @@ import SwiftUI
 struct IntroView: View {
     /// What the last page's button says ("Create your hero", or "Done" when just reading).
     let finishTitle: String
+    /// The close button: back to the title screen, without making a hero.
+    let onClose: () -> Void
     let onFinish: () -> Void
     @State private var page: Int
 
@@ -14,8 +16,9 @@ struct IntroView: View {
     /// How to play's page, after the story's three.
     static let howToPlayPage = 3
 
-    init(finishTitle: String, startPage: Int = 0, onFinish: @escaping () -> Void) {
+    init(finishTitle: String, startPage: Int = 0, onClose: @escaping () -> Void, onFinish: @escaping () -> Void) {
         self.finishTitle = finishTitle
+        self.onClose = onClose
         self.onFinish = onFinish
         _page = State(initialValue: min(max(0, startPage), Self.pageCount - 1))
     }
@@ -37,6 +40,7 @@ struct IntroView: View {
             }
             .frame(maxWidth: 720)
             .background(HUDStyle.panel)
+            .windowCloseButton(onClose)
             .id(page)
             .transition(.opacity)
 
@@ -113,6 +117,8 @@ private struct PageTitle: View {
             .font(HUDStyle.font(18))
             .foregroundStyle(HUDStyle.gold)
             .shadow(color: HUDStyle.frameDark, radius: 0, x: 1, y: 1)
+            // Clear of the close button in the corner.
+            .padding(.trailing, 24)
     }
 }
 

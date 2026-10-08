@@ -546,6 +546,10 @@ private struct QuestCompleteCard: View {
                 Text(L("Quest complete!"))
                     .font(HUDStyle.font(24))
                     .foregroundStyle(HUDStyle.gold)
+                    // Clear of the close button, and still centred.
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .padding(.horizontal, 18)
                 Text(quest.title)
                     .font(HUDStyle.font(14))
                     .foregroundStyle(HUDStyle.cream)
@@ -564,6 +568,8 @@ private struct QuestCompleteCard: View {
         .padding(22)
         .frame(maxWidth: 420)
         .gameWindow()
+        // Closing it is Continue: the rewards are already yours.
+        .windowCloseButton(advance)
         .padding(20)
     }
 

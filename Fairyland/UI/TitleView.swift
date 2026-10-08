@@ -50,7 +50,8 @@ struct TitleView: View {
                                          : onMenu ? UnitPoint(x: 0.29, y: 0.35) : UnitPoint(x: 0.22, y: 0.47))
 
             if let intro {
-                IntroView(finishTitle: intro.thenCreate ? L("Create your hero") : L("Done"), startPage: intro.startPage) {
+                IntroView(finishTitle: intro.thenCreate ? L("Create your hero") : L("Done"), startPage: intro.startPage,
+                          onClose: { withAnimation(.easeInOut(duration: 0.25)) { self.intro = nil } }) {
                     withAnimation(.easeInOut(duration: 0.25)) {
                         self.intro = nil
                         if intro.thenCreate { creating = true }
@@ -136,21 +137,24 @@ struct TitleView: View {
         } else if showingChangelog {
             ChangelogPanel { showingChangelog = false }
         } else if showingSettings {
-            VStack(alignment: .leading, spacing: 12) {
-                SettingsView(onImportBackup: {
-                    showingSettings = false
-                    importing = true
-                })
-                Button {
-                    showingSettings = false
-                } label: {
-                    Label(L("Back"), icon: .arrowLeft)
+            VStack(alignment: .leading, spacing: 0) {
+                FLTitleBar(title: L("Settings"), icon: .settings, onClose: { showingSettings = false })
+                VStack(alignment: .leading, spacing: 12) {
+                    SettingsView(onImportBackup: {
+                        showingSettings = false
+                        importing = true
+                    })
+                    Button {
+                        showingSettings = false
+                    } label: {
+                        Label(L("Back"), icon: .arrowLeft)
+                    }
+                    .buttonStyle(PixelButtonStyle(compact: true))
                 }
-                .buttonStyle(PixelButtonStyle(compact: true))
+                .padding(16)
             }
-            .padding(16)
             .frame(maxWidth: 640)
-            .background(HUDStyle.panel)
+            .gameWindow()
         } else if wide {
             // Beside the logo and its round buttons: your game, and how to start.
             VStack(spacing: 12) {
@@ -262,37 +266,39 @@ struct TitleView: View {
     }
 
     private var creation: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(L("Create your hero")).font(HUDStyle.font(16)).foregroundStyle(HUDStyle.gold)
-            LookEditor(name: $name, look: $look, raceID: raceID)
+        VStack(alignment: .leading, spacing: 0) {
+            FLTitleBar(title: L("Create your hero"), icon: .user, onClose: { creating = false })
+            VStack(alignment: .leading, spacing: 12) {
+                LookEditor(name: $name, look: $look, raceID: raceID)
 
-            Text(L("Race")).font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
-            AdaptiveStack(spacing: 10) {
-                ForEach(Content.shared.races) { race in
-                    RaceCard(race: race, selected: race.id == raceID)
-                        .onTapGesture { raceID = race.id }
+                Text(L("Race")).font(HUDStyle.font(12)).foregroundStyle(HUDStyle.dim)
+                AdaptiveStack(spacing: 10) {
+                    ForEach(Content.shared.races) { race in
+                        RaceCard(race: race, selected: race.id == raceID)
+                            .onTapGesture { raceID = race.id }
+                    }
+                }
+
+                HStack {
+                    Button(L("Back")) { creating = false }
+                        .buttonStyle(PixelButtonStyle(compact: true))
+                    Spacer()
+                    Button {
+                        let trimmed = name.trimmingCharacters(in: .whitespaces)
+                        let session = GameSession.newGame(name: trimmed.isEmpty ? L("Hero") : String(trimmed.prefix(12)), raceID: raceID, look: look)
+                        session.save()
+                        onStart(session)
+                    } label: {
+                        Label(L("Begin adventure"), icon: .arrowRight)
+                    }
+                    .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
                 }
             }
-
-            HStack {
-                Button(L("Back")) { creating = false }
-                    .buttonStyle(PixelButtonStyle(compact: true))
-                Spacer()
-                Button {
-                    let trimmed = name.trimmingCharacters(in: .whitespaces)
-                    let session = GameSession.newGame(name: trimmed.isEmpty ? L("Hero") : String(trimmed.prefix(12)), raceID: raceID, look: look)
-                    session.save()
-                    onStart(session)
-                } label: {
-                    Label(L("Begin adventure"), icon: .arrowRight)
-                }
-                .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
-            }
+            .padding(16)
         }
         .foregroundStyle(HUDStyle.cream)
-        .padding(16)
         .frame(maxWidth: 640)
-        .background(HUDStyle.panel)
+        .gameWindow()
     }
 }
 

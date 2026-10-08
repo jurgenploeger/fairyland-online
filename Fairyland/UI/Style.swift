@@ -183,6 +183,19 @@ struct OrangeCloseButton: View {
     }
 }
 
+extension View {
+    /// The orange close button in a window's top-right corner, just where a title bar puts it,
+    /// for windows without one: every window closes the same way. Keep the window's own top line
+    /// clear of the corner.
+    func windowCloseButton(_ action: @escaping () -> Void) -> some View {
+        overlay(alignment: .topTrailing) {
+            OrangeCloseButton(action: action)
+                .padding(.top, 5)
+                .padding(.trailing, 6)
+        }
+    }
+}
+
 /// Glossy square toolbar button (Fairyland's top-right / hotbar icons), optionally captioned.
 struct FLIconButton: View {
     let icon: GameIcon

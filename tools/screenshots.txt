@@ -6,6 +6,7 @@ title_ja     | lang=ja                           | 6
 title_saves  | saves=3                           | 6
 title_saves_de | saves=3,lang=de                 | 6
 title_settings | titlepage=settings              | 6
+title_create | titlepage=create                | 6
 curtain      | curtain                           | 4
 curtain_land | curtain,landscape                 | 4
 lang_es      | newgame,lang=es                   | 8

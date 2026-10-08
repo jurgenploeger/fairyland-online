@@ -141,6 +141,8 @@ struct LevelUpCard: View {
         // Hugs the list, which scrolls past 260 points, or sooner on a phone on its side.
         .fitHeight()
         .gameWindow()
+        // Closing it is Decide later: unspent points wait in the Character menu.
+        .windowCloseButton(onDone)
         .padding(20)
     }
 }
