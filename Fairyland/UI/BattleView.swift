@@ -1402,10 +1402,17 @@ struct LevelUpBanner: View {
         ZStack {
             TimelineView(.animation(minimumInterval: nil, paused: reduceMotion)) { context in
                 let turn = context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 20) / 20
+                // A soft glow, not a stark one: faint where it leaves the medal, mostly gone halfway
+                // out, its wedges' edges blurred into the window's blue.
                 Sunburst(rays: 14)
-                    .fill(RadialGradient(colors: [HUDStyle.gold.opacity(0.75), HUDStyle.gold.opacity(0)],
-                                         center: .center, startRadius: size * 0.4, endRadius: size * 1.3))
-                    .frame(width: size * 2.6, height: size * 2.6)
+                    .fill(RadialGradient(stops: [
+                        .init(color: HUDStyle.gold.opacity(0.38), location: 0.4),
+                        .init(color: HUDStyle.gold.opacity(0.14), location: 0.65),
+                        .init(color: HUDStyle.gold.opacity(0.04), location: 0.85),
+                        .init(color: HUDStyle.gold.opacity(0), location: 1),
+                    ], center: .center, startRadius: 0, endRadius: size * 1.2))
+                    .frame(width: size * 2.4, height: size * 2.4)
+                    .blur(radius: size * 0.04)
                     .rotationEffect(.degrees(turn * 360))
             }
             // Stars fly off from behind the medal as it lands.
