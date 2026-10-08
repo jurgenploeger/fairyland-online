@@ -772,6 +772,8 @@
     "Rosy": "ばら色",
     "Tan": "小麦色",
     "Deep": "褐色",
+    "No picking when there's only one": "相手が一体なら選ばずに",
+    "With one monster left, Attack, a spell on a monster and Capture go straight for it, without asking which one. The same goes for an item or a healing spell when you're the only one it can help.": "モンスターが一体だけのときは、こうげき、モンスターへの呪文、つかまえるがどれを狙うか聞かずにそのまま向かいます。助けられるのがあなただけのときの道具や回復呪文も同じです。",
     "Capture shows a Seal Stone": "「つかまえる」に封印石",
     "The Capture button in a fight shows the Seal Stone you throw, instead of a heart that looked like healing. How to play shows it too.": "バトルの「つかまえる」ボタンが、回復に見えたハートではなく、投げる封印石になりました。あそびかたでも同じです。",
     "How to play lights one tip at a time: in town, Towns as you walk into the square, then Quests when Elder Oak speaks. Every tip's highlight is the same width.": "あそびかたで光るヒントが一度に一つになりました。町では、広場に入るときは「町」、カシの長老が話しかけると「クエスト」が光ります。どのヒントの枠も同じ幅です。",

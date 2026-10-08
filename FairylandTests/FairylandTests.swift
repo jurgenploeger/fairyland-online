@@ -1223,6 +1223,27 @@ struct RulesTests {
         #expect(session.count(of: "wishing_seal") == 1)
     }
 
+    /// With one monster there's no choosing which: Attack goes straight for it. With two, you pick.
+    @Test func aLoneTargetNeedsNoPicking() throws {
+        let content = Content.shared
+        let jelly = try #require(content.monster("jelly"))
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 1, element: .neutral,
+                             stats: Stats(hp: 60, attack: 10, defense: 8, speed: 10), hp: 60, mp: 0, skills: [], captureRate: 0)
+        func monster(_ id: Int) -> Combatant {
+            Combatant(id: id, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
+                      stats: jelly.stats(at: 1), hp: 30, mp: 0, skills: [], captureRate: jelly.captureRate)
+        }
+        let alone = BattleController(engine: BattleEngine(party: [hero], enemies: [monster(10)], content: content),
+                                     session: GameSession.newGame(name: "Test", raceID: "human"))
+        alone.attack()
+        #expect(alone.phase != .target)
+        let pair = BattleController(engine: BattleEngine(party: [hero], enemies: [monster(10), monster(11)], content: content),
+                                    session: GameSession.newGame(name: "Test", raceID: "human"))
+        pair.attack()
+        #expect(pair.phase == .target)
+        #expect(pair.validTargets == [10, 11])
+    }
+
     /// While you throw a Seal Stone, your companion and your friends leave that monster alone and
     /// fight on against the rest (they used to stand guard, which only made sense with one left).
     @Test func yourSideSparesTheMonsterYouSeal() {

@@ -653,13 +653,20 @@ final class BattleController {
         onFinish?(engine.outcome)
     }
 
-    /// `labels`: a word over some targets (a Seal Stone's odds on each monster).
+    /// `labels`: a word over some targets (a Seal Stone's odds on each monster). With only one to
+    /// choose (one monster left, or only you to heal) there's nothing to pick: it goes straight
+    /// there, unless that one can't be chosen after all (a monster no stone can hold), which still
+    /// shows why.
     private func beginTargeting(_ command: Pending, targets: [Int], prompt: String, labels: [Int: String] = [:]) {
         guard !targets.isEmpty else { return }
         pending = command
         validTargets = targets
         self.prompt = prompt
         phase = .target
+        if targets.count == 1 {
+            select(targets[0])
+            guard phase == .target else { return }
+        }
         scene?.showTargets(targets, labels: labels)
     }
 
