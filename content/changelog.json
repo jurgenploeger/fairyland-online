@@ -2,6 +2,16 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.82",
+      "date": "2026-10-08",
+      "title": "A smoother How to play",
+      "notes": [
+        "In How to play's fight, the message line stays in full view once the buttons come up, and a new message takes the old one's place instead of the two blurring together.",
+        "In the story's pictures of Meadowbrook's square, Elder Oak stands lower, so his gold ! and his greeting fit above him.",
+        "Your companion's name no longer prints over yours when it stands right behind you. It shows whenever there's room for both."
+      ]
+    },
+    {
       "version": "0.3.81",
       "date": "2026-10-08",
       "title": "Title bars with a clear edge",

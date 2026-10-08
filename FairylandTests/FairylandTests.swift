@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 import UIKit
+import SpriteKit
 @testable import Fairyland
 
 /// Catches broken references when editing content/*.json or art/assets.json.
@@ -296,6 +297,22 @@ struct LookTests {
         let pink = try JSONDecoder().decode(RecolorRule.self, from: Data(#"{"hue": [330, 20], "to": 200}"#.utf8))
         #expect(pink.distanceFromMiddle(of: 10) == 15)
         #expect(pink.distanceFromMiddle(of: 340) == -15)
+    }
+
+    @Test func aCompanionsNameGivesWayToYours() {
+        // Right behind you (Walker.follow's place), a long name prints over yours; two short ones fit
+        // side by side, and a step away there's room for any.
+        let cycle = WalkCycle(frames: [:], size: CGSize(width: 48, height: 48))
+        let hero = Walker(cycle: cycle, label: "Hero")
+        let pet = Walker(cycle: cycle, label: "Pineapple Sprout")
+        pet.position = hero.position + CGVector(dx: -34, dy: 6)
+        #expect(pet.tagCrowds(hero))
+        pet.position = hero.position + CGVector(dx: -160, dy: 6)
+        #expect(!pet.tagCrowds(hero))
+        let jo = Walker(cycle: cycle, label: "Jo")
+        let pip = Walker(cycle: cycle, label: "Pip")
+        pip.position = jo.position + CGVector(dx: -34, dy: 6)
+        #expect(!pip.tagCrowds(jo))
     }
 
     @Test func customisingTheHeroAndCompanion() {

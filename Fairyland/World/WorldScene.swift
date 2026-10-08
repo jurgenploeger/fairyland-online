@@ -1036,7 +1036,8 @@ final class WorldScene: SKScene {
         guard let pet else { return }
         let node = Walker(cycle: art.walkCycle(session.artID(for: pet)), label: pet.name)
         node.motion = IdleMotion.of(art: session.artID(for: pet))
-        node.tagMode = .whenStill
+        // Its name gives way to yours where the two would print over each other.
+        node.tagMode = .whenClear
         let beside = player.position + CGVector(dx: -30, dy: 0)
         node.position = previous ?? (canStand(at: beside) ? beside : player.position)
         node.walkSpeed = 110

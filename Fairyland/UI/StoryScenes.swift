@@ -89,6 +89,8 @@ private struct VignetteHUDView: View {
             let points = proxy.size.width / StoryScene.stage.width
             ZStack {
                 if let banner = hud.banner {
+                    // The battle's message line (BattleView.logLine). A new line takes the old one's
+                    // place at once, as in a fight; only its coming and going fades.
                     Text(banner)
                         .font(HUDStyle.font(max(9, 13 * scale)))
                         .foregroundStyle(HUDStyle.cream)
@@ -96,40 +98,46 @@ private struct VignetteHUDView: View {
                         .minimumScaleFactor(0.6)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 3)
-                        .background(Capsule().fill(HUDStyle.ink.opacity(0.88)).overlay(Capsule().strokeBorder(HUDStyle.cream.opacity(0.8), lineWidth: 1.5)))
+                        .background(Capsule().fill(HUDStyle.ink.opacity(0.78)))
                         .padding(.horizontal, 20)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                         .padding(.top, 5)
                         .transition(.opacity)
                 }
+                // The joystick and the commands are drawn at full size and scaled down, so they sit in
+                // overlays: their full size would push the rest of the HUD (the message line) about.
                 if let stick = hud.stick {
-                    JoystickPreview(push: stick)
-                        .scaleEffect(scale, anchor: .bottomLeading)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-                        .padding(.leading, 6)
-                        .padding(.bottom, 6)
+                    Color.clear
+                        .overlay(alignment: .bottomLeading) {
+                            JoystickPreview(push: stick)
+                                .scaleEffect(scale, anchor: .bottomLeading)
+                                .padding(.leading, 6)
+                                .padding(.bottom, 6)
+                        }
                         .transition(.opacity)
                 }
                 if hud.commands {
                     // On the arc round Attack, as in a fight (`ThumbArc`).
-                    ThumbArc {
-                        command("attack", title: L("Attack"), icon: .sword, size: 88, tint: .primary)
-                            .layoutValue(key: ArcSlot.self, value: 0)
-                        command("skills", title: L("Skills"), icon: .sparkles, size: 56, tint: .normal)
-                            .layoutValue(key: ArcSlot.self, value: 1)
-                        if hud.capture {
-                            command("capture", title: L("Capture"), icon: .heart, size: 56, tint: .special)
-                                .layoutValue(key: ArcSlot.self, value: 2)
-                                .transition(.scale(scale: 0.2).combined(with: .opacity))
+                    Color.clear
+                        .overlay(alignment: .bottomTrailing) {
+                            ThumbArc {
+                                command("attack", title: L("Attack"), icon: .sword, size: 88, tint: .primary)
+                                    .layoutValue(key: ArcSlot.self, value: 0)
+                                command("skills", title: L("Skills"), icon: .sparkles, size: 56, tint: .normal)
+                                    .layoutValue(key: ArcSlot.self, value: 1)
+                                if hud.capture {
+                                    command("capture", title: L("Capture"), icon: .heart, size: 56, tint: .special)
+                                        .layoutValue(key: ArcSlot.self, value: 2)
+                                        .transition(.scale(scale: 0.2).combined(with: .opacity))
+                                }
+                                command("more", title: L("More"), icon: .more, size: 56, tint: .quiet)
+                                    .layoutValue(key: ArcSlot.self, value: 3)
+                            }
+                            .scaleEffect(scale, anchor: .bottomTrailing)
+                            .padding(.trailing, 6)
+                            .padding(.bottom, 6)
                         }
-                        command("more", title: L("More"), icon: .more, size: 56, tint: .quiet)
-                            .layoutValue(key: ArcSlot.self, value: 3)
-                    }
-                    .scaleEffect(scale, anchor: .bottomTrailing)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                    .padding(.trailing, 6)
-                    .padding(.bottom, 6)
-                    .transition(.opacity)
+                        .transition(.opacity)
                 }
                 if let reward = hud.victory {
                     VStack(spacing: 4) {
@@ -161,7 +169,7 @@ private struct VignetteHUDView: View {
             .frame(width: proxy.size.width, height: proxy.size.height)
         }
         .allowsHitTesting(false)
-        .animation(.easeOut(duration: 0.2), value: hud.banner)
+        .animation(.easeOut(duration: 0.2), value: hud.banner != nil)
         .animation(.easeOut(duration: 0.25), value: hud.commands)
         .animation(.spring(response: 0.38, dampingFraction: 0.72), value: hud.capture)
         .animation(.spring(response: 0.2, dampingFraction: 0.6), value: hud.pressed)
@@ -286,6 +294,11 @@ final class StoryScene: SKScene {
         let marker: SKNode
         let hero: Walker
         let pet: Walker
+
+        /// Where the camera looks: by the fountain, which puts Elder Oak low enough for his "!", and what
+        /// he says (four lines in French), to fit in the picture above him, and Nurse Mira clear of
+        /// the joystick.
+        var view: CGPoint { patch.point(12.9, 13.5) }
     }
 
     /// The fight's moments the reel's parts start from.
@@ -585,7 +598,7 @@ final class StoryScene: SKScene {
     private func buildArrival() {
         guard let square = makeSquare(companion: "bunny", staff: false) else { return }
         self.square = square
-        show(square.patch, zoom: 0.8, looking: square.patch.middle)
+        show(square.patch, zoom: 0.8, looking: square.view)
         run(.repeatForever(.sequence([greeting(steer: false), .wait(forDuration: 0.4)])))
     }
 
@@ -622,7 +635,7 @@ final class StoryScene: SKScene {
         hero.fidgets = true
         if staff { hero.setGear(weapon: content.item("oak_staff"), accessory: nil) }
         let pet = patch.walker(content.monster(species)?.art ?? "pet_walk", 10.4, 3.9, facing: .left, label: content.monster(species)?.name)
-        pet.tagMode = .whenStill
+        pet.tagMode = .whenClear
         pet.walkSpeed = 110
         return Square(patch: patch, elder: elder, marker: marker, hero: hero, pet: pet)
     }
@@ -732,7 +745,7 @@ final class StoryScene: SKScene {
         hero.setGear(weapon: content.item("oak_staff"), accessory: nil)
         let pet = meadow.walker(content.monster("pineapple")?.art ?? "monster_pineapple", 5.2, 9.6, facing: .right,
                                 label: content.monster("pineapple")?.name)
-        pet.tagMode = .whenStill
+        pet.tagMode = .whenClear
         pet.walkSpeed = 110
         meadowHero = hero
         meadowPet = pet
@@ -860,7 +873,7 @@ final class StoryScene: SKScene {
         guard let square else { return .wait(forDuration: 1) }
         battleRoot.isHidden = true
         fight = nil
-        show(square.patch, zoom: 0.8, looking: square.patch.middle)
+        show(square.patch, zoom: 0.8, looking: square.view)
         return greeting(steer: true)
     }
 
