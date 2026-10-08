@@ -16,13 +16,19 @@ final class Walker: SKNode {
     private var titleTag: NameTag?
     private var shownTitle: String?
     /// When the name tag shows: the party's while standing still, everyone else's up close or when tapped.
-    enum TagMode { case always, whenStill, onDemand }
+    /// `whenClear`, your companion's: while still, unless it would print over the name of whoever it
+    /// follows (`follow`), as it does right behind you when the two names are long.
+    enum TagMode { case always, whenStill, whenClear, onDemand }
     var tagMode: TagMode = .always {
         didSet { refreshTag() }
     }
     /// The hero is close by; `.onDemand` tags show then.
     var isNear = false {
         didSet { if isNear != oldValue { refreshTag() } }
+    }
+    /// Its name would sit on its leader's where it stands; a `.whenClear` tag hides then.
+    private var crowded = false {
+        didSet { if crowded != oldValue { refreshTag() } }
     }
     /// How close the hero gets before someone's name shows.
     static let nameRange: CGFloat = 120
@@ -139,6 +145,7 @@ final class Walker: SKNode {
         let show = switch tagMode {
         case .always: true
         case .whenStill: !isWalking || revealed
+        case .whenClear: (!isWalking && !crowded) || revealed
         case .onDemand: isNear || revealed
         }
         guard show != tagShown else { return }
@@ -149,7 +156,7 @@ final class Walker: SKNode {
             tag.alpha = show ? 1 : 0
         } else if show {
             // A short pause first, so the party's names don't blink on every brief stop.
-            let delay = tagMode == .whenStill && !revealed ? 0.6 : 0
+            let delay = (tagMode == .whenStill || tagMode == .whenClear) && !revealed ? 0.6 : 0
             tag.run(.sequence([.wait(forDuration: delay), .fadeIn(withDuration: 0.2)]), withKey: "fade")
         } else {
             tag.run(.fadeOut(withDuration: 0.2), withKey: "fade")
@@ -250,6 +257,15 @@ final class Walker: SKNode {
             setWalking(false)
             face(leader.facing)
         }
+        if tagMode == .whenClear { crowded = tagCrowds(leader) }
+    }
+
+    /// Whether its name tag, where it stands now, would print over `other`'s.
+    func tagCrowds(_ other: Walker) -> Bool {
+        guard let tag, let theirs = other.tag else { return false }
+        let mine = tag.calculateAccumulatedFrame().offsetBy(dx: position.x, dy: position.y)
+        let them = theirs.calculateAccumulatedFrame().offsetBy(dx: other.position.x, dy: other.position.y)
+        return mine.insetBy(dx: -4, dy: -2).intersects(them)
     }
 
     /// Whether the way from `start` to `end`, and `end` itself, is all ground to stand on.
