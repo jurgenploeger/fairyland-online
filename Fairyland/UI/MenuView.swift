@@ -52,7 +52,7 @@ struct MenuView: View {
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 6)
-                .background(LinearGradient(colors: [HUDStyle.frameLight, HUDStyle.frameMid, HUDStyle.frameDark], startPoint: .top, endPoint: .bottom))
+                .background(HUDStyle.titleGloss.overlay(alignment: .bottom) { HUDStyle.titleEdge })
 
                 ScrollView {
                     Group {

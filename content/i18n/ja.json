@@ -772,6 +772,8 @@
     "Rosy": "ばら色",
     "Tan": "小麦色",
     "Deep": "褐色",
+    "Title bars with a clear edge": "くっきりしたタイトルバー",
+    "Window title bars, and the menu's row of tabs, keep their light blue down to a crisp dark edge, instead of fading into the window below.": "ウィンドウのタイトルバーとメニューのタブの列は、下のウィンドウにとけこまず、くっきりした暗いふちまで水色のままになりました。",
     "A calmer battle screen": "すっきりしたバトル画面",
     "In a fight, your face and your companion's sit top left with their HP and MP, as on the map, and the chat sits top right. What just happened is one slim line under them, or between them on a phone held sideways.": "戦闘中は、マップと同じように、あなたとなかまの顔がHPとMPといっしょに左上に、チャットは右上に出ます。いま起きたことは、その下に細い1行で出ます。スマホを横にすると、そのあいだに出ます。",
     "Skills, Capture and More sit on an arc around Attack, all within easy reach of your thumb, and the time to choose drains in a ring around Attack. While a list of skills or items is open, the clock sits on top of it.": "「スキル」「つかまえる」「もっと」は「こうげき」をかこむ弧にならび、どれも親指がとどきやすくなりました。えらぶ時間は「こうげき」のまわりのリングでへっていきます。スキルやどうぐのリストを開いているあいだは、時計はリストの上に出ます。",
