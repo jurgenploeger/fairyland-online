@@ -73,6 +73,8 @@ final class BattleController {
     @ObservationIgnored private var rival: Adventurer?
     /// A boss you've never beaten: winning tells its story.
     @ObservationIgnored private var story: BossStory?
+    /// The opening march is over and the first turn has started (`begin`).
+    @ObservationIgnored private var hasBegun = false
 
     init(engine: BattleEngine, session: GameSession, intro: String? = nil) {
         self.engine = engine
@@ -467,11 +469,13 @@ final class BattleController {
         if isChoosing { autoRound() }
     }
 
-    /// The fight is on screen: your first turn's clock starts, or on Auto the first round plays
-    /// once everyone has marched in.
+    /// Everyone has marched in (`BattleScene.enter`): your first turn's clock starts, or on Auto
+    /// the first round plays.
     func begin() {
+        guard !hasBegun else { return }
+        hasBegun = true
         if autoPlays, phase == .command, !choosingForCompanion {
-            playOnAuto(after: 1200)
+            playOnAuto(after: 300)
         } else {
             if phase == .command { armAttack() }
             startTurnClock()

@@ -772,6 +772,8 @@
     "Rosy": "ばら色",
     "Tan": "小麦色",
     "Deep": "褐色",
+    "The clock waits for the monsters": "時間は魔物の登場を待つ",
+    "A fight's time to choose starts once everyone has marched onto the field, not while the monsters are still walking in.": "戦闘の選択時間は、全員がフィールドに出そろってから始まります。魔物が入ってくる途中では始まりません。",
     "Poison and ice all at once": "毒と氷はいっせいに",
     "When several fighters are poisoned, the poison bites them all at the same time at the end of the round, instead of one after another. Everyone frozen shivers at the start of the round together, too.": "複数のキャラクターが毒を受けているとき、ラウンドの終わりに毒のダメージが一人ずつではなく全員同時に入ります。凍っているキャラクターも、ラウンドの始めにいっせいに震えます。",
     "No picking when there's only one": "相手が一体なら選ばずに",

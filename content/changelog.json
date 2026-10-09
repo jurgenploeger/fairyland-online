@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.88",
+      "date": "2026-10-09",
+      "title": "The clock waits for the monsters",
+      "notes": [
+        "A fight's time to choose starts once everyone has marched onto the field, not while the monsters are still walking in."
+      ]
+    },
+    {
       "version": "0.3.87",
       "date": "2026-10-09",
       "title": "Poison and ice all at once",

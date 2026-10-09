@@ -35,7 +35,6 @@ struct BattleView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.phase)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.choosingForCompanion)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.isAuto)
-        .onAppear { controller.begin() }
     }
 
     /// Along the top: your faces and the chat, where the map keeps them, with what just happened

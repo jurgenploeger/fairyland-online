@@ -57,14 +57,18 @@ final class BattleScene: SKScene {
         speed = CGFloat(value)
     }
 
-    /// Both sides march in from off-stage at the start, monsters hopping into place.
+    /// Both sides march in from off-stage at the start, monsters hopping into place; your first
+    /// turn (and its clock) starts once they're all in. The scene sits still through the fade in,
+    /// so the wait starts after it.
     private func enter() {
-        march(actors.values.sorted(by: { $0.fighterID < $1.fighterID }))
+        let duration = march(actors.values.sorted(by: { $0.fighterID < $1.fighterID }))
+        run(.sequence([.wait(forDuration: duration), .run { [weak self] in self?.controller.begin() }]), withKey: "enter")
     }
 
     /// Fighters walk in from off-stage to their places, one after another (a boss fight's next
-    /// wave comes in the same way).
-    private func march(_ group: [BattleActor]) {
+    /// wave comes in the same way). Returns how long until the last one is in place.
+    @discardableResult
+    private func march(_ group: [BattleActor]) -> TimeInterval {
         for (index, actor) in group.enumerated() {
             let isEnemy = controller.enemies.contains { $0.id == actor.fighterID }
             let offset = isPortrait
@@ -83,6 +87,7 @@ final class BattleScene: SKScene {
             }
             actor.run(.sequence([.wait(forDuration: 0.08 * Double(index)), walkIn]), withKey: "enter")
         }
+        return 0.08 * Double(max(0, group.count - 1)) + 0.5
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
