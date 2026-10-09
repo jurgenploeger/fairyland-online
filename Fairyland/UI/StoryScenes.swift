@@ -429,7 +429,7 @@ final class StoryScene: SKScene {
         walker.run(.repeatForever(.sequence([.wait(forDuration: pause), there.action, .wait(forDuration: pause), back.action])), withKey: "move")
     }
 
-    /// A finger taps the ground: Fairyland's purple swirl where it touched, and the fingertip over it.
+    /// A finger taps the ground: the swirl where it touched, and the fingertip over it.
     private func tapGround(at point: CGPoint) {
         guard let patch else { return }
         Effects.tapMarker(at: point, in: patch)

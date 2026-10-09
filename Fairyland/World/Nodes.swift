@@ -1,5 +1,6 @@
 import SpriteKit
 import UIKit
+import SwiftUI
 
 /// Small reusable SpriteKit building blocks.
 enum Nodes {
@@ -520,7 +521,10 @@ enum Effects {
 
     static let tapMarkerName = "tapMarker"
 
-    /// Fairyland's destination marker: a purple swirl on the ground.
+    /// Fairyland's destination marker: a swirl on the ground, in Storyleaf's colours and drawn
+    /// like the logo's letters: a pale leaf-green line over a forest-green outline. On every
+    /// map one of the two stands out: the outline on sand, snow and candy, the line on grass,
+    /// caves and dark woods.
     static func tapMarker(at point: CGPoint, in parent: SKNode) {
         let marker = SKNode()
         marker.name = tapMarkerName
@@ -535,10 +539,16 @@ enum Effects {
             let p = CGPoint(x: cos(t) * radius, y: sin(t) * radius * 0.6 + 10)
             step == 0 ? spiral.move(to: p) : spiral.addLine(to: p)
         }
-        let swirl = SKShapeNode(path: spiral)
-        swirl.strokeColor = UIColor(red: 0.75, green: 0.35, blue: 0.95, alpha: 1)
-        swirl.lineWidth = 3
-        swirl.glowWidth = 1
+        let swirl = SKNode()
+        for (color, width) in [(UIColor(Brand.forest), CGFloat(5.5)), (UIColor(Brand.leafLight), CGFloat(2.5))] {
+            let line = SKShapeNode(path: spiral)
+            line.strokeColor = color
+            line.lineWidth = width
+            line.lineCap = .round
+            line.lineJoin = .round
+            line.isAntialiased = true
+            swirl.addChild(line)
+        }
         marker.addChild(swirl)
         swirl.run(.repeat(.sequence([.scale(to: 1.15, duration: 0.2), .scale(to: 1, duration: 0.2)]), count: 2))
         marker.run(.sequence([.wait(forDuration: 0.8), .fadeOut(withDuration: 0.3), .removeFromParent()]))
