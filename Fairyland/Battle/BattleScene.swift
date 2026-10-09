@@ -131,8 +131,9 @@ final class BattleScene: SKScene {
         if isPortrait {
             // Monsters up on the left looking down-right at your party, which stands lower on the
             // right looking back up-left; both lines sit around the middle of the screen.
-            // A wide gap between the sides, so it reads as two lines facing off.
-            arrange(controller.enemiesOnField, around: CGPoint(x: area.midX - 50, y: area.minY + area.height * 0.64), facing: .down)
+            // A wide gap between the sides, so it reads as two lines facing off. The monsters' line
+            // is centred across the screen however many there are, not bunched up on the left.
+            arrange(controller.enemiesOnField, around: CGPoint(x: area.midX, y: area.minY + area.height * 0.64), facing: .down)
             arrange(controller.party, around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.06), facing: .up)
         } else {
             landscapeFloor = area.minY + Self.plateDepth

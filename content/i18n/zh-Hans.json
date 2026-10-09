@@ -774,6 +774,7 @@
     "Deep": "深色",
     "The clock waits for the monsters": "计时等怪物登场",
     "A fight's time to choose starts once everyone has marched onto the field, not while the monsters are still walking in.": "战斗中的选择时间会在所有人都进场后才开始，而不是在怪物还在走进来时就开始。",
+    "Upright, the monsters stand centred across the screen however many there are, instead of bunched up on the left.": "竖屏时，无论有几只怪物，它们都会站在屏幕中间，不再挤在左边。",
     "Poison and ice all at once": "中毒和冰冻一起结算",
     "When several fighters are poisoned, the poison bites them all at the same time at the end of the round, instead of one after another. Everyone frozen shivers at the start of the round together, too.": "多名战斗者中毒时，回合结束时毒会同时伤害所有人，不再一个接一个。被冻住的战斗者也会在回合开始时一起颤抖。",
     "No picking when there's only one": "只有一个时无需选择",
