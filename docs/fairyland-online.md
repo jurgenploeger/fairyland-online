@@ -367,6 +367,10 @@ titles count cards. FO's dolls aren't in yet.
 **Ours, not FO's (content/rewards.json):** a gift each day you play, in a round of seven; three daily
 bounties scaled to your level, with a bonus for all three; and rewards as the Monster Book fills (10, 25, 50,
 75 and every kind). They're built on FO's own calendar idea, but FO didn't have them as such.
+Hard wins leave Seal Stones (`seals`, ours, 2026-10-09, asked for in playtesting): when the strongest beaten
+monster stood 5+ levels over you (when the tougher battle theme plays), 30% a Seal Stone or Moon Seal; 10+,
+50% mostly Moon Seals; 15+, 70% mostly Heart Seals; 25+, 90% mostly Star Seals; a boss fight always one. Never
+the Wishing Seal, which stays the Monster Book's last reward.
 
 ## Unverified, or only our own repo says so
 

@@ -599,6 +599,30 @@ struct RulesTests {
         #expect(hero.count(of: "leather_gloves") == 1)
     }
 
+    @Test func hardFightsAndBossesLeaveSealStones() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        // An ordinary fight leaves none; the tougher theme's 5 levels up starts it.
+        #expect(session.sealRule(gap: 0, boss: false) == nil)
+        #expect(session.sealRule(gap: 4, boss: false) == nil)
+        let easiest = try #require(session.sealRule(gap: 5, boss: false))
+        #expect(easiest.above == 5)
+        // The harder the fight, the likelier and better.
+        let harder = try #require(session.sealRule(gap: 12, boss: false))
+        #expect(harder.above == 10 && harder.chance > easiest.chance)
+        let hardest = try #require(session.sealRule(gap: 60, boss: false))
+        #expect(hardest.chance >= harder.chance)
+        // A boss always leaves one, however your level compares.
+        let boss = try #require(session.sealRule(gap: -10, boss: true))
+        #expect(boss.chance == 1)
+        #expect(session.sealDrop(gap: -10, boss: true)?.capture == true)
+        // Only Seal Stones, and never the Wishing Seal (a reward of its own).
+        let rules = Content.shared.rewards.seals.tiers + [Content.shared.rewards.seals.boss]
+        for id in rules.flatMap(\.items) {
+            #expect(Content.shared.item(id)?.capture == true, "\(id) isn't a Seal Stone")
+            #expect(Content.shared.item(id)?.sure != true, "\(id) is the Wishing Seal")
+        }
+    }
+
     @Test func monstersDropGearFromUpToTheirLevel() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.data.hero.classID = "fighter"

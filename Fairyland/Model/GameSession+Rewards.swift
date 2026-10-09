@@ -336,3 +336,23 @@ extension GameSession {
     /// Reborn heroes climb back faster: a fifth more battle EXP for each rebirth, up to double.
     var rebirthEXPBoost: Double { 1 + min(1, 0.2 * Double(rebirths)) }
 }
+
+// MARK: - Seal Stones from hard fights
+
+extension GameSession {
+    /// The rule a won fight's Seal Stone is rolled on (content/rewards.json `seals`): a boss fight's,
+    /// or the highest tier whose `above` the strongest monster stood over your level (`gap`). None
+    /// in an ordinary fight.
+    func sealRule(gap: Int, boss: Bool) -> RewardsDef.Seals.Rule? {
+        let seals = content.rewards.seals
+        if boss { return seals.boss }
+        return seals.tiers.filter { gap >= $0.above }.max { $0.above < $1.above }
+    }
+
+    /// The Seal Stone a hard win leaves, if any: rolled on `sealRule`.
+    func sealDrop(gap: Int, boss: Bool) -> ItemDef? {
+        guard let rule = sealRule(gap: gap, boss: boss), Double.random(in: 0..<1) < rule.chance,
+              let id = rule.items.randomElement() else { return nil }
+        return content.item(id)
+    }
+}

@@ -820,11 +820,25 @@ nonisolated struct RewardsDef: Decodable, Sendable {
         let gains: [String: Gain]
         let spareGold: Int
     }
+    /// Seal Stones won in hard fights: the highest `tiers` rule whose `above` the strongest beaten
+    /// monster's level is over yours, one time in `chance`, one of its `items` (repeats weigh more);
+    /// `boss` for a boss fight.
+    nonisolated struct Seals: Decodable, Sendable {
+        nonisolated struct Rule: Decodable, Sendable {
+            /// Levels the strongest monster stood over yours, at least.
+            let above: Int
+            let chance: Double
+            let items: [String]
+        }
+        let tiers: [Rule]
+        let boss: Rule
+    }
     let dailyGifts: [Gift]
     let bounties: Bounties
     let quests: Quests
     let bookMilestones: [Milestone]
     let cards: Cards
+    let seals: Seals
 }
 
 /// One entry in content/changelog.json, shown under "What's new" on the title screen.
