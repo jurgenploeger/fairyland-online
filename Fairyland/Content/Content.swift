@@ -698,8 +698,6 @@ nonisolated struct LookPreset: Decodable, Identifiable, Sendable {
     let name: String
     let swatch: String
     let recolor: [RecolorRule]
-    /// A quest that unlocks this look.
-    let unlock: String?
 }
 
 /// Names and chatter for the background characters (content/crowd.json).

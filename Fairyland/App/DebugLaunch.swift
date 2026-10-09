@@ -19,8 +19,7 @@ import SpriteKit
 ///   change=<slot>  open the Character tab's window of gear for weapon | armor | accessory (with menu=character)
 ///   inspect=<item> with change: that piece's card is open in it, with Cancel and Equip; with
 ///                  menu=bag (no change): that item's card over the Bag
-///   customize      open the Character tab's look editor (with menu=character)
-///   race=<id>      play this race (content/classes.json)
+///   race=<id>      play this race (content/classes.json); with titlepage=create, the new hero's race
 ///   style=<id>     wear this hairstyle (content/appearance.json `styles`)
 ///   hair=<id>      dye the hair this colour (content/appearance.json `hair`)
 ///   gender=<id>    male | female | other (picks the race's matching sheet)
@@ -150,7 +149,15 @@ enum DebugLaunch {
     /// `titlepage=settings`: the title screen opens on that page instead of its menu.
     static var titlePage: String? { flags["titlepage"] }
     static var opensMenuAtBottom: Bool { flags["bottom"] != nil }
-    static var opensCustomize: Bool { flags["customize"] != nil }
+    /// With `titlepage=create`: the new hero starts as `race`, `gender`, `style` and `hair` say.
+    static var createRace: String? { flags["race"] }
+    static func createLook(_ base: Look) -> Look {
+        var look = base
+        if let gender = flags["gender"] { look.gender = gender }
+        if let style = flags["style"] { look.style = style }
+        if let hair = flags["hair"] { look.hair = hair }
+        return look
+    }
     /// `info=iron_axe`: the shop's info card for that item opens with the dialog.
     static var itemInfo: ItemDef? { flags["info"].flatMap { Content.shared.item($0) } }
     /// `intro` or `intro=<page>` opens the title screen's story pages (1 = the story).

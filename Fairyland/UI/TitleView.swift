@@ -8,8 +8,8 @@ struct TitleView: View {
 
     @State private var creating = DebugLaunch.titlePage == "create"
     @State private var name = L("Hero")
-    @State private var look = Look(hair: Look.standard.hair, outfit: Look.standard.outfit, skin: Look.standard.skin, gender: "male")
-    @State private var raceID = "human"
+    @State private var look = DebugLaunch.createLook(Look(hair: Look.standard.hair, outfit: Look.standard.outfit, skin: Look.standard.skin, gender: "male"))
+    @State private var raceID = DebugLaunch.createRace ?? "human"
     /// Your games, the last played first; the carousel shows one at a time.
     @State private var saves = SaveStore.all()
     @State private var selectedSlot: String?

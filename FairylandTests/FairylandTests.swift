@@ -85,9 +85,6 @@ struct ContentTests {
                 #expect(ArtLibrary.shared.asset(id) != nil, "map \(map.id) → unknown art \(id)")
             }
         }
-        for preset in content.appearance.hair + content.appearance.outfits {
-            if let quest = preset.unlock { #expect(content.quest(quest) != nil, "look \(preset.id) → unknown quest \(quest)") }
-        }
         for item in content.items {
             #expect(item.icon.flatMap(GameIcon.init) != nil, "item \(item.id) → unknown icon \(item.icon ?? "nil")")
         }
@@ -316,15 +313,14 @@ struct LookTests {
     }
 
     @Test func customisingTheHeroAndCompanion() {
-        let session = GameSession.newGame(name: "Test", raceID: "human")
+        // The look is chosen when the hero is made (any look, from the start) and kept.
         let options = Content.shared.appearance
         #expect(options.hair.first?.id == Look.standard.hair)
         let look = Look(hair: "pink", outfit: "blue", skin: "tan")
-        session.customizeHero(name: "  Pip  ", look: look)
+        let session = GameSession.newGame(name: "Pip", raceID: "human", look: look)
         #expect(session.data.hero.name == "Pip")
         #expect(session.data.hero.look == look)
         #expect(!GameSession.rules(for: look).isEmpty)
-        #expect(session.lastSaved != nil)
 
         let pet = session.makePet(species: "jelly", level: 1)!
         session.addPet(pet, countsForQuests: false)
@@ -1880,14 +1876,11 @@ struct RulesTests {
         #expect(BattleController.tally(["Fire Rat"]) == "Fire Rat")
     }
 
-    @Test func questsUnlockLooksAndRoads() {
+    @Test func questsOpenRoads() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
-        let pink = Content.shared.appearance.hair.first { $0.id == "pink" }!
         let road = Content.shared.map("sunny_meadow")!.exits.first { $0.to == "pineapple_shore" }!
-        #expect(!session.isUnlocked(pink))
         #expect(!session.canTravel(road))
         session.data.quests["jelly_trouble"] = QuestProgress(state: .completed, count: 3)
-        #expect(session.isUnlocked(pink))
         #expect(session.canTravel(road))
     }
 

@@ -441,8 +441,8 @@ for map_def in maps.values():
 for kind in ("hair", "outfits", "skin"):
     for preset in appearance[kind]:
         check_rules(preset["recolor"], f"look {preset['id']}")
-        if "unlock" in preset:
-            check(preset["unlock"] in quests, f"look {preset['id']} → unknown quest {preset['unlock']}")
+        # Every look is open when a hero is made, the only time looks are chosen.
+        check("unlock" not in preset, f"look {preset['id']} → looks can't be locked (they're only chosen at a new game)")
 # The window hair colours widen to on the hero's hair and locks layers (GameSession.hairLayerRules).
 window = appearance.get("hairLayer")
 if window is not None:
