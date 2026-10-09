@@ -69,6 +69,7 @@ import SpriteKit
 ///                  the round (1 unless set)
 ///   bounties=<n>   today's bounties made at once, the first n of them done and waiting to be claimed
 ///   landscape      lock the app to landscape
+///   feather        once the map is up, a Homeward Feather's lift, held mid-rise (nothing is used up)
 ///   curtain        the loading screen (the logo over the sky and its bar), held at 41%;
 ///                  curtain=travel the card for travelling to another map (Genie Desert) instead
 ///   clean          no frame counter in the corner (App Store screenshots; tools/store_slides.py crops
@@ -589,6 +590,18 @@ enum DebugLaunch {
                     guard coordinator.isReady, coordinator.world.view != nil else { continue }
                     try? await Task.sleep(for: .seconds(1))
                     _ = coordinator.world.summonAdventurersForDebug(count)
+                    return
+                }
+            }
+        }
+        // `feather`: once the map is on screen, a Homeward Feather lifts the hero, held mid-rise.
+        if flags["feather"] != nil {
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard coordinator.isReady, coordinator.world.view != nil else { continue }
+                    try? await Task.sleep(for: .seconds(1))
+                    coordinator.world.featherAwayForDebug()
                     return
                 }
             }

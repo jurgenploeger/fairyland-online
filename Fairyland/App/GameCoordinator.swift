@@ -196,9 +196,17 @@ final class GameCoordinator {
         Task {
             loadProgress = 1
             if remaining > 0 { try? await Task.sleep(for: .seconds(remaining)) }
+            // Carried by a Homeward Feather: you're not standing there yet when the card lifts.
+            let byFeather = arrivesByFeather
+            arrivesByFeather = false
+            if byFeather { world.awaitFeatherArrival() }
             isReady = true
             DebugLaunch.markReady()
             loadingMapName = nil
+            if byFeather {
+                try? await Task.sleep(for: .milliseconds(250))
+                world.featherArrive()
+            }
         }
     }
 
@@ -351,15 +359,27 @@ final class GameCoordinator {
         guard battle == nil, item.travel == true, session.count(of: item.id) > 0,
               let map = Content.shared.map(session.checkpoint.mapID) else { return }
         guard session.removeItem(item.id) else { return }
-        carryHome(to: map, saying: L("The wind carries you to {place}.", ["place": session.checkpointName(session.checkpoint)]))
+        let line = L("The wind carries you to {place}.", ["place": session.checkpointName(session.checkpoint)])
+        // The bag closes, and the feathers whisk you up before the map changes; you come down
+        // in the same light at the other end (finishLoading).
+        overlay = nil
+        SoundEffects.shared.play(.whoosh)
+        world.featherAway { [weak self] in
+            guard let self else { return }
+            arrivesByFeather = true
+            carryHome(to: map, saying: line, sound: false)
+        }
     }
 
+    /// Set while a Homeward Feather is carrying you: the next map brings you down in its light.
+    @ObservationIgnored private var arrivesByFeather = false
+
     /// Off to your checkpoint, wherever you are: the menu closes and the map changes.
-    private func carryHome(to map: MapDef, saying line: String) {
+    private func carryHome(to map: MapDef, saying line: String, sound: Bool = true) {
         let checkpoint = session.checkpoint
         overlay = nil
         session.post(line, .quest)
-        SoundEffects.shared.play(.whoosh)
+        if sound { SoundEffects.shared.play(.whoosh) }
         go(to: map, entry: checkpoint.entry)
     }
 

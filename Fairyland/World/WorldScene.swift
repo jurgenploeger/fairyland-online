@@ -1226,6 +1226,92 @@ final class WorldScene: SKScene {
         }
     }
 
+    // MARK: - Homeward Feather
+
+    /// The Homeward Feather's light: a warm white, like sun through a cloud.
+    private static let featherLight = UIColor(red: 1, green: 0.95, blue: 0.78, alpha: 1)
+
+    /// A Homeward Feather taking you away: a gust of feathers whirls up round you, and you rise
+    /// into a column of light and fade, then `done` (the map changes).
+    func featherAway(then done: @escaping () -> Void) {
+        isInputLocked = true
+        player.path = []
+        player.setWalking(false)
+        player.idles = false
+        let column = featherColumn(over: player.position)
+        column.alpha = 0
+        column.yScale = 0.3
+        column.run(.group([.fadeAlpha(to: 0.9, duration: 0.45), .scaleY(to: 1, duration: 0.45)]))
+        featherGust(around: player.position, rising: true)
+        let lift = SKAction.moveBy(x: 0, y: 90, duration: 0.9)
+        lift.timingMode = .easeIn
+        player.sprite.run(.sequence([.wait(forDuration: 0.25), .group([lift, .scaleX(to: 0.55, duration: 0.9)])]), withKey: "feather")
+        player.run(.sequence([.wait(forDuration: 0.55), .fadeOut(withDuration: 0.6)]))
+        onFeatherGone = done
+        Task {
+            await run(.wait(forDuration: 1.25))
+            let gone = onFeatherGone
+            onFeatherGone = nil
+            gone?()
+        }
+    }
+
+    /// What happens once a Homeward Feather has lifted you away (`featherAway`).
+    private var onFeatherGone: (() -> Void)?
+
+    /// Before the map shows: the hero isn't here yet (`featherArrive` brings them down).
+    func awaitFeatherArrival() {
+        player.idles = false
+        player.alpha = 0
+        player.sprite.position = CGPoint(x: 0, y: 90)
+    }
+
+    /// Arriving by Homeward Feather: you float down in the light as the feathers settle.
+    func featherArrive() {
+        let column = featherColumn(over: player.position)
+        column.alpha = 0.9
+        column.run(.sequence([.wait(forDuration: 0.5), .fadeOut(withDuration: 0.6), .removeFromParent()]))
+        featherGust(around: player.position, rising: false)
+        player.run(.fadeIn(withDuration: 0.45))
+        let drop = SKAction.move(to: .zero, duration: 0.85)
+        drop.timingMode = .easeOut
+        player.sprite.run(.sequence([drop, .run { [weak self] in self?.player.idles = true }]), withKey: "feather")
+    }
+
+    /// The soft column of light the hero rises into or comes down in.
+    private func featherColumn(over point: CGPoint) -> SKSpriteNode {
+        let column = SkillEffects.glowSprite(Self.featherLight, size: CGSize(width: 70, height: 230))
+        column.position = point + CGVector(dx: 0, dy: 80)
+        column.zPosition = 30_000
+        world.addChild(column)
+        return column
+    }
+
+    /// Feathers whirling round `center`: spiralling up and closing in (`rising`), or drifting down
+    /// and out to settle.
+    private func featherGust(around center: CGPoint, rising: Bool) {
+        let texture = ArtLibrary.shared.sprite("item_homeward_feather").texture
+        let count = 12
+        let duration: CGFloat = 1.2
+        for index in 0..<count {
+            let feather = SKSpriteNode(texture: texture, size: CGSize(width: 18, height: 18))
+            feather.zPosition = 30_001
+            feather.alpha = 0
+            world.addChild(feather)
+            let phase = CGFloat(index) / CGFloat(count) * 2 * .pi
+            let spin = SKAction.customAction(withDuration: duration) { node, elapsed in
+                let t = min(1, elapsed / duration)
+                let p = rising ? t : 1 - t
+                let angle = phase + p * 4.4 * .pi
+                let radius = 34 - 14 * p
+                node.position = CGPoint(x: center.x + cos(angle) * radius, y: center.y + 6 + p * 140 + sin(angle) * radius * 0.35)
+                node.zRotation = angle
+                node.alpha = min(1, t * 5, (1 - t) * 4)
+            }
+            feather.run(.sequence([.wait(forDuration: Double(index) * 0.04), spin, .removeFromParent()]))
+        }
+    }
+
     /// After a duel you won, the rival skulks off.
     func dismissAdventurer(_ id: UUID) {
         crowd?.remove(id, poof: true)
@@ -1244,6 +1330,13 @@ final class WorldScene: SKScene {
     /// Debug launches (`invite=n`): the nearest friendly adventurers, brought over to stand by you.
     func summonAdventurersForDebug(_ count: Int) -> [Adventurer] {
         crowd?.summonForDebug(count, to: player.position) ?? []
+    }
+
+    /// Debug launches (`feather`): a Homeward Feather's lift without going anywhere, the map held
+    /// still part-way so a screenshot catches the feathers whirling.
+    func featherAwayForDebug() {
+        featherAway {}
+        run(.sequence([.wait(forDuration: 0.75), .run { [weak self] in self?.isPaused = true }]))
     }
 
     /// Debug launches (`say=<text>`): a speech bubble over the hero that stays, for screenshots.

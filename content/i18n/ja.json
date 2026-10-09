@@ -777,6 +777,7 @@
     "Upright, the monsters stand centred across the screen however many there are, instead of bunched up on the left.": "縦向きでは、魔物は数に関係なく画面の中央に並びます。左側に寄らなくなりました。",
     "Your and your companion's faces are gone from a fight's top left (HP and MP show on the fighters themselves), so what just happened sits at the top in the middle.": "戦闘中、左上の自分と仲間の顔表示をなくしました（HPとMPは各キャラクターに表示されます）。そのぶん、今起きたことが上部中央に出ます。",
     "Travelling to another map shows Storyleaf's sky, a leaf-green swirl and the place's name on a cream pill, with the same loading bar as the game's start.": "別のマップへの移動中は、Storyleafの空、葉っぱ色のうず、クリーム色の札に書かれた行き先の名前が表示されます。読み込みバーはゲーム起動時と同じです。",
+    "A Homeward Feather whisks you away: feathers whirl up round you as you rise into a column of light, and you float down in it at the other end.": "帰り道の羽根を使うと、羽根が舞い上がるなか光の柱に包まれて浮かび上がり、行き先ではその光の中をふわりと降りてきます。",
     "Poison and ice all at once": "毒と氷はいっせいに",
     "When several fighters are poisoned, the poison bites them all at the same time at the end of the round, instead of one after another. Everyone frozen shivers at the start of the round together, too.": "複数のキャラクターが毒を受けているとき、ラウンドの終わりに毒のダメージが一人ずつではなく全員同時に入ります。凍っているキャラクターも、ラウンドの始めにいっせいに震えます。",
     "No picking when there's only one": "相手が一体なら選ばずに",
