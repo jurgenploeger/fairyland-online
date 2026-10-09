@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.90",
+      "date": "2026-10-09",
+      "title": "Buttons at the bottom",
+      "notes": [
+        "On the title screen, Settings, How to play and What's new sit at the bottom of the screen."
+      ]
+    },
+    {
       "version": "0.3.89",
       "date": "2026-10-09",
       "title": "A Storyleaf swirl",

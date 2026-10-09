@@ -89,17 +89,27 @@ struct TitleView: View {
                 .id(localizer.language)
                 languageButton
             } else {
-                ScrollViewReader { reader in
-                    ScrollView {
-                        VStack(spacing: 18) {
-                            logo.padding(.top, 12)
-                            page.id(Self.pageTop)
+                // Upright, the round buttons sit at the bottom of the screen, under everything
+                // else (scrolling with it when the screen is too short for all of it).
+                GeometryReader { proxy in
+                    ScrollViewReader { reader in
+                        ScrollView {
+                            VStack(spacing: 18) {
+                                logo.padding(.top, 12)
+                                page.id(Self.pageTop)
+                                if onMenu {
+                                    Spacer(minLength: 10)
+                                    roundButtons
+                                }
+                            }
+                            .padding(20)
+                            .frame(maxWidth: .infinity)
+                            .frame(minHeight: proxy.size.height)
+                            .id(localizer.language)
                         }
-                        .padding(20)
-                        .frame(maxWidth: .infinity)
-                        .id(localizer.language)
+                        .scrollBounceBehavior(.basedOnSize)
+                        .onChange(of: changelogPage) { scrollUp(reader) }
                     }
-                    .onChange(of: changelogPage) { scrollUp(reader) }
                 }
                 languageButton
             }
@@ -172,14 +182,13 @@ struct TitleView: View {
             }
             .frame(maxWidth: 640)
             .gameWindow()
-        } else if wide {
-            // Beside the logo and its round buttons: your game, and how to start.
+        } else {
+            // Your game, and how to start. The round buttons wait at the bottom of the screen
+            // (on a phone on its side, under the logo).
             VStack(spacing: 12) {
                 games
                 startButtons
             }
-        } else {
-            menu
         }
     }
 
@@ -207,15 +216,6 @@ struct TitleView: View {
             .scaledToFit()
             .frame(maxWidth: 440)
             .accessibilityLabel(L("Storyleaf, a cozy pixel adventure"))
-    }
-
-    private var menu: some View {
-        VStack(spacing: 12) {
-            games
-            startButtons
-            roundButtons
-                .padding(.top, 10)
-        }
     }
 
     /// Your games, one at a time, or before the first one, a hero waiting to be made.
