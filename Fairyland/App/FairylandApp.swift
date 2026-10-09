@@ -36,7 +36,11 @@ struct RootView: View {
         Group {
             if DebugLaunch.holdsLoadingCurtain {
                 // Debug `curtain`: the loading screen, held part-way (screenshots of it).
-                LoadingCurtain(progress: 0.41)
+                if DebugLaunch.holdsTravelCard {
+                    MapLoadingCard(mapName: Content.shared.map("genie_desert")?.name ?? "", progress: 0.41)
+                } else {
+                    LoadingCurtain(progress: 0.41)
+                }
             } else if let coordinator {
                 GameView(coordinator: coordinator)
             } else if let pending {

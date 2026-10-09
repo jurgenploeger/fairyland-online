@@ -16,10 +16,7 @@ struct LoadingCurtain: View {
                     .scaledToFit()
                     .frame(maxWidth: 300)
                     .scaleEffect(spin ? 1.03 : 0.97)
-                // In the logo's colours: its leaf green, outlined like its letters, on its cream.
-                LoadingBar(progress: progress, label: L("Loading"), textColor: Brand.forest,
-                           fill: [Brand.leafLight, Brand.leaf, Brand.leafDeep], track: Brand.cream, rim: Brand.forest,
-                           width: 200)
+                LoadingBar.storyleaf(progress: progress, label: L("Loading"))
             }
             .padding(.horizontal, 40)
         }
@@ -29,8 +26,9 @@ struct LoadingCurtain: View {
     }
 }
 
-/// Shown briefly when travelling to another map: the destination's name over a spinning swirl,
-/// and the loading bar.
+/// Shown briefly when travelling to another map, in Storyleaf's colours like the game's own
+/// loading: the title's sky, a leaf-green swirl turning, the destination's name on a cream pill
+/// outlined like the logo's tagline, and the same bar.
 struct MapLoadingCard: View {
     let mapName: String
     var progress: Double = 0
@@ -38,19 +36,28 @@ struct MapLoadingCard: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(colors: [Color(red: 0.06, green: 0.15, blue: 0.32), Color(red: 0.13, green: 0.3, blue: 0.55)], startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
-            VStack(spacing: 14) {
-                SwirlShape()
-                    .stroke(Color(red: 0.75, green: 0.35, blue: 0.95), style: StrokeStyle(lineWidth: 5, lineCap: .round))
-                    .frame(width: 70, height: 70)
-                    .rotationEffect(.degrees(spin ? 360 : 0))
-                    .shadow(color: Color(red: 0.75, green: 0.35, blue: 0.95).opacity(0.7), radius: 10)
+            StoryleafSky(raysFrom: UnitPoint(x: 0.5, y: 0.42))
+            VStack(spacing: 18) {
+                ZStack {
+                    // Outlined like the logo's letters: forest under, leaf green on top.
+                    SwirlShape().stroke(Brand.forest, style: StrokeStyle(lineWidth: 10, lineCap: .round, lineJoin: .round))
+                    SwirlShape().stroke(LinearGradient(colors: [Brand.leafLight, Brand.leaf, Brand.leafDeep], startPoint: .top, endPoint: .bottom),
+                                        style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
+                }
+                .frame(width: 70, height: 70)
+                .rotationEffect(.degrees(spin ? 360 : 0))
                 Text(mapName)
-                    .font(HUDStyle.font(26))
-                    .foregroundStyle(HUDStyle.nameYellow)
-                    .shadow(color: .black, radius: 0, x: 2, y: 2)
-                LoadingBar(progress: progress, label: L("Travelling"), textColor: HUDStyle.cream)
+                    .font(HUDStyle.font(24))
+                    .foregroundStyle(Brand.forest)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .padding(.horizontal, 22)
+                    .padding(.vertical, 8)
+                    .background(Capsule().fill(Brand.cream))
+                    .overlay(Capsule().strokeBorder(Brand.forest, lineWidth: 3))
+                    // The thicker edge under it, like the logo's pill.
+                    .background(Capsule().fill(Brand.depth).offset(y: 3))
+                LoadingBar.storyleaf(progress: progress, label: L("Travelling"))
             }
             .padding(.horizontal, 40)
         }
@@ -71,6 +78,14 @@ struct LoadingBar: View {
     var rim: Color = .white.opacity(0.8)
     /// How wide the bar grows at most.
     var width: CGFloat = 280
+
+    /// Storyleaf's own loading bar, the same on every loading screen: the logo's leaf green,
+    /// outlined like its letters, on its cream.
+    static func storyleaf(progress: Double, label: String) -> LoadingBar {
+        LoadingBar(progress: progress, label: label, textColor: Brand.forest,
+                   fill: [Brand.leafLight, Brand.leaf, Brand.leafDeep], track: Brand.cream, rim: Brand.forest,
+                   width: 200)
+    }
 
     private var percent: Int { Int((min(max(progress, 0), 1) * 100).rounded()) }
 
