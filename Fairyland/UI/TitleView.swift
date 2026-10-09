@@ -546,9 +546,11 @@ private struct TitleRoundButtonStyle: ButtonStyle {
                 )
                 .overlay(alignment: .topTrailing) {
                     if marked {
+                        // Centred on the rim at the top right (its middle 24 pt out at 45°),
+                        // half over the button and half off it.
                         Circle().fill(HUDStyle.gold).frame(width: 13, height: 13)
                             .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 1.5))
-                            .offset(x: 1, y: -1)
+                            .offset(x: -1.5, y: 1.5)
                     }
                 }
                 .offset(y: configuration.isPressed ? 2 : 0)
