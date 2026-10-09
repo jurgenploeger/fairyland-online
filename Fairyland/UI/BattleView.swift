@@ -53,14 +53,18 @@ struct BattleView: View {
     @ViewBuilder
     private var chatButton: some View {
         if controller.phase != .finished, let onChat {
-            FLIconButton(icon: .talk, label: L("Chat"), size: 40, badge: unreadChat, action: onChat)
+            FLIconButton(icon: .talk, label: L("Chat"), size: Self.chatSize, badge: unreadChat, action: onChat)
         }
     }
+
+    private static let chatSize: CGFloat = 40
 
     /// What just happened, and in a boss fight how far through its waves you are.
     private var news: some View {
         VStack(spacing: 6) {
+            // As tall as the chat button at least, so a one-line message sits level with it.
             logLine
+                .frame(minHeight: Self.chatSize)
             if controller.waveCount > 1 {
                 WaveTracker(wave: controller.wave, total: controller.waveCount)
             }
