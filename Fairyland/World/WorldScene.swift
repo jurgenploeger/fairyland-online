@@ -1054,7 +1054,7 @@ final class WorldScene: SKScene {
             player.setCycle(art.walkCycle(GameSession.heroArt))
             player.setLabel(session.data.hero.name)
         }
-        player.setTitle(session.wornTitle?.name)
+        player.setTitle(session.wornTitle)
         player.setLabelColor(Self.nameColor(rebirths: session.rebirths))
         player.setGear(weapon: session.equipped(.weapon), accessory: session.equipped(.accessory))
         heroKey = key

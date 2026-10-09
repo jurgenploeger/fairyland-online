@@ -2125,8 +2125,8 @@ struct RewardTests {
     @Test func botsWearTitlesThatFitTheirLevel() {
         let id = UUID()
         #expect(GameSession.botTitle(level: 5, id: id) == nil)
-        #expect(GameSession.botTitle(level: 70, id: id) == GameSession.botTitle(level: 70, id: id))
-        let names = Set((0..<40).compactMap { _ in GameSession.botTitle(level: 70, id: UUID()) })
+        #expect(GameSession.botTitle(level: 70, id: id)?.id == GameSession.botTitle(level: 70, id: id)?.id)
+        let names = Set((0..<40).compactMap { _ in GameSession.botTitle(level: 70, id: UUID())?.name })
         #expect(names.isSubset(of: [Content.shared.title("veteran")?.name].compactMap { $0 }))
         #expect(!names.isEmpty)
     }

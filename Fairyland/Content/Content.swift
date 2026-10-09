@@ -757,6 +757,11 @@ nonisolated struct TitleDef: Decodable, Identifiable, Sendable {
     let count: Int?
     /// `boss`: the boss's NPC id.
     let target: String?
+    /// How much honour it carries, 1 to 5 (`TitleBadge`: bronze, silver, gold, ruby, prismatic).
+    let rank: Int?
+
+    /// `rank`, kept to 1...5.
+    var tier: Int { min(5, max(1, rank ?? 1)) }
 }
 
 /// Reasons to come back (content/rewards.json): the daily gift's round, the daily bounties' rules,

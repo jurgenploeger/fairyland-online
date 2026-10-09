@@ -54,9 +54,7 @@ struct ProfileCard: View {
                         .font(HUDStyle.font(13))
                         .foregroundStyle(HUDStyle.gold)
                     if let title = facts.title {
-                        Text(title)
-                            .font(HUDStyle.font(11))
-                            .foregroundStyle(HUDStyle.cream)
+                        TitleBadge(title: title, size: 10)
                     }
                     // BOT for a computer-run adventurer.
                     if let badge = facts.badge { NameBadge(badge: badge) }
@@ -149,7 +147,7 @@ struct ProfileCard: View {
         var kind: String
         var badge: PlayerBadge?
         /// The title they wear.
-        var title: String?
+        var title: TitleDef?
         var element: Element?
         var note: String?
         var noteColor = HUDStyle.cream
@@ -172,7 +170,7 @@ struct ProfileCard: View {
                               kind: L("Lv {level} · {race} {heroClass}", ["level": hero.level, "race": content.race(hero.raceID).name, "heroClass": session.heroClass.name]),
                               stats: session.heroStats, hp: hero.hp, mp: hero.mp,
                               exp: (hero.exp, GameSession.expToNext(level: hero.level)))
-            facts.title = session.wornTitle?.name
+            facts.title = session.wornTitle
             if session.rebirths > 0 { facts.note = L("Reborn {count}×", ["count": session.rebirths]) }
             facts.gear = ItemType.equipmentSlots.compactMap { session.equipped($0) }
             return facts

@@ -88,11 +88,11 @@ extension GameSession {
 
     /// A computer-run adventurer now and then wears a title that fits their level: the same one each
     /// time you meet them.
-    static func botTitle(level: Int, id: UUID) -> String? {
+    static func botTitle(level: Int, id: UUID) -> TitleDef? {
         let fitting = Content.shared.titles.filter { $0.kind == .level && ($0.count ?? 1) <= level }
         guard let best = fitting.max(by: { ($0.count ?? 1) < ($1.count ?? 1) }) else { return nil }
         let coin = id.uuidString.unicodeScalars.reduce(0) { ($0 + Int($1.value)) % 7 }
-        return coin < 3 ? best.name : nil
+        return coin < 3 ? best : nil
     }
 
     // MARK: - The Monster Book's milestones

@@ -258,13 +258,19 @@ struct TitlesSection: View {
                         Button {
                             session.wear(worn ? nil : title)
                         } label: {
-                            Text(title.name)
-                                .font(HUDStyle.font(11))
-                                .foregroundStyle(worn ? HUDStyle.ink : HUDStyle.cream)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(Capsule().fill(worn ? HUDStyle.gold : .white.opacity(0.1)))
-                                .overlay(Capsule().strokeBorder(HUDStyle.gold.opacity(worn ? 0 : 0.5), lineWidth: 1))
+                            // Each in its badge; the one you wear ringed in cream, with a tick.
+                            TitleBadge(title: title, size: 11)
+                                .padding(4)
+                                .overlay(Capsule().strokeBorder(HUDStyle.cream.opacity(worn ? 0.9 : 0), lineWidth: 2))
+                                .overlay(alignment: .topTrailing) {
+                                    if worn {
+                                        IconImage(.check, size: 9)
+                                            .foregroundStyle(HUDStyle.ink)
+                                            .padding(3)
+                                            .background(Circle().fill(HUDStyle.cream))
+                                            .offset(x: 2, y: -2)
+                                    }
+                                }
                         }
                         .buttonStyle(PressScaleStyle())
                         .accessibilityAddTraits(worn ? .isSelected : [])

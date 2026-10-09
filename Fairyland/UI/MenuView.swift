@@ -296,9 +296,7 @@ private struct CharacterTab: View {
                 // The name is chosen when the hero is made and stays.
                 Text(hero.name).font(HUDStyle.font(18))
                 if let title = session.wornTitle {
-                    Text(title.name)
-                        .font(HUDStyle.font(12))
-                        .foregroundStyle(HUDStyle.gold)
+                    TitleBadge(title: title, size: 12)
                 }
                 Text("\(session.heroRace.name) · \(session.heroClass.name)")
                     .font(HUDStyle.font(12))

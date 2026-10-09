@@ -561,6 +561,8 @@ TITLE_KINDS = {"level", "lands", "book", "quests", "bosses", "boss", "companions
 titles = load("content/titles.json")["titles"]
 check(len({t.get("id") for t in titles}) == len(titles), "titles → duplicate id")
 for title in titles:
+    # Its badge (TitleBadge): 1 bronze, 2 silver, 3 gold, 4 ruby, 5 prismatic.
+    check(title.get("rank") in (1, 2, 3, 4, 5), f"title {title.get('id')} → rank must be 1 to 5 (its badge's metal)")
     where = f"title {title.get('id')}"
     kind = title.get("kind")
     check(bool(title.get("name")), f"{where} → needs a name")
