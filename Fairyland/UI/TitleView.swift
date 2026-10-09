@@ -449,6 +449,16 @@ private struct SaveCarousel: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .frame(height: 190)
+            // The games either side fade out toward the edges as they slide by, instead of
+            // being cut off sharp.
+            .mask(
+                LinearGradient(stops: [
+                    .init(color: .clear, location: 0),
+                    .init(color: .black, location: 0.18),
+                    .init(color: .black, location: 0.82),
+                    .init(color: .clear, location: 1),
+                ], startPoint: .leading, endPoint: .trailing)
+            )
         }
     }
 }
