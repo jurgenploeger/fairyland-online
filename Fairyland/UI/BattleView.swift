@@ -974,6 +974,8 @@ private struct ChoiceRow<Label: View>: View {
 // MARK: - Status & results
 
 private struct ResultPanel: View {
+    /// How tall the fade at the bottom of the rewards is when they don't all fit.
+    private static let fade: CGFloat = 36
     let result: BattleResult
     let session: GameSession
     let onContinue: () -> Void
@@ -1045,11 +1047,22 @@ private struct ResultPanel: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .padding(.horizontal, 18)
-            // Scrolls only when it can't all fit (a phone on its side after a big win).
+            // Scrolls only when it can't all fit (a phone on its side after a big win). Then its
+            // bottom fades out, so it's clear there's more below, and the end of it scrolls up
+            // clear of the fade.
             ViewThatFits(in: .vertical) {
                 details
-                ScrollView { details }
-                    .scrollBounceBehavior(.basedOnSize)
+                ScrollView {
+                    details.padding(.bottom, Self.fade)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+                .mask(
+                    VStack(spacing: 0) {
+                        Color.black
+                        LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                            .frame(height: Self.fade)
+                    }
+                )
             }
             Button(L("Continue"), action: advance)
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))

@@ -786,6 +786,7 @@
     "Who goes first in a fight is shuffled every round: anyone can open a round, but faster fighters still go earlier more often, so speed still counts.": "戦闘で誰が先に動くかは毎ラウンドシャッフルされます。だれでも先手を取れますが、すばやいキャラクターほど先に動きやすいので、すばやさは今も大切です。",
     "Gloves, necklaces and boots have slots of their own next to your weapon, armour and accessory: five of each from level 1 up, in town shops and dropped by monsters. Speed Boots are boots now.": "グローブ、ネックレス、ブーツに、武器・防具・アクセサリーとは別の専用スロットができました。レベル1からそれぞれ5種類、町の店やモンスターのドロップで手に入ります。スピードブーツはブーツになりました。",
     "The Character screen shows your hero in the middle with what they wear around them; tap a slot to change it. A gold dot marks an empty slot you have something for.": "キャラクター画面では、勇者が中央に立ち、そのまわりに装備が並びます。スロットをタップすると変更できます。持ち物に装備できるものがある空きスロットには金色の点がつきます。",
+    "When a fight's rewards don't all fit, their bottom fades out so it's clear there's more to scroll to.": "戦闘の報酬が入りきらないときは下側がふんわり消えて、スクロールするとまだ続きがあるとわかります。",
     "A Storyleaf swirl": "Storyleafのうず",
     "The swirl where you tap the ground is Storyleaf's leaf green with a dark green outline, so it stands out on every map, from snow and sand to dark woods.": "地面をタップしたときのうずが、Storyleafの葉っぱ色と濃い緑のふちどりになりました。雪や砂漠から暗い森まで、どのマップでもよく見えます。",
     "The clock waits for the monsters": "時間は魔物の登場を待つ",
