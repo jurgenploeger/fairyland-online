@@ -510,7 +510,10 @@ private struct IdlePair: View {
             .accessibilityHidden(true)
     }
 
-    private static let size = CGSize(width: 150, height: 104)
+    /// Room under their feet for a squish or a sway to dip into (a swaying companion's corners
+    /// drop a couple of points), and over the hero's head for a breath.
+    private static let size = CGSize(width: 150, height: 112)
+    private static let floor: CGFloat = 6
 
     private static func makeScene(hero: String, pet: String?) -> SKScene {
         let scene = SKScene(size: size)
@@ -522,7 +525,7 @@ private struct IdlePair: View {
             texture.filteringMode = .nearest
             let node = SKSpriteNode(texture: texture, size: cycle.size * (height / cycle.size.height))
             node.anchorPoint = CGPoint(x: 0.5, y: 0.04)
-            node.position = CGPoint(x: x, y: 2)
+            node.position = CGPoint(x: x, y: floor)
             scene.addChild(node)
             node.run(motion.action(height: node.size.height, delay: .random(in: 0..<0.6)))
         }
