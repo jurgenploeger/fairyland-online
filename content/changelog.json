@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.89",
+      "date": "2026-10-09",
+      "title": "A Storyleaf swirl",
+      "notes": [
+        "The swirl where you tap the ground is Storyleaf's leaf green with a dark green outline, so it stands out on every map, from snow and sand to dark woods."
+      ]
+    },
+    {
       "version": "0.3.88",
       "date": "2026-10-09",
       "title": "The clock waits for the monsters",
