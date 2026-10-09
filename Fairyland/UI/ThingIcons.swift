@@ -55,6 +55,9 @@ struct ItemIcon: View {
         case .consumable: item.mp != nil ? Color(red: 0.3, green: 0.55, blue: 0.95) : item.hatches != nil ? Color(red: 0.95, green: 0.7, blue: 0.3) : Color(red: 0.92, green: 0.35, blue: 0.45)
         case .weapon: Color(red: 0.5, green: 0.56, blue: 0.68)
         case .armor: Color(red: 0.62, green: 0.45, blue: 0.3)
+        case .gloves: Color(red: 0.78, green: 0.5, blue: 0.32)
+        case .necklace: Color(red: 0.85, green: 0.62, blue: 0.3)
+        case .boots: Color(red: 0.4, green: 0.6, blue: 0.85)
         case .accessory: Color(red: 0.62, green: 0.4, blue: 0.85)
         case .material: Color(red: 0.55, green: 0.6, blue: 0.4)
         }

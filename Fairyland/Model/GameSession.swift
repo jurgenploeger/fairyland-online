@@ -138,7 +138,22 @@ final class GameSession {
             self.data.hero.learnedSkills = legacy
             self.data.hero.bonusSkillPoints = legacy.count
         }
+        Self.moveGearToItsSlot(&self.data)
         applyLook()
+    }
+
+    /// Gear worn in a slot that isn't its own goes where it belongs: Speed Boots were an accessory
+    /// before boots had a slot. If that slot is taken, it goes back in the bag.
+    static func moveGearToItsSlot(_ data: inout SaveData) {
+        for slot in ItemType.equipmentSlots {
+            guard let id = data.hero.equipment[slot], let item = Content.shared.item(id), item.type != slot else { continue }
+            data.hero.equipment[slot] = nil
+            if ItemType.equipmentSlots.contains(item.type), data.hero.equipment[item.type] == nil {
+                data.hero.equipment[item.type] = id
+            } else {
+                data.inventory[id, default: 0] += 1
+            }
+        }
     }
 
     static func newGame(name: String, raceID: String, look: Look = .standard) -> GameSession {
@@ -269,7 +284,7 @@ final class GameSession {
     /// under the art id `id`: the hero in play, or a saved hero on the title screen.
     static func registerHero(_ hero: Hero, as id: String) {
         let content = Content.shared
-        let boots = hero.equipment[.accessory].flatMap(content.item)?.wear == "boots"
+        let boots = hero.equipment[.boots].flatMap(content.item)?.wear == "boots"
         registerArt(id, race: content.race(hero.raceID), look: hero.look ?? .standard,
                     armor: hero.equipment[.armor].flatMap(content.item), boots: boots, key: Self.lookKey(for: hero))
     }
@@ -1242,13 +1257,13 @@ final class GameSession {
         return min(0.16, max(0.02, 0.06 + 0.01 * Double(level - heroLevel)))
     }
 
-    /// How many equipment drops are accessories. There are only a handful of rings, charms and
-    /// boots next to dozens of weapons and armours, most of them low-level, so by level alone they'd
+    /// How many equipment drops are trinkets (gloves, necklaces, boots, rings and charms). There
+    /// are only a handful of each next to dozens of weapons and armours, so by level alone they'd
     /// hardly ever turn up.
     static let accessoryShare = 1.0 / 3
 
     /// The piece of equipment a beaten monster of `level` drops. One time in three
-    /// (`accessoryShare`) an accessory: any up to its level, the stronger ones more often.
+    /// (`accessoryShare`) a trinket: any up to its level, the stronger ones more often.
     /// Otherwise a weapon or armour from the twelve levels up to its own (the top six from a rare
     /// monster or a boss), the higher ones more often, and three times in four something your
     /// class can use. Bosses' own rare drops aren't in it; those stay theirs.
@@ -1258,7 +1273,7 @@ final class GameSession {
         let top = min(level, content.items.compactMap(\.level).max() ?? level)
         let bossDrops = Set(content.monsters.flatMap { $0.drops ?? [] }.map(\.item))
         let accessories = content.items.filter {
-            $0.type == .accessory && !bossDrops.contains($0.id) && ($0.level ?? 1) <= top
+            $0.type.isTrinket && !bossDrops.contains($0.id) && ($0.level ?? 1) <= top
         }
         if !accessories.isEmpty, Double.random(in: 0..<1) < Self.accessoryShare {
             let weights = accessories.map { Double($0.level ?? 1) + 10 }

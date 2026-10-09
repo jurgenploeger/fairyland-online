@@ -558,6 +558,47 @@ struct RulesTests {
         }
     }
 
+    @Test func glovesNecklacesAndBootsHaveSlotsOfTheirOwn() throws {
+        // A save from before these slots decodes, with the new ones empty.
+        let old = try JSONDecoder().decode(Equipment.self, from: Data(#"{"weapon":"wooden_sword","armor":"cloth_tunic","accessory":"ruby_ring"}"#.utf8))
+        #expect(old.weapon == "wooden_sword" && old.accessory == "ruby_ring")
+        #expect(old.gloves == nil && old.necklace == nil && old.boots == nil)
+
+        // Speed Boots worn as an accessory (before boots had a slot) move to the boots slot on load.
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        var data = session.data
+        data.hero.equipment.accessory = "speed_boots"
+        let loaded = GameSession(data: data)
+        #expect(loaded.data.hero.equipment.boots == "speed_boots")
+        #expect(loaded.data.hero.equipment.accessory == nil)
+        // With the boots slot taken, they go back in the bag instead.
+        data.hero.equipment.boots = "leather_boots"
+        let full = GameSession(data: data)
+        #expect(full.data.hero.equipment.boots == "leather_boots")
+        #expect(full.data.hero.equipment.accessory == nil)
+        #expect(full.count(of: "speed_boots") == 1)
+
+        // Each piece goes in its own slot and adds its stats, next to a ring in the accessory slot.
+        let hero = GameSession.newGame(name: "Test", raceID: "human")
+        let before = hero.heroStats
+        for id in ["leather_gloves", "shell_pendant", "straw_sandals", "novice_ring"] {
+            hero.addItem(id)
+            hero.equip(id)
+        }
+        #expect(hero.data.hero.equipment.gloves == "leather_gloves")
+        #expect(hero.data.hero.equipment.necklace == "shell_pendant")
+        #expect(hero.data.hero.equipment.boots == "straw_sandals")
+        #expect(hero.data.hero.equipment.accessory == "novice_ring")
+        let after = hero.heroStats
+        #expect(after.attack == before.attack + 2)
+        #expect(after.speed == before.speed + 1)
+        #expect(after.mp == before.mp + 6 + 4)
+        // Taking one off puts it back in the bag.
+        hero.unequip(.gloves)
+        #expect(hero.data.hero.equipment.gloves == nil)
+        #expect(hero.count(of: "leather_gloves") == 1)
+    }
+
     @Test func monstersDropGearFromUpToTheirLevel() throws {
         let session = GameSession.newGame(name: "Test", raceID: "human")
         session.data.hero.classID = "fighter"
@@ -568,8 +609,8 @@ struct RulesTests {
             let gear = try #require(session.equipmentDrop(level: 40))
             #expect(ItemType.equipmentSlots.contains(gear.type))
             #expect(!bossDrops.contains(gear.id), "\(gear.id) is a boss's own drop")
-            if gear.type == .accessory {
-                // Any accessory up to the monster's level.
+            if gear.type.isTrinket {
+                // Any trinket (gloves, necklace, boots or accessory) up to the monster's level.
                 accessories += 1
                 #expect((gear.level ?? 1) <= 40, "\(gear.id) is level \(gear.level ?? 1)")
             } else {
@@ -577,21 +618,21 @@ struct RulesTests {
                 if gear.classes?.contains("fighter") ?? true { usable += 1 }
             }
         }
-        // About one drop in three is an accessory (133 of 400 on average).
-        #expect((90...180).contains(accessories), "\(accessories) accessories in 400 drops")
+        // About one drop in three is a trinket (133 of 400 on average).
+        #expect((90...180).contains(accessories), "\(accessories) trinkets in 400 drops")
         // The weapons and armour are mostly what your class can use (three in four, plus what the
         // rest happens to hit).
         #expect(Double(usable) > Double(400 - accessories) * 0.6)
-        // Accessories keep dropping from high-level monsters, where none is in the level window.
-        let late = (0..<300).compactMap { _ in session.equipmentDrop(level: 150) }.filter { $0.type == .accessory }
+        // Trinkets keep dropping from high-level monsters, where none is in the level window.
+        let late = (0..<300).compactMap { _ in session.equipmentDrop(level: 150) }.filter { $0.type.isTrinket }
         #expect(late.count > 50)
         for _ in 0..<100 {
             let best = try #require(session.equipmentDrop(level: 40, best: true))
-            if best.type != .accessory { #expect((35...40).contains(best.level ?? 1)) }
+            if !best.type.isTrinket { #expect((35...40).contains(best.level ?? 1)) }
         }
-        // Past the best gear there is, weapons and armour come from the top (accessories from anywhere).
+        // Past the best gear there is, weapons and armour come from the top (trinkets from anywhere).
         let top = try #require(Content.shared.items.compactMap(\.level).max())
-        let beyond = (0..<30).compactMap { _ in session.equipmentDrop(level: top + 50) }.filter { $0.type != .accessory }
+        let beyond = (0..<30).compactMap { _ in session.equipmentDrop(level: top + 50) }.filter { !$0.type.isTrinket }
         #expect(!beyond.isEmpty)
         for gear in beyond { #expect((gear.level ?? 1) > top - 12, "\(gear.id) is level \(gear.level ?? 1)") }
         // Stronger fights drop gear more often; a rare monster often, a boss always.
@@ -685,8 +726,9 @@ struct RulesTests {
     @Test func theNextWaveStepsInWhenOneIsBeaten() {
         let content = Content.shared
         let jelly = content.monster("jelly")!
+        // Far faster (turn order is a shuffle weighted by speed), so it as good as always moves first.
         let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 30, element: .neutral,
-                             stats: Stats(hp: 500, mp: 20, attack: 60, defense: 50, magic: 10, speed: 99), hp: 500, mp: 20,
+                             stats: Stats(hp: 500, mp: 20, attack: 60, defense: 50, magic: 10, speed: 10_000), hp: 500, mp: 20,
                              skills: [], captureRate: 0)
         let foeStats = jelly.stats(at: 1)
         let first = Combatant(id: 11, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
@@ -876,11 +918,13 @@ struct RulesTests {
     @Test func frostBreathFreezesForOneTurn() {
         let content = Content.shared
         let jelly = content.monster("jelly")!
-        let stats = Stats(hp: 500, mp: 200, attack: 30, defense: 10, magic: 40, speed: 80)
+        // Far faster than the monster (turn order is a shuffle weighted by speed), so the hero as good
+        // as always moves first.
+        let stats = Stats(hp: 500, mp: 200, attack: 30, defense: 10, magic: 40, speed: 10_000)
         var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 20, element: .neutral,
                              stats: stats, hp: 500, mp: 200, skills: ["frost_breath"], captureRate: 0)
         hero.skillLevels = ["frost_breath": 1]
-        // Slow and tough, so the hero always moves first and it lasts the whole test.
+        // Slow and tough, so it lasts the whole test.
         let foeStats = Stats(hp: 5000, mp: 0, attack: 20, defense: 10, magic: 10, speed: 1)
         let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 20, element: jelly.element,
                             stats: foeStats, hp: 5000, mp: 0, skills: [], captureRate: 0)
@@ -1025,9 +1069,10 @@ struct RulesTests {
             let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 5, element: .neutral,
                                  stats: Stats(hp: 500, mp: 20, attack: 30, defense: 50, magic: 10, speed: 50), hp: 500, mp: 20,
                                  skills: [], captureRate: 0)
-            // Faster than everyone, so it acts first.
+            // Far faster than everyone (turn order is a shuffle weighted by speed), so it as good as
+            // always acts first.
             let pet = Combatant(id: 1, side: .party, source: .pet(UUID()), name: "Pet", art: jelly.art, level: 5, element: jelly.element,
-                                stats: Stats(hp: 500, mp: 0, attack: 30, defense: 50, magic: 10, speed: 99), hp: 500, mp: 0,
+                                stats: Stats(hp: 500, mp: 0, attack: 30, defense: 50, magic: 10, speed: 10_000), hp: 500, mp: 0,
                                 skills: [], captureRate: 0)
             let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
                                 stats: foeStats, hp: 1, mp: 0, skills: [], captureRate: jelly.captureRate)

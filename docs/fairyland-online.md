@@ -157,9 +157,18 @@ three guilds (M): humans are balanced, elves lean to magic and dwarves to attack
   0.3.52). Otherwise potions, healing skills and the healer heal.
   Friends in your party carry theirs over too (`Adventurer.hp`/`mp`); one who faints wakes at half.
 - Frost Breath freezes: whoever it catches loses their next turn (`Ailment.freeze`, our decision, 2026-10-05).
-- One equipment drop in three is an accessory, any up to the monster's level (`GameSession.accessoryShare`):
-  there are six accessories next to dozens of weapons and armours, so by level alone they hardly dropped.
-- Turn order is SPD + a random 0–3.
+- Six equipment slots: weapon, armour, gloves, necklace, boots and accessory (rings, charms, bands). Gloves,
+  necklace and boots are ours (2026-10-09, asked for in playtesting); FO's own slots aren't in any source
+  reachable from a cloud session (see Unverified). Gloves add attack, necklaces magic, MP and HP, boots speed and
+  defence, each in five tiers from level 1 to 92 for every class. Speed Boots moved from accessory to boots, and
+  saves that wore them as an accessory move them on load (`GameSession.moveGearToItsSlot`). The Character
+  screen shows the hero in the middle with the slots around them like a paper doll.
+- One equipment drop in three is a trinket (gloves, necklace, boots or accessory), any up to the monster's
+  level (`GameSession.accessoryShare`): there are only a few of each next to dozens of weapons and armours, so
+  by level alone they'd hardly drop.
+- Turn order is shuffled every round, weighted by SPD: each fighter draws u^(1/SPD) and the highest goes first,
+  so anyone can open a round but the faster go earlier more often (twice the SPD: first two rounds in three).
+  Our decision, 2026-10-09, at the playtester's request; it was SPD + a random 0–3, which fixed the order.
 - Nothing misses and nothing dodges.
 - Crits are a flat 8% for ×1.5, physical only.
 

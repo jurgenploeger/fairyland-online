@@ -646,6 +646,150 @@ def draw_speed_boots(c):
     c.set(21, 25, GOLD[1])
 
 
+# ---------------------------------------------------------------- gloves, necklaces and boots
+# Each has a slot of its own next to the weapon, armour and accessory (rings and charms).
+
+STRAW = [hexc("a8862e"), hexc("dcc060"), hexc("f6e6a0")]
+AMBER = [hexc("a8560e"), hexc("f09a28"), hexc("ffd27a")]
+SHELL = [hexc("c87a8a"), hexc("f6b8c0"), hexc("fff0f0")]
+MOON = [hexc("5f7ab8"), hexc("a8c4f0"), hexc("eef6ff")]
+
+
+def glove(c, colors, cuff, studs=None, claws=None):
+    """A glove seen from the back of the hand: four fingers, a thumb out to the left, a cuff."""
+    dark, mid, light = colors
+    for i, x in enumerate((10, 14, 18, 22)):
+        c.rect(x, 5 if i in (1, 2) else 7, x + 2, 14, mid)
+    c.rect(9, 12, 24, 22, mid)
+    c.poly([(9, 13), (4, 9), (2, 12), (8, 21)], mid)
+    c.shade(lambda x, y, col: col == mid and x > 20, dark)
+    c.shade(lambda x, y, col: col == mid and x < 12 and y < 17, light)
+    c.rect(8, 22, 25, 28, cuff[1])
+    c.rect(8, 22, 25, 22, cuff[2])
+    c.rect(8, 28, 25, 28, cuff[0])
+    if studs:
+        for x in (11, 15, 19, 23):
+            c.set(x, 13, studs)
+    if claws:
+        for x in (11, 15, 19, 23):
+            c.set(x, 4 if x in (15, 19) else 6, claws)
+
+
+def pendant(c, chain, stone, shape="drop", rim=None):
+    """A chain hanging in a V from the top corners to a stone: a drop, a round or a star."""
+    for i in range(12):
+        color = chain[2] if i % 2 else chain[1]
+        c.set(5 + i * 0.95, 2 + i * 1.0, color)
+        c.set(27 - i * 0.95, 2 + i * 1.0, color)
+    c.disc(16, 14, 1.6, chain[1])
+    dark, mid, light = stone
+    if shape == "round":
+        c.disc(16, 22, 7, (rim or chain)[1])
+        c.disc(16, 22, 5, mid)
+        c.shade(lambda x, y, col: col == mid and (x - 16) + (y - 22) > 2, dark)
+        c.disc(14, 20, 1.5, light)
+    elif shape == "star":
+        star_shape(c, 16, 22, 9, mid)
+        c.shade(lambda x, y, col: col == mid and x > 17 and y > 21, dark)
+        star_shape(c, 15, 21, 4, light)
+    elif shape == "shell":
+        c.poly([(16, 16), (24, 22), (22, 28), (10, 28), (8, 22)], mid)
+        for x in (12, 16, 20):
+            c.line(16, 17, x, 27, dark)
+        c.rect(10, 28, 22, 28, dark)
+        c.set(14, 21, light); c.set(18, 21, light)
+    else:
+        c.poly([(16, 15), (22, 21), (20, 27), (16, 29), (12, 27), (10, 21)], mid)
+        c.shade(lambda x, y, col: col == mid and x > 16, dark)
+        c.poly([(13, 20), (16, 17), (16, 22), (13, 23)], light)
+
+
+def boot(c, colors, cuff, sole, laces=None):
+    """A boot in profile, toe to the right: shaft, foot, a cuff at the top and a sole."""
+    dark, mid, light = colors
+    c.poly([(9, 6), (17, 6), (17, 21), (26, 23), (27, 28), (8, 28)], mid)
+    c.shade(lambda x, y, col: col == mid and x > 15 and y < 21, dark)
+    c.shade(lambda x, y, col: col == mid and x < 12, light)
+    c.rect(8, 26, 27, 28, sole)
+    c.rect(9, 6, 17, 8, cuff)
+    if laces:
+        for y in (11, 14, 17):
+            c.line(11, y, 15, y + 1, laces)
+
+
+def draw_leather_gloves(c):
+    glove(c, LEATHER, CLOTH)
+
+
+def draw_iron_gauntlets(c):
+    glove(c, STEEL, LEATHER, studs=STEEL[2])
+    for y in (16, 19):
+        c.line(10, y, 23, y, STEEL[0])
+
+
+def draw_falcon_gloves(c):
+    glove(c, ORANGE, LEATHER)
+    c.ellipse(5, 24, 3.4, 1.6, WHITE)                      # a falcon feather tucked in the cuff
+    c.line(2, 25, 8, 23, CLOTH[0])
+
+
+def draw_dragonhide_gauntlets(c):
+    glove(c, DRAGON, GOLD, studs=GOLD[2], claws=hexc("f4ead0"))
+
+
+def draw_starforged_gauntlets(c):
+    glove(c, NAVY, GOLD, studs=GOLD[2])
+    star_shape(c, 16, 25, 3.5, GOLD[2])
+
+
+def draw_shell_pendant(c):
+    pendant(c, LEATHER, SHELL, shape="shell")
+
+
+def draw_amber_amulet(c):
+    pendant(c, GOLD, AMBER, shape="round")
+
+
+def draw_moonstone_pendant(c):
+    pendant(c, STEEL, MOON)
+
+
+def draw_phoenix_amulet(c):
+    pendant(c, GOLD, DRAGON)
+    c.line(16, 18, 16, 25, ORANGE[2])                       # a flame inside the stone
+    c.set(15, 22, ORANGE[2]); c.set(17, 21, ORANGE[2])
+
+
+def draw_starlight_necklace(c):
+    pendant(c, GOLD, GOLD, shape="star")
+    c.set(27, 25, WHITE); c.set(5, 20, WHITE)
+
+
+def draw_straw_sandals(c):
+    c.rect(6, 24, 27, 28, STRAW[1])                        # the sole
+    c.rect(6, 28, 27, 28, STRAW[0])
+    for x in (7, 11, 15, 19, 23):                           # woven
+        c.set(x, 26, STRAW[2])
+    c.line(10, 24, 16, 14, LEATHER[1], width=2)              # straps over the foot
+    c.line(22, 24, 16, 14, LEATHER[1], width=2)
+    c.disc(16, 14, 1.6, LEATHER[0])
+
+
+def draw_leather_boots(c):
+    boot(c, LEATHER, LEATHER[2], hexc("3a2410"), laces=CLOTH[2])
+
+
+def draw_traveler_boots(c):
+    boot(c, GREEN, CLOTH[2], LEATHER[0], laces=GOLD[1])
+    c.set(21, 25, GOLD[1])
+
+
+def draw_cloudstep_boots(c):
+    boot(c, SNOW, WHITE, MOON[0])
+    for (x, y, r) in ((7, 27, 3), (12, 29, 2.6), (20, 29, 2.8), (26, 28, 2.4)):   # a cloud underfoot
+        c.disc(x, y, r, WHITE)
+
+
 # ---------------------------------------------------------------- companion toys
 # Fairyland Online's Pet Toys: a companion who plays with one gains a stat for good.
 
@@ -1272,6 +1416,20 @@ PROMPTS = {  # for a later Retro Diffusion upgrade (python3 tools/rd.py generate
     "star_charm": "gold star charm on a necklace",
     "power_band": "red wristband with steel studs",
     "speed_boots": "blue winged speed boots",
+    "leather_gloves": "brown leather gloves",
+    "iron_gauntlets": "studded iron gauntlets",
+    "falcon_gloves": "orange falconer gloves with a white feather",
+    "dragonhide_gauntlets": "red dragonhide gauntlets with claws and gold cuffs",
+    "starforged_gauntlets": "navy gauntlets with gold cuffs and a gold star",
+    "shell_pendant": "pink seashell pendant on a leather cord",
+    "amber_amulet": "round amber amulet on a gold chain",
+    "moonstone_pendant": "pale blue moonstone drop on a silver chain",
+    "phoenix_amulet": "red phoenix stone with a flame inside, on a gold chain",
+    "starlight_necklace": "golden star necklace that shines",
+    "straw_sandals": "woven straw sandals",
+    "leather_boots": "brown laced leather boots",
+    "traveler_boots": "green traveller boots with gold laces",
+    "cloudstep_boots": "pale blue boots standing on a little cloud",
     "moon_seal": "pale blue hexagonal crystal with a white spiral rune",
     "heart_seal": "rose pink hexagonal crystal with a white spiral rune",
     "star_seal": "golden hexagonal crystal with a white spiral rune",

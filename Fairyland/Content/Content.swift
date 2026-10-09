@@ -248,15 +248,24 @@ nonisolated struct MonsterDef: Decodable, Identifiable, Sendable {
 
 nonisolated enum ItemType: String, Decodable, Sendable {
     /// `material`: wood, metal, gems and hides that monsters drop, for the blacksmith.
-    case consumable, weapon, armor, accessory, material
+    /// `accessory`: rings, charms and bands; `gloves`, `necklace` and `boots` have slots of their own.
+    case consumable, weapon, armor, gloves, necklace, boots, accessory, material
 
-    static let equipmentSlots: [ItemType] = [.weapon, .armor, .accessory]
+    /// Every slot the hero wears something in, in the order lists show them.
+    static let equipmentSlots: [ItemType] = [.weapon, .armor, .gloves, .boots, .necklace, .accessory]
+
+    /// The small pieces worn next to a weapon and armour: few next to dozens of weapons and
+    /// armours, so they drop on a share of their own (`GameSession.accessoryShare`).
+    var isTrinket: Bool { [.gloves, .necklace, .boots, .accessory].contains(self) }
 
     var displayName: String {
         switch self {
         case .consumable: L("Consumable")
         case .weapon: L("Weapon")
         case .armor: L("Armor")
+        case .gloves: L("Gloves")
+        case .necklace: L("Necklace")
+        case .boots: L("Boots")
         case .accessory: L("Accessory")
         case .material: L("Material")
         }

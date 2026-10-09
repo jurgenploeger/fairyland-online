@@ -114,6 +114,8 @@ struct EquipmentPicker: View {
         switch slot {
         case .weapon: .sword
         case .armor: .shield
+        case .necklace: .gem
+        case .boots: .wind
         default: .ring
         }
     }

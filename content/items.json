@@ -1,5 +1,5 @@
 {
-  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `sheets` (per race) swaps in a whole walk sheet while it's worn (Retro Diffusion art in art/sprites; only the skin colour applies), recoloured by `tint` for the rare colour variants bosses drop. Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | accessory | material. `classes` limits who can equip it (omit = everyone); `level` is the level needed. Materials (type material; `material` is wood | metal | gem | hide) drop from monsters of at least their `level`. `recipe` is what a blacksmith needs to forge the item. Companion toys (`toy`, Fairyland Online's Pet Toys) are consumables given to a companion from the bag: they raise its `stats` for good, up to ten toys a companion (GameSession.giveToy). Seal Stones (`capture`) are thrown in battle to befriend a monster and used up whether they hold or not: `sealPower` is how many times likelier than a plain one a stone is to hold (1 unless set), and a `sure` one (the Wishing Seal) never fails (BattleEngine.captureStatus).",
+  "_about": "Items. `art` is the item's sprite (art/sprites/item_<id>.png, drawn by tools/item_art.py); `icon` is a GameIcon name (Fairyland/UI/GameIcon.swift) used when there's no art; weapons are drawn in the hero's hand from their art (or icon). Armour `sheets` (per race) swaps in a whole walk sheet while it's worn (Retro Diffusion art in art/sprites; only the skin colour applies), recoloured by `tint` for the rare colour variants bosses drop. Armour `pattern` adds finer detail to the sprite (engraved | scales | fur | runes | pockets). Armour `recolor` changes the outfit colours while worn and `wear` its cut on the hero's sprite (vest | mail | plate | robe | cloak; \"boots\" for footwear), drawn by Fairyland/Art/GearOverlay.swift. `accent` (#RRGGBB) is the trim colour on the sprite and an accessory's sparkle. `glow` (#RRGGBB) gives a magic weapon a soft light at `glowAt` ([x, y] in its 32×32 art): a halo in the icon (tools/item_art.py) and a gentle pulse while held. type: consumable | weapon | armor | gloves | necklace | boots | accessory (rings, charms and bands) | material. `classes` limits who can equip it (omit = everyone); `level` is the level needed. Materials (type material; `material` is wood | metal | gem | hide) drop from monsters of at least their `level`. `recipe` is what a blacksmith needs to forge the item. Companion toys (`toy`, Fairyland Online's Pet Toys) are consumables given to a companion from the bag: they raise its `stats` for good, up to ten toys a companion (GameSession.giveToy). Seal Stones (`capture`) are thrown in battle to befriend a monster and used up whether they hold or not: `sealPower` is how many times likelier than a plain one a stone is to hold (1 unless set), and a `sure` one (the Wishing Seal) never fails (BattleEngine.captureStatus).",
   "items": [
     {
       "id": "potion",
@@ -774,10 +774,10 @@
     },
     {
       "id": "speed_boots",
-      "icon": "clover",
+      "icon": "wind",
       "art": "item_speed_boots",
       "name": "Speed Boots",
-      "type": "accessory",
+      "type": "boots",
       "price": 900,
       "stats": {
         "speed": 8
@@ -786,6 +786,200 @@
       "description": "Zoom!",
       "wear": "boots",
       "accent": "#6FB8FF"
+    },
+    {
+      "id": "leather_gloves",
+      "icon": "sword",
+      "art": "item_leather_gloves",
+      "name": "Leather Gloves",
+      "type": "gloves",
+      "price": 40,
+      "stats": {
+        "attack": 2,
+        "defense": 1
+      },
+      "description": "Soft and sure for a first grip."
+    },
+    {
+      "id": "iron_gauntlets",
+      "icon": "sword",
+      "art": "item_iron_gauntlets",
+      "name": "Iron Gauntlets",
+      "type": "gloves",
+      "price": 210,
+      "stats": {
+        "attack": 4,
+        "defense": 3
+      },
+      "level": 14,
+      "description": "Heavy knuckles, heavier blows."
+    },
+    {
+      "id": "falcon_gloves",
+      "icon": "sword",
+      "art": "item_falcon_gloves",
+      "name": "Falcon Gloves",
+      "type": "gloves",
+      "price": 520,
+      "stats": {
+        "attack": 7,
+        "speed": 2
+      },
+      "level": 38,
+      "description": "Made for a falconer: quick on the draw."
+    },
+    {
+      "id": "dragonhide_gauntlets",
+      "icon": "sword",
+      "art": "item_dragonhide_gauntlets",
+      "name": "Dragonhide Gauntlets",
+      "type": "gloves",
+      "price": 1650,
+      "stats": {
+        "attack": 11,
+        "defense": 6
+      },
+      "level": 65,
+      "description": "Still warm from the dragon."
+    },
+    {
+      "id": "starforged_gauntlets",
+      "icon": "sword",
+      "art": "item_starforged_gauntlets",
+      "name": "Starforged Gauntlets",
+      "type": "gloves",
+      "price": 3700,
+      "stats": {
+        "attack": 16,
+        "defense": 9
+      },
+      "level": 92,
+      "description": "Hammered out under a falling star."
+    },
+    {
+      "id": "shell_pendant",
+      "icon": "gem",
+      "art": "item_shell_pendant",
+      "name": "Shell Pendant",
+      "type": "necklace",
+      "price": 40,
+      "stats": {
+        "magic": 1,
+        "mp": 6
+      },
+      "description": "You can hear the sea, if you listen."
+    },
+    {
+      "id": "amber_amulet",
+      "icon": "gem",
+      "art": "item_amber_amulet",
+      "name": "Amber Amulet",
+      "type": "necklace",
+      "price": 220,
+      "stats": {
+        "magic": 3,
+        "hp": 20
+      },
+      "level": 14,
+      "description": "A drop of honey-gold sunlight."
+    },
+    {
+      "id": "moonstone_pendant",
+      "icon": "gem",
+      "art": "item_moonstone_pendant",
+      "name": "Moonstone Pendant",
+      "type": "necklace",
+      "price": 540,
+      "stats": {
+        "magic": 7,
+        "mp": 15
+      },
+      "level": 38,
+      "description": "Glows softly when night falls."
+    },
+    {
+      "id": "phoenix_amulet",
+      "icon": "gem",
+      "art": "item_phoenix_amulet",
+      "name": "Phoenix Amulet",
+      "type": "necklace",
+      "price": 1700,
+      "stats": {
+        "magic": 10,
+        "hp": 60
+      },
+      "level": 65,
+      "description": "A little flame that never goes out."
+    },
+    {
+      "id": "starlight_necklace",
+      "icon": "gem",
+      "art": "item_starlight_necklace",
+      "name": "Starlight Necklace",
+      "type": "necklace",
+      "price": 3800,
+      "stats": {
+        "magic": 15,
+        "mp": 30,
+        "hp": 40
+      },
+      "level": 92,
+      "description": "A star to wear, caught on a golden chain."
+    },
+    {
+      "id": "straw_sandals",
+      "icon": "wind",
+      "art": "item_straw_sandals",
+      "name": "Straw Sandals",
+      "type": "boots",
+      "price": 35,
+      "stats": {
+        "speed": 1,
+        "defense": 1
+      },
+      "description": "Light, breezy and a little scratchy."
+    },
+    {
+      "id": "leather_boots",
+      "icon": "wind",
+      "art": "item_leather_boots",
+      "name": "Leather Boots",
+      "type": "boots",
+      "price": 200,
+      "stats": {
+        "speed": 2,
+        "defense": 3
+      },
+      "level": 14,
+      "description": "Laced tight for the long road."
+    },
+    {
+      "id": "traveler_boots",
+      "icon": "wind",
+      "art": "item_traveler_boots",
+      "name": "Traveller Boots",
+      "type": "boots",
+      "price": 500,
+      "stats": {
+        "speed": 4,
+        "defense": 5
+      },
+      "level": 38,
+      "description": "They've seen every road and want more."
+    },
+    {
+      "id": "cloudstep_boots",
+      "icon": "wind",
+      "art": "item_cloudstep_boots",
+      "name": "Cloudstep Boots",
+      "type": "boots",
+      "price": 2400,
+      "stats": {
+        "speed": 10,
+        "defense": 8
+      },
+      "level": 80,
+      "description": "Every step lands on a little cloud."
     },
     {
       "id": "bamboo_staff",

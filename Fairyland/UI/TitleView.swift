@@ -89,17 +89,27 @@ struct TitleView: View {
                 .id(localizer.language)
                 languageButton
             } else {
-                ScrollViewReader { reader in
-                    ScrollView {
-                        VStack(spacing: 18) {
-                            logo.padding(.top, 12)
-                            page.id(Self.pageTop)
+                // Upright, the round buttons sit at the bottom of the screen, under everything
+                // else (scrolling with it when the screen is too short for all of it).
+                GeometryReader { proxy in
+                    ScrollViewReader { reader in
+                        ScrollView {
+                            VStack(spacing: 18) {
+                                logo.padding(.top, 12)
+                                page.id(Self.pageTop)
+                                if onMenu {
+                                    Spacer(minLength: 10)
+                                    roundButtons
+                                }
+                            }
+                            .padding(20)
+                            .frame(maxWidth: .infinity)
+                            .frame(minHeight: proxy.size.height)
+                            .id(localizer.language)
                         }
-                        .padding(20)
-                        .frame(maxWidth: .infinity)
-                        .id(localizer.language)
+                        .scrollBounceBehavior(.basedOnSize)
+                        .onChange(of: changelogPage) { scrollUp(reader) }
                     }
-                    .onChange(of: changelogPage) { scrollUp(reader) }
                 }
                 languageButton
             }
@@ -172,14 +182,13 @@ struct TitleView: View {
             }
             .frame(maxWidth: 640)
             .gameWindow()
-        } else if wide {
-            // Beside the logo and its round buttons: your game, and how to start.
+        } else {
+            // Your game, and how to start. The round buttons wait at the bottom of the screen
+            // (on a phone on its side, under the logo).
             VStack(spacing: 12) {
                 games
                 startButtons
             }
-        } else {
-            menu
         }
     }
 
@@ -207,15 +216,6 @@ struct TitleView: View {
             .scaledToFit()
             .frame(maxWidth: 440)
             .accessibilityLabel(L("Storyleaf, a cozy pixel adventure"))
-    }
-
-    private var menu: some View {
-        VStack(spacing: 12) {
-            games
-            startButtons
-            roundButtons
-                .padding(.top, 10)
-        }
     }
 
     /// Your games, one at a time, or before the first one, a hero waiting to be made.
@@ -449,6 +449,16 @@ private struct SaveCarousel: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .frame(height: 190)
+            // The games either side fade out toward the edges as they slide by, instead of
+            // being cut off sharp.
+            .mask(
+                LinearGradient(stops: [
+                    .init(color: .clear, location: 0),
+                    .init(color: .black, location: 0.18),
+                    .init(color: .black, location: 0.82),
+                    .init(color: .clear, location: 1),
+                ], startPoint: .leading, endPoint: .trailing)
+            )
         }
     }
 }
@@ -500,7 +510,10 @@ private struct IdlePair: View {
             .accessibilityHidden(true)
     }
 
-    private static let size = CGSize(width: 150, height: 104)
+    /// Room under their feet for a squish or a sway to dip into (a swaying companion's corners
+    /// drop a couple of points), and over the hero's head for a breath.
+    private static let size = CGSize(width: 150, height: 112)
+    private static let floor: CGFloat = 6
 
     private static func makeScene(hero: String, pet: String?) -> SKScene {
         let scene = SKScene(size: size)
@@ -512,7 +525,7 @@ private struct IdlePair: View {
             texture.filteringMode = .nearest
             let node = SKSpriteNode(texture: texture, size: cycle.size * (height / cycle.size.height))
             node.anchorPoint = CGPoint(x: 0.5, y: 0.04)
-            node.position = CGPoint(x: x, y: 2)
+            node.position = CGPoint(x: x, y: floor)
             scene.addChild(node)
             node.run(motion.action(height: node.size.height, delay: .random(in: 0..<0.6)))
         }
@@ -546,9 +559,11 @@ private struct TitleRoundButtonStyle: ButtonStyle {
                 )
                 .overlay(alignment: .topTrailing) {
                     if marked {
+                        // Centred on the rim at the top right (its middle 24 pt out at 45°),
+                        // half over the button and half off it.
                         Circle().fill(HUDStyle.gold).frame(width: 13, height: 13)
                             .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 1.5))
-                            .offset(x: 1, y: -1)
+                            .offset(x: -1.5, y: 1.5)
                     }
                 }
                 .offset(y: configuration.isPressed ? 2 : 0)

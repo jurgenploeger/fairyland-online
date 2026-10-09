@@ -53,14 +53,18 @@ struct BattleView: View {
     @ViewBuilder
     private var chatButton: some View {
         if controller.phase != .finished, let onChat {
-            FLIconButton(icon: .talk, label: L("Chat"), size: 40, badge: unreadChat, action: onChat)
+            FLIconButton(icon: .talk, label: L("Chat"), size: Self.chatSize, badge: unreadChat, action: onChat)
         }
     }
+
+    private static let chatSize: CGFloat = 40
 
     /// What just happened, and in a boss fight how far through its waves you are.
     private var news: some View {
         VStack(spacing: 6) {
+            // As tall as the chat button at least, so a one-line message sits level with it.
             logLine
+                .frame(minHeight: Self.chatSize)
             if controller.waveCount > 1 {
                 WaveTracker(wave: controller.wave, total: controller.waveCount)
             }
@@ -970,6 +974,8 @@ private struct ChoiceRow<Label: View>: View {
 // MARK: - Status & results
 
 private struct ResultPanel: View {
+    /// How tall the fade at the bottom of the rewards is when they don't all fit.
+    private static let fade: CGFloat = 36
     let result: BattleResult
     let session: GameSession
     let onContinue: () -> Void
@@ -1041,11 +1047,22 @@ private struct ResultPanel: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .padding(.horizontal, 18)
-            // Scrolls only when it can't all fit (a phone on its side after a big win).
+            // Scrolls only when it can't all fit (a phone on its side after a big win). Then its
+            // bottom fades out, so it's clear there's more below, and the end of it scrolls up
+            // clear of the fade.
             ViewThatFits(in: .vertical) {
                 details
-                ScrollView { details }
-                    .scrollBounceBehavior(.basedOnSize)
+                ScrollView {
+                    details.padding(.bottom, Self.fade)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+                .mask(
+                    VStack(spacing: 0) {
+                        Color.black
+                        LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                            .frame(height: Self.fade)
+                    }
+                )
             }
             Button(L("Continue"), action: advance)
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
