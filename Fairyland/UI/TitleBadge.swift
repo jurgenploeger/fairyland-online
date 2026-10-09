@@ -24,7 +24,7 @@ struct TitleBadge: View {
         case 2: Metal(fill: [hex(0xFFFFFF), hex(0xD5DCE6), hex(0xA3AEBE)], rim: hex(0x4E5869), text: hex(0x26303F), shadow: .white.opacity(0.7))
         case 3: Metal(fill: [hex(0xFFF3A6), hex(0xF5C842), hex(0xD4961C)], rim: hex(0x7A4E08), text: hex(0x3D2604), shadow: hex(0xFFF6C8).opacity(0.8))
         case 4: Metal(fill: [hex(0xFF9DB4), hex(0xE0325A), hex(0xA3163A)], rim: hex(0x5C0A20), text: .white, shadow: hex(0x5C0A20))
-        default: Metal(fill: [hex(0xFF8FD8), hex(0xB78CFF), hex(0x7FD4FF), hex(0x8CF2C2), hex(0xFFE27A)],
+        default: Metal(fill: [hex(0xE24BB4), hex(0x8A5CF0), hex(0x2FA7E8), hex(0x2DBF8A), hex(0xE8A92A)],
                        rim: hex(0x6A3FB0), text: .white, shadow: hex(0x3A1F6E))
         }
     }
