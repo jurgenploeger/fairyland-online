@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.91",
+      "date": "2026-10-09",
+      "title": "Sunrise behind the leaf",
+      "notes": [
+        "The sun rays on the title and loading screens always fan out from right behind the logo's leaf, on every phone and held either way; on the travel card, from behind the swirl."
+      ]
+    },
+    {
       "version": "0.3.90",
       "date": "2026-10-09",
       "title": "Buttons at the bottom",
