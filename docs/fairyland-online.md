@@ -159,7 +159,9 @@ three guilds (M): humans are balanced, elves lean to magic and dwarves to attack
 - Frost Breath freezes: whoever it catches loses their next turn (`Ailment.freeze`, our decision, 2026-10-05).
 - One equipment drop in three is an accessory, any up to the monster's level (`GameSession.accessoryShare`):
   there are six accessories next to dozens of weapons and armours, so by level alone they hardly dropped.
-- Turn order is SPD + a random 0–3.
+- Turn order is shuffled every round, weighted by SPD: each fighter draws u^(1/SPD) and the highest goes first,
+  so anyone can open a round but the faster go earlier more often (twice the SPD: first two rounds in three).
+  Our decision, 2026-10-09, at the playtester's request; it was SPD + a random 0–3, which fixed the order.
 - Nothing misses and nothing dodges.
 - Crits are a flat 8% for ×1.5, physical only.
 

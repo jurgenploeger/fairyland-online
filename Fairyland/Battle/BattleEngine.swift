@@ -363,9 +363,14 @@ final class BattleEngine {
             if case .defend = order { mutate(id) { $0.isDefending = true } }
         }
 
+        // Who goes when is shuffled anew every round, weighted by speed: anyone can go first, but
+        // the faster go earlier more often (one with twice the speed of another goes before it two
+        // rounds in three). Each fighter draws u^(1/speed) and the highest goes first; compared as
+        // log(u)/speed, the same order without underflow at high speeds.
         var initiative: [(id: Int, roll: Double)] = []
         for fighter in combatants where fighter.isAlive {
-            initiative.append((fighter.id, fighter.speed + Double.random(in: 0..<4, using: &rng)))
+            let draw = Double.random(in: Double.ulpOfOne..<1, using: &rng)
+            initiative.append((fighter.id, log(draw) / max(1, fighter.speed)))
         }
         let order = initiative.sorted { $0.roll > $1.roll }.map { $0.id }
 

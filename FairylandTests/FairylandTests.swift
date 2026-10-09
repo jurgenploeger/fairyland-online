@@ -685,8 +685,9 @@ struct RulesTests {
     @Test func theNextWaveStepsInWhenOneIsBeaten() {
         let content = Content.shared
         let jelly = content.monster("jelly")!
+        // Far faster (turn order is a shuffle weighted by speed), so it as good as always moves first.
         let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 30, element: .neutral,
-                             stats: Stats(hp: 500, mp: 20, attack: 60, defense: 50, magic: 10, speed: 99), hp: 500, mp: 20,
+                             stats: Stats(hp: 500, mp: 20, attack: 60, defense: 50, magic: 10, speed: 10_000), hp: 500, mp: 20,
                              skills: [], captureRate: 0)
         let foeStats = jelly.stats(at: 1)
         let first = Combatant(id: 11, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
@@ -876,11 +877,13 @@ struct RulesTests {
     @Test func frostBreathFreezesForOneTurn() {
         let content = Content.shared
         let jelly = content.monster("jelly")!
-        let stats = Stats(hp: 500, mp: 200, attack: 30, defense: 10, magic: 40, speed: 80)
+        // Far faster than the monster (turn order is a shuffle weighted by speed), so the hero as good
+        // as always moves first.
+        let stats = Stats(hp: 500, mp: 200, attack: 30, defense: 10, magic: 40, speed: 10_000)
         var hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 20, element: .neutral,
                              stats: stats, hp: 500, mp: 200, skills: ["frost_breath"], captureRate: 0)
         hero.skillLevels = ["frost_breath": 1]
-        // Slow and tough, so the hero always moves first and it lasts the whole test.
+        // Slow and tough, so it lasts the whole test.
         let foeStats = Stats(hp: 5000, mp: 0, attack: 20, defense: 10, magic: 10, speed: 1)
         let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 20, element: jelly.element,
                             stats: foeStats, hp: 5000, mp: 0, skills: [], captureRate: 0)
@@ -1025,9 +1028,10 @@ struct RulesTests {
             let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 5, element: .neutral,
                                  stats: Stats(hp: 500, mp: 20, attack: 30, defense: 50, magic: 10, speed: 50), hp: 500, mp: 20,
                                  skills: [], captureRate: 0)
-            // Faster than everyone, so it acts first.
+            // Far faster than everyone (turn order is a shuffle weighted by speed), so it as good as
+            // always acts first.
             let pet = Combatant(id: 1, side: .party, source: .pet(UUID()), name: "Pet", art: jelly.art, level: 5, element: jelly.element,
-                                stats: Stats(hp: 500, mp: 0, attack: 30, defense: 50, magic: 10, speed: 99), hp: 500, mp: 0,
+                                stats: Stats(hp: 500, mp: 0, attack: 30, defense: 50, magic: 10, speed: 10_000), hp: 500, mp: 0,
                                 skills: [], captureRate: 0)
             let foe = Combatant(id: 10, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 1, element: jelly.element,
                                 stats: foeStats, hp: 1, mp: 0, skills: [], captureRate: jelly.captureRate)
