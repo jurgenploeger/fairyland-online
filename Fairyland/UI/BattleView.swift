@@ -1,17 +1,17 @@
 import SwiftUI
 import UIKit
 
-/// Battle HUD: your faces top left with HP and MP (as on the map), the chat top right, a slim line
-/// of what just happened, and the commands round the big button bottom right, with the time to
-/// choose as a ring about it. How fast the fight plays and Auto wait behind More. Results at the
-/// end. Names, levels and HP also sit on the fighters themselves.
+/// Battle HUD: what just happened in a slim line top centre, the chat top right, and the commands
+/// round the big button bottom right, with the time to choose as a ring about it. How fast the
+/// fight plays and Auto wait behind More. Results at the end. Names, levels, HP and MP sit on the
+/// fighters themselves.
 struct BattleView: View {
     let controller: BattleController
     /// Unread chat: a gold dot on the chat button.
     var unreadChat = false
     /// Opens the chat over the fight (GameView holds it); nil while it's open, which hides the button.
     var onChat: (() -> Void)? = nil
-    /// A phone on its side: the faces, what just happened and the chat share one row.
+    /// A phone on its side: the line of what just happened can run wider.
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     var body: some View {
@@ -35,28 +35,17 @@ struct BattleView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.phase)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.choosingForCompanion)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: controller.isAuto)
-        .onAppear { controller.begin() }
     }
 
-    /// Along the top: your faces and the chat, where the map keeps them, with what just happened
-    /// between them on a phone held sideways, or under them held upright.
-    @ViewBuilder
+    /// Along the top: what just happened, centred, and the chat at the right end.
     private var topBar: some View {
-        if verticalSizeClass == .compact {
-            HStack(alignment: .top, spacing: 10) {
-                BattleFaces(controller: controller, sideBySide: true)
-                news.frame(maxWidth: .infinity)
-                chatButton
-            }
-        } else {
-            VStack(spacing: 8) {
-                HStack(alignment: .top) {
-                    BattleFaces(controller: controller, sideBySide: false)
-                    Spacer(minLength: 8)
-                    chatButton
-                }
-                news.frame(maxWidth: 360)
-            }
+        ZStack(alignment: .topTrailing) {
+            news
+                .frame(maxWidth: verticalSizeClass == .compact ? 520 : 360)
+                // Clear of the chat button whichever side, so it stays centred.
+                .padding(.horizontal, 48)
+                .frame(maxWidth: .infinity)
+            chatButton
         }
     }
 

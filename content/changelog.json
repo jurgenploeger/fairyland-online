@@ -2,6 +2,18 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.88",
+      "date": "2026-10-09",
+      "title": "The clock waits for the monsters",
+      "notes": [
+        "A fight's time to choose starts once everyone has marched onto the field, not while the monsters are still walking in.",
+        "Upright, the monsters stand centred across the screen however many there are, instead of bunched up on the left.",
+        "Your and your companion's faces are gone from a fight's top left (HP and MP show on the fighters themselves), so what just happened sits at the top in the middle.",
+        "Travelling to another map shows Storyleaf's sky, a leaf-green swirl and the place's name on a cream pill, with the same loading bar as the game's start.",
+        "A Homeward Feather whisks you away: feathers whirl up round you as you rise into a column of light, and you float down in it at the other end."
+      ]
+    },
+    {
       "version": "0.3.87",
       "date": "2026-10-09",
       "title": "Poison and ice all at once",

@@ -69,7 +69,9 @@ import SpriteKit
 ///                  the round (1 unless set)
 ///   bounties=<n>   today's bounties made at once, the first n of them done and waiting to be claimed
 ///   landscape      lock the app to landscape
-///   curtain        the loading screen (the logo over the sky and its bar), held at 41%
+///   feather        once the map is up, a Homeward Feather's lift, held mid-rise (nothing is used up)
+///   curtain        the loading screen (the logo over the sky and its bar), held at 41%;
+///                  curtain=travel the card for travelling to another map (Genie Desert) instead
 ///   clean          no frame counter in the corner (App Store screenshots; tools/store_slides.py crops
 ///                  off the Dynamic Island the simulator draws in)
 ///   nohud          the map without its HUD (App Store slides of the world)
@@ -104,6 +106,8 @@ enum DebugLaunch {
     static var forcesLandscape: Bool { flags["landscape"] != nil }
     /// `curtain`: the loading screen, held at 41%, instead of the title.
     static var holdsLoadingCurtain: Bool { flags["curtain"] != nil }
+    /// `curtain=travel`: the travelling card instead.
+    static var holdsTravelCard: Bool { flags["curtain"] == "travel" }
     /// `turntimer=40`: battles give you that many seconds to choose (debug launches have no clock
     /// otherwise, so screenshots can wait in a battle).
     static var turnSeconds: TimeInterval? { flags["turntimer"].flatMap(Double.init) }
@@ -586,6 +590,18 @@ enum DebugLaunch {
                     guard coordinator.isReady, coordinator.world.view != nil else { continue }
                     try? await Task.sleep(for: .seconds(1))
                     _ = coordinator.world.summonAdventurersForDebug(count)
+                    return
+                }
+            }
+        }
+        // `feather`: once the map is on screen, a Homeward Feather lifts the hero, held mid-rise.
+        if flags["feather"] != nil {
+            Task {
+                for _ in 0..<240 {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard coordinator.isReady, coordinator.world.view != nil else { continue }
+                    try? await Task.sleep(for: .seconds(1))
+                    coordinator.world.featherAwayForDebug()
                     return
                 }
             }

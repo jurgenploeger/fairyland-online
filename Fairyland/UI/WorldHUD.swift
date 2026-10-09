@@ -178,45 +178,6 @@ private struct StatusCluster: View {
     }
 }
 
-/// The map's faces in a fight, top left as on the map: you and your companion, with HP and MP as
-/// they stand in the fight (grey once fainted). Side by side on a phone held sideways, to keep the
-/// top of the battle clear; one above the other held upright. Friends fight on their own, so their
-/// HP shows on them only.
-struct BattleFaces: View {
-    let controller: BattleController
-    var sideBySide = false
-
-    /// Your own companion in this fight, standing or not (`BattleController.companion` is only
-    /// while it stands).
-    private var companion: Combatant? {
-        guard let id = controller.session.activePet?.id else { return nil }
-        return controller.combatants.first { $0.petID == id }
-    }
-
-    var body: some View {
-        let layout = sideBySide ? AnyLayout(HStackLayout(alignment: .top, spacing: 8)) : AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
-        layout {
-            if let hero = controller.hero {
-                PortraitRow(face: ArtLibrary.shared.face(GameSession.heroArt), level: hero.level, name: hero.name,
-                            detail: hero.hp > 0 ? controller.session.heroClass.name : L("Fainted"), size: 52) {
-                    TaggedBar(tag: L("H"), value: hero.hp, maximum: hero.stats.hp, color: HUDStyle.hp)
-                    TaggedBar(tag: L("M"), value: hero.mp, maximum: hero.stats.mp, color: HUDStyle.mp)
-                }
-                .saturation(hero.hp > 0 ? 1 : 0)
-            }
-            if let pet = companion {
-                PortraitRow(face: ArtLibrary.shared.face(pet.art), level: pet.level, name: pet.name,
-                            detail: pet.hp > 0 ? nil : L("Fainted"), size: 38) {
-                    TaggedBar(tag: L("H"), value: pet.hp, maximum: pet.stats.hp, color: HUDStyle.hp)
-                    TaggedBar(tag: L("M"), value: pet.mp, maximum: pet.stats.mp, color: HUDStyle.mp)
-                }
-                .saturation(pet.hp > 0 ? 1 : 0)
-            }
-        }
-        .allowsHitTesting(false)
-    }
-}
-
 /// A big party folded into one row of small faces under yours: your companion's with a thin HP bar
 /// (grey once it has fainted), then your friends' (grey while they wait somewhere for you). Tap it to
 /// see everyone in full.

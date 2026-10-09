@@ -57,14 +57,18 @@ final class BattleScene: SKScene {
         speed = CGFloat(value)
     }
 
-    /// Both sides march in from off-stage at the start, monsters hopping into place.
+    /// Both sides march in from off-stage at the start, monsters hopping into place; your first
+    /// turn (and its clock) starts once they're all in. The scene sits still through the fade in,
+    /// so the wait starts after it.
     private func enter() {
-        march(actors.values.sorted(by: { $0.fighterID < $1.fighterID }))
+        let duration = march(actors.values.sorted(by: { $0.fighterID < $1.fighterID }))
+        run(.sequence([.wait(forDuration: duration), .run { [weak self] in self?.controller.begin() }]), withKey: "enter")
     }
 
     /// Fighters walk in from off-stage to their places, one after another (a boss fight's next
-    /// wave comes in the same way).
-    private func march(_ group: [BattleActor]) {
+    /// wave comes in the same way). Returns how long until the last one is in place.
+    @discardableResult
+    private func march(_ group: [BattleActor]) -> TimeInterval {
         for (index, actor) in group.enumerated() {
             let isEnemy = controller.enemies.contains { $0.id == actor.fighterID }
             let offset = isPortrait
@@ -83,6 +87,7 @@ final class BattleScene: SKScene {
             }
             actor.run(.sequence([.wait(forDuration: 0.08 * Double(index)), walkIn]), withKey: "enter")
         }
+        return 0.08 * Double(max(0, group.count - 1)) + 0.5
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
@@ -108,9 +113,9 @@ final class BattleScene: SKScene {
     private static let headroom: CGFloat = 56
     private static let plateDepth: CGFloat = 30
 
-    /// Upright, room at the top for the HUD: below the Dynamic Island (or the clock), your faces
-    /// (yours and your companion's, one above the other) and the message line, and in a boss fight
-    /// its waves under that.
+    /// Upright, room at the top for the HUD: below the Dynamic Island (or the clock), the message
+    /// line and the chat, and in a boss fight its waves under that, with the field kept well clear
+    /// of them.
     private var portraitTopInset: CGFloat {
         (view?.safeAreaInsets.top ?? 0) + (controller.waveCount > 1 ? 176 : 150)
     }
@@ -126,8 +131,9 @@ final class BattleScene: SKScene {
         if isPortrait {
             // Monsters up on the left looking down-right at your party, which stands lower on the
             // right looking back up-left; both lines sit around the middle of the screen.
-            // A wide gap between the sides, so it reads as two lines facing off.
-            arrange(controller.enemiesOnField, around: CGPoint(x: area.midX - 50, y: area.minY + area.height * 0.64), facing: .down)
+            // A wide gap between the sides, so it reads as two lines facing off. The monsters' line
+            // is centred across the screen however many there are, not bunched up on the left.
+            arrange(controller.enemiesOnField, around: CGPoint(x: area.midX, y: area.minY + area.height * 0.64), facing: .down)
             arrange(controller.party, around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.06), facing: .up)
         } else {
             landscapeFloor = area.minY + Self.plateDepth
