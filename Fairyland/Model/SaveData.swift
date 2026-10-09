@@ -3,6 +3,10 @@ import Foundation
 nonisolated struct Equipment: Codable, Equatable, Sendable {
     var weapon: String?
     var armor: String?
+    /// Saves from before these slots simply don't have them (nil).
+    var gloves: String?
+    var necklace: String?
+    var boots: String?
     var accessory: String?
 
     subscript(slot: ItemType) -> String? {
@@ -10,6 +14,9 @@ nonisolated struct Equipment: Codable, Equatable, Sendable {
             switch slot {
             case .weapon: weapon
             case .armor: armor
+            case .gloves: gloves
+            case .necklace: necklace
+            case .boots: boots
             case .accessory: accessory
             case .consumable, .material: nil
             }
@@ -18,6 +25,9 @@ nonisolated struct Equipment: Codable, Equatable, Sendable {
             switch slot {
             case .weapon: weapon = newValue
             case .armor: armor = newValue
+            case .gloves: gloves = newValue
+            case .necklace: necklace = newValue
+            case .boots: boots = newValue
             case .accessory: accessory = newValue
             case .consumable, .material: break
             }

@@ -738,7 +738,13 @@
             "bamboo_staff",
             "rattan_staff",
             "heavy_rattan_staff",
-            "lightwood_staff"
+            "lightwood_staff",
+            "leather_gloves",
+            "shell_pendant",
+            "straw_sandals",
+            "iron_gauntlets",
+            "amber_amulet",
+            "leather_boots"
           ]
         },
         {
@@ -3642,7 +3648,10 @@
             "toy_music_box",
             "toy_ball",
             "toy_bear",
-            "toy_bubbles"
+            "toy_bubbles",
+            "falcon_gloves",
+            "moonstone_pendant",
+            "traveler_boots"
           ]
         },
         {
@@ -5498,7 +5507,10 @@
             "ghost_staff",
             "sky_ending_staff",
             "luna_staff",
-            "dragon_god_staff"
+            "dragon_god_staff",
+            "dragonhide_gauntlets",
+            "phoenix_amulet",
+            "cloudstep_boots"
           ]
         },
         {
@@ -8976,7 +8988,11 @@
             "heart_seal",
             "homeward_feather",
             "ruby_ring",
-            "star_charm"
+            "star_charm",
+            "amber_amulet",
+            "moonstone_pendant",
+            "leather_boots",
+            "traveler_boots"
           ]
         },
         {

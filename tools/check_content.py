@@ -305,7 +305,11 @@ for item in items.values():
         check((ROOT / "art" / "sprites" / f"{item['art']}.png").exists() or "derive" in art.get(item["art"], {}),
               f"item {item['id']} → art/sprites/{item['art']}.png is missing (python3 tools/item_art.py)")
 
-WEARS = {"armor": {"vest", "mail", "plate", "robe", "cloak"}, "accessory": {"boots"}}
+ITEM_TYPES = {"consumable", "weapon", "armor", "gloves", "necklace", "boots", "accessory", "material"}
+for item in items.values():
+    check(item["type"] in ITEM_TYPES, f"item {item['id']} → unknown type {item['type']!r} ({sorted(ITEM_TYPES)})")
+
+WEARS = {"armor": {"vest", "mail", "plate", "robe", "cloak"}, "boots": {"boots"}}
 for item in items.values():
     if "wear" in item:
         check(item["wear"] in WEARS.get(item["type"], set()),

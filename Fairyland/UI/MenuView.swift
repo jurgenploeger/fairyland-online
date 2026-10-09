@@ -326,8 +326,8 @@ private struct CharacterTab: View {
     private func overview(hero: Hero, stats: Stats) -> some View {
         AdaptiveStack(spacing: 18) {
             VStack(spacing: 6) {
-                WalkingSprite(art: GameSession.heroArt, size: 156, weapon: session.equipped(.weapon))
-                    .background(Circle().fill(.white.opacity(0.06)))
+                // The hero in the middle, what they wear in the slots around them.
+                PaperDoll(session: session, change: onChange)
                 // The name is chosen when the hero is made and stays.
                 Text(hero.name).font(HUDStyle.font(18))
                 if let title = session.wornTitle {
@@ -357,7 +357,7 @@ private struct CharacterTab: View {
                         .frame(width: 170)
                 }
             }
-            .frame(minWidth: 190)
+            .frame(minWidth: 250)
             .frame(maxWidth: .infinity)
 
             VStack(alignment: .leading, spacing: 10) {
@@ -369,11 +369,6 @@ private struct CharacterTab: View {
                     StatCell(name: L("Defense"), value: stats.defense)
                     StatCell(name: L("Magic"), value: stats.magic)
                     StatCell(name: L("Speed"), value: stats.speed)
-                }
-
-                SectionTitle(text: L("Equipment"))
-                ForEach(ItemType.equipmentSlots, id: \.self) { slot in
-                    EquipmentRow(session: session, slot: slot) { onChange(slot) }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -453,41 +448,83 @@ struct StatCell: View {
     }
 }
 
-private struct EquipmentRow: View {
+/// The hero in the middle with what they wear around them, like a paper doll: the body's slots
+/// down the left (necklace, armour, boots, top to bottom), the hands' down the right (weapon,
+/// gloves, accessory). A tap on a slot opens everything you have for it (EquipmentPicker).
+private struct PaperDoll: View {
     let session: GameSession
-    let slot: ItemType
-    /// Opens the grid of everything for this slot (EquipmentPicker).
-    let change: () -> Void
+    let change: (ItemType) -> Void
 
-    private static let labelWidth: CGFloat = 80
-    private static let spacing: CGFloat = 8
-    private static let iconSize: CGFloat = 30
+    private static let left: [ItemType] = [.necklace, .armor, .boots]
+    private static let right: [ItemType] = [.weapon, .gloves, .accessory]
 
     var body: some View {
-        let equipped = session.data.hero.equipment[slot].flatMap { session.content.item($0) }
-        let options = session.bagEquipment.filter { $0.type == slot }
-        HStack(spacing: Self.spacing) {
-            Text(slot.displayName)
-                .foregroundStyle(HUDStyle.dim)
-                .frame(width: Self.labelWidth, alignment: .leading)
-            if let equipped {
-                ItemIcon(item: equipped, size: Self.iconSize)
-            }
-            VStack(alignment: .leading, spacing: 1) {
-                Text(equipped?.name ?? "—")
-                if let bonus = equipped?.stats?.bonusSummary, !bonus.isEmpty {
-                    Text(bonus).font(HUDStyle.font(10)).foregroundStyle(HUDStyle.green)
-                }
-            }
-            Spacer()
-            if !options.isEmpty || equipped != nil {
-                Button(L("Change"), action: change)
-                    .buttonStyle(PixelButtonStyle(compact: true))
+        HStack(alignment: .center, spacing: 8) {
+            column(Self.left)
+            WalkingSprite(art: GameSession.heroArt, size: 128, weapon: session.equipped(.weapon))
+                .background(Circle().fill(.white.opacity(0.06)))
+            column(Self.right)
+        }
+    }
+
+    private func column(_ slots: [ItemType]) -> some View {
+        VStack(spacing: 10) {
+            ForEach(slots, id: \.self) { slot in
+                DollSlot(session: session, slot: slot) { change(slot) }
             }
         }
-        .font(HUDStyle.font(12))
-        .padding(8)
-        .background(RoundedRectangle(cornerRadius: 6).fill(.white.opacity(0.05)))
+    }
+}
+
+/// One slot on the paper doll: what's worn there, or the slot's shape faded when it's empty, with
+/// the slot's name under it. An empty slot you have something for gets the HUD's gold dot.
+private struct DollSlot: View {
+    let session: GameSession
+    let slot: ItemType
+    let change: () -> Void
+
+    private static let size: CGFloat = 44
+
+    /// What an empty slot shows, faded: the plainest piece for it.
+    private static let silhouettes: [ItemType: String] = [
+        .weapon: "wooden_sword", .armor: "cloth_tunic", .gloves: "leather_gloves",
+        .necklace: "shell_pendant", .boots: "straw_sandals", .accessory: "novice_ring",
+    ]
+
+    var body: some View {
+        let worn = session.equipped(slot)
+        let spare = worn == nil && session.bagEquipment.contains { $0.type == slot }
+        Button(action: change) {
+            VStack(spacing: 3) {
+                Group {
+                    if let worn {
+                        ItemIcon(item: worn, size: Self.size)
+                    } else if let shape = Self.silhouettes[slot].flatMap(session.content.item) {
+                        ItemIcon(item: shape, size: Self.size)
+                            .saturation(0)
+                            .opacity(0.3)
+                    }
+                }
+                .overlay(alignment: .topTrailing) {
+                    if spare {
+                        Circle().fill(HUDStyle.gold).frame(width: 11, height: 11)
+                            .overlay(Circle().stroke(HUDStyle.ink, lineWidth: 1.5))
+                            .offset(x: 3, y: -3)
+                    }
+                }
+                Text(slot.displayName)
+                    .font(HUDStyle.font(9))
+                    .foregroundStyle(HUDStyle.dim)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .frame(width: Self.size + 14)
+            }
+        }
+        .buttonStyle(PressScaleStyle())
+        .accessibilityLabel(slot.displayName)
+        .accessibilityValue(worn.map { [$0.name, $0.stats?.bonusSummary ?? ""].filter { !$0.isEmpty }.joined(separator: ", ") }
+                            ?? (spare ? L("Empty, something to wear in your bag") : L("Empty")))
+        .accessibilityHint(L("Change"))
     }
 }
 

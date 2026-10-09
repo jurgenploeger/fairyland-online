@@ -4872,6 +4872,160 @@
       }
     },
     {
+      "id": "item_leather_gloves",
+      "kind": "item",
+      "request": {
+        "prompt": "brown leather gloves, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_iron_gauntlets",
+      "kind": "item",
+      "request": {
+        "prompt": "studded iron gauntlets, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_falcon_gloves",
+      "kind": "item",
+      "request": {
+        "prompt": "orange falconer gloves with a white feather, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_dragonhide_gauntlets",
+      "kind": "item",
+      "request": {
+        "prompt": "red dragonhide gauntlets with claws and gold cuffs, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_starforged_gauntlets",
+      "kind": "item",
+      "request": {
+        "prompt": "navy gauntlets with gold cuffs and a gold star, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_shell_pendant",
+      "kind": "item",
+      "request": {
+        "prompt": "pink seashell pendant on a leather cord, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_amber_amulet",
+      "kind": "item",
+      "request": {
+        "prompt": "round amber amulet on a gold chain, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_moonstone_pendant",
+      "kind": "item",
+      "request": {
+        "prompt": "pale blue moonstone drop on a silver chain, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_phoenix_amulet",
+      "kind": "item",
+      "request": {
+        "prompt": "red phoenix stone with a flame inside, on a gold chain, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_starlight_necklace",
+      "kind": "item",
+      "request": {
+        "prompt": "golden star necklace that shines, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_straw_sandals",
+      "kind": "item",
+      "request": {
+        "prompt": "woven straw sandals, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_leather_boots",
+      "kind": "item",
+      "request": {
+        "prompt": "brown laced leather boots, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_traveler_boots",
+      "kind": "item",
+      "request": {
+        "prompt": "green traveller boots with gold laces, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
+      "id": "item_cloudstep_boots",
+      "kind": "item",
+      "request": {
+        "prompt": "pale blue boots standing on a little cloud, game item icon",
+        "prompt_style": "rd_tile__tile_object",
+        "width": 32,
+        "height": 32,
+        "remove_bg": true
+      }
+    },
+    {
       "id": "item_bamboo_staff",
       "kind": "item",
       "request": {
