@@ -775,6 +775,7 @@
     "The clock waits for the monsters": "Таймер ждёт монстров",
     "A fight's time to choose starts once everyone has marched onto the field, not while the monsters are still walking in.": "Время на выбор в бою начинается, когда все вышли на поле, а не пока монстры ещё идут.",
     "Upright, the monsters stand centred across the screen however many there are, instead of bunched up on the left.": "В вертикальном режиме монстры стоят по центру экрана, сколько бы их ни было, а не жмутся к левому краю.",
+    "Your and your companion's faces are gone from a fight's top left (HP and MP show on the fighters themselves), so what just happened sits at the top in the middle.": "Портреты героя и спутника убраны из левого верхнего угла боя (HP и MP видны на самих бойцах), поэтому строка о происходящем теперь вверху по центру.",
     "Poison and ice all at once": "Яд и лёд разом",
     "When several fighters are poisoned, the poison bites them all at the same time at the end of the round, instead of one after another. Everyone frozen shivers at the start of the round together, too.": "Если отравлено несколько бойцов, яд жалит их всех одновременно в конце раунда, а не по очереди. Все замороженные тоже дрожат вместе в начале раунда.",
     "No picking when there's only one": "Без выбора, когда цель одна",
