@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.87",
+      "date": "2026-10-09",
+      "title": "Poison and ice all at once",
+      "notes": [
+        "When several fighters are poisoned, the poison bites them all at the same time at the end of the round, instead of one after another. Everyone frozen shivers at the start of the round together, too."
+      ]
+    },
+    {
       "version": "0.3.86",
       "date": "2026-10-08",
       "title": "No picking when there's only one",

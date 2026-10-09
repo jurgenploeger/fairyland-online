@@ -432,12 +432,59 @@ final class BattleScene: SKScene {
             }
             if changed > 0 {
                 await pause(0.75)
+                refreshBars()
+                continue
+            }
+            // Everyone the ice holds shivers at once, and poison bites the whole field at once, with
+            // whoever it finishes off falling together after.
+            var frozen: [Int] = []
+            while index < events.count, case .frozen(let id) = events[index] {
+                controller.apply(events[index])
+                if let actor = actors[id] { SkillEffects.frozenShiver(on: actor, in: stage) }
+                frozen.append(id)
+                index += 1
+            }
+            if !frozen.isEmpty {
+                await pause(0.6)
+                refreshBars()
+                continue
+            }
+            var bitten = 0
+            var poisoned: [Int] = []
+            while index < events.count {
+                if case .ailmentDamage(let id, _, let amount) = events[index] {
+                    controller.apply(events[index])
+                    if let actor = actors[id] { poisonBite(on: actor, amount: amount) }
+                    bitten += 1
+                } else if bitten > 0, case .defeated(let id) = events[index] {
+                    poisoned.append(id)
+                } else {
+                    break
+                }
+                index += 1
+            }
+            if bitten > 0 {
+                await pause(0.55)
+                refreshBars()
+                if !poisoned.isEmpty {
+                    await defeat(poisoned)
+                    refreshBars()
+                }
+                continue
             } else {
                 await animate(events[index])
                 index += 1
             }
             refreshBars()
         }
+    }
+
+    /// Poison's bite on one fighter: it shudders, and the HP it loses floats up.
+    private func poisonBite(on actor: BattleActor, amount: Int) {
+        SkillEffects.poisonBite(on: actor, in: stage)
+        Effects.damageBurst("-\(amount)", style: .poison, at: actor.top, in: stage)
+        // Named, so it's clear the HP went to the poison and not to a blow.
+        Effects.floatingText(L("Poison"), color: SkillEffects.color(of: .poison), at: actor.top + CGVector(dx: 0, dy: 24), in: stage, size: 12)
     }
 
     /// Fighters knocked out together fall together: a puff of black smoke each and one fade, so a
@@ -530,12 +577,7 @@ final class BattleScene: SKScene {
 
         case .ailmentDamage(let targetID, _, let amount):
             controller.apply(event)
-            if let actor = actors[targetID] {
-                SkillEffects.poisonBite(on: actor, in: stage)
-                Effects.damageBurst("-\(amount)", style: .poison, at: actor.top, in: stage)
-                // Named, so it's clear the HP went to the poison and not to a blow.
-                Effects.floatingText(L("Poison"), color: SkillEffects.color(of: .poison), at: actor.top + CGVector(dx: 0, dy: 24), in: stage, size: 12)
-            }
+            if let actor = actors[targetID] { poisonBite(on: actor, amount: amount) }
             await pause(0.55)
 
         case .statsChanged(let targetID, let changes, _):
