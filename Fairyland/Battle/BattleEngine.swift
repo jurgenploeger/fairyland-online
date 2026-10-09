@@ -370,11 +370,20 @@ final class BattleEngine {
         let order = initiative.sorted { $0.roll > $1.roll }.map { $0.id }
 
         var events: [BattleEvent] = []
+        // Everyone already frozen sits this round out together at its start, so their shivers play
+        // at once instead of one by one between the others' turns; the ice thaws a little.
+        var sittingOut: Set<Int> = []
         for actorID in order {
+            guard let actor = combatant(actorID), actor.frozenRounds > 0 else { continue }
+            mutate(actorID) { $0.frozenRounds -= 1 }
+            events.append(.frozen(target: actorID))
+            sittingOut.insert(actorID)
+        }
+        for actorID in order where !sittingOut.contains(actorID) {
             // A wave beaten mid-round: nobody's left to fight until the next one steps in.
             if !waves.isEmpty, alive(on: .enemies).isEmpty { break }
             guard outcome == .ongoing, let actor = combatant(actorID), actor.isAlive else { continue }
-            // Frozen solid: this turn is lost (your choice for it too), and the ice thaws.
+            // Frozen earlier this round: this turn is lost (your choice for it too), and the ice thaws.
             if actor.frozenRounds > 0 {
                 mutate(actorID) { $0.frozenRounds -= 1 }
                 events.append(.frozen(target: actorID))

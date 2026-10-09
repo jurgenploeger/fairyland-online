@@ -919,6 +919,35 @@ struct RulesTests {
         #expect(foeActed(second))
     }
 
+    @Test func frozenFightersSitOutTogetherAtTheRoundsStart() {
+        let content = Content.shared
+        let jelly = content.monster("jelly")!
+        let stats = Stats(hp: 500, mp: 200, attack: 30, defense: 10, magic: 40, speed: 1)
+        let hero = Combatant(id: 0, side: .party, source: .hero, name: "Hero", art: "player_walk", level: 20, element: .neutral,
+                             stats: stats, hp: 500, mp: 200, skills: [], captureRate: 0)
+        // Fast, so in the old order their frozen turns would have come between the others' moves.
+        let foeStats = Stats(hp: 5000, mp: 0, attack: 20, defense: 10, magic: 10, speed: 80)
+        let foes = (10...12).map { id in
+            var foe = Combatant(id: id, side: .enemies, source: .wild("jelly"), name: "Jelly", art: jelly.art, level: 20, element: jelly.element,
+                                stats: foeStats, hp: 5000, mp: 0, skills: [], captureRate: 0)
+            if id != 11 { foe.frozenRounds = 1 }
+            return foe
+        }
+        let engine = BattleEngine(party: [hero], enemies: foes, content: content, seed: 5)
+        let events = engine.resolveRound(heroAction: .defend)
+        let frozen = events.prefix { event in
+            if case .frozen = event { return true }
+            return false
+        }
+        #expect(frozen.count == 2)
+        let acted = Set(events.compactMap { event -> Int? in
+            if case .attack(let actor, _) = event { return actor }
+            return nil
+        })
+        #expect(!acted.contains(10))
+        #expect(!acted.contains(12))
+    }
+
     @Test func poisonBitesEachRoundAndCursesWeaken() throws {
         let content = Content.shared
         let jelly = content.monster("jelly")!
