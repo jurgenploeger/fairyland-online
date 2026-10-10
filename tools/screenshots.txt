@@ -87,6 +87,7 @@ equip_locked | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic
 skills       | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,menu=character,sub=skills | 8
 skills_learn | newgame,level=20,class=mage,menu=character,sub=skills             | 8
 boss_oak     | newgame,level=28,map=smiling_forest,at=-7_-11,npc=oak_grove    | 15
+boss_emerald | newgame,level=190,map=emerald_road,at=-2_18                   | 10
 boss_fight   | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne | 25
 boss_wave    | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne,wave=3 | 25
 boss_story   | newgame,level=60,class=fighter,map=rat_cavern,boss=rat_throne,win | 35

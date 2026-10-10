@@ -771,6 +771,7 @@
     "A road a quest hasn't opened yet is fenced off with pickets that follow the line across it, like the town fences, instead of a jumble of upright fence pieces, and its “Closed” sign floats clear of a town's gate arch.": "クエストでまだ開いていない道は、町の柵と同じように道を横切る線に沿った柵でふさがれます。立てた柵がごちゃごちゃに並ぶことはもうありません。「通行止め」の札も町の門のアーチにかぶらず浮かびます。",
     "A skill's element badge in battle stays on one line, as wide as its name, instead of wrapping when the row is crowded.": "バトルでスキルの属性バッジが名前の幅で1行に収まり、行が混んでいても折り返さなくなりました。",
     "A crowded fight (friends, their companions and a full pack of monsters) shrinks everyone a little and opens a gap between the two sides, so nobody's name plate sits on someone else's head.": "混み合ったバトル（フレンドとその仲間、モンスターの大群）では全員が少し小さくなり、両陣営の間にすき間ができるので、名前プレートがほかのキャラの頭にかぶらなくなりました。",
+    "Out on the roads, no tree or bush grows right in front of someone you can talk to, so they're never hidden. A boss like the Emerald Dragon gets a wider clearing.": "道中では、話しかけられる相手のすぐ手前に木や茂みが生えなくなり、隠れて見えなくなることはありません。エメラルドドラゴンのようなボスの周りはもっと広く開けています。",
     "Lined up": "きれいにそろえて",
     "On the map, your hero's window and the minimap line up along the top of the screen.": "マップ画面で、勇者のウィンドウとミニマップの上端がそろいました。",
     "The Character screen's stats are bigger and easier to read: taller HP and MP bars, and larger Attack, Defense, Magic and Speed.": "キャラクター画面のステータスが大きく見やすくなりました。HPとMPのバーが太くなり、こうげき・ぼうぎょ・まりょく・すばやさの文字も大きくなりました。",
