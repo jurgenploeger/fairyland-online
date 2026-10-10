@@ -482,7 +482,7 @@ struct FinishedQuest {
 }
 
 /// "Quest complete!": what the quest paid, laid out like the victory card after a battle (EXP with
-/// a star, gold with coins, the level-up banner, items as tiles), then new looks and roads. A
+/// a star, gold with coins, the level-up banner, items as tiles), then roads. A
 /// level-up follows with the skill card, as after a battle.
 private struct QuestCompleteCard: View {
     let session: GameSession
@@ -503,12 +503,6 @@ private struct QuestCompleteCard: View {
             }
         }
         return result
-    }
-
-    private var looks: [String] {
-        let content = session.content
-        return [("hair", content.appearance.hair), ("outfit", content.appearance.outfits)]
-            .flatMap { kind, presets in presets.filter { $0.unlock == quest.id }.map { kind == "hair" ? L("{look} hair", ["look": $0.name]) : L("{look} outfit", ["look": $0.name]) } }
     }
 
     private var roads: [String] {
@@ -573,7 +567,7 @@ private struct QuestCompleteCard: View {
         .padding(20)
     }
 
-    /// EXP and gold, the level-up, items, then new looks and roads.
+    /// EXP and gold, the level-up, items, then roads.
     private var rewards: some View {
         VStack(spacing: 10) {
             let paid = session.paid(for: quest)
@@ -601,17 +595,8 @@ private struct QuestCompleteCard: View {
             if !loot.isEmpty {
                 LootGrid(loot: loot, title: L("Got"))
             }
-            if !looks.isEmpty || !roads.isEmpty {
+            if !roads.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
-                    ForEach(looks, id: \.self) { look in
-                        Label(L("New look: {look}", ["look": look]), icon: .palette, size: 14)
-                    }
-                    if !looks.isEmpty {
-                        Text(L("Try it in Character → Customize"))
-                            .font(HUDStyle.font(10))
-                            .foregroundStyle(HUDStyle.dim)
-                            .padding(.leading, 20)
-                    }
                     ForEach(roads, id: \.self) { road in
                         Label(L("Road open: {road}", ["road": road]), icon: .map, size: 14)
                     }

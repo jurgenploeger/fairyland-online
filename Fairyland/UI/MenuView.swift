@@ -261,54 +261,19 @@ private struct CharacterTab: View {
     @Binding var page: CharacterPage
     /// Change on an equipment row: MenuView opens the grid of gear for that slot.
     let onChange: (ItemType) -> Void
-    @State private var editing = false
-    @State private var draftName = ""
-    @State private var draftLook = Look.standard
     /// The skills your class unlocks later: the next two, or all of them.
     @State private var showsAllUpcoming = false
-
-    init(session: GameSession, page: Binding<CharacterPage>, onChange: @escaping (ItemType) -> Void) {
-        self.session = session
-        _page = page
-        self.onChange = onChange
-        // `customize` (debug launches): straight into the look editor.
-        if DebugLaunch.opensCustomize {
-            _editing = State(initialValue: true)
-            _draftName = State(initialValue: session.data.hero.name)
-            _draftLook = State(initialValue: session.data.hero.look ?? Look.standard)
-        }
-    }
 
     var body: some View {
         let hero = session.data.hero
         let stats = session.heroStats
-        if editing {
-            VStack(alignment: .leading, spacing: 12) {
-                SectionTitle(text: L("Customize your hero"))
-                // Name and gender are set when the hero is made; looks stay changeable.
-                LookEditor(name: $draftName, look: $draftLook, raceID: session.data.hero.raceID, isUnlocked: session.isUnlocked,
-                           identityLocked: true, armor: session.equipped(.armor))
-                HStack {
-                    Button(L("Cancel")) { editing = false }
-                        .buttonStyle(PixelButtonStyle(compact: true))
-                    Spacer()
-                    Button {
-                        session.customizeHero(name: draftName, look: draftLook)
-                        editing = false
-                    } label: {
-                        Label(L("Save look"), icon: .check)
-                    }
-                    .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold, compact: true))
-                }
-            }
-        } else {
-            VStack(alignment: .leading, spacing: 14) {
-                SubTabs(page: $page, title: { $0.title }, icon: { $0.icon }) { waiting(on: $0) }
-                switch page {
-                case .hero: overview(hero: hero, stats: stats)
-                case .skills: skills(hero: hero)
-                case .titles: TitlesSection(session: session)
-                }
+        // Looks are chosen once, when the hero is made (LookEditor on the title screen).
+        VStack(alignment: .leading, spacing: 14) {
+            SubTabs(page: $page, title: { $0.title }, icon: { $0.icon }) { waiting(on: $0) }
+            switch page {
+            case .hero: overview(hero: hero, stats: stats)
+            case .skills: skills(hero: hero)
+            case .titles: TitlesSection(session: session)
             }
         }
     }
@@ -331,18 +296,8 @@ private struct CharacterTab: View {
                 // The name is chosen when the hero is made and stays.
                 Text(hero.name).font(HUDStyle.font(18))
                 if let title = session.wornTitle {
-                    Text(title.name)
-                        .font(HUDStyle.font(12))
-                        .foregroundStyle(HUDStyle.gold)
+                    TitleBadge(title: title, size: 12)
                 }
-                Button {
-                    draftName = hero.name
-                    draftLook = hero.look ?? .standard
-                    editing = true
-                } label: {
-                    Label(L("Customize"), icon: .palette)
-                }
-                .buttonStyle(PixelButtonStyle(compact: true))
                 Text("\(session.heroRace.name) · \(session.heroClass.name)")
                     .font(HUDStyle.font(12))
                     .foregroundStyle(HUDStyle.gold)
@@ -1232,7 +1187,7 @@ private struct CompletedQuestRow: View {
 }
 
 /// What a quest pays at your level, on one line like a bounty's: gold, EXP and the items' icons.
-/// `more`: a chevron says a tap shows it all (item names, new looks, roads it opens).
+/// `more`: a chevron says a tap shows it all (item names, roads it opens).
 struct QuestRewardLine: View {
     let session: GameSession
     let quest: QuestDef
@@ -1261,7 +1216,7 @@ struct QuestRewardLine: View {
     }
 }
 
-/// What a quest pays: gold, EXP, items (with their icons), new looks and roads it opens.
+/// What a quest pays: gold, EXP, items (with their icons) and roads it opens.
 /// `earned` words it for a quest you've finished, with what it really paid.
 struct QuestRewardsView: View {
     let session: GameSession
@@ -1286,12 +1241,6 @@ struct QuestRewardsView: View {
             }
         }
         return result
-    }
-
-    private var looks: [String] {
-        let content = session.content
-        return [("hair", content.appearance.hair), ("outfit", content.appearance.outfits)]
-            .flatMap { kind, presets in presets.filter { $0.unlock == quest.id }.map { kind == "hair" ? L("{look} hair", ["look": $0.name]) : L("{look} outfit", ["look": $0.name]) } }
     }
 
     private var roads: [String] {
@@ -1324,11 +1273,6 @@ struct QuestRewardsView: View {
                         .font(HUDStyle.font(11))
                         .foregroundStyle(HUDStyle.cream)
                 }
-            }
-            ForEach(looks, id: \.self) { look in
-                Label(L("New look: {look}", ["look": look]), icon: .palette, size: 14)
-                    .font(HUDStyle.font(11))
-                    .foregroundStyle(HUDStyle.cream)
             }
             ForEach(roads, id: \.self) { road in
                 Label(earned ? L("Opened the road {road}", ["road": road]) : L("Opens the road {road}", ["road": road]), icon: .map, size: 14)

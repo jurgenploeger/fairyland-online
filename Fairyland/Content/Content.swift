@@ -698,8 +698,6 @@ nonisolated struct LookPreset: Decodable, Identifiable, Sendable {
     let name: String
     let swatch: String
     let recolor: [RecolorRule]
-    /// A quest that unlocks this look.
-    let unlock: String?
 }
 
 /// Names and chatter for the background characters (content/crowd.json).
@@ -759,6 +757,11 @@ nonisolated struct TitleDef: Decodable, Identifiable, Sendable {
     let count: Int?
     /// `boss`: the boss's NPC id.
     let target: String?
+    /// How much honour it carries, 1 to 5 (`TitleBadge`: bronze, silver, gold, ruby, prismatic).
+    let rank: Int?
+
+    /// `rank`, kept to 1...5.
+    var tier: Int { min(5, max(1, rank ?? 1)) }
 }
 
 /// Reasons to come back (content/rewards.json): the daily gift's round, the daily bounties' rules,
@@ -820,11 +823,25 @@ nonisolated struct RewardsDef: Decodable, Sendable {
         let gains: [String: Gain]
         let spareGold: Int
     }
+    /// Seal Stones won in hard fights: the highest `tiers` rule whose `above` the strongest beaten
+    /// monster's level is over yours, one time in `chance`, one of its `items` (repeats weigh more);
+    /// `boss` for a boss fight.
+    nonisolated struct Seals: Decodable, Sendable {
+        nonisolated struct Rule: Decodable, Sendable {
+            /// Levels the strongest monster stood over yours, at least.
+            let above: Int
+            let chance: Double
+            let items: [String]
+        }
+        let tiers: [Rule]
+        let boss: Rule
+    }
     let dailyGifts: [Gift]
     let bounties: Bounties
     let quests: Quests
     let bookMilestones: [Milestone]
     let cards: Cards
+    let seals: Seals
 }
 
 /// One entry in content/changelog.json, shown under "What's new" on the title screen.

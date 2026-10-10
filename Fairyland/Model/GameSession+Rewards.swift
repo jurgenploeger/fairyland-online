@@ -88,11 +88,11 @@ extension GameSession {
 
     /// A computer-run adventurer now and then wears a title that fits their level: the same one each
     /// time you meet them.
-    static func botTitle(level: Int, id: UUID) -> String? {
+    static func botTitle(level: Int, id: UUID) -> TitleDef? {
         let fitting = Content.shared.titles.filter { $0.kind == .level && ($0.count ?? 1) <= level }
         guard let best = fitting.max(by: { ($0.count ?? 1) < ($1.count ?? 1) }) else { return nil }
         let coin = id.uuidString.unicodeScalars.reduce(0) { ($0 + Int($1.value)) % 7 }
-        return coin < 3 ? best.name : nil
+        return coin < 3 ? best : nil
     }
 
     // MARK: - The Monster Book's milestones
@@ -335,4 +335,24 @@ extension GameSession {
 
     /// Reborn heroes climb back faster: a fifth more battle EXP for each rebirth, up to double.
     var rebirthEXPBoost: Double { 1 + min(1, 0.2 * Double(rebirths)) }
+}
+
+// MARK: - Seal Stones from hard fights
+
+extension GameSession {
+    /// The rule a won fight's Seal Stone is rolled on (content/rewards.json `seals`): a boss fight's,
+    /// or the highest tier whose `above` the strongest monster stood over your level (`gap`). None
+    /// in an ordinary fight.
+    func sealRule(gap: Int, boss: Bool) -> RewardsDef.Seals.Rule? {
+        let seals = content.rewards.seals
+        if boss { return seals.boss }
+        return seals.tiers.filter { gap >= $0.above }.max { $0.above < $1.above }
+    }
+
+    /// The Seal Stone a hard win leaves, if any: rolled on `sealRule`.
+    func sealDrop(gap: Int, boss: Bool) -> ItemDef? {
+        guard let rule = sealRule(gap: gap, boss: boss), Double.random(in: 0..<1) < rule.chance,
+              let id = rule.items.randomElement() else { return nil }
+        return content.item(id)
+    }
 }

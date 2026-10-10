@@ -30,8 +30,8 @@ Built with SwiftUI + SpriteKit. Art is generated with [Retro Diffusion](https://
   companions (they fight on if you faint, and wait for you where you fell), and danger zones allow duels.
   Ingothold's square is a market of traders under signs, and announcements in the chat tell of dawn and dusk,
   arrivals, other adventurers' news and rare monster sightings. Moderators get a MOD tag and a World channel.
-- **Customisation:** hair, outfit and skin (more unlock through quests); armour recolours your outfit and your
-  weapon shows in hand.
+- **Customisation:** name, gender, hairstyle, hair, outfit and skin, all chosen when you make a hero; armour
+  recolours your outfit and your weapon shows in hand.
 - **Onboarding:** a new game opens with the story, how to play and a map of the whole world, and the first
   time you play a spotlight tour walks through the HUD (Previous, Next, Skip).
 - Quests, shops, healers, checkpoints, an in-game calendar and an original storybook soundtrack (flutes, harp, music box, strings and more, synthesized on the device).

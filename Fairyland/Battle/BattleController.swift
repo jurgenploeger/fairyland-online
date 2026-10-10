@@ -1171,6 +1171,8 @@ final class BattleController {
         syncParty()
         let content = session.content
         var lines: [String] = []
+        // How hard the fight was is measured against the level you fought it at.
+        let levelBefore = session.data.hero.level
 
         var exp = 0
         var gold = 0
@@ -1262,6 +1264,19 @@ final class BattleController {
            content.item(GameSession.featherID) != nil {
             session.addItem(GameSession.featherID)
             loot[GameSession.featherID, default: 0] += 1
+        }
+
+        // A hard fight (the strongest monster 5 or more levels over you, when the tougher theme
+        // plays) or a boss now and then leaves a Seal Stone, a better one the harder it was.
+        let wildFoes = engine.combatants.filter { foe in
+            guard foe.side == .enemies, case .wild = foe.source else { return false }
+            return true
+        }
+        if let toughest = wildFoes.map(\.level).max(),
+           let seal = session.sealDrop(gap: toughest - levelBefore, boss: bossBeaten) {
+            session.addItem(seal.id)
+            loot[seal.id, default: 0] += 1
+            lines.append(L("A hard-won {item}!", ["item": seal.name]))
         }
 
         // Materials for the blacksmith: about one wild monster in three drops something, bosses three.

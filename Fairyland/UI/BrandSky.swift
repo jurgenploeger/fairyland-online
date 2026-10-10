@@ -21,6 +21,46 @@ enum Brand {
     static let mint = Color(red: 0.722, green: 0.961, blue: 0.839)     // #B8F5D6
 }
 
+/// Where the sun rays fan out from: the centre of the leaf over the logo's wordmark, measured in
+/// Logo.png (1200×560; the leaf's body is about x 517–680, y 24–210), or whatever else a screen
+/// puts in its middle (the travel card's swirl). Published with `raysAnchor`, read by `storyleafSky`.
+struct RaysAnchor: PreferenceKey {
+    static var defaultValue: Anchor<CGPoint>? { nil }
+    static func reduce(value: inout Anchor<CGPoint>?, nextValue: () -> Anchor<CGPoint>?) {
+        value = value ?? nextValue()
+    }
+}
+
+extension Brand {
+    /// The leaf's centre in the logo image, as a share of its size.
+    static let leafInLogo = UnitPoint(x: 0.4987, y: 0.21)
+}
+
+extension View {
+    /// Marks this view's `point` (the leaf, for the logo) as where the sky's rays fan out from.
+    func raysAnchor(_ point: UnitPoint = .center) -> some View {
+        anchorPreference(key: RaysAnchor.self, value: .unitPoint(point)) { $0 }
+    }
+
+    /// The Storyleaf sky behind this screen, its rays fanning out from exactly where `raysAnchor`
+    /// marks, wherever that lands on this phone and however the screen moves it (scrolling, a
+    /// phone on its side); from `fallback` (a share of the screen) where nothing marks it.
+    func storyleafSky(fallback: UnitPoint) -> some View {
+        frame(maxWidth: .infinity, maxHeight: .infinity)
+            .backgroundPreferenceValue(RaysAnchor.self) { anchor in
+                // Full screen, like the sky, so the anchor resolves in the sky's own coordinates.
+                GeometryReader { proxy in
+                    let center = anchor.map { anchor -> UnitPoint in
+                        let point = proxy[anchor]
+                        return UnitPoint(x: point.x / max(1, proxy.size.width), y: point.y / max(1, proxy.size.height))
+                    }
+                    StoryleafSky(raysFrom: center ?? fallback)
+                }
+                .ignoresSafeArea()
+            }
+    }
+}
+
 /// The sky the app icon's leaf floats in, behind the title and loading screens: lavender at the
 /// top through sky blue to mint, soft sun rays fanning out from behind the logo, and clouds
 /// along the bottom.

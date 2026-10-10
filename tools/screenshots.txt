@@ -41,6 +41,8 @@ character_weapon | newgame,level=40,class=fighter,equip=iron_plate+steel_sword,m
 character_gear | newgame,level=70,class=fighter,equip=dragon_mail+battle_axe+dragonhide_gauntlets+phoenix_amulet+cloudstep_boots+power_band,menu=character | 8
 character_gear_land | newgame,level=70,class=fighter,equip=dragon_mail+battle_axe+dragonhide_gauntlets+phoenix_amulet+cloudstep_boots+power_band,menu=character,landscape | 8
 character_spare | newgame,bag=leather_gloves+shell_pendant,menu=character | 8
+character_title_bronze | newgame,level=12,title=apprentice,menu=character | 8
+character_title_legend | newgame,level=160,title=legend,menu=character | 8
 companions   | newgame,level=5,menu=companions   | 8
 landscape    | newgame,map=rainbow_city,landscape | 8
 rat_cavern   | newgame,map=rat_cavern            | 8
@@ -72,9 +74,9 @@ hood_dwarf   | newgame,race=dwarf,level=30,equip=ranger_cloak                 | 
 hair_blue    | newgame,hair=blue                                              | 8
 hair_elf_male | newgame,race=elf,gender=male,hair=black,menu=character        | 8
 hair_dwarf_female | newgame,race=dwarf,gender=female,hair=white                | 8
-look_male_ponytail | newgame,gender=male,style=ponytail,menu=character,customize  | 8
-look_female_elf_swept | newgame,race=elf,gender=female,style=swept,hair=black,menu=character,customize | 8
-look_female_dwarf | newgame,race=dwarf,gender=female,hair=blue,menu=character,customize | 8
+look_male_ponytail | titlepage=create,gender=male,style=ponytail  | 6
+look_female_elf_swept | titlepage=create,race=elf,gender=female,style=swept,hair=black | 6
+look_female_dwarf | titlepage=create,race=dwarf,gender=female,hair=blue | 6
 elf_crop     | newgame,race=elf,style=crop,hair=brown                          | 8
 item_info    | newgame,level=12,npc=shop,info=iron_axe                           | 8
 item_info_fighter | newgame,level=40,class=fighter,equip=iron_axe,npc=rainbow_shop,info=steel_sword | 8
@@ -172,7 +174,7 @@ store_land_levelup | newgame,level=9,levelup,pet=pineapple,map=candy_mountain,ba
 # A companion at your heels: zoomed in as if pinched, the hero walking a loop (walk=) so the still catches
 # them mid-stride. The moment varies from run to run; if it catches them turning, run it again.
 store_land_companion | newgame,level=70,class=tamer,equip=azure_dragon_mail,pet=fire_bear,map=pineapple_shore,zoom=2.2,walk=1_0,landscape,clean,nohud | 6
-store_land_looks   | newgame,menu=character,customize,landscape,clean | 10
+store_land_looks   | titlepage=create,landscape,clean | 10
 # Larkspur: its square in landscape (the healer, market and tailor all in view) and the terrace up north.
 larkspur         | newgame,level=30,map=bluebird,weather=clear,landscape | 8
 larkspur_terrace | newgame,level=30,map=bluebird,at=0_11,weather=clear,nohud | 8
@@ -191,7 +193,7 @@ character_land    | newgame,level=40,class=fighter,equip=iron_plate+steel_sword,
 skills_land       | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,menu=character,sub=skills,landscape | 8
 equip_change_land | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+mossy_leather_vest+dragon_mail,menu=character,change=armor,landscape | 8
 equip_detail_land | newgame,class=fighter,level=16,equip=leather_vest,bag=cloth_tunic+chain_mail+silk_robe+dragon_mail,menu=character,change=armor,inspect=chain_mail,landscape | 8
-look_land         | newgame,menu=character,customize,landscape | 8
+look_land         | titlepage=create,landscape | 8
 party_menu_land   | newgame,level=43,class=fighter,pet=pineapple,friends=4,menu=friends,landscape | 8
 monster_book_land | newgame,book,landscape | 8
 bag_land          | newgame,level=30,bag=seal_stone+seal_stone+iron_axe,menu=bag,landscape | 8

@@ -8,8 +8,8 @@ struct TitleView: View {
 
     @State private var creating = DebugLaunch.titlePage == "create"
     @State private var name = L("Hero")
-    @State private var look = Look(hair: Look.standard.hair, outfit: Look.standard.outfit, skin: Look.standard.skin, gender: "male")
-    @State private var raceID = "human"
+    @State private var look = DebugLaunch.createLook(Look(hair: Look.standard.hair, outfit: Look.standard.outfit, skin: Look.standard.skin, gender: "male"))
+    @State private var raceID = DebugLaunch.createRace ?? "human"
     /// Your games, the last played first; the carousel shows one at a time.
     @State private var saves = SaveStore.all()
     @State private var selectedSlot: String?
@@ -47,10 +47,6 @@ struct TitleView: View {
 
     var body: some View {
         ZStack {
-            // The app icon's sky, its rays behind the logo: at the top, or on the left.
-            StoryleafSky(raysFrom: !wide ? UnitPoint(x: 0.5, y: 0.18)
-                                         : onMenu ? UnitPoint(x: 0.29, y: 0.35) : UnitPoint(x: 0.22, y: 0.47))
-
             if let intro {
                 IntroView(finishTitle: intro.thenCreate ? L("Create your hero") : L("Done"), startPage: intro.startPage,
                           onClose: { withAnimation(.easeInOut(duration: 0.25)) { self.intro = nil } }) {
@@ -114,6 +110,9 @@ struct TitleView: View {
                 languageButton
             }
         }
+        // The app icon's sky, its rays fanning out from behind the logo's leaf wherever the logo is
+        // (the story pages have none: there, near the top).
+        .storyleafSky(fallback: UnitPoint(x: 0.5, y: 0.18))
         .onAppear {
             MusicPlayer.shared.play("title")
             if saves.isEmpty { seenRelease = newestRelease }
@@ -214,6 +213,7 @@ struct TitleView: View {
         Image("Logo")
             .resizable()
             .scaledToFit()
+            .raysAnchor(Brand.leafInLogo)
             .frame(maxWidth: 440)
             .accessibilityLabel(L("Storyleaf, a cozy pixel adventure"))
     }

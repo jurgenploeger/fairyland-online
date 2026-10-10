@@ -85,9 +85,6 @@ struct ContentTests {
                 #expect(ArtLibrary.shared.asset(id) != nil, "map \(map.id) → unknown art \(id)")
             }
         }
-        for preset in content.appearance.hair + content.appearance.outfits {
-            if let quest = preset.unlock { #expect(content.quest(quest) != nil, "look \(preset.id) → unknown quest \(quest)") }
-        }
         for item in content.items {
             #expect(item.icon.flatMap(GameIcon.init) != nil, "item \(item.id) → unknown icon \(item.icon ?? "nil")")
         }
@@ -316,15 +313,14 @@ struct LookTests {
     }
 
     @Test func customisingTheHeroAndCompanion() {
-        let session = GameSession.newGame(name: "Test", raceID: "human")
+        // The look is chosen when the hero is made (any look, from the start) and kept.
         let options = Content.shared.appearance
         #expect(options.hair.first?.id == Look.standard.hair)
         let look = Look(hair: "pink", outfit: "blue", skin: "tan")
-        session.customizeHero(name: "  Pip  ", look: look)
+        let session = GameSession.newGame(name: "Pip", raceID: "human", look: look)
         #expect(session.data.hero.name == "Pip")
         #expect(session.data.hero.look == look)
         #expect(!GameSession.rules(for: look).isEmpty)
-        #expect(session.lastSaved != nil)
 
         let pet = session.makePet(species: "jelly", level: 1)!
         session.addPet(pet, countsForQuests: false)
@@ -597,6 +593,30 @@ struct RulesTests {
         hero.unequip(.gloves)
         #expect(hero.data.hero.equipment.gloves == nil)
         #expect(hero.count(of: "leather_gloves") == 1)
+    }
+
+    @Test func hardFightsAndBossesLeaveSealStones() throws {
+        let session = GameSession.newGame(name: "Test", raceID: "human")
+        // An ordinary fight leaves none; the tougher theme's 5 levels up starts it.
+        #expect(session.sealRule(gap: 0, boss: false) == nil)
+        #expect(session.sealRule(gap: 4, boss: false) == nil)
+        let easiest = try #require(session.sealRule(gap: 5, boss: false))
+        #expect(easiest.above == 5)
+        // The harder the fight, the likelier and better.
+        let harder = try #require(session.sealRule(gap: 12, boss: false))
+        #expect(harder.above == 10 && harder.chance > easiest.chance)
+        let hardest = try #require(session.sealRule(gap: 60, boss: false))
+        #expect(hardest.chance >= harder.chance)
+        // A boss always leaves one, however your level compares.
+        let boss = try #require(session.sealRule(gap: -10, boss: true))
+        #expect(boss.chance == 1)
+        #expect(session.sealDrop(gap: -10, boss: true)?.capture == true)
+        // Only Seal Stones, and never the Wishing Seal (a reward of its own).
+        let rules = Content.shared.rewards.seals.tiers + [Content.shared.rewards.seals.boss]
+        for id in rules.flatMap(\.items) {
+            #expect(Content.shared.item(id)?.capture == true, "\(id) isn't a Seal Stone")
+            #expect(Content.shared.item(id)?.sure != true, "\(id) is the Wishing Seal")
+        }
     }
 
     @Test func monstersDropGearFromUpToTheirLevel() throws {
@@ -1856,14 +1876,11 @@ struct RulesTests {
         #expect(BattleController.tally(["Fire Rat"]) == "Fire Rat")
     }
 
-    @Test func questsUnlockLooksAndRoads() {
+    @Test func questsOpenRoads() {
         let session = GameSession.newGame(name: "Test", raceID: "human")
-        let pink = Content.shared.appearance.hair.first { $0.id == "pink" }!
         let road = Content.shared.map("sunny_meadow")!.exits.first { $0.to == "pineapple_shore" }!
-        #expect(!session.isUnlocked(pink))
         #expect(!session.canTravel(road))
         session.data.quests["jelly_trouble"] = QuestProgress(state: .completed, count: 3)
-        #expect(session.isUnlocked(pink))
         #expect(session.canTravel(road))
     }
 
@@ -2108,8 +2125,8 @@ struct RewardTests {
     @Test func botsWearTitlesThatFitTheirLevel() {
         let id = UUID()
         #expect(GameSession.botTitle(level: 5, id: id) == nil)
-        #expect(GameSession.botTitle(level: 70, id: id) == GameSession.botTitle(level: 70, id: id))
-        let names = Set((0..<40).compactMap { _ in GameSession.botTitle(level: 70, id: UUID()) })
+        #expect(GameSession.botTitle(level: 70, id: id)?.id == GameSession.botTitle(level: 70, id: id)?.id)
+        let names = Set((0..<40).compactMap { _ in GameSession.botTitle(level: 70, id: UUID())?.name })
         #expect(names.isSubset(of: [Content.shared.title("veteran")?.name].compactMap { $0 }))
         #expect(!names.isEmpty)
     }

@@ -8,18 +8,20 @@ struct LoadingCurtain: View {
 
     var body: some View {
         ZStack {
-            StoryleafSky(raysFrom: UnitPoint(x: 0.5, y: 0.44))
             // The bar keeps a little apart from the logo, and narrower than it.
             VStack(spacing: 30) {
                 Image("Logo")
                     .resizable()
                     .scaledToFit()
+                    .raysAnchor(Brand.leafInLogo)
                     .frame(maxWidth: 300)
                     .scaleEffect(spin ? 1.03 : 0.97)
                 LoadingBar.storyleaf(progress: progress, label: L("Loading"))
             }
             .padding(.horizontal, 40)
         }
+        // The rays fan out from behind the logo's leaf.
+        .storyleafSky(fallback: UnitPoint(x: 0.5, y: 0.44))
         .onAppear {
             withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) { spin = true }
         }
@@ -36,7 +38,6 @@ struct MapLoadingCard: View {
 
     var body: some View {
         ZStack {
-            StoryleafSky(raysFrom: UnitPoint(x: 0.5, y: 0.42))
             VStack(spacing: 18) {
                 ZStack {
                     // Outlined like the logo's letters: forest under, leaf green on top.
@@ -45,6 +46,8 @@ struct MapLoadingCard: View {
                                         style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
                 }
                 .frame(width: 70, height: 70)
+                // The rays fan out from behind the swirl (its centre stays put as it turns).
+                .raysAnchor()
                 .rotationEffect(.degrees(spin ? 360 : 0))
                 Text(mapName)
                     .font(HUDStyle.font(24))
@@ -61,6 +64,7 @@ struct MapLoadingCard: View {
             }
             .padding(.horizontal, 40)
         }
+        .storyleafSky(fallback: UnitPoint(x: 0.5, y: 0.42))
         .onAppear {
             withAnimation(.linear(duration: 1.1).repeatForever(autoreverses: false)) { spin = true }
         }

@@ -118,13 +118,14 @@ final class Walker: SKNode {
 
     /// A title worn over the name (Character → Titles), in small gold letters; it shows and hides
     /// with the name.
-    func setTitle(_ title: String?) {
-        guard title != shownTitle else { return }
-        shownTitle = title
+    /// The title worn over the name, in its rank's colour (TitleBadge's, on the map).
+    func setTitle(_ title: TitleDef?) {
+        guard title?.name != shownTitle else { return }
+        shownTitle = title?.name
         titleTag?.removeFromParent()
         titleTag = nil
         guard let title, let tag else { return }
-        let node = NameTag(title, color: Nodes.gold, size: 9)
+        let node = NameTag(title.name, color: TitleBadge.mapColor(rank: title.tier), size: 9)
         node.position = CGPoint(x: 0, y: 15)
         tag.addChild(node)
         titleTag = node

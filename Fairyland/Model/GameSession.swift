@@ -305,15 +305,6 @@ final class GameSession {
                                    gear: gear, layers: Self.layers(race: race, look: look, armor: armor))
     }
 
-    func customizeHero(name: String, look: Look) {
-        let trimmed = name.trimmingCharacters(in: .whitespaces)
-        if !trimmed.isEmpty { data.hero.name = String(trimmed.prefix(12)) }
-        data.hero.look = look
-        applyLook()
-        post(L("Looking good, {hero}!", ["hero": data.hero.name]), .reward)
-        save()
-    }
-
     /// A companion looks like its species; colourful ones are rarer variants you catch.
     func artID(for pet: Pet) -> String {
         species(of: pet)?.art ?? ""
@@ -1448,12 +1439,7 @@ final class GameSession {
         data.quests[questID]?.state == .completed
     }
 
-    /// Quests unlock extra looks…
-    func isUnlocked(_ preset: LookPreset) -> Bool {
-        preset.unlock.map(hasCompleted) ?? true
-    }
-
-    /// …and open new roads.
+    /// Quests open new roads.
     func canTravel(_ exit: MapDef.Exit) -> Bool {
         exit.requires.map(hasCompleted) ?? true
     }
@@ -1535,13 +1521,6 @@ final class GameSession {
         for itemID in quest.reward.items ?? [] {
             addItem(itemID)
             lines.append(L("Got {item}", ["item": content.item(itemID)?.name ?? itemID]))
-        }
-        let looks = [("hair", content.appearance.hair), ("outfit", content.appearance.outfits)]
-            .flatMap { kind, presets in presets.filter { $0.unlock == id }.map { kind == "hair" ? L("{look} hair", ["look": $0.name]) : L("{look} outfit", ["look": $0.name]) } }
-        if !looks.isEmpty {
-            lines.append(looks.count > 1
-                ? L("New looks: {looks}. Try it in Character → Customize!", ["looks": looks.joined(separator: ", ")])
-                : L("New look: {looks}. Try it in Character → Customize!", ["looks": looks.joined(separator: ", ")]))
         }
         for map in content.maps {
             for exit in map.exits where exit.requires == id {

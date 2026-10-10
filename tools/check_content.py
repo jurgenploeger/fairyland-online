@@ -441,8 +441,8 @@ for map_def in maps.values():
 for kind in ("hair", "outfits", "skin"):
     for preset in appearance[kind]:
         check_rules(preset["recolor"], f"look {preset['id']}")
-        if "unlock" in preset:
-            check(preset["unlock"] in quests, f"look {preset['id']} → unknown quest {preset['unlock']}")
+        # Every look is open when a hero is made, the only time looks are chosen.
+        check("unlock" not in preset, f"look {preset['id']} → looks can't be locked (they're only chosen at a new game)")
 # The window hair colours widen to on the hero's hair and locks layers (GameSession.hairLayerRules).
 window = appearance.get("hairLayer")
 if window is not None:
@@ -561,6 +561,8 @@ TITLE_KINDS = {"level", "lands", "book", "quests", "bosses", "boss", "companions
 titles = load("content/titles.json")["titles"]
 check(len({t.get("id") for t in titles}) == len(titles), "titles → duplicate id")
 for title in titles:
+    # Its badge (TitleBadge): 1 bronze, 2 silver, 3 gold, 4 ruby, 5 prismatic.
+    check(title.get("rank") in (1, 2, 3, 4, 5), f"title {title.get('id')} → rank must be 1 to 5 (its badge's metal)")
     where = f"title {title.get('id')}"
     kind = title.get("kind")
     check(bool(title.get("name")), f"{where} → needs a name")
@@ -617,6 +619,21 @@ check(isinstance(cards.get("levelsPerStep"), int) and cards["levelsPerStep"] > 0
 for key in ("rare", "boss"):
     check(isinstance(cards.get(key), (int, float)) and cards[key] >= 1, f"rewards cards {key} → at least 1")
 check(isinstance(cards.get("spareGold"), int) and cards["spareGold"] >= 0, "rewards cards spareGold → a whole number, at least 0")
+
+# Seal Stones from hard fights (rewards.json `seals`): tiers climbing in `above`, chances in (0, 1],
+# and only Seal Stones (items with `capture`).
+seals = rewards.get("seals", {})
+check(bool(seals.get("tiers")) and isinstance(seals.get("boss"), dict), "rewards → needs seals (tiers and boss)")
+aboves = [tier.get("above") for tier in seals.get("tiers", [])]
+check(all(isinstance(a, int) and a >= 1 for a in aboves) and aboves == sorted(set(aboves)),
+      "rewards seals tiers → whole `above` levels from 1 up, each higher than the last")
+for index, rule in enumerate(seals.get("tiers", []) + [seals.get("boss", {})], start=1):
+    where = "rewards seals boss" if index > len(seals.get("tiers", [])) else f"rewards seals tier {index}"
+    check(isinstance(rule.get("chance"), (int, float)) and 0 < rule["chance"] <= 1, f"{where} → chance in (0, 1]")
+    check(bool(rule.get("items")), f"{where} → needs items")
+    check_items(rule.get("items"), where)
+    for item_id in rule.get("items") or []:
+        check(items.get(item_id, {}).get("capture") is True, f"{where} → {item_id} isn't a Seal Stone")
 gains = cards.get("gains", {})
 for element in sorted({m["element"] for m in monsters.values()}):
     check(element in gains, f"rewards cards gains → nothing for {element} monsters' cards")
