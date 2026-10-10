@@ -120,8 +120,8 @@ struct BattleView: View {
                     let price = controller.companionCost(of: skill)
                     ChoiceRow(action: { controller.useSkill(skill) }, enabled: (controller.companion?.mp ?? 0) >= price) {
                         SkillIcon(skill: skill, size: 26)
-                        Text(skill.name)
-                        Text(L("Lv{level}", ["level": controller.companionLevel(of: skill)])).font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
+                        Text(skill.name).lineLimit(1).minimumScaleFactor(0.75)
+                        Text(L("Lv{level}", ["level": controller.companionLevel(of: skill)])).font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark).fixedSize()
                         if let element = skill.element { ElementBadge(element: element) }
                         Spacer()
                         Text(L("{cost} MP", ["cost": price])).foregroundStyle(HUDStyle.mp)
@@ -140,8 +140,8 @@ struct BattleView: View {
                     let affordable = (controller.hero?.mp ?? 0) >= controller.cost(of: skill)
                     ChoiceRow(action: { controller.useSkill(skill) }, enabled: affordable) {
                         SkillIcon(skill: skill, size: 26)
-                        Text(skill.name)
-                        Text(L("Lv{level}", ["level": controller.level(of: skill)])).font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark)
+                        Text(skill.name).lineLimit(1).minimumScaleFactor(0.75)
+                        Text(L("Lv{level}", ["level": controller.level(of: skill)])).font(HUDStyle.mono(10)).foregroundStyle(HUDStyle.frameDark).fixedSize()
                         if let element = skill.element { ElementBadge(element: element) }
                         Spacer()
                         Text(L("{cost} MP", ["cost": controller.cost(of: skill)])).foregroundStyle(HUDStyle.mp)
