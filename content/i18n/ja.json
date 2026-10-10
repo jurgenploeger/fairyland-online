@@ -773,6 +773,7 @@
     "A crowded fight (friends, their companions and a full pack of monsters) shrinks everyone a little and opens a gap between the two sides, so nobody's name plate sits on someone else's head.": "混み合ったバトル（フレンドとその仲間、モンスターの大群）では全員が少し小さくなり、両陣営の間にすき間ができるので、名前プレートがほかのキャラの頭にかぶらなくなりました。",
     "Out on the roads, no tree or bush grows right in front of someone you can talk to, so they're never hidden. A boss like the Emerald Dragon gets a wider clearing.": "道中では、話しかけられる相手のすぐ手前に木や茂みが生えなくなり、隠れて見えなくなることはありません。エメラルドドラゴンのようなボスの周りはもっと広く開けています。",
     "The rewards after a fight fade out at the bottom only when there's more to scroll to, and the fade goes once you reach the end. The scroll bar runs down the window's right edge.": "バトル後の報酬は、スクロールする続きがあるときだけ下がフェードし、最後まで来るとフェードが消えます。スクロールバーはウィンドウの右端に表示されます。",
+    "A poisoned fighter shows just the purple drop by their HP bar, without a count of rounds left beside it.": "毒を受けたキャラは、HPバーの横に紫のしずくだけが表示され、残りラウンド数は表示されなくなりました。",
     "Lined up": "きれいにそろえて",
     "On the map, your hero's window and the minimap line up along the top of the screen.": "マップ画面で、勇者のウィンドウとミニマップの上端がそろいました。",
     "The Character screen's stats are bigger and easier to read: taller HP and MP bars, and larger Attack, Defense, Magic and Speed.": "キャラクター画面のステータスが大きく見やすくなりました。HPとMPのバーが太くなり、こうげき・ぼうぎょ・まりょく・すばやさの文字も大きくなりました。",

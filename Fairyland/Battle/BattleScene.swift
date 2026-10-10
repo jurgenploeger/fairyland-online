@@ -1240,7 +1240,7 @@ final class BattleScene: SKScene {
         ]))
     }
 
-    /// Bars, and the marks of any poison or curse with the rounds it has left.
+    /// Bars, and the marks of any poison, curse or blessing while it lasts.
     func refreshBars() {
         for fighter in controller.combatants {
             actors[fighter.id]?.setHealth(fighter.hpFraction, mana: fighter.mpFraction)
@@ -1438,8 +1438,8 @@ final class BattleActor: SKNode {
         bar.manaFraction = CGFloat(mana)
     }
 
-    /// Beside the HP bar, each with its rounds left: poison's purple drop, a crimson arrow down for
-    /// lowered stats (a curse) and a blue arrow up for raised ones (Bless, Protection...).
+    /// Beside the HP bar while they last: poison's purple drop, a crimson arrow down for lowered
+    /// stats (a curse) and a blue arrow up for raised ones (Bless, Protection...).
     private let marks = SKNode()
     private var shownMarks = [0, 0, 0]
 
@@ -1491,18 +1491,8 @@ final class BattleActor: SKNode {
             }
             icon.position = CGPoint(x: x, y: 0)
             marks.addChild(icon)
-            // The arrows speak for themselves; only poison counts down its rounds beside it.
-            guard art == "status_poison" else {
-                x += 15
-                continue
-            }
-            let count = SKLabelNode()
-            count.attributedText = Nodes.outlined("\(rounds)", size: 9, color: tint)
-            count.verticalAlignmentMode = .center
-            count.horizontalAlignmentMode = .left
-            count.position = CGPoint(x: x + 7, y: -1)
-            marks.addChild(count)
-            x += 23
+            // The marks speak for themselves: no count of rounds left beside them.
+            x += 15
         }
     }
 

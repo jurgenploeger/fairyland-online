@@ -773,6 +773,7 @@
     "A crowded fight (friends, their companions and a full pack of monsters) shrinks everyone a little and opens a gap between the two sides, so nobody's name plate sits on someone else's head.": "人多的戰鬥（好友、他們的夥伴和一大群怪物）會讓所有人稍微變小，並在雙方之間留出空隙，名牌不再壓在別人頭上。",
     "Out on the roads, no tree or bush grows right in front of someone you can talk to, so they're never hidden. A boss like the Emerald Dragon gets a wider clearing.": "在道路上，可以交談的人正前方不再長出樹木或灌木，不會被擋住。翡翠龍這樣的首領周圍空地更大。",
     "The rewards after a fight fade out at the bottom only when there's more to scroll to, and the fade goes once you reach the end. The scroll bar runs down the window's right edge.": "戰鬥後的獎勵只有在還能往下捲動時底部才會漸隱，捲到底後漸隱消失。捲軸沿視窗右邊緣顯示。",
+    "A poisoned fighter shows just the purple drop by their HP bar, without a count of rounds left beside it.": "中毒的角色在 HP 條旁只顯示紫色水滴，不再顯示剩餘回合數。",
     "Lined up": "對齊了",
     "On the map, your hero's window and the minimap line up along the top of the screen.": "地圖上，英雄視窗和小地圖在螢幕頂部對齊。",
     "The Character screen's stats are bigger and easier to read: taller HP and MP bars, and larger Attack, Defense, Magic and Speed.": "角色畫面的屬性更大、更易讀：HP 和 MP 條更粗，攻擊、防禦、魔力和速度也更大了。",
