@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.93",
+      "date": "2026-10-10",
+      "title": "Road closed",
+      "notes": [
+        "A road a quest hasn't opened yet is fenced off with pickets that follow the line across it, like the town fences, instead of a jumble of upright fence pieces, and its “Closed” sign floats clear of a town's gate arch."
+      ]
+    },
+    {
       "version": "0.3.92",
       "date": "2026-10-10",
       "title": "Lined up",

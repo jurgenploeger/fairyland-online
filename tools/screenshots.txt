@@ -110,6 +110,7 @@ profile_friend | newgame,level=43,class=fighter,pet=pineapple,friends=4,unfold,p
 talk_npc     | newgame,level=43,class=fighter,pet=pineapple,friends=2,map=lotus_land,npc=thumbelina | 15
 edge_fog     | newgame,map=sunny_meadow,at=80_0                 | 15
 edge_town    | newgame,map=meadowbrook,at=0_-28                  | 8
+closed_road  | newgame,map=goldburg,at=0_-26                     | 8
 twilight     | newgame,level=40,map=twilight_woods                 | 15
 battle_big   | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,hp=0.3,map=genie_desert,battle=10 | 15
 battle_arrange | newgame,level=60,class=fighter,learn=bash+first_aid+power_strike+whirlwind,map=genie_desert,battle=10,arrange | 15
