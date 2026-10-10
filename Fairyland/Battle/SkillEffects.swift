@@ -190,7 +190,7 @@ enum SkillEffects {
     }
 
     static func shield(on target: BattleActor, in parent: SKNode) {
-        let bubble = SKShapeNode(ellipseOf: CGSize(width: target.sprite.size.width * 1.1, height: target.sprite.size.height * 0.95))
+        let bubble = SKShapeNode(ellipseOf: CGSize(width: target.sprite.size.width * target.fieldScale * 1.1, height: target.height * 0.95))
         bubble.fillColor = UIColor(red: 0.5, green: 0.75, blue: 1, alpha: 0.2)
         bubble.strokeColor = UIColor(red: 0.7, green: 0.9, blue: 1, alpha: 0.8)
         bubble.lineWidth = 2

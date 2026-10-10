@@ -112,6 +112,10 @@ final class BattleScene: SKScene {
     /// A fighter's height above its spot, and its nameplate's depth below it.
     private static let headroom: CGFloat = 56
     private static let plateDepth: CGFloat = 30
+    /// Upright, how big everyone stands: a crowded field (both sides with friends and companions)
+    /// shrinks everybody a little, and its rows close up to match, so the two sides keep a gap
+    /// between them (`layout` works it out).
+    private var fieldScale: CGFloat = 1
 
     /// Upright, room at the top for the HUD: below the Dynamic Island (or the clock), the message
     /// line and the chat, and in a boss fight its waves under that, with the field kept well clear
@@ -128,12 +132,19 @@ final class BattleScene: SKScene {
         let insets: (top: CGFloat, bottom: CGFloat) = isPortrait ? (portraitTopInset, 240) : (70, 40)
         let area = CGRect(x: 0, y: insets.bottom, width: size.width, height: max(120, size.height - insets.top - insets.bottom))
         lineSpacing = sharedSpacing()
+        // Up to eight on the field at full size; past that everyone shrinks a little more with
+        // each, down to 78% for a full field of fifteen or more.
+        let crowd = controller.enemiesOnField.count + controller.party.count
+        fieldScale = isPortrait ? min(1, max(0.78, 1 - CGFloat(crowd - 8) * 0.03)) : 1
         if isPortrait {
             // Monsters up on the left looking down-right at your party, which stands lower on the
             // right looking back up-left; both lines sit around the middle of the screen.
             // A wide gap between the sides, so it reads as two lines facing off. The monsters' line
             // is centred across the screen however many there are, not bunched up on the left.
-            arrange(controller.enemiesOnField, around: CGPoint(x: area.midX, y: area.minY + area.height * 0.64), facing: .down)
+            // Shrunk, the monsters also stand a little higher (there's room under the HUD once they're
+            // smaller), opening up the gap between the sides.
+            let lift = (1 - fieldScale) * 0.3
+            arrange(controller.enemiesOnField, around: CGPoint(x: area.midX, y: area.minY + area.height * (0.64 + lift)), facing: .down)
             arrange(controller.party, around: CGPoint(x: area.midX + 50, y: area.minY + area.height * 0.06), facing: .up)
         } else {
             landscapeFloor = area.minY + Self.plateDepth
@@ -172,11 +183,11 @@ final class BattleScene: SKScene {
         let escorted = Set(leaders.indices.filter { index in followers.contains { $0.ownerID == leaders[index].id } })
         let points = linePoints(count: leaders.count, around: center + front, facing: facing, trailing: behind, escorted: escorted)
         for (fighter, point) in zip(leaders, points) {
-            actors[fighter.id]?.place(at: point, facing: Self.profile(facing))
+            actors[fighter.id]?.place(at: point, facing: Self.profile(facing), scale: fieldScale)
         }
         for follower in followers {
             guard let index = leaders.firstIndex(where: { $0.id == follower.ownerID }) else { continue }
-            actors[follower.id]?.place(at: points[index] + behind, facing: Self.profile(facing))
+            actors[follower.id]?.place(at: points[index] + behind, facing: Self.profile(facing), scale: fieldScale)
         }
     }
 
@@ -251,7 +262,7 @@ final class BattleScene: SKScene {
     private func rowShift(depth: CGFloat, facing: Direction) -> CGVector {
         let toward: CGFloat = facing == .right || facing == .down ? 1 : -1
         return isPortrait
-            ? CGVector(dx: depth * 36 * (facing == .down ? 1 : -1), dy: depth * 74 * (facing == .down ? -1 : 1))
+            ? CGVector(dx: depth * 36 * fieldScale * (facing == .down ? 1 : -1), dy: depth * 74 * fieldScale * (facing == .down ? -1 : 1))
             : CGVector(dx: depth * 70 * toward, dy: -depth * 20)
     }
 
@@ -269,7 +280,7 @@ final class BattleScene: SKScene {
 
     private func arrangeLine(_ group: [Combatant], around center: CGPoint, facing: Direction) {
         for (fighter, point) in zip(group, linePoints(count: group.count, around: center, facing: facing)) {
-            actors[fighter.id]?.place(at: point, facing: Self.profile(facing))
+            actors[fighter.id]?.place(at: point, facing: Self.profile(facing), scale: fieldScale)
         }
     }
 
@@ -382,7 +393,7 @@ final class BattleScene: SKScene {
             arrow.attributedText = Nodes.outlined("▼", size: 20, color: UIColor(red: 1, green: 0.55, blue: 0.15, alpha: 1))
             // Above the name over the fighter's head, where they stand: a wave still marching in
             // (or a fighter stepping back from a blow) would leave it hanging where they were.
-            arrow.position = CGPoint(x: actor.home.x, y: actor.home.y + actor.nameHeight + 8)
+            arrow.position = CGPoint(x: actor.home.x, y: actor.home.y + actor.nameHeight * actor.fieldScale + 8)
             arrow.zPosition = 20_000
             arrow.run(.repeatForever(.sequence([.moveBy(x: 0, y: 5, duration: 0.3), .moveBy(x: 0, y: -5, duration: 0.3)])))
             stage.addChild(arrow)
@@ -778,7 +789,7 @@ final class BattleScene: SKScene {
             if let actor = actors[actorID] {
                 // A pirouette: twice round on the spot, swelling a little as it spins.
                 await actor.run(.group([actor.pirouette(turns: 2, duration: 0.5),
-                                        .sequence([.scale(to: 1.15, duration: 0.2), .scale(to: 1, duration: 0.3)])]))
+                                        .sequence([.scale(by: 1.15, duration: 0.2), .scale(by: 1 / 1.15, duration: 0.3)])]))
             }
             for target in targets { SkillEffects.whirl(on: target, level: level, in: stage) }
             impactAll(hits, heal: false)
@@ -1104,7 +1115,7 @@ final class BattleScene: SKScene {
         await target.run(.group([
             .customAction(withDuration: 0.2) { _, t in target.sprite.colorBlendFactor = t / 0.2 },
             .sequence([.wait(forDuration: 0.15), .group([
-                .scaleX(to: 0.4, duration: 0.45), .scaleY(to: 1.4, duration: 0.45),
+                .scaleX(to: 0.4 * target.fieldScale, duration: 0.45), .scaleY(to: 1.4 * target.fieldScale, duration: 0.45),
                 .moveBy(x: 0, y: 24, duration: 0.45), .fadeOut(withDuration: 0.45),
             ])]),
         ]))
@@ -1150,10 +1161,10 @@ final class BattleScene: SKScene {
             SkillEffects.sealSpiral(from: target.home, to: stone.position, radius: radius, count: 20, reverse: true, in: stage)
             await pause(0.45)
             target.position = target.home
-            target.xScale = 1
-            target.yScale = 0.2
+            target.xScale = target.fieldScale
+            target.yScale = 0.2 * target.fieldScale
             target.sprite.colorBlendFactor = 1
-            await target.run(.group([.fadeIn(withDuration: 0.15), .scaleY(to: 1, duration: 0.22)]))
+            await target.run(.group([.fadeIn(withDuration: 0.15), .scaleY(to: target.fieldScale, duration: 0.22)]))
             target.run(.customAction(withDuration: 0.3) { _, t in target.sprite.colorBlendFactor = 1 - t / 0.3 }, withKey: "unflash")
             Effects.floatingText(L("Broke free!"), color: .white, at: target.top, in: stage, size: 18)
         }
@@ -1336,9 +1347,12 @@ final class BattleActor: SKNode {
 
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
 
-    var height: CGFloat { sprite.size.height }
-    var center: CGPoint { position + CGVector(dx: 0, dy: sprite.size.height * 0.45) }
-    var top: CGPoint { position + CGVector(dx: 0, dy: sprite.size.height * 0.85) }
+    /// How big it stands on a crowded field (BattleScene's `fieldScale`), name plate and all.
+    private(set) var fieldScale: CGFloat = 1
+    /// How tall it stands on the field, shrunk with it.
+    var height: CGFloat { sprite.size.height * fieldScale }
+    var center: CGPoint { position + CGVector(dx: 0, dy: height * 0.45) }
+    var top: CGPoint { position + CGVector(dx: 0, dy: height * 0.85) }
     /// Just over the head (the turn arrow points down at it).
     private(set) var nameHeight: CGFloat = 0
     private static let nameGap: CGFloat = 4
@@ -1364,8 +1378,10 @@ final class BattleActor: SKNode {
         return 0
     }
 
-    func place(at point: CGPoint, facing direction: Direction) {
+    func place(at point: CGPoint, facing direction: Direction, scale: CGFloat = 1) {
         home = point
+        fieldScale = scale
+        setScale(scale)
         if !hasActions() { position = point }
         zPosition = -point.y
         sprite.texture = cycle.frames(direction).first

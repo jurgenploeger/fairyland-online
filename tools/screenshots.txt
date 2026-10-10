@@ -95,6 +95,7 @@ battle_companion | newgame,level=30,class=tamer,pet=pineapple,map=sunny_meadow,b
 battle_afflict | newgame,level=30,class=mage,map=sunny_meadow,battle=3,afflict | 15
 party_full   | newgame,level=43,class=fighter,pet=pineapple,friends=4,map=twilight_woods | 15
 battle_party | newgame,level=43,class=fighter,pet=pineapple,friends=4,map=sunny_meadow,battle=3 | 15
+battle_crowd | newgame,level=43,class=fighter,pet=pineapple,friends=4,map=sunny_meadow,battle=5 | 15
 party_menu   | newgame,level=43,class=fighter,pet=pineapple,friends=4,menu=friends | 8
 # A fourth friend joins through their card's buttons (debug invite=n), in town and in a cave.
 invite_town  | newgame,level=49,class=fighter,pet=pineapple,friends=3,map=goldburg,invite=1 | 12
