@@ -98,6 +98,9 @@ struct StatBar: View {
     var labelWidth: CGFloat = 28
     var height: CGFloat = 11
     var showsNumbers = true
+    /// The label's and the numbers' sizes (bigger on the Character screen).
+    var labelSize: CGFloat = 10
+    var numberSize: CGFloat = 8
 
     private var fraction: CGFloat {
         maximum > 0 ? min(1, max(0, CGFloat(value) / CGFloat(maximum))) : 0
@@ -113,13 +116,13 @@ struct StatBar: View {
                 .overlay {
                     if showsNumbers {
                         Text("\(value)/\(maximum)")
-                            .font(HUDStyle.mono(8))
+                            .font(HUDStyle.mono(numberSize))
                             .foregroundStyle(.white)
                             .shadow(color: .black, radius: 0, x: 1, y: 1)
                     }
                 }
         }
-        .font(HUDStyle.font(10))
+        .font(HUDStyle.font(labelSize))
         .foregroundStyle(HUDStyle.cream)
         .animation(.easeOut(duration: 0.25), value: value)
     }

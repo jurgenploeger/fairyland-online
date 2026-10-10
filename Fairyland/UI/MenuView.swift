@@ -317,13 +317,16 @@ private struct CharacterTab: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 SectionTitle(text: L("Stats"))
-                StatBar(label: L("HP"), value: hero.hp, maximum: stats.hp, color: HUDStyle.hp)
-                StatBar(label: L("MP"), value: hero.mp, maximum: stats.mp, color: HUDStyle.mp)
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 6) {
-                    StatCell(name: L("Attack"), value: stats.attack)
-                    StatCell(name: L("Defense"), value: stats.defense)
-                    StatCell(name: L("Magic"), value: stats.magic)
-                    StatCell(name: L("Speed"), value: stats.speed)
+                // Big and easy to read: the screen has the room.
+                StatBar(label: L("HP"), value: hero.hp, maximum: stats.hp, color: HUDStyle.hp,
+                        labelWidth: 36, height: 20, labelSize: 15, numberSize: 12)
+                StatBar(label: L("MP"), value: hero.mp, maximum: stats.mp, color: HUDStyle.mp,
+                        labelWidth: 36, height: 20, labelSize: 15, numberSize: 12)
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 8) {
+                    StatCell(name: L("Attack"), value: stats.attack, size: 17)
+                    StatCell(name: L("Defense"), value: stats.defense, size: 17)
+                    StatCell(name: L("Magic"), value: stats.magic, size: 17)
+                    StatCell(name: L("Speed"), value: stats.speed, size: 17)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -389,17 +392,20 @@ private struct CharacterTab: View {
 struct StatCell: View {
     let name: String
     let value: Int
+    /// The text size; the padding grows with it (bigger on the Character screen).
+    var size: CGFloat = 12
 
     var body: some View {
         HStack {
             Text(name).foregroundStyle(HUDStyle.dim)
             Spacer()
             Text("\(value)").foregroundStyle(.white)
+                .monospacedDigit()
         }
-        .font(HUDStyle.font(12))
-        .padding(.horizontal, 8)
-        .padding(.vertical, 5)
-        .background(RoundedRectangle(cornerRadius: 5).fill(.white.opacity(0.06)))
+        .font(HUDStyle.font(size))
+        .padding(.horizontal, size * 0.7)
+        .padding(.vertical, size * 0.45)
+        .background(RoundedRectangle(cornerRadius: size * 0.45).fill(.white.opacity(0.06)))
     }
 }
 
