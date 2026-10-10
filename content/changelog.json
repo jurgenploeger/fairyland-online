@@ -2,6 +2,14 @@
   "_note": "Newest first. The top version must match MARKETING_VERSION in project.yml (tools/check_content.py checks). 1.0.0 is the App Store release.",
   "releases": [
     {
+      "version": "0.3.92",
+      "date": "2026-10-10",
+      "title": "Lined up",
+      "notes": [
+        "On the map, your hero's window and the minimap line up along the top of the screen."
+      ]
+    },
+    {
       "version": "0.3.91",
       "date": "2026-10-09",
       "title": "Sunrise behind the leaf",
