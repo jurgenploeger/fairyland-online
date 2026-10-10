@@ -835,11 +835,15 @@ final class WorldScene: SKScene {
             let cells = map.roadCells(near: exit.edge)
             guard !cells.isEmpty else { continue }
             var nodes: [SKNode] = []
-            let fence = art.sprite("fence")
+            // The pickets slanted along the line across the road, a picture a cell, like the town
+            // fence: set down upright, a cell at a time, they'd stand in a jumble on the diagonal.
+            let acrossColumns = exit.edge == .north || exit.edge == .south
+            guard let rail = TownFence.railing(art.sprite("fence").texture.cgImage(), posts: (0, 1), height: 21,
+                                               alongColumns: acrossColumns) else { continue }
             for cell in cells {
-                let node = SKSpriteNode(texture: fence.texture, size: fence.size)
-                node.anchorPoint = CGPoint(x: 0.5, y: 0.05)
-                node.position = map.base(of: cell)
+                let node = SKSpriteNode(texture: rail.texture, size: rail.size)
+                node.anchorPoint = rail.anchor
+                node.position = map.center(of: cell)
                 node.zPosition = -node.position.y
                 world.addChild(node)
                 nodes.append(node)
@@ -847,7 +851,8 @@ final class WorldScene: SKScene {
             let middle = cells[cells.count / 2]
             let sign = SKLabelNode()
             sign.attributedText = Nodes.outlined(L("Closed"), size: 12, color: UIColor(red: 1, green: 0.6, blue: 0.3, alpha: 1))
-            sign.position = map.center(of: middle) + CGVector(dx: 0, dy: 44)
+            // Over the pickets, clear of a town's gate arch just inside them.
+            sign.position = map.center(of: middle) + CGVector(dx: 0, dy: map.fenceCells.isEmpty ? 34 : 62)
             sign.zPosition = 4_500
             sign.run(.repeatForever(.sequence([.moveBy(x: 0, y: 3, duration: 0.6), .moveBy(x: 0, y: -3, duration: 0.6)])))
             world.addChild(sign)

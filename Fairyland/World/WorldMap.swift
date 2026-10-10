@@ -101,6 +101,7 @@ final class WorldMap {
             planTown(town, &rng)
         } else {
             placeOwnBuildings()
+            keepNPCsInView()
         }
         if def.theme.cave == nil, let ponds { digPonds(ponds, &rng) }
         if def.theme.accent != nil {
@@ -768,6 +769,19 @@ final class WorldMap {
     /// maps.json puts them. One that would stand on a road, water, the town fence, a terrace's wall,
     /// an NPC or another building (maps.json put some right on a street) moves to the nearest plot
     /// that's clear, ring by ring, up to 8 cells away. A terrace's paved top is fine to build on.
+    /// Out on the road, like in town: no tree or bush on an NPC's spot or in front of it (down the
+    /// screen, toward you), where it would hide them. A boss is big, and the trees around it tall,
+    /// so it gets a wider clearing. You can still walk there.
+    private func keepNPCsInView() {
+        for npc in def.npcs ?? [] {
+            let spot = offset(npc.x, npc.y)
+            let reach = npc.role == .boss ? 5 : 2
+            for dc in -reach...1 {
+                for dr in -reach...1 { occupy(GridPoint(col: spot.col + dc, row: spot.row + dr), blocking: false) }
+            }
+        }
+    }
+
     private func placeOwnBuildings() {
         let npcs = Set((def.npcs ?? []).map { offset($0.x, $0.y) })
         let fence = Set(fenceCells)

@@ -500,6 +500,9 @@ struct ElementBadge: View {
             Text(element.displayName)
         }
         .font(HUDStyle.font(9))
+        // As wide as its name, on one line: a crowded row squeezes the skill's name instead.
+        .lineLimit(1)
+        .fixedSize()
         .onElementGem(element, horizontal: 7, vertical: 2.5)
     }
 }
