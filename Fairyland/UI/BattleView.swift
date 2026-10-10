@@ -973,9 +973,61 @@ private struct ChoiceRow<Label: View>: View {
 
 // MARK: - Status & results
 
+/// A scrolling column as tall as its content, up to the room there is: when it all fits it's just
+/// the content, no fade and nothing to scroll. When it doesn't, its bottom fades out while there's
+/// more below (the end scrolls up clear of the fade), and its scroll bar runs down the window's
+/// edge: it reaches `edge` out past the content on each side, the window's padding.
+private struct FittedScroll<Content: View>: View {
+    var edge: CGFloat = 0
+    @ViewBuilder let content: () -> Content
+    /// How tall the fade at the bottom is.
+    private static var fade: CGFloat { 36 }
+    @State private var contentHeight: CGFloat = 0
+    @State private var viewHeight: CGFloat = 0
+    /// How far it's scrolled down.
+    @State private var scrolled: CGFloat = 0
+
+    private var overflows: Bool { contentHeight > viewHeight + 1 }
+    private var moreBelow: Bool { overflows && scrolled < contentHeight + Self.fade - viewHeight - 2 }
+
+    var body: some View {
+        ScrollView {
+            content()
+                .background(GeometryReader { proxy in
+                    let frame = proxy.frame(in: .named("fittedScroll"))
+                    Color.clear
+                        .onAppear { contentHeight = frame.height; scrolled = -frame.minY }
+                        .onChange(of: frame) { _, frame in
+                            contentHeight = frame.height
+                            scrolled = -frame.minY
+                        }
+                })
+                .padding(.bottom, overflows ? Self.fade : 0)
+                .padding(.horizontal, edge)
+        }
+        .coordinateSpace(name: "fittedScroll")
+        .scrollBounceBehavior(.basedOnSize)
+        .background(GeometryReader { proxy in
+            Color.clear
+                .onAppear { viewHeight = proxy.size.height }
+                .onChange(of: proxy.size.height) { _, height in viewHeight = height }
+        })
+        .mask(
+            VStack(spacing: 0) {
+                Color.black
+                LinearGradient(colors: [.black, moreBelow ? .clear : .black], startPoint: .top, endPoint: .bottom)
+                    .frame(height: Self.fade)
+            }
+        )
+        // No taller than the content: a short list leaves the window short.
+        .frame(maxHeight: contentHeight > 0 ? contentHeight : nil)
+        .padding(.horizontal, -edge)
+    }
+}
+
 private struct ResultPanel: View {
-    /// How tall the fade at the bottom of the rewards is when they don't all fit.
-    private static let fade: CGFloat = 36
+    /// The window's padding, which the rewards' scroll bar reaches out across to the edge.
+    private static let inset: CGFloat = 22
     let result: BattleResult
     let session: GameSession
     let onContinue: () -> Void
@@ -1047,28 +1099,14 @@ private struct ResultPanel: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .padding(.horizontal, 18)
-            // Scrolls only when it can't all fit (a phone on its side after a big win). Then its
-            // bottom fades out, so it's clear there's more below, and the end of it scrolls up
-            // clear of the fade.
-            ViewThatFits(in: .vertical) {
-                details
-                ScrollView {
-                    details.padding(.bottom, Self.fade)
-                }
-                .scrollBounceBehavior(.basedOnSize)
-                .mask(
-                    VStack(spacing: 0) {
-                        Color.black
-                        LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
-                            .frame(height: Self.fade)
-                    }
-                )
-            }
+            // As tall as the rewards, scrolling only when they can't all fit (a big win, or a
+            // phone on its side), with its scroll bar along the window's right edge.
+            FittedScroll(edge: Self.inset) { details }
             Button(L("Continue"), action: advance)
                 .buttonStyle(PixelButtonStyle(tint: HUDStyle.gold))
                 .padding(.top, 6)
         }
-        .padding(22)
+        .padding(Self.inset)
         .frame(maxWidth: 420)
         .gameWindow()
         // Closing it is Continue: the pay is already in your bag.

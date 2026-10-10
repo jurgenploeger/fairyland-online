@@ -9,7 +9,8 @@
         "A road a quest hasn't opened yet is fenced off with pickets that follow the line across it, like the town fences, instead of a jumble of upright fence pieces, and its “Closed” sign floats clear of a town's gate arch.",
         "A skill's element badge in battle stays on one line, as wide as its name, instead of wrapping when the row is crowded.",
         "A crowded fight (friends, their companions and a full pack of monsters) shrinks everyone a little and opens a gap between the two sides, so nobody's name plate sits on someone else's head.",
-        "Out on the roads, no tree or bush grows right in front of someone you can talk to, so they're never hidden. A boss like the Emerald Dragon gets a wider clearing."
+        "Out on the roads, no tree or bush grows right in front of someone you can talk to, so they're never hidden. A boss like the Emerald Dragon gets a wider clearing.",
+        "The rewards after a fight fade out at the bottom only when there's more to scroll to, and the fade goes once you reach the end. The scroll bar runs down the window's right edge."
       ]
     },
     {
