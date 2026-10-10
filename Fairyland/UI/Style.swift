@@ -577,7 +577,7 @@ private struct PopIn: ViewModifier {
     @State private var shown = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    func body(content: Content) -> some View {
+    func body(content: Self.Content) -> some View {
         content
             .scaleEffect(shown || reduceMotion ? 1 : 0.94)
             .onAppear {
