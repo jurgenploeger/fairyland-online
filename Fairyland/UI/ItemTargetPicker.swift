@@ -42,6 +42,7 @@ struct ItemTargetPicker: View {
             .fitHeight()
             .gameWindow()
             .padding(20)
+            .popIn()
         }
         .foregroundStyle(HUDStyle.cream)
     }

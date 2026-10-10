@@ -44,13 +44,14 @@ struct EquipmentPicker: View {
             .fitHeight()
             .gameWindow()
             .padding(20)
+            .popIn()
 
             if let pick = open {
                 ItemInfoCard(session: session, item: pick.item,
                              onClose: { withAnimation(.easeOut(duration: 0.2)) { open = nil } },
                              onEquip: pick.worn ? nil : { wear(pick.item) },
                              onUnequip: pick.worn ? { takeOff() } : nil)
-                    .transition(.opacity.combined(with: .scale(scale: 0.94)))
+                    .transition(.opacity)
                     .zIndex(1)
             }
         }

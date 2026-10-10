@@ -7,7 +7,8 @@
       "title": "Lined up",
       "notes": [
         "On the map, your hero's window and the minimap line up along the top of the screen.",
-        "The Character screen's stats are bigger and easier to read: taller HP and MP bars, and larger Attack, Defense, Magic and Speed."
+        "The Character screen's stats are bigger and easier to read: taller HP and MP bars, and larger Attack, Defense, Magic and Speed.",
+        "Windows opened over the menu (equipment, items) dim the whole screen from the start as they pop in, instead of their shade growing from the middle."
       ]
     },
     {

@@ -83,10 +83,11 @@ struct MenuView: View {
             .padding(10)
 
             if let slot = changing {
+                // Fades in; only its window scales (popIn), so its backdrop always fills the screen.
                 EquipmentPicker(session: session, slot: slot) {
                     withAnimation(.easeOut(duration: 0.2)) { changing = nil }
                 }
-                .transition(.opacity.combined(with: .scale(scale: 0.94)))
+                .transition(.opacity)
                 .zIndex(1)
             }
 
@@ -95,7 +96,7 @@ struct MenuView: View {
                     if let note { bagNote = note }
                     withAnimation(.easeOut(duration: 0.2)) { picking = nil }
                 }
-                .transition(.opacity.combined(with: .scale(scale: 0.94)))
+                .transition(.opacity)
                 .zIndex(1)
             }
 
@@ -103,7 +104,7 @@ struct MenuView: View {
                 ItemInfoCard(session: session, item: item) {
                     withAnimation(.easeOut(duration: 0.2)) { inspecting = nil }
                 }
-                .transition(.opacity.combined(with: .scale(scale: 0.94)))
+                .transition(.opacity)
                 .zIndex(1)
             }
         }

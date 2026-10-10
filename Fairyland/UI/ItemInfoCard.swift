@@ -59,6 +59,7 @@ struct ItemInfoCard: View {
             // In the corner, so it stays put when the details scroll.
             .windowCloseButton(onClose)
             .padding(24)
+            .popIn()
             .accessibilityElement(children: .contain)
         }
     }

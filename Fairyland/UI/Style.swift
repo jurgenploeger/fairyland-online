@@ -569,3 +569,24 @@ extension View {
         gameWindow(RoundedRectangle(cornerRadius: HUDStyle.windowRadius))
     }
 }
+
+/// A modal window popping in: from a touch smaller to full size. Only the window scales; the
+/// modal's dimmed backdrop just fades (present the modal with `.transition(.opacity)`), so the
+/// backdrop covers the whole screen from the first frame instead of shrinking with the window.
+private struct PopIn: ViewModifier {
+    @State private var shown = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(shown || reduceMotion ? 1 : 0.94)
+            .onAppear {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) { shown = true }
+            }
+    }
+}
+
+extension View {
+    /// See `PopIn`.
+    func popIn() -> some View { modifier(PopIn()) }
+}
