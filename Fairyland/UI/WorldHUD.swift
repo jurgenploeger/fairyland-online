@@ -242,7 +242,9 @@ private struct PortraitRow<Bars: View>: View {
     @ViewBuilder let bars: () -> Bars
 
     var body: some View {
-        HStack(spacing: 5) {
+        // Top-aligned: the panel's top edge lines up with the portrait's, and so with the
+        // minimap's across the screen.
+        HStack(alignment: .top, spacing: 5) {
             Portrait(face: face, level: level, size: size, glowing: glowing)
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {

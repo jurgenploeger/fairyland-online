@@ -98,6 +98,9 @@ struct StatBar: View {
     var labelWidth: CGFloat = 28
     var height: CGFloat = 11
     var showsNumbers = true
+    /// The label's and the numbers' sizes (bigger on the Character screen).
+    var labelSize: CGFloat = 10
+    var numberSize: CGFloat = 8
 
     private var fraction: CGFloat {
         maximum > 0 ? min(1, max(0, CGFloat(value) / CGFloat(maximum))) : 0
@@ -113,13 +116,13 @@ struct StatBar: View {
                 .overlay {
                     if showsNumbers {
                         Text("\(value)/\(maximum)")
-                            .font(HUDStyle.mono(8))
+                            .font(HUDStyle.mono(numberSize))
                             .foregroundStyle(.white)
                             .shadow(color: .black, radius: 0, x: 1, y: 1)
                     }
                 }
         }
-        .font(HUDStyle.font(10))
+        .font(HUDStyle.font(labelSize))
         .foregroundStyle(HUDStyle.cream)
         .animation(.easeOut(duration: 0.25), value: value)
     }
@@ -565,4 +568,25 @@ extension View {
     func gameWindow() -> some View {
         gameWindow(RoundedRectangle(cornerRadius: HUDStyle.windowRadius))
     }
+}
+
+/// A modal window popping in: from a touch smaller to full size. Only the window scales; the
+/// modal's dimmed backdrop just fades (present the modal with `.transition(.opacity)`), so the
+/// backdrop covers the whole screen from the first frame instead of shrinking with the window.
+private struct PopIn: ViewModifier {
+    @State private var shown = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Self.Content) -> some View {
+        content
+            .scaleEffect(shown || reduceMotion ? 1 : 0.94)
+            .onAppear {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) { shown = true }
+            }
+    }
+}
+
+extension View {
+    /// See `PopIn`.
+    func popIn() -> some View { modifier(PopIn()) }
 }
